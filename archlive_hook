@@ -1,13 +1,6 @@
 # vim: set ft=sh:
 run_hook ()
 {
-#Big Fat TODO... we need to add possible boot 'cheatcodes'
-#  as is common in most livecds.  However, most of these can be handled
-#  in real userspace (early userspace only needs to load the squashfs
-#  image.  That is _all_.  Others will be handled in a custom rc.local/rc.conf
-
-    #This is going to get brutal...
-
     if [ "x${ramdisk_size}" = "x" ]; then
         ramdisk_size="75%"
     fi
@@ -26,39 +19,38 @@ run_hook ()
                 break
             fi
         fi
-        [ $squashfound -eq 0 ] && umount /tmpfs/bootcd >/dev/null 2>&1
+        [ ${squashfound} -eq 0 ] && umount /tmpfs/bootcd >/dev/null 2>&1
     done
 
-    if [ $squashfound -eq 0 ]; then
+    if [ ${squashfound} -eq 0 ]; then
         echo "ERROR: cannot find booted cdrom device, cannot continue..."
         exit 1
     fi
 
     msg -n ":: Mounting squashfs image..."
     /bin/modprobe -q squashfs >/dev/null 2>&1
-    mkdir -p /tmpfs/squashfs_root
-    if ! losetup /dev/loop0 /tmpfs/bootcd/archlive.sqfs; then
+    /bin/mkdir -p /tmpfs/squashfs_root
+    if ! /bin/losetup /dev/loop0 /tmpfs/bootcd/archlive.sqfs; then
         echo "ERROR: Cannot mount loop device /dev/loop0...aborting"
         exit 1
     fi
-    mount -r -t squashfs /dev/loop0 /tmpfs/squashfs_root
+    /bin/mount -r -t squashfs /dev/loop0 /tmpfs/squashfs_root
     #mount.full -r -t squashfs -o loop /tmpfs/bootcd/squashfs_image /tmpfs/squashfs_root
     msg "done."
 
     msg -n ":: Mounting root (union) filesystem..."
     /bin/modprobe -q unionfs >/dev/null 2>&1
-	mount -t unionfs -o dirs=/tmpfs=rw:/tmpfs/squashfs_root=ro,debug=0 none /real_root
+    /bin/mount -t unionfs -o dirs=/tmpfs=rw:/tmpfs/squashfs_root=ro,debug=0 none /real_root
     msg "done."
 
-    if [ -d /proc/sus/dev/cdrom ]; then
+    if [ -d /proc/sys/dev/cdrom ]; then
         echo 0 > /proc/sys/dev/cdrom/lock
         echo 1 > /proc/sys/dev/cdrom/autoeject
     fi
 
-    msg ":: Stopping udevd"
     udevpid=$(/bin/minips -C udevd -o pid=)
-    [ "x${udevpid}" != "x" ] && /bin/kill -9 $udevpid
+    [ "x${udevpid}" != "x" ] && /bin/kill -9 $udevpid 2>&1 >/dev/null
     #Yep, we're bailing out here.  We don't need kinit.
-    msg ":: Passing control to Archlinux Initscripts..."
+    msg ":: Passing control to Archlinux Initscripts...Please Wait"
     exec /bin/run-init -c /dev/console /real_root /sbin/init ${CMDLINE}
 }
