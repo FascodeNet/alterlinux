@@ -1,0 +1,21 @@
+timeout 60
+default 0
+
+title  Boot Existing Linux Install
+root   (hd0,2)
+kernel /vmlinuz26 root=/dev/hda1 ro
+
+title  Boot Existing Windows Install
+rootnoverify (hd0,0)
+makeactive
+chainloader +1
+
+title  Install GRUB to HD0
+root  (hd0,0)
+setup (hd0)
+
+title  Run Ranish Partition Manager
+kernel /boot/ranish/part.exe
+
+title  Run memtest86+
+kernel /boot/memtest86+/memtest.bin

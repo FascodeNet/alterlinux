@@ -1,0 +1,285 @@
+#!/bin/sh
+
+CONFIG="$(pwd)/mkarchiso.conf" 
+CPIOCONFIG="$(pwd)/mkinitcpio.conf"
+DEF_CONFIG_DIR="$(pwd)/default-config"
+QUIET="y"
+
+SKIP_INSTALL="n"
+SKIP_SQUASHFS="n"
+SKIP_BOOTIMG="n"
+SKIP_ISO="n"
+
+PKGDIR="."
+
+APPNAME=$(basename "${0}")
+ALL_ARGS="${@}"
+
+usage ()
+{
+    echo "usage ${APPNAME} [options] working-directory imagename.iso"
+    echo "  -c CONFIG        Use CONFIG file. default: /etc/archlive/mkarchiso.conf"
+    echo "  -i CPIO CONFIG   Use CONFIG file for mkinitcpio. default: /etc/archlive/mkinitcpio.conf"
+    echo "  -s a,b,c         Skip creation section.  Valid sections are:"
+    echo "                      install : This section installs all packages."
+    echo "                      squashfs: This section creates a squashfs root image"
+    echo "                      bootimg : This section creates a boot image."
+    echo "                      iso     : This section builds the final iso."
+    echo "  -v               Verbose output. Default: no"
+    echo "  -h               This message."
+    exit 1
+}
+
+skipopts ()
+{
+    for i in $@; do
+        case $i in
+            install)  SKIP_INSTALL="y" ;;
+            squashfs) SKIP_SQUASHFS="y" ;;
+            bootimg)  SKIP_BOOTIMG="y" ;;
+            iso)      SKIP_ISO="y" ;;
+            *) echo "invalid section '$i'"; usage ;;
+        esac
+    done
+}
+
+while getopts 'c:i:n:s:pvh' arg; do
+    case "$arg" in
+        c) CONFIG="$OPTARG" ;;
+        i) CPIOCONFIG="$OPTARG" ;;
+        s) OLDIFS=$IFS; IFS=,
+           skipopts $OPTARG
+           IFS=$OLDIFS ;;
+        v) QUIET="n" ;;
+        h|?) usage ;;
+        *) echo "invalid argument '$arg'"; usage ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+if [ $# -ne 2 ]; then
+    usage
+else
+    work_dir=${1}
+    isoname=${2}
+fi
+
+if [ -e "${work_dir}" -a "${SKIP_INSTALL}" != "y" ]; then
+    echo "Working dir '${work_dir}' already exists, aborting..."
+    exit 1
+fi
+
+if [ -e "${isoname}" -a "${SKIP_ISO}" != "y" ]; then
+    echo "ISO Image '${isoname}' already exists, aborting..."
+    exit 1
+fi
+
+if [ -e "${CONFIG}" ]; then
+    source "${CONFIG}"
+else
+    echo "Config '${CONFIG}' does not exist, aborting..."
+    exit 1
+fi
+
+if [ -e "${CPIOCONFIG}" ]; then
+    source "${CPIOCONFIG}"
+else
+    echo "mkinitcpio config '${CPIOCONFIG}' does not exist, aborting..."
+    exit 1
+fi
+
+isoroot="${work_dir}/iso"
+instroot="${work_dir}/install"
+
+if [ -z $FAKEROOTKEY ]; then
+    echo "Switching to fakeroot environment"
+    fakeroot ${0} ${ALL_ARGS}
+    exit $?
+fi
+
+_kversion ()
+{
+    echo $(pacman -Ql -r "${instroot}" "${kernelpkg}" |\
+           grep "/lib/modules/[^/]*/$" |\
+           sed "s|.*/lib/modules/\([^/]*\).*/$|\1|")
+}
+
+#Work-arounds for depmod core dumps.... I guess we could just ulimit for now...
+_safepacman ()
+{
+    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
+    if ! pacman -Sf --noconfirm -r "${instroot}" $* >/dev/null 2>&1; then
+        echo "pacman failed to install '$*', aborting..."
+        exit 1
+    fi
+    FAKEROOTKEY=$FAKEROOTSAV
+}
+safe_install_pkgfile ()
+{
+    if [ -e "${1}" ]; then
+        toinstall=""
+        echo "   Installing packages:"
+        while read pkg; do
+            #skip packages listed in IGNOREPKGS
+            echo $ignorepkgs | grep "\<$name\>" >/dev/null 2>&1 && continue
+
+            echo "    ${pkg}"
+            toinstall="${toinstall} ${pkg}"
+        done < ${1}
+        _safepacman "${toinstall}"
+    fi
+}
+
+_pacman ()
+{
+    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
+    if ! fakechroot pacman -Sf --noconfirm -r "${instroot}" $* >/dev/null 2>&1; then
+        echo "pacman failed to install '$*', aborting..."
+        exit 1
+    fi
+    FAKEROOTKEY=$FAKEROOTSAV
+}
+
+install_pkgfile ()
+{
+    if [ -e "${1}" ]; then
+        toinstall=""
+        echo "   Installing packages:"
+        while read pkg; do
+            #skip packages listed in IGNOREPKGS
+            echo $ignorepkgs | grep "\<$name\>" >/dev/null 2>&1 && continue
+
+            echo "    ${pkg}"
+            toinstall="${toinstall} ${pkg}"
+        done < ${1}
+        _pacman "${toinstall}"
+    fi
+}
+
+if [ "${SKIP_INSTALL}" = "n" ]; then
+    mkdir -p "${isoroot}"
+    mkdir -p "${instroot}"
+
+    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
+    if ! pacman -Sy -r "${instroot}"  2>&1 | grep -v "cannot open logfile"; then
+        echo "Error, failed to sync pacman... aborting."
+        exit 1
+    fi
+    FAKEROOTKEY=$FAKEROOTSAV
+
+    echo "Installing 'base' packages..."
+    install_pkgfile "${PKGDIR}/base.packages"
+
+    echo "Installing _required_ packages..."
+    _pacman "memtest86+ unionfs unionfs-utils usbutils libusb pciutils squashfs-tools"
+
+    echo "Installing custom packages..."
+    for fil in ${package_files}; do
+        #TODO search for file if not absolute...
+        echo " Installing packages from file '$fil'"
+        install_pkgfile "${fil}"
+    done
+    for pkg in ${additional_packages}; do
+        echo "   Installing package '${pkg}'"
+        _pacman "${pkg}"
+    done
+
+    echo "Installing kernel '${kernelpkg}'"
+    # fakechroot and depmod don't get along well.  We'll do that stuff
+    # manually...
+    # TODO: fix fakechroot instead of working around it like a jackass
+    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
+    if ! _safepacman "${kernelpkg}" ; then
+        echo "pacman failed to install '${kernelpkg}', aborting..."
+        exit 1
+    fi
+    FAKEROOTKEY=$FAKEROOTSAV
+    kernelver=$(_kversion)
+    kernelsuffix=${kernelver##*-}
+    echo "Kernel Version ${kernelver} (${kernelsuffix}) installed - installing modules..."
+    safe_install_pkgfile "modules.${kernelsuffix}"
+
+    echo "Updating module dependancies"
+    [ "${kernelsuffix}" == "ARCH" ] && kernelsuffix=""
+    depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26${kernelsuffix}" >/dev/null
+    find "${instroot}/boot" -name *.img -delete
+
+    echo "Applying default configuration for the Arch ISO."
+    cp -rf ${DEF_CONFIG_DIR}/* "${instroot}"
+
+    echo "Copyright (C) 2006, Arch Linux (Judd Vinet)" > "${instroot}/etc/copyright"
+
+    echo "Creating initial device nodes "
+    rm -f "${instroot}/dev/console" "${instroot}/dev/null" "${instroot}/dev/zero"
+    mknod -m 644 "${instroot}/dev/console" c 5 1
+    mknod -m 666 "${instroot}/dev/null" c 1 3
+    mknod -m 666 "${instroot}/dev/zero" c 1 5 
+
+    echo "Creating default home directory"
+    mkdir -p "${instroot}/home/arch"
+
+    # Cleanup
+    echo "Cleaning up ISO root files..."
+    find "${instroot}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
+
+    kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp usr/include initrd"
+    for x in ${kill_dirs}; do
+        if [ -e "${instroot}/${x}" ]; then
+            rm -rf "${instroot}/${x}"
+        fi
+    done
+
+    find "${instroot}/lib" -name *.a -delete
+    find "${instroot}/usr/lib" -name *.a -delete
+
+    # this actually takes up alot of space...
+    for d in ${instroot}/var/lib/pacman/*; do
+        [ "$(basename ${d})" != "local" ] && rm -rf "${d}"
+    done
+
+    if [ -e "${instroot}/boot" ]; then
+        rm -rf "${isoroot}/boot"
+        mv "${instroot}/boot" "${isoroot}"
+    fi
+fi
+
+if [ "${SKIP_SQUASHFS}" = "n" ]; then
+    if [ -e "${isoroot}/archlive.sqfs" ]; then
+        echo -n "Removing old squashfs image..."
+        rm "${isoroot}/archlive.sqfs"
+        echo "done."
+    fi
+
+    echo -n "Creating squashfs image. This may take some time..."
+    start=$(date +%s)
+    mksquashfs "${instroot}" "${isoroot}/archlive.sqfs" -root-owned > /dev/null
+    echo "done in $(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }') minutes."
+fi
+
+if [ "${SKIP_BOOTIMG}" = "n" ]; then
+    kernelver=$(_kversion)
+    basedir=${instroot}
+    [ "${instroot:0:1}" != "/" ] && basedir="$(pwd)/${instroot}"
+    if ! mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}"\
+        -g "${isoroot}/boot/archlive.img"; then
+        echo "initcpio image creation failed..."
+        exit 1
+    fi
+
+    cp ${instroot}/usr/lib/grub/i386-pc/* "${isoroot}/boot/grub"
+fi
+
+if [ "${SKIP_ISO}" = "n" ]; then
+    echo "Creating ISO image..."
+    mkisofs ${q} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
+        -boot-load-size 4 -boot-info-table -publisher "Arch Linux <archlinux.org>" \
+        -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" -copyright /etc/copyright \
+        -o "${isoname}" "${isoroot}"
+fi
+
+if [ "${qemu_test}" = "y" ]; then
+    echo "Testing image via qemu..."
+    qemu -boot d -kernel-kqemu -cdrom "${isoname}" ${qemuparams}
+else
+    echo "Image completed: ${isoname}"
+fi

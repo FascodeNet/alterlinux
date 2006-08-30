@@ -1,0 +1,66 @@
+# vim: set ft=sh:
+cmdline_param ()
+{
+    while param do;
+        case "${param}" in
+            $1=*) echo "${param##*=}"; break ;;
+            *) continue ;;
+        esac
+    done < read /proc/cmdline
+}
+. /etc/rc.conf
+. /etc/rc.d/functions
+. /etc/archiso/functions # above goes in this file...
+
+do_mounts ()
+{
+    #iterate over all block devices
+    stat_busy "Scanning local block devices"
+    for dev in $(echo /sys/block/*/dev /sys/block/*/*/dev); do
+
+        devname="/dev/$(echo ${dev} | cut -d'/' -f3,4 | cut -d'/' -f1)"
+        mountpt="/mnt/$(basename '${devname}')"
+	    mkdir -p "${mountpt}" 2>/dev/null
+	    mount ${options} "${devname}" "${mountpt}" >/dev/null 2>&1
+
+		fstype=$(awk '{ if ($1=="${devname}") { print $3" "$4;q }}' /proc/mounts)
+		fstype="${fstype%%,*}"
+		case "${fstype%% *}" in
+            *fat*|ntfs|*dos) options="user,exec,uid=0,gid=100,umask=00070" ;;
+            *) options="users,defaults,exec" ;;
+            #TODO handle 'sync' on usb devices... 
+        esac
+
+        echo "${devname} ${mountpt} ${fstype} ${options} 0 0 #configured by archiso" >>/etc/fstab
+    done
+    stat_done
+}
+
+do_locale ()
+{
+    #copy from rc.sysinit - use cmdline_param locale (or lang ?)
+}
+
+do_swap ()
+{
+    #Archie finds a pagefile.sys for windows/dos machines... may add later
+    stat_busy "Finding existing swap partitions"
+	swapdev="$(fdisk -l 2>/dev/null | grep swap | cut -d' ' -f1)"
+    if [ -e "${swapdev}" ]; then
+        swapon ${swapdev}
+        echo "${swapdev} swap swap defaults 0 0 #configured by archiso" >>/etc/fstab
+    fi
+    stat_done
+}
+
+do_homedir ()
+{
+    stat_busy "Scanning for existing HOME directory"
+    user="$(cmdline_param homeuser)"
+    for hdir in $(find /mnt -name "home/${user}" 2>/dev/null); do
+        mkdir -p "/home/arch/"
+        # break after the first success...
+        mount --bind "${hdir}" "/home/arch/" && break
+    done
+    stat_done
+}

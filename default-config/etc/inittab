@@ -1,0 +1,16 @@
+id:4:initdefault:
+
+rc::sysinit:/etc/rc.sysinit
+rs:S1:wait:/etc/rc.single
+rm:2345:wait:/etc/rc.multi
+rh:06:wait:/etc/rc.shutdown
+su:S:wait:/sbin/sulogin -p
+
+c1:2345:respawn:/sbin/agetty 38400 vc/1 linux
+c2:2345:respawn:/sbin/agetty 38400 vc/2 linux
+c3:2345:respawn:/sbin/agetty 38400 vc/3 linux
+c4:2345:respawn:/sbin/agetty 38400 vc/4 linux
+c5:2345:respawn:/sbin/agetty 38400 vc/5 linux
+c6:2345:respawn:/sbin/agetty 38400 vc/6 linux
+
+ca::ctrlaltdel:/sbin/shutdown -t3 -r now

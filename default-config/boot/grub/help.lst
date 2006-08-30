@@ -1,0 +1,14 @@
+# Help files must be exactly 23 lines long.
+timeout 60
+default 0
+
+title Back to main menu
+configfile /boot/grub/menu.lst
+
+title HOW-TO: Boot an existing system
+cat /boot/help/bootexisting
+pause Press enter to continue...
+
+title HOW-TO: Do some other shit
+cat /boot/help/bootexisting
+pause Press enter to continue...
