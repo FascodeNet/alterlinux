@@ -1,11 +1,11 @@
 # vim: set ft=sh:
 install ()
 {
-    MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs iso9660 $(all_modules '/kernel/fs' | grep -v "nls") "
+    MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls") "
     BINARIES=""
     FILES=""
     add_binary /bin/mount /bin/mount.full
     add_dir /real_root
     add_dir /tmpfs
-    SCRIPT="liveiso"
+    SCRIPT="archlive"
 }

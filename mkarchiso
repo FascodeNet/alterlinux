@@ -108,7 +108,7 @@ _kversion ()
 _safepacman ()
 {
     FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
-    if ! pacman -Sf --noconfirm -r "${instroot}" $* >/dev/null 2>&1; then
+    if ! pacman -Sf --noconfirm -r "${instroot}" $* 2>&1 | grep "\[#"; then
         echo "pacman failed to install '$*', aborting..."
         exit 1
     fi
@@ -118,12 +118,9 @@ safe_install_pkgfile ()
 {
     if [ -e "${1}" ]; then
         toinstall=""
-        echo "   Installing packages:"
         while read pkg; do
             #skip packages listed in IGNOREPKGS
-            echo $ignorepkgs | grep "\<$name\>" >/dev/null 2>&1 && continue
-
-            echo "    ${pkg}"
+            echo $ignorepkgs | grep "\<$pkg\>" >/dev/null 2>&1 && continue
             toinstall="${toinstall} ${pkg}"
         done < ${1}
         _safepacman "${toinstall}"
@@ -133,7 +130,7 @@ safe_install_pkgfile ()
 _pacman ()
 {
     FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
-    if ! fakechroot pacman -Sf --noconfirm -r "${instroot}" $* >/dev/null 2>&1; then
+    if ! fakechroot pacman -Sf --noconfirm -r "${instroot}" $* 2>&1 | grep "\[#"; then
         echo "pacman failed to install '$*', aborting..."
         exit 1
     fi
@@ -144,12 +141,8 @@ install_pkgfile ()
 {
     if [ -e "${1}" ]; then
         toinstall=""
-        echo "   Installing packages:"
         while read pkg; do
-            #skip packages listed in IGNOREPKGS
-            echo $ignorepkgs | grep "\<$name\>" >/dev/null 2>&1 && continue
-
-            echo "    ${pkg}"
+            echo $ignorepkgs | grep "\<$pkg\>" >/dev/null 2>&1 && continue
             toinstall="${toinstall} ${pkg}"
         done < ${1}
         _pacman "${toinstall}"
@@ -273,6 +266,7 @@ if [ "${SKIP_ISO}" = "n" ]; then
     echo "Creating ISO image..."
     mkisofs ${q} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
         -boot-load-size 4 -boot-info-table -publisher "Arch Linux <archlinux.org>" \
+        -input-charset=UTF-8 \
         -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" -copyright /etc/copyright \
         -o "${isoname}" "${isoroot}"
 fi

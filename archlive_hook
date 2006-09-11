@@ -10,14 +10,21 @@ run_hook ()
     msg "done."
 
     squashfound=0
+    #TODO check for usb devices as well...
     msg -n ":: Scanning for boot cdrom device..."
+    squashimg="/tmpfs/bootcd/archlive.sqfs"
+
+    /bin/modprobe -q isofs >/dev/null 2>&1
+    PS1="ramfs$ " /bin/sh -i
     for cdrom in /dev/cd/*; do
-        if mount -r -t iso9660 "${cdrom}" /tmpfs/bootcd >/dev/null 2>&1; then
-            if [ -e /tmpfs/bootcd/archlive.sqfs ]; then
+        if mount -r -t isofs "${cdrom}" /tmpfs/bootcd >/dev/null 2>&1; then
+            if [ -e "${squashimg}" ]; then
                 squashfound=1
                 msg "${cdrom}"
                 break
             fi
+        else
+            echo "Failed to mount ${cdrom}"
         fi
         [ ${squashfound} -eq 0 ] && umount /tmpfs/bootcd >/dev/null 2>&1
     done
@@ -27,15 +34,20 @@ run_hook ()
         exit 1
     fi
 
+    if [ "${copytoram}" == "y" ]; then
+        /bin/cat /tmpfs/bootcd/archlive.sqfs > /tmpfs/archlive.sqfs
+        squashimg="/tmpfs/archlive.sqfs"
+    fi
+
     msg -n ":: Mounting squashfs image..."
     /bin/modprobe -q squashfs >/dev/null 2>&1
     /bin/mkdir -p /tmpfs/squashfs_root
-    if ! /bin/losetup /dev/loop0 /tmpfs/bootcd/archlive.sqfs; then
+    if ! /bin/losetup /dev/loop0 "${squashimg}"; then
         echo "ERROR: Cannot mount loop device /dev/loop0...aborting"
         exit 1
     fi
+
     /bin/mount -r -t squashfs /dev/loop0 /tmpfs/squashfs_root
-    #mount.full -r -t squashfs -o loop /tmpfs/bootcd/squashfs_image /tmpfs/squashfs_root
     msg "done."
 
     msg -n ":: Mounting root (union) filesystem..."
@@ -52,5 +64,8 @@ run_hook ()
     [ "x${udevpid}" != "x" ] && /bin/kill -9 $udevpid 2>&1 >/dev/null
     #Yep, we're bailing out here.  We don't need kinit.
     msg ":: Passing control to Archlinux Initscripts...Please Wait"
+    /bin/umount /sys
+    /bin/umount /proc
+    /bin/umount /dev
     exec /bin/run-init -c /dev/console /real_root /sbin/init ${CMDLINE}
 }
