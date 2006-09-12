@@ -1,6 +1,7 @@
+# runlevel 4 is typically "text mode", but is not specified in LSB
 id:4:initdefault:
 
-rc::sysinit:/etc/rc.sysinit
+rc::sysinit:/etc/rc.sysinit-proxy
 rs:S1:wait:/etc/rc.single
 rm:2345:wait:/etc/rc.multi
 rh:06:wait:/etc/rc.shutdown

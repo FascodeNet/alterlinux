@@ -1,13 +1,4 @@
 # vim: set ft=sh:
-cmdline_param ()
-{
-    while param do;
-        case "${param}" in
-            $1=*) echo "${param##*=}"; break ;;
-            *) continue ;;
-        esac
-    done < read /proc/cmdline
-}
 . /etc/rc.conf
 . /etc/rc.d/functions
 . /etc/archiso/functions # above goes in this file...
