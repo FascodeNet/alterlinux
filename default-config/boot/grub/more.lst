@@ -1,21 +1,20 @@
-timeout 60
+timeout 300
 default 0
+color light-blue/blue black/light-grey
+splashimage=/boot/splash.xpm.gz
 
-title  Boot Existing Linux Install
-root   (hd0,2)
-kernel /vmlinuz26 root=/dev/hda1 ro
+title << Back to Main Menu
+configfile /boot/grub/menu.lst
 
-title  Boot Existing Windows Install
+title    Attempt existing Linux detection
+configfile /boot/grub/tryboot.lst
+
+title    [EDIT ME] Boot Existing Linux Install
+root   (hd0,1)
+kernel /vmlinuz26 root=/dev/hda3 ro
+
+title    [EDIT ME] Boot Existing Windows Install
 rootnoverify (hd0,0)
 makeactive
 chainloader +1
 
-title  Install GRUB to HD0
-root  (hd0,0)
-setup (hd0)
-
-title  Run Ranish Partition Manager
-kernel /boot/ranish/part.exe
-
-title  Run memtest86+
-kernel /boot/memtest86+/memtest.bin

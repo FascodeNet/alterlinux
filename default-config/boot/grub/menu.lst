@@ -1,6 +1,5 @@
 
-#TODO add options + graphical stuff
-timeout 30
+timeout 300
 default 0
 color light-blue/blue black/light-grey
 splashimage=/boot/splash.xpm.gz
@@ -15,8 +14,12 @@ halt
 title  Reboot the Computer
 reboot
 
+title Tools...
+configgile /boot/grub/tools.lst
+
 title View Help...
 configfile /boot/grub/help.lst
+
 
 title More Options...
 configfile /boot/grub/more.lst
