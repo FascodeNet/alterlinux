@@ -1,9 +1,20 @@
 # vim: set ft=sh:
 . /etc/rc.conf
 . /etc/rc.d/functions
-. /etc/archiso/functions # above goes in this file...
+. /etc/archiso/functions
 
-do_mounts ()
+
+scan_network ()
+{
+    netparam () { echo ${2} | sed "s|.*${1}\([^ ]*\).*|\1|gi"; }
+    #
+    netdevs=$(cat /proc/net/dev | grep ':' | cut -d':' -f1)
+    for net in ${netdev}; do
+        stats=$(ifconfig ${net} | tr -s "\n" " ")
+
+}
+
+scan_mount_pts ()
 {
     #iterate over all block devices
     stat_busy "Scanning local block devices"
@@ -27,12 +38,7 @@ do_mounts ()
     stat_done
 }
 
-do_locale ()
-{
-    #copy from rc.sysinit - use cmdline_param locale (or lang ?)
-}
-
-do_swap ()
+scan_swap ()
 {
     #Archie finds a pagefile.sys for windows/dos machines... may add later
     stat_busy "Finding existing swap partitions"

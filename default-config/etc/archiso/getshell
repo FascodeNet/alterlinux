@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /etc/archiso/functions
+
 shell="$(cmdline_param shell)"
 [ -n "${shell}" ] && shell="/bin/bash"
 [ ! -e "${shell}" ] && shell="/bin/sh"

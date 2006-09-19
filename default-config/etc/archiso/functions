@@ -6,6 +6,6 @@ cmdline_param ()
             $1=*) echo "${param##*=}"; break ;;
             *) continue ;;
         esac
+        echo "${2}"
     done < read /proc/cmdline
-    echo "${2}"
 }

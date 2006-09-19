@@ -2,6 +2,8 @@
 # we need a proxy script here to convert some /proc/cmdline
 # parameters to rc.conf settings.
 
+. /etc/archlive/functions
+
 LOCALE_DEFAULT="en_US.UTF-8"
 TIMEZONE_DEFAULT="America/Chicago"
 KEYMAP_DEFAULT="us"
