@@ -8,18 +8,18 @@ title  Boot ArchLive
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
 initrd /boot/archlive.img
 
+title Tools...
+configfile /boot/grub/tools.lst
+
+title View Help...
+configfile /boot/grub/help.lst
+
+title More Options...
+configfile /boot/grub/more.lst
+
 title  Shutdown the Computer
 halt
 
 title  Reboot the Computer
 reboot
 
-title Tools...
-configgile /boot/grub/tools.lst
-
-title View Help...
-configfile /boot/grub/help.lst
-
-
-title More Options...
-configfile /boot/grub/more.lst

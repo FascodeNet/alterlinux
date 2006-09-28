@@ -32,17 +32,18 @@ usage ()
     exit 1
 }
 
-while getopts 'c:i:n:s:pvh' arg; do
+while getopts 'c:i:fvh' arg; do
     case "${arg}" in
         c) CONFIG="${OPTARG}" ;;
         i) CPIOCONFIG="${OPTARG}" ;;
-        v) FORCE="f" ;;
+        f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage ;;
         *) echo "invalid argument '${arg}'"; usage ;;
     esac
 done
 shift $(($OPTIND - 1))
+echo "ARGS: $@"
 
 [ $# -le 1 ] && usage
 
@@ -56,23 +57,6 @@ case "${command_name}" in
 esac
 
 [ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage)
-
-if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
-    echo "Working dir '${work_dir}' already exists, aborting..."
-    exit 1
-fi
-
-if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
-    [ "x${isoname}" = "x" ] && (echo "please specify an iso name" && usage)
-    if [ -e "${isoname}" -a "${FORCE}" = "n"]; then
-        echo "ISO Image '${isoname}' already exists, aborting..."
-        exit 1
-    fi
-    if [ -e "${CPIOCONFIG}" ]; then
-        echo "mkinitcpio config '${CPIOCONFIG}' does not exist, aborting..."
-        exit 1
-    fi
-fi
 
 #TODO - do we even need a config file?
 if [ -e "${CONFIG}" ]; then
@@ -134,6 +118,11 @@ install_pkgfile ()
 }
 
 if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
+    if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
+        echo "Working dir '${work_dir}' already exists, aborting..."
+        exit 1
+    fi
+
     mkdir -p "${isoroot}"
     mkdir -p "${instroot}"
 
@@ -176,7 +165,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     find "${instroot}/boot" -name *.img -delete #TODO, will this delete our special stuff?
 
     echo "Applying default configuration for the Arch ISO."
-    cp -rf ${DEF_CONFIG_DIR}/* "${instroot}"
+    cp -rfa ${DEF_CONFIG_DIR}/* "${instroot}"
 
     echo "Copyright (C) 2006, Arch Linux (Judd Vinet)" > "${instroot}/etc/copyright"
 
@@ -228,6 +217,20 @@ if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
 fi
 
 if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
+    [ "x${isoname}" = "x" ] && (echo "please specify an iso name" && usage)
+    if [ -e "${isoname}" ]; then
+        if [ "${FORCE}" = "y" ]; then
+            rm -rf "${isoname}"
+        else
+            echo "ISO Image '${isoname}' already exists, aborting..."
+            exit 1
+        fi
+    fi
+    if [ ! -e "${CPIOCONFIG}" ]; then
+        echo "mkinitcpio config '${CPIOCONFIG}' does not exist, aborting..."
+        exit 1
+    fi
+
     kernelver=$(_kversion)
     basedir=${instroot}
     [ "${instroot:0:1}" != "/" ] && basedir="$(pwd)/${instroot}"
@@ -238,13 +241,11 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
     fi
 
     cp ${instroot}/usr/lib/grub/i386-pc/* "${isoroot}/boot/grub"
-fi
 
-if [ "${SKIP_ISO}" = "n" ]; then
     echo "Creating ISO image..."
     q=""
-    [ "${QUIET}" = "y" ] && q="-q"
-    mkisofs "${q}" -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
+    #[ "${QUIET}" = "y" ] && q="-q"
+    mkisofs ${q} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
         -boot-load-size 4 -boot-info-table -publisher "Arch Linux <archlinux.org>" \
         -input-charset=UTF-8 -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" \
         -copyright /etc/copyright -o "${isoname}" "${isoroot}"

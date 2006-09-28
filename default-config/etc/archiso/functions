@@ -1,11 +1,13 @@
 # vim: set ft=sh:
+
 cmdline_param ()
 {
-    while param do;
+    read cmdline < /proc/cmdline
+    for param in ${cmdline}; do
         case "${param}" in
             $1=*) echo "${param##*=}"; break ;;
             *) continue ;;
         esac
-        echo "${2}"
-    done < read /proc/cmdline
+    done
+    [ -n "${2}" ] && echo "${2}"
 }
