@@ -1,0 +1,30 @@
+# vim: set ft=sh:
+run_hook ()
+{
+    msg ":: Scanning for boot usb device..."
+
+    /bin/mkdir -p /tmpfs/bootmnt
+    bootmnt="/tmpfs/bootmnt/"
+    found=0
+
+    for usb in /dev/sd[a-z][0-9]; do
+        if mount -r -t vfat "${usb}" ${bootmnt} >/dev/null 2>&1 ||\
+            mount -r -t ext2 "${usb}" ${bootmnt} >/dev/null 2>&1; then
+            if [ -e "${bootmnt}/archiso.sqfs" ]; then
+                found=1
+                msg "${usb}"
+                break
+            fi
+        else
+            echo "Failed to mount ${usb}"
+        fi
+        [ ${found} -eq 0 ] && umount ${bootmnt} >/dev/null 2>&1
+    done
+
+    if [ ${found} -eq 0 ]; then
+        echo "ERROR: cannot find booted usb device, cannot continue..."
+        exit 1
+    else
+        export BOOT_MOUNT="${bootmnt}"
+    fi
+}

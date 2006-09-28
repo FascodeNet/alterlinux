@@ -9,33 +9,16 @@ run_hook ()
     mkdir /tmpfs/bootcd
     msg "done."
 
-    squashfound=0
-    #TODO check for usb devices as well...
-    msg -n ":: Scanning for boot cdrom device..."
-    squashimg="/tmpfs/bootcd/archlive.sqfs"
-
-    /bin/modprobe -q isofs >/dev/null 2>&1
-    for cdrom in /dev/cd/*; do
-        if mount -r -t iso9660 "${cdrom}" /tmpfs/bootcd >/dev/null 2>&1; then
-            if [ -e "${squashimg}" ]; then
-                squashfound=1
-                msg "${cdrom}"
-                break
-            fi
-        else
-            echo "Failed to mount ${cdrom}"
-        fi
-        [ ${squashfound} -eq 0 ] && umount /tmpfs/bootcd >/dev/null 2>&1
-    done
-
-    if [ ${squashfound} -eq 0 ]; then
-        echo "ERROR: cannot find booted cdrom device, cannot continue..."
+    if [ "x${BOOT_MOUNT}" -eq "x" ]; then
+        echo "ERROR: BOOT_MOUNT is not set. The boot-cd or boot-usb hook MUST"
+        echo "       be run before this one.  This image was improperly built"
         exit 1
     fi
 
+    squashimg="${BOOT_MOUNT}/archiso.sqfs"
     if [ "${copytoram}" = "y" ]; then
-        /bin/cat /tmpfs/bootcd/archlive.sqfs > /tmpfs/archlive.sqfs
-        squashimg="/tmpfs/archlive.sqfs"
+        /bin/cat ${squashimg} > /tmpfs/archiso.sqfs
+        squashimg="/tmpfs/archiso.sqfs"
     fi
 
     msg ":: Mounting squashfs image"

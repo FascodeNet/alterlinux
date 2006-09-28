@@ -1,0 +1,30 @@
+# vim: set ft=sh:
+run_hook ()
+{
+    msg ":: Scanning for boot cdrom device..."
+
+    /bin/mkdir -p /tmpfs/bootmnt
+    bootmnt="/tmpfs/bootmnt/"
+    found=0
+
+    /bin/modprobe -q isofs >/dev/null 2>&1
+    for cdrom in /dev/cd/*; do
+        if mount -r -t iso9660 "${cdrom}" ${bootmnt} >/dev/null 2>&1; then
+            if [ -e "${bootmnt}/archiso.sqfs" ]; then
+                found=1
+                msg "${cdrom}"
+                break
+            fi
+        else
+            echo "Failed to mount ${cdrom}"
+        fi
+        [ ${found} -eq 0 ] && umount ${bootmnt} >/dev/null 2>&1
+    done
+
+    if [ ${found} -eq 0 ]; then
+        echo "ERROR: cannot find booted cdrom device, cannot continue..."
+        exit 1
+    else
+        export BOOT_MOUNT="${bootmnt}"
+    fi
+}
