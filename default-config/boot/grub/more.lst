@@ -10,8 +10,9 @@ title    Attempt existing Linux detection
 configfile /boot/grub/tryboot.lst
 
 title    [EDIT ME] Boot Existing Linux Install
-root   (hd0,1)
+root   (hd0,0)
 kernel /vmlinuz26 root=/dev/hda3 ro
+initrd /kernel26.img
 
 title    [EDIT ME] Boot Existing Windows Install
 rootnoverify (hd0,0)
