@@ -1,0 +1,23 @@
+HOWTO: Contribute to these help files
+
+This help is rather simplistic.
+In order to provide help files or translations you simply need to make a text
+file.  Formatting is important (due to grub limitations).  The files MUST be 80
+characters wide, and 23 lines long.  Any more, and your formatting will be
+corrupted when viewing the help.  Please note that if your help is short, it is
+worthwhile to pad with empty lines, up to 23 lines.
+
+Please send any and all help files you wish to contribute, or any ideas for
+help, to arch@archlinux.org with "[isohelp]" in the title.
+
+
+
+
+
+
+
+
+
+
+
+
