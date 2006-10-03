@@ -1,0 +1,108 @@
+#keyboard layouts - ganked from SGD ( http://freshmeat.net/projects/supergrub/?branch_id=62132&release_id=236631 )
+# TODO add other languages
+timeout 300
+default 0
+color light-blue/blue black/light-grey
+splashimage=/boot/splash.xpm.gz
+
+title Default layout
+setkey
+
+title German layout
+setkey y z
+setkey z y
+setkey Y Z
+setkey Z Y
+setkey equal parenright
+setkey parenright parenleft
+setkey parenleft asterisk 
+setkey doublequote at
+setkey plus bracketright
+setkey minus slash
+setkey slash ampersand
+setkey ampersand percent
+setkey percent caret
+setkey underscore question
+setkey question underscore
+setkey semicolon less
+setkey less numbersign
+setkey numbersign backslash
+setkey colon greater
+setkey greater bar
+setkey asterisk braceright  
+
+
+title Spanish layout
+setkey
+setkey slash ampersand
+setkey ampersand caret
+setkey caret braceleft
+setkey asterisk braceright
+setkey parenleft asterisk
+setkey parenright parenleft
+setkey minus slash
+setkey equal parenright
+setkey quote minus
+setkey underscore question
+setkey question underscore
+setkey braceleft quote
+setkey braceright backslash
+setkey colon greater
+setkey greater bar
+setkey doublequote at
+setkey backslash backquote
+setkey less backslash
+setkey semicolon less
+setkey plus colon
+setkey at semicolon
+
+title French layout
+setkey
+setkey less backquote
+setkey greater tilde
+setkey ampersand 1
+setkey 1 exclam
+setkey tilde 2
+setkey 2 at
+setkey doublequote 3
+setkey 3 numbersign
+setkey quote 4
+setkey 4 dollar
+setkey parenleft 5
+setkey 5 percent
+setkey minus 6
+setkey 6 caret
+setkey backquote 7
+setkey 7 ampersand
+setkey underscore 8
+setkey 8 asterisk
+setkey backslash 9
+setkey 9 parenleft
+setkey at 0
+setkey 0 parenright
+setkey parenright minus
+setkey numbersign underscore
+setkey a q
+setkey A Q
+setkey z w
+setkey Z W
+setkey caret bracketleft
+setkey dollar bracketright
+setkey q a
+setkey Q A
+setkey m semicolon
+setkey M colon
+setkey bracketleft quote 
+setkey percent doublequote
+setkey asterisk backslash
+setkey bracketright bar
+setkey w z
+setkey W Z
+setkey comma m
+setkey question M
+setkey semicolon comma
+setkey period less
+setkey colon period
+setkey slash greater
+setkey exclam slash
+setkey bar question

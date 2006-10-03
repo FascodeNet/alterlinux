@@ -1,4 +1,3 @@
-
 timeout 300
 default 0
 color light-blue/blue black/light-grey
@@ -10,6 +9,9 @@ initrd /boot/archlive.img
 
 title Tools...
 configfile /boot/grub/tools.lst
+
+title Grub Settings...
+configfile /boot/grub/settings.lst
 
 title View Help...
 configfile /boot/grub/help.lst

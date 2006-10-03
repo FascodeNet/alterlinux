@@ -1,0 +1,13 @@
+timeout 300
+default 0
+color light-blue/blue black/light-grey
+splashimage=/boot/splash.xpm.gz
+
+title << Back to Main Menu
+configfile /boot/grub/menu.lst
+
+title    Keyboard settings
+configfile /boot/grub/keyboards.lst
+
+title    Color settings
+configfile /boot/grub/colors.lst
