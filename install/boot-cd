@@ -4,5 +4,5 @@ install ()
     MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls") "
     BINARIES=""
     FILES=""
-    SCRIPT="from-cd"
+    SCRIPT="boot-cd"
 }

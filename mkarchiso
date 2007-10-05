@@ -78,9 +78,8 @@ fi
 
 _kversion ()
 {
-    echo $(pacman -Ql -r "${instroot}" "${kernelpkg}" |\
-           grep "/lib/modules/[^/]*/$" |\
-           sed "s|.*/lib/modules/\([^/]*\).*/$|\1|")
+    source ${instroot}/etc/mkinitcpio.d/kernel26.kver
+    echo ${ALL_kver}
 }
 
 _pacman ()
@@ -94,7 +93,7 @@ _pacman ()
     
     FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
     #TODO this grep is a tad weird...
-    if ! eval "${fkchroot} pacman -Sf --noconfirm -r \"${instroot}\" $*" | grep "\[#"; then
+    if ! eval "${fkchroot} pacman -Sf --noconfirm -r \"${instroot}\" $*"; then
         exit 1
     fi
     FAKEROOTKEY=$FAKEROOTSAV
@@ -127,7 +126,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     mkdir -p "${instroot}"
 
     FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
-    if ! pacman -Sy -r "${instroot}"  2>&1 | grep -v "cannot open logfile"; then
+    if ! pacman -Sy -r "${instroot}" | grep -v "cannot open logfile"; then
         echo "Error, failed to sync pacman... aborting."
         exit 1
     fi

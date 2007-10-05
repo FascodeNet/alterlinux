@@ -6,5 +6,5 @@ install ()
     FILES=""
     add_dir /real_root
     add_dir /tmpfs
-    SCRIPT="archlive"
+    SCRIPT="archiso"
 }

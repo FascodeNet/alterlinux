@@ -6,7 +6,6 @@ run_hook ()
     fi
     msg -n ":: Mounting tmpfs, size=${ramdisk_size}..."
 	mount -t tmpfs -o "size=${ramdisk_size}" tmpfs /tmpfs
-    mkdir /tmpfs/bootcd
     msg "done."
 
     if [ "x${BOOT_MOUNT}" -eq "x" ]; then

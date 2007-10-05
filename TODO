@@ -8,3 +8,5 @@
   graphics to all submenus
 
 * possible auto-detection of installed systems via nifty grub tricks?
+
+* use system's package cache when generating install to save some bandwidth (use mkarchroot?)

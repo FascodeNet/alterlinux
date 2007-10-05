@@ -39,6 +39,7 @@ lzo2
 mailx
 man
 man-pages
+mdadm
 memtest86+
 mktemp
 module-init-tools
@@ -63,7 +64,6 @@ procinfo
 procps
 psmisc
 python
-raidtools
 readline
 reiserfsprogs
 rp-pppoe
