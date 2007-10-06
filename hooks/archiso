@@ -14,10 +14,10 @@ run_hook ()
         exit 1
     fi
 
-    squashimg="${BOOT_MOUNT}/archiso.sqfs"
+    squashimg="${BOOT_MOUNT}/archlive.sqfs"
     if [ "${copytoram}" = "y" ]; then
-        /bin/cat ${squashimg} > /tmpfs/archiso.sqfs
-        squashimg="/tmpfs/archiso.sqfs"
+        /bin/cat ${squashimg} > /tmpfs/archlive.sqfs
+        squashimg="/tmpfs/archlive.sqfs"
     fi
 
     msg ":: Mounting squashfs image"
