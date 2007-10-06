@@ -13,7 +13,11 @@ isoname=""
 PKGDIR="."
 
 APPNAME=$(basename "${0}")
-ALL_ARGS="${@}" #for fakeroot usage
+
+if [ "$EUID" != "0" ]; then
+    echo "This script must be run as root."
+    exit 1
+fi
 
 usage ()
 {
@@ -70,12 +74,6 @@ fi
 isoroot="${work_dir}/iso"
 instroot="${work_dir}/install"
 
-if [ -z $FAKEROOTKEY ]; then
-    echo "Switching to fakeroot environment"
-    fakeroot ${0} ${ALL_ARGS}
-    exit $?
-fi
-
 _kversion ()
 {
     source ${instroot}/etc/mkinitcpio.d/kernel26.kver
@@ -84,35 +82,20 @@ _kversion ()
 
 _pacman ()
 {
-    #depmod causes fakechroot to coredump - it's harmless, but makes the output ugly
-    fkchroot=""
-    if [ "${1}" = "-safe" ]; then
-        fkchroot=""
-        shift 1
-    fi
-    
-    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
-    #TODO this grep is a tad weird...
-    if ! eval "${fkchroot} pacman -Sf --noconfirm -r \"${instroot}\" $*"; then
+    if ! mkarchroot -f ${instroot} $*; then
         exit 1
     fi
-    FAKEROOTKEY=$FAKEROOTSAV
 }
 
 install_pkgfile ()
 {
-    safe=""
-    if [ "${1}" = "-safe" ]; then
-        safe="-safe"
-        shift 1
-    fi
     if [ -e "${1}" ]; then
         toinstall=""
         while read pkg; do
             echo $ignorepkgs | grep "\<$pkg\>" >/dev/null 2>&1 && continue
             toinstall="${toinstall} ${pkg}"
         done < ${1}
-        _pacman "${safe}" "${toinstall}"
+        _pacman "${toinstall}"
     fi
 }
 
@@ -124,13 +107,6 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
 
     mkdir -p "${isoroot}"
     mkdir -p "${instroot}"
-
-    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
-    if ! pacman -Sy -r "${instroot}" | grep -v "cannot open logfile"; then
-        echo "Error, failed to sync pacman... aborting."
-        exit 1
-    fi
-    FAKEROOTKEY=$FAKEROOTSAV
 
     echo "Installing 'base' packages..."
     install_pkgfile "${PKGDIR}/base.packages"
@@ -147,12 +123,10 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     done
 
     echo "Installing kernel '${kernelpkg}'"
-    FAKEROOTSAV=$FAKEROOTKEY; unset FAKEROOTKEY
-    if ! _pacman -safe "${kernelpkg}" ; then
+    if ! _pacman "${kernelpkg}" ; then
         echo "pacman failed to install '${kernelpkg}', aborting..."
         exit 1
     fi
-    FAKEROOTKEY=$FAKEROOTSAV
     kernelver=$(_kversion)
     kernelsuffix=${kernelver##*-}
     echo "Kernel Version ${kernelver} (${kernelsuffix}) installed - installing modules..."
