@@ -2,10 +2,9 @@
 
 cmdline_param ()
 {
-    read cmdline < /proc/cmdline
-    for param in ${cmdline}; do
+    for param in ${CMDLINE}; do
         case "${param}" in
-            $1=*) echo "${param##*=}"; break ;;
+            $1=*) echo "${param##*=}"; return ;;
             *) continue ;;
         esac
     done
