@@ -130,7 +130,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     kernelver=$(_kversion)
     kernelsuffix=${kernelver##*-}
     echo "Kernel Version ${kernelver} (${kernelsuffix}) installed - installing modules..."
-    install_pkgfile -safe "modules.${kernelsuffix}"
+    install_pkgfile "modules.${kernelsuffix}"
 
     echo "Updating module dependancies"
     [ "${kernelsuffix}" = "ARCH" ] && kernelsuffix=""
