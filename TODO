@@ -1,12 +1,6 @@
-* Split boot hook - one hook to export SQUASHFS_IMAGE location
-  second hook uses this too boot.  Add hooks for finding image
-  on different media.
-
 * Fix generation scripts... which pretty much suck right now...
 
 * Add lots and lots of help to the grub menus... also add the 
   graphics to all submenus
 
 * possible auto-detection of installed systems via nifty grub tricks?
-
-* use system's package cache when generating install to save some bandwidth (use mkarchroot?)
