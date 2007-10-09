@@ -1,8 +1,5 @@
 ipw3945
-madwifi-ng
+madwifi
 ndiswrapper
 rt2500
-squashfs
-tiacx
-unionfs
 wlan-ng26
