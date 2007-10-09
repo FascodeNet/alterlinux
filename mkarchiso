@@ -25,6 +25,7 @@ usage ()
     echo " general options:"
     echo "    -c CONFIG        Use CONFIG file. default: /etc/archlive/mkarchiso.conf"
     echo "    -i CPIO CONFIG   Use CONFIG file for mkinitcpio. default: /etc/archlive/mkinitcpio.conf"
+    echo "    -p PKGFILE DIR   Look for package list files in DIR. default: ."
     echo "    -f               Force overwrite of working files / iso"
     echo "    -v               Verbose output. Default: no"
     echo "    -h               This message."
@@ -36,10 +37,11 @@ usage ()
     exit 1
 }
 
-while getopts 'c:i:fvh' arg; do
+while getopts 'c:i:p:fvh' arg; do
     case "${arg}" in
         c) CONFIG="${OPTARG}" ;;
         i) CPIOCONFIG="${OPTARG}" ;;
+        p) PKGDIR="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage ;;
@@ -96,6 +98,9 @@ install_pkgfile ()
             toinstall="${toinstall} ${pkg}"
         done < ${1}
         _pacman "${toinstall}"
+    else
+        echo "Package file '${1}' does not exist, aborting..."
+        exit 1
     fi
 }
 
@@ -130,7 +135,9 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     kernelver=$(_kversion)
     kernelsuffix=${kernelver##*-}
     echo "Kernel Version ${kernelver} (${kernelsuffix}) installed - installing modules..."
-    install_pkgfile "modules.${kernelsuffix}"
+    if [ -e "${PKGDIR}/${kernelsuffix}.modules" ]; then
+        install_pkgfile "${PKGDIR}/${kernelsuffix}.modules"
+    fi
 
     echo "Updating module dependancies"
     [ "${kernelsuffix}" = "ARCH" ] && kernelsuffix=""
