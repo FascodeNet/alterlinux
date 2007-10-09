@@ -155,7 +155,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     echo "Cleaning up ISO root files..."
     find "${instroot}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
 
-    kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp usr/include initrd"
+    kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* usr/include initrd"
     for x in ${kill_dirs}; do
         if [ -e "${instroot}/${x}" ]; then
             rm -rf "${instroot}/${x}"
