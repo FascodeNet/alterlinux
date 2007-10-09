@@ -113,14 +113,10 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     mkdir -p "${isoroot}"
     mkdir -p "${instroot}"
 
-    echo "Installing 'base' packages..."
-    install_pkgfile "${PKGDIR}/base.packages"
-
-    echo "Installing custom packages..."
-    for fil in ${package_files}; do
-        #TODO search for file if not absolute...
-        echo " Installing packages from file '$fil'"
-        install_pkgfile "${fil}"
+    echo "Installing packages..."
+    for pkgfile in ${package_files}; do
+        echo " Installing packages from '$pkgfile'"
+        install_pkgfile "${PKGDIR}/$pkgfile.packages"
     done
     for pkg in ${additional_packages}; do
         echo "   Installing package '${pkg}'"
