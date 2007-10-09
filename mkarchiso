@@ -152,7 +152,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     mknod -m 666 "${instroot}/dev/zero" c 1 5 
 
     echo "Creating default home directory"
-    mkdir -p "${instroot}/home/arch"
+    install -d -o1000 -g100 -m0755 "${instroot}/home/arch"
 
     # Cleanup
     echo "Cleaning up ISO root files..."
