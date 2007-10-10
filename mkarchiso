@@ -10,31 +10,27 @@ command_name=""
 work_dir=""
 isoname=""
 
-PKGDIR="."
+PKGDIR="$(pwd)"
 
 APPNAME=$(basename "${0}")
 
-if [ "$EUID" != "0" ]; then
-    echo "This script must be run as root."
-    exit 1
-fi
-
+# usage: usage <exitvalue>
 usage ()
 {
     echo "usage ${APPNAME} [options] command <command options>"
     echo " general options:"
-    echo "    -c CONFIG        Use CONFIG file. default: /etc/archlive/mkarchiso.conf"
-    echo "    -i CPIO CONFIG   Use CONFIG file for mkinitcpio. default: /etc/archlive/mkinitcpio.conf"
-    echo "    -p PKGFILE DIR   Look for package list files in DIR. default: ."
-    echo "    -f               Force overwrite of working files / iso"
+    echo "    -c CONFIG        Use CONFIG file. default: ${CONFIG}"
+    echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
+    echo "    -p PKGFILE_DIR   Look for package list files in DIR. default: ${PKGDIR}"
+    echo "    -f               Force overwrite of working files/squashfs image/iso"
     echo "    -v               Verbose output. Default: no"
-    echo "    -h               This message."
+    echo "    -h               This message"
     echo " commands:"
     echo " install <working dir>        : where to build the ISO root"
     echo " squash <working dir>         : generate a squashfs image of the ISO root"
-    echo " iso <working dir> <iso name> : build an iso from the working directory"
+    echo " iso <working dir> <iso name> : build an ISO from the working directory"
     echo " all <working dir> <iso name> : perform all of the above, in order"
-    exit 1
+    exit $1
 }
 
 while getopts 'c:i:p:fvh' arg; do
@@ -44,14 +40,21 @@ while getopts 'c:i:p:fvh' arg; do
         p) PKGDIR="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
-        h|?) usage ;;
-        *) echo "invalid argument '${arg}'"; usage ;;
+        h|?) usage 0 ;;
+        *) echo "invalid argument '${arg}'"; usage 1 ;;
     esac
 done
+
+# do UID checking here so someone can at least get usage instructions
+if [ "$EUID" != "0" ]; then
+    echo "error: This script must be run as root."
+    exit 1
+fi
+
 shift $(($OPTIND - 1))
 echo "ARGS: $@"
 
-[ $# -le 1 ] && usage
+[ $# -le 1 ] && usage 1
 
 command_name="${1}"
 case "${command_name}" in
@@ -59,16 +62,16 @@ case "${command_name}" in
     squash) work_dir="${2}" ;;
     iso) work_dir="${2}"; isoname="${3}" ;;
     all) work_dir="${2}"; isoname="${3}" ;;
-    *) echo "invalid command name '${command_name}'"; usage ;;
+    *) echo "invalid command name '${command_name}'"; usage 1 ;;
 esac
 
-[ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage)
+[ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage 1)
 
 #TODO - do we even need a config file?
 if [ -e "${CONFIG}" ]; then
     source "${CONFIG}"
 else
-    echo "Config '${CONFIG}' does not exist, aborting..."
+    echo "error: Config '${CONFIG}' does not exist, aborting."
     exit 1
 fi
 
@@ -82,6 +85,7 @@ _kversion ()
     echo ${ALL_kver}
 }
 
+# usage: _pacman <packages>...
 _pacman ()
 {
     if ! mkarchroot -f ${instroot} $*; then
@@ -89,6 +93,7 @@ _pacman ()
     fi
 }
 
+# usage: install_pkgfile <packagesfile>
 install_pkgfile ()
 {
     if [ -e "${1}" ]; then
@@ -99,14 +104,17 @@ install_pkgfile ()
         done < ${1}
         _pacman "${toinstall}"
     else
-        echo "Package file '${1}' does not exist, aborting..."
+        echo "error: Package file '${1}' does not exist, aborting."
         exit 1
     fi
 }
 
+# Go through the main commands in order. If 'all' was specified, then we want
+# to do everything. Start with 'install'.
 if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
+    echo "====> Installing/building ISO root"
     if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
-        echo "Working dir '${work_dir}' already exists, aborting..."
+        echo "error: Working dir '${work_dir}' already exists, aborting."
         exit 1
     fi
 
@@ -125,7 +133,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
 
     echo "Installing kernel '${kernelpkg}'"
     if ! _pacman "${kernelpkg}" ; then
-        echo "pacman failed to install '${kernelpkg}', aborting..."
+        echo "error: pacman failed to install '${kernelpkg}', aborting."
         exit 1
     fi
     kernelver=$(_kversion)
@@ -140,12 +148,12 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26${kernelsuffix}" >/dev/null
     find "${instroot}/boot" -name *.img -delete #TODO, will this delete our special stuff?
 
-    echo "Applying default configuration for the Arch ISO."
+    echo "Applying default configuration for the Arch ISO"
     cp -rfa ${DEF_CONFIG_DIR}/* "${instroot}"
 
-    echo "Copyright (C) 2006, Arch Linux (Judd Vinet)" > "${instroot}/etc/copyright"
+    echo "Copyright (C) 2007, Arch Linux (Judd Vinet)" > "${instroot}/etc/copyright"
 
-    echo "Creating initial device nodes "
+    echo "Creating initial device nodes"
     rm -f "${instroot}/dev/console" "${instroot}/dev/null" "${instroot}/dev/zero"
     mknod -m 644 "${instroot}/dev/console" c 5 1
     mknod -m 666 "${instroot}/dev/null" c 1 3
@@ -158,6 +166,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     echo "Cleaning up ISO root files..."
     find "${instroot}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
 
+    # delete a lot of unnecessary cache/log files
     kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* usr/include initrd"
     for x in ${kill_dirs}; do
         if [ -e "${instroot}/${x}" ]; then
@@ -165,10 +174,11 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
         fi
     done
 
+    # delete static libraries
     find "${instroot}/lib" -name *.a -delete
     find "${instroot}/usr/lib" -name *.a -delete
 
-    # this actually takes up alot of space...
+    # pacman DBs are big, delete all sync dbs
     for d in ${instroot}/var/lib/pacman/*; do
         [ "$(basename ${d})" != "local" ] && rm -rf "${d}"
     done
@@ -179,40 +189,52 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     fi
 fi
 
+# Squash is the next step.
 if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
-    if [ -e "${isoroot}/archlive.sqfs" ]; then
-        echo -n "Removing old squashfs image..."
-        rm "${isoroot}/archlive.sqfs"
-        echo "done."
+    echo "====> Generating SquashFS image"
+    imagename="${isoroot}/archlive.sqfs"
+    if [ -e "${imagename}" ]; then
+        if [ "${FORCE}" = "y" ]; then
+            echo -n "Removing old squashfs image..."
+            rm "${imagename}"
+            echo "done."
+        else
+            echo "error: SquashFS image '${imagename}' already exists, aborting."
+            exit 1
+        fi
     fi
 
-    echo -n "Creating squashfs image. This may take some time..."
+    echo "Creating squashfs image. This may take some time..."
     start=$(date +%s)
-    mksquashfs "${instroot}" "${isoroot}/archlive.sqfs" -root-owned > /dev/null
-    echo "done in $(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }') minutes."
+    mksquashfs "${instroot}" "${imagename}"
+    minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
+    echo "Image creation done in $minutes minutes."
 fi
 
+# Finally, make the iso.
 if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
-    [ "x${isoname}" = "x" ] && (echo "please specify an iso name" && usage)
+    echo "====> Making ISO image"
+    [ "x${isoname}" = "x" ] && (echo "ISO image name must be specified" && usage 1)
     if [ -e "${isoname}" ]; then
         if [ "${FORCE}" = "y" ]; then
             rm -rf "${isoname}"
         else
-            echo "ISO Image '${isoname}' already exists, aborting..."
+            echo "error: ISO image '${isoname}' already exists, aborting."
             exit 1
         fi
     fi
     if [ ! -e "${CPIOCONFIG}" ]; then
-        echo "mkinitcpio config '${CPIOCONFIG}' does not exist, aborting..."
+        echo "error: mkinitcpio config '${CPIOCONFIG}' does not exist, aborting."
         exit 1
     fi
 
     kernelver=$(_kversion)
     basedir=${instroot}
     [ "${instroot:0:1}" != "/" ] && basedir="$(pwd)/${instroot}"
+    echo "Generating initcpio for ISO..."
     if ! mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}"\
         -g "${isoroot}/boot/archlive.img"; then
-        echo "initcpio image creation failed..."
+        echo "error: initcpio image creation failed..."
         exit 1
     fi
 
@@ -226,3 +248,5 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
         -input-charset=UTF-8 -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" \
         -copyright /etc/copyright -o "${isoname}" "${isoroot}"
 fi
+
+# vim:ts=4:sw=4:et:
