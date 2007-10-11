@@ -1,4 +1,3 @@
-# vim: set ft=sh:
 install ()
 {
     MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls") "
@@ -8,3 +7,5 @@ install ()
     add_dir /tmpfs
     SCRIPT="archiso"
 }
+
+# vim:ft=sh:ts=4:sw=4:et:
