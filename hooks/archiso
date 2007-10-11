@@ -38,6 +38,12 @@ run_hook ()
         echo 1 > /proc/sys/dev/cdrom/autoeject
     fi
 
+    if [ "${break}" = "y" ]; then
+        echo ":: Break requested, type 'exit' to resume operation"
+        echo "   NOTE: klibc contains no 'ls' binary, use 'echo *' instead"
+        PS1="ramfs$ " /bin/sh -i
+    fi
+
     udevpid=$(/bin/minips -C udevd -o pid=)
     [ "x${udevpid}" != "x" ] && /bin/kill -9 $udevpid 2>&1 >/dev/null
     #Yep, we're bailing out here.  We don't need kinit.
