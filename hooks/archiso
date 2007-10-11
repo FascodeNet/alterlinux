@@ -7,7 +7,7 @@ run_hook ()
 	mount -t tmpfs -o "size=${ramdisk_size}" tmpfs /tmpfs
     msg "done."
 
-    if [ "x${BOOT_MOUNT}" -eq "x" ]; then
+    if [ "x${BOOT_MOUNT}" = "x" ]; then
         echo "ERROR: BOOT_MOUNT is not set. The boot-cd or boot-usb hook MUST"
         echo "       be run before this one.  This image was improperly built"
         exit 1
@@ -50,7 +50,6 @@ run_hook ()
     msg ":: Passing control to Archlinux Initscripts...Please Wait"
     /bin/umount /sys
     /bin/umount /proc
-    /bin/umount /dev
     exec /bin/run-init -c /dev/console /real_root /sbin/init ${CMDLINE}
 }
 

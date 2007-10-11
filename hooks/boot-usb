@@ -3,7 +3,7 @@ run_hook ()
     msg ":: Scanning for boot usb device..."
 
     /bin/mkdir -p /tmpfs/bootmnt
-    bootmnt="/tmpfs/bootmnt/"
+    bootmnt="/tmpfs/bootmnt"
     found=0
 
     for usb in /dev/sd[a-z][0-9]; do

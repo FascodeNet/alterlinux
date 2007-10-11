@@ -3,7 +3,7 @@ run_hook ()
     msg ":: Scanning for boot cdrom device..."
 
     /bin/mkdir -p /bootmnt
-    bootmnt="/bootmnt/"
+    bootmnt="/bootmnt"
     found=0
 
     /bin/modprobe -q isofs >/dev/null 2>&1
