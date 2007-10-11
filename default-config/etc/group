@@ -11,6 +11,8 @@ kmem::9:
 wheel::10:root,arch
 ftp::11:
 mail::12:
+log::19:root
+cron::22:
 smmsp::25:
 audio::92:arch
 optical::93:arch
