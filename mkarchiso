@@ -88,7 +88,15 @@ _kversion ()
 # usage: _pacman <packages>...
 _pacman ()
 {
-    if ! mkarchroot -f ${instroot} $*; then
+    local ret
+    if [ "${QUIET}" = "y" ]; then
+        mkarchroot -f ${instroot} $* 2>&1 >/dev/null
+        ret=$?
+    else
+        mkarchroot -f ${instroot} $*
+        ret=$?
+    fi
+    if [ $ret -ne 0 ]; then
         exit 1
     fi
 }
@@ -146,7 +154,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     echo "Updating module dependancies"
     [ "${kernelsuffix}" = "ARCH" ] && kernelsuffix=""
     depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26${kernelsuffix}" >/dev/null
-    find "${instroot}/boot" -name *.img -delete #TODO, will this delete our special stuff?
+    find "${instroot}/boot" -name *.img -delete
 
     echo "Applying default configuration for the Arch ISO"
     cp -rfa ${DEF_CONFIG_DIR}/* "${instroot}"
@@ -195,7 +203,7 @@ if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
     imagename="${isoroot}/archlive.sqfs"
     if [ -e "${imagename}" ]; then
         if [ "${FORCE}" = "y" ]; then
-            echo -n "Removing old squashfs image..."
+            echo -n "Removing old SquashFS image..."
             rm "${imagename}"
             echo "done."
         else
@@ -206,7 +214,11 @@ if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
 
     echo "Creating squashfs image. This may take some time..."
     start=$(date +%s)
-    mksquashfs "${instroot}" "${imagename}"
+    if [ "${QUIET}" = "y" ]; then
+        mksquashfs "${instroot}" "${imagename}" >/dev/null
+    else
+        mksquashfs "${instroot}" "${imagename}"
+    fi
     minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
     echo "Image creation done in $minutes minutes."
 fi
@@ -217,6 +229,7 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
     [ "x${isoname}" = "x" ] && (echo "ISO image name must be specified" && usage 1)
     if [ -e "${isoname}" ]; then
         if [ "${FORCE}" = "y" ]; then
+            echo "Removing existing ISO image..."
             rm -rf "${isoname}"
         else
             echo "error: ISO image '${isoname}' already exists, aborting."
@@ -232,8 +245,14 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
     basedir=${instroot}
     [ "${instroot:0:1}" != "/" ] && basedir="$(pwd)/${instroot}"
     echo "Generating initcpio for ISO..."
-    if ! mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}"\
-        -g "${isoroot}/boot/archlive.img"; then
+    if [ "${QUIET}" = "y" ]; then
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${isoroot}/boot/archlive.img" >/dev/null
+        ret=$?
+    else
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${isoroot}/boot/archlive.img"
+        ret=$?
+    fi
+    if [ $ret -ne 0 ]; then
         echo "error: initcpio image creation failed..."
         exit 1
     fi
@@ -242,8 +261,8 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
 
     echo "Creating ISO image..."
     q=""
-    #[ "${QUIET}" = "y" ] && q="-q"
-    mkisofs ${q} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
+    [ "${QUIET}" = "y" ] && qflag="-q"
+    mkisofs ${qflag} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
         -boot-load-size 4 -boot-info-table -publisher "Arch Linux <archlinux.org>" \
         -input-charset=UTF-8 -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" \
         -copyright /etc/copyright -o "${isoname}" "${isoroot}"
