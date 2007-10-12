@@ -1,3 +1,4 @@
+# vim:ft=grub:
 timeout 300
 default 0
 color light-blue/blue black/light-grey
@@ -6,8 +7,9 @@ splashimage=/boot/splash.xpm.gz
 title << Back to Main Menu
 configfile /boot/grub/menu.lst
 
+# http://www.memtest.org/
 title    Run memtest86+ (Memory Testing)
-kernel /boot/memtest86+/memtest.bin
+kernel /boot/memtest86+-1.70.bin
 
 # http://www.vortex.prodigynet.co.uk/x86test/
 title    Run x86test (CPU Info)
