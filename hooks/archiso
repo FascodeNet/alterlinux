@@ -33,6 +33,12 @@ run_hook ()
     /bin/modprobe -q unionfs >/dev/null 2>&1
     /bin/mount -t unionfs -o dirs=/tmpfs=rw:/tmpfs/squashfs_root=ro none /real_root
 
+    addon_conf="${BOOT_MOUNT}/addons/config"
+    if [ -e "${addon_conf}" ]; then
+        msg ":: Mounting addons"
+        . $addon_conf
+    fi
+
     if [ -d /proc/sys/dev/cdrom ]; then
         echo 0 > /proc/sys/dev/cdrom/lock
         echo 1 > /proc/sys/dev/cdrom/autoeject

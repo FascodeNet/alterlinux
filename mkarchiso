@@ -6,6 +6,7 @@ PKGFILE="$(pwd)/packages.list"
 PKGLIST=""
 QUIET="y"
 FORCE="n"
+ADDON_DIR=""
 
 command_name=""
 work_dir=""
@@ -22,6 +23,7 @@ usage ()
     echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
     echo "    -P PKGFILE       File with list of packages to install. default: ${PKGFILE}"
     echo "    -p PACKAGE       Additional package to install, can be used multiple times"
+    echo "    -a ADDON_DIR     Use addons from DIR. default: none"
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
@@ -32,11 +34,12 @@ usage ()
     exit $1
 }
 
-while getopts 'i:P:p:fvh' arg; do
+while getopts 'i:P:p:a:fvh' arg; do
     case "${arg}" in
         i) CPIOCONFIG="${OPTARG}" ;;
         P) PKGFILE="${OPTARG}" ;;
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
+        a) ADDON_DIR="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage 0 ;;
@@ -171,6 +174,12 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     if [ -e "${instroot}/boot" ]; then
         rm -rf "${isoroot}/boot"
         mv "${instroot}/boot" "${isoroot}"
+    fi
+
+    # TODO: this might belong somewhere else
+    if [ -d "${ADDON_DIR}" ]; then
+        echo "Copying addons from ${ADDON_DIR}..."
+        cp -r ${ADDON_DIR} ${isoroot}/addons
     fi
 fi
 
