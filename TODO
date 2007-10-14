@@ -17,3 +17,6 @@
 * (Dan) Pacman DBs should not have to be synced multiple times (one for each
   package list + kernel). They should be synced the first time and that should
   cover our bases. This may be a pacman bug.
+
+* pregenerate some locales inside the image so we don't constantly get errors
+  about not having them
