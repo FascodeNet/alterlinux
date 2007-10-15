@@ -1,16 +1,15 @@
 #!/bin/sh
 
-CONFIG="$(pwd)/mkarchiso.conf" 
 CPIOCONFIG="$(pwd)/archiso-mkinitcpio.conf"
 DEF_CONFIG_DIR="$(pwd)/default-config"
+PKGFILE="$(pwd)/packages.list"
+PKGLIST=""
 QUIET="y"
 FORCE="n"
 
 command_name=""
 work_dir=""
 isoname=""
-
-PKGDIR="$(pwd)"
 
 APPNAME=$(basename "${0}")
 
@@ -19,12 +18,12 @@ usage ()
 {
     echo "usage ${APPNAME} [options] command <command options>"
     echo " general options:"
-    echo "    -c CONFIG        Use CONFIG file. default: ${CONFIG}"
-    echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
-    echo "    -p PKGFILE_DIR   Look for package list files in DIR. default: ${PKGDIR}"
     echo "    -f               Force overwrite of working files/squashfs image/iso"
-    echo "    -v               Verbose output. Default: no"
-    echo "    -h               This message"
+    echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
+    echo "    -P PKGFILE       File with list of packages to install. default: ${PKGFILE}"
+    echo "    -p PACKAGE       Additional package to install, can be used multiple times"
+    echo "    -v               Enable verbose output."
+    echo "    -h               This message."
     echo " commands:"
     echo " install <working dir>        : where to build the ISO root"
     echo " squash <working dir>         : generate a squashfs image of the ISO root"
@@ -33,11 +32,11 @@ usage ()
     exit $1
 }
 
-while getopts 'c:i:p:fvh' arg; do
+while getopts 'i:P:p:fvh' arg; do
     case "${arg}" in
-        c) CONFIG="${OPTARG}" ;;
         i) CPIOCONFIG="${OPTARG}" ;;
-        p) PKGDIR="${OPTARG}" ;;
+        P) PKGFILE="${OPTARG}" ;;
+        p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage 0 ;;
@@ -67,15 +66,6 @@ esac
 
 [ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage 1)
 
-#TODO - do we even need a config file?
-if [ -e "${CONFIG}" ]; then
-    source "${CONFIG}"
-else
-    echo "error: Config '${CONFIG}' does not exist, aborting."
-    exit 1
-fi
-
-# {{{ Build
 isoroot="${work_dir}/iso"
 instroot="${work_dir}/install"
 
@@ -107,7 +97,6 @@ install_pkgfile ()
     if [ -e "${1}" ]; then
         toinstall=""
         while read pkg; do
-            echo $ignorepkgs | grep "\<$pkg\>" >/dev/null 2>&1 && continue
             toinstall="${toinstall} ${pkg}"
         done < ${1}
         _pacman "${toinstall}"
@@ -130,30 +119,18 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     mkdir -p "${instroot}"
 
     echo "Installing packages..."
-    for pkgfile in ${package_files}; do
-        echo " Installing packages from '$pkgfile'"
-        install_pkgfile "${PKGDIR}/$pkgfile.packages"
-    done
-    for pkg in ${additional_packages}; do
+    echo " Installing packages from '${PKGFILE}'"
+    install_pkgfile "${PKGFILE}"
+
+    for pkg in ${PKGLIST}; do
         echo "   Installing package '${pkg}'"
         _pacman "${pkg}"
     done
 
-    echo "Installing kernel '${kernelpkg}'"
-    if ! _pacman "${kernelpkg}" ; then
-        echo "error: pacman failed to install '${kernelpkg}', aborting."
-        exit 1
-    fi
+    echo "Updating kernel module dependancies"
     kernelver=$(_kversion)
-    kernelsuffix=${kernelver##*-}
-    echo "Kernel Version ${kernelver} (${kernelsuffix}) installed - installing modules..."
-    if [ -e "${PKGDIR}/${kernelsuffix}.modules" ]; then
-        install_pkgfile "${PKGDIR}/${kernelsuffix}.modules"
-    fi
-
-    echo "Updating module dependancies"
-    [ "${kernelsuffix}" = "ARCH" ] && kernelsuffix=""
-    depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26${kernelsuffix}" >/dev/null
+    depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26" >/dev/null
+    # remove the initcpio images that were generated for the host system
     find "${instroot}/boot" -name *.img -delete
 
     echo "Applying default configuration for the Arch ISO"
