@@ -134,7 +134,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     find "${instroot}/boot" -name *.img -delete
 
     echo "Applying default configuration for the Arch ISO"
-    cp -rfa ${DEF_CONFIG_DIR}/* "${instroot}"
+    cp -ra --remove-destination --no-preserve=ownership ${DEF_CONFIG_DIR}/* "${instroot}"
 
     echo "Copyright (C) 2007, Arch Linux (Judd Vinet)" > "${instroot}/etc/copyright"
 
