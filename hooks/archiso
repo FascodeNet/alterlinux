@@ -31,13 +31,37 @@ run_hook ()
 
     msg ":: Mounting root (union) filesystem"
     /bin/modprobe -q unionfs >/dev/null 2>&1
-    /bin/mount -t unionfs -o dirs=/tmpfs=rw:/tmpfs/squashfs_root=ro none /real_root
+    /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
 
-    addon_conf="${BOOT_MOUNT}/addons/config"
-    if [ -e "${addon_conf}" ]; then
+    # TODO: some of this could be broken into functions
+    LOOP_NUM="1"
+    addon_dir="${BOOT_MOUNT}/addons"
+    if [ -e "${addon_dir}/config" ]; then
         msg ":: Mounting addons"
-        . $addon_conf
+        while read img mountpoint type; do
+            # check if this line is a comment (starts with #)
+            [ "${img#'#'}" != "${img}" ] && continue
+
+            if [ "${type}" = "bind" ]; then
+                msg "   Binding ${img} to ${mountpoint}"
+                mkdir -p /real_root${mountpoint}
+                /bin/mount -o bind ${addon_dir}/$img /real_root${mountpoint}
+            elif [ "${type}" = "squashfs" ]; then
+                msg "   Adding new union branch: ${img}"
+                mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
+                if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${addon_dir}/$img > /dev/null 2>&1; then
+                    echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
+                    echo "       Couldn't mount all addons"
+                    break
+                fi
+                /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
+                /bin/mount -t unionfs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+                LOOP_NUM=$(( $LOOP_NUM + 1 ))
+            fi
+        done < ${addon_dir}/config
     fi
+
+    /bin/mount -t unionfs -o remount,add=:/tmpfs/squashfs_root=ro none /real_root
 
     if [ -d /proc/sys/dev/cdrom ]; then
         echo 0 > /proc/sys/dev/cdrom/lock

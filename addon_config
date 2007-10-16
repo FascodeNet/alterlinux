@@ -1,17 +1,8 @@
-# This script gets run around the end of the archiso hook
-# These are some typical examples of what addons may need
+# img - location of image/directory to mount relative to addons directory
+# mount point - absolute location on the post-initrd root
+# type - either 'bind' or 'squashfs' for now
 
-# installer package payload in a plain directory
-mkdir -p /real_root/packages
-mount -o bind $BOOT_MOUNT/addons/core /real_root/packages
+# syntax: <img> <mount point> <type>
 
-# a squashed livecd-specific overlay for a pristine system
-#TODO: we should keep track of used loop devices in case of multiple images
-mkdir -p /tmpfs/mnt/live_overlay
-if ! /bin/losetup /dev/loop1 "${BOOT_MOUNT}/addons/live_overlay.sqfs" >/dev/null 2>&1; then
-    echo "ERROR: Cannot mount loop device /dev/loop1...aborting"
-fi
-/bin/mount -r -t squashfs /dev/loop1 /tmpfs/mnt/live_overlay
-mount -t unionfs -o remount,add=/tmpfs/squashfs_root:/tmpfs/mnt/live_overlay=ro none /real_root
-
-# vim:ft=sh:ts=4:sw=4:et:
+core                    /packages           bind
+live_overlay.sqfs       /                   squashfs
