@@ -5,10 +5,6 @@
 
 * possible auto-detection of installed systems via nifty grub tricks?
 
-* generalize adding more images/plain dirs/overlays to the disk
-
-* push to projects.archlinux.org
-
 * win.
 
 * (Dan) We should have the ability to add packages in two ways- package lists
