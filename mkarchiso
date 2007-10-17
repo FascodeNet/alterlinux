@@ -47,16 +47,16 @@ while getopts 'i:P:p:a:fvh' arg; do
     esac
 done
 
+shift $(($OPTIND - 1))
+echo "ARGS: $@"
+
+[ $# -le 1 ] && usage 1
+
 # do UID checking here so someone can at least get usage instructions
 if [ "$EUID" != "0" ]; then
     echo "error: This script must be run as root."
     exit 1
 fi
-
-shift $(($OPTIND - 1))
-echo "ARGS: $@"
-
-[ $# -le 1 ] && usage 1
 
 command_name="${1}"
 case "${command_name}" in
