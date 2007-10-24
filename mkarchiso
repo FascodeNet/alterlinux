@@ -155,16 +155,12 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     find "${instroot}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
 
     # delete a lot of unnecessary cache/log files
-    kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* usr/include initrd"
+    kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* initrd"
     for x in ${kill_dirs}; do
         if [ -e "${instroot}/${x}" ]; then
             rm -rf "${instroot}/${x}"
         fi
     done
-
-    # delete static libraries
-    find "${instroot}/lib" -name *.a -delete
-    find "${instroot}/usr/lib" -name *.a -delete
 
     # pacman DBs are big, delete all sync dbs
     for d in ${instroot}/var/lib/pacman/*; do
