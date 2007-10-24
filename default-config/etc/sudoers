@@ -1,2 +1,2 @@
 root	ALL=(ALL) ALL
-%wheel localhost=(ALL) NOPASSWD: ALL
+%wheel  ALL=(ALL) NOPASSWD: ALL
