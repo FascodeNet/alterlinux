@@ -1,3 +1,26 @@
+# args: source, mountpoint
+_mnt_bind()
+{
+    msg "::: Binding ${1} to ${2}"
+    mkdir -p /real_root${2}
+    /bin/mount -o bind ${addon_dir}/${1} /real_root${2}
+}
+
+# args: image file
+_mnt_squashfs()
+{
+    msg "::: Adding new union branch: ${1}"
+    mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
+    if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${addon_dir}/${1} > /dev/null 2>&1; then
+        echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
+        echo "       Couldn't mount all addons"
+        break
+    fi
+    /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
+    /bin/mount -t unionfs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+    export LOOP_NUM=$(( $LOOP_NUM + 1 ))
+}
+
 run_hook ()
 {
     if [ "x${ramdisk_size}" = "x" ]; then
@@ -33,8 +56,7 @@ run_hook ()
     /bin/modprobe -q unionfs >/dev/null 2>&1
     /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
 
-    # TODO: some of this could be broken into functions
-    LOOP_NUM="1"
+    export LOOP_NUM="1"
     addon_dir="${BOOT_MOUNT}/addons"
     if [ -e "${addon_dir}/config" ]; then
         msg ":: Mounting addons"
@@ -43,20 +65,9 @@ run_hook ()
             [ "${img#'#'}" != "${img}" ] && continue
 
             if [ "${type}" = "bind" ]; then
-                msg "   Binding ${img} to ${mountpoint}"
-                mkdir -p /real_root${mountpoint}
-                /bin/mount -o bind ${addon_dir}/$img /real_root${mountpoint}
+                _mnt_bind ${img} ${mountpoint}
             elif [ "${type}" = "squashfs" ]; then
-                msg "   Adding new union branch: ${img}"
-                mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
-                if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${addon_dir}/$img > /dev/null 2>&1; then
-                    echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
-                    echo "       Couldn't mount all addons"
-                    break
-                fi
-                /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
-                /bin/mount -t unionfs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
-                LOOP_NUM=$(( $LOOP_NUM + 1 ))
+                _mnt_squashfs ${img}
             fi
         done < ${addon_dir}/config
     fi
