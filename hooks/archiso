@@ -58,6 +58,10 @@ run_hook ()
 
     export LOOP_NUM="1"
     addon_dir="${BOOT_MOUNT}/addons"
+
+    # always layer default configuration
+    _mnt_squashfs "default-config.sqfs"
+
     if [ -e "${addon_dir}/config" ]; then
         msg ":: Mounting addons"
         while read img mountpoint type; do

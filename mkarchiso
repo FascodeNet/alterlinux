@@ -167,15 +167,26 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
         [ "$(basename ${d})" != "local" ] && rm -rf "${d}"
     done
 
-    if [ -e "${instroot}/boot" ]; then
+    # copy over kernel and grub configs for boot
+    if [ -e "${instroot}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
         rm -rf "${isoroot}/boot"
-        mv "${instroot}/boot" "${isoroot}"
+        cp -r "${instroot}/boot" "${isoroot}"
+        cp -rf "${DEF_CONFIG_DIR}/boot" "${isoroot}"
     fi
 
     # TODO: this might belong somewhere else
+    mkdir -p "${isoroot}/addons"
     if [ -d "${ADDON_DIR}" ]; then
         echo "Copying addons from ${ADDON_DIR}..."
-        cp -r ${ADDON_DIR} ${isoroot}/addons
+        cp -r ${ADDON_DIR}/* "${isoroot}/addons"
+    fi
+
+    # always make an addon out of DEF_CONFIG_DIR
+    echo "Creating default-config addon..."
+    if [ "${QUIET}" = "y" ]; then
+        mksquashfs "${DEF_CONFIG_DIR}" "${isoroot}/addons/default-config.sqfs" >/dev/null
+    else
+        mksquashfs "${DEF_CONFIG_DIR}" "${isoroot}/addons/default-config.sqfs"
     fi
 fi
 
