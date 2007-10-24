@@ -14,3 +14,10 @@ install:
 	# install default config in a sane location
 	mkdir -p $(DESTDIR)/usr/share/archiso
 	cp -R default-config $(DESTDIR)/usr/share/archiso/
+
+uninstall:
+	rm -f $(DESTDIR)/usr/sbin/mkarchiso
+	rm -f $(DESTDIR)/usr/bin/testiso
+	rm -f $(DESTDIR)/lib/initcpio/hooks/{archiso,boot-cd,boot-usb}
+	rm -f $(DESTDIR)/lib/initcpio/install/{archiso,boot-cd,boot-usb}
+	rm -rf $(DESTDIR)/usr/share/archiso
