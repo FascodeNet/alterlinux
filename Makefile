@@ -1,6 +1,6 @@
 all:
 
-install:
+install: all
 	# install to sbin since script only usable by root
 	mkdir -p $(DESTDIR)/usr/sbin
 	install -m 755 mkarchiso $(DESTDIR)/usr/sbin
