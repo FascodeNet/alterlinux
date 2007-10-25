@@ -11,7 +11,7 @@ _mnt_squashfs()
 {
     msg "::: Adding new union branch: ${1}"
     mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
-    if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${addon_dir}/${1} > /dev/null 2>&1; then
+    if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${1} > /dev/null 2>&1; then
         echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
         echo "       Couldn't mount all addons"
         break
@@ -60,7 +60,7 @@ run_hook ()
     addon_dir="${BOOT_MOUNT}/addons"
 
     # always layer default configuration
-    _mnt_squashfs "default-config.sqfs"
+    _mnt_squashfs "${addon_dir}/default-config.sqfs"
 
     if [ -e "${addon_dir}/config" ]; then
         msg ":: Mounting addons"
@@ -71,7 +71,7 @@ run_hook ()
             if [ "${type}" = "bind" ]; then
                 _mnt_bind ${img} ${mountpoint}
             elif [ "${type}" = "squashfs" ]; then
-                _mnt_squashfs ${img}
+                _mnt_squashfs "${addon_dir}/${img}"
             fi
         done < ${addon_dir}/config
     fi
