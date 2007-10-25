@@ -36,27 +36,20 @@ run_hook ()
         exit 1
     fi
 
-    squashimg="${BOOT_MOUNT}/archlive.sqfs"
+    base_img="${BOOT_MOUNT}/archlive.sqfs"
     if [ "${copytoram}" = "y" ]; then
-        /bin/cat ${squashimg} > /tmpfs/archlive.sqfs
-        squashimg="/tmpfs/archlive.sqfs"
+        /bin/cat ${base_img} > /tmpfs/archlive.sqfs
+        base_img="/tmpfs/archlive.sqfs"
     fi
 
     msg ":: Mounting squashfs image"
     /bin/modprobe -q squashfs >/dev/null 2>&1
-    /bin/mkdir -p /tmpfs/squashfs_root
-    if ! /bin/losetup /dev/loop0 "${squashimg}" >/dev/null 2>&1; then
-        echo "ERROR: Cannot mount loop device /dev/loop0...aborting"
-        exit 1
-    fi
-
-    /bin/mount -r -t squashfs /dev/loop0 /tmpfs/squashfs_root
 
     msg ":: Mounting root (union) filesystem"
     /bin/modprobe -q unionfs >/dev/null 2>&1
     /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
 
-    export LOOP_NUM="1"
+    export LOOP_NUM="0"
     addon_dir="${BOOT_MOUNT}/addons"
 
     # always layer default configuration
@@ -76,7 +69,8 @@ run_hook ()
         done < ${addon_dir}/config
     fi
 
-    /bin/mount -t unionfs -o remount,add=:/tmpfs/squashfs_root=ro none /real_root
+    # layer the "pristine" base system image last
+    _mnt_squashfs ${base_img}
 
     if [ -d /proc/sys/dev/cdrom ]; then
         echo 0 > /proc/sys/dev/cdrom/lock
