@@ -4,4 +4,4 @@ if [ $# -ne 1 ]; then
     echo "usage: testiso <iso name>"
     exit 1
 fi
-qemu -boot d -kernel-kqemu -cdrom "${1}"
+qemu -boot d -kernel-kqemu -m 256 -cdrom "${1}"
