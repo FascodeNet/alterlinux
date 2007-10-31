@@ -13,7 +13,11 @@ install: all
 	install -m 644 install/{archiso,boot-cd,boot-usb} $(DESTDIR)/lib/initcpio/install/
 	# install default config in a sane location
 	mkdir -p $(DESTDIR)/usr/share/archiso
+	install -m 644 archiso-mkinitcpio.conf $(DESTDIR)/usr/share/archiso/
+	install -m 644 packages.list $(DESTDIR)/usr/share/archiso/
 	cp -R default-config $(DESTDIR)/usr/share/archiso/
+	# cheating a bit...sudoers HAS to have certain permissions
+	chmod 0440 $(DESTDIR)/usr/share/archiso/default-config/etc/sudoers
 
 uninstall:
 	rm -f $(DESTDIR)/usr/sbin/mkarchiso
