@@ -130,22 +130,11 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
         _pacman "${pkg}"
     done
 
-    echo "Updating kernel module dependancies"
+    echo "Updating kernel module dependencies"
     kernelver=$(_kversion)
     depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26" >/dev/null
     # remove the initcpio images that were generated for the host system
     find "${instroot}/boot" -name *.img -delete
-
-    echo "Applying default configuration for the Arch ISO"
-    cp -ra --remove-destination --no-preserve=ownership ${DEF_CONFIG_DIR}/* "${instroot}"
-
-    echo "Copyright (C) 2007, Arch Linux (Judd Vinet)" > "${instroot}/etc/copyright"
-
-    echo "Creating initial device nodes"
-    rm -f "${instroot}/dev/console" "${instroot}/dev/null" "${instroot}/dev/zero"
-    mknod -m 644 "${instroot}/dev/console" c 5 1
-    mknod -m 666 "${instroot}/dev/null" c 1 3
-    mknod -m 666 "${instroot}/dev/zero" c 1 5 
 
     echo "Creating default home directory"
     install -d -o1000 -g100 -m0755 "${instroot}/home/arch"
@@ -163,9 +152,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     done
 
     # pacman DBs are big, delete all sync dbs
-    for d in ${instroot}/var/lib/pacman/*; do
-        [ "$(basename ${d})" != "local" ] && rm -rf "${d}"
-    done
+    rm -rf "${instroot}/var/lib/pacman/sync"
 
     # copy over kernel and grub configs for boot
     if [ -e "${instroot}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
@@ -258,7 +245,7 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
     mkisofs ${qflag} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
         -boot-load-size 4 -boot-info-table -publisher "Arch Linux <archlinux.org>" \
         -input-charset=UTF-8 -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" \
-        -copyright /etc/copyright -o "${isoname}" "${isoroot}"
+        -o "${isoname}" "${isoroot}"
 fi
 
 # vim:ts=4:sw=4:et:
