@@ -38,6 +38,7 @@ run_hook ()
 
     base_img="${BOOT_MOUNT}/archlive.sqfs"
     if [ "${copytoram}" = "y" ]; then
+        msg ":: Copying squashfs image to RAM"
         /bin/cat ${base_img} > /tmpfs/archlive.sqfs
         base_img="/tmpfs/archlive.sqfs"
     fi
