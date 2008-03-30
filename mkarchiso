@@ -10,7 +10,7 @@ ADDON_DIR=""
 
 command_name=""
 work_dir=""
-isoname=""
+imgname=""
 
 APPNAME=$(basename "${0}")
 
@@ -19,27 +19,29 @@ usage ()
 {
     echo "usage ${APPNAME} [options] command <command options>"
     echo " general options:"
-    echo "    -f               Force overwrite of working files/squashfs image/iso"
+    echo "    -f               Force overwrite of working files/squashfs image/bootable image"
     echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
     echo "    -P PKGFILE       File with list of packages to install. default: ${PKGFILE}"
     echo "    -p PACKAGE       Additional package to install, can be used multiple times"
     echo "    -a ADDON_DIR     Use addons from DIR. default: none"
+    echo "    -t <iso,disk>    Type of image to create. Defaults to iso."
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
-    echo " install <working dir>        : where to build the ISO root"
-    echo " squash <working dir>         : generate a squashfs image of the ISO root"
-    echo " iso <working dir> <iso name> : build an ISO from the working directory"
-    echo " all <working dir> <iso name> : perform all of the above, in order"
+    echo " install <working dir>        : where to build the image root"
+    echo " squash <working dir>         : generate a squashfs image of the installed root"
+    echo " img <working dir> <image name> : build an image from the working directory"
+    echo " all <working dir> <image name> : perform all of the above, in order"
     exit $1
 }
 
-while getopts 'i:P:p:a:fvh' arg; do
+while getopts 'i:P:p:a:t:fvh' arg; do
     case "${arg}" in
         i) CPIOCONFIG="${OPTARG}" ;;
         P) PKGFILE="${OPTARG}" ;;
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         a) ADDON_DIR="${OPTARG}" ;;
+        t) IMG_TYPE="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage 0 ;;
@@ -62,14 +64,14 @@ command_name="${1}"
 case "${command_name}" in
     install) work_dir="${2}" ;;
     squash) work_dir="${2}" ;;
-    iso) work_dir="${2}"; isoname="${3}" ;;
-    all) work_dir="${2}"; isoname="${3}" ;;
+    img) work_dir="${2}"; imgname="${3}" ;;
+    all) work_dir="${2}"; imgname="${3}" ;;
     *) echo "invalid command name '${command_name}'"; usage 1 ;;
 esac
 
 [ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage 1)
 
-isoroot="${work_dir}/iso"
+imgroot="${work_dir}/img"
 instroot="${work_dir}/install"
 
 _kversion ()
@@ -112,13 +114,13 @@ install_pkgfile ()
 # Go through the main commands in order. If 'all' was specified, then we want
 # to do everything. Start with 'install'.
 if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
-    echo "====> Installing/building ISO root"
+    echo "====> Installing/building image root"
     if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
         echo "error: Working dir '${work_dir}' already exists, aborting."
         exit 1
     fi
 
-    mkdir -p "${isoroot}"
+    mkdir -p "${imgroot}"
     mkdir -p "${instroot}"
 
     echo "Installing packages..."
@@ -140,7 +142,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     install -d -o1000 -g100 -m0755 "${instroot}/home/arch"
 
     # Cleanup
-    echo "Cleaning up ISO root files..."
+    echo "Cleaning up image root files..."
     find "${instroot}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
 
     # delete a lot of unnecessary cache/log files
@@ -156,31 +158,31 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
 
     # copy over kernel and grub configs for boot
     if [ -e "${instroot}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
-        rm -rf "${isoroot}/boot"
-        cp -r "${instroot}/boot" "${isoroot}"
-        cp -rf "${DEF_CONFIG_DIR}/boot" "${isoroot}"
+        rm -rf "${imgroot}/boot"
+        cp -r "${instroot}/boot" "${imgroot}"
+        cp -rf "${DEF_CONFIG_DIR}/boot" "${imgroot}"
     fi
 
     # TODO: this might belong somewhere else
-    mkdir -p "${isoroot}/addons"
+    mkdir -p "${imgroot}/addons"
     if [ -d "${ADDON_DIR}" ]; then
         echo "Copying addons from ${ADDON_DIR}..."
-        cp -r ${ADDON_DIR}/* "${isoroot}/addons"
+        cp -r ${ADDON_DIR}/* "${imgroot}/addons"
     fi
 
     # always make an addon out of DEF_CONFIG_DIR
     echo "Creating default-config addon..."
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${DEF_CONFIG_DIR}" "${isoroot}/addons/default-config.sqfs" >/dev/null
+        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs" >/dev/null
     else
-        mksquashfs "${DEF_CONFIG_DIR}" "${isoroot}/addons/default-config.sqfs"
+        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs"
     fi
 fi
 
 # Squash is the next step.
 if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
     echo "====> Generating SquashFS image"
-    imagename="${isoroot}/archlive.sqfs"
+    imagename="${imgroot}/archlive.sqfs"
     if [ -e "${imagename}" ]; then
         if [ "${FORCE}" = "y" ]; then
             echo -n "Removing old SquashFS image..."
@@ -203,16 +205,16 @@ if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
     echo "Image creation done in $minutes minutes."
 fi
 
-# Finally, make the iso.
-if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
-    echo "====> Making ISO image"
-    [ "x${isoname}" = "x" ] && (echo "ISO image name must be specified" && usage 1)
-    if [ -e "${isoname}" ]; then
+# Finally, make the image.
+if [ "${command_name}" = "img" -o "${command_name}" = "all" ]; then
+    echo "====> Making bootable image"
+    [ "x${imgname}" = "x" ] && (echo "Bootable image name must be specified" && usage 1)
+    if [ -e "${imgname}" ]; then
         if [ "${FORCE}" = "y" ]; then
-            echo "Removing existing ISO image..."
-            rm -rf "${isoname}"
+            echo "Removing existing bootable image..."
+            rm -rf "${imgname}"
         else
-            echo "error: ISO image '${isoname}' already exists, aborting."
+            echo "error: Image '${imgname}' already exists, aborting."
             exit 1
         fi
     fi
@@ -224,12 +226,12 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
     kernelver=$(_kversion)
     basedir=${instroot}
     [ "${instroot:0:1}" != "/" ] && basedir="$(pwd)/${instroot}"
-    echo "Generating initcpio for ISO..."
+    echo "Generating initcpio for image..."
     if [ "${QUIET}" = "y" ]; then
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${isoroot}/boot/archlive.img" >/dev/null
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${imgroot}/boot/archlive.img" >/dev/null
         ret=$?
     else
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${isoroot}/boot/archlive.img"
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${imgroot}/boot/archlive.img"
         ret=$?
     fi
     if [ $ret -ne 0 ]; then
@@ -237,15 +239,22 @@ if [ "${command_name}" = "iso" -o "${command_name}" = "all" ]; then
         exit 1
     fi
 
-    cp ${instroot}/usr/lib/grub/i386-pc/* "${isoroot}/boot/grub"
+    cp ${instroot}/usr/lib/grub/i386-pc/* "${imgroot}/boot/grub"
 
-    echo "Creating ISO image..."
-    q=""
-    [ "${QUIET}" = "y" ] && qflag="-q"
-    mkisofs ${qflag} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 -no-emul-boot \
-        -boot-load-size 4 -boot-info-table -publisher "Arch Linux <archlinux.org>" \
-        -input-charset=UTF-8 -p "prepared by $NAME" -A "Arch Linux Live/Rescue CD" \
-        -o "${isoname}" "${isoroot}"
+    if [ "x$IMG_TYPE" == "xdisk" ]; then
+        echo "Creating DISK image..."
+        mkusbimg "${imgroot}" "${imgname}"
+    else
+        echo "Creating ISO image..."
+        q=""
+        [ "${QUIET}" = "y" ] && qflag="-q"
+        mkisofs ${qflag} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 \
+            -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -publisher "Arch Linux <archlinux.org>" \
+            -input-charset=UTF-8 -p "prepared by $NAME" \
+            -A "Arch Linux Live/Rescue CD" \
+            -o "${imgname}" "${imgroot}"
+    fi
 fi
 
 # vim:ts=4:sw=4:et:

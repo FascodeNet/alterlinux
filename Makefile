@@ -4,6 +4,7 @@ install: all
 	# install to sbin since script only usable by root
 	mkdir -p $(DESTDIR)/usr/sbin
 	install -m 755 mkarchiso $(DESTDIR)/usr/sbin
+	install -m 755 mkusbimg $(DESTDIR)/usr/sbin
 	# testiso can be used by anyone
 	mkdir -p $(DESTDIR)/usr/bin
 	install -m 755 testiso $(DESTDIR)/usr/bin
