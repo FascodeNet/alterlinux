@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CPIOCONFIG="$(pwd)/archiso-mkinitcpio.conf"
 DEF_CONFIG_DIR="$(pwd)/default-config"
@@ -132,7 +132,7 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
 
     echo "Updating kernel module dependencies"
     kernelver=$(_kversion)
-    depmod -a -b "${instroot}" -v "${kernelver}" -F "${instroot}/boot/System.map26" >/dev/null
+    depmod -a -b "${instroot}" "${kernelver}"
     # remove the initcpio images that were generated for the host system
     find "${instroot}/boot" -name *.img -delete
 
