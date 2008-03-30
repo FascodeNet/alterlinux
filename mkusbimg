@@ -56,13 +56,16 @@ LOOPDEV=$(next_avail_loop)
 TMPDIR=$(mktemp -d)
 
 # TODO: there are better ways to do this
-#       than adding 5MB to the rootsize
+#       than adding 25% to the rootsize
+#  XXX: doesn't seem to boot if we cut it too
+#       close. even if everything fits...
 # IMGSZ >= filesystem overhead + rootsize + 512bytes
 # must hold or there will be insufficient space
-IMGSZ=$(( $(du -ms ${IMGROOT}|cut -f1) + 5 ))
+rootsize=$(du -bs ${IMGROOT}|cut -f1)
+IMGSZ=$(( (${rootsize}*5)/4 + 512 ))
 
 # create the image file
-dd if=/dev/zero of="$IMG" bs=1M count="$IMGSZ"
+dd if=/dev/zero of="$IMG" bs="$IMGSZ" count=1
 
 # loop mount the disk image
 losetup "$LOOPDEV" "$IMG"
