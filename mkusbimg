@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+#    mkusbimg - creates a bootable disk image
+#    Copyright (C) 2008  Simo Leone <simo@archlinux.org>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# next_avail_loop()
+# prints the next available loopback device
+# returns 0 on success
+#         1 on failure
+# XXX: this is only necessary because
+#      the cryptoloop patch for losetup
+#      destroys losetup -f
+next_avail_loop()
+{
+    for i in /dev/loop/*; do
+        echo `losetup -a|cut -d':' -f1` | grep -q $i
+        if [ $? -eq 1 ]; then
+            echo $i
+            return 0
+        fi
+    done
+    return 1
+}
+
+# usage(exitvalue)
+# outputs a usage message and exits with value
+APPNAME=$(basename "${0}")
+usage()
+{
+    echo "usage: ${APPNAME} <imageroot> <imagefile>"
+    exit $1
+}
+
+##################################################
+
+if [ $# -ne 2 ]; then
+    usage 1
+fi
+
+IMG="${2}"
+IMGROOT="${1}"
+LOOPDEV=$(next_avail_loop)
+TMPDIR=$(mktemp -d)
+
+# TODO: there are better ways to do this
+#       than adding 5MB to the rootsize
+# IMGSZ >= filesystem overhead + rootsize + 512bytes
+# must hold or there will be insufficient space
+IMGSZ=$(( $(du -ms ${IMGROOT}|cut -f1) + 5 ))
+
+# create the image file
+dd if=/dev/zero of="$IMG" bs=1M count="$IMGSZ"
+
+# loop mount the disk image
+losetup "$LOOPDEV" "$IMG"
+
+# create a partition table
+# if this looks like voodoo, it's because it is
+echo "63,,,*,"|sfdisk -uS "$LOOPDEV"
+
+# loop mount the partition we just made
+# that magic number (offset in bytes to first partition) is more voodoo
+losetup -d "$LOOPDEV"
+losetup -o32256 "$LOOPDEV" "$IMG"
+
+# create a filesystem on our partition
+mke2fs -m 0 "$LOOPDEV"
+
+# mount the filesystem and copy data
+mount "$LOOPDEV" "$TMPDIR"
+cp -a "$IMGROOT"/* "$TMPDIR"
+
+# unmount filesystem and loopback
+umount "$TMPDIR"
+losetup -d "$LOOPDEV"
+
+# install grub on the image
+grub --no-floppy --batch << EOF
+device (hd0) $IMG
+root (hd0,0)
+setup (hd0)
+EOF
+
+# all done :)
+rm -fr "$TMPDIR"
