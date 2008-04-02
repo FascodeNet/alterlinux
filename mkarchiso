@@ -173,9 +173,9 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     # always make an addon out of DEF_CONFIG_DIR
     echo "Creating default-config addon..."
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs" >/dev/null
+        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs" -noappend >/dev/null
     else
-        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs"
+        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs" -noappend
     fi
 fi
 
@@ -197,9 +197,9 @@ if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
     echo "Creating squashfs image. This may take some time..."
     start=$(date +%s)
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${instroot}" "${imagename}" >/dev/null
+        mksquashfs "${instroot}" "${imagename}" -noappend >/dev/null
     else
-        mksquashfs "${instroot}" "${imagename}"
+        mksquashfs "${instroot}" "${imagename}" -noappend
     fi
     minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
     echo "Image creation done in $minutes minutes."
