@@ -1,5 +1,9 @@
 run_hook ()
 {
+    msg ":: Waiting for usb devices to settle..."
+    /sbin/udevtrigger --subsystem-match=usb
+    /sbin/udevsettle
+    sleep 5
     msg ":: Scanning for boot usb device..."
 
     /bin/mkdir -p /bootmnt
