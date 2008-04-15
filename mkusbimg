@@ -26,7 +26,7 @@
 next_avail_loop()
 {
     for i in /dev/loop/*; do
-        echo `losetup -a|cut -d':' -f1` | grep -q $i
+        echo $(losetup -a|cut -d':' -f1) | grep -q $i
         if [ $? -eq 1 ]; then
             echo $i
             return 0
