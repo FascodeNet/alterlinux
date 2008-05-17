@@ -10,6 +10,7 @@ _mnt_bind()
 _mnt_squashfs()
 {
     msg "::: Adding new union branch: ${1}"
+    /bin/modprobe -q loop >/dev/null 2>&1
     mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
     if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${1} > /dev/null 2>&1; then
         echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
