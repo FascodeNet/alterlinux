@@ -1,6 +1,6 @@
 install ()
 {
-    MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls") "
+    MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs isofs loop $(all_modules '/kernel/fs' | grep -v "nls") "
     BINARIES=""
     FILES=""
     add_dir /real_root
