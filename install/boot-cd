@@ -1,6 +1,6 @@
 install ()
 {
-    MODULES="cdrom ide-cd ide-core ide-generic unionfs squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls") "
+    MODULES="cdrom ide-cd_mod ide-core ide-generic unionfs squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls") "
 
     # need usb modules for external drives
     MODULES="${MODULES} $(checked_modules "/usb/host" | grep -ve "_cs" -e "sl1811-hcd" -e "isp116x-hcd")"
