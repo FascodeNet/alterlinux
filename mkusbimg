@@ -16,25 +16,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# next_avail_loop()
-# prints the next available loopback device
-# returns 0 on success
-#         1 on failure
-# XXX: this is only necessary because
-#      the cryptoloop patch for losetup
-#      destroys losetup -f
-next_avail_loop()
-{
-    for i in /dev/loop/*; do
-        echo $(losetup -a|cut -d':' -f1) | grep -q $i
-        if [ $? -eq 1 ]; then
-            echo $i
-            return 0
-        fi
-    done
-    return 1
-}
-
 # usage(exitvalue)
 # outputs a usage message and exits with value
 APPNAME=$(basename "${0}")
@@ -50,52 +31,48 @@ if [ $# -ne 2 ]; then
     usage 1
 fi
 
-IMG="${2}"
+DISKIMG="${2}"
 IMGROOT="${1}"
-LOOPDEV=$(next_avail_loop)
 TMPDIR=$(mktemp -d)
+FSIMG=$(mktemp)
 
-# TODO: there are better ways to do this
-#       than adding 25% to the rootsize
-#  XXX: doesn't seem to boot if we cut it too
-#       close. even if everything fits...
-# IMGSZ >= filesystem overhead + rootsize + 512bytes
-# must hold or there will be insufficient space
+# ext2 overhead's upper bound is 6%
+# empirically tested up to 1GB
 rootsize=$(du -bs ${IMGROOT}|cut -f1)
-IMGSZ=$(( (${rootsize}*5)/4 + 512 ))
+IMGSZ=$(( (${rootsize}*106)/100/512 + 1)) # image size in sectors
 
-# create the image file
-dd if=/dev/zero of="$IMG" bs="$IMGSZ" count=1
+# create the filesystem image file
+dd if=/dev/zero of="$FSIMG" bs=512 count="$IMGSZ"
 
-# loop mount the disk image
-losetup "$LOOPDEV" "$IMG"
+# create a filesystem on the image
+mke2fs -m 0 -F "$FSIMG"
+
+# mount the filesystem and copy data
+mount -o loop "$FSIMG" "$TMPDIR"
+cp -a "$IMGROOT"/* "$TMPDIR"
+
+# unmount filesystem
+umount "$TMPDIR"
+
+# add sectors 0-62, then glue together
+dd if=/dev/zero of="$DISKIMG" bs=512 count=63
+cat "$FSIMG" >> "$DISKIMG"
 
 # create a partition table
 # if this looks like voodoo, it's because it is
-echo "63,,,*,"|sfdisk -uS "$LOOPDEV"
-
-# loop mount the partition we just made
-# that magic number (offset in bytes to first partition) is more voodoo
-losetup -d "$LOOPDEV"
-losetup -o32256 "$LOOPDEV" "$IMG"
-
-# create a filesystem on our partition
-mke2fs -m 0 "$LOOPDEV"
-
-# mount the filesystem and copy data
-mount "$LOOPDEV" "$TMPDIR"
-cp -a "$IMGROOT"/* "$TMPDIR"
-
-# unmount filesystem and loopback
-umount "$TMPDIR"
-losetup -d "$LOOPDEV"
+sfdisk -uS -f "$DISKIMG" << EOF
+63,$IMGSZ,83,*
+0,0,00
+0,0,00
+0,0,00
+EOF
 
 # install grub on the image
 grub --no-floppy --batch << EOF
-device (hd0) $IMG
+device (hd0) $DISKIMG
 root (hd0,0)
 setup (hd0)
 EOF
 
 # all done :)
-rm -fr "$TMPDIR"
+rm -fr "$TMPDIR" "$FSIMG"
