@@ -76,7 +76,7 @@ run_hook ()
 
     if [ -d /proc/sys/dev/cdrom ]; then
         echo 0 > /proc/sys/dev/cdrom/lock
-        echo 1 > /proc/sys/dev/cdrom/autoeject
+        echo 0 > /proc/sys/dev/cdrom/autoeject
     fi
 
     if [ "${break}" = "y" ]; then
