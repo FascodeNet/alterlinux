@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CPIOCONFIG="$(pwd)/archiso-mkinitcpio.conf"
-DEF_CONFIG_DIR="$(pwd)/default-config"
+DEF_CONFIG_DIR="$(pwd)/overlay"
 PKGFILE="$(pwd)/packages.list"
 PKGLIST=""
 QUIET="y"
@@ -28,8 +28,8 @@ usage ()
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
-    echo " install <working dir>        : where to build the image root"
-    echo " squash <working dir>         : generate a squashfs image of the installed root"
+    echo " install <working dir>          : where to build the image root"
+    echo " squash <working dir>           : generate a squashfs image of the installed root"
     echo " img <working dir> <image name> : build an image from the working directory"
     echo " all <working dir> <image name> : perform all of the above, in order"
     exit $1
@@ -171,11 +171,11 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     fi
 
     # always make an addon out of DEF_CONFIG_DIR
-    echo "Creating default-config addon..."
+    echo "Creating default overlay..."
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs" -noappend >/dev/null
+        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/overlay.sqfs" -noappend >/dev/null
     else
-        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/default-config.sqfs" -noappend
+        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/overlay.sqfs" -noappend
     fi
 fi
 

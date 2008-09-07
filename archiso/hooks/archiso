@@ -55,7 +55,7 @@ run_hook ()
     addon_dir="${BOOT_MOUNT}/addons"
 
     # always layer default configuration
-    _mnt_squashfs "${addon_dir}/default-config.sqfs"
+    _mnt_squashfs "${addon_dir}/overlay.sqfs"
 
     if [ -e "${addon_dir}/config" ]; then
         msg ":: Mounting addons"
