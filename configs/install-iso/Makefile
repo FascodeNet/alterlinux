@@ -24,12 +24,12 @@ ftp-iso: .work-ftp
 	mkarchiso -v -t iso -i initcpio-pata img .work-ftp $(FTPname).iso
 
 .work-ftp:
-	chmod 0440 default-config/etc/sudoers
+	chmod 0440 overlay/etc/sudoers
 	mkarchiso -v -P packages.list-$(carch) install .work-ftp
 	mkarchiso -v squash .work-ftp
 
 .work-core: addons/core-pkgs
-	chmod 0440 default-config/etc/sudoers
+	chmod 0440 overlay/etc/sudoers
 	mkarchiso -v -a addons -P packages.list-$(carch) install .work-core
 	mkarchiso -v squash .work-core
 
