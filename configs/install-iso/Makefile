@@ -7,8 +7,8 @@ COREname=$(PWD)/archlinux-$(ver)-core-$(carch)
 all: core-iso core-usb ftp-iso ftp-usb
 
 core-usb: .work-core
-	mkinitcpio -c initcpio-usb-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archlive-ide.img
-	mkarchiso -v -t disk -i initcpio-usb-pata img .work-core $(COREname).img
+	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archlive-ide.img
+	mkarchiso -v -t disk -i initcpio-pata img .work-core $(COREname).img
 
 core-iso: .work-core
 	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archlive-ide.img
@@ -16,8 +16,8 @@ core-iso: .work-core
 
 
 ftp-usb: .work-ftp
-	mkinitcpio -c initcpio-usb-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archlive-ide.img
-	mkarchiso -v -t disk -i initcpio-usb-pata img .work-ftp $(FTPname).img
+	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archlive-ide.img
+	mkarchiso -v -t disk -i initcpio-pata img .work-ftp $(FTPname).img
 
 ftp-iso: .work-ftp
 	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archlive-ide.img
