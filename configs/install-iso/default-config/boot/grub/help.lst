@@ -1,0 +1,16 @@
+# Help files must be exactly 23 lines long.
+timeout 300
+default 0
+color light-blue/blue black/light-grey
+splashimage=/boot/splash.xpm.gz
+
+title << Back to main menu
+configfile /boot/grub/menu.lst
+
+title    HOW-TO: Boot an existing system
+cat /boot/help/bootexisting.txt
+pause Press enter to continue...
+
+title    HOW-TO: Contribute to this help
+cat /boot/help/contrib.txt
+pause Press enter to continue...

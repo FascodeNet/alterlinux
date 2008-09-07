@@ -1,0 +1,6 @@
+# vim:set ft=sh
+MODULES=""
+BINARIES=""
+FILES=""
+
+HOOKS="base udev boot-usb archiso pata scsi sata usb fw filesystems"

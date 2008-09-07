@@ -1,0 +1,7 @@
+# img - location of image/directory to mount relative to addons directory
+# mount point - absolute location on the post-initrd root
+# type - either 'bind' or 'squashfs' for now
+
+# syntax: <img> <mount point> <type>
+
+core-pkgs               /src/core/pkg       bind

@@ -1,0 +1,30 @@
+timeout 300
+default 0
+color light-blue/blue black/light-grey
+splashimage=/boot/splash.xpm.gz
+
+title << Back to Main Menu
+configfile /boot/grub/menu.lst
+
+title    [EXPERIMENTAL] Attempt existing Linux detection
+configfile /boot/grub/tryboot.lst
+
+title    [EDIT ME] Diskless Boot (PXE / BOOTP)
+#TODO wtf?
+root (nd)
+kernel /vmlinuz26 ip=dhcp root=/dev/nfs nfsroot=192.168.1.2:/boot/dir
+
+title    [EDIT ME] NFS Root Boot
+root (cd)
+kernel /vmlinuz26 ip=dhcp root=/dev/nfs nfsroot=192.168.1.2:/boot/dir
+
+title    [EDIT ME] Boot Existing Linux Install
+root   (hd0,0)
+kernel /vmlinuz26 root=/dev/hda3 ro
+initrd /kernel26.img
+
+title    [EDIT ME] Boot Existing Windows Install
+rootnoverify (hd0,0)
+makeactive
+chainloader +1
+

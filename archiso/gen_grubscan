@@ -1,0 +1,30 @@
+#!/bin/bash
+
+count=0
+fallback=""
+for hd in $(seq 0 3); do
+    for part in $(seq 0 17); do
+        count=$(($count + 1))
+        fallback="${fallback} ${count}"
+    done
+done
+
+echo "timeout 0"
+echo "default 0"
+echo "fallback ${fallback}"
+echo "color light-blue/blue black/light-grey"
+echo "splashimage=/boot/splash.xpm.gz"
+echo ""
+
+for hd in $(seq 0 3); do
+    for part in $(seq 0 17); do
+        echo "title Testing disk ${hd}, partition ${part}"
+        echo "set scan_dev=(hd${hd},${part})"
+        echo "fexists \$(scan_dev)/boot/grub/menu.lst"
+        echo "configfile \$(scan_dev)/boot/grub/menu.lst"
+        echo ""
+    done
+done
+
+echo "title Failed"
+echo "pause Scanning for installed grub failed"

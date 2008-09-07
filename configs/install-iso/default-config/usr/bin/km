@@ -1,0 +1,49 @@
+#!/bin/bash
+
+ANSWER=$(mktemp)
+BASEDIR="/usr/share/kbd"
+
+domenu()
+{
+	menutype=$1 ; shift
+	text=$1     ; shift
+	height=$1   ; shift
+	width=$1    ; shift
+	mheight=$1  ; shift
+	
+	dialog --cancel-label "Skip" --$menutype "$text" $height $width $mheight $*
+}
+
+KEYMAPS=
+for i in $(find $BASEDIR/keymaps -name "*.gz" | sort); do
+	KEYMAPS="$KEYMAPS ${i##$BASEDIR/keymaps/} -"
+done
+domenu menu "Select A Keymap" 22 60 16 $KEYMAPS 2>$ANSWER
+keymap=$(cat $ANSWER)
+
+FONTS=
+# skip .cp.gz and partialfonts files for now see bug #6112, #6111
+for i in $(find $BASEDIR/consolefonts -maxdepth 1 ! -name '*.cp.gz' -name "*.gz"  | sed 's|^.*/||g' | sort); do
+	FONTS="$FONTS $i -"
+done
+domenu menu "Select A Console Font" 22 60 16 $FONTS 2>$ANSWER
+font=$(cat $ANSWER)
+
+if [ "$keymap" ]; then
+	loadkeys -q $BASEDIR/keymaps/$keymap
+fi
+
+if [ "$font" ]; then
+	for i in $(seq 1 4); do
+		if [ -d /dev/vc ]; then
+			setfont $BASEDIR/consolefonts/$font -C /dev/vc/${i}
+		else
+			setfont $BASEDIR/consolefonts/$font -C /dev/tty${i}
+		fi
+	done
+fi
+
+rm -f $ANSWER
+clear
+exit 0
+

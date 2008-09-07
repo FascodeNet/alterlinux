@@ -1,0 +1,203 @@
+#!/bin/bash
+# written by Tobias Powalowski <tpowa@archlinux.org>
+
+ANSWER="/tmp/.tz"
+PATH=$PATH:/tmp/bin:/tmp/usr/bin:/tmp/sbin:/tmp/usr/sbin
+TITLE="Arch Linux Time Setting"
+BASEDIR="/usr/share/zoneinfo"
+
+abort()
+{
+	dodialog yesno "Abort Time Setting?" 6 40 || return 0
+	[ -e /tmp/.timezone ] && rm -f /tmp/.timezone
+	[ -e /tmp/.hardwareclock ] && rm -f /tmp/.hardwareclock
+	[ -e /tmp/.tz ] && rm -f /tmp/.tz
+	[ -e /etc/localtime ] && rm -f /etc/localtime
+	[ -e /var/lib/hwclock/adjtime ] && rm -f /var/lib/hwclock/adjtime
+	exit 0
+}
+
+dodialog()
+{
+	# use this for msgbox, inputbox, yesno, infobox
+	#
+	# dodialog <boxtype> <text> [height] [width] [other]
+	# 26/3/06: added an option so that if [other] is default=no 
+	#	   the dialog will default to no
+	# the new dialog's auto-sizing is pretty dumb, we can't trust it
+	height=12
+	width=65
+	if [ "$3" != "" ]; then
+		height=$3
+	fi
+	if [ "$4" != "" ]; then
+		width=$4
+	fi
+	if [ "$5" == "default=no"  ]; then
+		dialog --defaultno --backtitle "$TITLE" --aspect 15 --$1 "$2" $height $width 
+		
+	else
+		dialog --backtitle "$TITLE" --aspect 15 --$1 "$2" $height $width $5
+	fi
+}
+
+domenu()
+{
+	menutype=$1 ; shift
+	text=$1     ; shift
+	height=$1   ; shift
+	width=$1    ; shift
+	mheight=$1  ; shift
+	
+	dialog --cancel-label "Skip" --$menutype "$text" $height $width $mheight $*
+}
+
+dohwclock() {
+if [ "$HARDWARECLOCK" = "UTC" ]; then
+	HWCLOCK_PARAMS="$HWCLOCK_PARAMS --utc"
+	echo UTC > /tmp/.hardwareclock
+else
+	HWCLOCK_PARAMS="$HWCLOCK_PARAMS --localtime"
+	echo localtime > /tmp/.hardwareclock
+fi
+if [ "$USEDIRECTISA" != "no" ]; then
+	HWCLOCK_PARAMS="$HWCLOCK_PARAMS --directisa"
+fi
+[ ! -d /var/lib/hwclock ] && mkdir -p /var/lib/hwclock
+if [ ! -f /var/lib/hwclock/adjtime ]; then
+	echo "0.0 0 0.0" > /var/lib/hwclock/adjtime
+fi
+hwclock $HWCLOCK_PARAMS
+}
+
+dotimezone () {
+REGIONS=""
+SET_REGION=""
+SET_ZONE=""
+for i in $(grep ^[A-Z] $BASEDIR/zone.tab | cut -f 3 | sed -e 's#/.*##g'| sort -u); do
+	REGIONS="$REGIONS $i -"
+done
+domenu menu "Please Select A Region:" 22 60 16 $REGIONS 2>$ANSWER && SET_REGION="1"
+region=$(cat $ANSWER)
+if [ "${SET_REGION}" = "1" ]; then
+	for i in $(grep ^[A-Z] $BASEDIR/zone.tab | grep $region/ | cut -f 3 | sed -e "s#$region/##g"| sort -u); do
+		ZONES="$ZONES $i -"
+	done
+	domenu menu "Please Select A Timezone:" 22 60 16 $ZONES 2>$ANSWER && SET_ZONE="1"
+	zone=$(cat $ANSWER)
+	if [ "${SET_ZONE}" = "1" ]; then
+		dodialog infobox "Setting Timezone to $region/$zone ..."
+		echo $region/$zone > /tmp/.timezone
+		[ -e /etc/localtime ] && rm -f /etc/localtime
+		cp $BASEDIR/$region/$zone /etc/localtime
+		dohwclock
+	else
+		dodialog msgbox "Skipping Region and Timezone, else please select a Timezone!"
+	fi
+else
+	dodialog msgbox "Skipping Region and Timezone, else please select correct Region first!"
+fi
+S_NEXTITEM="2"
+}
+
+dotimeset() {
+USE_UTC=""
+SET_TIME=""
+USE_NTPDATE=""
+### check disabled for now!
+#if [ ! -s /tmp/.timezone ]; then
+#	dodialog msgbox "You have not selected a region and timezone,\nplease select one!"
+#	S_NEXTITEM="1"
+#	return 1
+#fi
+dodialog yesno "Do you want to use UTC for your clock?\n\nIf you choose 'YES' UTC (recommended default) is used,\nwhich ensures daylightsaving is set automatically.\n\nIf you choose 'NO' Localtime is used,\nwhich means the system will not change the time.\nLocaltime is also prefered on dualboot machines,\nwhich also run Windows, because UTC confuses it." 15 65 && HARDWARECLOCK="UTC"
+dodialog infobox "Syncing hardwareclock to systemclock ..." 
+HWCLOCK_PARAMS="--hctosys"
+dodialog yesno "Your current time is:\n$(date)\n\nDo you want to change it?" "" "" && SET_TIME="1"
+if [ "${SET_TIME}" = "1" ]; then
+	[ $(which ntpdate) ] &&  dodialog yesno "'ntpdate' was detected on your system.\n\nDo you want to use 'ntpdate' for syncing your clock,\nby using the internet clock pool?\n(You need a working internet connection for doing this!)" "" "" default=no && USE_NTPDATE="1"
+	if [ "${USE_NTPDATE}" = "1" ]; then
+		if [ ! $(ntpdate pool.ntp.org) ]; then 
+			dodialog msgbox "An error has occured, time was not changed!"
+			S_NEXTITEM="2" 
+			return 1
+		fi
+		dodialog msgbox "Synced clock with internet pool successfully.\n\nYour current time is now:\n$(date)"
+	else
+	dodialog inputbox "Your current time is:\n$(date)\n\nSyntax of your current time is:\n$(date +%m%d%H%M%y)\nMMDDhhmmYY\n\nPlease enter your correct time below,\naccording to the syntax.\n " 17 60 "" 2>$ANSWER || return 1
+		if [ ! $(cat $ANSWER) = "" ]; then
+			if [ ! $(date $(cat $ANSWER)) ]; then
+				dodialog msgbox "An error occured during time setting,\ncurrent time was not changed!"
+				S_NEXTITEM="2"
+				return 1
+			fi
+		else
+			dodialog msgbox "You entered nothing, current time was not changed!"
+			S_NEXTITEM="2"
+			return 1
+		fi
+		dodialog infobox "Syncing systemclock to hardwareclock ..." 
+		HWCLOCK_PARAMS="--systohc"
+		dohwclock
+		dodialog msgbox "Your current time is now:\n$(date)"
+	fi
+else
+	dodialog msgbox "Current time was not changed!"
+fi
+S_NEXTITEM="3"
+}
+
+mainmenu() {
+	if [ -n "$S_NEXTITEM" ]; then
+		DEFAULT="--default-item $S_NEXTITEM"
+	else
+		DEFAULT=""
+	fi
+	dialog $DEFAULT --backtitle "$TITLE" --title " MAIN MENU " \
+		--menu "Use the UP and DOWN arrows to navigate menus. Use TAB to switch between buttons and ENTER to select." 15 55 8 \
+		"1" "Select Region and Timezone" \
+		"2" "Set Date and Time" \
+		"3" "Exit Time Setting" 2>$ANSWER
+	case $(cat $ANSWER) in
+		"1")
+			dotimezone
+			;;
+		"2")
+			dotimeset
+			;;
+		"3")
+			exit 0 ;;
+		*)
+			abort ;;
+	esac
+}
+
+loop() {
+	while $(/bin/true); do
+		mainmenu
+	done
+}
+
+: >/tmp/.hardwareclock
+: >/tmp/.timezone
+
+if [ ! -d $BASEDIR ]; then
+	echo "Cannot load timezone data, as none were found in $BASEDIR" >&2
+	exit 1
+fi
+
+if [ ! $(which hwclock) ]; then
+	echo "'hwclock' binary not found!" >&2
+	exit 1
+fi
+
+
+if [ ! $(which date) ]; then
+	echo "'date' binary not found!" >&2
+	exit 1
+fi
+
+loop
+
+clear
+exit 0
