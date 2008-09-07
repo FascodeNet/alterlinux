@@ -1,0 +1,36 @@
+#color schemes - ganked from SGD ( http://freshmeat.net/projects/supergrub/?branch_id=62132&release_id=236631 )
+# TODO change these and make some more... specifically an "arch" theme
+timeout 300
+default 0
+color light-blue/blue black/light-grey
+splashimage=/boot/splash.xpm.gz
+
+title << Back to Main Menu
+configfile /boot/grub/menu.lst
+
+title Barlond
+color white/cyan yellow/blue
+
+title Barlond2
+color white/blue yellow/cyan
+
+title Simple Black
+color light-gray/black yellow/blue
+
+title Matrix
+color green/black light-green/green
+
+title Dalton Bros.
+color red/green green/red
+
+title Debian
+color cyan/blue white/blue
+
+title BW
+color light-gray/black black/light-gray
+
+title BW Inverse
+color black/light-gray
+
+title SGD Non Default
+color black/cyan yellow/black

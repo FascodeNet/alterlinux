@@ -1,0 +1,24 @@
+HOWTO: Boot an existing install
+
+Select "More Options" from the main menu.
+Move the cursor to "[EDIT ME] Boot an existing linux install"
+Press "e"
+
+At this point you will see the following:
+     root   (hd0,0)
+     kernel /vmlinuz26 root=/dev/hda3 ro
+     initrd /kernel26.img
+
+This needs to be changed to accomodate your hardware.
+
+The first line should be changed to indicate where your boot medium resides.
+  "(hd0,0)" is the first partition on the first hard drive (hda1) - change these
+  numbers to indicate the partition containing your /boot directory.
+  
+The second line should be changed to point to your kernel.  If the line above
+points to a partition _only_ containing /boot, then /vmlinuz26 is fine.
+Otherwise, change this to /boot/vmlinuz.  root= should be changed to match the
+partition for your root filesystem.  Other kernel parameters can be added here.
+
+
+
