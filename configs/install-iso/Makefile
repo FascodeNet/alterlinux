@@ -1,5 +1,5 @@
-ver=2008.06
-kver=2.6.25-ARCH
+ver=2008.09
+kver=2.6.26-ARCH
 carch=i686
 FTPname=$(PWD)/archlinux-$(ver)-ftp-$(carch)
 COREname=$(PWD)/archlinux-$(ver)-core-$(carch)
@@ -13,7 +13,6 @@ core-usb: .work-core
 core-iso: .work-core
 	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archlive-ide.img
 	mkarchiso -v -t iso -i initcpio-pata img .work-core $(COREname).iso
-
 
 ftp-usb: .work-ftp
 	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archlive-ide.img
