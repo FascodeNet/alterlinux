@@ -31,13 +31,56 @@ run_hook ()
 	mount -t tmpfs -o "size=${ramdisk_size}" tmpfs /tmpfs
     msg "done."
 
-    if [ "x${BOOT_MOUNT}" = "x" ]; then
-        echo "ERROR: BOOT_MOUNT is not set. The boot-cd or boot-usb hook MUST"
-        echo "       be run before this one.  This image was improperly built"
+    # external drives may need to settle
+    msg ":: Waiting for usb devices to settle..."
+    /sbin/udevtrigger --subsystem-match=usb
+    /sbin/udevsettle
+    sleep 5
+
+    msg ":: Scanning for boot device..."
+
+    /bin/mkdir -p /bootmnt
+    bootmnt="/bootmnt"
+    found=0
+
+    /bin/modprobe -q isofs >/dev/null 2>&1
+    msg ":: Scanning cd drives..."
+    for cdrom in /dev/cd/*; do
+        if mount -r -t iso9660 "${cdrom}" ${bootmnt} >/dev/null 2>&1; then
+            if [ -e "${bootmnt}/archlive.sqfs" ]; then
+                found=1
+                msg "${cdrom}"
+                break
+            fi
+        else
+            echo "Failed to mount ${cdrom}"
+        fi
+        [ ${found} -eq 0 ] && umount ${bootmnt} >/dev/null 2>&1
+    done
+
+    if [ ${found} -eq 0 ]; then
+        msg ":: Scanning usb drives..."
+        for usb in /dev/sd[a-z][0-9]; do
+            if mount -r -t vfat "${usb}" ${bootmnt} >/dev/null 2>&1 ||\
+                mount -r -t ext2 "${usb}" ${bootmnt} >/dev/null 2>&1; then
+                if [ -e "${bootmnt}/archlive.sqfs" ]; then
+                    found=1
+                    msg "${usb}"
+                    break
+                fi
+            else
+                echo "Failed to mount ${usb}"
+            fi
+            [ ${found} -eq 0 ] && umount ${bootmnt} >/dev/null 2>&1
+        done
+    fi
+
+    if [ ${found} -eq 0 ]; then
+        echo "ERROR: cannot find boot device, cannot continue..."
         exit 1
     fi
 
-    base_img="${BOOT_MOUNT}/archlive.sqfs"
+    base_img="${bootmnt}/archlive.sqfs"
     if [ "${copytoram}" = "y" ]; then
         msg ":: Copying squashfs image to RAM"
         /bin/cat ${base_img} > /tmpfs/archlive.sqfs
@@ -52,7 +95,7 @@ run_hook ()
     /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
 
     export LOOP_NUM="0"
-    addon_dir="${BOOT_MOUNT}/addons"
+    addon_dir="${bootmnt}/addons"
 
     # always layer default configuration
     _mnt_squashfs "${addon_dir}/overlay.sqfs"
