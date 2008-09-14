@@ -71,12 +71,12 @@ esac
 
 [ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage 1)
 
-imgroot="${work_dir}/img"
-instroot="${work_dir}/install"
+IMGROOT="${work_dir}/img"
+INSTROOT="${work_dir}/install"
 
 _kversion ()
 {
-    source ${instroot}/etc/mkinitcpio.d/kernel26.kver
+    source ${INSTROOT}/etc/mkinitcpio.d/kernel26.kver
     echo ${ALL_kver}
 }
 
@@ -85,10 +85,10 @@ _pacman ()
 {
     local ret
     if [ "${QUIET}" = "y" ]; then
-        mkarchroot -f ${instroot} $* 2>&1 >/dev/null
+        mkarchroot -f ${INSTROOT} $* 2>&1 >/dev/null
         ret=$?
     else
-        mkarchroot -f ${instroot} $*
+        mkarchroot -f ${INSTROOT} $*
         ret=$?
     fi
     if [ $ret -ne 0 ]; then
@@ -119,8 +119,8 @@ command_install () {
         exit 1
     fi
 
-    mkdir -p "${imgroot}"
-    mkdir -p "${instroot}"
+    mkdir -p "${IMGROOT}"
+    mkdir -p "${INSTROOT}"
 
     echo "Installing packages..."
     echo " Installing packages from '${PKGFILE}'"
@@ -133,54 +133,55 @@ command_install () {
 
     echo "Updating kernel module dependencies"
     kernelver=$(_kversion)
-    depmod -a -b "${instroot}" "${kernelver}"
+    depmod -a -b "${INSTROOT}" "${kernelver}"
     # remove the initcpio images that were generated for the host system
-    find "${instroot}/boot" -name *.img -delete
+    find "${INSTROOT}/boot" -name *.img -delete
 
     echo "Creating default home directory"
-    install -d -o1000 -g100 -m0755 "${instroot}/home/arch"
+    install -d -o1000 -g100 -m0755 "${INSTROOT}/home/arch"
 
     # Cleanup
     echo "Cleaning up image root files..."
-    find "${instroot}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
+    find "${INSTROOT}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
 
     # delete a lot of unnecessary cache/log files
     kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* initrd"
     for x in ${kill_dirs}; do
-        if [ -e "${instroot}/${x}" ]; then
-            rm -rf "${instroot}/${x}"
+        if [ -e "${INSTROOT}/${x}" ]; then
+            rm -rf "${INSTROOT}/${x}"
         fi
     done
 
     # pacman DBs are big, delete all sync dbs
-    rm -rf "${instroot}/var/lib/pacman/sync"
+    rm -rf "${INSTROOT}/var/lib/pacman/sync"
 
     # copy over kernel and grub configs for boot
-    if [ -e "${instroot}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
-        rm -rf "${imgroot}/boot"
-        cp -r "${instroot}/boot" "${imgroot}"
-        cp -rf "${DEF_CONFIG_DIR}/boot" "${imgroot}"
+    if [ -e "${INSTROOT}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
+        rm -rf "${IMGROOT}/boot"
+        cp -r "${INSTROOT}/boot" "${IMGROOT}"
+        cp -rf "${DEF_CONFIG_DIR}/boot" "${IMGROOT}"
     fi
 
     # TODO: this might belong somewhere else
-    mkdir -p "${imgroot}/addons"
+    mkdir -p "${IMGROOT}/addons"
     if [ -d "${ADDON_DIR}" ]; then
         echo "Copying addons from ${ADDON_DIR}..."
-        cp -r ${ADDON_DIR}/* "${imgroot}/addons"
+        cp -r ${ADDON_DIR}/* "${IMGROOT}/addons"
     fi
 
     # always make an addon out of DEF_CONFIG_DIR
     echo "Creating default overlay..."
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/overlay.sqfs" -noappend >/dev/null
+        mksquashfs "${DEF_CONFIG_DIR}" "${IMGROOT}/addons/overlay.sqfs" -noappend >/dev/null
     else
-        mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/overlay.sqfs" -noappend
+        mksquashfs "${DEF_CONFIG_DIR}" "${IMGROOT}/addons/overlay.sqfs" -noappend
     fi
 }
 
+# command_squash path image
 command_squash () {
     echo "====> Generating SquashFS image"
-    imagename="${imgroot}/archlive.sqfs"
+    imagename="${IMGROOT}/archlive.sqfs"
     if [ -e "${imagename}" ]; then
         if [ "${FORCE}" = "y" ]; then
             echo -n "Removing old SquashFS image..."
@@ -195,9 +196,9 @@ command_squash () {
     echo "Creating squashfs image. This may take some time..."
     start=$(date +%s)
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${instroot}" "${imagename}" -noappend >/dev/null
+        mksquashfs "${INSTROOT}" "${imagename}" -noappend >/dev/null
     else
-        mksquashfs "${instroot}" "${imagename}" -noappend
+        mksquashfs "${INSTROOT}" "${imagename}" -noappend
     fi
     minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
     echo "Image creation done in $minutes minutes."
@@ -221,14 +222,14 @@ command_img () {
     fi
 
     kernelver=$(_kversion)
-    basedir=${instroot}
-    [ "${instroot:0:1}" != "/" ] && basedir="$(pwd)/${instroot}"
+    basedir=${INSTROOT}
+    [ "${INSTROOT:0:1}" != "/" ] && basedir="$(pwd)/${INSTROOT}"
     echo "Generating initcpio for image..."
     if [ "${QUIET}" = "y" ]; then
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${imgroot}/boot/archlive.img" >/dev/null
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${IMGROOT}/boot/archlive.img" >/dev/null
         ret=$?
     else
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${imgroot}/boot/archlive.img"
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${IMGROOT}/boot/archlive.img"
         ret=$?
     fi
     if [ $ret -ne 0 ]; then
@@ -236,11 +237,11 @@ command_img () {
         exit 1
     fi
 
-    cp ${instroot}/usr/lib/grub/i386-pc/* "${imgroot}/boot/grub"
+    cp ${INSTROOT}/usr/lib/grub/i386-pc/* "${IMGROOT}/boot/grub"
 
     if [ "x$IMG_TYPE" == "xdisk" ]; then
         echo "Creating DISK image..."
-        mkusbimg "${imgroot}" "${imgname}"
+        mkusbimg "${IMGROOT}" "${imgname}"
     else
         echo "Creating ISO image..."
         q=""
@@ -250,7 +251,7 @@ command_img () {
             -publisher "Arch Linux <archlinux.org>" \
             -input-charset=UTF-8 -p "prepared by $NAME" \
             -A "Arch Linux Live/Rescue CD" \
-            -o "${imgname}" "${imgroot}"
+            -o "${imgname}" "${IMGROOT}"
     fi
 }
 
