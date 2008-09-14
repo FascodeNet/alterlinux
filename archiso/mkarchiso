@@ -111,9 +111,8 @@ install_pkgfile ()
     fi
 }
 
-# Go through the main commands in order. If 'all' was specified, then we want
-# to do everything. Start with 'install'.
-if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
+
+command_install () {
     echo "====> Installing/building image root"
     if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
         echo "error: Working dir '${work_dir}' already exists, aborting."
@@ -177,10 +176,9 @@ if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
     else
         mksquashfs "${DEF_CONFIG_DIR}" "${imgroot}/addons/overlay.sqfs" -noappend
     fi
-fi
+}
 
-# Squash is the next step.
-if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
+command_squash () {
     echo "====> Generating SquashFS image"
     imagename="${imgroot}/archlive.sqfs"
     if [ -e "${imagename}" ]; then
@@ -203,10 +201,9 @@ if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
     fi
     minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
     echo "Image creation done in $minutes minutes."
-fi
+}
 
-# Finally, make the image.
-if [ "${command_name}" = "img" -o "${command_name}" = "all" ]; then
+command_img () {
     echo "====> Making bootable image"
     [ "x${imgname}" = "x" ] && (echo "Bootable image name must be specified" && usage 1)
     if [ -e "${imgname}" ]; then
@@ -255,6 +252,18 @@ if [ "${command_name}" = "img" -o "${command_name}" = "all" ]; then
             -A "Arch Linux Live/Rescue CD" \
             -o "${imgname}" "${imgroot}"
     fi
+}
+
+# Go through the main commands in order. If 'all' was specified, then we want
+# to do everything. Start with 'install'.
+if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
+    command_install
+fi
+if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
+    command_squash
+fi
+if [ "${command_name}" = "img" -o "${command_name}" = "all" ]; then
+    command_img
 fi
 
 # vim:ts=4:sw=4:et:
