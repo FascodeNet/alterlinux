@@ -1,16 +1,10 @@
 #!/bin/bash
 
 CPIOCONFIG="$(pwd)/archiso-mkinitcpio.conf"
-DEF_CONFIG_DIR="$(pwd)/overlay"
-PKGFILE="$(pwd)/packages.list"
 PKGLIST=""
 QUIET="y"
 FORCE="n"
-ADDON_DIR=""
-
-command_name=""
-work_dir=""
-imgname=""
+MOUNTFILE="$(pwd)/mounts"
 
 APPNAME=$(basename "${0}")
 
@@ -21,26 +15,21 @@ usage ()
     echo " general options:"
     echo "    -f               Force overwrite of working files/squashfs image/bootable image"
     echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
-    echo "    -P PKGFILE       File with list of packages to install. default: ${PKGFILE}"
     echo "    -p PACKAGE       Additional package to install, can be used multiple times"
-    echo "    -a ADDON_DIR     Use addons from DIR. default: none"
     echo "    -t <iso,disk>    Type of image to create. Defaults to iso."
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
-    echo " install <working dir>          : where to build the image root"
-    echo " squash <working dir>           : generate a squashfs image of the installed root"
-    echo " img <working dir> <image name> : build an image from the working directory"
-    echo " all <working dir> <image name> : perform all of the above, in order"
+    echo " install <working dir> <pkg file> : install packages to the working dir"
+    echo " squash <working dir> <sqfs name> : generate a squashfs image of the working dir"
+    echo " img <working dir> <image name>   : build an image from the working dir"
     exit $1
 }
 
 while getopts 'i:P:p:a:t:fvh' arg; do
     case "${arg}" in
         i) CPIOCONFIG="${OPTARG}" ;;
-        P) PKGFILE="${OPTARG}" ;;
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
-        a) ADDON_DIR="${OPTARG}" ;;
         t) IMG_TYPE="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
@@ -61,22 +50,24 @@ if [ "$EUID" != "0" ]; then
 fi
 
 command_name="${1}"
+work_dir=""
+pkgfile=""
+imgname=""
+
 case "${command_name}" in
-    install) work_dir="${2}" ;;
-    squash) work_dir="${2}" ;;
+    install) work_dir="${2}"; pkgfile="${3}"; imgname="none" ;;
+    squash) work_dir="${2}"; imgname="${3}" ;;
     img) work_dir="${2}"; imgname="${3}" ;;
-    all) work_dir="${2}"; imgname="${3}" ;;
     *) echo "invalid command name '${command_name}'"; usage 1 ;;
 esac
 
-[ "x${work_dir}" = "x" ] && (echo "please specify a working directory" && usage 1)
-
-IMGROOT="${work_dir}/img"
-INSTROOT="${work_dir}/install"
+[ "x${imgname}" = "x" ] && (echo "Image name must be specified" && usage 1)
+[ "x${work_dir}" = "x" ] && (echo "Please specify a working directory" && usage 1)
 
 _kversion ()
 {
-    source ${INSTROOT}/etc/mkinitcpio.d/kernel26.kver
+    # Man this is gross... we need a better way to get the kernel version
+    source ${work_dir}/etc/mkinitcpio.d/kernel26.kver
     echo ${ALL_kver}
 }
 
@@ -85,12 +76,16 @@ _pacman ()
 {
     local ret
     if [ "${QUIET}" = "y" ]; then
-        mkarchroot -f ${INSTROOT} $* 2>&1 >/dev/null
+        mkarchroot -f ${work_dir} $* 2>&1 >/dev/null
         ret=$?
     else
-        mkarchroot -f ${INSTROOT} $*
+        mkarchroot -f ${work_dir} $*
         ret=$?
     fi
+
+    # Cleanup
+    find "${work_dir}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
+
     if [ $ret -ne 0 ]; then
         exit 1
     fi
@@ -111,94 +106,85 @@ install_pkgfile ()
     fi
 }
 
-
 command_install () {
-    echo "====> Installing/building image root"
+    echo "====> Installing packages to '${work_dir}'"
     if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
         echo "error: Working dir '${work_dir}' already exists, aborting."
         exit 1
     fi
 
-    mkdir -p "${IMGROOT}"
-    mkdir -p "${INSTROOT}"
+    mkdir -p "${work_dir}"
 
     echo "Installing packages..."
-    echo " Installing packages from '${PKGFILE}'"
-    install_pkgfile "${PKGFILE}"
+    echo " Installing packages from '${pkgfile}'"
+    install_pkgfile "${pkgfile}"
 
     for pkg in ${PKGLIST}; do
         echo "   Installing package '${pkg}'"
         _pacman "${pkg}"
     done
 
-    echo "Updating kernel module dependencies"
-    kernelver=$(_kversion)
-    depmod -a -b "${INSTROOT}" "${kernelver}"
-    # remove the initcpio images that were generated for the host system
-    find "${INSTROOT}/boot" -name *.img -delete
+    if [ -d "${work_dir}/lib/modules/" ]; then
+        echo "Updating kernel module dependencies"
+        kernelver=$(_kversion)
+        depmod -a -b "${work_dir}" "${kernelver}"
+    fi
 
-    echo "Creating default home directory"
-    install -d -o1000 -g100 -m0755 "${INSTROOT}/home/arch"
+    echo "Cleaning up what we can"
+    if [ -d "${work_dir}/boot/" ]; then
+        # remove the initcpio images that were generated for the host system
+        find "${work_dir}/boot" -name *.img -delete
+    fi
 
-    # Cleanup
-    echo "Cleaning up image root files..."
-    find "${INSTROOT}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
+    #TODO is this needed? do it at the Makefile level?
+    if [ -d "${work_dir}/home/" ]; then
+        echo "Creating default home directory"
+        install -d -o1000 -g100 -m0755 "${work_dir}/home/arch"
+    fi
 
     # delete a lot of unnecessary cache/log files
     kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* initrd"
     for x in ${kill_dirs}; do
-        if [ -e "${INSTROOT}/${x}" ]; then
-            rm -rf "${INSTROOT}/${x}"
+        if [ -e "${work_dir}/${x}" ]; then
+            rm -rf "${work_dir}/${x}"
         fi
     done
 
     # pacman DBs are big, delete all sync dbs
-    rm -rf "${INSTROOT}/var/lib/pacman/sync"
+    rm -rf "${work_dir}/var/lib/pacman/sync"
 
-    # copy over kernel and grub configs for boot
-    if [ -e "${INSTROOT}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
-        rm -rf "${IMGROOT}/boot"
-        cp -r "${INSTROOT}/boot" "${IMGROOT}"
-        cp -rf "${DEF_CONFIG_DIR}/boot" "${IMGROOT}"
-    fi
-
-    # TODO: this might belong somewhere else
-    mkdir -p "${IMGROOT}/addons"
-    if [ -d "${ADDON_DIR}" ]; then
-        echo "Copying addons from ${ADDON_DIR}..."
-        cp -r ${ADDON_DIR}/* "${IMGROOT}/addons"
-    fi
+    #TODO test for existance
+    cp "${MOUNTFILE}" "${work_dir}/mounts"
 
     # always make an addon out of DEF_CONFIG_DIR
-    echo "Creating default overlay..."
-    if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${DEF_CONFIG_DIR}" "${IMGROOT}/addons/overlay.sqfs" -noappend >/dev/null
-    else
-        mksquashfs "${DEF_CONFIG_DIR}" "${IMGROOT}/addons/overlay.sqfs" -noappend
-    fi
+    #echo "Creating default overlay..."
+    #if [ "${QUIET}" = "y" ]; then
+    #    mksquashfs "${DEF_CONFIG_DIR}" "${work_dir}/addons/overlay.sqfs" -noappend >/dev/null
+    #else
+    #    mksquashfs "${DEF_CONFIG_DIR}" "${work_dir}/addons/overlay.sqfs" -noappend
+    #fi
 }
 
 # command_squash path image
 command_squash () {
-    echo "====> Generating SquashFS image"
-    imagename="${IMGROOT}/archlive.sqfs"
-    if [ -e "${imagename}" ]; then
+    echo "====> Generating SquashFS image ${imgname}"
+    if [ -e "${imgname}" ]; then
         if [ "${FORCE}" = "y" ]; then
             echo -n "Removing old SquashFS image..."
-            rm "${imagename}"
+            rm "${imgname}"
             echo "done."
         else
-            echo "error: SquashFS image '${imagename}' already exists, aborting."
+            echo "error: SquashFS image '${imgname}' already exists, aborting."
             exit 1
         fi
     fi
 
-    echo "Creating squashfs image. This may take some time..."
+    echo "Creating SquashFS image. This may take some time..."
     start=$(date +%s)
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${INSTROOT}" "${imagename}" -noappend >/dev/null
+        mksquashfs "${work_dir}" "${imgname}" -noappend >/dev/null
     else
-        mksquashfs "${INSTROOT}" "${imagename}" -noappend
+        mksquashfs "${work_dir}" "${imgname}" -noappend
     fi
     minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
     echo "Image creation done in $minutes minutes."
@@ -206,7 +192,6 @@ command_squash () {
 
 command_img () {
     echo "====> Making bootable image"
-    [ "x${imgname}" = "x" ] && (echo "Bootable image name must be specified" && usage 1)
     if [ -e "${imgname}" ]; then
         if [ "${FORCE}" = "y" ]; then
             echo "Removing existing bootable image..."
@@ -222,14 +207,14 @@ command_img () {
     fi
 
     kernelver=$(_kversion)
-    basedir=${INSTROOT}
-    [ "${INSTROOT:0:1}" != "/" ] && basedir="$(pwd)/${INSTROOT}"
+    basedir=${work_dir}
+    [ "${work_dir:0:1}" != "/" ] && basedir="$(pwd)/${work_dir}"
     echo "Generating initcpio for image..."
     if [ "${QUIET}" = "y" ]; then
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${IMGROOT}/boot/archlive.img" >/dev/null
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${work_dir}/boot/archiso.img" >/dev/null
         ret=$?
     else
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${IMGROOT}/boot/archlive.img"
+        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${work_dir}/boot/archiso.img"
         ret=$?
     fi
     if [ $ret -ne 0 ]; then
@@ -237,21 +222,41 @@ command_img () {
         exit 1
     fi
 
-    cp ${INSTROOT}/usr/lib/grub/i386-pc/* "${IMGROOT}/boot/grub"
+    USE_GRUB=1
+    bootflags=""
+    if [ "$USE_GRUB" = "1" ]; then
+        _pacman grub #grub-gfx ??
+        mkdir -p "${work_dir}/boot/grub"
+        cp "${work_dir}/usr/lib/grub/i386-pc/*" "${work_dir}/boot/grub"
+
+        # copy over kernel and grub configs for boot
+        if [ -d "${work_dir}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
+            rm -rf "${work_dir}/boot"
+            cp -r "${work_dir}/boot" "${work_dir}"
+            cp -rf "${DEF_CONFIG_DIR}/boot" "${work_dir}"
+        fi
+        bootflags="boot/grub/stage2_eltorito"
+    else
+        _pacman isolinux
+        bootflags="boot/whatever/isolinux"
+    fi
 
     if [ "x$IMG_TYPE" == "xdisk" ]; then
         echo "Creating DISK image..."
-        mkusbimg "${IMGROOT}" "${imgname}"
+        mkusbimg "${work_dir}" "${imgname}"
     else
         echo "Creating ISO image..."
-        q=""
+        if [ -z "$bootflags" ]; then
+            echo "Eeek, no boot flags found. This probably won't be bootable"
+        fi
+        qflag=""
         [ "${QUIET}" = "y" ] && qflag="-q"
-        mkisofs ${qflag} -r -l -b "boot/grub/stage2_eltorito" -uid 0 -gid 0 \
+        mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
             -publisher "Arch Linux <archlinux.org>" \
-            -input-charset=UTF-8 -p "prepared by $NAME" \
+            -input-charset=UTF-8 -p "prepared by mkarchiso" \
             -A "Arch Linux Live/Rescue CD" \
-            -o "${imgname}" "${IMGROOT}"
+            -o "${imgname}" "${work_dir}"
     fi
 }
 

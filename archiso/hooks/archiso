@@ -47,7 +47,7 @@ run_hook ()
     msg ":: Scanning cd drives..."
     for cdrom in /dev/cd/*; do
         if mount -r -t iso9660 "${cdrom}" ${bootmnt} >/dev/null 2>&1; then
-            if [ -e "${bootmnt}/archlive.sqfs" ]; then
+            if [ -e "${bootmnt}/archiso.sqfs" ]; then
                 found=1
                 msg "${cdrom}"
                 break
@@ -63,7 +63,7 @@ run_hook ()
         for usb in /dev/sd[a-z][0-9]; do
             if mount -r -t vfat "${usb}" ${bootmnt} >/dev/null 2>&1 ||\
                 mount -r -t ext2 "${usb}" ${bootmnt} >/dev/null 2>&1; then
-                if [ -e "${bootmnt}/archlive.sqfs" ]; then
+                if [ -e "${bootmnt}/archiso.sqfs" ]; then
                     found=1
                     msg "${usb}"
                     break
@@ -80,11 +80,11 @@ run_hook ()
         exit 1
     fi
 
-    base_img="${bootmnt}/archlive.sqfs"
+    base_img="${bootmnt}/archiso.sqfs"
     if [ "${copytoram}" = "y" ]; then
         msg ":: Copying squashfs image to RAM"
-        /bin/cat ${base_img} > /tmpfs/archlive.sqfs
-        base_img="/tmpfs/archlive.sqfs"
+        /bin/cat ${base_img} > /tmpfs/archiso.sqfs
+        base_img="/tmpfs/archiso.sqfs"
     fi
 
     msg ":: Mounting squashfs image"

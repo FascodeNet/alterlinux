@@ -1,5 +1,5 @@
-ver=2008.10
-kver=2.6.27-ARCH
+ver=2008.09
+kver=2.6.26-ARCH
 carch=i686
 FTPname=$(PWD)/archlinux-$(ver)-ftp-$(carch)
 COREname=$(PWD)/archlinux-$(ver)-core-$(carch)
