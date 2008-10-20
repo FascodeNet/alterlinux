@@ -23,7 +23,7 @@ usage ()
     echo " commands:"
     echo "   install <working dir> : install packages to the working dir"
     echo "   squash <working dir> <sqfs name> : generate a squashfs image of the working dir"
-    echo "   img <working dir> <image name>   : build an image from the working dir"
+    echo "   image <working dir> <image name>   : build an image from the working dir"
     exit $1
 }
 
@@ -55,7 +55,7 @@ imgname=""
 case "${command_name}" in
     install) work_dir="${2}"; imgname="none" ;;
     squash) work_dir="${2}"; imgname="${3}" ;;
-    img) work_dir="${2}"; imgname="${3}" ;;
+    image) work_dir="${2}"; imgname="${3}" ;;
     *) echo "invalid command name '${command_name}'"; usage 1 ;;
 esac
 
@@ -173,7 +173,7 @@ command_squash () {
     echo "Image creation done in $minutes minutes."
 }
 
-command_img () {
+command_image () {
     echo "====> Making bootable image"
     if [ -e "${imgname}" ]; then
         if [ "${FORCE}" = "y" ]; then
@@ -245,14 +245,14 @@ command_img () {
 
 # Go through the main commands in order. If 'all' was specified, then we want
 # to do everything. Start with 'install'.
-if [ "${command_name}" = "install" -o "${command_name}" = "all" ]; then
+if [ "${command_name}" = "install"  ]; then
     command_install
 fi
-if [ "${command_name}" = "squash" -o "${command_name}" = "all" ]; then
+if [ "${command_name}" = "squash" ]; then
     command_squash
 fi
-if [ "${command_name}" = "img" -o "${command_name}" = "all" ]; then
-    command_img
+if [ "${command_name}" = "image" ]; then
+    command_image
 fi
 
 # vim:ts=4:sw=4:et:
