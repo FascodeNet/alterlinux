@@ -41,8 +41,6 @@ done
 shift $(($OPTIND - 1))
 echo "ARGS: $@"
 
-[ $# -le 1 ] && usage 1
-
 # do UID checking here so someone can at least get usage instructions
 if [ "$EUID" != "0" ]; then
     echo "error: This script must be run as root."
@@ -146,14 +144,6 @@ command_install () {
 
     #TODO test for existance of images in work_dir
     cp "${MOUNTFILE}" "${work_dir}/mounts"
-
-    # always make an addon out of DEF_CONFIG_DIR
-    #echo "Creating default overlay..."
-    #if [ "${QUIET}" = "y" ]; then
-    #    mksquashfs "${DEF_CONFIG_DIR}" "${work_dir}/addons/overlay.sqfs" -noappend >/dev/null
-    #else
-    #    mksquashfs "${DEF_CONFIG_DIR}" "${work_dir}/addons/overlay.sqfs" -noappend
-    #fi
 }
 
 # command_squash path image
