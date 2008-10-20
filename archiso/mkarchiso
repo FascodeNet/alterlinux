@@ -106,12 +106,13 @@ command_install () {
 
     mkdir -p "${work_dir}"
 
-    echo "Installing packages..."
+    if [ "${PKGLIST}" = "" ]; then
+        echo "error: no packages to install"
+        exit 1
+    fi
 
-    for pkg in ${PKGLIST}; do
-        echo "   Installing package '${pkg}'"
-        _pacman "${pkg}"
-    done
+    echo "Installing packages..."
+    _pacman "${PKGLIST}"
 
     if [ -d "${work_dir}/lib/modules/" ]; then
         echo "Updating kernel module dependencies"
