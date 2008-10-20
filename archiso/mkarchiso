@@ -63,6 +63,15 @@ esac
 [ "x${imgname}" = "x" ] && (echo "Image name must be specified" && usage 1)
 [ "x${work_dir}" = "x" ] && (echo "Please specify a working directory" && usage 1)
 
+
+echo "${APPNAME} : Configuration Settings"
+echo "   mkinitcpio config file:   ${CPIOCONFIG}"
+echo "   mount description file:   ${MOUNTFILE}"
+echo "        working directory:   ${work_dir}"
+echo "               image name:   ${imgname}"
+echo "               image type:   ${IMG_TYPE}"
+
+
 _kversion ()
 {
     # Man this is gross... we need a better way to get the kernel version
@@ -135,7 +144,7 @@ command_install () {
     # pacman DBs are big, delete all sync dbs
     rm -rf "${work_dir}/var/lib/pacman/sync"
 
-    #TODO test for existance
+    #TODO test for existance of images in work_dir
     cp "${MOUNTFILE}" "${work_dir}/mounts"
 
     # always make an addon out of DEF_CONFIG_DIR
