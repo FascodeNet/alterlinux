@@ -143,9 +143,6 @@ command_install () {
 
     # pacman DBs are big, delete all sync dbs
     rm -rf "${work_dir}/var/lib/pacman/sync"
-
-    #TODO test for existance of images in work_dir
-    cp "${MOUNTFILE}" "${work_dir}/mounts"
 }
 
 # command_squash path image
@@ -188,6 +185,12 @@ command_image () {
         echo "error: mkinitcpio config '${CPIOCONFIG}' does not exist, aborting."
         exit 1
     fi
+
+    if [ ! -e "${MOUNTFILE}" ]; then
+        echo "error: mount file '${MOUNTFILE}' does not exist, aborting."
+        exit 1
+    fi
+    cp "${MOUNTFILE}" "${work_dir}/mounts"
 
     kernelver=$(_kversion)
     basedir=${work_dir}
