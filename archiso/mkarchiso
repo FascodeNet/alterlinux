@@ -15,7 +15,7 @@ usage ()
     echo " general options:"
     echo "    -f               Force overwrite of working files/squashfs image/bootable image"
     echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
-    echo "    -p PACKAGE       Additional package to install, can be used multiple times"
+    echo "    -p PACKAGE(S)    Additional package(s) to install, can be used multiple times"
     echo "    -t <iso,disk>    Type of image to create. Defaults to iso."
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
@@ -51,11 +51,10 @@ fi
 
 command_name="${1}"
 work_dir=""
-pkgfile=""
 imgname=""
 
 case "${command_name}" in
-    install) work_dir="${2}"; pkgfile="${3}"; imgname="none" ;;
+    install) work_dir="${2}"; imgname="none" ;;
     squash) work_dir="${2}"; imgname="${3}" ;;
     img) work_dir="${2}"; imgname="${3}" ;;
     *) echo "invalid command name '${command_name}'"; usage 1 ;;
@@ -91,21 +90,6 @@ _pacman ()
     fi
 }
 
-# usage: install_pkgfile <packagesfile>
-install_pkgfile ()
-{
-    if [ -e "${1}" ]; then
-        toinstall=""
-        while read pkg; do
-            toinstall="${toinstall} ${pkg}"
-        done < ${1}
-        _pacman "${toinstall}"
-    else
-        echo "error: Package file '${1}' does not exist, aborting."
-        exit 1
-    fi
-}
-
 command_install () {
     echo "====> Installing packages to '${work_dir}'"
     if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
@@ -116,8 +100,6 @@ command_install () {
     mkdir -p "${work_dir}"
 
     echo "Installing packages..."
-    echo " Installing packages from '${pkgfile}'"
-    install_pkgfile "${pkgfile}"
 
     for pkg in ${PKGLIST}; do
         echo "   Installing package '${pkg}'"
