@@ -1,6 +1,5 @@
 #!/bin/bash
 
-CPIOCONFIG="$(pwd)/archiso-mkinitcpio.conf"
 PKGLIST=""
 QUIET="y"
 FORCE="n"
@@ -15,7 +14,6 @@ usage ()
     echo "usage ${APPNAME} [options] command <command options>"
     echo " general options:"
     echo "    -f               Force overwrite of working files/squashfs image/bootable image"
-    echo "    -i CPIO_CONFIG   Use CONFIG file for mkinitcpio. default: ${CPIOCONFIG}"
     echo "    -p PACKAGE(S)    Additional package(s) to install, can be used multiple times"
     echo "    -t <iso,disk>    Type of image to create. Defaults to iso."
     echo "    -v               Enable verbose output."
@@ -29,7 +27,6 @@ usage ()
 
 while getopts 'i:P:p:a:t:fvh' arg; do
     case "${arg}" in
-        i) CPIOCONFIG="${OPTARG}" ;;
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         t) IMG_TYPE="${OPTARG}" ;;
         f) FORCE="y" ;;
@@ -64,19 +61,10 @@ esac
 
 
 echo "${APPNAME} : Configuration Settings"
-echo "   mkinitcpio config file:   ${CPIOCONFIG}"
 echo "   mount description file:   ${MOUNTFILE}"
 echo "        working directory:   ${work_dir}"
 echo "               image name:   ${imgname}"
 echo "               image type:   ${IMG_TYPE}"
-
-
-_kversion ()
-{
-    # Man this is gross... we need a better way to get the kernel version
-    source ${work_dir}/etc/mkinitcpio.d/kernel26.kver
-    echo ${ALL_kver}
-}
 
 # usage: _pacman <packages>...
 _pacman ()
@@ -181,32 +169,12 @@ command_image () {
             exit 1
         fi
     fi
-    if [ ! -e "${CPIOCONFIG}" ]; then
-        echo "error: mkinitcpio config '${CPIOCONFIG}' does not exist, aborting."
-        exit 1
-    fi
 
     if [ ! -e "${MOUNTFILE}" ]; then
         echo "error: mount file '${MOUNTFILE}' does not exist, aborting."
         exit 1
     fi
     cp "${MOUNTFILE}" "${work_dir}/mounts"
-
-    kernelver=$(_kversion)
-    basedir=${work_dir}
-    [ "${work_dir:0:1}" != "/" ] && basedir="$(pwd)/${work_dir}"
-    echo "Generating initcpio for image..."
-    if [ "${QUIET}" = "y" ]; then
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${work_dir}/boot/archiso.img" >/dev/null
-        ret=$?
-    else
-        mkinitcpio -c "${CPIOCONFIG}" -b "${basedir}" -k "${kernelver}" -g "${work_dir}/boot/archiso.img"
-        ret=$?
-    fi
-    if [ $ret -ne 0 ]; then
-        echo "error: initcpio image creation failed..."
-        exit 1
-    fi
 
     USE_GRUB=1
     bootflags=""
