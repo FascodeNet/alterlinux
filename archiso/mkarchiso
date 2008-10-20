@@ -5,6 +5,7 @@ PKGLIST=""
 QUIET="y"
 FORCE="n"
 MOUNTFILE="$(pwd)/mounts"
+IMG_TYPE="iso"
 
 APPNAME=$(basename "${0}")
 
