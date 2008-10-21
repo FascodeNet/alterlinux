@@ -19,9 +19,9 @@ usage ()
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
-    echo "   install <working dir> : install packages to the working dir"
-    echo "   squash <working dir> <sqfs name> : generate a squashfs image of the working dir"
-    echo "   image <working dir> <image name>   : build an image from the working dir"
+    echo "   install <dir> : install packages to the working dir"
+    echo "   squash <dir> <sqfs name> : generate a squashfs image of the working dir"
+    echo "   image -p <bootloader> <dir> <image name> : build an image from the working dir"
     exit $1
 }
 
