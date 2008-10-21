@@ -178,41 +178,60 @@ command_image () {
     fi
     cp "${MOUNTFILE}" "${work_dir}/mounts"
 
-    USE_GRUB=1
     bootflags=""
-    if [ "$USE_GRUB" = "1" ]; then
-        _pacman grub #grub-gfx ??
-        mkdir -p "${work_dir}/boot/grub"
-        cp "${work_dir}/usr/lib/grub/i386-pc/*" "${work_dir}/boot/grub"
-
-        # copy over kernel and grub configs for boot
-        if [ -d "${work_dir}/boot" -a -e "${DEF_CONFIG_DIR}/boot" ]; then
-            rm -rf "${work_dir}/boot"
-            cp -r "${work_dir}/boot" "${work_dir}"
-            cp -rf "${DEF_CONFIG_DIR}/boot" "${work_dir}"
+    if [ "$PKGLIST" = "grub" -o "$PKGLIST" = "grub-gfx" ]; then
+        #test for either (eww, gross)
+        tst=0
+        pacman -Qi grub 2>&1 >/dev/null
+        tst=$(($tst + $?))
+        pacman -Qi grub-gfx 2>&1 >/dev/null
+        tst=$(($tst + $?))
+        if [ $tst -ge 2 ]; then
+            echo "grub or grub-gfx not found on host system. Cannot install!"
+            exit 1
         fi
-        bootflags="boot/grub/stage2_eltorito"
+
+        mkdir -p "${work_dir}/boot/grub/"
+        cp -r /usr/lib/grub/i386-pc/* "${work_dir}/boot/grub"
+        #TODO remove other grub cruft?
+
+        bootflags="-b boot/grub/stage2_eltorito"
+    elif [ "$PKGLIST" = "isolinux" ]; then
+        if ! pacman -Qi $PKGLIST 2>&1 >/dev/null; then
+            echo "$PKGLIST not found on host system. Cannot install!"
+            exit 1
+        fi
+
+        mkdir -p "${work_dir}/boot/isolinux"
+        cp /usr/lib/isolinux/* "${work_dir}/boot/isolinux"
+        #TODO remove other isolinux cruft?
+
+        bootflags="-b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat"
     else
-        _pacman isolinux
-        bootflags="boot/whatever/isolinux"
+        echo "No bootloader specified. Use the -p flag to specify"
+        echo "  Supported Bootloaders:"
+        echo "     grub"
+        echo "     grub-gfx"
+        echo "     isolinux"
+        exit 1
     fi
 
-    if [ "x$IMG_TYPE" == "xdisk" ]; then
+    if [ "$IMG_TYPE" = "disk" ]; then
         echo "Creating DISK image..."
         mkusbimg "${work_dir}" "${imgname}"
-    else
+    elif [ "$IMG_TYPE" = "iso" ]; then
         echo "Creating ISO image..."
-        if [ -z "$bootflags" ]; then
-            echo "Eeek, no boot flags found. This probably won't be bootable"
-        fi
         qflag=""
-        [ "${QUIET}" = "y" ] && qflag="-q"
+        #[ "${QUIET}" = "y" ] && qflag="-q"
         mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
+            -input-charset utf-8 -p "prepared by mkarchiso" \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -publisher "Arch Linux <archlinux.org>" \
-            -input-charset=UTF-8 -p "prepared by mkarchiso" \
-            -A "Arch Linux Live/Rescue CD" \
+            -publisher "ArchLinux <archlinux.org>" \
+            -A "ArchLinux Live/Rescue CD" \
             -o "${imgname}" "${work_dir}"
+    else
+        echo "Invalid image type '$IMG_TYPE' specified"
+        exit 1
     fi
 }
 
