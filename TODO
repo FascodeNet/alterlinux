@@ -1,3 +1,7 @@
+* Installer CD should *NOT* set a timezone in rc.conf, because on shutdown,
+  it may undo settings made in the installer (rc.shutdown does nothing special
+  if TIMEZONE is blank)
+
 * Fix xfce and defaul config directories.
 
 * Make the default config more bare - less grub fancieness
