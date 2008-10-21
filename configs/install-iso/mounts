@@ -4,4 +4,5 @@
 
 # syntax: <img> <mount point> <type>
 
-core-pkgs               /src/core/pkg       bind
+root-image     /                   bind
+core-pkgs      /src/core/pkg       bind

@@ -7,10 +7,6 @@ title  Boot ArchLinux LiveCD
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
 initrd /boot/archiso.img
 
-title  Boot ArchLinux LiveCD [legacy IDE]
-kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75% ide-legacy
-initrd /boot/archiso-ide.img
-
 title Tools...
 configfile /boot/grub/tools.lst
 

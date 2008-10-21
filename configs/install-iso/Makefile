@@ -1,41 +1,49 @@
 ver=2008.10
 kver=2.6.27-ARCH
-carch=i686
-FTPname=$(PWD)/archlinux-$(ver)-ftp-$(carch)
-COREname=$(PWD)/archlinux-$(ver)-core-$(carch)
+
+#Define outside of 'make' for other arches
+ARCH=i686
+
+PWD=`pwd`
+FTPname=$(PWD)/archlinux-$(ver)-ftp-$(ARCH)
+COREname=$(PWD)/archlinux-$(ver)-core-$(ARCH)
 
 all: core-iso core-usb ftp-iso ftp-usb
+all-iso: core-iso ftp-iso 
+all-usb: core-usb ftp-usb
 
-core-usb: .work-core
-	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archiso-ide.img
-	mkarchiso -v -t disk -i initcpio-pata img .work-core $(COREname).img
+core-usb: core-pkgs root-image boot-files
+	mkarchiso -v -p grub-gfx -t disk image image-dir/ $(COREname).img
 
-core-iso: .work-core
-	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archiso-ide.img
-	mkarchiso -v -t iso -i initcpio-pata img .work-core $(COREname).iso
+core-iso: core-pkgs root-image boot-files
+	mkarchiso -v -p grub-gfx image image-dir/ $(FTPname).iso
 
-ftp-usb: .work-ftp
-	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archiso-ide.img
-	mkarchiso -v -t disk -i initcpio-pata img .work-ftp $(FTPname).img
+ftp-usb: root-image boot-files
+	mkarchiso -v -p grub-gfx -t disk image image-dir/ $(FTPname).img
 
-ftp-iso: .work-ftp
-	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archiso-ide.img
-	mkarchiso -v -t iso -i initcpio-pata img .work-ftp $(FTPname).iso
+ftp-iso: root-image boot-files
+	mkarchiso -v -p grub-gfx image image-dir/ $(FTPname).iso
 
-.work-ftp:
+.PHONY: boot-files
+boot-files:
+	mkdir -p image-dir/boot/
+	cp -r boot-files/* image-dir/boot/
+	mkinitcpio -c initcpio-ide -b work/ -k $(kver) -g image-dir/boot/archiso-ide.img
+	mkinitcpio -c initcpio-pata -b work/ -k $(kver) -g image-dir/boot/archiso-pata.img
+
+root-image:
 	chmod 0440 overlay/etc/sudoers
-	mkarchiso -v -P packages.list-$(carch) install .work-ftp
-	mkarchiso -v squash .work-ftp
-
-.work-core: addons/core-pkgs
-	chmod 0440 overlay/etc/sudoers
-	mkarchiso -v -a addons -P packages.list-$(carch) install .work-core
-	mkarchiso -v squash .work-core
+	mkarchiso -v -p "`cat packages.list-$(ARCH)`" install work
+	cp -r overlay/* work
+	mkdir image-dir/
+	mkarchiso -v squash work image-dir/root-image.sqfs
 
 # hacky way to always pull
-.PHONY: addons/core-pkgs
-addons/core-pkgs:
-	wget --mirror -P addons/core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(carch)
+.PHONY: core-pkgs
+core-pkgs:
+	wget --mirror -P core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(ARCH)
+	mkdir image/
+	mkarchiso -v squash core-pkgs image-dir/core-pkgs.sqfs
 
 clean:
-	rm -fr .work-ftp .work-core
+	rm -rf work image

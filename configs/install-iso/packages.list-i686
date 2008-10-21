@@ -10,9 +10,9 @@ intel-536ep
 intel-537
 ipw2100-fw
 ipw2200-fw
-ipw3945
 iwlwifi-3945-ucode
 iwlwifi-4965-ucode
+iwlwifi-5000-ucode
 lftp
 lilo
 lshwd
