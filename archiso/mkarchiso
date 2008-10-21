@@ -61,7 +61,6 @@ esac
 
 
 echo "${APPNAME} : Configuration Settings"
-echo "   mount description file:   ${MOUNTFILE}"
 echo "        working directory:   ${work_dir}"
 echo "               image name:   ${imgname}"
 echo "               image type:   ${IMG_TYPE}"

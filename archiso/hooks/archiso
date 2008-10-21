@@ -3,7 +3,7 @@ _mnt_bind()
 {
     msg "::: Binding ${1} to ${2}"
     mkdir -p /real_root${2}
-    /bin/mount -o bind ${addon_dir}/${1} /real_root${2}
+    /bin/mount -o bind ${1} /real_root${2}
 }
 
 # args: image file
@@ -14,7 +14,6 @@ _mnt_squashfs()
     mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
     if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${1} > /dev/null 2>&1; then
         echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
-        echo "       Couldn't mount all addons"
         break
     fi
     /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
@@ -95,13 +94,8 @@ run_hook ()
     /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
 
     export LOOP_NUM="0"
-    addon_dir="${bootmnt}/addons"
-
-    # always layer default configuration
-    _mnt_squashfs "${addon_dir}/overlay.sqfs"
-
-    if [ -e "${addon_dir}/config" ]; then
-        msg ":: Mounting addons"
+    if [ -e "/mounts" ]; then
+        msg ":: Mounting images"
         while read img mountpoint type; do
             # check if this line is a comment (starts with #)
             [ "${img#"#"}" != "${img}" ] && continue
@@ -109,9 +103,11 @@ run_hook ()
             if [ "${type}" = "bind" ]; then
                 _mnt_bind ${img} ${mountpoint}
             elif [ "${type}" = "squashfs" ]; then
-                _mnt_squashfs "${addon_dir}/${img}"
+                _mnt_squashfs "${img}"
             fi
-        done < ${addon_dir}/config
+        done < /mounts
+    else
+        msg ":: No mountable images found"
     fi
 
     # layer the "pristine" base system image last
