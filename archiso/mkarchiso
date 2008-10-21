@@ -36,6 +36,9 @@ while getopts 'i:P:p:a:t:fvh' arg; do
     esac
 done
 
+#trim spaces
+PKGLIST="$(echo $PKGLIST)"
+
 shift $(($OPTIND - 1))
 echo "ARGS: $@"
 
