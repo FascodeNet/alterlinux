@@ -1,18 +1,15 @@
-* Fix generation scripts... which pretty much suck right now...
+* Fix xfce and defaul config directories.
+
+* Make the default config more bare - less grub fancieness
+
+* Complete isolinux support
+
+* Fix grub / grub-gfx detection and copying
 
 * Add lots and lots of help to the grub menus... also add the 
   graphics to all submenus
 
 * possible auto-detection of installed systems via nifty grub tricks?
 
-* win.
-
 * (Dan) We should have the ability to add packages in two ways- package lists
   that pull from the sync DBs (-S), and packages files as well (-U).
-
-* (Dan) Pacman DBs should not have to be synced multiple times (one for each
-  package list + kernel). They should be synced the first time and that should
-  cover our bases. This may be a pacman bug.
-
-* pregenerate some locales inside the image so we don't constantly get errors
-  about not having them
