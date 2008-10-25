@@ -182,29 +182,31 @@ command_image () {
     if [ "$PKGLIST" = "grub" -o "$PKGLIST" = "grub-gfx" ]; then
         #test for either (eww, gross)
         tst=0
-        pacman -Qi grub 2>&1 >/dev/null
+        pacman -Qi grub >/dev/null 2>&1
         tst=$(($tst + $?))
-        pacman -Qi grub-gfx 2>&1 >/dev/null
+        pacman -Qi grub-gfx >/dev/null 2>&1
         tst=$(($tst + $?))
         if [ $tst -ge 2 ]; then
             echo "grub or grub-gfx not found on host system. Cannot install!"
             exit 1
         fi
 
-        mkdir -p "${work_dir}/boot/grub/"
-        cp -r /usr/lib/grub/i386-pc/* "${work_dir}/boot/grub"
-        #TODO remove other grub cruft?
+        if [ ! -e "${work_dir}/boot/grub/stage2_eltorito" ]; then
+            echo "error: grub stage files not found in '${work_dir}/boot/grub"
+            exit 1
+        fi
 
         bootflags="-b boot/grub/stage2_eltorito"
     elif [ "$PKGLIST" = "isolinux" ]; then
-        if ! pacman -Qi $PKGLIST 2>&1 >/dev/null; then
+        if ! pacman -Qi $PKGLIST >/dev/null 2>&1; then
             echo "$PKGLIST not found on host system. Cannot install!"
             exit 1
         fi
 
-        mkdir -p "${work_dir}/boot/isolinux"
-        cp /usr/lib/isolinux/* "${work_dir}/boot/isolinux"
-        #TODO remove other isolinux cruft?
+        if [ ! -e "${work_dir}/boot/isolinux/isolinux.bin" ]; then
+            echo "error: isolinux bin file not found in '${work_dir}/boot/isolinux"
+            exit 1
+        fi
 
         bootflags="-b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat"
     else
