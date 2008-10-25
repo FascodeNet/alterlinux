@@ -27,14 +27,15 @@ ftp-iso: root-image boot-files
 .PHONY: boot-files
 boot-files:
 	mkdir -p image-dir/boot/
+	cp -r work/boot/* image-dir/boot/
 	cp -r boot-files/* image-dir/boot/
 	mkinitcpio -c initcpio-ide -b work/ -k $(kver) -g image-dir/boot/archiso-ide.img
 	mkinitcpio -c initcpio-pata -b work/ -k $(kver) -g image-dir/boot/archiso-pata.img
 
 root-image:
-	chmod 0440 overlay/etc/sudoers
 	mkarchiso -v -p "`cat packages.list-$(ARCH)`" install work
 	cp -r overlay/* work
+	chmod 0440 work/etc/sudoers
 	mkdir image-dir/
 	mkarchiso -v squash work image-dir/root-image.sqfs
 
@@ -42,8 +43,8 @@ root-image:
 .PHONY: core-pkgs
 core-pkgs:
 	wget --mirror -P core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(ARCH)
-	mkdir image/
+	mkdir image-dir/
 	mkarchiso -v squash core-pkgs image-dir/core-pkgs.sqfs
 
 clean:
-	rm -rf work image
+	rm -rf work image-dir $(FTPname) $(COREname)
