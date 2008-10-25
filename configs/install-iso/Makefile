@@ -26,9 +26,12 @@ ftp-iso: root-image boot-files
 
 .PHONY: boot-files
 boot-files:
-	mkdir -p image-dir/boot/
+	mkdir -p image-dir/boot/grub/
+	#ick! this section needs reworking
+	cp -r work/usr/lib/grub/i386-pc/* image-dir/boot/grub
 	cp -r work/boot/* image-dir/boot/
 	cp -r boot-files/* image-dir/boot/
+	#end ick
 	mkinitcpio -c initcpio-ide -b work/ -k $(kver) -g image-dir/boot/archiso-ide.img
 	mkinitcpio -c initcpio-pata -b work/ -k $(kver) -g image-dir/boot/archiso-pata.img
 
@@ -47,4 +50,4 @@ core-pkgs:
 	mkarchiso -v squash core-pkgs image-dir/core-pkgs.sqfs
 
 clean:
-	rm -rf work image-dir $(FTPname) $(COREname)
+	rm -rf work image-dir $(FTPname).img $(FTPname).iso $(COREname).img $(COREname).iso
