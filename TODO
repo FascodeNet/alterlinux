@@ -2,6 +2,10 @@
   it may undo settings made in the installer (rc.shutdown does nothing special
   if TIMEZONE is blank)
 
+* We're doing way to much at the Makefile level (see the ISO Makefile). I don't
+  like this, but I have no ideas as to a clean way to implement these things in
+  the archiso script itself without getting too specific. Ideas would be helpful
+
 * Fix xfce and defaul config directories.
 
 * Make the default config more bare - less grub fancieness
