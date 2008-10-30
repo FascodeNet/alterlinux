@@ -75,6 +75,8 @@ run_hook ()
 
     if [ ${found} -eq 0 ]; then
         echo "ERROR: cannot find boot device, cannot continue..."
+        echo "   Falling back to interactive prompt"
+        PS1="ramfs$ " /bin/sh -i
         exit 1
     fi
 
@@ -85,7 +87,6 @@ run_hook ()
         base_img="/tmpfs/archiso.sqfs"
     fi
 
-    msg ":: Mounting squashfs image"
     /bin/modprobe -q squashfs >/dev/null 2>&1
 
     msg ":: Mounting root (union) filesystem"
