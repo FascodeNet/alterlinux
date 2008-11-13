@@ -43,7 +43,7 @@ run_hook ()
 
     /bin/modprobe -q isofs >/dev/null 2>&1
     msg ":: Scanning cd drives..."
-    for cdrom in /dev/cd/*; do
+    for cdrom in /dev/hd[a-z] /dev/sr[0-9]* /dev/scd[a-z] /dev/sg[0-9]*; do
         if mount -r -t iso9660 "${cdrom}" ${bootmnt} >/dev/null 2>&1; then
             if [ -e "${bootmnt}/archiso.sqfs" ]; then
                 found=1
