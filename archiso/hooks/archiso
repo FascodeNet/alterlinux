@@ -12,7 +12,11 @@ _mnt_squashfs()
     msg "::: Adding new union branch: ${1}"
     /bin/modprobe -q loop >/dev/null 2>&1
     mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
-    if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${1} > /dev/null 2>&1; then
+    # sometimes it takes udev a while to create device nodes
+    until [ -e "/dev/loop${LOOP_NUM}" ]; do
+        sleep 1
+    done
+    if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${1}; then
         echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
         break
     fi
