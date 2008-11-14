@@ -48,6 +48,7 @@ dd if=/dev/zero of="$FSIMG" bs=512 count="$IMGSZ"
 mke2fs -m 0 -F "$FSIMG"
 
 # mount the filesystem and copy data
+modprobe loop
 mount -o loop "$FSIMG" "$TMPDIR"
 cp -a "$IMGROOT"/* "$TMPDIR"
 
