@@ -53,7 +53,7 @@ run_hook ()
     msg ":: Scanning cd drives..."
     for cdrom in /dev/hd[a-z] /dev/sr[0-9]* /dev/scd[a-z] /dev/sg[0-9]*; do
         if mount -r -t iso9660 "${cdrom}" ${bootmnt} >/dev/null 2>&1; then
-            if [ -e "${bootmnt}/root-image.sqfs" ]; then
+            if [ -e "${bootmnt}/isomounts" ]; then
                 found=1
                 msg "${cdrom}"
                 break
@@ -69,7 +69,7 @@ run_hook ()
         for usb in /dev/sd[a-z][0-9]; do
             if mount -r -t vfat "${usb}" ${bootmnt} >/dev/null 2>&1 ||\
                 mount -r -t ext2 "${usb}" ${bootmnt} >/dev/null 2>&1; then
-                if [ -e "${bootmnt}/root-image.sqfs" ]; then
+                if [ -e "${bootmnt}/isomounts" ]; then
                     found=1
                     msg "${usb}"
                     break
@@ -102,7 +102,7 @@ run_hook ()
     /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
 
     export LOOP_NUM="0"
-    if [ -e "/mounts" ]; then
+    if [ -e "/isomounts" ]; then
         msg ":: Mounting images"
         while read img imgarch mountpoint type; do
             # check if this line is a comment (starts with #)
@@ -115,7 +115,7 @@ run_hook ()
             elif [ "${type}" = "squashfs" ]; then
                 _mnt_squashfs "${img}"
             fi
-        done < /mounts
+        done < /isomounts
     else
         msg ":: No mountable images found"
     fi
