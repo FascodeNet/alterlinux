@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 PKGLIST=""
 QUIET="y"
@@ -15,20 +15,22 @@ usage ()
     echo " general options:"
     echo "    -f               Force overwrite of working files/squashfs image/bootable image"
     echo "    -p PACKAGE(S)    Additional package(s) to install, can be used multiple times"
-    echo "    -t <iso,disk>    Type of image to create. Defaults to iso."
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
-    echo "   install <dir> : install packages to the working dir"
-    echo "   squash <dir> <sqfs name> : generate a squashfs image of the working dir"
-    echo "   image -p <bootloader> <dir> <image name> : build an image from the working dir"
+    echo "   create <dir>"
+    echo "      create a base directory layout to work with"
+    echo "      includes all specified packages"
+    echo "   iso -p <bootloader> <dir> <image name>"
+    echo "      build an iso image from the working dir"
+    echo "   usb -p <bootloader> <dir> <image name>"
+    echo "      build an iso image from the working dir"
     exit $1
 }
 
 while getopts 'i:P:p:a:t:fvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
-        t) IMG_TYPE="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage 0 ;;
@@ -53,15 +55,14 @@ work_dir=""
 imgname=""
 
 case "${command_name}" in
-    install) work_dir="${2}"; imgname="none" ;;
-    squash) work_dir="${2}"; imgname="${3}" ;;
-    image) work_dir="${2}"; imgname="${3}" ;;
+    create) work_dir="${2}"; imgname="none" ;;
+    iso) work_dir="${2}"; imgname="${3}" ;;
+    usb) work_dir="${2}"; imgname="${3}" ;;
     *) echo "invalid command name '${command_name}'"; usage 1 ;;
 esac
 
 [ "x${imgname}" = "x" ] && (echo "Image name must be specified" && usage 1)
 [ "x${work_dir}" = "x" ] && (echo "Please specify a working directory" && usage 1)
-
 
 echo "${APPNAME} : Configuration Settings"
 echo "        working directory:   ${work_dir}"
@@ -88,51 +89,54 @@ _pacman ()
     fi
 }
 
-command_install () {
-    echo "====> Installing packages to '${work_dir}'"
-    if [ -e "${work_dir}" -a "${FORCE}" = "n" ]; then
-        echo "error: Working dir '${work_dir}' already exists, aborting."
-        exit 1
-    fi
+command_create () {
+    echo "====> Creating working directory: ${work_dir}"
+    mkdir -p "${work_dir}/iso/"
+    mkdir -p "${work_dir}/root-image/"
+    echo "# archiso isomounts file
+# img - location of image/directory to mount relative to addons directory
+# arch - architecture of this image
+# mount point - absolute location on the post-initrd root
+# type - either 'bind' or 'squashfs' for now
 
-    mkdir -p "${work_dir}"
+# syntax: <img> <arch> <mount point> <type>
 
-    if [ "${PKGLIST}" = "" ]; then
-        echo "error: no packages to install"
-        exit 1
-    fi
+root-image.sqfs i686 / squashfs
+#root-image-x86_64.sqfs x86_64 / squashfs" > "${work_dir}/isomounts"
 
-    echo "Installing packages..."
-    _pacman "${PKGLIST}"
+    echo "README for this archiso created directory
 
-    if [ -d "${work_dir}/lib/modules/" ]; then
-        echo "Updating kernel module dependencies"
-        kernelver=$(_kversion)
-        depmod -a -b "${work_dir}" "${kernelver}"
-    fi
+All directories in this dir, except for 'iso' will be squashed
+with squashfs and put into the iso dir as iso/<dirname>.sqfs
+This should be reflected in the isomounts file
 
-    echo "Cleaning up what we can"
-    if [ -d "${work_dir}/boot/" ]; then
-        # remove the initcpio images that were generated for the host system
-        find "${work_dir}/boot" -name *.img -delete
-    fi
+The iso dir is later used to build the actual bootable iso.
+...TODO..." > "${work_dir}/README"
 
-    #TODO is this needed? do it at the Makefile level?
-    if [ -d "${work_dir}/home/" ]; then
-        echo "Creating default home directory"
-        install -d -o1000 -g100 -m0755 "${work_dir}/home/arch"
-    fi
+    if [ "${PKGLIST}" != "" ]; then
+        echo "====> Installing packages to '${work_dir}/root-image/'"
+        _pacman "${PKGLIST}"
 
-    # delete a lot of unnecessary cache/log files
-    kill_dirs="var/abs var/cache/man var/cache/pacman var/log/* var/mail tmp/* initrd"
-    for x in ${kill_dirs}; do
-        if [ -e "${work_dir}/${x}" ]; then
-            rm -rf "${work_dir}/${x}"
+        echo "Cleaning up what we can"
+        if [ -d "${work_dir}/root-image/boot/" ]; then
+            # remove the initcpio images that were generated for the host system
+            find "${work_dir}/root-image/boot" -name *.img -delete
         fi
-    done
 
-    # pacman DBs are big, delete all sync dbs
-    rm -rf "${work_dir}/var/lib/pacman/sync"
+        #TODO is this needed? do it at the Makefile level?
+        if [ -d "${work_dir}/root-image/home/" ]; then
+            echo "Creating default home directory"
+            install -d -o1000 -g100 -m0755 "${work_dir}/root-image/home/arch"
+        fi
+
+        # delete a lot of unnecessary cache/log files
+        kill_dirs="var/abs var/cache/man var/cache/pacman var/lib/pacman/sync var/log/* var/mail tmp/* initrd"
+        for x in ${kill_dirs}; do
+            if [ -e "${work_dir}/root-image/${x}" ]; then
+                rm -rf "${work_dir}/root-image/${x}"
+            fi
+        done
+    fi
 }
 
 # command_squash path image
@@ -217,25 +221,6 @@ command_image () {
         echo "     isolinux"
         exit 1
     fi
-
-    if [ "$IMG_TYPE" = "disk" ]; then
-        echo "Creating DISK image..."
-        mkusbimg "${work_dir}" "${imgname}"
-    elif [ "$IMG_TYPE" = "iso" ]; then
-        echo "Creating ISO image..."
-        qflag=""
-        #[ "${QUIET}" = "y" ] && qflag="-q"
-        mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
-            -input-charset utf-8 -p "prepared by mkarchiso" \
-            -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -publisher "ArchLinux <archlinux.org>" \
-            -A "ArchLinux Live/Rescue CD" \
-            -o "${imgname}" "${work_dir}"
-    else
-        echo "Invalid image type '$IMG_TYPE' specified"
-        exit 1
-    fi
-}
 
 # Go through the main commands in order. If 'all' was specified, then we want
 # to do everything. Start with 'install'.
