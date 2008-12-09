@@ -201,7 +201,7 @@ command_image () {
         fi
 
         bootflags="-b boot/grub/stage2_eltorito"
-    elif [ "$PKGLIST" = "isolinux" ]; then
+    elif [ "$PKGLIST" = "syslinux" ]; then
         if ! pacman -Qi $PKGLIST >/dev/null 2>&1; then
             echo "$PKGLIST not found on host system. Cannot install!"
             exit 1
@@ -218,7 +218,7 @@ command_image () {
         echo "  Supported Bootloaders:"
         echo "     grub"
         echo "     grub-gfx"
-        echo "     isolinux"
+        echo "     syslinux"
         exit 1
     fi
 
