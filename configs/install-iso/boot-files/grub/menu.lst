@@ -5,11 +5,11 @@ splashimage=/boot/splash.xpm.gz
 
 title  Boot ArchLinux LiveCD
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
-initrd /boot/archiso-ide.img
+initrd /boot/archiso_ide.img
 
 title  Boot ArchLinux LiveCD [Legacy PATA]
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
-initrd /boot/archiso-pata.img
+initrd /boot/archiso_pata.img
 
 title Tools...
 configfile /boot/grub/tools.lst

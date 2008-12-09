@@ -32,8 +32,8 @@ boot-files:
 	cp -r work/boot/* image-dir/boot/
 	cp -r boot-files/* image-dir/boot/
 	#end ick
-	mkinitcpio -c initcpio-ide -b work/ -k $(kver) -g image-dir/boot/archiso-ide.img
-	mkinitcpio -c initcpio-pata -b work/ -k $(kver) -g image-dir/boot/archiso-pata.img
+	mkinitcpio -c initcpio-ide -b work/ -k $(kver) -g image-dir/boot/archiso_ide.img
+	mkinitcpio -c initcpio-pata -b work/ -k $(kver) -g image-dir/boot/archiso_pata.img
 
 root-image:
 	mkarchiso -v -p "`cat packages.list-$(ARCH)`" install work
