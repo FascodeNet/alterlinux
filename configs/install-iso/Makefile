@@ -27,8 +27,10 @@ ftp-iso: root-image boot-files
 .PHONY: boot-files
 boot-files:
 	mkdir -p image-dir/boot/grub/
+	mkdir -p image-dir/boot/isolinux
 	#ick! this section needs reworking
 	cp -r work/usr/lib/grub/i386-pc/* image-dir/boot/grub
+	cp -r work/usr/lib/syslinux/isolinux.bin image-dir/boot/isolinux
 	cp -r work/boot/* image-dir/boot/
 	cp -r boot-files/* image-dir/boot/
 	#end ick
