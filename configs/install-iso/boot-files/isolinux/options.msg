@@ -1,5 +1,13 @@
-ArchLinux boot options
+splashsmall.rle
+                         0e2008.12 "SantaClaus"07
 
-- Trouble with IDE drives? use the 'archide' option
+Boot flavours on this ISO:
+----------------------------------
+0earch07     : ArchLinux LiveCD [pata] (the Default)
+0earchide07  : ArchLinux LiveCD [legacy IDE mode]
 
-Press F1 to return to the start screen
+0ememtest07  : Run memtest (Memory Testing)
+
+
+0eF107 -> Start screen, 0eF307 -> Troubleshooting, Help
+
