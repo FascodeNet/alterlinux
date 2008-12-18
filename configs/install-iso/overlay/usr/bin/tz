@@ -1,10 +1,12 @@
 #!/bin/bash
 # written by Tobias Powalowski <tpowa@archlinux.org>
+# modified by Gerhard Brauer <gerbra@archlinux.de>
 
 ANSWER="/tmp/.tz"
 PATH=$PATH:/tmp/bin:/tmp/usr/bin:/tmp/sbin:/tmp/usr/sbin
 TITLE="Arch Linux Time Setting"
 BASEDIR="/usr/share/zoneinfo"
+CLOCKSOURCE="localtime"
 
 abort()
 {
@@ -74,6 +76,9 @@ dotimezone () {
 REGIONS=""
 SET_REGION=""
 SET_ZONE=""
+
+dodialog yesno "Your current BIOS time is:\n$(hwclock)\n\nIf your BIOS clock is set to UTC choose YES\nOtherwise (or if unsure) choose NO" 15 65 && CLOCKSOURCE="UTC"
+
 for i in $(grep ^[A-Z] $BASEDIR/zone.tab | cut -f 3 | sed -e 's#/.*##g'| sort -u); do
 	REGIONS="$REGIONS $i -"
 done
@@ -90,6 +95,16 @@ if [ "${SET_REGION}" = "1" ]; then
 		echo $region/$zone > /tmp/.timezone
 		[ -e /etc/localtime ] && rm -f /etc/localtime
 		cp $BASEDIR/$region/$zone /etc/localtime
+        # after timezone changing set the system time back to hwclock value.
+        # Mostly on new installations the bios clock represent the correct time
+        # for the user. Either it is the users localtime or he has set the BIOS
+        # to UTC.  CLOCKSOURCE value choose how the system time is resetted.
+        if [ "${CLOCKSOURCE}" = "UTC" ]; then
+            hwclock --hctosys --utc
+        else
+            hwclock --hctosys
+        fi
+
 		dohwclock
 	else
 		dodialog msgbox "Skipping Region and Timezone, else please select a Timezone!"
@@ -113,7 +128,7 @@ USE_NTPDATE=""
 dodialog yesno "Do you want to use UTC for your clock?\n\nIf you choose 'YES' UTC (recommended default) is used,\nwhich ensures daylightsaving is set automatically.\n\nIf you choose 'NO' Localtime is used,\nwhich means the system will not change the time.\nLocaltime is also prefered on dualboot machines,\nwhich also run Windows, because UTC confuses it." 15 65 && HARDWARECLOCK="UTC"
 dodialog infobox "Syncing hardwareclock to systemclock ..." 
 HWCLOCK_PARAMS="--hctosys"
-dodialog yesno "Your current time is:\n$(date)\n\nDo you want to change it?" "" "" && SET_TIME="1"
+dodialog yesno "Your (new) current time is:\n$(date)\n\nDo you want to correct it?" "" "" && SET_TIME="1"
 if [ "${SET_TIME}" = "1" ]; then
 	[ $(which ntpdate) ] &&  dodialog yesno "'ntpdate' was detected on your system.\n\nDo you want to use 'ntpdate' for syncing your clock,\nby using the internet clock pool?\n(You need a working internet connection for doing this!)" "" "" default=no && USE_NTPDATE="1"
 	if [ "${USE_NTPDATE}" = "1" ]; then
@@ -141,8 +156,6 @@ if [ "${SET_TIME}" = "1" ]; then
 		dohwclock
 		dodialog msgbox "Your current time is now:\n$(date)"
 	fi
-else
-	dodialog msgbox "Current time was not changed!"
 fi
 S_NEXTITEM="3"
 }
