@@ -1,8 +1,10 @@
-ver=2008.10
+ver=2008.12
 kver=2.6.27-ARCH
 
 #Define outside of 'make' for other arches
 ARCH=i686
+
+WORKDIR=work
 
 PWD=`pwd`
 FTPname=$(PWD)/archlinux-$(ver)-ftp-$(ARCH)
@@ -12,44 +14,36 @@ all: core-iso core-usb ftp-iso ftp-usb
 all-iso: core-iso ftp-iso 
 all-usb: core-usb ftp-usb
 
-core-usb: core-pkgs root-image boot-files
-	mkarchiso -v -p grub-gfx -t disk image image-dir/ $(COREname).img
+core-usb: core-pkgs overlay
+	mkarchiso -v -p grub-gfx usb $(WORKDIR) $(FTPname).iso
 
-core-iso: core-pkgs root-image boot-files
-	mkarchiso -v -p grub-gfx image image-dir/ $(FTPname).iso
+core-iso: core-pkgs overlay
+	mkarchiso -v -p grub-gfx iso $(WORKDIR) $(FTPname).iso
 
-ftp-usb: root-image boot-files
-	mkarchiso -v -p grub-gfx -t disk image image-dir/ $(FTPname).img
+ftp-usb: overlay
+	mkarchiso -v -p grub-gfx usb $(WORKDIR) $(FTPname).img
 
-ftp-iso: root-image boot-files
-	mkarchiso -v -p grub-gfx image image-dir/ $(FTPname).iso
+ftp-iso: overlay
+	mkarchiso -v -p grub-gfx iso $(WORKDIR) $(FTPname).iso
 
-.PHONY: boot-files
-boot-files:
-	mkdir -p image-dir/boot/grub/
-	mkdir -p image-dir/boot/isolinux
-	#ick! this section needs reworking
-	cp -r work/usr/lib/grub/i386-pc/* image-dir/boot/grub
-	cp -r work/usr/lib/syslinux/isolinux.bin image-dir/boot/isolinux
-	cp -r work/boot/* image-dir/boot/
-	cp -r boot-files/* image-dir/boot/
-	#end ick
-	mkinitcpio -c initcpio-ide -b work/ -k $(kver) -g image-dir/boot/archiso_ide.img
-	mkinitcpio -c initcpio-pata -b work/ -k $(kver) -g image-dir/boot/archiso_pata.img
+overlay: base-iso
+	cp -r overlay $(WORKDIR)/
 
 root-image:
-	mkarchiso -v -p "`cat packages.list-$(ARCH)`" install work
-	cp -r overlay/* work
-	chmod 0440 work/etc/sudoers
-	mkdir image-dir/
-	mkarchiso -v squash work image-dir/root-image.sqfs
+	mkarchiso -v -p "`cat packages.list-$(ARCH)`" create $(WORKDIR)
+	
+base-iso: root-image
+	mv $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
+	cp -r boot-files/* $(WORKDIR)/iso/boot/
+	cp -r $(WORKDIR)/root-image/usr/lib/grub/i386-pc/* $(WORKDIR)/iso/boot/grub
+	cp -r $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux
+	
+	mkinitcpio -c initcpio-ide -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso-ide.img
+	mkinitcpio -c initcpio-pata -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso-pata.img
 
-# hacky way to always pull
-.PHONY: core-pkgs
-core-pkgs:
-	wget --mirror -P core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(ARCH)
-	mkdir image-dir/
-	mkarchiso -v squash core-pkgs image-dir/core-pkgs.sqfs
+core-pkgs: base-iso
+	mkdir $(WORKDIR)/core-pkgs/
+	wget --mirror -P $(WORKDIR)/core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(ARCH)
 
 clean:
-	rm -rf work image-dir $(FTPname).img $(FTPname).iso $(COREname).img $(COREname).iso
+	rm -rf $(WORKDIR) image-dir $(FTPname).img $(FTPname).iso $(COREname).img $(COREname).iso

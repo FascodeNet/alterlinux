@@ -1,0 +1,12 @@
+# archiso isomounts file
+# img - location of image/directory to mount relative to addons directory
+# arch - architecture of this image
+# mount point - absolute location on the post-initrd root
+# type - either 'bind' or 'squashfs' for now
+
+# syntax: <img> <arch> <mount point> <type>
+
+root-image.sqfs i686 / squashfs
+overlay.sqfs i686 / squashfs
+overlay.sqfs x86_64 / squashfs
+core-pkgs.sqfs i686 /src/core/pkg squashfs
