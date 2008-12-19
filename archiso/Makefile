@@ -3,7 +3,6 @@ all:
 install: all
 	# install to sbin since script only usable by root
 	install -D -m 755 mkarchiso $(DESTDIR)/usr/sbin
-	install -D -m 755 mkusbimg $(DESTDIR)/usr/sbin
 	# testiso can be used by anyone
 	install -D -m 755 testiso $(DESTDIR)/usr/bin
 	# hooks/install are needed by mkinitcpio
