@@ -209,30 +209,14 @@ command_iso () {
     _imgcommon
 
     bootflags=""
-    if [ "$PKGLIST" = "grub" -o "$PKGLIST" = "grub-gfx" ]; then
-        #test for either (eww, gross)
-        tst=0
-        pacman -Qi grub >/dev/null 2>&1
-        tst=$(($tst + $?))
-        pacman -Qi grub-gfx >/dev/null 2>&1
-        tst=$(($tst + $?))
-        if [ $tst -ge 2 ]; then
-            echo "grub or grub-gfx not found on host system. Cannot install!"
-            exit 1
-        fi
-
+    if [ "$PKGLIST" = "grub" ]; then
         if [ ! -e "${work_dir}/iso/boot/grub/stage2_eltorito" ]; then
             echo "error: grub stage files not found in '${work_dir}/iso/boot/grub'"
             exit 1
         fi
 
         bootflags="-b boot/grub/stage2_eltorito"
-    elif [ "$PKGLIST" = "isolinux" ]; then
-        if ! pacman -Qi $PKGLIST >/dev/null 2>&1; then
-            echo "$PKGLIST not found on host system. Cannot install!"
-            exit 1
-        fi
-
+    elif [ "$PKGLIST" = "syslinux" ]; then
         if [ ! -e "${work_dir}/iso/boot/isolinux/isolinux.bin" ]; then
             echo "error: isolinux bin file not found in '${work_dir}/iso/boot/isolinux'"
             exit 1
@@ -243,8 +227,7 @@ command_iso () {
         echo "No bootloader specified. Use the -p flag to specify"
         echo "  Supported Bootloaders:"
         echo "     grub"
-        echo "     grub-gfx"
-        echo "     isolinux"
+        echo "     syslinux"
         exit 1
     fi
 
