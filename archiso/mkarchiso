@@ -107,6 +107,8 @@ with squashfs and put into the iso dir as iso/<dirname>.sqfs
 This should be reflected in the isomounts file
 
 The iso dir is later used to build the actual bootable iso.
+Please ensure the proper bootloader is installed or copied
+to the iso/ directory.
 ...TODO..." > "${work_dir}/README"
 
     if [ "${PKGLIST}" != "" ]; then
