@@ -209,7 +209,7 @@ command_iso () {
     _imgcommon
 
     bootflags=""
-    if [ "$PKGLIST" = "grub" ]; then
+    if [ "$PKGLIST" = "grub" -o "$PKGLIST" = "grub-gfx" ]; then
         if [ ! -e "${work_dir}/iso/boot/grub/stage2_eltorito" ]; then
             echo "error: grub stage files not found in '${work_dir}/iso/boot/grub'"
             exit 1
@@ -227,6 +227,7 @@ command_iso () {
         echo "No bootloader specified. Use the -p flag to specify"
         echo "  Supported Bootloaders:"
         echo "     grub"
+        echo "     grub-gfx"
         echo "     syslinux"
         exit 1
     fi
