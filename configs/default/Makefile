@@ -1,41 +1,30 @@
-ver=2008.09
-kver=2.6.26-ARCH
-carch=i686
-FTPname=$(PWD)/archlinux-$(ver)-ftp-$(carch)
-COREname=$(PWD)/archlinux-$(ver)-core-$(carch)
+#### Change these settings to modify how this ISO is built
+#  The directory that we use for working files
+WORKDIR=work
+#  A list of packages to install, space separated. Can include groups
+PACKAGES="base grub"
+# The name of our ISO. Does not specify the architecture!
+ISONAME=sample-1.0.0.iso
 
-all: core-iso core-usb ftp-iso ftp-usb
-
-core-usb: .work-core
-	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archiso-ide.img
-	mkarchiso -v -t disk -i initcpio-pata img .work-core $(COREname).img
-
-core-iso: .work-core
-	mkinitcpio -c initcpio-ide -b .work-core/install -k $(kver) -g .work-core/img/boot/archiso-ide.img
-	mkarchiso -v -t iso -i initcpio-pata img .work-core $(COREname).iso
-
-ftp-usb: .work-ftp
-	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archiso-ide.img
-	mkarchiso -v -t disk -i initcpio-pata img .work-ftp $(FTPname).img
-
-ftp-iso: .work-ftp
-	mkinitcpio -c initcpio-ide -b .work-ftp/install -k $(kver) -g .work-ftp/img/boot/archiso-ide.img
-	mkarchiso -v -t iso -i initcpio-pata img .work-ftp $(FTPname).iso
-
-.work-ftp:
-	chmod 0440 overlay/etc/sudoers
-	mkarchiso -v -P packages.list-$(carch) install .work-ftp
-	mkarchiso -v squash .work-ftp
-
-.work-core: addons/core-pkgs
-	chmod 0440 overlay/etc/sudoers
-	mkarchiso -v -a addons -P packages.list-$(carch) install .work-core
-	mkarchiso -v squash .work-core
-
-# hacky way to always pull
-.PHONY: addons/core-pkgs
-addons/core-pkgs:
-	wget --mirror -P addons/core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(carch)
+all:
+	mkarchiso -p "$(PACKAGES)" create "$(WORKDIR)"
+	
+	# Do any editing to $(WORKDIR)/iso/ or $(WORKDIR)/root-image/ here
+	# Copy grub files to the ISO dir so we can boot it
+	mkdir -p "$(WORKDIR)/iso/boot/grub"
+	mv "$(WORKDIR)/root-image/boot" "$(WORKDIR)/iso/"
+	cp -r "$(WORKDIR)/root-image/usr/lib/grub/i386-pc/"* "$(WORKDIR)/iso/boot/grub"
+	
+	# Use our own menu.lst
+	cp menu.lst "$(WORKDIR)/iso/boot/grub/"
+	
+	#Rebuild the mkinitcpio image with the archiso hook
+	mkinitcpio -c mkinitcpio.conf -b "$(WORKDIR)/root-image" -k $(kver) -g "$(WORKDIR)/iso/boot/archiso.img"
+	
+	mkarchiso -p grub iso "$(WORKDIR)" "$(ISONAME)"
+	
+	# Cleanup our working dir
+	rm -rf "$(WORKDIR)"
 
 clean:
-	rm -fr .work-ftp .work-core
+	rm -rf "$(WORKDIR)" "$(ISONAME)"

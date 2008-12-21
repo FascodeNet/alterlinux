@@ -1,4 +1,4 @@
-timeout 300
+timeout 30
 default 0
 color light-blue/blue black/light-grey
 splashimage=/boot/splash.xpm.gz
@@ -6,18 +6,6 @@ splashimage=/boot/splash.xpm.gz
 title  Boot ArchLinux LiveCD
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
 initrd /boot/archiso.img
-
-title Tools...
-configfile /boot/grub/tools.lst
-
-title Grub Settings...
-configfile /boot/grub/settings.lst
-
-title View Help...
-configfile /boot/grub/help.lst
-
-title More Options...
-configfile /boot/grub/more.lst
 
 title  Shutdown the Computer
 halt
