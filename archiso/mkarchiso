@@ -3,6 +3,7 @@
 PKGLIST=""
 QUIET="y"
 FORCE="n"
+PACCONFIG="/etc/pacman.conf"
 
 APPNAME=$(basename "${0}")
 
@@ -13,6 +14,7 @@ usage ()
     echo " general options:"
     echo "    -f               Force overwrite of working files/squashfs image/bootable image"
     echo "    -p PACKAGE(S)    Additional package(s) to install, can be used multiple times"
+    echo "    -C <file>        Config file for pacman. Default $PACCONFIG"
     echo "    -v               Enable verbose output."
     echo "    -h               This message."
     echo " commands:"
@@ -29,6 +31,7 @@ usage ()
 while getopts 'i:P:p:a:t:fvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
+        C) PACCONFIG="${OPTARG}" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage 0 ;;
@@ -44,6 +47,11 @@ shift $(($OPTIND - 1))
 # do UID checking here so someone can at least get usage instructions
 if [ "$EUID" != "0" ]; then
     echo "error: This script must be run as root."
+    exit 1
+fi
+
+if [ ! -f "$PACCONFIG" ]; then
+    echo "error: pacman config file '$PACCONFIG' does not exist"
     exit 1
 fi
 
@@ -70,10 +78,10 @@ _pacman ()
 {
     local ret
     if [ "${QUIET}" = "y" ]; then
-        mkarchroot -f "${work_dir}/root-image" $* 2>&1 >/dev/null
+        mkarchroot -C "$PACCONFIG" -f "${work_dir}/root-image" $* 2>&1 >/dev/null
         ret=$?
     else
-        mkarchroot -f "${work_dir}/root-image" $*
+        mkarchroot -C "$PACCONFIG" -f "${work_dir}/root-image" $*
         ret=$?
     fi
 
