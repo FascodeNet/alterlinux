@@ -6,7 +6,7 @@
 
 # syntax: <img> <arch> <mount point> <type>
 
-root-image.sqfs i686 / squashfs
+# ORDER MATTERS! Files take top-down precedence. Be careful
 overlay.sqfs i686 / squashfs
-overlay.sqfs x86_64 / squashfs
 core-pkgs.sqfs i686 /src/core/pkg squashfs
+root-image.sqfs i686 / squashfs

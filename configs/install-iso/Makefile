@@ -32,7 +32,7 @@ overlay: base-iso
 	cp -r overlay $(WORKDIR)/
 
 root-image:
-	mkarchiso -p "$(PACKAGES)" create $(WORKDIR)
+	mkarchiso -p $(PACKAGES) create $(WORKDIR)
 	
 base-iso: root-image
 	mv $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
