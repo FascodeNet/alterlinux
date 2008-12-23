@@ -55,7 +55,7 @@ grub-gfx:
 grub:
 	cp -r $(WORKDIR)/root-image/usr/lib/grub/i386-pc/* $(WORKDIR)/iso/boot/grub
 
-isolinux:
+syslinux:
 	cp -r $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux
 
 clean:
