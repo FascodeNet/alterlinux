@@ -286,17 +286,17 @@ command_usb () {
     # create a partition table
     # if this looks like voodoo, it's because it is
     sfdisk -uS -f "${imgname}" << EOF
-    63,$imgsz,83,*
-    0,0,00
-    0,0,00
-    0,0,00
+63,$imgsz,83,*
+0,0,00
+0,0,00
+0,0,00
 EOF
 
     # install grub on the image
     grub --no-floppy --batch << EOF
-    device (hd0) ${imgname}
-    root (hd0,0)
-    setup (hd0)
+device (hd0) ${imgname}
+root (hd0,0)
+setup (hd0)
 EOF
 
 }
