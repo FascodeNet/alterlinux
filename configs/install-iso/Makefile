@@ -15,6 +15,8 @@ PACKAGES="`cat packages.list` $(BOOTLOADER)"
 all: core-iso core-usb ftp-iso ftp-usb
 all-iso: core-iso ftp-iso 
 all-usb: core-usb ftp-usb
+all-ftp: ftp-iso ftp-usb
+all-core: core-iso core-usb
 
 core-usb: core-pkgs overlay $(BOOTLOADER)
 	mkarchiso -p $(BOOTLOADER) usb $(WORKDIR) $(FTPname).iso
