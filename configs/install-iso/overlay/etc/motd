@@ -2,8 +2,6 @@
 * To begin installation, run /arch/setup                     *
 * You can find documentation at /arch/arch-install-guide.txt *
 *                                                            *
-* If you have not set your timezone and/or clock set them    *
-*       using the 'tz' utility.                              *
 * i18n: Use the 'km' utility to change your keyboard layout  *
 *       and console font.                                    *
 *                                                            *
