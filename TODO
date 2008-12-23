@@ -1,23 +1,10 @@
-* Installer CD should *NOT* set a timezone in rc.conf, because on shutdown,
-  it may undo settings made in the installer (rc.shutdown does nothing special
-  if TIMEZONE is blank)
-
-* We're doing way to much at the Makefile level (see the ISO Makefile). I don't
-  like this, but I have no ideas as to a clean way to implement these things in
-  the archiso script itself without getting too specific. Ideas would be helpful
-
-* Fix xfce and defaul config directories.
-
-* Make the default config more bare - less grub fancieness
-
-* Complete isolinux support
-
-* Fix grub / grub-gfx detection and copying
+* Fix xfce and default config directories.
 
 * Add lots and lots of help to the grub menus... also add the 
   graphics to all submenus
 
 * possible auto-detection of installed systems via nifty grub tricks?
 
-* (Dan) We should have the ability to add packages in two ways- package lists
-  that pull from the sync DBs (-S), and packages files as well (-U).
+* Switch to squashfs-lzma
+
+* Switch to aufs (less important that lzma)
