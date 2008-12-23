@@ -61,6 +61,7 @@ run_hook ()
     /bin/modprobe -q isofs >/dev/null 2>&1
     msg ":: Scanning cd drives..."
     for cdrom in /dev/hd[a-z] /dev/sr[0-9]* /dev/scd[a-z] /dev/sg[0-9]*; do
+        [ ! -e "${cdrom}" ] || continue
         if mount -r -t iso9660 "${cdrom}" /bootmnt >/dev/null 2>&1; then
             if [ -e "/bootmnt/isomounts" ]; then
                 found=1
@@ -76,6 +77,7 @@ run_hook ()
     if [ ${found} -eq 0 ]; then
         msg ":: Scanning usb drives..."
         for usb in /dev/sd[a-z][0-9]; do
+            [ ! -e "${usb}" ] || continue
             if mount -r -t vfat "${usb}" /bootmnt >/dev/null 2>&1 ||\
                 mount -r -t ext2 "${usb}" /bootmnt >/dev/null 2>&1; then
                 if [ -e "/bootmnt/isomounts" ]; then
