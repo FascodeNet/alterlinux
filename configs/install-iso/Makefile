@@ -19,10 +19,10 @@ all-ftp: ftp-iso ftp-usb
 all-core: core-iso core-usb
 
 core-usb: core-pkgs overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(FTPname).iso
+	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(COREname).img
 
 core-iso: core-pkgs overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(FTPname).iso
+	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(COREname).iso
 
 ftp-usb: overlay $(BOOTLOADER)
 	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(FTPname).img
