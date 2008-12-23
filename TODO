@@ -15,3 +15,5 @@
 
 * Remove the need for the -f flag overall. We should be able to do
   all this intelligently
+
+* Make the bootloader flag work with usb images too
