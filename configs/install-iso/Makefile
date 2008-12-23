@@ -59,4 +59,4 @@ isolinux:
 	cp -r $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux
 
 clean:
-	rm -rf $(WORKDIR) $(FTPname).img $(FTPname).iso $(COREname).img $(COREname).iso
+	rm -rf $(WORKDIR) *.img.part1 $(FTPname).img $(FTPname).iso $(COREname).img $(COREname).iso
