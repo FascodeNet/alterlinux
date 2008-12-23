@@ -276,7 +276,7 @@ command_usb () {
     mount -o loop "$fsimg" "$TMPDIR"
     cp -a "${work_dir}"/iso/* "$TMPDIR"
     umount "$TMPDIR"
-    rm -f "$TMPDIR"
+    rm -rf "$TMPDIR"
 
     # add sectors 0-62, then glue together
     dd if=/dev/zero of="${imgname}" bs=512 count=63
