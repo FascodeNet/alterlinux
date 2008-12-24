@@ -261,7 +261,7 @@ command_usb () {
     fsimg="${imgname}.part1"
 
     # ext2 overhead's upper bound is 6%, empirically tested up to 1GB
-    rootsize=$(du -bs ${IMGROOT}|cut -f1)
+    rootsize=$(du -bs "${work_dir}/iso" | cut -f1)
     imgsz=$(( (${rootsize}*106)/100/512 + 1)) # image size in sectors
 
     # create the filesystem image file
