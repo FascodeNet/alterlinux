@@ -13,6 +13,7 @@ _mnt_squashfs()
     
     img="${1}"
     base_img="${img##*/}";
+    mnt="${2}"
 
     if [ "${copytoram}" = "y" ]; then
         msg ":: Copying squashfs image to RAM"
@@ -31,7 +32,11 @@ _mnt_squashfs()
         break
     fi
     /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
-    /bin/mount -t unionfs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+    if [ "${mnt}" = "/" ]; then
+        /bin/mount -t unionfs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+    else
+        _mnt_bind "/tmpfs/mnt/loop${LOOP_NUM}" "${mnt}"
+    fi
     export LOOP_NUM=$(( $LOOP_NUM + 1 ))
 }
 
@@ -118,7 +123,7 @@ run_hook ()
         if [ "${type}" = "bind" ]; then
             _mnt_bind "/bootmnt/${img}" ${mountpoint}
         elif [ "${type}" = "squashfs" ]; then
-            _mnt_squashfs "/bootmnt/${img}"
+            _mnt_squashfs "/bootmnt/${img}" "${mountpoint}"
         fi
     done < "/bootmnt/isomounts"
 
