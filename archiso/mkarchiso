@@ -151,7 +151,6 @@ to the iso/ directory.
 
 # _mksquash dirname
 _mksquash () {
-    echo "_mksquash $1"
     if [ ! -d "$1" ]; then
         echo "Error: '$1' is not a directory"
         return 1
