@@ -12,9 +12,9 @@ COREname:=$(PWD)/archlinux-$(ver)-core-$(ARCH)
 
 PACKAGES="`cat packages.list` $(BOOTLOADER)"
 
-all: core-iso core-usb ftp-iso ftp-usb
-all-iso: core-iso ftp-iso 
-all-usb: core-usb ftp-usb
+all: ftp-iso ftp-usb core-iso core-usb 
+all-iso: ftp-iso core-iso 
+all-usb: ftp-usb core-usb 
 all-ftp: ftp-iso ftp-usb
 all-core: core-iso core-usb
 
