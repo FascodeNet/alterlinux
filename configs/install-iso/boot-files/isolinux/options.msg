@@ -1,5 +1,5 @@
 splashsmall.rle
-                         0e2008.12 "SantaClaus"07
+                         0e2009.0107
 
 Boot flavours on this ISO:
 ----------------------------------
