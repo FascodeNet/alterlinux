@@ -32,6 +32,9 @@ fi
 
 [ -d "$DEST" ] || mkdir -p "$DEST"
 
+#update repos
+/usr/bin/pacman -Sy
+
 #Ensure we have core/pkgname format, so we don't get crap from other repos
 PKGS=$(/usr/bin/pacman -Sl $REPO | cut -d' ' -f1,2 | tr ' ' '/')
 
