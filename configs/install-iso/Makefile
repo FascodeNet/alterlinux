@@ -1,5 +1,5 @@
-ver=2008.12
-kver=2.6.27-ARCH
+ver=2009.01
+kver=2.6.28-ARCH
 
 WORKDIR=work
 
@@ -47,7 +47,7 @@ base-iso: root-image
 
 core-pkgs: base-iso
 	mkdir $(WORKDIR)/core-pkgs/
-	wget --mirror -P $(WORKDIR)/core-pkgs -nH --cut-dirs=3 ftp://ftp.archlinux.org/core/os/$(ARCH)
+	./download-repo.sh core "$(WORKDIR)/core-pkgs"
 
 # Bootloaders
 grub-gfx:
