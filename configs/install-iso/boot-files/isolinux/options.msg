@@ -1,7 +1,7 @@
 splashsmall.rle
                          0e2009.0107
 
-Boot flavours on this ISO:
+Boot flavors on this ISO:
 ----------------------------------
 0earch07     : ArchLinux LiveCD [pata] (the Default)
 0earchide07  : ArchLinux LiveCD [legacy IDE mode]
