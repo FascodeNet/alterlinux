@@ -35,10 +35,13 @@ fi
 PKGS=$(/usr/bin/pacman -Slq $REPO)
 
 if [ -n "$PKGS" ]; then
+    baseurl=""
     for url in $(/usr/bin/pacman -Sp $PKGS | grep '://'); do
+        baseurl="$(dirname "$url")" #save for later
         pkgname="$(basename "$url")"
         wget -nv "$url" -O "$DEST/$pkgname"
     done
+    wget -nv "$baseurl/$REPO.db.tar.gz" -O "$DEST/$REPO.db.tar.gz"
 else
     echo "No packages to download... what'd you break?"
     exit 1
