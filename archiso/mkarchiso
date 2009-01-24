@@ -130,7 +130,7 @@ to the iso/ directory.
         echo "Cleaning up what we can"
         if [ -d "${work_dir}/root-image/boot/" ]; then
             # remove the initcpio images that were generated for the host system
-            find "${work_dir}/root-image/boot" -name *.img -delete
+            find "${work_dir}/root-image/boot" -name '*.img' -delete
         fi
 
         #TODO is this needed? do it at the Makefile level?
