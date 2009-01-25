@@ -1,4 +1,5 @@
-HOWTO: Boot an existing install
+HOW-TO: Boot an existing system
+-------------------------------
 
 Select "More Options" from the main menu.
 Move the cursor to "[EDIT ME] Boot an existing linux install"
@@ -19,6 +20,4 @@ The second line should be changed to point to your kernel.  If the line above
 points to a partition _only_ containing /boot, then /vmlinuz26 is fine.
 Otherwise, change this to /boot/vmlinuz.  root= should be changed to match the
 partition for your root filesystem.  Other kernel parameters can be added here.
-
-
 

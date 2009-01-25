@@ -1,0 +1,23 @@
+HELP: Using Legacy IDE
+----------------------
+
+The Legacy IDE boot option is intended to boot older systems where the CD does
+not properly detect CD-ROMs or harddrives. Note that it does NOT contain modules
+for SATA drives.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

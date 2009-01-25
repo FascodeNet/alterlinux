@@ -7,9 +7,14 @@ title  Boot ArchLinux LiveCD
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
 initrd /boot/archiso_pata.img
 
-title  Boot ArchLinux LiveCD [Legacy IDE]
+title  Boot ArchLinux LiveCD [Legacy IDE, no SATA]
 kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 ramdisk_size=75%
 initrd /boot/archiso_ide.img
+
+title Release Notes
+# Note: onyl 23 lines of release notes for now
+cat /boot/releasenotes.txt
+pause Press enter to continue...
 
 title Tools...
 configfile /boot/grub/tools.lst

@@ -7,6 +7,14 @@ splashimage=/boot/splash.xpm.gz
 title << Back to main menu
 configfile /boot/grub/menu.lst
 
+title    HELP: Using Legacy IDE
+cat /boot/help/legacyide.txt
+pause Press enter to continue...
+
+title    HELP: Booting from USB
+cat /boot/help/usb.txt
+pause Press enter to continue...
+
 title    HOW-TO: Boot an existing system
 cat /boot/help/bootexisting.txt
 pause Press enter to continue...

@@ -1,0 +1,23 @@
+HELP: Booting from USB
+----------------------
+
+Some USB devices need time to settle before they can be mounted. If you
+experience failures booting your USB device, it is recommended that you append
+the "usbdelay" kernel parameter to the kernel params. A setting of "usbdelay=10"
+is recommended.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

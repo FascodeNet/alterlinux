@@ -20,7 +20,7 @@ kernel /vmlinuz26 ip=dhcp root=/dev/nfs nfsroot=192.168.1.2:/boot/dir
 
 title    [EDIT ME] Boot Existing Linux Install
 root   (hd0,0)
-kernel /vmlinuz26 root=/dev/hda3 ro
+kernel /vmlinuz26 root=/dev/sda3 ro
 initrd /kernel26.img
 
 title    [EDIT ME] Boot Existing Windows Install
