@@ -3,7 +3,7 @@
                   ----------------------------
 
 All CDs and USB-Images are installation mediums and Live-CDs,
-which an be used as maintenance and rescue systems.
+which can be used as maintenance and rescue systems.
 
 FTP-ISOs/Images:
 ----------------
@@ -15,7 +15,7 @@ the actual package versions using these mediums.
   archlinux-200X.yy-ftp-x86_64.iso                x86_64/64bit CD-ISO
   archlinux-200X.yy-ftp-x86_64.img                x86_64/64bit USB-Image
 
-For those who have problems with grub not loading, we offer the following
+For those who have problems with GRUB not loading, we offer the following
 ISOs with the isolinux bootloader:
 
   archlinux-200X.yy-isolinux-ftp-i686.iso         i686/32bit CD-ISO
