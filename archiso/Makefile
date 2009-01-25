@@ -7,7 +7,9 @@ install: all
 	install -D -m 755 testiso $(DESTDIR)/usr/bin/testiso
 	# hooks/install are needed by mkinitcpio
 	install -D -m 644 hooks/archiso $(DESTDIR)/lib/initcpio/hooks/archiso
+	install -D -m 644 hooks/archiso-early $(DESTDIR)/lib/initcpio/hooks/archiso-early
 	install -D -m 644 install/archiso $(DESTDIR)/lib/initcpio/install/archiso
+	install -D -m 644 install/archiso-early $(DESTDIR)/lib/initcpio/install/archiso-early
 
 uninstall:
 	rm -f $(DESTDIR)/usr/sbin/mkarchiso

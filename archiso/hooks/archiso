@@ -54,13 +54,11 @@ run_hook ()
     msg "done."
 
     # external drives may need to settle
-    msg ":: Waiting for usb devices to settle..."
+    msg ":: Waiting for devices to settle..."
     /sbin/udevadm trigger --subsystem-match=usb
     /sbin/udevadm settle
-    if [ "${rootdelay}" != "0" ]; then
-        /bin/sleep "${rootdelay}"
-        export rootdelay=0
-    fi
+    msg ":: Waiting ${usbdelay:-0}s for USB devices"
+    /bin/sleep "${usbdelay:-0}"
 
     msg ":: Scanning for boot device..."
 
