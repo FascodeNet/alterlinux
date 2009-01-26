@@ -1,14 +1,14 @@
-                            ArchLinux
+                            Arch Linux
                    Installation and Live-CDs
                   ----------------------------
 
-All CDs and USB-Images are installation mediums and Live-CDs,
+All CDs and USB images are installation mediums and Live CDs
 which can be used as maintenance and rescue systems.
 
 FTP-ISOs/Images:
 ----------------
-These are the preferred install mediums for ArchLinux. You get always
-the actual package versions using these mediums.
+These are the preferred install mediums for Arch Linux.
+You can always get up to date packages using these mediums.
 
   archlinux-200X.yy-ftp-i686.iso                  i686/32bit CD-ISO
   archlinux-200X.yy-ftp-i686.img                  i686/32bit USB-Image
@@ -23,7 +23,7 @@ ISOs with the isolinux bootloader:
 
 Core-ISOs/Images:
 -----------------
-These are for offline installations when no Internet access available
+These are for offline installations when no Internet access is available
 to install the base system.
 
   archlinux-200X.yy-core-i686.iso                 i686/32bit CD-ISO
@@ -33,7 +33,8 @@ to install the base system.
 
 How to use these installation images:
 -------------------------------------
-Please ensure the sha1sum matches that in the SHA1SUMS file in this directory
+Please ensure the sha1sum for your downloaded file matches the checksum
+in the the SHA1SUMS file in this directory.
 
 See section in the "Arch Linux Install Guide":
   http://wiki.archlinux.org/index.php/Official_Arch_Linux_Install_Guide#Pre-Installation
@@ -42,4 +43,5 @@ For the USB-Images see:
 
 Happy installing!
 Happy ARCHing!
-- ArchLinux Release Engineering team
+- Arch Linux Release Engineering team
+

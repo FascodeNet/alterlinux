@@ -1,4 +1,4 @@
-ArchLinux LiveCD - 2009.01
+Arch Linux Live CD - 2009.01
       Release Notes
 --------------------------
 

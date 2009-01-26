@@ -249,8 +249,8 @@ command_iso () {
     mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -publisher "ArchLinux <archlinux.org>" \
-        -A "ArchLinux Live/Rescue CD" \
+        -publisher "Arch Linux <http://www.archlinux.org>" \
+        -A "Arch Linux Live/Rescue CD" \
         -o "${imgname}" "${work_dir}/iso/"
 }
 

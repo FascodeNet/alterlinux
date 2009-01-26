@@ -1,7 +1,7 @@
 # I'm a make retard, there are probably prettier ways of doing this...
 
 WORKING_DIR=$(PWD)/.work
-ISO_NAME=$(PWD)/Archlinux-XFCE4-Live.iso
+ISO_NAME=$(PWD)/archlinux-xfce4-live.iso
 
 all: iso 
 

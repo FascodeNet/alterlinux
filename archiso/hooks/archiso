@@ -146,7 +146,7 @@ run_hook ()
     udevpid=$(/bin/minips -C udevd -o pid=)
     [ "x${udevpid}" != "x" ] && /bin/kill -9 $udevpid 2>&1 >/dev/null
     #Yep, we're bailing out here.  We don't need kinit.
-    msg ":: Passing control to Archlinux Initscripts...Please Wait"
+    msg ":: Passing control to Arch Linux Initscripts...Please Wait"
     /bin/umount /sys
     /bin/umount /proc
     exec /bin/run-init -c /dev/console /real_root /sbin/init ${CMDLINE}

@@ -3,8 +3,8 @@
 
 Boot flavors on this ISO:
 ----------------------------------
-0earch07     : ArchLinux LiveCD [pata] (the Default)
-0earchide07  : ArchLinux LiveCD [legacy IDE mode]
+0earch07     : Arch Linux Live CD [pata] (the Default)
+0earchide07  : Arch Linux Live CD [legacy IDE mode]
 
 0ememtest07  : Run memtest (Memory Testing)
 
