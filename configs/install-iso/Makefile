@@ -3,7 +3,7 @@ kver=2.6.28-ARCH
 
 WORKDIR=work
 
-ARCH?=i686
+ARCH?=`uname -m`
 BOOTLOADER?=grub-gfx
 
 PWD:=`pwd`
