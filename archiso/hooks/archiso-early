@@ -2,7 +2,7 @@
 run_hook ()
 {
     # Set our usbdelay time. Default: 0
-    /bin/mkdir -p /etc/modprobe.d/
-    echo "options usb-storage delay_use=${usbdelay:-0}" >/
-        /etc/modprobe.d/usb-delay
+    cd /
+    /bin/mkdir -p etc/modprobe.d/
+    echo "options usb-storage delay_use=${usbdelay:-0}" > /etc/modprobe.d/usb-delay
 }
