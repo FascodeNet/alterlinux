@@ -1,18 +1,15 @@
 timeout 0
 default 0
 
-title Scanning for /boot/grub/menu.lst
-    fallback 1
+title Scan for /boot/grub/menu.lst
     find --set-root --ignore-floppies /boot/grub/menu.lst
     configfile /boot/grub/menu.lst
 
-title Scanning for /grub/menu.lst
-    fallback 2
+title Scan for /grub/menu.lst
     find --set-root --ignore-floppies /grub/menu.lst
     configfile /grub/menu.lst
 
-title Scanning for /menu.lst
-    fallback 3
+title Scan for /menu.lst
     find --set-root --ignore-floppies /menu.lst
     configfile /menu.lst
 
