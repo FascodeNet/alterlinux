@@ -37,7 +37,7 @@ Please ensure the sha1sum for your downloaded file matches the checksum
 in the the SHA1SUMS file in this directory.
 
 See section in the "Arch Linux Install Guide":
-  http://wiki.archlinux.org/index.php/Official_Arch_Linux_Install_Guide#Pre-Installation
+  http://wiki.archlinux.org/index.php/Official_Arch_Linux_Install_Guide
 For the USB-Images see:
   http://wiki.archlinux.org/index.php/Install_from_USB_stick
 
