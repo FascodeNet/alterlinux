@@ -1,4 +1,4 @@
-ver=2009.01-beta3
+ver=2009.02
 kver=2.6.28-ARCH
 
 WORKDIR=work

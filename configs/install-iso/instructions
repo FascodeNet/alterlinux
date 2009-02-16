@@ -10,26 +10,26 @@ FTP-ISOs/Images:
 These are the preferred install mediums for Arch Linux.
 You can always get up to date packages using these mediums.
 
-  archlinux-200X.yy-ftp-i686.iso                  i686/32bit CD-ISO
-  archlinux-200X.yy-ftp-i686.img                  i686/32bit USB-Image
-  archlinux-200X.yy-ftp-x86_64.iso                x86_64/64bit CD-ISO
-  archlinux-200X.yy-ftp-x86_64.img                x86_64/64bit USB-Image
+  archlinux-2009.02-ftp-i686.iso                  i686/32bit CD-ISO
+  archlinux-2009.02-ftp-i686.img                  i686/32bit USB-Image
+  archlinux-2009.02-ftp-x86_64.iso                x86_64/64bit CD-ISO
+  archlinux-2009.02-ftp-x86_64.img                x86_64/64bit USB-Image
 
 For those who have problems with GRUB not loading, we offer the following
 ISOs with the isolinux bootloader:
 
-  archlinux-200X.yy-isolinux-ftp-i686.iso         i686/32bit CD-ISO
-  archlinux-200X.yy-isolinux-ftp-x86_64.iso       x86_64/64bit CD-ISO
+  archlinux-2009.02-isolinux-ftp-i686.iso         i686/32bit CD-ISO
+  archlinux-2009.02-isolinux-ftp-x86_64.iso       x86_64/64bit CD-ISO
 
 Core-ISOs/Images:
 -----------------
 These are for offline installations when no Internet access is available
 to install the base system.
 
-  archlinux-200X.yy-core-i686.iso                 i686/32bit CD-ISO
-  archlinux-200X.yy-core-i686.img                 i686/32bit USB-Image
-  archlinux-200X.yy-core-x86_64.iso               x86_64/64bit CD-ISO
-  archlinux-200X.yy-core-x86_64.img               x86_64/64bit USB-Image
+  archlinux-2009.02-core-i686.iso                 i686/32bit CD-ISO
+  archlinux-2009.02-core-i686.img                 i686/32bit USB-Image
+  archlinux-2009.02-core-x86_64.iso               x86_64/64bit CD-ISO
+  archlinux-2009.02-core-x86_64.img               x86_64/64bit USB-Image
 
 How to use these installation images:
 -------------------------------------
