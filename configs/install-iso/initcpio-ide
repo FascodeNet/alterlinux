@@ -3,4 +3,4 @@ MODULES=""
 BINARIES=""
 FILES=""
 
-HOOKS="base archiso-early udev archiso ide scsi usb fw filesystems"
+HOOKS="base archiso-early udev archiso ide scsi usb fw filesystems usbinput"
