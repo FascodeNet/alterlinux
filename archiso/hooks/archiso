@@ -21,7 +21,7 @@ _mnt_squashfs()
         img="/tmpfs/${base_img}"
     fi
 
-    msg "::: Adding new union branch: ${base_img%.*}"
+    msg "::: Adding new aufs branch: ${base_img%.*}"
     mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
     # sometimes it takes udev a while to create device nodes
     while [ ! -e "/dev/loop${LOOP_NUM}" ]; do
@@ -33,7 +33,7 @@ _mnt_squashfs()
     fi
     /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
     if [ "${mnt}" = "/" ]; then
-        /bin/mount -t unionfs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+        /bin/mount -t aufs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
     else
         _mnt_bind "/tmpfs/mnt/loop${LOOP_NUM}" "${mnt}"
     fi
@@ -108,10 +108,10 @@ run_hook ()
     fi
 
     /bin/modprobe -q squashfs >/dev/null 2>&1
-    /bin/modprobe -q unionfs >/dev/null 2>&1
+    /bin/modprobe -q aufs >/dev/null 2>&1
 
-    msg ":: Mounting root (union) filesystem"
-    /bin/mount -t unionfs -o dirs=/tmpfs=rw none /real_root
+    msg ":: Mounting root (aufs) filesystem"
+    /bin/mount -t aufs -o dirs=/tmpfs=rw none /real_root
 
     export LOOP_NUM="0"
     msg ":: Mounting images"
