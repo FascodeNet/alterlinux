@@ -10,9 +10,15 @@ install: all
 	install -D -m 644 hooks/archiso-early $(DESTDIR)/lib/initcpio/hooks/archiso-early
 	install -D -m 644 install/archiso $(DESTDIR)/lib/initcpio/install/archiso
 	install -D -m 644 install/archiso-early $(DESTDIR)/lib/initcpio/install/archiso-early
+	# install docs and examples
+	install -d -m 644 $(DESTDIR)/usr/share/archiso/
+	cp -r ../configs $(DESTDIR)/usr/share/archiso/configs
+	install -D -m 644 ../README $(DESTDIR)/usr/share/doc/archiso/README
 
 uninstall:
 	rm -f $(DESTDIR)/usr/sbin/mkarchiso
 	rm -f $(DESTDIR)/usr/bin/testiso
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso
+	rm -rf $(DESTDIR)/usr/share/archiso/
+	rm -rf $(DESTDIR)/usr/share/doc/archiso/

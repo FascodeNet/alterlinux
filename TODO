@@ -7,8 +7,6 @@
 
 * Switch to squashfs-lzma
 
-* Switch to aufs (less important that lzma)
-
 * Add 'needsupdate' function to check if a squashfs image in the
   iso dir is up to date, if so, skip it; else rebuild it. No more
   need for the -f flag
