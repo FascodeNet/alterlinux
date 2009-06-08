@@ -1,5 +1,6 @@
 archlinux-installer
 aif
+aufs2-utils
 base
 ddrescue
 dmraid
@@ -39,7 +40,6 @@ squashfs-tools
 tcpdump
 tiacx
 tiacx-firmware
-unionfs-utils
 wireless_tools
 wlan-ng26-utils
 zd1211-firmware
