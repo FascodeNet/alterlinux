@@ -33,7 +33,7 @@ _mnt_squashfs()
     fi
     /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
     if [ "${mnt}" = "/" ]; then
-        /bin/mount -t aufs -o remount,add=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+        /bin/mount -t aufs -o remount,append=:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
     else
         _mnt_bind "/tmpfs/mnt/loop${LOOP_NUM}" "${mnt}"
     fi
