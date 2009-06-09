@@ -17,7 +17,7 @@ First off, Archiso has some dependencies:
     - mkinitcpio
     - cdrkit
     - squashfs-tools
-    - aufs2-utils
+    - aufs2-util
     - mkarchroot from the devtools package
 Archiso itself can be installed with the handy dandy included Makefile,
 and the incantation 'make install'.
