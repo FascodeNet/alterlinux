@@ -9,6 +9,7 @@ dosfstools
 elinks
 gnu-netcat
 grub-gfx
+inetutils
 intel-536ep
 intel-537
 ipw2100-fw
@@ -19,11 +20,9 @@ iwlwifi-5000-ucode
 joe
 lftp
 lilo
-lshwd
 memtest86+
 ndiswrapper
 ndiswrapper-utils
-netkit-telnet
 nfs-utils
 nmap
 ntfs-3g
@@ -32,7 +31,6 @@ openssh
 openvpn
 parted
 pptpclient
-rt2500
 rt2x00-rt61-fw
 rt2x00-rt71w-fw
 speedtouch
