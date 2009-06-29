@@ -245,7 +245,7 @@ command_iso () {
 
     echo "Creating ISO image..."
     qflag=""
-    [ "${QUIET}" = "y" ] && qflag="-q"
+    [ "${QUIET}" = "y" ] && qflag="-quiet"
     mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
