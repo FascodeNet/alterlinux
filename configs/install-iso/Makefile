@@ -1,5 +1,5 @@
-ver=2009.02
-kver=2.6.28-ARCH
+ver=2009.06
+kver=2.6.30-ARCH
 
 WORKDIR=work
 
@@ -10,7 +10,7 @@ PWD:=`pwd`
 FTPname:=$(PWD)/archlinux-$(ver)-ftp-$(ARCH)
 COREname:=$(PWD)/archlinux-$(ver)-core-$(ARCH)
 
-PACKAGES="`cat packages.list` $(BOOTLOADER)"
+PACKAGES="$(shell cat packages.$(ARCH)) $(BOOTLOADER)"
 
 all: ftp-iso ftp-usb core-iso core-usb
 all-iso: ftp-iso core-iso 

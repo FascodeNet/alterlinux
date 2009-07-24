@@ -9,8 +9,6 @@ elinks
 gnu-netcat
 grub-gfx
 inetutils
-intel-536ep
-intel-537
 ipw2100-fw
 ipw2200-fw
 iwlwifi-3945-ucode
@@ -26,6 +24,7 @@ nfs-utils
 nmap
 ntfs-3g
 ntfsprogs
+ntp
 openssh
 openvpn
 parted
