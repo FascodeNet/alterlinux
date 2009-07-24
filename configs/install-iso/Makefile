@@ -32,7 +32,8 @@ ftp-iso: overlay $(BOOTLOADER)
 
 overlay: base-iso
 	cp -r overlay $(WORKDIR)/
-	sed -i "s|@ARCH@|$(ARCH)|g" "$(WORKDIR)/overlay/etc/pacman.d/mirrorlist"
+	wget -O $(WORKDIR)/overlay/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/$(ARCH)/all/
+	sed -i "s/#Server/Server/g" "$(WORKDIR)/overlay/etc/pacman.d/mirrorlist"
 
 root-image:
 	mkarchiso -p $(PACKAGES) create $(WORKDIR)
