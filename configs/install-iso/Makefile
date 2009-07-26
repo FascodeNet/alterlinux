@@ -44,8 +44,8 @@ base-iso: root-image
 	cp isomounts $(WORKDIR)
 	sed -i "s|@ARCH@|$(ARCH)|g" "$(WORKDIR)/isomounts"
 	
-	mkinitcpio -c initcpio-ide -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso_ide.img
-	mkinitcpio -c initcpio-pata -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso_pata.img
+	mkinitcpio -c ./initcpio-ide -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso_ide.img
+	mkinitcpio -c ./initcpio-pata -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso_pata.img
 
 core-pkgs: base-iso
 	mkdir $(WORKDIR)/core-pkgs/

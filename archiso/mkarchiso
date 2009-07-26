@@ -214,6 +214,10 @@ _imgcommon () {
     fi
 
     cp "${work_dir}/isomounts" "${work_dir}/iso/"
+
+    export LABEL="ARCHISO_$(pwgen -n 8 1 | tr [a-z] [A-Z])"
+    [ -f ${work_dir}/iso/boot/grub/menu.lst ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/grub/menu.lst
+    [ -f ${work_dir}/iso/boot/isolinux/isolinux.cfg ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/isolinux/isolinux.cfg
 }
 
 command_iso () {
@@ -251,6 +255,7 @@ command_iso () {
         -no-emul-boot -boot-load-size 4 -boot-info-table \
         -publisher "Arch Linux <http://www.archlinux.org>" \
         -A "Arch Linux Live/Rescue CD" \
+        -V "${LABEL}" \
         -o "${imgname}" "${work_dir}/iso/"
 }
 
@@ -267,7 +272,7 @@ command_usb () {
     dd if=/dev/zero of="$fsimg" bs=512 count="$imgsz"
 
     # create a filesystem on the image
-    mke2fs -m 0 -F "$fsimg"
+    mke2fs -m 0 -F -L "${LABEL}" "$fsimg"
 
     # mount the filesystem and copy data
     modprobe loop
