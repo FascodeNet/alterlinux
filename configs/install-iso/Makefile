@@ -1,4 +1,4 @@
-ver=2009.06
+ver=2009.08
 kver=2.6.30-ARCH
 
 WORKDIR=work
@@ -7,15 +7,15 @@ ARCH?=`uname -m`
 BOOTLOADER?=grub-gfx
 
 PWD:=`pwd`
-FTPname:=$(PWD)/archlinux-$(ver)-ftp-$(ARCH)
+NETname:=$(PWD)/archlinux-$(ver)-netinstall-$(ARCH)
 COREname:=$(PWD)/archlinux-$(ver)-core-$(ARCH)
 
 PACKAGES="$(shell cat packages.$(ARCH)) $(BOOTLOADER)"
 
-all: ftp-iso ftp-usb core-iso core-usb
-all-iso: ftp-iso core-iso 
-all-usb: ftp-usb core-usb 
-all-ftp: ftp-iso ftp-usb
+all: net-iso net-usb core-iso core-usb
+all-iso: net-iso core-iso 
+all-usb: net-usb core-usb 
+all-net: net-iso net-usb
 all-core: core-iso core-usb
 
 core-usb: core-pkgs overlay $(BOOTLOADER)
@@ -24,11 +24,11 @@ core-usb: core-pkgs overlay $(BOOTLOADER)
 core-iso: core-pkgs overlay $(BOOTLOADER)
 	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(COREname).iso
 
-ftp-usb: overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(FTPname).img
+net-usb: overlay $(BOOTLOADER)
+	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(NETname).img
 
-ftp-iso: overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(FTPname).iso
+net-iso: overlay $(BOOTLOADER)
+	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(NETname).iso
 
 overlay: base-iso
 	cp -r overlay $(WORKDIR)/
@@ -62,4 +62,4 @@ syslinux:
 	cp -r $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux
 
 clean:
-	rm -rf $(WORKDIR) *.img.part1 $(FTPname).img $(FTPname).iso $(COREname).img $(COREname).iso
+	rm -rf $(WORKDIR) *.img.part1 $(NETname).img $(NETname).iso $(COREname).img $(COREname).iso
