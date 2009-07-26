@@ -28,7 +28,7 @@ usage ()
     exit $1
 }
 
-while getopts 'i:P:p:a:t:fvh' arg; do
+while getopts 'C:i:P:p:a:t:fvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         C) PACCONFIG="${OPTARG}" ;;
