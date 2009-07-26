@@ -50,61 +50,34 @@ run_hook ()
         ramdisk_size="75%"
     fi
     msg -n ":: Mounting tmpfs, size=${ramdisk_size}..."
-	mount -t tmpfs -o "size=${ramdisk_size}" tmpfs /tmpfs
+    mount -t tmpfs -o "size=${ramdisk_size}" tmpfs /tmpfs
     msg "done."
 
-    # external drives may need to settle
-    msg ":: Waiting for devices to settle..."
-    /sbin/udevadm trigger --subsystem-match=usb
-    /sbin/udevadm settle
-    usbdelay=$(( ${usbdelay:-0} + 1 ))
-    msg ":: Waiting ${usbdelay}s for USB devices"
-    /bin/sleep "${usbdelay}"
-
-    msg ":: Scanning for boot device..."
+    msg ":: Waiting for boot device..."
 
     /bin/mkdir -p /bootmnt
-    found=0
-
-    /bin/modprobe -q isofs >/dev/null 2>&1
-    msg ":: Scanning cd drives..."
-    for cdrom in /dev/hd[a-z] /dev/sr[0-9]* /dev/scd[a-z] /dev/sg[0-9]*; do
-        [ ! -e "${cdrom}" ] && continue
-        if mount -r -t iso9660 "${cdrom}" /bootmnt >/dev/null 2>&1; then
-            if [ -e "/bootmnt/isomounts" ]; then
-                found=1
-                msg "${cdrom}"
-                break
-            fi
-        else
-            echo "Failed to mount ${cdrom}"
-        fi
-        [ ${found} -eq 0 ] && umount /bootmnt >/dev/null 2>&1
+    while ! poll_device /dev/archiso 30; do
+      echo "ERROR: boot device didn't show up after 30 seconds..."
+      echo "   Falling back to interactive prompt"
+      echo "   You can try to fix the problem manually, log out when you are finished"
+      PS1="ramfs$ " /bin/sh -i
     done
 
-    if [ ${found} -eq 0 ]; then
-        msg ":: Scanning usb drives..."
-        for usb in /dev/sd[a-z][0-9]; do
-            [ ! -e "${usb}" ] && continue
-            if mount -r -t vfat "${usb}" /bootmnt >/dev/null 2>&1 ||\
-                mount -r -t ext2 "${usb}" /bootmnt >/dev/null 2>&1; then
-                if [ -e "/bootmnt/isomounts" ]; then
-                    found=1
-                    msg "${usb}"
-                    break
-                fi
-            else
-                echo "Failed to mount ${usb}"
-            fi
-            [ ${found} -eq 0 ] && umount /bootmnt >/dev/null 2>&1
-        done
-    fi
-
-    if [ ${found} -eq 0 ]; then
-        echo "ERROR: cannot find boot device, cannot continue..."
-        echo "   Falling back to interactive prompt"
-        PS1="ramfs$ " /bin/sh -i
+    eval $(fstype < /dev/archiso 2>/dev/null)
+    if [ -n "${FSTYPE}" -a "${FSTYPE}" != "unknown" ]; then
+      if mount -r -t "${FSTYPE}" /dev/archiso /bootmnt >/dev/null 2>&1; then
+        if [ -e "/bootmnt/isomounts" ]; then
+          echo "SUCCESS: Mounted archiso volume successfully."
+        else
+          echo "ERROR: Mounting was successful, but the isomounts file does not exist."
+          exit 1
+        fi
+      else
+        echo "ERROR: Failed to mount /dev/archiso"
         exit 1
+      fi
+    else
+      echo "ERROR: /dev/archiso found, but the filesystem type is unknown."
     fi
 
     /bin/modprobe -q squashfs >/dev/null 2>&1

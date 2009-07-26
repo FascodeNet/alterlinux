@@ -1,8 +1,8 @@
 # vim: set ft=sh:
 run_hook ()
 {
-    # Set our usbdelay time. Default: 0
-    cd /
-    /bin/mkdir -p etc/modprobe.d/
-    echo "options usb-storage delay_use=${usbdelay:-0}" > /etc/modprobe.d/usb-delay
+  if [ -n "${archisolabel}" ]; then
+    echo "ACTION==\"add|change\", SUBSYSTEM==\"block\", IMPORT{program}=\"vol_id --export \$tempnode\"" > /lib/udev/rules.d/00-archiso-device.rules
+    echo "ENV{ID_FS_LABEL_ENC}==\"${archisolabel}\", SYMLINK+=\"archiso\"" >> /lib/udev/rules.d/00-archiso-device.rules
+  fi
 }
