@@ -1,5 +1,6 @@
 aif
 aufs2-util
+b43-fwcutter
 base
 ddrescue
 dmraid
@@ -14,6 +15,7 @@ ipw2200-fw
 iwlwifi-3945-ucode
 iwlwifi-4965-ucode
 iwlwifi-5000-ucode
+iwlwifi-5150-ucode
 joe
 lftp
 lilo

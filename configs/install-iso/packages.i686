@@ -1,5 +1,6 @@
 aif
 aufs2-util
+b43-fwcutter
 base
 ddrescue
 dmraid
@@ -9,13 +10,12 @@ elinks
 gnu-netcat
 grub-gfx
 inetutils
-intel-536ep
-intel-537
 ipw2100-fw
 ipw2200-fw
 iwlwifi-3945-ucode
 iwlwifi-4965-ucode
 iwlwifi-5000-ucode
+iwlwifi-5150-ucode
 joe
 lftp
 lilo

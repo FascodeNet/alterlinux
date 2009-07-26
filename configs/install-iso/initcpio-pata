@@ -3,4 +3,4 @@ MODULES=""
 BINARIES=""
 FILES=""
 
-HOOKS="base archiso-early udev archiso pata scsi sata usb fw filesystems usbinput"
+HOOKS="base archiso-early udev archiso pata scsi sata usb fw pcmcia filesystems usbinput"
