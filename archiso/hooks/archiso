@@ -104,7 +104,7 @@ run_hook ()
     done < "/bootmnt/isomounts"
 
     # Bind our bootmnt dir into the live system
-    _mnt_bind /bootmnt bootmnt
+    _mnt_bind /bootmnt /bootmnt
 
     if [ -d /proc/sys/dev/cdrom ]; then
         echo 0 > /proc/sys/dev/cdrom/lock
