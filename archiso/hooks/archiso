@@ -94,7 +94,7 @@ run_hook ()
 
         [ "$imgarch" != "$arch" ] && continue
 
-        [ ! -f "/bootmnt/${img}" ] && continue
+        [ ! -r "/bootmnt/${img}" ] && continue
 
         if [ "${type}" = "bind" ]; then
             _mnt_bind "/bootmnt/${img}" ${mountpoint}
