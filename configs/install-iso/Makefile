@@ -32,6 +32,9 @@ net-iso: overlay $(BOOTLOADER)
 
 overlay: base-iso
 	cp -r overlay $(WORKDIR)/
+	if [ ! -d $(WORKDIR)/overlay/etc/pacman.d ]; then \
+	    mkdir -m755 $(WORKDIR)/overlay/etc/pacman.d; \
+	fi
 	wget -O $(WORKDIR)/overlay/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/$(ARCH)/all/
 	sed -i "s/#Server/Server/g" "$(WORKDIR)/overlay/etc/pacman.d/mirrorlist"
 
