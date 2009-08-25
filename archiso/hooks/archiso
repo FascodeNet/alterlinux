@@ -64,20 +64,31 @@ run_hook ()
     done
 
     eval $(fstype < /dev/archiso 2>/dev/null)
-    if [ -n "${FSTYPE}" -a "${FSTYPE}" != "unknown" ]; then
-      if mount -r -t "${FSTYPE}" /dev/archiso /bootmnt >/dev/null 2>&1; then
-        if [ -e "/bootmnt/isomounts" ]; then
-          echo "SUCCESS: Mounted archiso volume successfully."
+    if [ -n "${FSTYPE}" ]; then
+        if [ "${FSTYPE}" = "unknown" ]; then
+            # First try mounting then with vfat, maybe someone put the image on
+            # USB stick with unetbootin or similar. vfat is not detected by fstype.
+            _FSTYPE="vfat"
         else
-          echo "ERROR: Mounting was successful, but the isomounts file does not exist."
-          exit 1
+            _FSTYPE=$FSTYPE
         fi
-      else
-        echo "ERROR: Failed to mount /dev/archiso"
-        exit 1
-      fi
+        if mount -r -t "${_FSTYPE}" /dev/archiso /bootmnt >/dev/null 2>&1; then
+            if [ -e "/bootmnt/isomounts" ]; then
+                echo "SUCCESS: Mounted archiso volume successfully."
+            else
+                echo "ERROR: Mounting was successful, but the isomounts file does not exist."
+                exit 1
+            fi
+        else
+            if [ "${FSTYPE}" = "unknown" ]; then
+                echo "ERROR: Failed to mount /dev/archiso (FS is unknown and not vfat)."
+            else
+                echo "ERROR; Failed to mount /dev/archiso (FS is ${FSTYPE}."
+            fi
+            exit 1
+        fi
     else
-      echo "ERROR: /dev/archiso found, but the filesystem type is unknown."
+        echo "ERROR: /dev/archiso found, but the filesystem type is unknown."
     fi
 
     /bin/modprobe -q squashfs >/dev/null 2>&1
