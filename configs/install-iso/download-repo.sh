@@ -40,10 +40,16 @@ PKGS=$(/usr/bin/pacman -Sl $REPO | cut -d' ' -f1,2 | tr ' ' '/')
 
 if [ -n "$PKGS" ]; then
     baseurl=""
+    cachedir="/var/cache/pacman/pkg"
     for url in $(/usr/bin/pacman -Sp $PKGS | grep '://'); do
         baseurl="$(dirname "$url")" #save for later
         pkgname="$(basename "$url")"
-        wget -nv "$url" -O "$DEST/$pkgname"
+        cachedpkg="$cachedir/$pkgname"
+        if [ -e "$cachedpkg" ]; then
+                cp "$cachedpkg" "$DEST/$pkgname"
+        else
+                wget -nv "$url" -O "$DEST/$pkgname"
+        fi
     done
     wget -nv "$baseurl/$REPO.db.tar.gz" -O "$DEST/$REPO.db.tar.gz"
 else
