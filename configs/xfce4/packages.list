@@ -1,3 +1,4 @@
+aufs2-util
 bash
 bin86
 bzip2
@@ -100,7 +101,6 @@ tar
 tcp_wrappers
 tcpdump
 udev
-unionfs-utils
 unrar
 unzip
 usbutils

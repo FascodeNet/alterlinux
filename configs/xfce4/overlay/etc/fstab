@@ -2,7 +2,7 @@
 # /etc/fstab: static file system information
 #
 # <file system>        <dir>         <type>    <options>          <dump> <pass>
-unionfs                /             unionfs   noauto              0      0
+aufs                   /             aufs      noauto              0      0
 none                   /dev/pts      devpts    defaults            0      0
 none                   /dev/shm      tmpfs     defaults            0      0
 
