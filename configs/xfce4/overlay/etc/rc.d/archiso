@@ -11,7 +11,7 @@ scan_network ()
     netdevs=$(cat /proc/net/dev | grep ':' | cut -d':' -f1)
     for net in ${netdev}; do
         stats=$(ifconfig ${net} | tr -s "\n" " ")
-
+    done
 }
 
 scan_mount_pts ()
