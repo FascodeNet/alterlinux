@@ -1,7 +1,7 @@
 install ()
 {
     MODULES="cdrom ide-cd_mod ide-core ide-generic aufs squashfs isofs loop $(all_modules '/kernel/fs' | grep -v "nls") "
-    MODULES="${MODULES} $(checked_modules "/usb/host" | grep -ve "_cs" -e "sl1811-hcd" -e "isp116x-hcd")"
+    MODULES="${MODULES} $(checked_modules "/usb/host" | grep -ve "_cs" -e "sl811-hcd" -e "isp116x-hcd")"
     MODULES=$(echo ${MODULES}) #trim whitespace
     if [ "x${MODULES}" != "x" ]; then
         MODULES="${MODULES} usb_storage sd_mod sr_mod"
