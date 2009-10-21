@@ -261,39 +261,49 @@ command_iso () {
 
 command_usb () {
     _imgcommon
-    
-    fsimg="${imgname}.part1"
+
+    modprobe -q loop
+
+    # Calculate cylinder size in bytes
+    CYL_SIZE=$((255*63*512))
+
+    # First partition offset
+    PART_OFFSET=$((63*512))
 
     # ext2 overhead's upper bound is 6%, empirically tested up to 1GB
     rootsize=$(du -bs "${work_dir}/iso" | cut -f1)
-    imgsz=$(( (${rootsize}*106)/100/512 + 1)) # image size in sectors
+    imgsz=$(( (${rootsize}*106)/100/${CYL_SIZE} + 1 )) # image size in cylinders
+
+    # Get next free loop device
+    devloop=$(losetup -f)
 
     # create the filesystem image file
-    dd if=/dev/zero of="$fsimg" bs=512 count="$imgsz"
+    dd if=/dev/zero of="$imgname" bs="$CYL_SIZE" count="$imgsz"
+
+    # Setup a loop device, and skip the first 63 sectors
+    losetup "$devloop" -o "$PART_OFFSET" "$imgname"
 
     # create a filesystem on the image
-    mke2fs -m 0 -F -L "${LABEL}" "$fsimg"
+    mke2fs -m 0 -F -L "${LABEL}" "$devloop"
 
     # mount the filesystem and copy data
-    modprobe loop
     TMPDIR=$(mktemp -d archiso-usbXXXXXX)
-    mount -o loop "$fsimg" "$TMPDIR"
+    mount "$devloop" "$TMPDIR"
     cp -a "${work_dir}"/iso/* "$TMPDIR"
-    umount "$TMPDIR"
+    umount -d "$TMPDIR"
     rm -rf "$TMPDIR"
 
-    # add sectors 0-62, then glue together
-    dd if=/dev/zero of="${imgname}" bs=512 count=63
-    cat "$fsimg" >> "${imgname}"
-    rm "$fsimg"
-
     # create a partition table
-    # if this looks like voodoo, it's because it is
-    sfdisk -uS -f "${imgname}" << EOF
-63,$imgsz,83,*
-0,0,00
-0,0,00
-0,0,00
+    fdisk -C "$imgsz" -H 255 -S 63 "$imgname" << EOF
+n
+p
+1
+
+
+a
+1
+p
+w
 EOF
 
     # install grub on the image
