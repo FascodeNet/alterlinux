@@ -4,6 +4,10 @@ PKGLIST=""
 QUIET="y"
 FORCE="n"
 PACCONFIG="/etc/pacman.conf"
+export LABEL="ARCHISO_$(pwgen -n 8 1 | tr [a-z] [A-Z])"
+PUBLISHER="Arch Linux <http://www.archlinux.org>"
+APPLICATION="Arch Linux Live/Rescue CD"
+CREATE_DEFAULT="n"
 
 APPNAME=$(basename "${0}")
 
@@ -15,8 +19,12 @@ usage ()
     echo "    -f               Force overwrite of working files/squashfs image/bootable image"
     echo "    -p PACKAGE(S)    Additional package(s) to install, can be used multiple times"
     echo "    -C <file>        Config file for pacman. Default $PACCONFIG"
-    echo "    -v               Enable verbose output."
-    echo "    -h               This message."
+    echo "    -L <label>       Set a label for the disk"
+    echo "    -P <publisher>   Set a publisher for the disk"
+    echo "    -A <application> Set an application name for the disk"
+    echo "    -d               Create default user directory /home/arch"
+    echo "    -v               Enable verbose output"
+    echo "    -h               This message"
     echo " commands:"
     echo "   create <dir>"
     echo "      create a base directory layout to work with"
@@ -28,10 +36,14 @@ usage ()
     exit $1
 }
 
-while getopts 'C:i:P:p:a:t:fvh' arg; do
+while getopts 'p:C:L:P:A:dfvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         C) PACCONFIG="${OPTARG}" ;;
+    	L) LABEL="${OPTARG}" ;;
+    	P) PUBLISHER="${OPTARG}" ;;
+    	A) APPLICATION="${OPTARG}" ;;
+        d) CREATE_DEFAULT="y" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
         h|?) usage 0 ;;
@@ -134,9 +146,11 @@ to the iso/ directory.
         fi
 
         #TODO is this needed? do it at the Makefile level?
-        if [ -d "${work_dir}/root-image/home/" ]; then
-            echo "Creating default home directory"
-            install -d -o1000 -g100 -m0755 "${work_dir}/root-image/home/arch"
+        if [ ${CREATE_DEFAULT} == "y" ]; then
+            if [ -d "${work_dir}/root-image/home/" ]; then
+                echo "Creating default home directory"
+                install -d -o1000 -g100 -m0755 "${work_dir}/root-image/home/arch"
+            fi
         fi
 
         # delete a lot of unnecessary cache/log files
@@ -215,7 +229,6 @@ _imgcommon () {
 
     cp "${work_dir}/isomounts" "${work_dir}/iso/"
 
-    export LABEL="ARCHISO_$(pwgen -n 8 1 | tr [a-z] [A-Z])"
     [ -f ${work_dir}/iso/boot/grub/menu.lst ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/grub/menu.lst
     [ -f ${work_dir}/iso/boot/isolinux/isolinux.cfg ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/isolinux/isolinux.cfg
 }
@@ -251,10 +264,11 @@ command_iso () {
     qflag=""
     [ "${QUIET}" = "y" ] && qflag="-quiet"
     mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
+    	-udf -allow-limited-size -iso-level 3 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -publisher "Arch Linux <http://www.archlinux.org>" \
-        -A "Arch Linux Live/Rescue CD" \
+        -publisher "${PUBLISHER}" \
+        -A "${APPLICATION}" \
         -V "${LABEL}" \
         -o "${imgname}" "${work_dir}/iso/"
 }
