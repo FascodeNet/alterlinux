@@ -49,6 +49,13 @@ run_hook ()
     if [ "x${ramdisk_size}" = "x" ]; then
         ramdisk_size="75%"
     fi
+
+    if [ "x${isomounts}" != "x" ]; then
+        isomounts="/bootmnt/${isomounts}"
+    else
+        isomounts="/bootmnt/isomounts"
+    fi
+
     msg -n ":: Mounting tmpfs, size=${ramdisk_size}..."
     mount -t tmpfs -o "size=${ramdisk_size}" tmpfs /tmpfs
     msg "done."
@@ -73,10 +80,10 @@ run_hook ()
             _FSTYPE=$FSTYPE
         fi
         if mount -r -t "${_FSTYPE}" /dev/archiso /bootmnt >/dev/null 2>&1; then
-            if [ -e "/bootmnt/isomounts" ]; then
+            if [ -e "${isomounts}" ]; then
                 echo "SUCCESS: Mounted archiso volume successfully."
             else
-                echo "ERROR: Mounting was successful, but the isomounts file does not exist."
+                echo "ERROR: Mounting was successful, but the ${isomounts} file does not exist."
                 exit 1
             fi
         else
@@ -112,7 +119,7 @@ run_hook ()
         elif [ "${type}" = "squashfs" ]; then
             _mnt_squashfs "/bootmnt/${img}" "${mountpoint}"
         fi
-    done < "/bootmnt/isomounts"
+    done < "${isomounts}"
 
     # Bind our bootmnt dir into the live system
     _mnt_bind /bootmnt /bootmnt
