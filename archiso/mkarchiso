@@ -159,13 +159,13 @@ _mksquash () {
     sqimg="${work_dir}/iso/$(basename ${1}).sqfs"
     echo "====> Generating SquashFS image for '${1}'"
     if [ -e "${sqimg}" ]; then
-        if [ "${FORCE}" = "y" ]; then
-            echo -n "Removing old SquashFS image..."
+        dirhaschanged=$(find ${1} -newer ${sqimg})
+        if [ "${dirhaschanged}" != "" ]; then
+            echo "SquashFS image '${sqimg}' is not up to date, rebuilding..."
             rm "${sqimg}"
-            echo "done."
         else
-            echo "error: SquashFS image '${sqimg}' already exists, aborting."
-            exit 1
+            echo "SquashFS image '${sqimg}' is up to date, skipping."
+            return
         fi
     fi
 
