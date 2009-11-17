@@ -124,9 +124,11 @@ run_hook ()
     # Bind our bootmnt dir into the live system
     _mnt_bind /bootmnt /bootmnt
 
-    if [ -d /proc/sys/dev/cdrom ]; then
-        echo 0 > /proc/sys/dev/cdrom/lock
-        echo 0 > /proc/sys/dev/cdrom/autoeject
+    if [ "${FSTYPE}" = "iso9660" -o "${FSTYPE}" = "udf" ]; then
+        if [ -d /proc/sys/dev/cdrom ]; then
+            echo 0 > /proc/sys/dev/cdrom/lock
+            echo 0 > /proc/sys/dev/cdrom/autoeject
+        fi
     fi
 
     if [ "${break}" = "y" ]; then
