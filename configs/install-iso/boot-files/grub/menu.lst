@@ -4,11 +4,11 @@ color light-blue/blue black/light-grey
 splashimage=/boot/splash.xpm.gz
 
 title  Boot Arch Linux Live CD
-kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 archisolabel=XXX ramdisk_size=75%
+kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 archisolabel=XXX tmpfs_size=75%
 initrd /boot/archiso_pata.img
 
 title  Boot Arch Linux Live CD [Legacy IDE, no SATA]
-kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 archisolabel=XXX ramdisk_size=75%
+kernel /boot/vmlinuz26 lang=en locale=en_US.UTF-8 archisolabel=XXX tmpfs_size=75%
 initrd /boot/archiso_ide.img
 
 title Release Notes
