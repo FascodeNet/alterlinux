@@ -17,7 +17,7 @@ First off, Archiso has some dependencies:
     - mkinitcpio
     - cdrkit
     - squashfs-tools
-	- aufs2
+    - aufs2
     - aufs2-util
     - mkarchroot from the devtools package
     - pwgen
