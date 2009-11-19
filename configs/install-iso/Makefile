@@ -44,7 +44,7 @@ root-image:
 base-iso: root-image
 	mv $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
 	cp -r boot-files/* $(WORKDIR)/iso/boot/
-	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest86+/memtest.bin-COPYING
+	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest86+/memtest.bin.COPYING
 	cp isomounts $(WORKDIR)
 	sed -i "s|@ARCH@|$(ARCH)|g" "$(WORKDIR)/isomounts"
 	
