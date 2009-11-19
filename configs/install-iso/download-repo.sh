@@ -20,6 +20,8 @@
 REPO="$1"
 DEST="$2"
 
+REPO_CHANGED=n
+
 if [ -z "$REPO" -o -z "$DEST" ]; then
     echo "usage: $(basename $0) <reponame> <dest-dir>"
     exit 1
@@ -45,13 +47,19 @@ if [ -n "$PKGS" ]; then
         baseurl="$(dirname "$url")" #save for later
         pkgname="$(basename "$url")"
         cachedpkg="$cachedir/$pkgname"
-        if [ -e "$cachedpkg" ]; then
-                cp "$cachedpkg" "$DEST/$pkgname"
-        else
+        if [ ! -e "$DEST/$pkgname" ]; then
+            if [ -e "$cachedpkg" ]; then
+                cp -v "$cachedpkg" "$DEST/$pkgname"
+                REPO_CHANGED=y
+            else
                 wget -nv "$url" -O "$DEST/$pkgname"
+                REPO_CHANGED=y
+            fi
         fi
     done
-    wget -nv "$baseurl/$REPO.db.tar.gz" -O "$DEST/$REPO.db.tar.gz"
+    if [ "$REPO_CHANGED" = "y" ]; then
+        wget -nv "$baseurl/$REPO.db.tar.gz" -O "$DEST/$REPO.db.tar.gz"
+    fi
 else
     echo "No packages to download... what'd you break?"
     exit 1
