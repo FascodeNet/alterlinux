@@ -1,69 +1,90 @@
-ver=2009.08
-kver=2.6.30-ARCH
+ver=2009.11
+kver=2.6.31-ARCH
 
 WORKDIR=work
 
-ARCH?=`uname -m`
+ARCH?=$(shell uname -m)
 BOOTLOADER?=grub-gfx
 
-PWD:=`pwd`
-NETname:=$(PWD)/archlinux-$(ver)-netinstall-$(ARCH)
-COREname:=$(PWD)/archlinux-$(ver)-core-$(ARCH)
+PWD=$(shell pwd)
+NETname=$(PWD)/archlinux-$(ver)-netinstall-$(ARCH)
+COREname=$(PWD)/archlinux-$(ver)-core-$(ARCH)
 
 PACKAGES="$(shell cat packages.$(ARCH)) $(BOOTLOADER)"
 
-all: net-iso net-usb core-iso core-usb
-all-iso: net-iso core-iso 
-all-usb: net-usb core-usb 
+all: all-net all-core
+all-iso: net-iso core-iso
+all-usb: net-usb core-usb
 all-net: net-iso net-usb
 all-core: core-iso core-usb
 
-core-usb: core-pkgs overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(COREname).img
+net-iso: $(NETname).iso
+net-usb: $(NETname).img
+core-iso: $(COREname).iso
+core-usb: $(COREname).img
 
-core-iso: core-pkgs overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(COREname).iso
+# Rules for each type of image
+$(COREname).iso: core-pkgs base-fs $(BOOTLOADER)
+	mkarchiso -p $(BOOTLOADER) iso $(WORKDIR) $@
+$(COREname).img: core-pkgs base-fs $(BOOTLOADER)
+	mkarchiso -p $(BOOTLOADER) usb $(WORKDIR) $@
+$(NETname).iso: base-fs $(BOOTLOADER)
+	mkarchiso -p $(BOOTLOADER) iso $(WORKDIR) $@
+$(NETname).img: base-fs $(BOOTLOADER)
+	mkarchiso -p $(BOOTLOADER) usb $(WORKDIR) $@
 
-net-usb: overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) usb $(WORKDIR) $(NETname).img
+base-fs: boot-files initcpio overlay iso-mounts
+# Rule for make /boot
+boot-files: root-image
+	cp -r $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
+	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest86+/memtest.bin.COPYING
+	cp -r boot-files/* $(WORKDIR)/iso/boot/
 
-net-iso: overlay $(BOOTLOADER)
-	mkarchiso -f -p $(BOOTLOADER) iso $(WORKDIR) $(NETname).iso
+# Rule to process isomounts file.
+iso-mounts: $(WORKDIR)/isomounts
+$(WORKDIR)/isomounts: isomounts root-image
+	sed "s|@ARCH@|$(ARCH)|g" $< > $@
 
-overlay: base-iso
+# Rules for make the root-image for base filesystem.
+root-image: $(WORKDIR)/root-image/.arch-chroot
+$(WORKDIR)/root-image/.arch-chroot:
+	mkarchiso -p $(PACKAGES) create $(WORKDIR)
+
+# Rules for initcpio images
+initcpio: $(WORKDIR)/iso/boot/archiso_ide.img $(WORKDIR)/iso/boot/archiso_pata.img
+$(WORKDIR)/iso/boot/archiso_ide.img: initcpio-ide root-image
+	mkinitcpio -c ./initcpio-ide -b $(WORKDIR)/root-image -k $(kver) -g $@
+$(WORKDIR)/iso/boot/archiso_pata.img: initcpio-pata root-image
+	mkinitcpio -c ./initcpio-pata -b $(WORKDIR)/root-image -k $(kver) -g $@
+
+# overlay filesystem
+overlay:
 	cp -r overlay $(WORKDIR)/
 	if [ ! -d $(WORKDIR)/overlay/etc/pacman.d ]; then \
 	    mkdir -m755 $(WORKDIR)/overlay/etc/pacman.d; \
 	fi
 	wget -O $(WORKDIR)/overlay/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/$(ARCH)/all/
-	sed -i "s/#Server/Server/g" "$(WORKDIR)/overlay/etc/pacman.d/mirrorlist"
+	sed -i "s/#Server/Server/g" $(WORKDIR)/overlay/etc/pacman.d/mirrorlist
 
-root-image:
-	mkarchiso -p $(PACKAGES) create $(WORKDIR)
-	
-base-iso: root-image
-	mv $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
-	cp -r boot-files/* $(WORKDIR)/iso/boot/
-	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest86+/memtest.bin.COPYING
-	cp isomounts $(WORKDIR)
-	sed -i "s|@ARCH@|$(ARCH)|g" "$(WORKDIR)/isomounts"
-	
-	mkinitcpio -c ./initcpio-ide -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso_ide.img
-	mkinitcpio -c ./initcpio-pata -b $(WORKDIR)/root-image -k $(kver) -g $(WORKDIR)/iso/boot/archiso_pata.img
-
-core-pkgs: base-iso
-	mkdir $(WORKDIR)/core-pkgs/
-	./download-repo.sh core "$(WORKDIR)/core-pkgs"
+# Rule for make the core repo packages
+core-pkgs:
+	./download-repo.sh core $(WORKDIR)/core-pkgs
 
 # Bootloaders
 grub-gfx:
 	cp -r $(WORKDIR)/root-image/usr/lib/grub/i386-pc/* $(WORKDIR)/iso/boot/grub
-
 grub:
 	cp -r $(WORKDIR)/root-image/usr/lib/grub/i386-pc/* $(WORKDIR)/iso/boot/grub
-
 syslinux:
 	cp -r $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux
 
+# Clean-up all work
 clean:
-	rm -rf $(WORKDIR) *.img.part1 $(NETname).img $(NETname).iso $(COREname).img $(COREname).iso
+	rm -rf $(WORKDIR) $(NETname).img $(NETname).iso $(COREname).img $(COREname).iso
+
+
+.PHONY: all all-iso all-usb all-net all-core
+.PHONY: net-iso net-usb core-iso core-usb
+.PHONY: base-fs boot-files iso-mounts root-image initcpio overlay core-pkgs
+.PHONY: grub-gfx grub syslinux
+.PHONY: clean
