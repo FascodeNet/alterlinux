@@ -262,7 +262,7 @@ command_iso () {
 command_usb () {
     _imgcommon
 
-    modprobe -q loop
+    modprobe -q loop > /dev/null 2>&1
 
     # Calculate cylinder size in bytes
     CYL_SIZE=$((255*63*512))
