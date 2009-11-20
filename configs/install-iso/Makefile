@@ -18,24 +18,26 @@ all-usb: net-usb core-usb
 all-net: net-iso net-usb
 all-core: core-iso core-usb
 
-net-iso: $(NETname).iso
-net-usb: $(NETname).img
-core-iso: $(COREname).iso
-core-usb: $(COREname).img
-
 # Rules for each type of image
-$(COREname).iso: core-pkgs base-fs $(BOOTLOADER)
+core-iso: $(COREname).iso
+$(COREname).iso: core-pkgs base-fs
 	mkarchiso -p $(BOOTLOADER) iso $(WORKDIR) $@
-$(COREname).img: core-pkgs base-fs $(BOOTLOADER)
+core-usb: $(COREname).img
+$(COREname).img: core-pkgs base-fs
 	mkarchiso -p $(BOOTLOADER) usb $(WORKDIR) $@
-$(NETname).iso: base-fs $(BOOTLOADER)
+net-iso: $(NETname).iso
+$(NETname).iso: base-fs
 	mkarchiso -p $(BOOTLOADER) iso $(WORKDIR) $@
-$(NETname).img: base-fs $(BOOTLOADER)
+net-usb: $(NETname).img
+$(NETname).img: base-fs 
 	mkarchiso -p $(BOOTLOADER) usb $(WORKDIR) $@
 
+
+# This is the main rule for make the working filesystem.
 base-fs: boot-files initcpio overlay iso-mounts
+
 # Rule for make /boot
-boot-files: root-image
+boot-files: root-image $(BOOTLOADER)
 	cp -r $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
 	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest86+/memtest.bin.COPYING
 	cp -r boot-files/* $(WORKDIR)/iso/boot/
@@ -59,23 +61,23 @@ $(WORKDIR)/iso/boot/archiso_pata.img: initcpio-pata root-image
 
 # overlay filesystem
 overlay:
-	cp -r overlay $(WORKDIR)/
 	if [ ! -d $(WORKDIR)/overlay/etc/pacman.d ]; then \
-	    mkdir -m755 $(WORKDIR)/overlay/etc/pacman.d; \
+	    mkdir -p -m755 $(WORKDIR)/overlay/etc/pacman.d; \
 	fi
+	cp -r overlay $(WORKDIR)/
 	wget -O $(WORKDIR)/overlay/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/$(ARCH)/all/
 	sed -i "s/#Server/Server/g" $(WORKDIR)/overlay/etc/pacman.d/mirrorlist
 
-# Rule for make the core repo packages
+# Rule for make the [core] repo packages
 core-pkgs:
 	./download-repo.sh core $(WORKDIR)/core-pkgs
 
 # Bootloaders
-grub-gfx:
+grub-gfx: root-image
 	cp -r $(WORKDIR)/root-image/usr/lib/grub/i386-pc/* $(WORKDIR)/iso/boot/grub
-grub:
+grub: root-image
 	cp -r $(WORKDIR)/root-image/usr/lib/grub/i386-pc/* $(WORKDIR)/iso/boot/grub
-syslinux:
+syslinux: root-image
 	cp -r $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux
 
 # Clean-up all work
