@@ -9,7 +9,7 @@ mv *.iso *.img release/
 
 # Build isolinux iso's
 make clean
-make BOOTLOADER=syslinux ftp-iso
+make BOOTLOADER=syslinux net-iso
 rename .iso -isolinux.iso *.iso
 mv *.iso release/
 
