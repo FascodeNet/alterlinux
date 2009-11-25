@@ -31,8 +31,6 @@ usage ()
     echo "      includes all specified packages"
     echo "   iso -p <bootloader> <dir> <image name>"
     echo "      build an iso image from the working dir"
-    echo "   usb -p <bootloader> <dir> <image name>"
-    echo "      build an iso image from the working dir"
     exit $1
 }
 
@@ -74,7 +72,6 @@ imgname=""
 case "${command_name}" in
     create) work_dir="${2}"; imgname="none" ;;
     iso) work_dir="${2}"; imgname="${3}" ;;
-    usb) work_dir="${2}"; imgname="${3}" ;;
     *) echo "invalid command name '${command_name}'"; usage 1 ;;
 esac
 
@@ -145,7 +142,6 @@ to the iso/ directory.
             find "${work_dir}/root-image/boot" -name '*.img' -delete
         fi
 
-        #TODO is this needed? do it at the Makefile level?
         if [ ${CREATE_DEFAULT} == "y" ]; then
             if [ -d "${work_dir}/root-image/home/" ]; then
                 echo "Creating default home directory"
@@ -237,25 +233,15 @@ command_iso () {
     _imgcommon
 
     bootflags=""
-    if [ "$PKGLIST" = "grub" -o "$PKGLIST" = "grub-gfx" ]; then
-        if [ ! -e "${work_dir}/iso/boot/grub/stage2_eltorito" ]; then
-            echo "error: grub stage files not found in '${work_dir}/iso/boot/grub'"
-            exit 1
-        fi
-
-        bootflags="-b boot/grub/stage2_eltorito"
-    elif [ "$PKGLIST" = "syslinux" ]; then
+    if [ "$PKGLIST" = "syslinux" ]; then
         if [ ! -e "${work_dir}/iso/boot/isolinux/isolinux.bin" ]; then
             echo "error: isolinux bin file not found in '${work_dir}/iso/boot/isolinux'"
             exit 1
         fi
-
         bootflags="-b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat"
     else
         echo "No bootloader specified. Use the -p flag to specify"
         echo "  Supported Bootloaders:"
-        echo "     grub"
-        echo "     grub-gfx"
         echo "     syslinux"
         exit 1
     fi
@@ -271,62 +257,7 @@ command_iso () {
         -A "${APPLICATION}" \
         -V "${LABEL}" \
         -o "${imgname}" "${work_dir}/iso/"
-}
-
-command_usb () {
-    _imgcommon
-
-    modprobe -q loop > /dev/null 2>&1
-
-    # Calculate cylinder size in bytes
-    CYL_SIZE=$((255*63*512))
-
-    # First partition offset
-    PART_OFFSET=$((63*512))
-
-    # ext2 overhead's upper bound is 6%, empirically tested up to 1GB
-    rootsize=$(du -bs "${work_dir}/iso" | cut -f1)
-    imgsz=$(( (${rootsize}*106)/100/${CYL_SIZE} + 1 )) # image size in cylinders
-
-    # Get next free loop device
-    devloop=$(losetup -f)
-
-    # create the filesystem image file
-    dd if=/dev/zero of="$imgname" bs="$CYL_SIZE" count="$imgsz"
-
-    # Setup a loop device, and skip the first 63 sectors
-    losetup "$devloop" -o "$PART_OFFSET" "$imgname"
-
-    # create a filesystem on the image
-    mke2fs -m 0 -F -L "${LABEL}" "$devloop"
-
-    # mount the filesystem and copy data
-    TMPDIR=$(mktemp -d archiso-usbXXXXXX)
-    mount "$devloop" "$TMPDIR"
-    cp -a "${work_dir}"/iso/* "$TMPDIR"
-    umount -d "$TMPDIR"
-    rm -rf "$TMPDIR"
-
-    # create a partition table
-    fdisk -C "$imgsz" -H 255 -S 63 "$imgname" << EOF
-n
-p
-1
-
-
-a
-1
-p
-w
-EOF
-
-    # install grub on the image
-    grub --no-floppy --batch << EOF
-device (hd0) ${imgname}
-root (hd0,0)
-setup (hd0)
-EOF
-
+    isohybrid "${imgname}"
 }
 
 # Go through the main commands in order. If 'all' was specified, then we want
@@ -336,9 +267,6 @@ if [ "${command_name}" = "create"  ]; then
 fi
 if [ "${command_name}" = "iso" ]; then
     command_iso
-fi
-if [ "${command_name}" = "usb" ]; then
-    command_usb
 fi
 
 # vim:ts=4:sw=4:et:
