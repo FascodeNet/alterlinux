@@ -1,0 +1,12 @@
+# vim: set ft=sh:
+
+cmdline_param ()
+{
+    for param in ${CMDLINE}; do
+        case "${param}" in
+            $1=*) echo "${param##*=}"; return ;;
+            *) continue ;;
+        esac
+    done
+    [ -n "${2}" ] && echo "${2}"
+}

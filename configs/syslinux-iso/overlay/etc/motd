@@ -1,0 +1,12 @@
+**************************************************************
+* To begin installation, run /arch/setup                     *
+* You can find documentation at /arch/arch-install-guide.txt *
+*                                                            *
+* i18n: Use the 'km' utility to change your keyboard layout  *
+*       and console font.                                    *
+*                                                            *
+* If you are looking to install Arch on something more       *
+* exotic, such as your kerosene-powered cheese grater,       *
+* please consult http://wiki.archlinux.org.                  *
+*                                                            *
+**************************************************************

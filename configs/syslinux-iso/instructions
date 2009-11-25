@@ -1,0 +1,47 @@
+                            Arch Linux
+                   Installation and Live-CDs
+                  ----------------------------
+
+All CDs and USB images are installation mediums and Live CDs
+which can be used as maintenance and rescue systems.
+
+FTP-ISOs/Images:
+----------------
+These are the preferred install mediums for Arch Linux.
+You can always get up to date packages using these mediums.
+
+  archlinux-2009.02-ftp-i686.iso                  i686/32bit CD-ISO
+  archlinux-2009.02-ftp-i686.img                  i686/32bit USB-Image
+  archlinux-2009.02-ftp-x86_64.iso                x86_64/64bit CD-ISO
+  archlinux-2009.02-ftp-x86_64.img                x86_64/64bit USB-Image
+
+For those who have problems with GRUB not loading, we offer the following
+ISOs with the isolinux bootloader:
+
+  archlinux-2009.02-isolinux-ftp-i686.iso         i686/32bit CD-ISO
+  archlinux-2009.02-isolinux-ftp-x86_64.iso       x86_64/64bit CD-ISO
+
+Core-ISOs/Images:
+-----------------
+These are for offline installations when no Internet access is available
+to install the base system.
+
+  archlinux-2009.02-core-i686.iso                 i686/32bit CD-ISO
+  archlinux-2009.02-core-i686.img                 i686/32bit USB-Image
+  archlinux-2009.02-core-x86_64.iso               x86_64/64bit CD-ISO
+  archlinux-2009.02-core-x86_64.img               x86_64/64bit USB-Image
+
+How to use these installation images:
+-------------------------------------
+Please ensure the sha1sum for your downloaded file matches the checksum
+in the the SHA1SUMS file in this directory.
+
+See section in the "Arch Linux Install Guide":
+  http://wiki.archlinux.org/index.php/Official_Arch_Linux_Install_Guide
+For the USB-Images see:
+  http://wiki.archlinux.org/index.php/Install_from_USB_stick
+
+Happy installing!
+Happy ARCHing!
+- Arch Linux Release Engineering team
+
