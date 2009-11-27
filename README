@@ -20,7 +20,7 @@ First off, Archiso has some dependencies:
     - aufs2
     - aufs2-util
     - mkarchroot from the devtools package
-    - pwgen
+    - syslinux
 
 Archiso itself can be installed with the handy dandy included Makefile,
 and the incantation 'make install'.
