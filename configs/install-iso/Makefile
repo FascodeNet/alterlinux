@@ -53,10 +53,10 @@ boot-files: root-image
 
 # Rules for initcpio images
 initcpio: $(WORKDIR)/iso/boot/archiso_ide.img $(WORKDIR)/iso/boot/archiso_pata.img
-$(WORKDIR)/iso/boot/archiso_ide.img: initcpio-ide root-image
+$(WORKDIR)/iso/boot/archiso_ide.img: initcpio-ide $(WORKDIR)/root-image/.arch-chroot
 	mkdir -p $(WORKDIR)/iso/boot
 	mkinitcpio -c ./initcpio-ide -b $(WORKDIR)/root-image -k $(kver) -g $@
-$(WORKDIR)/iso/boot/archiso_pata.img: initcpio-pata root-image
+$(WORKDIR)/iso/boot/archiso_pata.img: initcpio-pata $(WORKDIR)/root-image/.arch-chroot
 	mkdir -p $(WORKDIR)/iso/boot
 	mkinitcpio -c ./initcpio-pata -b $(WORKDIR)/root-image -k $(kver) -g $@
 

@@ -39,7 +39,7 @@ boot-files: root-image
 
 # Rules for initcpio images
 initcpio: $(WORKDIR)/iso/boot/archiso.img
-$(WORKDIR)/iso/boot/archiso.img: mkinitcpio.conf root-image
+$(WORKDIR)/iso/boot/archiso.img: mkinitcpio.conf $(WORKDIR)/root-image/.arch-chroot
 	mkdir -p $(WORKDIR)/iso/boot
 	mkinitcpio -c ./mkinitcpio.conf -b $(WORKDIR)/root-image -k $(kver) -g $@
 
