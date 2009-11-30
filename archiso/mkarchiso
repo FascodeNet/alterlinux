@@ -29,7 +29,7 @@ usage ()
     echo "   create <dir>"
     echo "      create a base directory layout to work with"
     echo "      includes all specified packages"
-    echo "   iso -p <bootloader> <dir> <image name>"
+    echo "   iso <dir> <image name>"
     echo "      build an iso image from the working dir"
     exit $1
 }
@@ -232,24 +232,12 @@ _imgcommon () {
 command_iso () {
     _imgcommon
 
-    bootflags=""
-    if [ "$PKGLIST" = "syslinux" ]; then
-        if [ ! -e "${work_dir}/iso/boot/isolinux/isolinux.bin" ]; then
-            echo "error: isolinux bin file not found in '${work_dir}/iso/boot/isolinux'"
-            exit 1
-        fi
-        bootflags="-b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat"
-    else
-        echo "No bootloader specified. Use the -p flag to specify"
-        echo "  Supported Bootloaders:"
-        echo "     syslinux"
-        exit 1
-    fi
-
     echo "Creating ISO image..."
     qflag=""
     [ "${QUIET}" = "y" ] && qflag="-quiet"
-    mkisofs ${qflag} -r -l $bootflags -uid 0 -gid 0 \
+    mkisofs ${qflag} -r -l \
+        -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat \
+        -uid 0 -gid 0 \
     	-udf -allow-limited-size -iso-level 3 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
