@@ -9,7 +9,6 @@ dnsutils
 dosfstools
 elinks
 gnu-netcat
-grub-gfx
 inetutils
 ipw2100-fw
 ipw2200-fw
@@ -36,6 +35,7 @@ rt2x00-rt61-fw
 rt2x00-rt71w-fw
 speedtouch
 squashfs-tools
+syslinux
 tcpdump
 tiacx
 tiacx-firmware

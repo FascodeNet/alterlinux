@@ -4,7 +4,6 @@ kver=2.6.31-ARCH
 WORKDIR=work
 
 ARCH?=$(shell uname -m)
-BOOTLOADER?=syslinux
 
 PWD=$(shell pwd)
 NETname=$(PWD)/archlinux-$(ver)-netinstall-$(ARCH).iso
@@ -20,10 +19,8 @@ net-iso: $(NETname)
 
 $(COREname): core-pkgs base-fs
 	mkarchiso -p syslinux iso $(WORKDIR) $@
-	isohybrid $@
 $(NETname): base-fs
 	mkarchiso -p syslinux iso $(WORKDIR) $@
-	isohybrid $@
 
 # This is the main rule for make the working filesystem.
 base-fs: root-image boot-files initcpio overlay iso-mounts syslinux
@@ -42,9 +39,9 @@ boot-files: root-image
 
 # Rules for initcpio images
 initcpio: $(WORKDIR)/iso/boot/archiso.img
-$(WORKDIR)/iso/boot/archiso.img: initcpio.cfg root-image
+$(WORKDIR)/iso/boot/archiso.img: mkinitcpio.conf root-image
 	mkdir -p $(WORKDIR)/iso/boot
-	mkinitcpio -c ./initcpio.cfg -b $(WORKDIR)/root-image -k $(kver) -g $@
+	mkinitcpio -c ./mkinitcpio.conf -b $(WORKDIR)/root-image -k $(kver) -g $@
 
 
 # overlay filesystem
@@ -66,7 +63,7 @@ core-pkgs:
 	./download-repo.sh core $(WORKDIR)/core-pkgs
 
 
-# Rules for bootloaders
+# Rules for the bootloader
 syslinux: root-image
 	mkdir -p $(WORKDIR)/iso/boot/isolinux
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/isolinux/
@@ -84,3 +81,4 @@ clean:
 .PHONY: core-pkgs
 .PHONY: syslinux
 .PHONY: clean
+
