@@ -1,6 +1,7 @@
 **************************************************************
 * To begin installation, run /arch/setup                     *
-* You can find documentation at /arch/arch-install-guide.txt *
+* You can find documentation at                              *
+*  /arch/docs/official_installation_guide_en                 *
 *                                                            *
 * i18n: Use the 'km' utility to change your keyboard layout  *
 *       and console font.                                    *
