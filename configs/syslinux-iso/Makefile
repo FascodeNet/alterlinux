@@ -9,7 +9,7 @@ PWD=$(shell pwd)
 NETname=$(PWD)/archlinux-$(ver)-netinstall-$(ARCH).iso
 COREname=$(PWD)/archlinux-$(ver)-core-$(ARCH).iso
 
-PACKAGES="$(shell cat packages.$(ARCH)) $(BOOTLOADER)"
+PACKAGES="$(shell cat packages.$(ARCH))"
 
 all: net-iso core-iso
 
@@ -18,12 +18,12 @@ core-iso: $(COREname)
 net-iso: $(NETname)
 
 $(COREname): core-pkgs base-fs
-	mkarchiso -p syslinux iso $(WORKDIR) $@
+	mkarchiso iso $(WORKDIR) $@
 $(NETname): base-fs
-	mkarchiso -p syslinux iso $(WORKDIR) $@
+	mkarchiso iso $(WORKDIR) $@
 
 # This is the main rule for make the working filesystem.
-base-fs: root-image boot-files initcpio overlay iso-mounts syslinux
+base-fs: root-image bootfiles initcpio overlay iso-mounts
 
 
 # Rules for make the root-image for base filesystem.
@@ -32,9 +32,14 @@ $(WORKDIR)/root-image/.arch-chroot:
 	mkarchiso -p $(PACKAGES) create $(WORKDIR)
 
 # Rule for make /boot
-boot-files: root-image
-	cp -r $(WORKDIR)/root-image/boot $(WORKDIR)/iso/
+bootfiles: root-image
+	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/
+	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/
+	cp $(WORKDIR)/root-image/boot/memtest86+/memtest.bin $(WORKDIR)/iso/memtest
+	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest.COPYING
 	cp -r boot-files/* $(WORKDIR)/iso/boot/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/isolinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux/
 
 
 # Rules for initcpio images
@@ -63,13 +68,6 @@ core-pkgs:
 	./download-repo.sh core $(WORKDIR)/core-pkgs
 
 
-# Rules for the bootloader
-syslinux: root-image
-	mkdir -p $(WORKDIR)/iso/boot/isolinux
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/isolinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux/
-
-
 # Clean-up all work
 clean:
 	rm -rf $(WORKDIR) $(NETname) $(COREname)
@@ -77,8 +75,7 @@ clean:
 
 .PHONY: all core-iso net-iso
 .PHONY: base-fs
-.PHONY: root-image boot-files initcpio overlay iso-mounts
+.PHONY: root-image bootfiles initcpio overlay iso-mounts
 .PHONY: core-pkgs
-.PHONY: syslinux
 .PHONY: clean
 
