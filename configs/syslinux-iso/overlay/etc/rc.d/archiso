@@ -67,6 +67,9 @@ do_makeuser ()
     stat_busy "Making the default user arch"
     addgroups="audio,disk,optical,wheel"
     useradd -p "" -g users -G $addgroups arch
+    mkdir /home/arch
+    chmod 700 /home/arch
+    chown arch:users /home/arch
     stat_done
 }
 
