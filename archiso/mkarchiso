@@ -225,7 +225,6 @@ _imgcommon () {
 
     cp "${work_dir}/isomounts" "${work_dir}/iso/"
 
-    [ -f ${work_dir}/iso/boot/grub/menu.lst ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/grub/menu.lst
     [ -f ${work_dir}/iso/boot/isolinux/isolinux.cfg ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/isolinux/isolinux.cfg
 }
 
