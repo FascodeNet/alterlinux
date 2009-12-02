@@ -218,14 +218,17 @@ _imgcommon () {
             echo "Removing existing bootable image..."
             rm -rf "${imgname}"
         else
-            echo "error: Image '${imgname}' already exists, aborting."
+            echo "Error: Image '${imgname}' already exists, aborting."
             exit 1
         fi
     fi
 
     cp "${work_dir}/isomounts" "${work_dir}/iso/"
 
-    [ -f ${work_dir}/iso/boot/isolinux/isolinux.cfg ] && sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/isolinux/isolinux.cfg
+    if ! sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/isolinux/isolinux.cfg; then
+	    echo "Error: ${work_dir}/iso/boot/isolinux/isolinux.cfg, doesn't exist, aborting."
+		exit 1
+	fi
 }
 
 command_iso () {
