@@ -33,13 +33,15 @@ $(WORKDIR)/root-image/.arch-chroot:
 
 # Rule for make /boot
 bootfiles: root-image
-	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/
-	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/
-	cp $(WORKDIR)/root-image/boot/memtest86+/memtest.bin $(WORKDIR)/iso/memtest
+	mkdir -p $(WORKDIR)/iso/boot
+	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/boot/
+	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/boot/
+	cp $(WORKDIR)/root-image/boot/memtest86+/memtest.bin $(WORKDIR)/iso/boot/memtest
 	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest.COPYING
 	cp -r boot-files/* $(WORKDIR)/iso/boot/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/isolinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/memdisk $(WORKDIR)/iso/boot/isolinux/
 
 
 # Rules for initcpio images
