@@ -9,7 +9,7 @@ _mnt_bind()
 # args: /path/to/image_file
 _mnt_squashfs()
 {
-    /bin/modprobe -q loop >/dev/null 2>&1
+    /sbin/modprobe -q loop >/dev/null 2>&1
     
     img="${1}"
     base_img="${img##*/}";
@@ -27,7 +27,7 @@ _mnt_squashfs()
     while [ ! -e "/dev/loop${LOOP_NUM}" ]; do
         sleep 1
     done
-    if ! /bin/losetup "/dev/loop${LOOP_NUM}" ${img}; then
+    if ! /sbin/losetup "/dev/loop${LOOP_NUM}" ${img}; then
         echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
         break
     fi
@@ -70,7 +70,7 @@ run_hook ()
       PS1="ramfs$ " /bin/sh -i
     done
 
-    eval $(fstype < /dev/archiso 2>/dev/null)
+    FSTYPE=$(blkid -o value -s TYPE /dev/archiso 2>/dev/null)
     if [ -n "${FSTYPE}" ]; then
         if [ "${FSTYPE}" = "unknown" ]; then
             # First try mounting then with vfat, maybe someone put the image on
@@ -98,8 +98,8 @@ run_hook ()
         echo "ERROR: /dev/archiso found, but the filesystem type is unknown."
     fi
 
-    /bin/modprobe -q squashfs >/dev/null 2>&1
-    /bin/modprobe -q aufs >/dev/null 2>&1
+    /sbin/modprobe -q squashfs >/dev/null 2>&1
+    /sbin/modprobe -q aufs >/dev/null 2>&1
 
     msg ":: Mounting root (aufs) filesystem"
     /bin/mount -t aufs -o dirs=/tmpfs=rw none /real_root
@@ -137,17 +137,19 @@ run_hook ()
 
     if [ "${break}" = "y" ]; then
         echo ":: Break requested, type 'exit' to resume operation"
-        echo "   NOTE: klibc contains no 'ls' binary, use 'echo *' instead"
         PS1="ramfs$ " /bin/sh -i
     fi
 
-    udevpid=$(/bin/minips -C udevd -o pid=)
-    [ "x${udevpid}" != "x" ] && /bin/kill -9 $udevpid 2>&1 >/dev/null
-    #Yep, we're bailing out here.  We don't need kinit.
+    #Special handling if udev is running
+    udevpid=$(/bin/pidof udevd)
+    if [ -n "${udevpid}" ]; then
+        /bin/kill -9 ${udevpid} > /dev/null 2>&1
+        /bin/sleep 0.01
+    fi
     msg ":: Passing control to Arch Linux Initscripts...Please Wait"
     /bin/umount /sys
     /bin/umount /proc
-    exec /bin/run-init -c /dev/console /real_root /sbin/init ${CMDLINE}
+    exec /sbin/switch_root -c /dev/console /real_root /sbin/init ${CMDLINE}
 }
 
 # vim:ft=sh:ts=4:sw=4:et:
