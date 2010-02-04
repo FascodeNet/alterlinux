@@ -1,5 +1,5 @@
-ver=2009.12
-kver=2.6.31-ARCH
+ver=2010.02
+kver=2.6.32-ARCH
 
 WORKDIR=work
 
