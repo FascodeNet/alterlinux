@@ -9,12 +9,13 @@ _mnt_bind()
 # args: /path/to/image_file
 _mnt_squashfs()
 {
-    /sbin/modprobe -q loop >/dev/null 2>&1
+    /sbin/modprobe -q loop > /dev/null 2>&1
     
     img="${1}"
     base_img="${img##*/}";
     mnt="${2}"
 
+    # FIX: This options does not work (see FS#17182)
     if [ "${copytoram}" = "y" ]; then
         msg ":: Copying squashfs image to RAM"
         /bin/cat ${img} > "/tmpfs/${base_img}"
@@ -56,30 +57,25 @@ run_hook ()
         isomounts="/bootmnt/isomounts"
     fi
 
+    if [ "x${archisodevice}" = "x" ]; then
+        archisodevice="/dev/archiso"
+    fi
+
     msg -n ":: Mounting tmpfs, size=${tmpfs_size}..."
     mount -t tmpfs -o "size=${tmpfs_size}" tmpfs /tmpfs
     msg "done."
 
     msg ":: Waiting for boot device..."
-
-    /bin/mkdir -p /bootmnt
-    while ! poll_device /dev/archiso 30; do
+    while ! poll_device ${archisodevice} 30; do
       echo "ERROR: boot device didn't show up after 30 seconds..."
       echo "   Falling back to interactive prompt"
       echo "   You can try to fix the problem manually, log out when you are finished"
       PS1="ramfs$ " /bin/sh -i
     done
 
-    FSTYPE=$(blkid -o value -s TYPE /dev/archiso 2>/dev/null)
+    FSTYPE=$(blkid -o value -s TYPE ${archisodevice} 2> /dev/null)
     if [ -n "${FSTYPE}" ]; then
-        if [ "${FSTYPE}" = "unknown" ]; then
-            # First try mounting then with vfat, maybe someone put the image on
-            # USB stick with unetbootin or similar. vfat is not detected by fstype.
-            _FSTYPE="vfat"
-        else
-            _FSTYPE=$FSTYPE
-        fi
-        if mount -r -t "${_FSTYPE}" /dev/archiso /bootmnt >/dev/null 2>&1; then
+        if mount -r -t "${FSTYPE}" ${archisodevice} /bootmnt > /dev/null 2>&1; then
             if [ -e "${isomounts}" ]; then
                 echo "SUCCESS: Mounted archiso volume successfully."
             else
@@ -87,19 +83,12 @@ run_hook ()
                 exit 1
             fi
         else
-            if [ "${FSTYPE}" = "unknown" ]; then
-                echo "ERROR: Failed to mount /dev/archiso (FS is unknown and not vfat)."
-            else
-                echo "ERROR; Failed to mount /dev/archiso (FS is ${FSTYPE}."
-            fi
+            echo "ERROR; Failed to mount ${archisodevice} (FS is ${FSTYPE})"
             exit 1
         fi
     else
-        echo "ERROR: /dev/archiso found, but the filesystem type is unknown."
+        echo "ERROR: ${archisodevice} found, but the filesystem type is unknown."
     fi
-
-    /sbin/modprobe -q squashfs >/dev/null 2>&1
-    /sbin/modprobe -q aufs >/dev/null 2>&1
 
     msg ":: Mounting root (aufs) filesystem"
     /bin/mount -t aufs -o dirs=/tmpfs=rw none /real_root
