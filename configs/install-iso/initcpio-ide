@@ -1,6 +1,0 @@
-# vim:set ft=sh
-MODULES=""
-BINARIES=""
-FILES=""
-
-HOOKS="base archiso-early udev archiso ide scsi usb fw pcmcia filesystems usbinput"
