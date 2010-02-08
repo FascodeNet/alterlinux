@@ -247,7 +247,7 @@ command_iso () {
         -A "${APPLICATION}" \
         -V "${LABEL}" \
         -o "${imgname}" "${work_dir}/iso/"
-    isohybrid "${imgname}"
+    isohybrid -offset 1 "${imgname}"
 }
 
 # Go through the main commands in order. If 'all' was specified, then we want
