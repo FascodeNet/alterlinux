@@ -2,15 +2,15 @@
 _mnt_bind()
 {
     msg "::: Binding ${1} to ${2}"
-    mkdir -p /real_root${2}
-    /bin/mount -o bind ${1} /real_root${2}
+    mkdir -p $newroot${2}
+    /bin/mount -o bind ${1} $newroot${2}
 }
 
 # args: /path/to/image_file
 _mnt_squashfs()
 {
     /sbin/modprobe -q loop > /dev/null 2>&1
-    
+
     img="${1}"
     base_img="${img##*/}";
     mnt="${2}"
@@ -34,7 +34,7 @@ _mnt_squashfs()
     fi
     /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
     if [ "${mnt}" = "/" ]; then
-        /bin/mount -t aufs -o remount,append:/tmpfs/mnt/loop${LOOP_NUM}=ro none "/real_root"
+        /bin/mount -t aufs -o remount,append:/tmpfs/mnt/loop${LOOP_NUM}=ro none "$newroot"
     else
         _mnt_bind "/tmpfs/mnt/loop${LOOP_NUM}" "${mnt}"
     fi
@@ -61,6 +61,13 @@ run_hook ()
         archisodevice="/dev/archiso"
     fi
 
+    # set mount handler for archiso
+    mount_handler="archiso_mount_handler"
+}
+
+archiso_mount_handler() {
+    newroot="$1"
+
     msg -n ":: Mounting tmpfs, size=${tmpfs_size}..."
     mount -t tmpfs -o "size=${tmpfs_size}" tmpfs /tmpfs
     msg "done."
@@ -70,7 +77,7 @@ run_hook ()
       echo "ERROR: boot device didn't show up after 30 seconds..."
       echo "   Falling back to interactive prompt"
       echo "   You can try to fix the problem manually, log out when you are finished"
-      PS1="ramfs$ " /bin/sh -i
+      launch_interactive_shell
     done
 
     FSTYPE=$(blkid -o value -s TYPE ${archisodevice} 2> /dev/null)
@@ -91,7 +98,7 @@ run_hook ()
     fi
 
     msg ":: Mounting root (aufs) filesystem"
-    /bin/mount -t aufs -o dirs=/tmpfs=rw none /real_root
+    /bin/mount -t aufs -o dirs=/tmpfs=rw none $newroot
     if [ $? -ne 0 ]; then
         echo "ERROR: while mounting root (aufs) filesystem."
         exit 1
@@ -124,21 +131,6 @@ run_hook ()
         fi
     fi
 
-    if [ "${break}" = "y" ]; then
-        echo ":: Break requested, type 'exit' to resume operation"
-        PS1="ramfs$ " /bin/sh -i
-    fi
-
-    #Special handling if udev is running
-    udevpid=$(/bin/pidof udevd)
-    if [ -n "${udevpid}" ]; then
-        /bin/kill -9 ${udevpid} > /dev/null 2>&1
-        /bin/sleep 0.01
-    fi
-    msg ":: Passing control to Arch Linux Initscripts...Please Wait"
-    /bin/umount /sys
-    /bin/umount /proc
-    exec /sbin/switch_root -c /dev/console /real_root /sbin/init ${CMDLINE}
 }
 
 # vim:ft=sh:ts=4:sw=4:et:
