@@ -9,11 +9,11 @@ _mnt_bind()
 # args: /path/to/image_file
 _mnt_squashfs()
 {
-    /sbin/modprobe -q loop > /dev/null 2>&1
-
     img="${1}"
-    base_img="${img##*/}";
     mnt="${2}"
+    img_fullname="${img##*/}";
+    img_name="${img_fullname%.*}"
+    tmp_mnt="/tmpfs/mnt/${img_name}"
 
     # FIX: This options does not work (see FS#17182)
     if [ "${copytoram}" = "y" ]; then
@@ -22,23 +22,14 @@ _mnt_squashfs()
         img="/tmpfs/${base_img}"
     fi
 
-    msg "::: Adding new aufs branch: ${base_img%.*}"
-    mkdir -p "/tmpfs/mnt/loop${LOOP_NUM}"
-    # sometimes it takes udev a while to create device nodes
-    while [ ! -e "/dev/loop${LOOP_NUM}" ]; do
-        sleep 1
-    done
-    if ! /sbin/losetup "/dev/loop${LOOP_NUM}" ${img}; then
-        echo "ERROR: Cannot mount loop device /dev/loop${LOOP_NUM}"
-        break
-    fi
-    /bin/mount -r -t squashfs "/dev/loop${LOOP_NUM}" "/tmpfs/mnt/loop${LOOP_NUM}"
+    msg "::: Adding new aufs branch: ${img_name}"
+    mkdir -p "${tmp_mnt}"
+    /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
     if [ "${mnt}" = "/" ]; then
-        /bin/mount -t aufs -o remount,append:/tmpfs/mnt/loop${LOOP_NUM}=ro none "$newroot"
+        /bin/mount -t aufs -o remount,append:${tmp_mnt}=ro none "$newroot"
     else
-        _mnt_bind "/tmpfs/mnt/loop${LOOP_NUM}" "${mnt}"
+        _mnt_bind "${tmp_mnt}" "${mnt}"
     fi
-    export LOOP_NUM=$(( $LOOP_NUM + 1 ))
 }
 
 run_hook ()
@@ -112,7 +103,6 @@ archiso_mount_handler() {
         exit 1
     fi
 
-    export LOOP_NUM="0"
     msg ":: Mounting images"
     while read img imgarch mountpoint type; do
         # check if this line is a comment (starts with #)
