@@ -15,13 +15,6 @@ _mnt_squashfs() {
     img_name="${img_fullname%.*}"
     tmp_mnt="/tmpfs/mnt/${img_name}"
 
-    # FIX: This options does not work (see FS#17182)
-    if [ "${copytoram}" = "y" ]; then
-        msg ":: Copying squashfs image to RAM"
-        /bin/cat ${img} > "/tmpfs/${base_img}"
-        img="/tmpfs/${base_img}"
-    fi
-
     msg "::: Adding new aufs branch: ${img_name}"
     mkdir -p "${tmp_mnt}"
     /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
