@@ -1,9 +1,11 @@
 # args: source, mountpoint
 _mnt_bind()
 {
-    msg "::: Binding ${1} to ${2}"
-    mkdir -p $newroot${2}
-    /bin/mount -o bind ${1} $newroot${2}
+    src="${1}"
+    mnt="${2}"
+    msg "::: Binding ${src} to ${mnt}"
+    mkdir -p "${mnt}"
+    /bin/mount -o bind "${src}" "${mnt}"
 }
 
 # args: /path/to/image_file
@@ -25,8 +27,8 @@ _mnt_squashfs()
     msg "::: Adding new aufs branch: ${img_name}"
     mkdir -p "${tmp_mnt}"
     /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
-    if [ "${mnt}" = "/" ]; then
-        /bin/mount -t aufs -o remount,append:${tmp_mnt}=ro none "$newroot"
+    if [ "/${mnt#/*/}" = "/" ]; then
+        /bin/mount -t aufs -o remount,append:"${tmp_mnt}"=ro none "${mnt}"
     else
         _mnt_bind "${tmp_mnt}" "${mnt}"
     fi
@@ -113,14 +115,14 @@ archiso_mount_handler() {
         [ ! -r "/bootmnt/${img}" ] && continue
 
         if [ "${type}" = "bind" ]; then
-            _mnt_bind "/bootmnt/${img}" ${mountpoint}
+            _mnt_bind "/bootmnt/${img}" "${newroot}${mountpoint}"
         elif [ "${type}" = "squashfs" ]; then
-            _mnt_squashfs "/bootmnt/${img}" "${mountpoint}"
+            _mnt_squashfs "/bootmnt/${img}" "${newroot}${mountpoint}"
         fi
     done < "${isomounts}"
 
     # Bind our bootmnt dir into the live system
-    _mnt_bind /bootmnt /bootmnt
+    _mnt_bind /bootmnt "${newroot}/bootmnt"
 
     if [ "${FSTYPE}" = "iso9660" -o "${FSTYPE}" = "udf" ]; then
         if [ -d /proc/sys/dev/cdrom ]; then
