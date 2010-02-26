@@ -1,0 +1,457 @@
+#!/bin/bash
+
+#
+# Join two Arch Linux iso images of i686 and x86_64 architecture.
+# Contributed for archiso by Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+#
+
+set -e -u
+
+publisher="Arch Linux <http://www.archlinux.org>"
+application="Arch Linux Live/Rescue disk"
+label="ARCH_$(date +%Y%m)"
+isofile_i686=""
+isofile_x86_64=""
+imgname=""
+quiet="y"
+profile_type="basic"
+work_dir="/tmp/archiso2dual"
+isomounts_file="/usr/share/archiso2dual/isomounts"
+isolinuxcfg_file="/usr/share/archiso2dual/isolinux.cfg"
+appname=${0##*/}
+_error="0"
+_confirm="n"
+_v=""
+
+iso_umount() {
+    echo "Executing: ${FUNCNAME}"
+    trap - 0 1 2 15
+    umount ${_v} ${work_dir}/i686/mnt
+    umount ${_v} ${work_dir}/x86_64/mnt
+}
+
+iso_mount() {
+    echo "Executing: ${FUNCNAME}"
+    trap 'iso_umount' 0 1 2 15
+    mount ${_v} -t udf -o ro,loop ${isofile_i686} ${work_dir}/i686/mnt
+    mount ${_v} -t udf -o ro,loop ${isofile_x86_64} ${work_dir}/x86_64/mnt
+}
+
+kernel_copy() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        cp ${_v} $work_dir/${_arch}/mnt/boot/archiso.img $work_dir/iso/boot/${_arch}/archiso.img
+        cp ${_v} $work_dir/${_arch}/mnt/boot/vmlinuz26 $work_dir/iso/boot/${_arch}/vmlinuz26
+    done
+}
+
+isolinux_copy() {
+    echo "Executing: ${FUNCNAME}"
+    cp ${_v} $work_dir/i686/mnt/boot/{memtest*,releasenotes.txt,splash.png,x86test*} $work_dir/iso/boot/
+    cp ${_v} $work_dir/i686/mnt/boot/isolinux/*.c32 $work_dir/iso/boot/isolinux/
+    cp ${_v} $work_dir/i686/mnt/boot/isolinux/memdisk $work_dir/iso/boot/isolinux/
+    cp ${_v} $work_dir/i686/mnt/boot/isolinux/isolinux.bin $work_dir/iso/boot/isolinux/
+}
+
+isolinuxcfg_copy() {
+    echo "Executing: ${FUNCNAME}"
+    sed "s|XXX|${label}|g" ${isolinuxcfg_file} > $work_dir/iso/boot/isolinux/isolinux.cfg
+}
+
+isomounts_copy() {
+    echo "Executing: ${FUNCNAME}"
+    cp ${_v} ${isomounts_file}.i686 $work_dir/iso/
+    cp ${_v} ${isomounts_file}.x86_64 $work_dir/iso/
+    cp ${_v} ${isomounts_file}.x86_64-i686 $work_dir/iso/
+}
+
+squashfs_copy() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        cp ${_v} $work_dir/${_arch}/mnt/*.sqfs $work_dir/iso/${_arch}/
+    done
+}
+
+make_iso() {
+    echo "Executing: ${FUNCNAME}"
+    if [ "${quiet}" = "y" ]; then
+        _qflag="-quiet"
+    else
+        _qflag=""
+    fi
+    mkisofs ${_v} ${_qflag} -r -l \
+        -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat \
+        -uid 0 -gid 0 \
+        -udf -allow-limited-size -iso-level 3 \
+        -input-charset utf-8 -p "prepared by archiso2dual" \
+        -no-emul-boot -boot-load-size 4 -boot-info-table \
+        -publisher "${publisher}" \
+        -A "${application}" \
+        -V "${label}" \
+        -o "${imgname}" "${work_dir}/iso/"
+    isohybrid -offset 1 "${imgname}"
+}
+
+unsquashfs_image() {
+    echo "Executing: ${FUNCNAME}"
+    img=${1}
+    arch=${2}
+    rm -rf ${work_dir}/tmp/${arch}/${img}
+    if [ "${quiet}" = "y" ]; then
+        unsquashfs -d ${work_dir}/tmp/${arch}/${img} $work_dir/iso/${arch}/${img}.sqfs > /dev/null
+    else
+        unsquashfs -d ${work_dir}/tmp/${arch}/${img} $work_dir/iso/${arch}/${img}.sqfs
+    fi
+}
+
+mksquashfs_image() {
+    echo "Executing: ${FUNCNAME}"
+    img=${1}
+    arch=${2}
+    rm -f ${work_dir}/iso/${arch}/${img}.sqfs
+    if [ "${quiet}" = "y" ]; then
+        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs > /dev/null
+    else
+        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs
+    fi
+}
+
+usrshare_copy_from_root_image() {
+    echo "Executing: ${FUNCNAME}"
+    cp -a ${work_dir}/tmp/i686/root-image/usr/share ${work_dir}/tmp/any/usrshare
+}
+
+usrshare_purge() {
+    echo "Executing: ${FUNCNAME}"
+    rm -rf ${work_dir}/tmp/any/usrshare/man
+    rm -rf ${work_dir}/tmp/any/usrshare/info
+    rm -rf ${work_dir}/tmp/any/usrshare/doc
+}
+
+usrshare_make_image() {
+    echo "Executing: ${FUNCNAME}"
+    mksquashfs_image usrshare any
+}
+
+libmodules_make_image() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        mksquashfs_image libmodules ${_arch}
+    done
+}
+
+libmodules_copy_from_root_image() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        cp -a ${work_dir}/tmp/${_arch}/root-image/lib/modules ${work_dir}/tmp/${_arch}/libmodules
+    done
+}
+
+root_image_extract() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        unsquashfs_image root-image ${_arch}
+    done
+}
+
+root_image_make_image() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        mksquashfs_image root-image ${_arch}
+    done
+}
+
+root_image_remove_usrshare() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        rm -rf ${work_dir}/tmp/${_arch}/root-image/usr/share
+    done
+}
+
+root_image_remove_libmodules() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        rm -rf ${work_dir}/tmp/${_arch}/root-image/lib/modules
+    done
+}
+
+root_image_purge() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        rm -rf ${work_dir}/tmp/${_arch}/root-image/boot
+        rm -rf ${work_dir}/tmp/${_arch}/root-image/usr/include
+        rm -rf ${work_dir}/tmp/${_arch}/root-image/usr/src
+    done
+}
+
+make_workspace() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        mkdir ${_v} -p ${work_dir}/iso/${_arch}
+        mkdir ${_v} -p ${work_dir}/iso/boot/${_arch}
+        mkdir ${_v} -p ${work_dir}/${_arch}/mnt
+        mkdir ${_v} -p ${work_dir}/tmp/${_arch}
+    done
+    mkdir ${_v} -p ${work_dir}/iso/boot/isolinux
+    mkdir ${_v} -p ${work_dir}/iso/any
+    mkdir ${_v} -p ${work_dir}/tmp/any
+}
+
+do_common_begin() {
+    make_workspace
+
+    iso_mount
+
+    kernel_copy
+    isolinux_copy
+    squashfs_copy
+
+    iso_umount
+
+    isolinuxcfg_copy
+    isomounts_copy
+}
+
+do_common_end() {
+    make_iso
+}
+
+do_basic() {
+    do_common_begin
+    do_common_end
+}
+
+do_split_us() {
+    do_common_begin
+
+    root_image_extract
+
+    usrshare_copy_from_root_image
+    usrshare_make_image
+
+    root_image_remove_usrshare
+    root_image_make_image
+
+    do_common_end
+}
+
+do_split_lm() {
+    do_common_begin
+
+    root_image_extract
+
+    usrshare_copy_from_root_image
+    usrshare_make_image
+
+    libmodules_copy_from_root_image
+    libmodules_make_image
+
+    root_image_remove_usrshare
+    root_image_remove_libmodules
+    root_image_make_image
+
+    do_common_end
+}
+
+do_purge_us() {
+    do_common_begin
+
+    root_image_extract
+
+    usrshare_copy_from_root_image
+    usrshare_purge
+    usrshare_make_image
+
+    libmodules_copy_from_root_image
+    libmodules_make_image
+
+    root_image_remove_usrshare
+    root_image_remove_libmodules
+    root_image_make_image
+
+    do_common_end
+}
+
+do_full() {
+    do_common_begin
+
+    root_image_extract
+
+    usrshare_copy_from_root_image
+    usrshare_purge
+    usrshare_make_image
+
+    libmodules_copy_from_root_image
+    libmodules_make_image
+
+    root_image_remove_usrshare
+    root_image_remove_libmodules
+    root_image_purge
+    root_image_make_image
+
+    do_common_end
+}
+
+
+
+show_help()
+{
+    exitvalue=${1}
+    echo
+    echo "${appname} [options] -3 <i686.iso> -6 <x86_64.iso> -o <output.iso>"
+    echo
+    echo " needed options:"
+    echo "    -3 <i686.iso>    Path to i686 source iso image"
+    echo "    -6 <x86_64.iso>  Path to x86_64 source iso image"
+    echo "    -o <output.iso>  Path to dual target iso image"
+    echo
+    echo " general options:"
+    echo "    -M <isomounts>   Path to isomounts files [basename]
+                     (default to '${isomounts_file}'"
+    echo "    -S <isolinux>    Path to isolinux.cfg file
+                     (default to '${isolinuxcfg_file}'"
+    echo "    -w <workdir>     Set work directory
+                     (default to '${work_dir}')"
+    echo "    -T <profile>     Type of target image (work is done on root-image.sqfs):
+                     basic:    join both images, no changes in *.sqfs
+                     split_us: 'basic' + split usr/share/
+                     split_lm: 'split_us' + split lib/modules/
+                     purge_us: 'split_us' + prune usr/share/{doc,info,man}/
+                     full:     'purge_us' + prune boot/ usr/include/ usr/src/
+                     (default to '${profile_type}')"
+    echo "    -L <label>       Set a label for the disk [max 11 chars]
+                     (default to '${label}')"
+    echo "    -P <publisher>   Set a publisher for the disk
+                     (default to '${publisher}')"
+    echo "    -A <application> Set an application name for the disk
+                     (default to '${application}')"
+    echo "    -y               Confirm execution (otherwise only show configuration)"
+    echo "    -v               Enable verbose output"
+    echo "    -h               This message"
+    exit ${exitvalue}
+}
+
+show_config() {
+    echo
+    echo "${appname} : Configuration settings"
+    echo "    source iso i686 image:   ${isofile_i686}"
+    echo "  source iso x86_64 image:   ${isofile_x86_64}"
+    echo "         target iso image:   ${imgname}"
+    echo "           isomounts file:   ${isomounts_file}.{i686,x86_64,x86_64-i686}"
+    echo "        isolinux.cfg file:   ${isolinuxcfg_file}"
+    echo "        working directory:   ${work_dir}"
+    echo "                  profile:   ${profile_type}"
+    echo "                    label:   ${label}"
+    echo "                publisher:   ${publisher}"
+    echo "              application:   ${application}"
+    echo
+}
+
+options_check() {
+    if [ "x${isofile_i686}" = "x" ]; then
+        echo "*ERROR*: -3 <i686.iso> must be specified"
+        _error="1"
+    fi
+
+    if [ "x${isofile_x86_64}" = "x" ]; then
+        echo "*ERROR*: -6 <x86_64.iso> must be specified"
+        _error="1"
+    fi
+
+    if [ "x${imgname}" = "x" ]; then
+        echo "*ERROR*: -o <output.iso> must be specified"
+        _error="1"
+    fi
+
+    if [ ${_error} = "1" ]; then
+        show_help 1
+    fi
+}
+
+sanity_check() {
+    echo
+    if [ ! -f "${isofile_i686}" ]; then
+      echo "*ERROR*: ${isofile_i686} does not exist"
+        _error="1"
+    fi
+
+    if [ ! -f "${isofile_x86_64}" ]; then
+      echo "*ERROR*: ${isofile_x86_64} does not exist"
+        _error="1"
+    fi
+
+    if [ -f "${imgname}" ]; then
+      echo "*ERROR*: ${imgname} already exists, aborting"
+        _error="1"
+    fi
+
+    if [ ! -f "${isomounts_file}.i686" ]; then
+      echo "*ERROR*: ${isomounts_file}.i686 does not exist, , specify one with -M option"
+        _error="1"
+    fi
+
+    if [ ! -f "${isomounts_file}.x86_64" ]; then
+      echo "*ERROR*: ${isomounts_file}.x86_64 does not exist, , specify one with -M option"
+        _error="1"
+    fi
+
+    if [ ! -f "${isomounts_file}.x86_64-i686" ]; then
+      echo "*ERROR*: ${isomounts_file}.x86_64-i686 does not exist, , specify one with -M option"
+        _error="1"
+    fi
+
+    if [ ! -f "${isolinuxcfg_file}" ]; then
+      echo "*ERROR*: ${isolinuxcfg_file} does not exist, specify one with -S option"
+        _error="1"
+    fi
+
+    if [ -d "${work_dir}" ]; then
+      echo "*ERROR*: work directory ${work_dir} is present, first delete it"
+        _error="1"
+    fi
+
+    if [ ${_error} = "1" ]; then
+        exit 1
+    fi
+}
+
+if [ "$EUID" != "0" ]; then
+    echo "*ERROR*: This script must be run as root."
+    exit 1
+fi
+
+while getopts '3:6:o:T:M:S:L:P:A:yvh' arg; do
+    case "${arg}" in
+        3) isofile_i686="${OPTARG}" ;;
+        6) isofile_x86_64="${OPTARG}" ;;
+        o) imgname="${OPTARG}" ;;
+        T) case "${OPTARG}" in
+               "basic"|"split_us"|"split_lm"|"purge_us"|"full") profile_type="${OPTARG}" ;;
+               *) echo; echo "*ERROR*: invalid argument in -T option: ${profile_type}"; show_help 1 ;;
+           esac
+           ;;
+        M) isomounts_file="${OPTARG}" ;;
+        S) isolinuxcfg_file="${OPTARG}" ;;
+        L) label="${OPTARG}" ;;
+        P) publisher="${OPTARG}" ;;
+        A) application="${OPTARG}" ;;
+        w) work_dir="${OPTARG}" ;;
+        y) _confirm="y" ;;
+        v) quiet="n"; _v="-v" ;;
+        h|?) show_help 0 ;;
+        *) echo; echo "*ERROR*: invalid argument '${arg}'"; show_help 1 ;;
+    esac
+done
+
+options_check
+sanity_check
+show_config
+
+if [ "${_confirm}" != "y" ]; then
+   echo
+   echo "If configuration is correct, re-execute with -y"
+   exit 1
+fi
+
+# wiiiiiipuuuuu :)
+do_${profile_type}
