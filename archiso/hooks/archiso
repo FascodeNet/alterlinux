@@ -1,4 +1,13 @@
 # args: source, mountpoint
+_mnt_aufs() {
+    src="${1}"
+    mnt="${2}"
+    msg "::: Adding new aufs branch: ${src} to ${mnt}"
+    mkdir -p "${mnt}"
+    /bin/mount -t aufs -o remount,append:"${src}"=ro none "${mnt}"
+}
+
+# args: source, mountpoint
 _mnt_bind() {
     src="${1}"
     mnt="${2}"
@@ -16,16 +25,17 @@ _mnt_squashfs() {
     tmp_mnt="/tmpfs/mnt/${img_name}"
 
     if [ "${copytoram}" = "y" ]; then
-        msg ":: Copying squashfs image to RAM"
+        msg -n ":: Copying squashfs image to RAM"
         /bin/cp "${img}" "/tmpfs.sqfs/${img_fullname}"
         img="/tmpfs.sqfs/${img_fullname}"
+        msg "done."
     fi
 
-    msg "::: Adding new aufs branch: ${img_name}"
     mkdir -p "${tmp_mnt}"
     /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
+
     if [ "/${mnt#/*/}" = "/" ]; then
-        /bin/mount -t aufs -o remount,append:"${tmp_mnt}"=ro none "${mnt}"
+        _mnt_aufs "${tmp_mnt}" "${mnt}"
     else
         _mnt_bind "${tmp_mnt}" "${mnt}"
     fi
