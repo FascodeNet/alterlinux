@@ -15,6 +15,12 @@ _mnt_squashfs() {
     img_name="${img_fullname%.*}"
     tmp_mnt="/tmpfs/mnt/${img_name}"
 
+    if [ "${copytoram}" = "y" ]; then
+        msg ":: Copying squashfs image to RAM"
+        /bin/cp "${img}" "/tmpfs.sqfs/${img_fullname}"
+        img="/tmpfs.sqfs/${img_fullname}"
+    fi
+
     msg "::: Adding new aufs branch: ${img_name}"
     mkdir -p "${tmp_mnt}"
     /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
@@ -32,6 +38,10 @@ run_hook () {
 
     if [ "x${tmpfs_size}" = "x" ]; then
         tmpfs_size="75%"
+    fi
+
+    if [ "x${tmpfs_sqfs_size}" = "x" ]; then
+        tmpfs_sqfs_size="75%"
     fi
 
     if [ "x${isomounts}" != "x" ]; then
@@ -54,6 +64,12 @@ archiso_mount_handler() {
     msg -n ":: Mounting tmpfs, size=${tmpfs_size}..."
     mount -t tmpfs -o "size=${tmpfs_size}" tmpfs /tmpfs
     msg "done."
+
+    if [ "${copytoram}" = "y" ]; then
+        msg -n ":: Mounting tmpfs (for squashfs), size=${tmpfs_sqfs_size}..."
+        mount -t tmpfs -o "size=${tmpfs_sqfs_size}" tmpfs /tmpfs.sqfs
+        msg "done."
+    fi
 
     msg ":: Waiting for boot device..."
     while ! poll_device ${archisodevice} 30; do
@@ -114,13 +130,14 @@ archiso_mount_handler() {
     # Bind our bootmnt dir into the live system
     _mnt_bind /bootmnt "${newroot}/bootmnt"
 
-    if [ "${FSTYPE}" = "iso9660" -o "${FSTYPE}" = "udf" ]; then
-        if [ -d /proc/sys/dev/cdrom ]; then
-            echo 0 > /proc/sys/dev/cdrom/lock
-            echo 0 > /proc/sys/dev/cdrom/autoeject
+    if [ "${copytoram}" != "y" ]; then
+        if [ "${FSTYPE}" = "iso9660" ] || [ "${FSTYPE}" = "udf" ]; then
+            if [ -d /proc/sys/dev/cdrom ]; then
+                echo 0 > /proc/sys/dev/cdrom/lock
+                echo 0 > /proc/sys/dev/cdrom/autoeject
+            fi
         fi
     fi
-
 }
 
 # vim:ft=sh:ts=4:sw=4:et:
