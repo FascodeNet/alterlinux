@@ -17,9 +17,9 @@ First off, Archiso has some dependencies:
     - mkinitcpio
     - cdrkit
     - squashfs-tools
-    - aufs2
-    - aufs2-util
-    - mkarchroot from the devtools package
+    - aufs2 (only needed in target media)
+    - aufs2-util (only needed in target media)
+    - devtools for mkarchroot
     - syslinux
 
 Archiso itself can be installed with the handy dandy included Makefile,
@@ -38,14 +38,12 @@ to create a mkinitcpio config file that suits your needs. Typically this
 means modifying whatever hooks you want. A typical set of hooks for
 archiso looks something like this:
 
-HOOKS="base udev boot-cd archiso ide scsi sata usb fw filesystems"
+HOOKS="base archiso_early udev archiso pata scsi sata usb fw pcmcia filesystems usbinput"
 
-If you're creating an image for a bootable usb device, you'll want to
-use boot-usb instead of boot-cd. It's probably worth mentioning that
-hardware autodetection and things of that nature do not belong here.
-Only what's necessary to get the system on its feet, and out of the
-initcpio really belong here, fancier stuff can be done on the booted
-system anyway.
+It's probably worth mentioning that hardware autodetection and things
+of that nature do not belong here. Only what's necessary to get the system
+on its feet, and out of the initcpio really belong here, fancier stuff
+can be done on the booted system anyway.
 
 You'll also want to create a list of packages you want installed on your
 live CD system. A file full of package names, one-per-line, is the format
@@ -85,5 +83,33 @@ If you want to add plain directories to bind mount:
   your addons directory, the second component is where you'd like it
   bind-mounted relative to the live CD's root filesystem, and the last
   component is the type.
+
+
+- How can build installation mediums like provided by Arch Linux?
+
+- Just follow these next steps as root.
+- Note that mkarchroot is optional, but with it, will ensure to have
+  a clean enviroment for building isos.
+- This clean chroot, will take about 400MB (+130MB with all needed tools).
+- After make, max space usage is about 2GB.
+- In last step instead of just execute make, can be more selective:
+  Execute "make net-iso" or make "core-iso".
+  Do not execute make net-iso after make core-iso, otherwise net-iso
+  will be really a core-iso.
+
+
+pacman -S devtools --needed
+mkarchroot /tmp/somedir base
+mkarchroot -r bash /tmp/somedir
+# vi/nano /etc/pacman.d/mirrorlist and uncomment your prefered mirror.
+pacman -S git squashfs-tools syslinux devtools cdrkit make
+cd /tmp
+git clone git://projects.archlinux.org/archiso.git
+cd archiso/archiso
+make install
+cd ../configs/syslinux-iso/
+make
+
+Done!
 
 vim: textwidth=72
