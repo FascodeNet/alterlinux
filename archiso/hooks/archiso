@@ -89,7 +89,7 @@ archiso_mount_handler() {
         launch_interactive_shell
     done
 
-    FSTYPE=$(blkid -o value -s TYPE ${archisodevice} 2> /dev/null)
+    FSTYPE=$(blkid -o value -s TYPE -p ${archisodevice} 2> /dev/null)
     if [ -n "${FSTYPE}" ]; then
         if mount -r -t "${FSTYPE}" ${archisodevice} /bootmnt > /dev/null 2>&1; then
             if [ -e "${isomounts}" ]; then

@@ -2,7 +2,7 @@
 run_hook ()
 {
   if [ -n "${archisolabel}" ]; then
-    echo "ACTION==\"add|change\", SUBSYSTEM==\"block\", IMPORT{program}=\"/sbin/blkid -o udev \$tempnode\"" > /lib/udev/rules.d/00-archiso-device.rules
+    echo "ACTION==\"add|change\", SUBSYSTEM==\"block\", IMPORT{program}=\"/sbin/blkid -o udev -p \$tempnode\"" > /lib/udev/rules.d/00-archiso-device.rules
     echo "ENV{ID_FS_LABEL_ENC}==\"${archisolabel}\", SYMLINK+=\"archiso\"" >> /lib/udev/rules.d/00-archiso-device.rules
   fi
 }
