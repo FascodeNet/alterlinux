@@ -19,6 +19,8 @@ uninstall:
 	rm -f $(DESTDIR)/usr/sbin/mkarchiso
 	rm -f $(DESTDIR)/usr/bin/testiso
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso
+	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_early
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso
+	rm -f $(DESTDIR)/lib/initcpio/install/archiso_early
 	rm -rf $(DESTDIR)/usr/share/archiso/
 	rm -rf $(DESTDIR)/usr/share/doc/archiso/
