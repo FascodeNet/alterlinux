@@ -12,7 +12,13 @@ install ()
     add_dir /tmpfs
     add_dir /tmpfs.sqfs
     add_dir /bootmnt
+
     add_device /dev/loop0 b 7 0
+
+    add_binary /lib/udev/cdrom_id
+
+    add_file /lib/udev/rules.d/60-cdrom_id.rules
+
     SCRIPT="archiso"
 }
 

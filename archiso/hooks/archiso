@@ -61,7 +61,7 @@ run_hook () {
     fi
 
     if [ "x${archisodevice}" = "x" ]; then
-        archisodevice="/dev/archiso"
+        archisodevice="/dev/disk/by-label/${archisolabel}"
     fi
 
     # set mount handler for archiso
