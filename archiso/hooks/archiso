@@ -25,7 +25,7 @@ _mnt_squashfs() {
     tmp_mnt="/tmpfs/mnt/${img_name}"
 
     if [ "${copytoram}" = "y" ]; then
-        msg -n ":: Copying squashfs image to RAM"
+        msg -n ":: Copying squashfs image to RAM..."
         /bin/cp "${img}" "/tmpfs.sqfs/${img_fullname}"
         img="/tmpfs.sqfs/${img_fullname}"
         msg "done."
