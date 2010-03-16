@@ -81,10 +81,19 @@ do_locale_gen ()
     stat_done
 }
 
+# GIT does not manage perms others thans 755 and 644, so fix here.
+do_fix_perms ()
+{
+    stat_busy "Fixing file permissions..."
+    chmod 440 /etc/sudoers
+    stat_done
+}
+
 case "$1" in
   start)
     do_locale_gen
     do_makeuser
+    do_fix_perms
     ;;
 esac
 exit 0
