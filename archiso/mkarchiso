@@ -240,14 +240,14 @@ command_iso () {
     mkisofs ${qflag} -r -l \
         -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat \
         -uid 0 -gid 0 \
-    	-udf -allow-limited-size -iso-level 3 \
+        -udf -allow-limited-size -iso-level 3 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
         -publisher "${PUBLISHER}" \
         -A "${APPLICATION}" \
         -V "${LABEL}" \
         -o "${imgname}" "${work_dir}/iso/"
-    isohybrid -offset 1 "${imgname}"
+    isohybrid "${imgname}"
 }
 
 # Go through the main commands in order. If 'all' was specified, then we want
