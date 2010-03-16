@@ -1,5 +1,4 @@
-ver=2010.03
-kver=2.6.32-ARCH
+ver=$(shell date +%Y.%m.%d)
 
 WORKDIR=work
 
@@ -10,6 +9,8 @@ NETname=$(PWD)/archlinux-$(ver)-netinstall-$(ARCH).iso
 COREname=$(PWD)/archlinux-$(ver)-core-$(ARCH).iso
 
 PACKAGES="$(shell cat packages.$(ARCH))"
+
+kver_FILE=$(WORKDIR)/root-image/etc/mkinitcpio.d/kernel26.kver
 
 all: net-iso core-iso
 
@@ -48,7 +49,7 @@ bootfiles: root-image
 initcpio: $(WORKDIR)/iso/boot/archiso.img
 $(WORKDIR)/iso/boot/archiso.img: mkinitcpio.conf $(WORKDIR)/root-image/.arch-chroot
 	mkdir -p $(WORKDIR)/iso/boot
-	mkinitcpio -c ./mkinitcpio.conf -b $(WORKDIR)/root-image -k $(kver) -g $@
+	mkinitcpio -c ./mkinitcpio.conf -b $(WORKDIR)/root-image -k $(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2) -g $@
 
 
 # overlay filesystem
