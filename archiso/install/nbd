@@ -1,0 +1,20 @@
+# vim: set ft=sh:
+
+install ()
+{
+    MODULES="nbd $(checked_modules "/drivers/net/") "
+
+    BINARIES=""
+    FILES=""
+    SCRIPT="nbd"
+
+    add_binary "/usr/sbin/nbd-client" "/bin/nbd-client"
+    add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"
+}
+
+help ()
+{
+cat<<HELPEOF
+  This hook loads the necessary modules for boot via PXE and NBD.
+HELPEOF
+}
