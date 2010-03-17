@@ -5,6 +5,7 @@ b43-fwcutter
 base
 ddrescue
 dmraid
+dnsmasq
 dnsutils
 dosfstools
 elinks
@@ -20,6 +21,7 @@ joe
 lftp
 lilo
 memtest86+
+nbd
 ndiswrapper
 ndiswrapper-utils
 nfs-utils
