@@ -40,7 +40,7 @@ to create a mkinitcpio config file that suits your needs. Typically this
 means modifying whatever hooks you want. A typical set of hooks for
 archiso looks something like this:
 
-HOOKS="base archiso_early udev archiso pata scsi sata usb fw pcmcia filesystems usbinput"
+HOOKS="base udev archiso archiso_pxe_nbd pata scsi sata usb fw pcmcia filesystems usbinput"
 
 It's probably worth mentioning that hardware autodetection and things
 of that nature do not belong here. Only what's necessary to get the system
