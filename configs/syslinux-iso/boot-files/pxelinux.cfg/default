@@ -1,7 +1,0 @@
-PROMPT 1
-DEFAULT arch
-
-LABEL arch
-KERNEL vmlinuz26
-APPEND initrd=archiso.img archisolabel=XXX
-IPAPPEND 1
