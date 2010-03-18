@@ -6,7 +6,7 @@ install ()
 
     BINARIES=""
     FILES=""
-    SCRIPT="nbd"
+    SCRIPT="archiso_pxe_nbd"
 
     add_binary "/usr/sbin/nbd-client" "/bin/nbd-client"
     add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"

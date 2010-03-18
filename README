@@ -21,6 +21,8 @@ First off, Archiso has some dependencies:
     - aufs2-util (only needed in target media)
     - devtools for mkarchroot
     - syslinux
+    - nbd
+    - mkinitcpio-nfs-utils
 
 Archiso itself can be installed with the handy dandy included Makefile,
 and the incantation 'make install'.
