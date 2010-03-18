@@ -43,8 +43,7 @@ bootfiles: root-image
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/isolinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/isolinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/memdisk $(WORKDIR)/iso/boot/isolinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/pxelinux.0 $(WORKDIR)/iso/boot/
-	sed -i "s|XXX|$(LABEL)|g" $(WORKDIR)/iso/boot/pxelinux.cfg/default
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/pxelinux.0 $(WORKDIR)/iso/boot/isolinux/
 
 
 # Rules for initcpio images
