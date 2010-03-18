@@ -51,6 +51,7 @@ isolinux_copy() {
     cp ${_v} $work_dir/i686/mnt/boot/isolinux/*.c32 $work_dir/iso/boot/isolinux/
     cp ${_v} $work_dir/i686/mnt/boot/isolinux/memdisk $work_dir/iso/boot/isolinux/
     cp ${_v} $work_dir/i686/mnt/boot/isolinux/isolinux.bin $work_dir/iso/boot/isolinux/
+    cp ${_v} $work_dir/i686/mnt/boot/isolinux/pxelinux.0 $work_dir/iso/boot/isolinux/
 }
 
 isolinuxcfg_copy() {
