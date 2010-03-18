@@ -104,7 +104,7 @@ pacman -S devtools --needed
 mkarchroot /tmp/somedir base
 mkarchroot -r bash /tmp/somedir
 # vi/nano /etc/pacman.d/mirrorlist and uncomment your prefered mirror.
-pacman -S git squashfs-tools syslinux devtools cdrkit make
+pacman -S git squashfs-tools syslinux devtools cdrkit make nbd mkinitcpio-nfs-utils
 cd /tmp
 git clone git://projects.archlinux.org/archiso.git
 cd archiso/archiso
