@@ -5,6 +5,15 @@ run_hook () {
     : > /ip_opts
 
     if [ -n "${ip}" ]; then
+        if [ -n "${BOOTIF}" ]; then
+            bootif_mac=${BOOTIF#01-}
+            bootif_mac=${bootif_mac//-/:}
+            bootif_dev=$(grep -l $bootif_mac /sys/class/net/*/address)
+            bootif_dev=${bootif_dev#/sys/class/net/}
+            bootif_dev=${bootif_dev%/address}
+            ip="$ip::$bootif_dev"
+        fi
+
         # setup network and save some values
         ipconfig "ip=${ip}" | while read line; do
             # echo ":: ${line}"
