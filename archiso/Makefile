@@ -11,7 +11,7 @@ install: all
 	install -D -m 644 hooks/archiso_pxe_nbd $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_nbd
 	install -D -m 644 install/archiso_pxe_nbd $(DESTDIR)/lib/initcpio/install/archiso_pxe_nbd
 	# install docs and examples
-	install -d -m 644 $(DESTDIR)/usr/share/archiso/
+	install -d -m 755 $(DESTDIR)/usr/share/archiso/
 	cp -r ../configs $(DESTDIR)/usr/share/archiso/configs
 	install -D -m 644 ../README $(DESTDIR)/usr/share/doc/archiso/README
 
