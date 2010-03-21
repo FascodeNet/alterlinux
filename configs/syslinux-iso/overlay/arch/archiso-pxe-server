@@ -48,7 +48,7 @@ copy_files()
         cp $BOOT/isolinux/chain.c32 $TFTPBOOT
         cp $BOOT/isolinux/reboot.c32 $TFTPBOOT
         cp $BOOT/isolinux/vesamenu.c32 $TFTPBOOT
-        sed 's|IPAPPEND 0|IPAPPEND 1|g' \
+        sed 's|IPAPPEND 0|IPAPPEND 3|g' \
             $BOOT/isolinux/isolinux.cfg > \
             $TFTPBOOT/pxelinux.cfg/default
     fi
