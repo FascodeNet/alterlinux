@@ -90,7 +90,7 @@ make_iso() {
         -A "${application}" \
         -V "${label}" \
         -o "${imgname}" "${work_dir}/iso/"
-    isohybrid -offset 1 "${imgname}"
+    isohybrid "${imgname}"
 }
 
 unsquashfs_image() {
