@@ -1,5 +1,5 @@
 x86_64/overlay.sqfs x86_64 / squashfs
 x86_64/core-pkgs.sqfs x86_64 /src/core/pkg squashfs
-any/usrshare.sqfs x86_64 /usr/share squashfs
-x86_64/libmodules.sqfs x86_64 /lib/modules squashfs
+any/usrshare.sqfs x86_64 / squashfs
+x86_64/libmodules.sqfs x86_64 / squashfs
 x86_64/root-image.sqfs x86_64 / squashfs

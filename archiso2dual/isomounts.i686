@@ -1,5 +1,5 @@
 i686/overlay.sqfs i686 / squashfs
 i686/core-pkgs.sqfs i686 /src/core/pkg squashfs
-any/usrshare.sqfs i686 /usr/share squashfs
-i686/libmodules.sqfs i686 /lib/modules squashfs
+any/usrshare.sqfs i686 / squashfs
+i686/libmodules.sqfs i686 / squashfs
 i686/root-image.sqfs i686 / squashfs

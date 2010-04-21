@@ -119,14 +119,15 @@ mksquashfs_image() {
 
 usrshare_copy_from_root_image() {
     echo "Executing: ${FUNCNAME}"
-    cp -a ${work_dir}/tmp/i686/root-image/usr/share ${work_dir}/tmp/any/usrshare
+    mkdir -p ${work_dir}/tmp/any/usrshare/usr
+    cp -a ${work_dir}/tmp/i686/root-image/usr/share ${work_dir}/tmp/any/usrshare/usr
 }
 
 usrshare_purge() {
     echo "Executing: ${FUNCNAME}"
-    rm -rf ${work_dir}/tmp/any/usrshare/man
-    rm -rf ${work_dir}/tmp/any/usrshare/info
-    rm -rf ${work_dir}/tmp/any/usrshare/doc
+    rm -rf ${work_dir}/tmp/any/usrshare/usr/share/man
+    rm -rf ${work_dir}/tmp/any/usrshare/usr/share/info
+    rm -rf ${work_dir}/tmp/any/usrshare/usr/share/doc
 }
 
 usrshare_make_image() {
@@ -144,7 +145,8 @@ libmodules_make_image() {
 libmodules_copy_from_root_image() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        cp -a ${work_dir}/tmp/${_arch}/root-image/lib/modules ${work_dir}/tmp/${_arch}/libmodules
+        mkdir -p ${work_dir}/tmp/${_arch}/libmodules/lib
+        cp -a ${work_dir}/tmp/${_arch}/root-image/lib/modules ${work_dir}/tmp/${_arch}/libmodules/lib
     done
 }
 
