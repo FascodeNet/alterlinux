@@ -1,49 +1,57 @@
-Tree structure of an iso image archlinux-2010.02.25-core-dual.iso (652MB)
-running with profile "full":
+Tree structure of an iso image archlinux-2010.04.24-core-dual.iso (610MB)
+running with profile "split":
 
-# tree -h -I *.c32
+# tree -I *.c32
 .
-|-- [  92]  any
-|   `-- [ 29M]  usrshare.sqfs
-|-- [ 496]  boot
-|   |-- [ 140]  i686
-|   |   |-- [5.6M]  archiso.img
-|   |   `-- [1.7M]  vmlinuz26
-|   |-- [1.6K]  isolinux
-|   |   |-- [   0]  boot.cat
-|   |   |-- [ 14K]  isolinux.bin
-|   |   |-- [2.5K]  isolinux.cfg
-|   |   `-- [ 25K]  memdisk
-|   |-- [157K]  memtest
-|   |-- [ 18K]  memtest.COPYING
-|   |-- [  70]  releasenotes.txt
-|   |-- [ 44K]  splash.png
-|   |-- [ 140]  x86_64
-|   |   |-- [5.7M]  archiso.img
-|   |   `-- [1.9M]  vmlinuz26
-|   |-- [ 38K]  x86test
-|   `-- [ 18K]  x86test.COPYING
-|-- [ 260]  i686
-|   |-- [209M]  core-pkgs.sqfs
-|   |-- [ 24M]  libmodules.sqfs
-|   |-- [8.0K]  overlay.sqfs
-|   `-- [ 58M]  root-image.sqfs
-|-- [ 210]  isomounts.i686
-|-- [ 228]  isomounts.x86_64
-|-- [ 226]  isomounts.x86_64-i686
-`-- [ 260]  x86_64
-    |-- [222M]  core-pkgs.sqfs
-    |-- [ 25M]  libmodules.sqfs
-    |-- [8.0K]  overlay.sqfs
-    `-- [ 66M]  root-image.sqfs
+|-- any
+|   `-- usrshare.sqfs
+|-- boot
+|   |-- i686
+|   |   |-- archiso.img
+|   |   `-- vmlinuz26
+|   |-- isolinux
+|   |   |-- boot.cat
+|   |   |-- isolinux.bin
+|   |   |-- isolinux.cfg
+|   |   `-- memdisk
+|   |-- memtest
+|   |-- memtest.COPYING
+|   |-- releasenotes.txt
+|   |-- splash.png
+|   |-- x86_64
+|   |   |-- archiso.img
+|   |   `-- vmlinuz26
+|   |-- x86test
+|   `-- x86test.COPYING
+|-- i686
+|   |-- core-pkgs.sqfs
+|   |-- libmodules.sqfs
+|   |-- overlay.sqfs
+|   `-- root-image.sqfs
+|-- isomounts.i686
+|-- isomounts.x86_64
+|-- isomounts.x86_64-i686
+`-- x86_64
+    |-- core-pkgs.sqfs
+    |-- libmodules.sqfs
+    |-- overlay.sqfs
+    `-- root-image.sqfs
 
 7 directories, 26 files
 
-# ls -1sh
-total 1.9G
-652M archlinux-2010.02.25-core-dual.iso
-363M archlinux-2010.02.25-core-i686.iso
-385M archlinux-2010.02.25-core-x86_64.iso
-220M archlinux-2010.02.25-netinstall-dual.iso
-153M archlinux-2010.02.25-netinstall-i686.iso
-163M archlinux-2010.02.25-netinstall-x86_64.iso
+* Current dual image sizes (basic/split/full)
+
+664M archlinux-2010.04.24-core-dual.iso
+610M archlinux-2010.04.24-core-dual.iso
+572M archlinux-2010.04.24-core-dual.iso
+
+326M archlinux-2010.04.24-netinstall-dual.iso
+272M archlinux-2010.04.24-netinstall-dual.iso
+234M archlinux-2010.04.24-netinstall-dual.iso
+
+* Current single image sizes:
+326M archlinux-2010.04.24-core-i686.iso
+342M archlinux-2010.04.24-core-x86_64.iso
+
+161M archlinux-2010.04.24-netinstall-i686.iso
+169M archlinux-2010.04.24-netinstall-x86_64.iso
