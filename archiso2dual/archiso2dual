@@ -224,21 +224,7 @@ do_basic() {
     do_common_end
 }
 
-do_split_us() {
-    do_common_begin
-
-    root_image_extract
-
-    usrshare_copy_from_root_image
-    usrshare_make_image
-
-    root_image_remove_usrshare
-    root_image_make_image
-
-    do_common_end
-}
-
-do_split_lm() {
+do_split() {
     do_common_begin
 
     root_image_extract
@@ -317,9 +303,8 @@ show_help()
                      (default to '${work_dir}')"
     echo "    -T <profile>     Type of target image (work is done on root-image.sqfs):
                      basic:    join both images, no changes in *.sqfs
-                     split_us: 'basic' + split usr/share/
-                     split_lm: 'split_us' + split lib/modules/
-                     purge_us: 'split_us' + prune usr/share/{doc,info,man}/
+                     split:    'basic' + split usr/share/ and lib/modules/ from /
+                     purge_us: 'split' + prune usr/share/{doc,info,man}/
                      full:     'purge_us' + prune boot/ usr/include/ usr/src/
                      (default to '${profile_type}')"
     echo "    -L <label>       Set a label for the disk [max 11 chars]
@@ -429,7 +414,7 @@ while getopts '3:6:o:T:M:S:L:P:A:yvh' arg; do
         6) isofile_x86_64="${OPTARG}" ;;
         o) imgname="${OPTARG}" ;;
         T) case "${OPTARG}" in
-               "basic"|"split_us"|"split_lm"|"purge_us"|"full") profile_type="${OPTARG}" ;;
+               "basic"|"split"|"purge_us"|"full") profile_type="${OPTARG}" ;;
                *) echo; echo "*ERROR*: invalid argument in -T option: ${profile_type}"; show_help 1 ;;
            esac
            ;;
