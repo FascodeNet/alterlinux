@@ -18,6 +18,7 @@ profile_type="basic"
 work_dir="/tmp/archiso2dual"
 isomounts_file="/usr/share/archiso2dual/isomounts"
 isolinuxcfg_file="/usr/share/archiso2dual/isolinux.cfg"
+removefiles_file="/usr/share/archiso2dual/removefiles.lst"
 appname=${0##*/}
 _error="0"
 _confirm="n"
@@ -117,36 +118,19 @@ mksquashfs_image() {
     fi
 }
 
-usrshare_copy_from_root_image() {
+usrshare_make_image() {
     echo "Executing: ${FUNCNAME}"
     mkdir -p ${work_dir}/tmp/any/usrshare/usr
     cp -a ${work_dir}/tmp/i686/root-image/usr/share ${work_dir}/tmp/any/usrshare/usr
-}
-
-usrshare_purge() {
-    echo "Executing: ${FUNCNAME}"
-    rm -rf ${work_dir}/tmp/any/usrshare/usr/share/man
-    rm -rf ${work_dir}/tmp/any/usrshare/usr/share/info
-    rm -rf ${work_dir}/tmp/any/usrshare/usr/share/doc
-}
-
-usrshare_make_image() {
-    echo "Executing: ${FUNCNAME}"
     mksquashfs_image usrshare any
 }
 
 libmodules_make_image() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        mksquashfs_image libmodules ${_arch}
-    done
-}
-
-libmodules_copy_from_root_image() {
-    echo "Executing: ${FUNCNAME}"
-    for _arch in i686 x86_64; do
         mkdir -p ${work_dir}/tmp/${_arch}/libmodules/lib
         cp -a ${work_dir}/tmp/${_arch}/root-image/lib/modules ${work_dir}/tmp/${_arch}/libmodules/lib
+        mksquashfs_image libmodules ${_arch}
     done
 }
 
@@ -157,33 +141,31 @@ root_image_extract() {
     done
 }
 
+root_image_purge() {
+    echo "Executing: ${FUNCNAME}"
+    while read _file; do
+        [ "${_file#"#"}" != "${_file}" ] && continue
+        for _arch in i686 x86_64; do
+            rm -rf "${work_dir}/tmp/${_arch}/root-image/${_file}"
+        done
+    done < "${removefiles_file}"
+}
+
+root_image_list_purge() {
+    while read _file; do
+        [ "${_file#"#"}" != "${_file}" ] && continue
+        for _arch in i686 x86_64; do
+            echo "${work_dir}/tmp/${_arch}/root-image/${_file}"
+        done
+    done < "${removefiles_file}"
+}
+
 root_image_make_image() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        mksquashfs_image root-image ${_arch}
-    done
-}
-
-root_image_remove_usrshare() {
-    echo "Executing: ${FUNCNAME}"
-    for _arch in i686 x86_64; do
         rm -rf ${work_dir}/tmp/${_arch}/root-image/usr/share
-    done
-}
-
-root_image_remove_libmodules() {
-    echo "Executing: ${FUNCNAME}"
-    for _arch in i686 x86_64; do
         rm -rf ${work_dir}/tmp/${_arch}/root-image/lib/modules
-    done
-}
-
-root_image_purge() {
-    echo "Executing: ${FUNCNAME}"
-    for _arch in i686 x86_64; do
-        rm -rf ${work_dir}/tmp/${_arch}/root-image/boot
-        rm -rf ${work_dir}/tmp/${_arch}/root-image/usr/include
-        rm -rf ${work_dir}/tmp/${_arch}/root-image/usr/src
+        mksquashfs_image root-image ${_arch}
     done
 }
 
@@ -199,89 +181,6 @@ make_workspace() {
     mkdir ${_v} -p ${work_dir}/iso/any
     mkdir ${_v} -p ${work_dir}/tmp/any
 }
-
-do_common_begin() {
-    make_workspace
-
-    iso_mount
-
-    kernel_copy
-    isolinux_copy
-    squashfs_copy
-
-    iso_umount
-
-    isolinuxcfg_copy
-    isomounts_copy
-}
-
-do_common_end() {
-    make_iso
-}
-
-do_basic() {
-    do_common_begin
-    do_common_end
-}
-
-do_split() {
-    do_common_begin
-
-    root_image_extract
-
-    usrshare_copy_from_root_image
-    usrshare_make_image
-
-    libmodules_copy_from_root_image
-    libmodules_make_image
-
-    root_image_remove_usrshare
-    root_image_remove_libmodules
-    root_image_make_image
-
-    do_common_end
-}
-
-do_purge_us() {
-    do_common_begin
-
-    root_image_extract
-
-    usrshare_copy_from_root_image
-    usrshare_purge
-    usrshare_make_image
-
-    libmodules_copy_from_root_image
-    libmodules_make_image
-
-    root_image_remove_usrshare
-    root_image_remove_libmodules
-    root_image_make_image
-
-    do_common_end
-}
-
-do_full() {
-    do_common_begin
-
-    root_image_extract
-
-    usrshare_copy_from_root_image
-    usrshare_purge
-    usrshare_make_image
-
-    libmodules_copy_from_root_image
-    libmodules_make_image
-
-    root_image_remove_usrshare
-    root_image_remove_libmodules
-    root_image_purge
-    root_image_make_image
-
-    do_common_end
-}
-
-
 
 show_help()
 {
@@ -299,13 +198,14 @@ show_help()
                      (default to '${isomounts_file}'"
     echo "    -S <isolinux>    Path to isolinux.cfg file
                      (default to '${isolinuxcfg_file}'"
+    echo "    -R <removefiles> Path to removefiles file
+                     (default to '${removefiles_file}'"
     echo "    -w <workdir>     Set work directory
                      (default to '${work_dir}')"
     echo "    -T <profile>     Type of target image (work is done on root-image.sqfs):
-                     basic:    join both images, no changes in *.sqfs
-                     split:    'basic' + split usr/share/ and lib/modules/ from /
-                     purge_us: 'split' + prune usr/share/{doc,info,man}/
-                     full:     'purge_us' + prune boot/ usr/include/ usr/src/
+                     basic:    join both images, no changes in root-image
+                     split:    'basic' + split out usr/share/ and lib/modules/ from root-image
+                     full:     'split' + remove specified directories (with -R) from root-image
                      (default to '${profile_type}')"
     echo "    -L <label>       Set a label for the disk [max 11 chars]
                      (default to '${label}')"
@@ -327,12 +227,17 @@ show_config() {
     echo "         target iso image:   ${imgname}"
     echo "           isomounts file:   ${isomounts_file}.{i686,x86_64,x86_64-i686}"
     echo "        isolinux.cfg file:   ${isolinuxcfg_file}"
+    echo "     removefiles.lst file:   ${removefiles_file}"
     echo "        working directory:   ${work_dir}"
     echo "                  profile:   ${profile_type}"
     echo "                    label:   ${label}"
     echo "                publisher:   ${publisher}"
     echo "              application:   ${application}"
     echo
+    if [ "${profile_type}" = "full" ]; then
+        echo "These files will be deleted (selected via -R option)"
+        root_image_list_purge
+    fi
 }
 
 options_check() {
@@ -393,6 +298,11 @@ sanity_check() {
         _error="1"
     fi
 
+    if [ ! -f "${removefiles_file}" ]; then
+      echo "*ERROR*: ${removefiles_file} does not exist, specify one with -R option"
+        _error="1"
+    fi
+
     if [ -d "${work_dir}" ]; then
       echo "*ERROR*: work directory ${work_dir} is present, first delete it"
         _error="1"
@@ -408,18 +318,19 @@ if [ "$EUID" != "0" ]; then
     exit 1
 fi
 
-while getopts '3:6:o:T:M:S:L:P:A:yvh' arg; do
+while getopts '3:6:o:T:M:S:R:L:P:A:yvh' arg; do
     case "${arg}" in
         3) isofile_i686="${OPTARG}" ;;
         6) isofile_x86_64="${OPTARG}" ;;
         o) imgname="${OPTARG}" ;;
         T) case "${OPTARG}" in
-               "basic"|"split"|"purge_us"|"full") profile_type="${OPTARG}" ;;
+               "basic"|"split"|"full") profile_type="${OPTARG}" ;;
                *) echo; echo "*ERROR*: invalid argument in -T option: ${profile_type}"; show_help 1 ;;
            esac
            ;;
         M) isomounts_file="${OPTARG}" ;;
         S) isolinuxcfg_file="${OPTARG}" ;;
+        R) removefiles_file="${OPTARG}" ;;
         L) label="${OPTARG}" ;;
         P) publisher="${OPTARG}" ;;
         A) application="${OPTARG}" ;;
@@ -441,5 +352,21 @@ if [ "${_confirm}" != "y" ]; then
    exit 1
 fi
 
-# wiiiiiipuuuuu :)
-do_${profile_type}
+make_workspace
+iso_mount
+kernel_copy
+isolinux_copy
+squashfs_copy
+iso_umount
+isolinuxcfg_copy
+isomounts_copy
+if [ ${profile_type} = "full" ] || [ ${profile_type} = "split" ]; then
+    root_image_extract
+    if [ ${profile_type} = "full" ]; then
+        root_image_purge
+    fi
+    usrshare_make_image
+    libmodules_make_image
+    root_image_make_image
+fi
+make_iso
