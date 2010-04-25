@@ -64,7 +64,6 @@ isomounts_copy() {
     echo "Executing: ${FUNCNAME}"
     cp ${_v} ${isomounts_file}.i686 $work_dir/iso/
     cp ${_v} ${isomounts_file}.x86_64 $work_dir/iso/
-    cp ${_v} ${isomounts_file}.x86_64-i686 $work_dir/iso/
 }
 
 squashfs_copy() {
@@ -225,7 +224,7 @@ show_config() {
     echo "    source iso i686 image:   ${isofile_i686}"
     echo "  source iso x86_64 image:   ${isofile_x86_64}"
     echo "         target iso image:   ${imgname}"
-    echo "           isomounts file:   ${isomounts_file}.{i686,x86_64,x86_64-i686}"
+    echo "           isomounts file:   ${isomounts_file}.{i686,x86_64}"
     echo "        isolinux.cfg file:   ${isolinuxcfg_file}"
     echo "     removefiles.lst file:   ${removefiles_file}"
     echo "        working directory:   ${work_dir}"
@@ -285,11 +284,6 @@ sanity_check() {
 
     if [ ! -f "${isomounts_file}.x86_64" ]; then
       echo "*ERROR*: ${isomounts_file}.x86_64 does not exist, , specify one with -M option"
-        _error="1"
-    fi
-
-    if [ ! -f "${isomounts_file}.x86_64-i686" ]; then
-      echo "*ERROR*: ${isomounts_file}.x86_64-i686 does not exist, , specify one with -M option"
         _error="1"
     fi
 
