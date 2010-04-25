@@ -62,8 +62,7 @@ isolinuxcfg_copy() {
 
 isomounts_copy() {
     echo "Executing: ${FUNCNAME}"
-    cp ${_v} ${isomounts_file}.i686 $work_dir/iso/
-    cp ${_v} ${isomounts_file}.x86_64 $work_dir/iso/
+    cp ${_v} ${isomounts_file} $work_dir/iso/
 }
 
 squashfs_copy() {
@@ -193,7 +192,7 @@ show_help()
     echo "    -o <output.iso>  Path to dual target iso image"
     echo
     echo " general options:"
-    echo "    -M <isomounts>   Path to isomounts files [basename]
+    echo "    -M <isomounts>   Path to isomounts file
                      (default to '${isomounts_file}'"
     echo "    -S <isolinux>    Path to isolinux.cfg file
                      (default to '${isolinuxcfg_file}'"
@@ -224,7 +223,7 @@ show_config() {
     echo "    source iso i686 image:   ${isofile_i686}"
     echo "  source iso x86_64 image:   ${isofile_x86_64}"
     echo "         target iso image:   ${imgname}"
-    echo "           isomounts file:   ${isomounts_file}.{i686,x86_64}"
+    echo "           isomounts file:   ${isomounts_file}"
     echo "        isolinux.cfg file:   ${isolinuxcfg_file}"
     echo "     removefiles.lst file:   ${removefiles_file}"
     echo "        working directory:   ${work_dir}"
@@ -277,13 +276,8 @@ sanity_check() {
         _error="1"
     fi
 
-    if [ ! -f "${isomounts_file}.i686" ]; then
-      echo "*ERROR*: ${isomounts_file}.i686 does not exist, , specify one with -M option"
-        _error="1"
-    fi
-
-    if [ ! -f "${isomounts_file}.x86_64" ]; then
-      echo "*ERROR*: ${isomounts_file}.x86_64 does not exist, , specify one with -M option"
+    if [ ! -f "${isomounts_file}" ]; then
+      echo "*ERROR*: ${isomounts_file} does not exist, , specify one with -M option"
         _error="1"
     fi
 
