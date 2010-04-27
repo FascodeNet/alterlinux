@@ -4,6 +4,7 @@ aufs2-util
 b43-fwcutter
 base
 ddrescue
+dialog
 dmraid
 dnsutils
 dosfstools
