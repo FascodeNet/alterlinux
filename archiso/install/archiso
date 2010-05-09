@@ -6,6 +6,7 @@ install ()
     if [ "x${MODULES}" != "x" ]; then
         MODULES="${MODULES} usb_storage sd_mod sr_mod"
     fi
+    MODULES="${MODULES} virtio_pci virtio_blk"
 
     BINARIES=""
     FILES=""
