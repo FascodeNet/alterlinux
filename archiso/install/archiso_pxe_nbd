@@ -2,7 +2,7 @@
 
 install ()
 {
-    MODULES="nbd $(checked_modules "/drivers/net/") "
+    MODULES="nbd $(checked_modules "/drivers/net/" | grep -v -e "/irda/" -e "/phy/" -e "/plip" -e "/ppp" -e "/wimax/" -e "/wireless/") "
 
     BINARIES=""
     FILES=""
