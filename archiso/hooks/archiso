@@ -54,10 +54,14 @@ run_hook () {
         tmpfs_sqfs_size="75%"
     fi
 
+    if [ "x${archisobasedir}" != "x" ]; then
+        archisobasedir=""
+    fi
+
     if [ "x${isomounts}" != "x" ]; then
         isomounts="/bootmnt/${isomounts}"
     else
-        isomounts="/bootmnt/isomounts"
+        isomounts="/bootmnt/${archisobasedir}/isomounts"
     fi
 
     if [ "x${archisodevice}" = "x" ]; then
@@ -128,12 +132,12 @@ archiso_mount_handler() {
 
         [ "$imgarch" != "$arch" ] && continue
 
-        [ ! -r "/bootmnt/${img}" ] && continue
+        [ ! -r "/bootmnt/${archisobasedir}/${img}" ] && continue
 
         if [ "${type}" = "bind" ]; then
-            _mnt_bind "/bootmnt/${img}" "${newroot}${mountpoint}"
+            _mnt_bind "/bootmnt/${archisobasedir}/${img}" "${newroot}${mountpoint}"
         elif [ "${type}" = "squashfs" ]; then
-            _mnt_squashfs "/bootmnt/${img}" "${newroot}${mountpoint}"
+            _mnt_squashfs "/bootmnt/${archisobasedir}/${img}" "${newroot}${mountpoint}"
         fi
     done < "${isomounts}"
 
