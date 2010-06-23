@@ -14,7 +14,7 @@ install ()
     add_dir /tmpfs.sqfs
     add_dir /bootmnt
 
-    add_device /dev/loop0 b 7 0
+    add_device /lib/udev/devices/loop0 b 7 0
 
     add_binary /lib/udev/cdrom_id
 
