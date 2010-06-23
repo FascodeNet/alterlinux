@@ -13,13 +13,10 @@ gnu-netcat
 inetutils
 ipw2100-fw
 ipw2200-fw
-iwlwifi-3945-ucode
-iwlwifi-4965-ucode
-iwlwifi-5000-ucode
-iwlwifi-5150-ucode
 joe
 lftp
 lilo
+linux-firmware
 memtest86+
 ndiswrapper
 ndiswrapper-utils
@@ -32,8 +29,6 @@ openssh
 openvpn
 parted
 pptpclient
-rt2x00-rt61-fw
-rt2x00-rt71w-fw
 speedtouch
 squashfs-tools
 syslinux
