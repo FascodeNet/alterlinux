@@ -30,6 +30,7 @@ base-fs: root-image bootfiles initcpio overlay iso-mounts
 # Rules for make the root-image for base filesystem.
 root-image: $(WORKDIR)/root-image/.arch-chroot
 $(WORKDIR)/root-image/.arch-chroot:
+	mkarchiso -p base create $(WORKDIR)
 	mkarchiso -p $(PACKAGES) create $(WORKDIR)
 
 # Rule for make /boot
