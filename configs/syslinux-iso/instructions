@@ -2,46 +2,35 @@
                    Installation and Live-CDs
                   ----------------------------
 
-All CDs and USB images are installation mediums and Live CDs
-which can be used as maintenance and rescue systems.
+All images give you a live console environment in which you can do
+a manual or automatic installation and which can be used as maintenance and rescue systems.
 
-FTP-ISOs/Images:
-----------------
-These are the preferred install mediums for Arch Linux.
-You can always get up to date packages using these mediums.
+All iso files can also be written to hard disks/usbkeys.
 
-  archlinux-2009.02-ftp-i686.iso                  i686/32bit CD-ISO
-  archlinux-2009.02-ftp-i686.img                  i686/32bit USB-Image
-  archlinux-2009.02-ftp-x86_64.iso                x86_64/64bit CD-ISO
-  archlinux-2009.02-ftp-x86_64.img                x86_64/64bit USB-Image
+Flavors:
+--------
+Netinstall images are the preferred install media for Arch Linux.
+You can always get up to date packages using these media.
+Core images contain a snapshot of the core repository, which makes them ideal
+for offline installations when no Internet access is available
+to install the base system.  (you can do a netinstall with these also)
 
-For those who have problems with GRUB not loading, we offer the following
-ISOs with the isolinux bootloader:
+Both come in i686, x86_64 or dual variant. The latter contains both and lets you choose
+an architecture at boot.
 
-  archlinux-2009.02-isolinux-ftp-i686.iso         i686/32bit CD-ISO
-  archlinux-2009.02-isolinux-ftp-x86_64.iso       x86_64/64bit CD-ISO
-
-Core-ISOs/Images:
------------------
-These are for offline installations when no Internet access is available
-to install the base system.
-
-  archlinux-2009.02-core-i686.iso                 i686/32bit CD-ISO
-  archlinux-2009.02-core-i686.img                 i686/32bit USB-Image
-  archlinux-2009.02-core-x86_64.iso               x86_64/64bit CD-ISO
-  archlinux-2009.02-core-x86_64.img               x86_64/64bit USB-Image
-
-How to use these installation images:
+How to obtain and use these installation images:
 -------------------------------------
-Please ensure the sha1sum for your downloaded file matches the checksum
-in the the SHA1SUMS file in this directory.
+Torrents are preferred (they are webseed enabled), but you can also just get the images
+from an Arch mirror.
 
-See section in the "Arch Linux Install Guide":
+The Official Arch Linux Install Guide gives you more info:
   http://wiki.archlinux.org/index.php/Official_Arch_Linux_Install_Guide
-For the USB-Images see:
-  http://wiki.archlinux.org/index.php/Install_from_USB_stick
+
+More info / getting in touch:
+----------------------------
+http://bugs.archlinux.org/
+http://mailman.archlinux.org/mailman/listinfo/arch-releng
 
 Happy installing!
 Happy ARCHing!
 - Arch Linux Release Engineering team
-
