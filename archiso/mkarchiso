@@ -149,13 +149,18 @@ to the iso/ directory.
             fi
         fi
 
-        # delete a lot of unnecessary cache/log files
-        kill_dirs="var/abs var/cache/man var/cache/pacman var/lib/pacman/sync var/log/* var/mail tmp/* initrd"
-        for x in ${kill_dirs}; do
-            if [ -e "${work_dir}/root-image/${x}" ]; then
-                rm -rf "${work_dir}/root-image/${x}"
-            fi
-        done
+        # Delete pacman database sync cache files (*.tar.gz)
+        find "${work_dir}/root-image/var/lib/pacman" -maxdepth 1 -type f -delete
+        # Delete pacman database sync cache
+        find "${work_dir}/root-image/var/lib/pacman/sync" -delete
+        # Delete pacman package cache
+        find "${work_dir}/root-image/var/cache/pacman/pkg" -type f -delete
+        # Delete all log files, keeps empty dirs.
+        find "${work_dir}/root-image/var/log" -type f -delete
+        # Delete all temporary files and dirs
+        find "${work_dir}/root-image/var/tmp" -mindepth 1 -delete
+        # Delete all temporary files and dirs
+        find "${work_dir}/root-image/tmp" -mindepth 1 -delete
     fi
 }
 
