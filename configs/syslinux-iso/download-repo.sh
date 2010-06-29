@@ -43,7 +43,7 @@ PKGS=$(/usr/bin/pacman -Sl $REPO | cut -d' ' -f1,2 | tr ' ' '/')
 if [ -n "$PKGS" ]; then
     baseurl=""
     cachedir="/var/cache/pacman/pkg"
-    for url in $(/usr/bin/pacman -Sp $PKGS | grep '://'); do
+    for url in $(/usr/bin/pacman -Sdp $PKGS | grep '://'); do
         baseurl="$(dirname "$url")" #save for later
         pkgname="$(basename "$url")"
         cachedpkg="$cachedir/$pkgname"
