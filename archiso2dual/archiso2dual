@@ -132,6 +132,24 @@ libmodules_make_image() {
     done
 }
 
+core_pkgs_make_image() {
+    echo "Executing: ${FUNCNAME}"
+    mkdir -p ${work_dir}/tmp/any/core-any-pkgs/src/core/pkg
+    cp -a ${work_dir}/tmp/i686/core-pkgs/src/core/pkg/*-any.pkg.* ${work_dir}/tmp/any/core-any-pkgs/src/core/pkg
+    for _arch in i686 x86_64; do
+        rm -rf ${work_dir}/tmp/${_arch}/core-pkgs/src/core/pkg/*-any.pkg.*
+        mksquashfs_image core-pkgs ${_arch}
+    done
+    mksquashfs_image core-any-pkgs any
+}
+
+core_pkgs_extract() {
+    echo "Executing: ${FUNCNAME}"
+    for _arch in i686 x86_64; do
+        unsquashfs_image core-pkgs ${_arch}
+    done
+}
+
 root_image_extract() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
@@ -353,8 +371,10 @@ if [ ${profile_type} = "full" ] || [ ${profile_type} = "split" ]; then
     if [ ${profile_type} = "full" ]; then
         root_image_purge
     fi
+    core_pkgs_extract
     usrshare_make_image
     libmodules_make_image
     root_image_make_image
+    core_pkgs_make_image
 fi
 make_iso

@@ -1,5 +1,7 @@
 i686/overlay.sqfs i686 / squashfs
 x86_64/overlay.sqfs x86_64 / squashfs
+any/core-any-pkgs.sqfs i686 / squashfs
+any/core-any-pkgs.sqfs x86_64 / squashfs
 i686/core-pkgs.sqfs i686 / squashfs
 x86_64/core-pkgs.sqfs x86_64 / squashfs
 any/usrshare.sqfs i686 / squashfs
