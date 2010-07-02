@@ -71,7 +71,7 @@ $(WORKDIR)/isomounts: isomounts root-image
 
 # Rule for make the [core] repo packages
 core-pkgs:
-	./download-repo.sh core $(WORKDIR)/core-pkgs
+	./download-repo.sh core $(WORKDIR)/core-pkgs/src/core/pkg
 
 
 # Clean-up all work

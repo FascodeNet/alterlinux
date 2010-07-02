@@ -8,5 +8,5 @@
 
 # ORDER MATTERS! Files take top-down precedence. Be careful
 overlay.sqfs @ARCH@ / squashfs
-core-pkgs.sqfs @ARCH@ /src/core/pkg squashfs
+core-pkgs.sqfs @ARCH@ / squashfs
 root-image.sqfs @ARCH@ / squashfs
