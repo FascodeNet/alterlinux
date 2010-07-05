@@ -76,12 +76,12 @@ archiso_mount_handler() {
     newroot="${1}"
 
     msg -n ":: Mounting tmpfs, size=${tmpfs_size}..."
-    mount -t tmpfs -o "size=${tmpfs_size}" tmpfs /tmpfs
+    mount -t tmpfs -o "size=${tmpfs_size}",mode=0755 tmpfs /tmpfs
     msg "done."
 
     if [ "${copytoram}" = "y" ]; then
         msg -n ":: Mounting tmpfs (for squashfs), size=${tmpfs_sqfs_size}..."
-        mount -t tmpfs -o "size=${tmpfs_sqfs_size}" tmpfs /tmpfs.sqfs
+        mount -t tmpfs -o "size=${tmpfs_sqfs_size}",mode=0755 tmpfs /tmpfs.sqfs
         msg "done."
     fi
 
