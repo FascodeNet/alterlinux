@@ -141,16 +141,10 @@ archiso_mount_handler() {
         fi
     done < "${isomounts}"
 
-    # Bind our bootmnt dir into the live system
-    _mnt_bind /bootmnt "${newroot}/bootmnt"
-
-    if [ "${copytoram}" != "y" ]; then
-        if [ "${FSTYPE}" = "iso9660" ] || [ "${FSTYPE}" = "udf" ]; then
-            if [ -d /proc/sys/dev/cdrom ]; then
-                echo 0 > /proc/sys/dev/cdrom/lock
-                echo 0 > /proc/sys/dev/cdrom/autoeject
-            fi
-        fi
+    if [ "${copytoram}" = "y" ]; then
+        /bin/umount /bootmnt
+    else
+        _mnt_bind /bootmnt "${newroot}/bootmnt"
     fi
 }
 
