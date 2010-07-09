@@ -23,6 +23,7 @@ appname=${0##*/}
 _error="0"
 _confirm="n"
 _v=""
+_iscoreiso=n
 
 iso_umount() {
     echo "Executing: ${FUNCNAME}"
@@ -148,6 +149,13 @@ core_pkgs_extract() {
     for _arch in i686 x86_64; do
         unsquashfs_image core-pkgs ${_arch}
     done
+}
+
+check_if_core_medium() {
+    echo "Executing: ${FUNCNAME}"
+    if [ -f ${work_dir}/iso/i686/core-pkgs.sqfs ] && [ -f ${work_dir}/iso/x86_64/core-pkgs.sqfs ]; then
+        _iscoreiso=y
+    fi
 }
 
 root_image_extract() {
@@ -357,12 +365,12 @@ if [ "${_confirm}" != "y" ]; then
    echo "If configuration is correct, re-execute with -y"
    exit 1
 fi
-
 make_workspace
 iso_mount
 kernel_copy
 isolinux_copy
 squashfs_copy
+check_if_core_medium
 iso_umount
 isolinuxcfg_copy
 isomounts_copy
@@ -371,10 +379,14 @@ if [ ${profile_type} = "full" ] || [ ${profile_type} = "split" ]; then
     if [ ${profile_type} = "full" ]; then
         root_image_purge
     fi
-    core_pkgs_extract
+    if [ ${_iscoreiso} = "y" ]; then
+        core_pkgs_extract
+    fi
     usrshare_make_image
     libmodules_make_image
     root_image_make_image
-    core_pkgs_make_image
+    if [ ${_iscoreiso} = "y" ]; then
+       core_pkgs_make_image
+    fi
 fi
 make_iso
