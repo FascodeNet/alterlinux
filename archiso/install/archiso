@@ -10,8 +10,9 @@ install ()
 
     BINARIES=""
     FILES=""
-    add_dir /tmpfs
-    add_dir /tmpfs.sqfs
+    add_dir /rw_branch
+    add_dir /ro_branch
+    add_dir /copytoram
     add_dir /bootmnt
 
     add_device /lib/udev/devices/loop0 b 7 0

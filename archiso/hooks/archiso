@@ -22,12 +22,12 @@ _mnt_squashfs() {
     mnt="${2}"
     img_fullname="${img##*/}";
     img_name="${img_fullname%.*}"
-    tmp_mnt="/tmpfs/mnt/${img_name}"
+    tmp_mnt="/ro_branch/${img_name}"
 
     if [ "${copytoram}" = "y" ]; then
         msg -n ":: Copying squashfs image to RAM..."
-        /bin/cp "${img}" "/tmpfs.sqfs/${img_fullname}"
-        img="/tmpfs.sqfs/${img_fullname}"
+        /bin/cp "${img}" "/copytoram/${img_fullname}"
+        img="/copytoram/${img_fullname}"
         msg "done."
     fi
 
@@ -46,12 +46,12 @@ run_hook () {
         arch="$(uname -m)"
     fi
 
-    if [ "x${tmpfs_size}" = "x" ]; then
-        tmpfs_size="75%"
+    if [ "x${rw_branch_size}" = "x" ]; then
+        rw_branch_size="75%"
     fi
 
-    if [ "x${tmpfs_sqfs_size}" = "x" ]; then
-        tmpfs_sqfs_size="75%"
+    if [ "x${copytoram_size}" = "x" ]; then
+        copytoram_size="75%"
     fi
 
     if [ "x${archisobasedir}" != "x" ]; then
@@ -109,17 +109,17 @@ archiso_mount_handler() {
     fi
 
     if [ "${copytoram}" = "y" ]; then
-        msg -n ":: Mounting tmpfs (for squashfs), size=${tmpfs_sqfs_size}..."
-        mount -t tmpfs -o "size=${tmpfs_sqfs_size}",mode=0755 tmpfs /tmpfs.sqfs
+        msg -n ":: Mounting /copytoram (tmpfs) filesystem, size=${copytoram_size}..."
+        mount -t tmpfs -o "size=${copytoram_size}",mode=0755 copytoram /copytoram
         msg "done."
     fi
 
-    msg -n ":: Mounting tmpfs, size=${tmpfs_size}..."
-    mount -t tmpfs -o "size=${tmpfs_size}",mode=0755 tmpfs /tmpfs
+    msg -n ":: Mounting rw_branch (tmpfs) filesystem, size=${rw_branch_size}..."
+    mount -t tmpfs -o "size=${rw_branch_size}",mode=0755 rw_branch /rw_branch
     msg "done."
 
     msg ":: Mounting root (aufs) filesystem"
-    /bin/mount -t aufs -o dirs=/tmpfs=rw none "${newroot}"
+    /bin/mount -t aufs -o dirs=/rw_branch=rw none "${newroot}"
     if [ $? -ne 0 ]; then
         echo "ERROR: while mounting root (aufs) filesystem."
         exit 1
