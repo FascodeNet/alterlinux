@@ -27,12 +27,20 @@ _mnt_squashfs() {
     if [ "${copytoram}" = "y" ]; then
         msg -n ":: Copying squashfs image to RAM..."
         /bin/cp "${img}" "/copytoram/${img_fullname}"
+        if [ $? -ne 0 ]; then
+            echo "ERROR: while copy ${img} to /copytoram/${img_fullname}"
+            launch_interactive_shell
+        fi
         img="/copytoram/${img_fullname}"
         msg "done."
     fi
 
     mkdir -p "${tmp_mnt}"
     /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
+    if [ $? -ne 0 ]; then
+        echo "ERROR: while mounting ${img} to ${tmp_mnt}"
+        launch_interactive_shell
+    fi
 
     if [ "/${mnt#/*/}" = "/" ]; then
         _mnt_aufs "${tmp_mnt}" "${mnt}"
@@ -41,7 +49,7 @@ _mnt_squashfs() {
     fi
 }
 
-run_hook () {
+run_hook() {
     if [ "x${arch}" = "x" ]; then
         arch="$(uname -m)"
     fi
@@ -122,7 +130,7 @@ archiso_mount_handler() {
     /bin/mount -t aufs -o dirs=/rw_branch=rw none "${newroot}"
     if [ $? -ne 0 ]; then
         echo "ERROR: while mounting root (aufs) filesystem."
-        exit 1
+        launch_interactive_shell
     fi
 
     msg ":: Mounting images"
