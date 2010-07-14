@@ -80,8 +80,6 @@ archiso_pxe_nbd_mount_handler () {
     archiso_mount_handler ${newroot}
 
     if [ "${copytoram}" = "y" ]; then
-        umount ${newroot}/bootmnt
-        umount /bootmnt
         msg "::: Disconnect NBD from ${nbdserver}:9040 at /dev/nbd0"
         nbd-client -d /dev/nbd0
     fi
