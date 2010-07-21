@@ -9,10 +9,10 @@ running with profile "split":
 |   |-- i686
 |   |   |-- archiso.img
 |   |   `-- vmlinuz26
-|   |-- isolinux
+|   |-- syslinux
 |   |   |-- boot.cat
 |   |   |-- isolinux.bin
-|   |   |-- isolinux.cfg
+|   |   |-- syslinux.cfg
 |   |   `-- memdisk
 |   |-- memtest
 |   |-- memtest.COPYING
