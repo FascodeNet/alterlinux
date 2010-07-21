@@ -21,8 +21,6 @@ running with profile "split":
 |   |-- x86_64
 |   |   |-- archiso.img
 |   |   `-- vmlinuz26
-|   |-- x86test
-|   `-- x86test.COPYING
 |-- i686
 |   |-- core-pkgs.sqfs
 |   |-- libmodules.sqfs

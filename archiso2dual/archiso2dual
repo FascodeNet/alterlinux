@@ -49,7 +49,7 @@ kernel_copy() {
 
 isolinux_copy() {
     echo "Executing: ${FUNCNAME}"
-    cp ${_v} $work_dir/i686/mnt/boot/{memtest*,releasenotes.txt,splash.png,x86test*} $work_dir/iso/boot/
+    cp ${_v} $work_dir/i686/mnt/boot/{memtest*,releasenotes.txt,splash.png} $work_dir/iso/boot/
     cp ${_v} $work_dir/i686/mnt/boot/isolinux/*.c32 $work_dir/iso/boot/isolinux/
     cp ${_v} $work_dir/i686/mnt/boot/isolinux/memdisk $work_dir/iso/boot/isolinux/
     cp ${_v} $work_dir/i686/mnt/boot/isolinux/isolinux.bin $work_dir/iso/boot/isolinux/
