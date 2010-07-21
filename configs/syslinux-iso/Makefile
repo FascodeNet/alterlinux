@@ -46,7 +46,10 @@ bootfiles: root-image
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/memdisk $(WORKDIR)/iso/boot/isolinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/pxelinux.0 $(WORKDIR)/iso/boot/isolinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/gpxelinux.0 $(WORKDIR)/iso/boot/isolinux/
-
+	# Add pci.ids and modules.alias for hdt
+	mkdir -p $(WORKDIR)/iso/boot/isolinux/hdt/
+	wget -O - http://pciids.sourceforge.net/v2.2/pci.ids | gzip -9 > $(WORKDIR)/iso/boot/isolinux/hdt/pciids.gz
+	cat $(WORKDIR)/root-image/lib/modules/$(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2)/modules.alias | gzip -9 > $(WORKDIR)/iso/boot/isolinux/hdt/modalias.gz
 
 # Rules for initcpio images
 initcpio: $(WORKDIR)/iso/boot/archiso.img
