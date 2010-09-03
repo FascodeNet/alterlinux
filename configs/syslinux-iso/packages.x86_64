@@ -10,6 +10,7 @@ dnsutils
 dosfstools
 elinks
 gnu-netcat
+hdparm
 inetutils
 ipw2100-fw
 ipw2200-fw
