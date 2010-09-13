@@ -87,10 +87,10 @@ _pacman ()
 {
     local ret
     if [ "${QUIET}" = "y" ]; then
-        mkarchroot -C "$PACCONFIG" -f "${work_dir}/root-image" $* 2>&1 >/dev/null
+        mkarchroot -n -C "$PACCONFIG" -f "${work_dir}/root-image" $* 2>&1 >/dev/null
         ret=$?
     else
-        mkarchroot -C "$PACCONFIG" -f "${work_dir}/root-image" $*
+        mkarchroot -n -C "$PACCONFIG" -f "${work_dir}/root-image" $*
         ret=$?
     fi
 
