@@ -30,6 +30,7 @@ openssh
 openvpn
 parted
 pptpclient
+rsync
 speedtouch
 squashfs-tools
 syslinux
