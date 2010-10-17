@@ -17,7 +17,7 @@ quiet="y"
 profile_type="basic"
 work_dir="/tmp/archiso2dual"
 isomounts_file="/usr/share/archiso2dual/isomounts"
-syslinuxcfg_file="/usr/share/archiso2dual/syslinux.cfg"
+syslinuxcfg_dir="/usr/share/archiso2dual/syslinux"
 removefiles_file="/usr/share/archiso2dual/removefiles.lst"
 compression="gzip"
 appname=${0##*/}
@@ -62,7 +62,9 @@ syslinux_copy() {
 
 syslinuxcfg_copy() {
     echo "Executing: ${FUNCNAME}"
-    sed "s|XXX|${label}|g" ${syslinuxcfg_file} > $work_dir/iso/boot/syslinux/syslinux.cfg
+    for _cfg in ${syslinuxcfg_dir}/*.cfg; do
+        sed "s|XXX|${label}|g" ${_cfg} > $work_dir/iso/boot/syslinux/$(basename ${_cfg})
+    done
 }
 
 isomounts_copy() {
@@ -225,7 +227,7 @@ show_help()
     echo "    -M <isomounts>   Path to isomounts file
                      (default to '${isomounts_file}'"
     echo "    -S <syslinux>    Path to syslinux.cfg file
-                     (default to '${syslinuxcfg_file}'"
+                     (default to '${syslinuxcfg_dir}'"
     echo "    -R <removefiles> Path to removefiles file
                      (default to '${removefiles_file}'"
     echo "    -w <workdir>     Set work directory
@@ -260,7 +262,7 @@ show_config() {
     echo "  source iso x86_64 image:   ${isofile_x86_64}"
     echo "         target iso image:   ${imgname}"
     echo "           isomounts file:   ${isomounts_file}"
-    echo "        syslinux.cfg file:   ${syslinuxcfg_file}"
+    echo "        syslinux.cfg path:   ${syslinuxcfg_dir}"
     echo "     removefiles.lst file:   ${removefiles_file}"
     echo "        working directory:   ${work_dir}"
     echo "                  profile:   ${profile_type}"
@@ -318,8 +320,8 @@ sanity_check() {
         _error="1"
     fi
 
-    if [ ! -f "${syslinuxcfg_file}" ]; then
-      echo "*ERROR*: ${syslinuxcfg_file} does not exist, specify one with -S option"
+    if [ ! -f "${syslinuxcfg_dir}/syslinux.cfg" ]; then
+      echo "*ERROR*: ${syslinuxcfg_dir}/syslinux.cfg does not exist, specify one with -S option"
         _error="1"
     fi
 
@@ -354,7 +356,7 @@ while getopts '3:6:o:T:M:S:R:L:P:A:c:yvh' arg; do
            esac
            ;;
         M) isomounts_file="${OPTARG}" ;;
-        S) syslinuxcfg_file="${OPTARG}" ;;
+        S) syslinuxcfg_dir="${OPTARG}" ;;
         R) removefiles_file="${OPTARG}" ;;
         L) label="${OPTARG}" ;;
         P) publisher="${OPTARG}" ;;
