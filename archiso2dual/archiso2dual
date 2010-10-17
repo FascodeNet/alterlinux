@@ -19,6 +19,7 @@ work_dir="/tmp/archiso2dual"
 isomounts_file="/usr/share/archiso2dual/isomounts"
 syslinuxcfg_file="/usr/share/archiso2dual/syslinux.cfg"
 removefiles_file="/usr/share/archiso2dual/removefiles.lst"
+compression="gzip"
 appname=${0##*/}
 _error="0"
 _confirm="n"
@@ -114,9 +115,9 @@ mksquashfs_image() {
     arch=${2}
     rm -f ${work_dir}/iso/${arch}/${img}.sqfs
     if [ "${quiet}" = "y" ]; then
-        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs > /dev/null
+        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs -comp ${compression} > /dev/null
     else
-        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs
+        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs -comp ${compression}
     fi
 }
 
@@ -240,6 +241,12 @@ show_help()
                      (default to '${publisher}')"
     echo "    -A <application> Set an application name for the disk
                      (default to '${application}')"
+    echo "    -c <compressor>  Set SquashFS compression type: gzip, lzma or lzo
+                     (default to '${compression}')"
+    echo "                     NOTES:"
+    echo "                            lzma: not officially supported yet by Linux (2.6.36)"
+    echo "                            lzo:  needs Linux >= 2.6.36"
+
     echo "    -y               Confirm execution (otherwise only show configuration)"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
@@ -260,6 +267,7 @@ show_config() {
     echo "                    label:   ${label}"
     echo "                publisher:   ${publisher}"
     echo "              application:   ${application}"
+    echo "              compression:   ${compression}"
     echo
     if [ "${profile_type}" = "full" ]; then
         echo "These files will be deleted (selected via -R option)"
@@ -335,7 +343,7 @@ if [ "$EUID" != "0" ]; then
     exit 1
 fi
 
-while getopts '3:6:o:T:M:S:R:L:P:A:yvh' arg; do
+while getopts '3:6:o:T:M:S:R:L:P:A:c:yvh' arg; do
     case "${arg}" in
         3) isofile_i686="${OPTARG}" ;;
         6) isofile_x86_64="${OPTARG}" ;;
@@ -351,6 +359,7 @@ while getopts '3:6:o:T:M:S:R:L:P:A:yvh' arg; do
         L) label="${OPTARG}" ;;
         P) publisher="${OPTARG}" ;;
         A) application="${OPTARG}" ;;
+        c) compression="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         y) _confirm="y" ;;
         v) quiet="n"; _v="-v" ;;
