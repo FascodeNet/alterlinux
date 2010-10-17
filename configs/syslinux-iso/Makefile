@@ -42,6 +42,7 @@ bootfiles: root-image
 	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest.COPYING
 	cp -r boot-files/* $(WORKDIR)/iso/boot/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/syslinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/poweroff.com $(WORKDIR)/iso/boot/syslinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/syslinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/memdisk $(WORKDIR)/iso/boot/syslinux/
 	cp $(WORKDIR)/root-image/usr/lib/syslinux/pxelinux.0 $(WORKDIR)/iso/boot/syslinux/

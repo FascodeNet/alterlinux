@@ -51,6 +51,7 @@ syslinux_copy() {
     echo "Executing: ${FUNCNAME}"
     cp ${_v} $work_dir/i686/mnt/boot/{memtest*,releasenotes.txt,splash.png} $work_dir/iso/boot/
     cp ${_v} $work_dir/i686/mnt/boot/syslinux/*.c32 $work_dir/iso/boot/syslinux/
+    cp ${_v} $work_dir/i686/mnt/boot/syslinux/poweroff.com $work_dir/iso/boot/syslinux/
     cp ${_v} $work_dir/i686/mnt/boot/syslinux/memdisk $work_dir/iso/boot/syslinux/
     cp ${_v} $work_dir/i686/mnt/boot/syslinux/isolinux.bin $work_dir/iso/boot/syslinux/
     cp ${_v} $work_dir/i686/mnt/boot/syslinux/pxelinux.0 $work_dir/iso/boot/syslinux/
