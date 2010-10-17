@@ -7,6 +7,7 @@ PACCONFIG="/etc/pacman.conf"
 export LABEL="ARCH_$(date +%Y%m)"
 PUBLISHER="Arch Linux <http://www.archlinux.org>"
 APPLICATION="Arch Linux Live/Rescue CD"
+COMPRESSION="gzip"
 CREATE_DEFAULT="n"
 
 APPNAME=$(basename "${0}")
@@ -22,6 +23,10 @@ usage ()
     echo "    -L <label>       Set a label for the disk"
     echo "    -P <publisher>   Set a publisher for the disk"
     echo "    -A <application> Set an application name for the disk"
+    echo "    -c <compressor>  Set SquashFS compression type: gzip, lzma or lzo. Default $COMPRESSION"
+    echo "                     NOTES:"
+    echo "                            lzma: not officially supported yet by Linux (2.6.36)"
+    echo "                            lzo:  needs Linux >= 2.6.36"
     echo "    -d               Create default user directory /home/arch"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
@@ -34,13 +39,14 @@ usage ()
     exit $1
 }
 
-while getopts 'p:C:L:P:A:dfvh' arg; do
+while getopts 'p:C:L:P:A:c:dfvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         C) PACCONFIG="${OPTARG}" ;;
     	L) LABEL="${OPTARG}" ;;
     	P) PUBLISHER="${OPTARG}" ;;
     	A) APPLICATION="${OPTARG}" ;;
+        c) COMPRESSION="${OPTARG}" ;;
         d) CREATE_DEFAULT="y" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
@@ -187,9 +193,9 @@ _mksquash () {
     echo "Creating SquashFS image. This may take some time..."
     start=$(date +%s)
     if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${1}" "${sqimg}" -noappend >/dev/null
+        mksquashfs "${1}" "${sqimg}" -noappend -comp "${COMPRESSION}" >/dev/null
     else
-        mksquashfs "${1}" "${sqimg}" -noappend
+        mksquashfs "${1}" "${sqimg}" -noappend -comp "${COMPRESSION}"
     fi
     minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
     echo "Image creation done in $minutes minutes."
