@@ -62,6 +62,10 @@ run_hook() {
         copytoram_size="75%"
     fi
 
+    if [ "x${archisobasedir}" = "x" ]; then
+        archisobasedir="arch"
+    fi
+
     if [ "x${isomounts}" != "x" ]; then
         isomounts="/bootmnt/${isomounts}"
     else

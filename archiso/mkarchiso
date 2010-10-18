@@ -9,6 +9,7 @@ PUBLISHER="Arch Linux <http://www.archlinux.org>"
 APPLICATION="Arch Linux Live/Rescue CD"
 COMPRESSION="gzip"
 CREATE_DEFAULT="n"
+INSTALL_DIR="arch"
 
 APPNAME=$(basename "${0}")
 
@@ -27,6 +28,9 @@ usage ()
     echo "                     NOTES:"
     echo "                            lzma: not officially supported yet by Linux (2.6.36)"
     echo "                            lzo:  needs Linux >= 2.6.36"
+    echo "    -D <install_dir> Set an install_dir. All files will by located here on ISO (except for syslinux)"
+    echo "                     Default $INSTALL_DIR"
+    echo "                     NOTE: Max 8 characters, use only [a-z0-9]"
     echo "    -d               Create default user directory /home/arch"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
@@ -39,7 +43,7 @@ usage ()
     exit $1
 }
 
-while getopts 'p:C:L:P:A:c:dfvh' arg; do
+while getopts 'p:C:L:P:A:c:D:dfvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         C) PACCONFIG="${OPTARG}" ;;
@@ -47,6 +51,7 @@ while getopts 'p:C:L:P:A:c:dfvh' arg; do
     	P) PUBLISHER="${OPTARG}" ;;
     	A) APPLICATION="${OPTARG}" ;;
         c) COMPRESSION="${OPTARG}" ;;
+        D) INSTALL_DIR="${OPTARG}" ;;
         d) CREATE_DEFAULT="y" ;;
         f) FORCE="y" ;;
         v) QUIET="n" ;;
@@ -110,33 +115,8 @@ _pacman ()
 
 command_create () {
     echo "====> Creating working directory: ${work_dir}"
-    mkdir -p "${work_dir}/iso/"
+    mkdir -p "${work_dir}/iso/${INSTALL_DIR}"
     mkdir -p "${work_dir}/root-image/"
-    echo "# archiso isomounts file
-# img - location of image/directory to mount relative to addons directory
-# arch - architecture of this image
-# mount point - absolute location on the post-initrd root
-# type - either 'bind' or 'squashfs' for now
-
-# syntax: <img> <arch> <mount point> <type>
-
-# NOTE: Order matters. If the same file exists in multiple
-#  images, the FIRST one mounted, top-down, will take precedence
-
-root-image.sqfs i686 / squashfs
-#root-image-x86_64.sqfs x86_64 / squashfs" > "${work_dir}/isomounts"
-
-    echo "README for this archiso created directory
-
-All directories in this dir, except for 'iso' will be squashed
-with squashfs and put into the iso dir as iso/<dirname>.sqfs
-This should be reflected in the isomounts file
-
-The iso dir is later used to build the actual bootable iso.
-Please ensure the proper bootloader is installed or copied
-to the iso/ directory.
-
-...TODO: Write more..." > "${work_dir}/README"
 
     if [ "${PKGLIST}" != "" ]; then
         echo "====> Installing packages to '${work_dir}/root-image/'"
@@ -177,7 +157,7 @@ _mksquash () {
         return 1
     fi
 
-    sqimg="${work_dir}/iso/$(basename ${1}).sqfs"
+    sqimg="${work_dir}/iso/${INSTALL_DIR}/$(basename ${1}).sqfs"
     echo "====> Generating SquashFS image for '${1}'"
     if [ -e "${sqimg}" ]; then
         dirhaschanged=$(find ${1} -newer ${sqimg})
@@ -218,7 +198,7 @@ _imgcommon () {
         exit 1
     fi
 
-    if [ ! -f "${work_dir}/isomounts" ]; then
+    if [ ! -f "${work_dir}/iso/${INSTALL_DIR}/isomounts" ]; then
         echo "Error: the isomounts file doesn't exist. This image won't do anything"
         echo "  Protecting you from yourself and erroring out here..."
         exit 1
@@ -234,10 +214,9 @@ _imgcommon () {
         fi
     fi
 
-    cp "${work_dir}/isomounts" "${work_dir}/iso/"
-
-    if ! sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|" -i ${work_dir}/iso/boot/syslinux/syslinux.cfg; then
-        echo "Error: ${work_dir}/iso/boot/syslinux/syslinux.cfg, doesn't exist, aborting."
+    if ! sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|g;
+              s|%INSTALL_DIR%|${INSTALL_DIR}|g" -i ${work_dir}/iso/syslinux/syslinux.cfg; then
+        echo "Error: ${work_dir}/iso/syslinux/syslinux.cfg, doesn't exist, aborting."
         exit 1
     fi
 }
@@ -249,7 +228,7 @@ command_iso () {
     qflag=""
     [ "${QUIET}" = "y" ] && qflag="-quiet"
     mkisofs ${qflag} -r -l \
-        -b boot/syslinux/isolinux.bin -c boot/syslinux/boot.cat \
+        -b syslinux/isolinux.bin -c syslinux/boot.cat \
         -uid 0 -gid 0 \
         -udf -allow-limited-size -iso-level 3 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
