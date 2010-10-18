@@ -1,6 +1,7 @@
 ver=$(shell date +%Y.%m.%d)
 
 WORKDIR=work
+INSTALL_DIR=arch
 
 ARCH?=$(shell uname -m)
 
@@ -19,9 +20,9 @@ core-iso: $(COREname)
 net-iso: $(NETname)
 
 $(COREname): core-pkgs base-fs
-	mkarchiso iso $(WORKDIR) $@
+	mkarchiso -D $(INSTALL_DIR) iso $(WORKDIR) $@
 $(NETname): base-fs
-	mkarchiso iso $(WORKDIR) $@
+	mkarchiso -D $(INSTALL_DIR) iso $(WORKDIR) $@
 
 # This is the main rule for make the working filesystem.
 base-fs: root-image bootfiles initcpio overlay iso-mounts
@@ -30,32 +31,34 @@ base-fs: root-image bootfiles initcpio overlay iso-mounts
 # Rules for make the root-image for base filesystem.
 root-image: $(WORKDIR)/root-image/.arch-chroot
 $(WORKDIR)/root-image/.arch-chroot:
-	mkarchiso -p base create $(WORKDIR)
-	mkarchiso -p $(PACKAGES) create $(WORKDIR)
+	mkarchiso -D $(INSTALL_DIR) -p base create $(WORKDIR)
+	mkarchiso -D $(INSTALL_DIR) -p $(PACKAGES) create $(WORKDIR)
 
 # Rule for make /boot
 bootfiles: root-image
-	mkdir -p $(WORKDIR)/iso/boot
-	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/boot/
-	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/boot/
-	cp $(WORKDIR)/root-image/boot/memtest86+/memtest.bin $(WORKDIR)/iso/boot/memtest
-	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/boot/memtest.COPYING
-	cp -r boot-files/* $(WORKDIR)/iso/boot/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/boot/syslinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/poweroff.com $(WORKDIR)/iso/boot/syslinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/boot/syslinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/memdisk $(WORKDIR)/iso/boot/syslinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/pxelinux.0 $(WORKDIR)/iso/boot/syslinux/
-	cp $(WORKDIR)/root-image/usr/lib/syslinux/gpxelinux.0 $(WORKDIR)/iso/boot/syslinux/
+	mkdir -p $(WORKDIR)/iso/$(INSTALL_DIR)/boot
+	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/$(INSTALL_DIR)/boot/
+	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/$(INSTALL_DIR)/boot/
+	cp $(WORKDIR)/root-image/boot/memtest86+/memtest.bin $(WORKDIR)/iso/$(INSTALL_DIR)/boot/memtest
+	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/$(INSTALL_DIR)/boot/memtest.COPYING
+	cp boot-files/splash.png $(WORKDIR)/iso/$(INSTALL_DIR)/boot/
+	mkdir -p $(WORKDIR)/iso/syslinux
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/*.c32 $(WORKDIR)/iso/syslinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/poweroff.com $(WORKDIR)/iso/syslinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/isolinux.bin $(WORKDIR)/iso/syslinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/memdisk $(WORKDIR)/iso/syslinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/pxelinux.0 $(WORKDIR)/iso/syslinux/
+	cp $(WORKDIR)/root-image/usr/lib/syslinux/gpxelinux.0 $(WORKDIR)/iso/syslinux/
+	cp boot-files/syslinux/syslinux.cfg $(WORKDIR)/iso/syslinux/syslinux.cfg
 	# Add pci.ids and modules.alias for hdt
-	mkdir -p $(WORKDIR)/iso/boot/syslinux/hdt/
-	wget -O - http://pciids.sourceforge.net/v2.2/pci.ids | gzip -9 > $(WORKDIR)/iso/boot/syslinux/hdt/pciids.gz
-	cat $(WORKDIR)/root-image/lib/modules/$(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2)/modules.alias | gzip -9 > $(WORKDIR)/iso/boot/syslinux/hdt/modalias.gz
+	mkdir -p $(WORKDIR)/iso/syslinux/hdt/
+	wget -O - http://pciids.sourceforge.net/v2.2/pci.ids | gzip -9 > $(WORKDIR)/iso/syslinux/hdt/pciids.gz
+	cat $(WORKDIR)/root-image/lib/modules/$(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2)/modules.alias | gzip -9 > $(WORKDIR)/iso/syslinux/hdt/modalias.gz
 
 # Rules for initcpio images
-initcpio: $(WORKDIR)/iso/boot/archiso.img
-$(WORKDIR)/iso/boot/archiso.img: mkinitcpio.conf $(WORKDIR)/root-image/.arch-chroot
-	mkdir -p $(WORKDIR)/iso/boot
+initcpio: $(WORKDIR)/iso/$(INSTALL_DIR)/boot/archiso.img
+$(WORKDIR)/iso/$(INSTALL_DIR)/boot/archiso.img: mkinitcpio.conf $(WORKDIR)/root-image/.arch-chroot
+	mkdir -p $(WORKDIR)/iso/$(INSTALL_DIR)/boot
 	mkinitcpio -c ./mkinitcpio.conf -b $(WORKDIR)/root-image -k $(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2) -g $@
 
 
@@ -68,8 +71,8 @@ overlay:
 
 
 # Rule to process isomounts file.
-iso-mounts: $(WORKDIR)/isomounts
-$(WORKDIR)/isomounts: isomounts root-image
+iso-mounts: $(WORKDIR)/iso/$(INSTALL_DIR)/isomounts
+$(WORKDIR)/iso/$(INSTALL_DIR)/isomounts: isomounts root-image
 	sed "s|@ARCH@|$(ARCH)|g" isomounts > $@
 
 
