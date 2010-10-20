@@ -20,6 +20,7 @@ isomounts_file="/usr/share/archiso2dual/isomounts"
 syslinuxcfg_dir="/usr/share/archiso2dual/syslinux"
 removefiles_file="/usr/share/archiso2dual/removefiles.lst"
 compression="gzip"
+install_dir="arch"
 appname=${0##*/}
 _error="0"
 _confirm="n"
@@ -43,39 +44,40 @@ iso_mount() {
 kernel_copy() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        cp ${_v} $work_dir/${_arch}/mnt/boot/archiso.img $work_dir/iso/boot/${_arch}/archiso.img
-        cp ${_v} $work_dir/${_arch}/mnt/boot/vmlinuz26 $work_dir/iso/boot/${_arch}/vmlinuz26
+        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/${_arch}/archiso.img
+        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/boot/vmlinuz26 ${work_dir}/iso/${install_dir}/boot/${_arch}/vmlinuz26
     done
 }
 
 syslinux_copy() {
     echo "Executing: ${FUNCNAME}"
-    cp ${_v} $work_dir/i686/mnt/boot/{memtest*,releasenotes.txt,splash.png} $work_dir/iso/boot/
-    cp ${_v} $work_dir/i686/mnt/boot/syslinux/*.c32 $work_dir/iso/boot/syslinux/
-    cp ${_v} $work_dir/i686/mnt/boot/syslinux/poweroff.com $work_dir/iso/boot/syslinux/
-    cp ${_v} $work_dir/i686/mnt/boot/syslinux/memdisk $work_dir/iso/boot/syslinux/
-    cp ${_v} $work_dir/i686/mnt/boot/syslinux/isolinux.bin $work_dir/iso/boot/syslinux/
-    cp ${_v} $work_dir/i686/mnt/boot/syslinux/pxelinux.0 $work_dir/iso/boot/syslinux/
-    cp ${_v} $work_dir/i686/mnt/boot/syslinux/gpxelinux.0 $work_dir/iso/boot/syslinux/
-    cp ${_v} -r $work_dir/i686/mnt/boot/syslinux/hdt $work_dir/iso/boot/syslinux/
+    cp ${_v} ${work_dir}/i686/mnt/${install_dir}/boot/{memtest*,splash.png} ${work_dir}/iso/${install_dir}/boot/
+    cp ${_v} ${work_dir}/i686/mnt/syslinux/*.c32 ${work_dir}/iso/syslinux/
+    cp ${_v} ${work_dir}/i686/mnt/syslinux/poweroff.com ${work_dir}/iso/syslinux/
+    cp ${_v} ${work_dir}/i686/mnt/syslinux/memdisk ${work_dir}/iso/syslinux/
+    cp ${_v} ${work_dir}/i686/mnt/syslinux/isolinux.bin ${work_dir}/iso/syslinux/
+    cp ${_v} ${work_dir}/i686/mnt/syslinux/pxelinux.0 ${work_dir}/iso/syslinux/
+    cp ${_v} ${work_dir}/i686/mnt/syslinux/gpxelinux.0 ${work_dir}/iso/syslinux/
+    cp ${_v} -r ${work_dir}/i686/mnt/syslinux/hdt ${work_dir}/iso/syslinux/
 }
 
 syslinuxcfg_copy() {
     echo "Executing: ${FUNCNAME}"
     for _cfg in ${syslinuxcfg_dir}/*.cfg; do
-        sed "s|XXX|${label}|g" ${_cfg} > $work_dir/iso/boot/syslinux/$(basename ${_cfg})
+        sed "s|XXX|${label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/iso/syslinux/$(basename ${_cfg})
     done
 }
 
 isomounts_copy() {
     echo "Executing: ${FUNCNAME}"
-    cp ${_v} ${isomounts_file} $work_dir/iso/
+    cp ${_v} ${isomounts_file} ${work_dir}/iso/${install_dir}/
 }
 
 squashfs_copy() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        cp ${_v} $work_dir/${_arch}/mnt/*.sqfs $work_dir/iso/${_arch}/
+        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/*.sqfs ${work_dir}/iso/${install_dir}/${_arch}/
     done
 }
 
@@ -87,7 +89,7 @@ make_iso() {
         _qflag=""
     fi
     mkisofs ${_v} ${_qflag} -r -l \
-        -b boot/syslinux/isolinux.bin -c boot/syslinux/boot.cat \
+        -b syslinux/isolinux.bin -c syslinux/boot.cat \
         -uid 0 -gid 0 \
         -udf -allow-limited-size -iso-level 3 \
         -input-charset utf-8 -p "prepared by archiso2dual" \
@@ -105,9 +107,9 @@ unsquashfs_image() {
     arch=${2}
     rm -rf ${work_dir}/tmp/${arch}/${img}
     if [ "${quiet}" = "y" ]; then
-        unsquashfs -d ${work_dir}/tmp/${arch}/${img} $work_dir/iso/${arch}/${img}.sqfs > /dev/null
+        unsquashfs -d ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${install_dir}/${arch}/${img}.sqfs > /dev/null
     else
-        unsquashfs -d ${work_dir}/tmp/${arch}/${img} $work_dir/iso/${arch}/${img}.sqfs
+        unsquashfs -d ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${install_dir}/${arch}/${img}.sqfs
     fi
 }
 
@@ -115,11 +117,11 @@ mksquashfs_image() {
     echo "Executing: ${FUNCNAME}"
     img=${1}
     arch=${2}
-    rm -f ${work_dir}/iso/${arch}/${img}.sqfs
+    rm -f ${work_dir}/iso/${install_dir}/${arch}/${img}.sqfs
     if [ "${quiet}" = "y" ]; then
-        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs -comp ${compression} > /dev/null
+        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${install_dir}/${arch}/${img}.sqfs -comp ${compression} > /dev/null
     else
-        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${arch}/${img}.sqfs -comp ${compression}
+        mksquashfs ${work_dir}/tmp/${arch}/${img} ${work_dir}/iso/${install_dir}/${arch}/${img}.sqfs -comp ${compression}
     fi
 }
 
@@ -159,7 +161,7 @@ core_pkgs_extract() {
 
 check_if_core_medium() {
     echo "Executing: ${FUNCNAME}"
-    if [ -f ${work_dir}/iso/i686/core-pkgs.sqfs ] && [ -f ${work_dir}/iso/x86_64/core-pkgs.sqfs ]; then
+    if [ -f ${work_dir}/iso/${install_dir}/i686/core-pkgs.sqfs ] && [ -f ${work_dir}/iso/${install_dir}/x86_64/core-pkgs.sqfs ]; then
         _iscoreiso=y
     fi
 }
@@ -202,13 +204,13 @@ root_image_make_image() {
 make_workspace() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        mkdir ${_v} -p ${work_dir}/iso/${_arch}
-        mkdir ${_v} -p ${work_dir}/iso/boot/${_arch}
+        mkdir ${_v} -p ${work_dir}/iso/${install_dir}/${_arch}
+        mkdir ${_v} -p ${work_dir}/iso/${install_dir}/boot/${_arch}
         mkdir ${_v} -p ${work_dir}/${_arch}/mnt
         mkdir ${_v} -p ${work_dir}/tmp/${_arch}
     done
-    mkdir ${_v} -p ${work_dir}/iso/boot/syslinux
-    mkdir ${_v} -p ${work_dir}/iso/any
+    mkdir ${_v} -p ${work_dir}/iso/syslinux
+    mkdir ${_v} -p ${work_dir}/iso/${install_dir}/any
     mkdir ${_v} -p ${work_dir}/tmp/any
 }
 
@@ -248,7 +250,11 @@ show_help()
     echo "                     NOTES:"
     echo "                            lzma: not officially supported yet by Linux (2.6.36)"
     echo "                            lzo:  needs Linux >= 2.6.36"
-
+    echo "    -D <install_dir> Set an install_dir
+                     (default to '${install_dir}')"
+    echo "                     NOTES:"
+    echo "                            Must match install_dir from both .iso sources"
+    echo "                            Max 8 characters, use only [a-z0-9]"
     echo "    -y               Confirm execution (otherwise only show configuration)"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
@@ -261,6 +267,7 @@ show_config() {
     echo "    source iso i686 image:   ${isofile_i686}"
     echo "  source iso x86_64 image:   ${isofile_x86_64}"
     echo "         target iso image:   ${imgname}"
+    echo " install directory on ISO:   ${install_dir}"
     echo "           isomounts file:   ${isomounts_file}"
     echo "        syslinux.cfg path:   ${syslinuxcfg_dir}"
     echo "     removefiles.lst file:   ${removefiles_file}"
@@ -345,7 +352,7 @@ if [ "$EUID" != "0" ]; then
     exit 1
 fi
 
-while getopts '3:6:o:T:M:S:R:L:P:A:c:yvh' arg; do
+while getopts '3:6:o:T:M:S:R:L:P:A:c:D:yvh' arg; do
     case "${arg}" in
         3) isofile_i686="${OPTARG}" ;;
         6) isofile_x86_64="${OPTARG}" ;;
@@ -362,6 +369,7 @@ while getopts '3:6:o:T:M:S:R:L:P:A:c:yvh' arg; do
         P) publisher="${OPTARG}" ;;
         A) application="${OPTARG}" ;;
         c) compression="${OPTARG}" ;;
+        D) install_dir="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         y) _confirm="y" ;;
         v) quiet="n"; _v="-v" ;;
