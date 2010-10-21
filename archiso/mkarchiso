@@ -12,6 +12,7 @@ CREATE_DEFAULT="n"
 INSTALL_DIR="arch"
 
 APPNAME=$(basename "${0}")
+ARCH=$(uname -m)
 
 # usage: usage <exitvalue>
 usage ()
@@ -115,7 +116,7 @@ _pacman ()
 
 command_create () {
     echo "====> Creating working directory: ${work_dir}"
-    mkdir -p "${work_dir}/iso/${INSTALL_DIR}"
+    mkdir -p "${work_dir}/iso/${INSTALL_DIR}/${ARCH}"
     mkdir -p "${work_dir}/root-image/"
 
     if [ "${PKGLIST}" != "" ]; then
@@ -157,7 +158,7 @@ _mksquash () {
         return 1
     fi
 
-    sqimg="${work_dir}/iso/${INSTALL_DIR}/$(basename ${1}).sqfs"
+    sqimg="${work_dir}/iso/${INSTALL_DIR}/${ARCH}/$(basename ${1}).sqfs"
     echo "====> Generating SquashFS image for '${1}'"
     if [ -e "${sqimg}" ]; then
         dirhaschanged=$(find ${1} -newer ${sqimg})
@@ -215,7 +216,8 @@ _imgcommon () {
     fi
 
     if ! sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|g;
-              s|%INSTALL_DIR%|${INSTALL_DIR}|g" -i ${work_dir}/iso/syslinux/syslinux.cfg; then
+              s|%INSTALL_DIR%|${INSTALL_DIR}|g;
+              s|%ARCH%|${ARCH}|g" -i ${work_dir}/iso/syslinux/syslinux.cfg; then
         echo "Error: ${work_dir}/iso/syslinux/syslinux.cfg, doesn't exist, aborting."
         exit 1
     fi
