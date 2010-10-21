@@ -36,9 +36,9 @@ $(WORKDIR)/root-image/.arch-chroot:
 
 # Rule for make /boot
 bootfiles: root-image
-	mkdir -p $(WORKDIR)/iso/$(INSTALL_DIR)/boot
-	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/$(INSTALL_DIR)/boot/
-	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/$(INSTALL_DIR)/boot/
+	mkdir -p $(WORKDIR)/iso/$(INSTALL_DIR)/boot/$(ARCH)
+	cp $(WORKDIR)/root-image/boot/System.map26 $(WORKDIR)/iso/$(INSTALL_DIR)/boot/$(ARCH)/
+	cp $(WORKDIR)/root-image/boot/vmlinuz26 $(WORKDIR)/iso/$(INSTALL_DIR)/boot/$(ARCH)/
 	cp $(WORKDIR)/root-image/boot/memtest86+/memtest.bin $(WORKDIR)/iso/$(INSTALL_DIR)/boot/memtest
 	cp $(WORKDIR)/root-image/usr/share/licenses/common/GPL2/license.txt $(WORKDIR)/iso/$(INSTALL_DIR)/boot/memtest.COPYING
 	cp boot-files/splash.png $(WORKDIR)/iso/$(INSTALL_DIR)/boot/
@@ -56,9 +56,9 @@ bootfiles: root-image
 	cat $(WORKDIR)/root-image/lib/modules/$(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2)/modules.alias | gzip -9 > $(WORKDIR)/iso/syslinux/hdt/modalias.gz
 
 # Rules for initcpio images
-initcpio: $(WORKDIR)/iso/$(INSTALL_DIR)/boot/archiso.img
-$(WORKDIR)/iso/$(INSTALL_DIR)/boot/archiso.img: mkinitcpio.conf $(WORKDIR)/root-image/.arch-chroot
-	mkdir -p $(WORKDIR)/iso/$(INSTALL_DIR)/boot
+initcpio: $(WORKDIR)/iso/$(INSTALL_DIR)/boot/$(ARCH)/archiso.img
+$(WORKDIR)/iso/$(INSTALL_DIR)/boot/$(ARCH)/archiso.img: mkinitcpio.conf $(WORKDIR)/root-image/.arch-chroot
+	mkdir -p $(WORKDIR)/iso/$(INSTALL_DIR)/boot/$(ARCH)/
 	mkinitcpio -c ./mkinitcpio.conf -b $(WORKDIR)/root-image -k $(shell grep ^ALL_kver $(kver_FILE) | cut -d= -f2) -g $@
 
 
