@@ -44,8 +44,8 @@ iso_mount() {
 kernel_copy() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/${_arch}/archiso.img
-        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/boot/vmlinuz26 ${work_dir}/iso/${install_dir}/boot/${_arch}/vmlinuz26
+        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/boot/${_arch}/archiso.img ${work_dir}/iso/${install_dir}/boot/${_arch}/archiso.img
+        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/boot/${_arch}/vmlinuz26 ${work_dir}/iso/${install_dir}/boot/${_arch}/vmlinuz26
     done
 }
 
@@ -77,7 +77,7 @@ isomounts_copy() {
 squashfs_copy() {
     echo "Executing: ${FUNCNAME}"
     for _arch in i686 x86_64; do
-        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/*.sqfs ${work_dir}/iso/${install_dir}/${_arch}/
+        cp ${_v} ${work_dir}/${_arch}/mnt/${install_dir}/${_arch}/*.sqfs ${work_dir}/iso/${install_dir}/${_arch}/
     done
 }
 
