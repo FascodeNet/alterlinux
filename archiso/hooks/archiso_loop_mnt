@@ -1,0 +1,33 @@
+# vim: set ft=sh:
+
+run_hook () {
+    if [ -n "${img_dev}" ] && [ -n "${img_loop}" ]; then
+        mount_handler="archiso_loop_mount_handler"
+    fi
+}
+
+archiso_loop_mount_handler () {
+    newroot="${1}"
+
+    while [ ! -b "${img_dev}" ]; do
+        sleep 1
+    done
+
+    msg "::: Setup a loop device from ${img_loop} located at device ${img_dev}"
+    FSTYPE=$(blkid -o value -s TYPE -p ${img_dev} 2> /dev/null)
+    if [ -n "${FSTYPE}" ]; then
+        if mount -r -t "${FSTYPE}" ${img_dev} /img_dev > /dev/null 2>&1; then
+            _dev_loop=$(losetup -f)
+            losetup ${_dev_loop} /img_dev/${img_loop}
+        fi
+    fi
+
+    archiso_mount_handler ${newroot}
+
+    if [ "${copytoram}" = "y" ]; then
+        msg "::: Deataching loop device ${_dev_loop}"
+        losetup -d ${_dev_loop}
+        msg "::: Unmounting ${img_dev}"
+        umount ${img_dev}
+    fi
+}
