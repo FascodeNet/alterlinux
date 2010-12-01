@@ -64,7 +64,7 @@ syslinux_copy() {
 syslinuxcfg_copy() {
     echo "Executing: ${FUNCNAME}"
     for _cfg in ${syslinuxcfg_dir}/*.cfg; do
-        sed "s|XXX|${label}|g;
+        sed "s|%ARCHISO_LABEL%|${label}|g;
              s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/iso/syslinux/$(basename ${_cfg})
     done
 }

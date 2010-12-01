@@ -215,7 +215,7 @@ _imgcommon () {
         fi
     fi
 
-    if ! sed "s|archisolabel=[^ ]*|archisolabel=${LABEL}|g;
+    if ! sed "s|%ARCHISO_LABEL%|${LABEL}|g;
               s|%INSTALL_DIR%|${INSTALL_DIR}|g;
               s|%ARCH%|${ARCH}|g" -i ${work_dir}/iso/syslinux/syslinux.cfg; then
         echo "Error: ${work_dir}/iso/syslinux/syslinux.cfg, doesn't exist, aborting."
