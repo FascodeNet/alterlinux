@@ -5,6 +5,7 @@ install: all
 	install -d -m 755 $(DESTDIR)/usr/share/archiso2dual/syslinux
 	install -D -m 644 isomounts $(DESTDIR)/usr/share/archiso2dual/isomounts
 	install -D -m 644 syslinux.cfg $(DESTDIR)/usr/share/archiso2dual/syslinux/syslinux.cfg
+	install -D -m 644 *.cfg $(DESTDIR)/usr/share/archiso2dual/syslinux/
 	install -D -m 644 removefiles.lst $(DESTDIR)/usr/share/archiso2dual/removefiles.lst
 
 uninstall:
