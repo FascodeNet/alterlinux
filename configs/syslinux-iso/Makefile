@@ -2,6 +2,7 @@ ver=$(shell date +%Y.%m.%d)
 
 WORKDIR=work
 INSTALL_DIR=arch
+COMPRESS=gzip
 
 ARCH?=$(shell uname -m)
 
@@ -20,9 +21,9 @@ core-iso: $(COREname)
 net-iso: $(NETname)
 
 $(COREname): core-pkgs base-fs
-	mkarchiso -D $(INSTALL_DIR) iso $(WORKDIR) $@
+	mkarchiso -D $(INSTALL_DIR) -c $(COMPRESS) iso $(WORKDIR) $@
 $(NETname): base-fs
-	mkarchiso -D $(INSTALL_DIR) iso $(WORKDIR) $@
+	mkarchiso -D $(INSTALL_DIR) -c $(COMPRESS) iso $(WORKDIR) $@
 
 # This is the main rule for make the working filesystem.
 base-fs: root-image bootfiles initcpio overlay iso-mounts
