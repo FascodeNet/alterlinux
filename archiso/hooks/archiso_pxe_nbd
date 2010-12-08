@@ -64,8 +64,12 @@ archiso_pxe_nbd_mount_handler () {
 
     # Module autoloading like with loop devices does not work, doing manually...
     modprobe nbd 2> /dev/null
-    while [ ! -b /dev/nbd0 ]; do
-        sleep 1
+    msg ":: Waiting for boot device..."
+    while ! poll_device /dev/nbd0 30; do
+        echo "ERROR: boot device didn't show up after 30 seconds..."
+        echo "   Falling back to interactive prompt"
+        echo "   You can try to fix the problem manually, log out when you are finished"
+        launch_interactive_shell
     done
 
     msg "::: Setup NBD from ${nbdserver} at /dev/nbd0"
