@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 PKGLIST=""
 QUIET="y"
@@ -48,9 +48,9 @@ while getopts 'p:C:L:P:A:c:D:dfvh' arg; do
     case "${arg}" in
         p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
         C) PACCONFIG="${OPTARG}" ;;
-    	L) LABEL="${OPTARG}" ;;
-    	P) PUBLISHER="${OPTARG}" ;;
-    	A) APPLICATION="${OPTARG}" ;;
+        L) LABEL="${OPTARG}" ;;
+        P) PUBLISHER="${OPTARG}" ;;
+        A) APPLICATION="${OPTARG}" ;;
         c) COMPRESSION="${OPTARG}" ;;
         D) INSTALL_DIR="${OPTARG}" ;;
         d) CREATE_DEFAULT="y" ;;
