@@ -2,6 +2,7 @@ aif
 aufs2
 aufs2-util
 b43-fwcutter
+btrfs-progs-unstable
 crda
 ddrescue
 dialog
