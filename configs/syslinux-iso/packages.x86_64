@@ -21,6 +21,7 @@ ndiswrapper
 ndiswrapper-utils
 netcfg
 nfs-utils
+nilfs-utils
 nmap
 ntfs-3g
 ntfsprogs
