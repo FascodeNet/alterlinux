@@ -4,6 +4,7 @@ aufs2-util
 b43-fwcutter
 btrfs-progs-unstable
 crda
+curl
 ddrescue
 dialog
 dmraid

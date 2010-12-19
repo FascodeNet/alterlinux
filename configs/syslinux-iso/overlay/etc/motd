@@ -6,6 +6,9 @@
 * i18n: Use the 'km' utility to change your keyboard layout  *
 *       and console font.                                    *
 *                                                            *
+* If you encounter issues and want to report them or         *
+* seek help, run /arch/report-issues                         *
+*                                                            *
 * If you are looking to install Arch on something more       *
 * exotic, such as your kerosene-powered cheese grater,       *
 * please consult http://wiki.archlinux.org.                  *
