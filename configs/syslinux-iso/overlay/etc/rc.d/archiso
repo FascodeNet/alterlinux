@@ -1,7 +1,6 @@
 # vim: set ft=sh:
 . /etc/rc.conf
 . /etc/rc.d/functions
-. /etc/archiso/functions
 
 
 scan_network ()
