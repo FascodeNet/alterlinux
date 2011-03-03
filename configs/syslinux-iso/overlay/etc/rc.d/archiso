@@ -86,11 +86,32 @@ do_fix_perms ()
     stat_done
 }
 
+# If an alternate console was specified on the kernel command line,
+# start agetty on it too.
+do_special_console()
+{
+    cmdline_console="$(kernel_cmdline console)"
+    [ $? -ne 0 ] && return
+
+    dev="${cmdline_console%%,*}"
+    args="${cmdline_console##*,}"
+    baud="${args%%[neo]*}" && baud="${baud:-"9600"}"
+    [ "x${args}" != "x${args%%r}" ] && rts="-h"
+
+
+    stat_busy "Starting agetty on console: ${cmdline_console}"
+    echo "${dev}" >> /etc/securetty
+    echo "z0:2345:respawn:/sbin/agetty ${rts} ${baud} ${dev} linux" >> /etc/inittab
+    /sbin/telinit q
+    stat_done
+}
+
 case "$1" in
   start)
     do_locale_gen
     do_makeuser
     do_fix_perms
+    do_special_console
     ;;
 esac
 exit 0
