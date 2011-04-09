@@ -58,7 +58,7 @@ if [ -n "$PKGS" ]; then
         fi
     done
     if [ "$REPO_CHANGED" = "y" ]; then
-        wget -nv "$baseurl/$REPO.db.tar.gz" -O "$DEST/$REPO.db.tar.gz"
+        wget -nv "$baseurl/$REPO.db" -O "$DEST/$REPO.db"
     fi
 else
     echo "No packages to download... what'd you break?"
