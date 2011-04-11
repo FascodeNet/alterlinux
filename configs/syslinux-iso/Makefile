@@ -2,7 +2,7 @@ ver=$(shell date +%Y.%m.%d)
 
 WORKDIR=work
 INSTALL_DIR=arch
-COMPRESS=gzip
+COMPRESS=xz
 
 ARCH?=$(shell uname -m)
 
@@ -92,4 +92,3 @@ clean:
 .PHONY: root-image bootfiles initcpio overlay iso-mounts
 .PHONY: core-pkgs
 .PHONY: clean
-
