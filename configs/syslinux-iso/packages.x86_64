@@ -6,6 +6,7 @@ btrfs-progs-unstable
 crda
 curl
 ddrescue
+dhclient
 dialog
 dmraid
 dnsutils
