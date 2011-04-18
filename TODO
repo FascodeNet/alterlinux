@@ -1,3 +1,2 @@
 * Add lots and lots of help to the syslinux menu
-
-* Switch to squashfs-lzma
+* Add keymaps list to syslinux
