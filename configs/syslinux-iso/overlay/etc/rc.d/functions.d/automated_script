@@ -3,7 +3,7 @@ automated_script ()
     script="$(kernel_cmdline script)"
     if [[ -n "$script" ]]; then
         stat_busy "Configuring $script"
-        if [[ "$script" =~ "^http://" || "$script" =~ "^ftp://" ]]; then
+        if [[ "$script" =~ ^http:// || "$script" =~ ^ftp:// ]]; then
             wget "$script" -q -O /tmp/startup_script >/dev/null
             rt=$?
         else
