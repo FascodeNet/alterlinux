@@ -245,11 +245,8 @@ show_help()
                      (default to '${publisher}')"
     echo "    -A <application> Set an application name for the disk
                      (default to '${application}')"
-    echo "    -c <compressor>  Set SquashFS compression type: gzip, lzma or lzo
+    echo "    -c <compressor>  Set SquashFS compression type: gzip, xz or lzo.
                      (default to '${compression}')"
-    echo "                     NOTES:"
-    echo "                            lzma: not officially supported yet by Linux (2.6.36)"
-    echo "                            lzo:  needs Linux >= 2.6.36"
     echo "    -D <install_dir> Set an install_dir
                      (default to '${install_dir}')"
     echo "                     NOTES:"
