@@ -127,7 +127,7 @@ archiso_mount_handler() {
     msg "done."
 
     msg ":: Mounting root (aufs) filesystem"
-    /bin/mount -t aufs -o dirs=/rw_branch=rw none "${newroot}"
+    /bin/mount -t aufs -o dirs=/rw_branch=rw union "${newroot}"
     if [ $? -ne 0 ]; then
         echo "ERROR: while mounting root (aufs) filesystem."
         launch_interactive_shell

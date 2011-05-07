@@ -1,7 +1,7 @@
+#
 # /etc/fstab: static file system information
+#
 # <file system>        <dir>         <type>    <options>          <dump> <pass>
-aufs                   /             aufs      noauto              0      0
-none                   /dev/pts      devpts    defaults            0      0
-none                   /dev/shm      tmpfs     defaults            0      0
-
-### Auto generated entries get added here:
+union                  /             auto      noauto              0      0
+devpts                 /dev/pts      devpts    defaults            0      0
+shm                    /dev/shm      tmpfs     nodev,nosuid        0      0
