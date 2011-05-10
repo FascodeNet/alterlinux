@@ -1,10 +1,10 @@
 # vim: set ft=sh:
 
-# kernel_cmdline <param>
+# kernel_cmdline <param> <default>
 # Looks for a parameter on the kernel's boot-time command line.
 #
 # returns: 0 if param was found. Also prints its value if it was a K=V param.
-#          1 if it was not
+#          1 if it was not. Also prints value passed as <default>
 #
 kernel_cmdline ()
 {
@@ -15,6 +15,6 @@ kernel_cmdline ()
             *) continue ;;
         esac
     done
-
+    [ -n "${2}" ] && echo "${2}"
     return 1
 }
