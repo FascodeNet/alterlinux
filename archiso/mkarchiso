@@ -1,254 +1,439 @@
 #!/bin/bash
 
-PKGLIST=""
-QUIET="y"
-FORCE="n"
-PACCONFIG="/etc/pacman.conf"
-export LABEL="ARCH_$(date +%Y%m)"
-PUBLISHER="Arch Linux <http://www.archlinux.org>"
-APPLICATION="Arch Linux Live/Rescue CD"
-COMPRESSION="xz"
-CREATE_DEFAULT="n"
-INSTALL_DIR="arch"
+set -e -u
 
-APPNAME=$(basename "${0}")
-ARCH=$(uname -m)
+app_name=${0##*/}
+arch=$(uname -m)
+pkg_list=""
+quiet="y"
+pacman_conf="/etc/pacman.conf"
+export iso_label="ARCH_$(date +%Y%m)"
+iso_publisher="Arch Linux <http://www.archlinux.org>"
+iso_application="Arch Linux Live/Rescue CD"
+install_dir="arch"
 
-# usage: usage <exitvalue>
-usage ()
+# Show an INFO message
+# $1: message string
+_msg_info() {
+    local _msg="${1}"
+    echo "[mkarchiso] INFO: ${_msg}"
+}
+
+# Show an ERROR message then exit with status
+# $1: message string
+# $2: exit code number (with 0 does not exit)
+_msg_error() {
+    local _msg="${1}"
+    local _error=${2}
+    echo
+    echo "[mkarchiso] ERROR: ${_msg}"
+    echo
+    if [[ ${_error} -gt 0 ]]; then
+        exit ${_error}
+    fi
+}
+
+# Show space usage similar to df, but better formatted.
+# $1: mount-point or mounted device.
+_show_space_usage () {
+    local _where="${1}"
+    local _fs _total _used _avail _pct_u=0 _mnt
+    read _fs _total _used _avail _pct_u _mnt < <(df -m "${_where}" | tail -1) &> /dev/null
+    _msg_info "Total: ${_total} MiB (100%) | Used: ${_used} MiB (${_pct_u}) | Avail: ${_avail} MiB ($((100 - ${_pct_u%\%}))%)"
+}
+
+# Mount a filesystem (trap signals in case of error for unmounting it
+# $1: source image
+# $2: mount-point
+_mount_fs() {
+    local _src="${1}"
+    local _dst="${2}"
+    trap "_umount_fs ${_src}" EXIT HUP INT TERM
+    mkdir -p "${_dst}"
+    _msg_info "Mounting '${_src}' on '${_dst}'"
+    mount "${_src}" "${_dst}"
+    _show_space_usage "${_dst}"
+}
+
+# Unmount a filesystem (and untrap signals)
+# $1: mount-point or device/image
+_umount_fs() {
+    local _dst="${1}"
+    _show_space_usage "${_dst}"
+    _msg_info "Unmounting '${_dst}'"
+    umount "${_dst}"
+    rmdir "${_dst}"
+    trap - EXIT HUP INT TERM
+}
+
+# Compare if a file/directory (source) is newer than other file (target)
+# $1: source file/directory
+# $2: target file
+# return: 0 if target does not exists or if target is older than source.
+#         1 if target is newer than source
+_is_directory_changed() {
+    local _src="${1}"
+    local _dst="${2}"
+
+    if [ -e "${_dst}" ]; then
+        if [[ $(find ${_src} -newer ${_dst} | wc -l) -gt 0 ]]; then
+            _msg_info "Target '${_dst}' is older than '${_src}', updating."
+            rm -f "${_dst}"
+            return 0
+        else
+            _msg_info "Target '${_dst}' is up to date with '${_src}', skipping."
+            return 1
+        fi
+    else
+        _msg_info "Target '${_dst}' does not exist, making it from '${_src}'"
+        return 0
+    fi
+}
+
+# Show help usage, with an exit status.
+# $1: exit status number.
+_usage ()
 {
-    echo "usage ${APPNAME} [options] command <command options>"
+    echo "usage ${app_name} [options] command <command options>"
     echo " general options:"
-    echo "    -f               Force overwrite of working files/squashfs image/bootable image"
-    echo "    -p PACKAGE(S)    Additional package(s) to install, can be used multiple times"
-    echo "    -C <file>        Config file for pacman. Default $PACCONFIG"
+    echo "    -p PACKAGE(S)    Package(s) to install, can be used multiple times"
+    echo "    -C <file>        Config file for pacman. Default ${pacman_conf}"
     echo "    -L <label>       Set a label for the disk"
     echo "    -P <publisher>   Set a publisher for the disk"
     echo "    -A <application> Set an application name for the disk"
-    echo "    -c <compressor>  Set SquashFS compression type: gzip, xz or lzo. Default $COMPRESSION"
-    echo "                     NOTES:"
-    echo "                            xz: needs Linux >= 2.6.38"
-    echo "                            lzo:  needs Linux >= 2.6.36"
-    echo "    -D <install_dir> Set an install_dir. All files will by located here on ISO (except for syslinux)"
-    echo "                     Default $INSTALL_DIR"
+    echo "    -D <install_dir> Set an install_dir. All files will by located here."
+    echo "                     Default ${install_dir}"
     echo "                     NOTE: Max 8 characters, use only [a-z0-9]"
-    echo "    -d               Create default user directory /home/arch"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
     echo " commands:"
     echo "   create <dir>"
     echo "      create a base directory layout to work with"
     echo "      includes all specified packages"
+    echo "   prepare <dir>"
+    echo "      build all images"
     echo "   iso <dir> <image name>"
     echo "      build an iso image from the working dir"
-    exit $1
+    exit ${1}
 }
 
-while getopts 'p:C:L:P:A:c:D:dfvh' arg; do
-    case "${arg}" in
-        p) PKGLIST="${PKGLIST} ${OPTARG}" ;;
-        C) PACCONFIG="${OPTARG}" ;;
-        L) LABEL="${OPTARG}" ;;
-        P) PUBLISHER="${OPTARG}" ;;
-        A) APPLICATION="${OPTARG}" ;;
-        c) COMPRESSION="${OPTARG}" ;;
-        D) INSTALL_DIR="${OPTARG}" ;;
-        d) CREATE_DEFAULT="y" ;;
-        f) FORCE="y" ;;
-        v) QUIET="n" ;;
-        h|?) usage 0 ;;
-        *) echo "invalid argument '${arg}'"; usage 1 ;;
+# Shows configuration according to command mode.
+# $1: create | prepare | iso
+_show_config () {
+    local _mode="$1"
+    echo
+    _msg_info "Configuration settings"
+    _msg_info "                  Command:   ${command_name}"
+    _msg_info "             Architecture:   ${arch}"
+    _msg_info "        Working directory:   ${work_dir}"
+    _msg_info "   Installation directory:   ${install_dir}"
+    case "${_mode}" in
+        create)
+            _msg_info "       Pacman config file:   ${pacman_conf}"
+            _msg_info "                 Packages:   ${pkg_list}"
+            ;;
+        prepare)
+            ;;
+        iso)
+            _msg_info "               Image name:   ${img_name}"
+            _msg_info "               Disk label:   ${iso_label}"
+            _msg_info "           Disk publisher:   ${iso_publisher}"
+            _msg_info "         Disk application:   ${iso_application}"
+            ;;
     esac
-done
+    echo
+}
 
-#trim spaces
-PKGLIST="$(echo $PKGLIST)"
-
-shift $(($OPTIND - 1))
-
-# do UID checking here so someone can at least get usage instructions
-if [ "$EUID" != "0" ]; then
-    echo "error: This script must be run as root."
-    exit 1
-fi
-
-if [ ! -f "$PACCONFIG" ]; then
-    echo "error: pacman config file '$PACCONFIG' does not exist"
-    exit 1
-fi
-
-command_name="${1}"
-work_dir=""
-imgname=""
-
-case "${command_name}" in
-    create) work_dir="${2}"; imgname="none" ;;
-    iso) work_dir="${2}"; imgname="${3}" ;;
-    *) echo "invalid command name '${command_name}'"; usage 1 ;;
-esac
-
-[ "x${imgname}" = "x" ] && echo "Image name must be specified" && usage 1
-[ "x${work_dir}" = "x" ] && echo "Please specify a working directory" && usage 1
-
-echo "${APPNAME} : Configuration Settings"
-echo "        working directory:   ${work_dir}"
-echo "               image name:   ${imgname}"
-
-# usage: _pacman <packages>...
+# Install desired packages to root-image
 _pacman ()
 {
-    local ret
-    if [ "${QUIET}" = "y" ]; then
-        mkarchroot -n -C "$PACCONFIG" -f "${work_dir}/root-image" $* 2>&1 >/dev/null
-        ret=$?
+    _msg_info "Installing packages to '${work_dir}/root-image/'"
+
+    if [[ "${quiet}" = "y" ]]; then
+        mkarchroot -n -C "${pacman_conf}" -f "${work_dir}/root-image" $* &> /dev/null
     else
-        mkarchroot -n -C "$PACCONFIG" -f "${work_dir}/root-image" $*
-        ret=$?
+        mkarchroot -n -C "${pacman_conf}" -f "${work_dir}/root-image" $*
     fi
 
     # Cleanup
-    find "${work_dir}" -name *.pacnew -name *.pacsave -name *.pacorig -delete
-
-    if [ $ret -ne 0 ]; then
-        exit 1
-    fi
+    find "${work_dir}" -name "*.pacnew" -name "*.pacsave" -name "*.pacorig" -delete
 }
 
-command_create () {
-    echo "====> Creating working directory: ${work_dir}"
-    mkdir -p "${work_dir}/iso/${INSTALL_DIR}/${ARCH}"
-    mkdir -p "${work_dir}/root-image/"
-
-    if [ "${PKGLIST}" != "" ]; then
-        echo "====> Installing packages to '${work_dir}/root-image/'"
-        _pacman "${PKGLIST}"
-
-        echo "Cleaning up what we can"
-        if [ -d "${work_dir}/root-image/boot/" ]; then
-            # remove the initcpio images that were generated for the host system
-            find "${work_dir}/root-image/boot" -name '*.img' -delete
-        fi
-
-        if [ ${CREATE_DEFAULT} == "y" ]; then
-            if [ -d "${work_dir}/root-image/home/" ]; then
-                echo "Creating default home directory"
-                install -d -o1000 -g100 -m0755 "${work_dir}/root-image/home/arch"
-            fi
-        fi
-
-        # Delete pacman database sync cache files (*.tar.gz)
+# Cleanup root-image
+_cleanup () {
+    _msg_info "Cleaning up what we can on root-image"
+    # remove the initcpio images that were generated for the host system
+    if [[ -d "${work_dir}/root-image/boot" ]]; then 
+        find "${work_dir}/root-image/boot" -name '*.img' -delete
+    fi
+    # Delete pacman database sync cache files (*.tar.gz)
+    if [[ -d "${work_dir}/root-image/var/lib/pacman" ]]; then
         find "${work_dir}/root-image/var/lib/pacman" -maxdepth 1 -type f -delete
-        # Delete pacman database sync cache
+    fi
+    # Delete pacman database sync cache
+    if [[ -d "${work_dir}/root-image/var/lib/pacman/sync" ]]; then
         find "${work_dir}/root-image/var/lib/pacman/sync" -delete
-        # Delete pacman package cache
+    fi
+    # Delete pacman package cache
+    if [[ -d "${work_dir}/root-image/var/cache/pacman/pkg" ]]; then
         find "${work_dir}/root-image/var/cache/pacman/pkg" -type f -delete
-        # Delete all log files, keeps empty dirs.
+    fi
+    # Delete all log files, keeps empty dirs.
+    if [[ -d "${work_dir}/root-image/var/log" ]]; then
         find "${work_dir}/root-image/var/log" -type f -delete
-        # Delete all temporary files and dirs
+    fi
+    # Delete all temporary files and dirs
+    if [[ -d "${work_dir}/root-image/var/tmp" ]]; then
         find "${work_dir}/root-image/var/tmp" -mindepth 1 -delete
-        # Delete all temporary files and dirs
+    fi
+    # Delete all temporary files and dirs
+    if [[ -d "${work_dir}/root-image/tmp" ]]; then
         find "${work_dir}/root-image/tmp" -mindepth 1 -delete
     fi
 }
 
-# _mksquash dirname
-_mksquash () {
-    if [ ! -d "$1" ]; then
-        echo "Error: '$1' is not a directory"
-        return 1
+# Makes a SquashFS filesystem image of file/directory passes as argument with desired compression.
+# $1: Source file/directory
+# $2: SquashFS compression type (gzip | lzo | xz)
+_mksfs () {
+    local _src="${1}"
+    local _sfs_comp="${2}"
+
+    if [[ ! -e "${work_dir}/${_src}" ]]; then
+        _msg_error "The path '${work_dir}/${_src}' does not exist" 1
     fi
 
-    sqimg="${work_dir}/iso/${INSTALL_DIR}/${ARCH}/$(basename ${1}).sqfs"
-    echo "====> Generating SquashFS image for '${1}'"
-    if [ -e "${sqimg}" ]; then
-        dirhaschanged=$(find ${1} -newer ${sqimg})
-        if [ "${dirhaschanged}" != "" ]; then
-            echo "SquashFS image '${sqimg}' is not up to date, rebuilding..."
-            rm "${sqimg}"
-        else
-            echo "SquashFS image '${sqimg}' is up to date, skipping."
-            return
-        fi
-    fi
+    local _sfs_img="${work_dir}/${_src}.sfs"
 
-    echo "Creating SquashFS image. This may take some time..."
-    start=$(date +%s)
-    if [ "${QUIET}" = "y" ]; then
-        mksquashfs "${1}" "${sqimg}" -noappend -comp "${COMPRESSION}" >/dev/null
+    _msg_info "Creating SquashFS image for '${work_dir}/${_src}', This may take some time..."
+    local _seconds=${SECONDS}
+    if [[ "${quiet}" = "y" ]]; then
+        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}" &> /dev/null
     else
-        mksquashfs "${1}" "${sqimg}" -noappend -comp "${COMPRESSION}"
+        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}"
     fi
-    minutes=$(echo $start $(date +%s) | awk '{ printf "%0.2f",($2-$1)/60 }')
-    echo "Image creation done in $minutes minutes."
+    _seconds=$((SECONDS - _seconds))
+    printf "[mkarchiso] INFO: Image creation done in %02d:%02d minutes\n" $((_seconds / 60)) $((_seconds % 60))
 }
 
-_imgcommon () {
-    for d in $(find "${work_dir}" -maxdepth 1 -type d -name '[^.]*'); do
-        if [ "$d" != "${work_dir}/iso" -a \
-             "$(basename "$d")" != "iso" -a \
-             "$d" != "${work_dir}" ]; then
-            _mksquash "$d"
+# Makes a filesystem from a source directory.
+# $1: Source directory
+# $2: Target filesystem type (ext4 | ext3 | ext2 | xfs)
+# $3: Size of target filesystem. Can be an absolute value in MiB, or relative value of desired free space (1% - 99%)
+_mkfs () {
+    local _src="${1}"
+    local _fs_type="${2}"
+    local _fs_size="${3}"
+
+    local _fs_src="${work_dir}/${_src}"
+    local _fs_img="${work_dir}/${_src}.fs"
+
+    if [[ ! -e "${_fs_src}" ]]; then
+        _msg_error "The path '${_fs_src}' does not exist" 1
+    fi
+
+    local _spc_used
+    _spc_used=$(du -sxm "${_fs_src}" | awk '{print $1}')
+
+    # Caculate FS size with desired % of free space, adds 10% overhead to used space.
+    if [[ ${_fs_size} != ${_fs_size%\%} ]]; then
+        if [[ ${_fs_size%\%} -le 0 || ${_fs_size%\%} -ge 100 ]]; then
+            _msg_error "Invalid percentage of free space specified '${_fs_size}' on '${_src}', should be 0% < x < 100%" 1
         fi
-    done
-
-    echo "====> Making bootable image"
-
-    # Sanity checks
-    if [ ! -d "${work_dir}/iso" ]; then
-        echo "Error: '${work_dir}/iso' doesn't exist. What did you do?!"
-        exit 1
-    fi
-
-    if [ ! -f "${work_dir}/iso/${INSTALL_DIR}/isomounts" ]; then
-        echo "Error: the isomounts file doesn't exist. This image won't do anything"
-        echo "  Protecting you from yourself and erroring out here..."
-        exit 1
-    fi
-
-    if [ -e "${imgname}" ]; then
-        if [ "${FORCE}" = "y" ]; then
-            echo "Removing existing bootable image..."
-            rm -rf "${imgname}"
-        else
-            echo "Error: Image '${imgname}' already exists, aborting."
-            exit 1
+        _fs_size=$((_spc_used * 110 / (100 - ${_fs_size%\%})))
+    else
+        local _spc_used_over=$((_spc_used * 11 / 10))
+        if [[ ${_fs_size} -lt ${_spc_used_over} ]]; then
+            _msg_error "Filesystem size specified '${_fs_size}' MiB for '${_src}' is too small, must be at least '${_spc_used_over}' MiB" 1
         fi
     fi
 
-    if ! sed "s|%ARCHISO_LABEL%|${LABEL}|g;
-              s|%INSTALL_DIR%|${INSTALL_DIR}|g;
-              s|%ARCH%|${ARCH}|g" -i ${work_dir}/iso/syslinux/syslinux.cfg; then
-        echo "Error: ${work_dir}/iso/syslinux/syslinux.cfg, doesn't exist, aborting."
-        exit 1
+    _msg_info "Creating ${_fs_type} image of ${_fs_size} MiB"
+    dd of="${_fs_img}" count=0 bs=1M seek=${_fs_size} &> /dev/null
+    local _qflag=""
+    if [[ ${quiet} == "y" ]]; then
+        _qflag="-q"
     fi
+    case "${_fs_type}" in
+        ext4)
+            mkfs.ext4 ${_qflag} -O ^has_journal -m 0 -F "${_fs_img}"
+            tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
+            ;;
+        ext3)
+            mkfs.ext3 ${_qflag} -m 0 -F "${_fs_img}"
+            tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
+            ;;
+        ext2)
+            mkfs.ext2 ${_qflag} -m 0 -F "${_fs_img}"
+            tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
+            ;;
+        xfs)
+            mkfs.xfs ${_qflag} "${_fs_img}"
+            ;;
+        *)
+            _msg_error "Invalid filesystem: ${_fs_type}" 1
+            ;;
+    esac
+    _mount_fs "${_fs_img}" "${work_dir}/mnt/${_src}"
+    _msg_info "Copying '${_fs_src}/' to '${work_dir}/mnt/${_src}/'"
+    rsync -aH "${_fs_src}/" "${work_dir}/mnt/${_src}/"
+    _umount_fs "${work_dir}/mnt/${_src}"
 }
 
+# Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
-    _imgcommon
+    if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
+         _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
+    fi
 
-    echo "Creating ISO image..."
-    qflag=""
-    [ "${QUIET}" = "y" ] && qflag="-quiet"
-    mkisofs ${qflag} -r -l \
-        -b syslinux/isolinux.bin -c syslinux/boot.cat \
+    _show_config iso
+
+    _is_directory_changed "${work_dir}/iso" "${img_name}"
+
+    _msg_info "Creating ISO image..."
+    local _qflag=""
+    if [[ ${quiet} == "y" ]]; then
+        _qflag="-quiet"
+    fi
+    mkisofs ${_qflag} -r -l \
+        -b isolinux/isolinux.bin -c isolinux/boot.cat \
         -uid 0 -gid 0 \
         -udf -allow-limited-size -iso-level 3 \
         -input-charset utf-8 -p "prepared by mkarchiso" \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -publisher "${PUBLISHER}" \
-        -A "${APPLICATION}" \
-        -V "${LABEL}" \
-        -o "${imgname}" "${work_dir}/iso/"
-    isohybrid "${imgname}"
+        -publisher "${iso_publisher}" \
+        -A "${iso_application}" \
+        -V "${iso_label}" \
+        -o "${img_name}" "${work_dir}/iso/"
+    isohybrid "${img_name}"
+    _msg_info "Done! | $(ls -sh ${img_name})"
 }
 
-# Go through the main commands in order. If 'all' was specified, then we want
-# to do everything. Start with 'install'.
-if [ "${command_name}" = "create"  ]; then
-    command_create
+# Parse aitab and create each filesystem specified on that, and push it in "iso" directory.
+command_prepare () {
+    if [[ ! -f "${work_dir}/iso/${install_dir}/aitab" ]]; then
+         _msg_error "The file '${work_dir}/iso/${install_dir}/aitab' does not exist." 1
+    fi
+    _show_config prepare
+
+    _cleanup
+    local _aitab_img _aitab_mnt _aitab_arch _aitab_sfs_comp _aitab_fs_type _aitab_fs_size
+    while read _aitab_img _aitab_mnt _aitab_arch _aitab_sfs_comp _aitab_fs_type _aitab_fs_size ; do
+        if [[ ${_aitab_img} =~ ^# ]]; then
+            continue
+        fi
+        if [[ ${_aitab_sfs_comp} == "none" && ${_aitab_fs_type} == "none" ]]; then
+            _msg_error "In aitab, both fields 'sfs_comp' and 'fs_type' are set to none for '${_aitab_img}' image" 1
+        fi
+        local _src="${work_dir}/${_aitab_img}"
+        local _dst="${work_dir}/iso/${install_dir}/${_aitab_arch}"
+        mkdir -p "${_dst}"
+        if [[ ${_aitab_fs_type} != "none" ]]; then
+            if [[ ${_aitab_sfs_comp} != "none" ]]; then
+                if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
+                    _mkfs ${_aitab_img} ${_aitab_fs_type} ${_aitab_fs_size}
+                    _mksfs ${_aitab_img}.fs ${_aitab_sfs_comp}
+                    mv "${_src}.fs.sfs" "${_dst}"
+                    rm "${_src}.fs"
+                fi
+            else
+                if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs"; then
+                    _mkfs ${_aitab_img} ${_aitab_fs_type} ${_aitab_fs_size}
+                    mv "${work_dir}/${_aitab_img}.fs" "${_dst}"
+                fi
+            fi
+        else
+            if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.sfs"; then
+                _mksfs ${_aitab_img} ${_aitab_sfs_comp}
+                mv "${work_dir}/${_aitab_img}.sfs" "${_dst}"
+            fi
+        fi
+    done < "${work_dir}/iso/${install_dir}/aitab"
+}
+
+# Install packages on root-image.
+# A basic check to avoid double execution/reinstallation is done via hashing package names.
+command_create () {
+    if [[ ! -f "${pacman_conf}" ]]; then
+        _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
+    fi
+
+    #trim spaces
+    pkg_list="$(echo ${pkg_list})"
+
+    if [[ -z ${pkg_list} ]]; then
+        _msg_error "Packages must be specified" 0
+        _usage 1
+    fi
+
+    _show_config create
+
+    local _pkg_list_hash
+    _pkg_list_hash=$(echo ${pkg_list} | sort -u | md5sum | cut -c1-32)
+    if [[ -f "${work_dir}/create.${_pkg_list_hash}" ]]; then
+        _msg_info "These packages are already installed, skipping."
+    else
+        mkdir -p "${work_dir}/root-image/"
+        : > "${work_dir}/create.${_pkg_list_hash}"
+        _pacman "${pkg_list}"
+    fi
+}
+
+
+if [[ ${EUID} -ne 0 ]]; then
+    _msg_error "This script must be run as root." 1
 fi
-if [ "${command_name}" = "iso" ]; then
-    command_iso
+
+while getopts 'p:C:L:P:A:D:fvh' arg; do
+    case "${arg}" in
+        p) pkg_list="${pkg_list} ${OPTARG}" ;;
+        C) pacman_conf="${OPTARG}" ;;
+        L) iso_label="${OPTARG}" ;;
+        P) iso_publisher="${OPTARG}" ;;
+        A) iso_application="${OPTARG}" ;;
+        D) install_dir="${OPTARG}" ;;
+        v) quiet="n" ;;
+        h|?) _usage 0 ;;
+        *)
+            _msg_error "Invalid argument '${arg}'" 0
+            _usage 1
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+if [[ $# -lt 1 ]]; then
+    _msg_error "No command specified" 0
+    _usage 1
 fi
+command_name="${1}"
+
+if [[ $# -lt 2 ]]; then
+    _msg_error "No working directory specified" 0
+    _usage 1
+fi
+work_dir="${2}"
+
+case "${command_name}" in
+    create)
+        command_create
+        ;;
+    prepare)
+        command_prepare
+        ;;
+    iso)
+        if [[ $# -lt 3 ]]; then
+            _msg_error "No image specified" 0
+            _usage 1
+        fi
+        img_name="${3}"
+        command_iso
+        ;;
+    *)
+        _msg_error "Invalid command name '${command_name}'" 0
+        _usage 1
+        ;;
+esac
 
 # vim:ts=4:sw=4:et:

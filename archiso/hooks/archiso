@@ -1,158 +1,165 @@
-# args: source, mountpoint
-_mnt_aufs() {
-    src="${1}"
-    mnt="${2}"
-    msg "::: Adding new aufs branch: ${src} to ${mnt}"
-    mkdir -p "${mnt}"
-    /bin/mount -t aufs -o remount,append:"${src}"=ro none "${mnt}"
+# Initialize loopback device logic (we using on-demand mode)
+# args: none
+_init_loop_dev() {
+    loop_dev_cnt=99
+}
+
+# Call this function before _make_loop_dev() each time.
+# args: none
+_next_loop_dev() {
+    loop_dev_cnt=$((loop_dev_cnt+1))
+}
+
+# Setup a loopback device for image passed as arguemnt and echo the path to loopback device used.
+# args: /path/to/image_file
+_make_loop_dev() {
+    local img="${1}"
+    mknod /dev/loop${loop_dev_cnt} b 7 ${loop_dev_cnt} &> /dev/null
+    losetup /dev/loop${loop_dev_cnt} "${img}" &> /dev/null
+    echo /dev/loop${loop_dev_cnt}
 }
 
 # args: source, mountpoint
-_mnt_bind() {
-    src="${1}"
-    mnt="${2}"
-    msg "::: Binding ${src} to ${mnt}"
+_mnt_fs() {
+    local img="${1}"
+    local mnt="${2}"
+    local img_fullname="${img##*/}";
+    local img_name="${img_fullname%%.*}"
+    local ro_dev ro_dev_size ro_dev_fs_type rw_dev
+
     mkdir -p "${mnt}"
-    /bin/mount -o bind "${src}" "${mnt}"
+
+    _next_loop_dev
+    ro_dev=$(_make_loop_dev "${img}")
+    ro_dev_size=$(blockdev --getsz ${ro_dev})
+    ro_dev_fs_type=$(blkid -o value -s TYPE -p ${ro_dev} 2> /dev/null)
+
+    dd of="/cowspace/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+    _next_loop_dev
+    rw_dev=$(_make_loop_dev "/cowspace/${img_name}.cow")
+
+    echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} N 8" | dmsetup create ${img_name}
+
+    msg ":: Mounting '/dev/mapper/${img_name}' (${ro_dev_fs_type}) to '${mnt}'"
+    if ! mount -t "${ro_dev_fs_type}" "/dev/mapper/${img_name}" "${mnt}" ; then
+        echo "ERROR: while mounting '/dev/mapper/${img_name}' to '${mnt}'"
+        launch_interactive_shell
+    fi
 }
 
 # args: /path/to/image_file, mountpoint
-_mnt_squashfs() {
-    img="${1}"
-    mnt="${2}"
-    img_fullname="${img##*/}";
-    img_name="${img_fullname%.*}"
-    tmp_mnt="/ro_branch/${img_name}"
+_mnt_sfs() {
+    local img="${1}"
+    local mnt="${2}"
+    local img_fullname="${img##*/}";
 
-    if [ "${copytoram}" = "y" ]; then
+    mkdir -p "${mnt}"
+
+    if [[ "${copytoram}" == "y" ]]; then
         msg -n ":: Copying squashfs image to RAM..."
-        /bin/cp "${img}" "/copytoram/${img_fullname}"
-        if [ $? -ne 0 ]; then
-            echo "ERROR: while copy ${img} to /copytoram/${img_fullname}"
+        if ! cp "${img}" "/copytoram/${img_fullname}" ; then
+            echo "ERROR: while copy '${img}' to '/copytoram/${img_fullname}'"
             launch_interactive_shell
         fi
         img="/copytoram/${img_fullname}"
         msg "done."
     fi
-
-    mkdir -p "${tmp_mnt}"
-    /bin/mount -r -t squashfs "${img}" "${tmp_mnt}"
-    if [ $? -ne 0 ]; then
-        echo "ERROR: while mounting ${img} to ${tmp_mnt}"
+    _next_loop_dev
+    msg ":: Mounting '${img}' (SquashFS) to '${mnt}'"
+    if ! mount -r -t squashfs $(_make_loop_dev "${img}") "${mnt}" &> /dev/null ; then
+        echo "ERROR: while mounting '${img}' to '${mnt}'"
         launch_interactive_shell
-    fi
-
-    if [ "/${mnt#/*/}" = "/" ]; then
-        _mnt_aufs "${tmp_mnt}" "${mnt}"
-    else
-        _mnt_bind "${tmp_mnt}" "${mnt}"
     fi
 }
 
 run_hook() {
-    if [ "x${arch}" = "x" ]; then
-        arch="$(uname -m)"
-    fi
-
-    if [ "x${rw_branch_size}" = "x" ]; then
-        rw_branch_size="75%"
-    fi
-
-    if [ "x${copytoram_size}" = "x" ]; then
-        copytoram_size="75%"
-    fi
-
-    if [ "x${archisobasedir}" = "x" ]; then
-        archisobasedir="arch"
-    fi
-
-    if [ "x${isomounts}" != "x" ]; then
-        isomounts="/bootmnt/${isomounts}"
+    [[ -z "${arch}" ]] && arch="$(uname -m)"
+    [[ -z "${cowspace_size}" ]] && cowspace_size="75%"
+    [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
+    [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
+    [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
+    if [[ -z "${aitab}" ]]; then
+        aitab="/bootmnt/${archisobasedir}/aitab"
     else
-        isomounts="/bootmnt/${archisobasedir}/isomounts"
+        aitab="/bootmnt/${aitab}"
     fi
-
-    if [ "x${archisodevice}" = "x" ]; then
-        archisodevice="/dev/disk/by-label/${archisolabel}"
-    fi
-
     # set mount handler for archiso
     mount_handler="archiso_mount_handler"
 }
 
+# This function is called normally from init script, but it can be called
+# as chain from other mount handlers.
+# args: /path/to/newroot
 archiso_mount_handler() {
-    newroot="${1}"
+    local newroot="${1}"
+    local fstype fserror
+
+    _init_loop_dev
 
     msg ":: Waiting for boot device..."
-    while ! poll_device ${archisodevice} 30; do
+    while ! poll_device "${archisodevice}" 30; do
         echo "ERROR: boot device didn't show up after 30 seconds..."
         echo "   Falling back to interactive prompt"
         echo "   You can try to fix the problem manually, log out when you are finished"
         launch_interactive_shell
     done
 
-    FSTYPE=$(blkid -o value -s TYPE -p ${archisodevice} 2> /dev/null)
-    if [ -n "${FSTYPE}" ]; then
-        if mount -r -t "${FSTYPE}" ${archisodevice} /bootmnt > /dev/null 2>&1; then
-            if [ -e "${isomounts}" ]; then
-                echo "SUCCESS: Mounted archiso volume successfully."
-                fserror="0"
+    fstype=$(blkid -o value -s TYPE -p "${archisodevice}" 2> /dev/null)
+    if [[ -n "${fstype}" ]]; then
+        if mount -r -t "${fstype}" "${archisodevice}" /bootmnt; then
+            if [[ -f "${aitab}" ]]; then
+                msg ":: Mounted archiso volume successfully."
+                fserror=0
             else
-                echo "ERROR: Mounting was successful, but the ${isomounts} file does not exist."
-                fserror="1"
+                echo "ERROR: Mounting was successful, but the '${aitab}' file does not exist."
+                fserror=1
             fi
         else
-            echo "ERROR; Failed to mount ${archisodevice} (FS is ${FSTYPE})"
-            fserror="1"
+            echo "ERROR; Failed to mount '${archisodevice}' (FS is ${fstype})"
+            fserror=1
         fi
     else
-        echo "ERROR: ${archisodevice} found, but the filesystem type is unknown."
-        fserror="1"
+        echo "ERROR: '${archisodevice}' found, but the filesystem type is unknown."
+        fserror=1
     fi
 
-    if [ "${fserror}" = "1" ]; then
+    if [[ ${fserror} -eq 1 ]]; then
         echo "   Falling back to interactive prompt"
         echo "   You can try to fix the problem manually, log out when you are finished"
         launch_interactive_shell
     fi
 
-    if [ "${copytoram}" = "y" ]; then
+    if [[ "${copytoram}" == "y" ]]; then
         msg -n ":: Mounting /copytoram (tmpfs) filesystem, size=${copytoram_size}..."
         mount -t tmpfs -o "size=${copytoram_size}",mode=0755 copytoram /copytoram
         msg "done."
     fi
 
-    msg -n ":: Mounting rw_branch (tmpfs) filesystem, size=${rw_branch_size}..."
-    mount -t tmpfs -o "size=${rw_branch_size}",mode=0755 rw_branch /rw_branch
+    msg -n ":: Mounting /cowspace (tmpfs) filesystem, size=${cowspace_size}..."
+    mount -t tmpfs -o "size=${cowspace_size}",mode=0755 cowspace /cowspace
     msg "done."
 
-    msg ":: Mounting root (aufs) filesystem"
-    /bin/mount -t aufs -o dirs=/rw_branch=rw union "${newroot}"
-    if [ $? -ne 0 ]; then
-        echo "ERROR: while mounting root (aufs) filesystem."
-        launch_interactive_shell
-    fi
-
-    msg ":: Mounting images"
-    while read img imgarch mountpoint type; do
-        # check if this line is a comment (starts with #)
-        [ "${img#"#"}" != "${img}" ] && continue
-
-        [ "$imgarch" != "$arch" ] && continue
-
-        [ ! -r "/bootmnt/${archisobasedir}/${img}" ] && continue
-
-        if [ "${type}" = "bind" ]; then
-            _mnt_bind "/bootmnt/${archisobasedir}/${img}" "${newroot}${mountpoint}"
-        elif [ "${type}" = "squashfs" ]; then
-            _mnt_squashfs "/bootmnt/${archisobasedir}/${img}" "${newroot}${mountpoint}"
+    local aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size
+    while read aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size; do
+        [[ "${aitab_img#\#}" != "${aitab_img}" ]] && continue
+        [[ "${aitab_arch}" != "any" && "${aitab_arch}" != "${arch}" ]] && continue
+        if [[ "${aitab_fs_type}" != "none" ]]; then
+            if [[ "${aitab_sfs_comp}" != "none" ]]; then
+                _mnt_sfs "/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/sfs/${aitab_img}"
+                _mnt_fs "/sfs/${aitab_img}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
+            else
+                _mnt_fs "/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
+            fi
+        else
+            _mnt_sfs "/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "${newroot}${aitab_mnt}"
         fi
-    done < "${isomounts}"
+    done < "${aitab}"
 
-    if [ "${copytoram}" = "y" ]; then
-        /bin/umount /bootmnt
+    if [[ "${copytoram}" == "y" ]]; then
+        umount /bootmnt
     else
-        _mnt_bind /bootmnt "${newroot}/bootmnt"
+        mkdir "${newroot}/bootmnt"
+        mount --bind /bootmnt "${newroot}/bootmnt"
     fi
 }
 

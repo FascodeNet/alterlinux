@@ -1,0 +1,2 @@
+# <file system>        <dir>         <type>    <options>          <dump> <pass>
+/dev/mapper/root-image /             auto      defaults           0      0

@@ -1,5 +1,0 @@
-#
-# /etc/fstab: static file system information
-#
-# <file system>        <dir>         <type>    <options>          <dump> <pass>
-union                  /             auto      noauto              0      0

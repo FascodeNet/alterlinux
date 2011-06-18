@@ -1,0 +1,117 @@
+Archiso For Dummies Like Me and You
+-------------------------------------
+
+
+- What the hell is Archiso?
+
+Archiso is a small set of bash scripts that is capable of building fully
+functional Arch Linux based live CDs. It is a very generic tool, so it
+could potentially be used to generate anything from rescue systems,
+to install disks, to special interest live CD systems, and who knows what
+else. Simply put, if it involves Arch on a shiny coaster, it can do it.
+
+
+- Alright, so how does one install it?
+
+First off, Archiso has some dependencies:
+    - mkinitcpio
+    - cdrkit
+    - squashfs-tools
+    - aufs2 (only needed in target media)
+    - aufs2-util (only needed in target media)
+    - devtools for mkarchroot
+    - syslinux
+    - nbd
+    - mkinitcpio-nfs-utils
+
+Archiso itself can be installed with the handy dandy included Makefile,
+and the incantation 'make install'.
+
+
+- Great, so how do you use this thing?
+
+The heart and soul of Archiso is mkarchiso. All of its options are
+documented in its usage output, so we won't go into detail here.
+Instead, let's go over the general process.
+
+The first thing you should probably do is create a directory to work
+in, and cd to it. This'll help keep things organized. Next, you'll want
+to create a mkinitcpio config file that suits your needs. Typically this
+means modifying whatever hooks you want. A typical set of hooks for
+archiso looks something like this:
+
+HOOKS="base udev archiso pata scsi sata usb fw pcmcia filesystems usbinput"
+
+It's probably worth mentioning that hardware autodetection and things
+of that nature do not belong here. Only what's necessary to get the system
+on its feet, and out of the initcpio really belong here, fancier stuff
+can be done on the booted system anyway.
+
+You'll also want to create a list of packages you want installed on your
+live CD system. A file full of package names, one-per-line, is the format
+for this. Typically you'll want BASE and a kernel as a bare minimum, but
+you're free to install whatever else you want. This is *great* for
+special interest live CDs, just specify packages you want and gogogo.
+
+The last item of importance is what are called addons. Basically this
+means any other crap you might want to include on your live CD, including
+binary package repos, special configurations, random files, we don't
+know, be creative. mkarchiso expects them all to be put in a single
+directory, with an fstab-like config file. Currently two types of addons
+are supported, squashfs images that get layered onto the root union, and
+plain directories which can be bind mounted anywhere under the root.
+
+If you want to add a squashfs union layer:
+- Set up whatever you want to include in a separate directory someplace,
+  as if that directory was / . Then run mksquahfs on it, and copy the
+  created image to your addons directory.
+- Add an entry to your addons config file (which must be named 'config',
+  by the way). Typical squashfs entries look like this:
+  live_overlay.sqfs       /                   squashfs
+  Where the first component is the path to the image relative to your
+  addons directory, the second is the mountpoint (irrelevant for
+  squashfs, they will all get layered at /) and of course the third
+  component is the type.
+- Be aware that the order of entries on the config matters! Entries will
+  be layered on top of one another, later entries are mounted _UNDER_
+  earlier entries (an unfortunate counterintuitive result of the way we
+  have to mount the unions).
+
+If you want to add plain directories to bind mount:
+- Set up your directory somewhere, and copy it to your addon directory.
+- Add an entry to your addons config file, example entry:
+  core                    /packages           bind
+  where the first component is the path to the directory relative to
+  your addons directory, the second component is where you'd like it
+  bind-mounted relative to the live CD's root filesystem, and the last
+  component is the type.
+
+
+- How can build installation mediums like provided by Arch Linux?
+
+- Just follow these next steps as root.
+- Note that mkarchroot is optional, but with it, will ensure to have
+  a clean enviroment for building isos.
+- This clean chroot, will take about 400MB (+130MB with all needed tools).
+- After make, max space usage is about 2GB.
+- In last step instead of just execute make, can be more selective:
+  Execute "make net-iso" or make "core-iso".
+  Do not execute make net-iso after make core-iso, otherwise net-iso
+  will be really a core-iso.
+
+
+pacman -S devtools --needed
+mkarchroot /tmp/somedir base
+mkarchroot -r bash /tmp/somedir
+# vi/nano /etc/pacman.d/mirrorlist and uncomment your prefered mirror.
+pacman -S git squashfs-tools syslinux devtools cdrkit make nbd mkinitcpio-nfs-utils
+cd /tmp
+git clone git://projects.archlinux.org/archiso.git
+cd archiso/archiso
+make install
+cd ../configs/syslinux-iso/
+make
+
+Done!
+
+vim: textwidth=72

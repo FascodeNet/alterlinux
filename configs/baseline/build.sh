@@ -1,0 +1,97 @@
+#!/bin/bash
+
+set -e -u
+
+name=archlinux
+iso_label="ARCH_$(date +%Y%m)"
+version=$(date +%Y.%m.%d)
+install_dir=arch
+arch=$(uname -m)
+work_dir=work
+verbose="n"
+
+# This function can be called after make_basefs()
+get_linux_ver() {
+    local ALL_kver
+    eval $(grep ^ALL_kver ${work_dir}/root-image/etc/mkinitcpio.d/kernel26.kver)
+    echo ${ALL_kver}
+}
+
+# Base installation (root-image)
+make_basefs() {
+    mkarchiso ${verbose} -D "${install_dir}" -p "base" create "${work_dir}"
+    mkarchiso ${verbose} -D "${install_dir}" -p "syslinux" create "${work_dir}"
+}
+
+# Customize installation (root-image)
+make_customize_root_image() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        cp -af root-image ${work_dir}
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
+
+# Prepare ${install_dir}/boot/
+make_boot() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        mkdir -p ${work_dir}/iso/${install_dir}/boot/${arch}
+        cp ${work_dir}/root-image/boot/vmlinuz26 ${work_dir}/iso/${install_dir}/boot/${arch}
+        mkinitcpio -c ./mkinitcpio.conf -b ${work_dir}/root-image -k $(get_linux_ver) -g ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
+
+# Prepare /${install_dir}/boot/syslinux
+make_syslinux() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        mkdir -p ${work_dir}/iso/${install_dir}/boot/syslinux
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g;
+            s|%ARCH%|${arch}|g" syslinux/syslinux.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/syslinux.cfg
+        cp ${work_dir}/root-image/usr/lib/syslinux/menu.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
+
+# Prepare /isolinux
+make_isolinux() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        mkdir -p ${work_dir}/iso/isolinux
+        sed "s|%INSTALL_DIR%|${install_dir}|g" isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
+        cp ${work_dir}/root-image/usr/lib/syslinux/isolinux.bin ${work_dir}/iso/isolinux/
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
+
+# Process aitab
+make_aitab() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        sed "s|%ARCH%|${arch}|g" aitab > ${work_dir}/iso/${install_dir}/aitab
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
+
+# Build all filesystem images specified in aitab (.fs .fs.sfs .sfs)
+make_prepare() {
+    mkarchiso ${verbose} -D "${install_dir}" prepare "${work_dir}"
+}
+
+# Build ISO
+make_iso() {
+    mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${name}-${version}-${arch}.iso"
+}
+
+if [[ $verbose == "y" ]]; then
+    verbose="-v"
+else
+    verbose=""
+fi
+
+make_basefs
+make_customize_root_image
+make_boot
+make_syslinux
+make_isolinux
+make_aitab
+make_prepare
+make_iso

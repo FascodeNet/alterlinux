@@ -1,0 +1,4 @@
+# <img>         <mnt>                 <arch>   <sfs_comp>  <fs_type>  <fs_size>
+root-image      /                     %ARCH%   xz          ext4       50%
+lib-modules     /lib/modules          %ARCH%   xz          ext4       10%
+usr-share       /usr/share            any      xz          ext4       50%

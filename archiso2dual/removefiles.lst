@@ -1,7 +1,0 @@
-# files/directories to remove from root-image.sqfs
-boot
-usr/include
-usr/share/doc
-usr/share/info
-usr/share/man
-usr/src

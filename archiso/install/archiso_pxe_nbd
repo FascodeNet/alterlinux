@@ -2,8 +2,12 @@
 
 install ()
 {
-    MODULES="nbd $(checked_modules "/drivers/net/" | grep -v -e "/irda/" -e "/phy/" -e "/plip" -e "/ppp" -e "/wimax/" -e "/wireless/") "
-
+    MODULES="nbd"
+    MODULES="${MODULES} $(comm -2 -3 <(checked_modules "/drivers/net/" | sort) \
+                                     <(find $MODULEDIR/kernel/drivers/net/{irda,phy,wimax,wireless} \
+                                            -name '*.ko*' \
+                                            -exec bash -c 'printf "%s\n" "${@%%.ko*}" | sed "s@.*/@@;s@-@_@" | sort' _ {} +) \
+                                     | grep -v -e 'ppp_' -e 'plip' -e 'pppoe')"
     BINARIES=""
     FILES=""
     SCRIPT="archiso_pxe_nbd"
