@@ -86,5 +86,7 @@ archiso_pxe_nbd_mount_handler () {
     if [ "${copytoram}" = "y" ]; then
         msg "::: Disconnect NBD from ${nbdserver} at /dev/nbd0"
         nbd-client -d /dev/nbd0
+    else
+        pidof nbd-client > /run/nbd_client.pid
     fi
 }
