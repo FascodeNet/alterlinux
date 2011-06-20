@@ -1,22 +1,26 @@
 # Initialize loopback device logic (we using on-demand mode)
 # args: none
 _init_loop_dev() {
-    loop_dev_cnt=99
+    modprobe loop
+    loop_dev_count=99
+    loop_dev_range=$(cat /sys/block/loop0/range)
+    loop_dev_minor=$((loop_dev_count*loop_dev_range))
 }
 
 # Call this function before _make_loop_dev() each time.
 # args: none
 _next_loop_dev() {
-    loop_dev_cnt=$((loop_dev_cnt+1))
+    loop_dev_count=$((loop_dev_count+1))
+    loop_dev_minor=$((loop_dev_count*loop_dev_range))
 }
 
-# Setup a loopback device for image passed as arguemnt and echo the path to loopback device used.
+# Setup a loopback device for image passed as argument and echo the path to loopback device used.
 # args: /path/to/image_file
 _make_loop_dev() {
     local img="${1}"
-    mknod /dev/loop${loop_dev_cnt} b 7 ${loop_dev_cnt} &> /dev/null
-    losetup /dev/loop${loop_dev_cnt} "${img}" &> /dev/null
-    echo /dev/loop${loop_dev_cnt}
+    mknod /dev/loop${loop_dev_count} b 7 ${loop_dev_minor} &> /dev/null
+    losetup /dev/loop${loop_dev_count} "${img}" &> /dev/null
+    echo /dev/loop${loop_dev_count}
 }
 
 # args: source, mountpoint
