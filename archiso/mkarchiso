@@ -147,7 +147,7 @@ _show_config () {
 # Install desired packages to root-image
 _pacman ()
 {
-    _msg_info "Installing packages to '${work_dir}/root-image/'"
+    _msg_info "Installing packages to '${work_dir}/root-image/'..."
 
     if [[ "${quiet}" = "y" ]]; then
         mkarchroot -n -C "${pacman_conf}" -f "${work_dir}/root-image" $* &> /dev/null
@@ -157,6 +157,7 @@ _pacman ()
 
     # Cleanup
     find "${work_dir}" -name "*.pacnew" -name "*.pacsave" -name "*.pacorig" -delete
+    _msg_info "Packages installed successfully!"
 }
 
 # Cleanup root-image
@@ -374,8 +375,8 @@ command_create () {
         _msg_info "These packages are already installed, skipping."
     else
         mkdir -p "${work_dir}/root-image/"
-        : > "${work_dir}/create.${_pkg_list_hash}"
         _pacman "${pkg_list}"
+        : > "${work_dir}/create.${_pkg_list_hash}"
     fi
 }
 
