@@ -250,6 +250,7 @@ _mkfs () {
     fi
 
     _msg_info "Creating ${_fs_type} image of ${_fs_size} MiB"
+    rm -f "${_fs_img}"
     dd of="${_fs_img}" count=0 bs=1M seek=${_fs_size} &> /dev/null
     local _qflag=""
     if [[ ${quiet} == "y" ]]; then
