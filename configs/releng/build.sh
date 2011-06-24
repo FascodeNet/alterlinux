@@ -34,9 +34,6 @@ make_customize_root_image() {
         cp -af root-image ${work_dir}
         chmod 750 ${work_dir}/root-image/etc/sudoers.d
         chmod 440 ${work_dir}/root-image/etc/sudoers.d/g_wheel
-        if [[ ! -L ${work_dir}/root-image/etc/mtab ]]; then
-            rm -f ${work_dir}/root-image/etc/mtab
-        fi
         mkdir -p ${work_dir}/root-image/etc/pacman.d
         wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist

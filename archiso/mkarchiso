@@ -191,6 +191,10 @@ _cleanup () {
     if [[ -d "${work_dir}/root-image/tmp" ]]; then
         find "${work_dir}/root-image/tmp" -mindepth 1 -delete
     fi
+    # Delete etc/mtab if not is a symlink.
+    if [[ ! -L "${work_dir}/root-image/etc/mtab" ]]; then
+        rm -f "${work_dir}/root-image/etc/mtab"
+    fi
 }
 
 # Makes a SquashFS filesystem image of file/directory passes as argument with desired compression.
