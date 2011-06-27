@@ -1,6 +1,6 @@
 # vim: set ft=sh:
 
-install ()
+build ()
 {
     MODULES=""
 

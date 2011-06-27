@@ -10,17 +10,10 @@ arch=$(uname -m)
 work_dir=work
 verbose="n"
 
-# This function can be called after make_basefs()
-get_linux_ver() {
-    local ALL_kver
-    eval $(grep ^ALL_kver ${work_dir}/root-image/etc/mkinitcpio.d/kernel26.kver)
-    echo ${ALL_kver}
-}
-
 # Base installation (root-image)
 make_basefs() {
     mkarchiso ${verbose} -D "${install_dir}" -p "base" create "${work_dir}"
-    mkarchiso ${verbose} -D "${install_dir}" -p "memtest86+ syslinux" create "${work_dir}"
+    mkarchiso ${verbose} -D "${install_dir}" -p "memtest86+ syslinux mkinitcpio-nfs-utils nbd" create "${work_dir}"
 }
 
 # Additional packages (root-image)
@@ -41,14 +34,30 @@ make_customize_root_image() {
     fi
 }
 
+# Copy mkinitcpio archiso hooks (root-image)
+make_setup_mkinitcpio() {
+   if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        local _hook
+        for _hook in archiso archiso_pxe_nbd archiso_loop_mnt; do
+            cp /lib/initcpio/hooks/${_hook} ${work_dir}/root-image/lib/initcpio/hooks
+            cp /lib/initcpio/install/${_hook} ${work_dir}/root-image/lib/initcpio/install
+        done
+        : > ${work_dir}/build.${FUNCNAME}
+   fi
+}
+
 # Prepare ${install_dir}/boot/
 make_boot() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         local _src=${work_dir}/root-image
         local _dst_boot=${work_dir}/iso/${install_dir}/boot
         mkdir -p ${_dst_boot}/${arch}
-        cp ${_src}/boot/vmlinuz26 ${_dst_boot}/${arch}
-        mkinitcpio -c ./mkinitcpio.conf -b ${_src} -k $(get_linux_ver) -g ${_dst_boot}/${arch}/archiso.img
+        mkinitcpio \
+            -c ./mkinitcpio.conf \
+            -b ${_src} \
+            -k /boot/vmlinuz26 \
+            -g ${_dst_boot}/${arch}/archiso.img
+        mv ${_src}/boot/vmlinuz26 ${_dst_boot}/${arch}
         cp ${_src}/boot/memtest86+/memtest.bin ${_dst_boot}/memtest
         cp ${_src}/usr/share/licenses/common/GPL2/license.txt ${_dst_boot}/memtest.COPYING
         : > ${work_dir}/build.${FUNCNAME}
@@ -71,7 +80,7 @@ make_syslinux() {
         cp ${_src_syslinux}/memdisk ${_dst_syslinux}
         mkdir -p ${_dst_syslinux}/hdt
         wget -O - http://pciids.sourceforge.net/v2.2/pci.ids | gzip -9 > ${_dst_syslinux}/hdt/pciids.gz
-        cat ${work_dir}/root-image/lib/modules/$(get_linux_ver)/modules.alias | gzip -9 > ${_dst_syslinux}/hdt/modalias.gz
+        cat ${work_dir}/root-image/lib/modules/*-ARCH/modules.alias | gzip -9 > ${_dst_syslinux}/hdt/modalias.gz
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -233,6 +242,7 @@ make_common_single() {
     make_basefs
     make_packages
     make_customize_root_image
+    make_setup_mkinitcpio
     make_boot
     make_syslinux
     make_isolinux

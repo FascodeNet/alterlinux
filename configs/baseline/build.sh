@@ -10,13 +10,6 @@ arch=$(uname -m)
 work_dir=work
 verbose="n"
 
-# This function can be called after make_basefs()
-get_linux_ver() {
-    local ALL_kver
-    eval $(grep ^ALL_kver ${work_dir}/root-image/etc/mkinitcpio.d/kernel26.kver)
-    echo ${ALL_kver}
-}
-
 # Base installation (root-image)
 make_basefs() {
     mkarchiso ${verbose} -D "${install_dir}" -p "base" create "${work_dir}"
@@ -31,12 +24,25 @@ make_customize_root_image() {
     fi
 }
 
+# Copy mkinitcpio archiso hooks (root-image)
+make_setup_mkinitcpio() {
+   if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        cp /lib/initcpio/hooks/archiso ${work_dir}/root-image/lib/initcpio/hooks
+        cp /lib/initcpio/install/archiso ${work_dir}/root-image/lib/initcpio/install
+        : > ${work_dir}/build.${FUNCNAME}
+   fi
+}
+
 # Prepare ${install_dir}/boot/
 make_boot() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         mkdir -p ${work_dir}/iso/${install_dir}/boot/${arch}
+        mkinitcpio \
+            -c ./mkinitcpio.conf \
+            -b ${work_dir}/root-image \
+            -k /boot/vmlinuz26 \
+            -g ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
         cp ${work_dir}/root-image/boot/vmlinuz26 ${work_dir}/iso/${install_dir}/boot/${arch}
-        mkinitcpio -c ./mkinitcpio.conf -b ${work_dir}/root-image -k $(get_linux_ver) -g ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -89,6 +95,7 @@ fi
 
 make_basefs
 make_customize_root_image
+make_setup_mkinitcpio
 make_boot
 make_syslinux
 make_isolinux

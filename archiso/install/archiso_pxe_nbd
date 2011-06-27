@@ -1,6 +1,6 @@
 # vim: set ft=sh:
 
-install ()
+build ()
 {
     MODULES="nbd"
     MODULES="${MODULES} $(comm -2 -3 <(checked_modules "/drivers/net/" | sort) \

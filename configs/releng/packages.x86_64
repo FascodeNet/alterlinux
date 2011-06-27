@@ -17,7 +17,6 @@ ipw2100-fw
 ipw2200-fw
 lftp
 lilo
-nbd
 netcfg
 nfs-utils
 nilfs-utils
