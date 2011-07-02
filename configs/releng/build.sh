@@ -31,6 +31,7 @@ make_customize_root_image() {
         wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
         chroot ${work_dir}/root-image /usr/sbin/locale-gen
+        chroot ${work_dir}/root-image /usr/sbin/useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }

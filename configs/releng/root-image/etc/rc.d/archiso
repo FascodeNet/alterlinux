@@ -2,14 +2,6 @@
 . /etc/rc.conf
 . /etc/rc.d/functions
 
-do_makeuser ()
-{
-    stat_busy "Making the default user arch"
-    addgroups="audio,disk,optical,wheel"
-    useradd -m -p "" -g users -G $addgroups arch
-    stat_done
-}
-
 do_locale_gen ()
 {
     if [[ ${LOCALE} != "en_US.UTF-8" ]]; then
@@ -43,7 +35,6 @@ do_special_console()
 case "$1" in
   start)
     do_locale_gen
-    do_makeuser
     do_special_console
     ;;
 esac
