@@ -30,6 +30,7 @@ make_customize_root_image() {
         mkdir -p ${work_dir}/root-image/etc/pacman.d
         wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
+        chroot ${work_dir}/root-image /usr/sbin/locale-gen
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
