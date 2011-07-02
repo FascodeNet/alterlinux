@@ -7,6 +7,7 @@ ddrescue
 dhclient
 dialog
 dmraid
+dnsmasq
 dnsutils
 dosfstools
 elinks
@@ -28,6 +29,7 @@ openssh
 openvpn
 parted
 pptpclient
+rp-pppoe
 rsync
 speedtouch
 tcpdump
