@@ -55,6 +55,8 @@ run_hook () {
 
         nbdserver=${rootserver}
 
+        [[ -z "${archiso_nbd_name}" ]] && archiso_nbd_name="archiso"
+
         mount_handler="archiso_pxe_nbd_mount_handler"
     fi
 }
@@ -74,9 +76,9 @@ archiso_pxe_nbd_mount_handler () {
 
     msg "::: Setup NBD from ${nbdserver} at /dev/nbd0"
     if [ "${copytoram}" = "y" ]; then
-        nbd-client ${nbdserver} -N archiso /dev/nbd0
+        nbd-client ${nbdserver} -N ${archiso_nbd_name} /dev/nbd0
     else
-        nbd-client ${nbdserver} -N archiso /dev/nbd0 -persist
+        nbd-client ${nbdserver} -N ${archiso_nbd_name} /dev/nbd0 -persist
     fi
 
     archisodevice=/dev/nbd0

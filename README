@@ -59,6 +59,8 @@ INDEX
                     when option "IPAPPEND" is set to 2 or 3 in config.
                     BOOTIF=<hardware-address-of-boot-interface>
                     Default: (set via PXELINUX)
+* archiso_nbd_name= Set NBD export name used by the server.
+                    Default: archiso
 
 
 ** hooks/archiso_loop_mnt
