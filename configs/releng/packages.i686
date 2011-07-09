@@ -25,6 +25,7 @@ nmap
 ntfs-3g
 ntfsprogs
 ntp
+openconnect
 openssh
 openvpn
 parted
@@ -33,6 +34,7 @@ rp-pppoe
 rsync
 speedtouch
 tcpdump
+vpnc
 wireless_tools
 wpa_actiond
 zd1211-firmware
