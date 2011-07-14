@@ -10,6 +10,8 @@ arch=$(uname -m)
 work_dir=work
 verbose="n"
 
+script_path=$(readlink -f ${0%/*})
+
 # Base installation (root-image)
 make_basefs() {
     mkarchiso ${verbose} -D "${install_dir}" -p "base" create "${work_dir}"
@@ -30,7 +32,7 @@ make_boot() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         mkdir -p ${work_dir}/iso/${install_dir}/boot/${arch}
         mkinitcpio \
-            -c ./mkinitcpio.conf \
+            -c ${script_path}/mkinitcpio.conf \
             -b ${work_dir}/root-image \
             -k /boot/vmlinuz-linux \
             -g ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
@@ -45,7 +47,7 @@ make_syslinux() {
         mkdir -p ${work_dir}/iso/${install_dir}/boot/syslinux
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g;
-            s|%ARCH%|${arch}|g" syslinux/syslinux.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/syslinux.cfg
+            s|%ARCH%|${arch}|g" ${script_path}/syslinux/syslinux.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/syslinux.cfg
         cp ${work_dir}/root-image/usr/lib/syslinux/menu.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
         : > ${work_dir}/build.${FUNCNAME}
     fi
@@ -55,7 +57,7 @@ make_syslinux() {
 make_isolinux() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         mkdir -p ${work_dir}/iso/isolinux
-        sed "s|%INSTALL_DIR%|${install_dir}|g" isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
+        sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
         cp ${work_dir}/root-image/usr/lib/syslinux/isolinux.bin ${work_dir}/iso/isolinux/
         : > ${work_dir}/build.${FUNCNAME}
     fi
@@ -64,7 +66,7 @@ make_isolinux() {
 # Process aitab
 make_aitab() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        sed "s|%ARCH%|${arch}|g" aitab > ${work_dir}/iso/${install_dir}/aitab
+        sed "s|%ARCH%|${arch}|g" ${script_path}/aitab > ${work_dir}/iso/${install_dir}/aitab
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }

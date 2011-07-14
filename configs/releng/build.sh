@@ -10,6 +10,8 @@ arch=$(uname -m)
 work_dir=work
 verbose="n"
 
+script_path=$(readlink -f ${0%/*})
+
 # Base installation (root-image)
 make_basefs() {
     mkarchiso ${verbose} -D "${install_dir}" -p "base" create "${work_dir}"
@@ -18,13 +20,13 @@ make_basefs() {
 
 # Additional packages (root-image)
 make_packages() {
-    mkarchiso ${verbose} -D "${install_dir}" -p "$(grep -v ^# packages.${arch})" create "${work_dir}"
+    mkarchiso ${verbose} -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" create "${work_dir}"
 }
 
 # Customize installation (root-image)
 make_customize_root_image() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        cp -af root-image ${work_dir}
+        cp -af ${script_path}/root-image ${work_dir}
         chmod 750 ${work_dir}/root-image/etc/sudoers.d
         chmod 440 ${work_dir}/root-image/etc/sudoers.d/g_wheel
         mkdir -p ${work_dir}/root-image/etc/pacman.d
@@ -55,7 +57,7 @@ make_boot() {
         local _dst_boot=${work_dir}/iso/${install_dir}/boot
         mkdir -p ${_dst_boot}/${arch}
         mkinitcpio \
-            -c ./mkinitcpio.conf \
+            -c ${script_path}/mkinitcpio.conf \
             -b ${_src} \
             -k /boot/vmlinuz-linux \
             -g ${_dst_boot}/${arch}/archiso.img
@@ -74,8 +76,8 @@ make_syslinux() {
         mkdir -p ${_dst_syslinux}
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g;
-            s|%ARCH%|${arch}|g" syslinux/syslinux.cfg > ${_dst_syslinux}/syslinux.cfg
-        cp syslinux/splash.png ${_dst_syslinux}
+            s|%ARCH%|${arch}|g" ${script_path}/syslinux/syslinux.cfg > ${_dst_syslinux}/syslinux.cfg
+        cp ${script_path}/syslinux/splash.png ${_dst_syslinux}
         cp ${_src_syslinux}/*.c32 ${_dst_syslinux}
         cp ${_src_syslinux}/*.com ${_dst_syslinux}
         cp ${_src_syslinux}/*.0 ${_dst_syslinux}
@@ -91,7 +93,7 @@ make_syslinux() {
 make_isolinux() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         mkdir -p ${work_dir}/iso/isolinux
-        sed "s|%INSTALL_DIR%|${install_dir}|g" isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
+        sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
         cp ${work_dir}/root-image/usr/lib/syslinux/isolinux.bin ${work_dir}/iso/isolinux/
         : > ${work_dir}/build.${FUNCNAME}
     fi
@@ -120,7 +122,7 @@ make_core_repo() {
         mkdir -p ${work_dir}/repo-core-any
         mkdir -p ${work_dir}/repo-core-${arch}
         pacman -Sy
-        _urls=$(pacman -Sddp $(comm -2 -3 <(pacman -Sql core | sort ) <(grep -v ^# core.exclude.${arch} | sort)))
+        _urls=$(pacman -Sddp $(comm -2 -3 <(pacman -Sql core | sort ) <(grep -v ^# ${script_path}/core.exclude.${arch} | sort)))
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _cached_pkg=/var/cache/pacman/pkg/${_pkg_name}
@@ -147,7 +149,7 @@ make_core_repo() {
 make_aitab() {
     local _iso_type=${1}
     if [[ ! -e ${work_dir}/build.${FUNCNAME}_${_iso_type} ]]; then
-        sed "s|%ARCH%|${arch}|g" aitab.${_iso_type} > ${work_dir}/iso/${install_dir}/aitab
+        sed "s|%ARCH%|${arch}|g" ${script_path}/aitab.${_iso_type} > ${work_dir}/iso/${install_dir}/aitab
         : > ${work_dir}/build.${FUNCNAME}_${_iso_type}
     fi
 }
@@ -198,9 +200,9 @@ make_dual() {
             rm -f ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs
             rm -f ${work_dir}/dual/iso/${install_dir}/x86_64/repo-core-x86_64.sfs
         fi
-        paste -d"\n" <(sed "s|%ARCH%|i686|g" aitab.${_iso_type}) \
-                     <(sed "s|%ARCH%|x86_64|g" aitab.${_iso_type}) | uniq > ${work_dir}/dual/iso/${install_dir}/aitab
-        for _cfg in syslinux.dual/*.cfg; do
+        paste -d"\n" <(sed "s|%ARCH%|i686|g" ${script_path}/aitab.${_iso_type}) \
+                     <(sed "s|%ARCH%|x86_64|g" ${script_path}/aitab.${_iso_type}) | uniq > ${work_dir}/dual/iso/${install_dir}/aitab
+        for _cfg in ${script_path}/syslinux.dual/*.cfg; do
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
                  s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/dual/iso/${install_dir}/boot/syslinux/${_cfg##*/}
         done
