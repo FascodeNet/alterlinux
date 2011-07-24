@@ -40,9 +40,9 @@ make_boot() {
         mkinitcpio \
             -c ./mkinitcpio.conf \
             -b ${work_dir}/root-image \
-            -k /boot/vmlinuz26 \
+            -k /boot/vmlinuz-linux \
             -g ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
-        cp ${work_dir}/root-image/boot/vmlinuz26 ${work_dir}/iso/${install_dir}/boot/${arch}
+        cp ${work_dir}/root-image/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }

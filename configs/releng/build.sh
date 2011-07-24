@@ -57,9 +57,9 @@ make_boot() {
         mkinitcpio \
             -c ./mkinitcpio.conf \
             -b ${_src} \
-            -k /boot/vmlinuz26 \
+            -k /boot/vmlinuz-linux \
             -g ${_dst_boot}/${arch}/archiso.img
-        mv ${_src}/boot/vmlinuz26 ${_dst_boot}/${arch}
+        mv ${_src}/boot/vmlinuz-linux ${_dst_boot}/${arch}/vmlinuz
         cp ${_src}/boot/memtest86+/memtest.bin ${_dst_boot}/memtest
         cp ${_src}/usr/share/licenses/common/GPL2/license.txt ${_dst_boot}/memtest.COPYING
         : > ${work_dir}/build.${FUNCNAME}
