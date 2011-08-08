@@ -215,8 +215,8 @@ make_dual() {
 
 _usage ()
 {
-    echo "usage ${0##*/} net_iso_single | core_iso_single | all_iso_single | clean_single"
-    echo "               net_iso_dual   | core_iso_dual   | all_iso_dual   | clean_dual"
+    echo "usage ${0##*/} net_iso_single | core_iso_single | all_iso_single | purge_single | clean_single"
+    echo "               net_iso_dual   | core_iso_dual   | all_iso_dual   | purge_dual   | clean_dual"
     echo
     exit ${1}
 }
@@ -279,6 +279,20 @@ case "${command_name}" in
     all_iso_dual)
         make_dual netinstall
         make_dual core
+        ;;
+    purge_single)
+        if [[ -d ${work_dir} ]]; then
+            find ${work_dir} -mindepth 1 -maxdepth 1 \
+                ! -path ${work_dir}/iso -prune \
+                | xargs rm -rf
+        fi
+        ;;
+    purge_dual)
+        if [[ -d ${work_dir}/dual ]]; then
+            find ${work_dir}/dual -mindepth 1 -maxdepth 1 \
+                ! -path ${work_dir}/dual/iso -prune \
+                | xargs rm -rf
+        fi
         ;;
     clean_single)
         rm -rf ${work_dir}

@@ -240,6 +240,7 @@ Note: These steps should be done with 64 bits support.
   [chroot32] # cp -r /usr/share/archiso/configs/releng /tmp
   [chroot32] # cd /tmp/releng
   [chroot32] # ./build.sh all_iso_single
+  [chroot32] # ./build.sh purge_single #optional
 
 * Enter 64 bits chroot enviroment then build core and netinstall single images.
 
@@ -248,9 +249,10 @@ Note: These steps should be done with 64 bits support.
   [chroot64] # cp -r /usr/share/archiso/configs/releng /tmp
   [chroot64] # cd /tmp/releng
   [chroot64] # ./build.sh all_iso_single
+  [chroot64] # ./build.sh purge_single #optional
 
 * Build core and netinstall dual images from any of the chroot enviroments.
 
-  [host64] mkarchroot -r bash /tmp/chroot64
+  [host64] # mkarchroot -r bash /tmp/chroot64
   [chroot64] # cd /tmp/releng
   [chroot64] # ./build.sh all_iso_dual
