@@ -29,6 +29,7 @@ _mnt_fs() {
     local mnt="${2}"
     local img_fullname="${img##*/}";
     local img_name="${img_fullname%%.*}"
+    local dm_snap_name="${dm_snap_prefix}_${img_name}"
     local ro_dev ro_dev_size ro_dev_fs_type rw_dev
 
     mkdir -p "${mnt}"
@@ -42,11 +43,11 @@ _mnt_fs() {
     _next_loop_dev
     rw_dev=$(_make_loop_dev "/cowspace/${img_name}.cow")
 
-    echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} N 8" | dmsetup create ${img_name}
+    echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} N 8" | dmsetup create ${dm_snap_name}
 
-    msg ":: Mounting '/dev/mapper/${img_name}' (${ro_dev_fs_type}) to '${mnt}'"
-    if ! mount -t "${ro_dev_fs_type}" "/dev/mapper/${img_name}" "${mnt}" ; then
-        echo "ERROR: while mounting '/dev/mapper/${img_name}' to '${mnt}'"
+    msg ":: Mounting '/dev/mapper/${dm_snap_name}' (${ro_dev_fs_type}) to '${mnt}'"
+    if ! mount -t "${ro_dev_fs_type}" "/dev/mapper/${dm_snap_name}" "${mnt}" ; then
+        echo "ERROR: while mounting '/dev/mapper/${dm_snap_name}' to '${mnt}'"
         launch_interactive_shell
     fi
 }
@@ -81,6 +82,7 @@ run_hook() {
     [[ -z "${cowspace_size}" ]] && cowspace_size="75%"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
+    [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
     if [[ -z "${aitab}" ]]; then
         aitab="/bootmnt/${archisobasedir}/aitab"

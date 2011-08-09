@@ -43,6 +43,8 @@ INDEX
                     Size is in bytes (suffix with "k", "m" and "g") or
                     in percentage of available RAM.
                     Default: "75%"
+* dm_snap_prefix=   Set a prefix for device-mapper snapshot node names.
+                    Default: "arch"
 * arch=             Force an architecture type (i686 | x86_64).
                     Do not set it for normal operations.
                     Useful for running a 64 bit kernel / 32 bit userspace.
