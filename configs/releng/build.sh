@@ -117,14 +117,14 @@ make_usr_share() {
 make_core_repo() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         local _url _urls _pkg_name _cached_pkg _dst
-        mkdir -p ${work_dir}/core-any-pkgs
-        mkdir -p ${work_dir}/core-pkgs
+        mkdir -p ${work_dir}/repo-core-any
+        mkdir -p ${work_dir}/repo-core-${arch}
         pacman -Sy
         _urls=$(pacman -Sddp $(comm -2 -3 <(pacman -Sql core | sort ) <(grep -v ^# core.exclude.${arch} | sort)))
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _cached_pkg=/var/cache/pacman/pkg/${_pkg_name}
-            _dst=${work_dir}/core-pkgs/${_pkg_name}
+            _dst=${work_dir}/repo-core-${arch}/${_pkg_name}
             if [[ ! -e ${_dst} ]]; then
                 if [[ -e ${_cached_pkg} ]]; then
                     cp -v "${_cached_pkg}" "${_dst}"
@@ -132,10 +132,10 @@ make_core_repo() {
                     wget -nv "${_url}" -O "${_dst}"
                 fi
             fi
-            repo-add -q ${work_dir}/core-pkgs/core.db.tar.gz ${work_dir}/core-pkgs/${_pkg_name}
+            repo-add -q ${work_dir}/repo-core-${arch}/core.db.tar.gz ${work_dir}/repo-core-${arch}/${_pkg_name}
             if [[ ${_pkg_name} =~ any.pkg ]]; then
-                mv "${_dst}" ${work_dir}/core-any-pkgs/${_pkg_name}
-                ln -sf ../any/${_pkg_name} ${work_dir}/core-pkgs/${_pkg_name}
+                mv "${_dst}" ${work_dir}/repo-core-any/${_pkg_name}
+                ln -sf ../any/${_pkg_name} ${work_dir}/repo-core-${arch}/${_pkg_name}
             fi
         done
         : > ${work_dir}/build.${FUNCNAME}
@@ -187,16 +187,16 @@ make_dual() {
         rm -f ${work_dir}/dual/iso/${install_dir}/aitab
         rm -f ${work_dir}/dual/iso/${install_dir}/boot/syslinux/syslinux.cfg
         if [[ ${_iso_type} == "core" ]]; then
-            if [[ ! -e ${work_dir}/dual/iso/${install_dir}/any/core-any-pkgs.sfs ||
-                  ! -e ${work_dir}/dual/iso/${install_dir}/i686/core-pkgs.sfs ||
-                  ! -e ${work_dir}/dual/iso/${install_dir}/x86_64/core-pkgs.sfs ]]; then
+            if [[ ! -e ${work_dir}/dual/iso/${install_dir}/any/repo-core-any.sfs ||
+                  ! -e ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs ||
+                  ! -e ${work_dir}/dual/iso/${install_dir}/x86_64/repo-core-x86_64.sfs ]]; then
                     echo "ERROR: core_iso_single build is not found."
                     _usage 1
             fi
         else
-            rm -f ${work_dir}/dual/iso/${install_dir}/any/core-any-pkgs.sfs
-            rm -f ${work_dir}/dual/iso/${install_dir}/i686/core-pkgs.sfs
-            rm -f ${work_dir}/dual/iso/${install_dir}/x86_64/core-pkgs.sfs
+            rm -f ${work_dir}/dual/iso/${install_dir}/any/repo-core-any.sfs
+            rm -f ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs
+            rm -f ${work_dir}/dual/iso/${install_dir}/x86_64/repo-core-x86_64.sfs
         fi
         paste -d"\n" <(sed "s|%ARCH%|i686|g" aitab.${_iso_type}) \
                      <(sed "s|%ARCH%|x86_64|g" aitab.${_iso_type}) | uniq > ${work_dir}/dual/iso/${install_dir}/aitab
