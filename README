@@ -31,6 +31,10 @@ INDEX
 * copytoram=        If set to "y" or just "copytoram" without arguments,
                     all SquashFS are copied to "RAM".
                     Default: (unset)
+* checksum=         If set to "y" or just "checksum" without arguments,
+                    performs a self-test of all files inside ${install_dir},
+                    and continue booting if ok.
+                    Default: (unset)
 * cowspace_size=    Set the size of tmpfs /cowspace. This space is used for
                     Copy-On-Write files of dm-snapshot.
                     (directory not visible outside initramfs)

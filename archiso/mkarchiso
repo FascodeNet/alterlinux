@@ -112,6 +112,8 @@ _usage ()
     echo "      includes all specified packages"
     echo "   prepare <dir>"
     echo "      build all images"
+    echo "   checksum <dir>"
+    echo "      make a checksum.md5 for self-test"
     echo "   iso <dir> <image name>"
     echo "      build an iso image from the working dir"
     exit ${1}
@@ -133,6 +135,8 @@ _show_config () {
             _msg_info "                 Packages:   ${pkg_list}"
             ;;
         prepare)
+            ;;
+        checksum)
             ;;
         iso)
             _msg_info "               Image name:   ${img_name}"
@@ -286,6 +290,16 @@ _mkfs () {
     _umount_fs "${work_dir}/mnt/${_src}"
 }
 
+command_checksum () {
+    _show_config checksum
+
+    _msg_info "Creating checksum file for self-test"
+    cd "${work_dir}/iso/${install_dir}"
+    find -type f ! -name checksum.md5 -print0 | xargs -0 md5sum > checksum.md5
+    cd ${OLDPWD}
+    _msg_info "Done!"
+}
+
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
@@ -427,6 +441,9 @@ case "${command_name}" in
         ;;
     prepare)
         command_prepare
+        ;;
+    checksum)
+        command_checksum
         ;;
     iso)
         if [[ $# -lt 3 ]]; then
