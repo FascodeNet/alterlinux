@@ -16,14 +16,6 @@ make_basefs() {
     mkarchiso ${verbose} -D "${install_dir}" -p "syslinux" create "${work_dir}"
 }
 
-# Customize installation (root-image)
-make_customize_root_image() {
-    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        cp -af root-image ${work_dir}
-        : > ${work_dir}/build.${FUNCNAME}
-    fi
-}
-
 # Copy mkinitcpio archiso hooks (root-image)
 make_setup_mkinitcpio() {
    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
@@ -94,7 +86,6 @@ else
 fi
 
 make_basefs
-make_customize_root_image
 make_setup_mkinitcpio
 make_boot
 make_syslinux
