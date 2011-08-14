@@ -20,7 +20,7 @@ install-hooks:
 install-examples:
 	# install examples
 	install -d -m 755 $(DESTDIR)/usr/share/archiso/
-	cp -r ../configs $(DESTDIR)/usr/share/archiso/configs
+	cp -r ../configs $(DESTDIR)/usr/share/archiso/
 
 install-doc:
 	install -d -m 755 $(DESTDIR)/usr/share/archiso/
