@@ -1,20 +1,6 @@
-# vim: set ft=sh:
-. /etc/rc.conf
-. /etc/rc.d/functions
-
-do_locale_gen ()
-{
-    if [[ ${LOCALE} != "en_US.UTF-8" ]]; then
-        stat_busy "Generating locales..."
-            sed -i "s/#\(${LOCALE/[@.]*}\)/\1/" /etc/locale.gen
-            /usr/sbin/locale-gen > /dev/null
-        stat_done
-    fi
-}
-
 # If an alternate console was specified on the kernel command line,
 # start agetty on it too.
-do_special_console()
+setup_special_console()
 {
     local cmdline_console
     if cmdline_console=$(kernel_cmdline console); then
@@ -24,7 +10,7 @@ do_special_console()
             options=${cmdline_console#${port}}
             options=${options#,}
             baud=${options%%[neo]*}
-            [[ ${options} =~ r$ ]] && rts="-h"
+            [[ ${options} == *r ]] && rts="-h"
             if ! grep -q "^${port}" /etc/securetty; then
                 echo ${port} >> /etc/securetty
             fi
@@ -36,10 +22,4 @@ do_special_console()
     fi
 }
 
-case "$1" in
-  start)
-    do_locale_gen
-    do_special_console
-    ;;
-esac
-exit 0
+add_hook sysinit_end setup_special_console

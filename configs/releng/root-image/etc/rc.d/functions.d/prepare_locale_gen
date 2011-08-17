@@ -1,0 +1,11 @@
+prepare_locale_gen ()
+{
+    if [[ ${LOCALE} != "en_US.UTF-8" ]]; then
+        stat_busy "Generating locales..."
+            sed -i "s/#\(${LOCALE/[@.]*}\)/\1/" /etc/locale.gen
+            /usr/sbin/locale-gen > /dev/null
+        stat_done
+    fi
+}
+
+add_hook sysinit_postmount prepare_locale_gen

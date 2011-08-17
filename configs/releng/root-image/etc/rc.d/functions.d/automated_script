@@ -1,5 +1,3 @@
-. /etc/archiso/functions
-
 automated_script ()
 {
     script="$(kernel_cmdline script)"
