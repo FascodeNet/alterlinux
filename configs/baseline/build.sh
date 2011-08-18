@@ -78,7 +78,7 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    mkarchiso ${verbose} checksum "${work_dir}"
+    mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}"
     mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${name}-${version}-${arch}.iso"
 }
 
