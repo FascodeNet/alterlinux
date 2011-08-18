@@ -163,7 +163,7 @@ make_prepare() {
 # args: $1 (core | netinstall)
 make_iso() {
     local _iso_type=${1}
-    mkarchiso ${verbose} checksum "${work_dir}"
+    mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}"
     mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${name}-${version}-${_iso_type}-${arch}.iso"
 }
 
@@ -207,7 +207,7 @@ make_dual() {
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
                  s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/dual/iso/${install_dir}/boot/syslinux/${_cfg##*/}
         done
-        mkarchiso ${verbose} checksum "${work_dir}/dual"
+        mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}/dual"
         mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}/dual" "${name}-${version}-${_iso_type}-dual.iso"
         : > ${work_dir}/dual/build.${FUNCNAME}_${_iso_type}
     fi
