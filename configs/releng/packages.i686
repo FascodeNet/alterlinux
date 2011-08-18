@@ -18,6 +18,8 @@ ipw2100-fw
 ipw2200-fw
 lftp
 lilo
+linux-atm
+mtools
 netcfg
 nfs-utils
 nilfs-utils
@@ -32,6 +34,7 @@ parted
 pptpclient
 rp-pppoe
 rsync
+smartmontools
 speedtouch
 tcpdump
 vpnc
