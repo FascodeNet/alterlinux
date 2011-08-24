@@ -33,6 +33,8 @@ uninstall:
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_nbd
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_pxe_nbd
+	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt
+	rm -f $(DESTDIR)/lib/initcpio/install/archiso_loop_mnt
 	rm -rf $(DESTDIR)/usr/share/archiso/
 
 .PHONY: install install-program install-hooks install-examples install-doc uninstall
