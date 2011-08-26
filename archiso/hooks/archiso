@@ -1,7 +1,6 @@
 # Initialize loopback device logic (we using on-demand mode)
 # args: none
 _init_loop_dev() {
-    modprobe loop
     loop_dev_count=99
     loop_dev_range=$(cat /sys/block/loop0/range)
     loop_dev_minor=$((loop_dev_count*loop_dev_range))
@@ -88,6 +87,8 @@ _verify_checksum() {
 
 
 run_hook() {
+    modprobe loop
+
     [[ -z "${arch}" ]] && arch="$(uname -m)"
     [[ -z "${cowspace_size}" ]] && cowspace_size="75%"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
