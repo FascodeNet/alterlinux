@@ -293,11 +293,13 @@ _mkfs () {
 command_checksum () {
     _show_config checksum
 
-    _msg_info "Creating checksum file for self-test"
-    cd "${work_dir}/iso/${install_dir}"
-    find -type f ! -name checksum.md5 -print0 | xargs -0 md5sum > checksum.md5
-    cd ${OLDPWD}
-    _msg_info "Done!"
+    if _is_directory_changed "${work_dir}/iso/${install_dir}" "${work_dir}/iso/${install_dir}/checksum.md5"; then
+        _msg_info "Creating checksum file for self-test"
+        cd "${work_dir}/iso/${install_dir}"
+        find -type f ! -name checksum.md5 -print0 | xargs -0 md5sum > checksum.md5
+        cd ${OLDPWD}
+        _msg_info "Done!"
+    fi
 }
 
 # Create an ISO9660 filesystem from "iso" directory.
@@ -308,25 +310,25 @@ command_iso () {
 
     _show_config iso
 
-    _is_directory_changed "${work_dir}/iso" "${img_name}"
-
-    _msg_info "Creating ISO image..."
-    local _qflag=""
-    if [[ ${quiet} == "y" ]]; then
-        _qflag="-quiet"
+    if _is_directory_changed "${work_dir}/iso" "${img_name}"; then
+        _msg_info "Creating ISO image..."
+        local _qflag=""
+        if [[ ${quiet} == "y" ]]; then
+            _qflag="-quiet"
+        fi
+        mkisofs ${_qflag} -r -l \
+            -b isolinux/isolinux.bin -c isolinux/boot.cat \
+            -uid 0 -gid 0 \
+            -udf -allow-limited-size -iso-level 3 \
+            -input-charset utf-8 -p "prepared by mkarchiso" \
+            -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -publisher "${iso_publisher}" \
+            -A "${iso_application}" \
+            -V "${iso_label}" \
+            -o "${img_name}" "${work_dir}/iso/"
+        isohybrid "${img_name}"
+        _msg_info "Done! | $(ls -sh ${img_name})"
     fi
-    mkisofs ${_qflag} -r -l \
-        -b isolinux/isolinux.bin -c isolinux/boot.cat \
-        -uid 0 -gid 0 \
-        -udf -allow-limited-size -iso-level 3 \
-        -input-charset utf-8 -p "prepared by mkarchiso" \
-        -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -publisher "${iso_publisher}" \
-        -A "${iso_application}" \
-        -V "${iso_label}" \
-        -o "${img_name}" "${work_dir}/iso/"
-    isohybrid "${img_name}"
-    _msg_info "Done! | $(ls -sh ${img_name})"
 }
 
 # Parse aitab and create each filesystem specified on that, and push it in "iso" directory.
