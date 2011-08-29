@@ -313,6 +313,9 @@ command_iso () {
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
     fi
+    if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
+         _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
+    fi
 
     _show_config iso
 
@@ -323,17 +326,16 @@ command_iso () {
         if [[ ${quiet} == "y" ]]; then
             _qflag="-quiet"
         fi
-        mkisofs ${_qflag} -r -l \
+        xorriso -as mkisofs ${_qflag} -r -l \
             -b isolinux/isolinux.bin -c isolinux/boot.cat \
-            -uid 0 -gid 0 \
-            -udf -allow-limited-size -iso-level 3 \
-            -input-charset utf-8 -p "prepared by mkarchiso" \
+            -iso-level 3 \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+            -p "prepared by mkarchiso" \
             -publisher "${iso_publisher}" \
             -A "${iso_application}" \
             -V "${iso_label}" \
             -o "${out_dir}/${img_name}" "${work_dir}/iso/"
-        isohybrid "${out_dir}/${img_name}"
         _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
     fi
 }

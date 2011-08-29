@@ -60,6 +60,7 @@ make_isolinux() {
         mkdir -p ${work_dir}/iso/isolinux
         sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
         cp ${work_dir}/root-image/usr/lib/syslinux/isolinux.bin ${work_dir}/iso/isolinux/
+        cp ${work_dir}/root-image/usr/lib/syslinux/isohdpfx.bin ${work_dir}/iso/isolinux/
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }

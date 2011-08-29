@@ -101,8 +101,7 @@ if nothing is specified on command line.
 ** For mkarchiso script needs these packages (build host):
  + devtools                for mkarchroot
  + squashfs-tools          for mksquashfs
- + syslinux                for isohybrid
- + cdrkit                  for mkisofs
+ + libisoburn              for xorriso
 
 ** For these hooks needs these packages (on target root-image)
 * archiso
@@ -189,7 +188,7 @@ When make your custom boot-pendrive, you need to copy /arch directory to it.
   [chroot] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
 
 * Install aditional packages needed for mkarchiso.
-  [chroot] # pacman -S devtools squashfs-tools syslinux cdrkit
+  [chroot] # pacman -S devtools squashfs-tools libisoburn
 
 * Build a basic iso.
   [chroot] # cp -r /usr/share/archiso/configs/baseline /tmp
@@ -213,7 +212,7 @@ Note: These steps should be done with 64 bits support.
   [host64] # linux32 mkarchroot /tmp/chroot32 base
   [host64] # linux32 mkarchroot -r bash /tmp/chroot32
   [chroot32] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-  [chroot32] # pacman -S devtools squashfs-tools syslinux cdrkit
+  [chroot32] # pacman -S devtools squashfs-tools libisoburn
   [chroot32] # exit
 
 * Prepare a 64 bits chroot enviroment.
@@ -221,7 +220,7 @@ Note: These steps should be done with 64 bits support.
   [host64] # mkarchroot /tmp/chroot64 base
   [host64] # mkarchroot -r bash /tmp/chroot64
   [chroot64] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-  [chroot64] # pacman -S devtools squashfs-tools syslinux cdrkit
+  [chroot64] # pacman -S devtools squashfs-tools libisoburn
   [chroot64] # exit
 
 * Install archiso on both chroots.
