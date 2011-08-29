@@ -9,7 +9,7 @@ install_dir=arch
 arch=$(uname -m)
 work_dir=work
 out_dir=out
-verbose="n"
+verbose=""
 
 script_path=$(readlink -f ${0%/*})
 
@@ -214,36 +214,35 @@ make_dual() {
     fi
 }
 
-
-
-_usage ()
+purge_single ()
 {
-    echo "usage ${0##*/} net_iso_single | core_iso_single | all_iso_single | purge_single | clean_single"
-    echo "               net_iso_dual   | core_iso_dual   | all_iso_dual   | purge_dual   | clean_dual"
-    echo
-    exit ${1}
+    if [[ -d ${work_dir} ]]; then
+        find ${work_dir} -mindepth 1 -maxdepth 1 \
+            ! -path ${work_dir}/iso -prune \
+            | xargs rm -rf
+    fi
 }
 
-if [[ ${EUID} -ne 0 ]]; then
-    echo "This script must be run as root."
-    _usage 1
-fi
+purge_dual ()
+{
+    if [[ -d ${work_dir}/dual ]]; then
+        find ${work_dir}/dual -mindepth 1 -maxdepth 1 \
+            ! -path ${work_dir}/dual/iso -prune \
+            | xargs rm -rf
+    fi
+}
 
-if [[ $# -lt 1 ]]; then
-    echo "No command specified"
-    _usage 1
-fi
-command_name="${1}"
+clean_single ()
+{
+    rm -rf ${work_dir}
+    rm -f ${out_dir}/${iso_name}-${iso_version}-*-${arch}.iso
+}
 
-if [[ ${verbose} == "y" ]]; then
-    verbose="-v"
-else
-    verbose=""
-fi
-
-if [[ ${command_name} =~ single ]]; then
-    work_dir=${work_dir}/${arch}
-fi
+clean_dual ()
+{
+    rm -rf ${work_dir}/dual
+    rm -f ${out_dir}/${iso_name}-${iso_version}-*-dual.iso
+}
 
 make_common_single() {
     make_basefs
@@ -260,50 +259,162 @@ make_common_single() {
     make_iso $1
 }
 
+_usage ()
+{
+    echo "usage ${0} [options] command <command options>"
+    echo
+    echo " General options:"
+    echo "    -N <iso_name>      Set an iso filename (prefix)"
+    echo "                        Default: ${iso_name}"
+    echo "    -V <iso_version>   Set an iso version (in filename)"
+    echo "                        Default: ${iso_version}"
+    echo "    -L <iso_label>     Set an iso label (disk label)"
+    echo "                        Default: ${iso_label}"
+    echo "    -D <install_dir>   Set an install_dir (directory inside iso)"
+    echo "                        Default: ${install_dir}"
+    echo "    -w <work_dir>      Set the working directory"
+    echo "                        Default: ${work_dir}"
+    echo "    -o <out_dir>       Set the output directory"
+    echo "                        Default: ${out_dir}"
+    echo "    -v                 Enable verbose output"
+    echo "    -h                 This help message"
+    echo
+    echo " Commands:"
+    echo "   build <mode> <type>"
+    echo "      Build selected .iso by <mode> and <type>"
+    echo "   purge <mode>"
+    echo "      Clean working directory except iso/ directory of build <mode>"
+    echo "   clean <mode>"
+    echo "      Clean working directory and .iso file in output directory of build <mode>"
+    echo
+    echo " Command options:"
+    echo "         <mode> Valid values 'single' or 'dual'"
+    echo "         <type> Valid values 'netinstall', 'core' or 'all'"
+    exit ${1}
+}
+
+if [[ ${EUID} -ne 0 ]]; then
+    echo "This script must be run as root."
+    _usage 1
+fi
+
+while getopts 'N:V:L:D:w:o:vh' arg; do
+    case "${arg}" in
+        N) iso_name="${OPTARG}" ;;
+        V) iso_version="${OPTARG}" ;;
+        L) iso_label="${OPTARG}" ;;
+        D) install_dir="${OPTARG}" ;;
+        w) work_dir="${OPTARG}" ;;
+        o) out_dir="${OPTARG}" ;;
+        v) verbose="-v" ;;
+        h|?) _usage 0 ;;
+        *)
+            _msg_error "Invalid argument '${arg}'" 0
+            _usage 1
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+if [[ $# -lt 1 ]]; then
+    echo "No command specified"
+    _usage 1
+fi
+command_name="${1}"
+
+if [[ $# -lt 2 ]]; then
+    echo "No command mode specified"
+    _usage 1
+fi
+command_mode="${2}"
+
+if [[ ${command_name} == "build" ]]; then
+    if [[ $# -lt 3 ]]; then
+        echo "No build type specified"
+        _usage 1
+    fi
+command_type="${3}"
+fi
+
+if [[ ${command_mode} == "single" ]]; then
+    work_dir=${work_dir}/${arch}
+fi
+
 case "${command_name}" in
-    net_iso_single)
-        make_common_single netinstall
+    build)
+        case "${command_mode}" in
+            single)
+                case "${command_type}" in
+                    netinstall)
+                        make_common_single netinstall
+                        ;;
+                    core)
+                        make_core_repo
+                        make_common_single core
+                        ;;
+                    all)
+                        make_common_single netinstall
+                        make_core_repo
+                        make_common_single core
+                        ;;
+                    *)
+                        echo "Invalid build type '${command_type}'"
+                        _usage 1
+                        ;;
+                esac
+                ;;
+            dual)
+                case "${command_type}" in
+                    netinstall)
+                        make_dual netinstall
+                        ;;
+                    core)
+                        make_dual core
+                        ;;
+                    all)
+                        make_dual netinstall
+                        make_dual core
+                        ;;
+                    *)
+                        echo "Invalid build type '${command_type}'"
+                        _usage 1
+                        ;;
+                esac
+                ;;
+            *)
+                echo "Invalid build mode '${command_mode}'"
+                _usage 1
+                ;;
+        esac
         ;;
-    core_iso_single)
-        make_core_repo
-        make_common_single core
+    purge)
+        case "${command_mode}" in
+            single)
+                purge_single
+                ;;
+            dual)
+                purge_dual
+                ;;
+            *)
+                echo "Invalid purge mode '${command_mode}'"
+                _usage 1
+                ;;
+        esac
         ;;
-    all_iso_single)
-        make_common_single netinstall
-        make_core_repo
-        make_common_single core
-        ;;
-    net_iso_dual)
-        make_dual netinstall
-        ;;
-    core_iso_dual)
-        make_dual core
-        ;;
-    all_iso_dual)
-        make_dual netinstall
-        make_dual core
-        ;;
-    purge_single)
-        if [[ -d ${work_dir} ]]; then
-            find ${work_dir} -mindepth 1 -maxdepth 1 \
-                ! -path ${work_dir}/iso -prune \
-                | xargs rm -rf
-        fi
-        ;;
-    purge_dual)
-        if [[ -d ${work_dir}/dual ]]; then
-            find ${work_dir}/dual -mindepth 1 -maxdepth 1 \
-                ! -path ${work_dir}/dual/iso -prune \
-                | xargs rm -rf
-        fi
-        ;;
-    clean_single)
-        rm -rf ${work_dir}
-        rm -f ${out_dir}/${iso_name}-${iso_version}-*-${arch}.iso
-        ;;
-    clean_dual)
-        rm -rf ${work_dir}/dual
-        rm -f ${out_dir}/${iso_name}-${iso_version}-*-dual.iso
+    clean)
+        case "${command_mode}" in
+            single)
+                clean_single
+                ;;
+            dual)
+                clean_dual
+                ;;
+            *)
+                echo "Invalid clean mode '${command_mode}'"
+                _usage 1
+                ;;
+        esac
         ;;
     *)
         echo "Invalid command name '${command_name}'"
