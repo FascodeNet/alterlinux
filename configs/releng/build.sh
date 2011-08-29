@@ -8,19 +8,20 @@ iso_version=$(date +%Y.%m.%d)
 install_dir=arch
 arch=$(uname -m)
 work_dir=work
+out_dir=out
 verbose="n"
 
 script_path=$(readlink -f ${0%/*})
 
 # Base installation (root-image)
 make_basefs() {
-    mkarchiso ${verbose} -D "${install_dir}" -p "base" create "${work_dir}"
-    mkarchiso ${verbose} -D "${install_dir}" -p "memtest86+ syslinux mkinitcpio-nfs-utils nbd" create "${work_dir}"
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "base" create
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "memtest86+ syslinux mkinitcpio-nfs-utils nbd" create
 }
 
 # Additional packages (root-image)
 make_packages() {
-    mkarchiso ${verbose} -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" create "${work_dir}"
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" create
 }
 
 # Customize installation (root-image)
@@ -156,15 +157,15 @@ make_aitab() {
 
 # Build all filesystem images specified in aitab (.fs .fs.sfs .sfs)
 make_prepare() {
-    mkarchiso ${verbose} -D "${install_dir}" prepare "${work_dir}"
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" prepare
 }
 
 # Build ISO
 # args: $1 (core | netinstall)
 make_iso() {
     local _iso_type=${1}
-    mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}"
-    mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${iso_name}-${iso_version}-${_iso_type}-${arch}.iso"
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" checksum
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${_iso_type}-${arch}.iso"
 }
 
 # Build dual-iso images from ${work_dir}/i686/iso and ${work_dir}/x86_64/iso
@@ -207,8 +208,8 @@ make_dual() {
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
                  s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/dual/iso/${install_dir}/boot/syslinux/${_cfg##*/}
         done
-        mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}/dual"
-        mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}/dual" "${iso_name}-${iso_version}-${_iso_type}-dual.iso"
+        mkarchiso ${verbose} -w "${work_dir}/dual" -D "${install_dir}" checksum
+        mkarchiso ${verbose} -w "${work_dir}/dual" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${_iso_type}-dual.iso"
         : > ${work_dir}/dual/build.${FUNCNAME}_${_iso_type}
     fi
 }
@@ -298,11 +299,11 @@ case "${command_name}" in
         ;;
     clean_single)
         rm -rf ${work_dir}
-        rm -f ${iso_name}-${iso_version}-*-${arch}.iso
+        rm -f ${out_dir}/${iso_name}-${iso_version}-*-${arch}.iso
         ;;
     clean_dual)
         rm -rf ${work_dir}/dual
-        rm -f ${iso_name}-${iso_version}-*-dual.iso
+        rm -f ${out_dir}/${iso_name}-${iso_version}-*-dual.iso
         ;;
     *)
         echo "Invalid command name '${command_name}'"

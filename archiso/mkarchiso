@@ -11,6 +11,8 @@ export iso_label="ARCH_$(date +%Y%m)"
 iso_publisher="Arch Linux <http://www.archlinux.org>"
 iso_application="Arch Linux Live/Rescue CD"
 install_dir="arch"
+work_dir="work"
+out_dir="out"
 
 # Show an INFO message
 # $1: message string
@@ -104,17 +106,21 @@ _usage ()
     echo "    -D <install_dir> Set an install_dir. All files will by located here."
     echo "                     Default ${install_dir}"
     echo "                     NOTE: Max 8 characters, use only [a-z0-9]"
+    echo "    -w <work_dir>    Set the working directory"
+    echo "                     Default ${work_dir}"
+    echo "    -o <out_dir>     Set the output directory"
+    echo "                     Default ${out_dir}"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
     echo " commands:"
-    echo "   create <dir>"
+    echo "   create"
     echo "      create a base directory layout to work with"
     echo "      includes all specified packages"
-    echo "   prepare <dir>"
+    echo "   prepare"
     echo "      build all images"
-    echo "   checksum <dir>"
+    echo "   checksum"
     echo "      make a checksum.md5 for self-test"
-    echo "   iso <dir> <image name>"
+    echo "   iso <image name>"
     echo "      build an iso image from the working dir"
     exit ${1}
 }
@@ -310,7 +316,8 @@ command_iso () {
 
     _show_config iso
 
-    if _is_directory_changed "${work_dir}/iso" "${img_name}"; then
+    if _is_directory_changed "${work_dir}/iso" "${out_dir}/${img_name}"; then
+        mkdir -p ${out_dir}
         _msg_info "Creating ISO image..."
         local _qflag=""
         if [[ ${quiet} == "y" ]]; then
@@ -325,9 +332,9 @@ command_iso () {
             -publisher "${iso_publisher}" \
             -A "${iso_application}" \
             -V "${iso_label}" \
-            -o "${img_name}" "${work_dir}/iso/"
-        isohybrid "${img_name}"
-        _msg_info "Done! | $(ls -sh ${img_name})"
+            -o "${out_dir}/${img_name}" "${work_dir}/iso/"
+        isohybrid "${out_dir}/${img_name}"
+        _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
     fi
 }
 
@@ -406,7 +413,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
-while getopts 'p:C:L:P:A:D:fvh' arg; do
+while getopts 'p:C:L:P:A:D:w:o:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
@@ -414,6 +421,8 @@ while getopts 'p:C:L:P:A:D:fvh' arg; do
         P) iso_publisher="${OPTARG}" ;;
         A) iso_application="${OPTARG}" ;;
         D) install_dir="${OPTARG}" ;;
+        w) work_dir="${OPTARG}" ;;
+        o) out_dir="${OPTARG}" ;;
         v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
@@ -431,12 +440,6 @@ if [[ $# -lt 1 ]]; then
 fi
 command_name="${1}"
 
-if [[ $# -lt 2 ]]; then
-    _msg_error "No working directory specified" 0
-    _usage 1
-fi
-work_dir="${2}"
-
 case "${command_name}" in
     create)
         command_create
@@ -448,11 +451,11 @@ case "${command_name}" in
         command_checksum
         ;;
     iso)
-        if [[ $# -lt 3 ]]; then
+        if [[ $# -lt 2 ]]; then
             _msg_error "No image specified" 0
             _usage 1
         fi
-        img_name="${3}"
+        img_name="${2}"
         command_iso
         ;;
     *)
