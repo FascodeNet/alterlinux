@@ -2,9 +2,9 @@
 
 set -e -u
 
-name=archlinux
+iso_name=archlinux
 iso_label="ARCH_$(date +%Y%m)"
-version=$(date +%Y.%m.%d)
+iso_version=$(date +%Y.%m.%d)
 install_dir=arch
 arch=$(uname -m)
 work_dir=work
@@ -164,7 +164,7 @@ make_prepare() {
 make_iso() {
     local _iso_type=${1}
     mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}"
-    mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${name}-${version}-${_iso_type}-${arch}.iso"
+    mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${iso_name}-${iso_version}-${_iso_type}-${arch}.iso"
 }
 
 # Build dual-iso images from ${work_dir}/i686/iso and ${work_dir}/x86_64/iso
@@ -208,7 +208,7 @@ make_dual() {
                  s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/dual/iso/${install_dir}/boot/syslinux/${_cfg##*/}
         done
         mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}/dual"
-        mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}/dual" "${name}-${version}-${_iso_type}-dual.iso"
+        mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}/dual" "${iso_name}-${iso_version}-${_iso_type}-dual.iso"
         : > ${work_dir}/dual/build.${FUNCNAME}_${_iso_type}
     fi
 }
@@ -298,11 +298,11 @@ case "${command_name}" in
         ;;
     clean_single)
         rm -rf ${work_dir}
-        rm -f ${name}-${version}-*-${arch}.iso
+        rm -f ${iso_name}-${iso_version}-*-${arch}.iso
         ;;
     clean_dual)
         rm -rf ${work_dir}/dual
-        rm -f ${name}-${version}-*-dual.iso
+        rm -f ${iso_name}-${iso_version}-*-dual.iso
         ;;
     *)
         echo "Invalid command name '${command_name}'"

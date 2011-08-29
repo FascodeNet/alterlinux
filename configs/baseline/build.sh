@@ -2,9 +2,9 @@
 
 set -e -u
 
-name=archlinux
+iso_name=archlinux
 iso_label="ARCH_$(date +%Y%m)"
-version=$(date +%Y.%m.%d)
+iso_version=$(date +%Y.%m.%d)
 install_dir=arch
 arch=$(uname -m)
 work_dir=work
@@ -79,7 +79,7 @@ make_prepare() {
 # Build ISO
 make_iso() {
     mkarchiso ${verbose} -D "${install_dir}" checksum "${work_dir}"
-    mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${name}-${version}-${arch}.iso"
+    mkarchiso ${verbose} -D "${install_dir}" -L "${iso_label}" iso "${work_dir}" "${iso_name}-${iso_version}-${arch}.iso"
 }
 
 if [[ $verbose == "y" ]]; then
