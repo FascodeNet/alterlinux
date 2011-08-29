@@ -12,6 +12,7 @@ install-hooks:
 	# hooks/install are needed by mkinitcpio
 	install -D -m 644 hooks/archiso $(DESTDIR)/lib/initcpio/hooks/archiso
 	install -D -m 644 install/archiso $(DESTDIR)/lib/initcpio/install/archiso
+	install -D -m 644 archiso_pxe_nbd $(DESTDIR)/lib/initcpio/archiso_pxe_nbd
 	install -D -m 644 hooks/archiso_pxe_nbd $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_nbd
 	install -D -m 644 install/archiso_pxe_nbd $(DESTDIR)/lib/initcpio/install/archiso_pxe_nbd
 	install -D -m 644 hooks/archiso_loop_mnt $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt
@@ -31,6 +32,7 @@ uninstall:
 	rm -f $(DESTDIR)/usr/bin/testiso
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso
+	rm -f $(DESTDIR)/lib/initcpio/archiso_pxe_nbd
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_nbd
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_pxe_nbd
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt

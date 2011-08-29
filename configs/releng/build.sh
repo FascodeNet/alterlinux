@@ -47,6 +47,7 @@ make_setup_mkinitcpio() {
             cp /lib/initcpio/hooks/${_hook} ${work_dir}/root-image/lib/initcpio/hooks
             cp /lib/initcpio/install/${_hook} ${work_dir}/root-image/lib/initcpio/install
         done
+        cp /lib/initcpio/archiso_pxe_nbd ${work_dir}/root-image/lib/initcpio
         : > ${work_dir}/build.${FUNCNAME}
    fi
 }

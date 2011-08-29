@@ -91,5 +91,6 @@ archiso_pxe_nbd_mount_handler () {
     else
         mkdir -p /run/archiso
         pidof nbd-client > /run/archiso/nbd_client.pid
+        cp /archiso_pxe_nbd ${newroot}/etc/rc.d/functions.d/
     fi
 }

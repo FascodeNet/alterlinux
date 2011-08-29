@@ -1,0 +1,6 @@
+omit_kill_nbd_client() {
+    add_omit_pids $(< /run/archiso/nbd_client.pid)
+}
+
+add_hook shutdown_prekillall omit_kill_nbd_client
+add_hook single_prekillall omit_kill_nbd_client

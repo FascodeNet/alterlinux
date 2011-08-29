@@ -14,6 +14,8 @@ build ()
 
     add_binary "/usr/sbin/nbd-client" "/bin/nbd-client"
     add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"
+
+    add_file "/lib/initcpio/archiso_pxe_nbd" "/archiso_pxe_nbd"
 }
 
 help ()
