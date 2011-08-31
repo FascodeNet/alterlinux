@@ -15,14 +15,12 @@ build ()
 
     add_binary /lib/udev/cdrom_id
     add_binary /sbin/blockdev
-    add_binary /sbin/lvm
     add_binary /sbin/dmsetup
 
     add_file /lib/udev/rules.d/60-cdrom_id.rules
     add_file /lib/udev/rules.d/10-dm.rules
-    add_file /lib/udev/rules.d/13-dm-disk.rules
     add_file /lib/udev/rules.d/95-dm-notify.rules
-    add_file /lib/udev/rules.d/11-dm-lvm.rules
+    add_file /lib/initcpio/udev/11-dm-initramfs.rules /lib/udev/rules.d/11-dm-initramfs.rules
 
     SCRIPT="archiso"
 }
