@@ -121,26 +121,23 @@ make_usr_share() {
 # Make [core] repository, keep "any" pkgs in a separate fs (makes more "dual-iso" friendly)
 make_core_repo() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        local _url _urls _pkg_name _cached_pkg _dst
+        local _url _urls _pkg_name _cached_pkg _dst _pkgs
         mkdir -p ${work_dir}/repo-core-any
         mkdir -p ${work_dir}/repo-core-${arch}
         pacman -Sy
-        _urls=$(pacman -Sddp $(comm -2 -3 <(pacman -Sql core | sort ) <(grep -v ^# ${script_path}/core.exclude.${arch} | sort)))
+        _pkgs=$(comm -2 -3 <(pacman -Sql core | sort | sed 's@^@core/@') \
+                           <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
+        _urls=$(pacman -Sddp ${_pkgs})
+        pacman -Swdd --noconfirm ${_pkgs}
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _cached_pkg=/var/cache/pacman/pkg/${_pkg_name}
             _dst=${work_dir}/repo-core-${arch}/${_pkg_name}
-            if [[ ! -e ${_dst} ]]; then
-                if [[ -e ${_cached_pkg} ]]; then
-                    cp -v "${_cached_pkg}" "${_dst}"
-                else
-                    wget -nv "${_url}" -O "${_dst}"
-                fi
-            fi
-            repo-add -q ${work_dir}/repo-core-${arch}/core.db.tar.gz ${work_dir}/repo-core-${arch}/${_pkg_name}
-            if [[ ${_pkg_name} =~ any.pkg ]]; then
-                mv "${_dst}" ${work_dir}/repo-core-any/${_pkg_name}
-                ln -sf ../any/${_pkg_name} ${work_dir}/repo-core-${arch}/${_pkg_name}
+            cp ${_cached_pkg} ${_dst}
+            repo-add -q ${work_dir}/repo-core-${arch}/core.db.tar.gz ${_dst}
+            if [[ ${_pkg_name} == *any.pkg.tar* ]]; then
+                mv ${_dst} ${work_dir}/repo-core-any/${_pkg_name}
+                ln -sf ../any/${_pkg_name} ${_dst}
             fi
         done
         : > ${work_dir}/build.${FUNCNAME}
