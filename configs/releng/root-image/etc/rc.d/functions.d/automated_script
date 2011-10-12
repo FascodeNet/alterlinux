@@ -1,16 +1,16 @@
 automated_script ()
 {
     script="$(kernel_cmdline script)"
-    if [[ -n "$script" ]]; then
+    if [[ -n "${script}" ]]; then
         stat_busy "Configuring $script"
-        if [[ "$script" =~ ^http:// || "$script" =~ ^ftp:// ]]; then
-            wget "$script" -q -O /tmp/startup_script >/dev/null
+        if [[ "${script}" =~ ^http:// || "${script}" =~ ^ftp:// ]]; then
+            wget "${script}" -q -O /tmp/startup_script >/dev/null
             rt=$?
         else
-            cp "$script" /tmp/startup_script
+            cp "${script}" /tmp/startup_script
             rt=$?
         fi
-        if [ $rt -eq 0 ]; then
+        if [ ${rt} -eq 0 ]; then
             chmod +x /tmp/startup_script
             echo -e '\nif [ $(tty) = "/dev/tty1" ]; then\n    /tmp/startup_script\nfi\n' >> /root/.bash_profile
             stat_done

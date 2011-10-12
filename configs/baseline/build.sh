@@ -84,7 +84,7 @@ make_iso() {
     mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${arch}.iso"
 }
 
-if [[ $verbose == "y" ]]; then
+if [[ ${verbose} == "y" ]]; then
     verbose="-v"
 else
     verbose=""

@@ -8,10 +8,10 @@ run_hook () {
         if [ -n "${BOOTIF}" ]; then
             bootif_mac=${BOOTIF#01-}
             bootif_mac=${bootif_mac//-/:}
-            bootif_dev=$(grep -l $bootif_mac /sys/class/net/*/address)
+            bootif_dev=$(grep -l ${bootif_mac} /sys/class/net/*/address)
             bootif_dev=${bootif_dev#/sys/class/net/}
             bootif_dev=${bootif_dev%/address}
-            ip="$ip::$bootif_dev"
+            ip="${ip}::${bootif_dev}"
         fi
 
         # setup network and save some values
