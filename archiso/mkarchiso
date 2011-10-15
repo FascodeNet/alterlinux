@@ -223,9 +223,9 @@ _mksfs () {
     _msg_info "Creating SquashFS image for '${work_dir}/${_src}', This may take some time..."
     local _seconds=${SECONDS}
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}" &> /dev/null
+        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}"
+        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}" -no-progress
     fi
     _seconds=$((SECONDS - _seconds))
     printf "[mkarchiso] INFO: Image creation done in %02d:%02d minutes\n" $((_seconds / 60)) $((_seconds % 60))
