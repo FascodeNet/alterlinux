@@ -128,7 +128,7 @@ make_core_repo() {
         _pkgs=$(comm -2 -3 <(pacman -Sql core | sort | sed 's@^@core/@') \
                            <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
         _urls=$(pacman -Sddp ${_pkgs})
-        pacman -Swdd --noconfirm ${_pkgs}
+        pacman -Swdd --noprogressbar --noconfirm ${_pkgs}
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _cached_pkg=/var/cache/pacman/pkg/${_pkg_name}
