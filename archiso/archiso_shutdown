@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# /oldroot depends on things inside /oldroot/run/archiso...
+mkdir /oldrun
+mount --move /oldroot/run /oldrun
+
+# Unmount all mounts now.
+umount $(mount | awk '$3 ~/^\/oldroot/ {print $3}' | sort -r)
+
+# Remove all dm-snapshot devices.
+dmsetup remove_all
+
+# Remove all loopback devices made for dm-snapshots devices
+# other misc loops like used for pure squashfs images
+# and unmount/detach *.fs.sfs images.
+for _lup in $(ls -r /dev/loop[1-9][0-9][0-9]); do
+    if ! losetup -d ${_lup} 2> /dev/null; then
+        umount -d ${_lup}
+    fi
+done
+
+# Unmount the space used to store *.cow.
+umount /oldrun/archiso/cowspace
+
+# Unmount boot device if needed (no copytoram=y used)
+if [[ ! -d /oldrun/archiso/copytoram ]]; then
+    umount /oldrun/archiso/bootmnt
+    # Detach img_loop= and unmount img_dev= (archiso_loop_mnt hook)
+    if [[ -f /oldrun/archiso/img_dev_loop ]]; then
+        losetup -d $(cat /oldrun/archiso/img_dev_loop)
+        umount /oldrun/archiso/img_dev
+    fi
+    if [[ -f /oldrun/archiso/nbd_client.pid ]]; then
+        nbd-client -d /dev/nbd0
+    fi
+fi
+
+# reboot / poweroff / halt, depending on the argument passed by init
+# if something invalid is passed, we halt
+case "$1" in
+  reboot|poweroff|halt) "$1" -f ;;
+  *) halt -f;;
+esac

@@ -1,0 +1,22 @@
+run_hook ()
+{
+    msg -n ":: Creating shutdown ramfs..."
+
+    mkdir -p /run/initramfs/usr/bin
+    mkdir /run/initramfs/usr/sbin
+    mkdir /run/initramfs/bin
+    mkdir /run/initramfs/sbin
+    mkdir /run/initramfs/lib
+    cp /bin/busybox /run/initramfs/bin/
+    cp /lib/ld-* /run/initramfs/lib/
+    cp /lib/lib* /run/initramfs/lib/
+    cp /sbin/dmsetup /run/initramfs/sbin/
+    if [[ -x /bin/nbd-client ]]; then
+        cp /bin/nbd-client /run/initramfs/bin/
+    fi
+
+    chroot /run/initramfs /bin/busybox --install
+    cp /shutdown /run/initramfs/
+
+    msg "done."
+}

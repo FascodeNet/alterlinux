@@ -43,10 +43,11 @@ make_customize_root_image() {
 make_setup_mkinitcpio() {
    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         local _hook
-        for _hook in archiso archiso_pxe_nbd archiso_loop_mnt; do
+        for _hook in archiso archiso_shutdown archiso_pxe_nbd archiso_loop_mnt; do
             cp /lib/initcpio/hooks/${_hook} ${work_dir}/root-image/lib/initcpio/hooks
             cp /lib/initcpio/install/${_hook} ${work_dir}/root-image/lib/initcpio/install
         done
+        cp /lib/initcpio/archiso_shutdown ${work_dir}/root-image/lib/initcpio
         cp /lib/initcpio/archiso_pxe_nbd ${work_dir}/root-image/lib/initcpio
         : > ${work_dir}/build.${FUNCNAME}
    fi
