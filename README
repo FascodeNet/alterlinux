@@ -79,8 +79,10 @@ INDEX
 
 ** hooks/archiso_loop_mnt
 
-* img_dev=          Device where archiso-image.iso reside.
+* img_label=        Set the filesystem label where archiso-image.iso.
                     Default: (unset)
+* img_dev=          Device where archiso-image.iso reside.
+                    Default: (unset) or "/dev/disk/by-label/${img_label}"
 * img_loop=         Full path where archiso-image.iso is located on ${img_dev}
                     Default: (unset)
 
