@@ -38,11 +38,27 @@ _mnt_fs() {
     ro_dev_size=$(blockdev --getsz ${ro_dev})
     ro_dev_fs_type=$(blkid -o value -s TYPE -p ${ro_dev} 2> /dev/null)
 
-    dd of="/cowspace/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
-    _next_loop_dev
-    rw_dev=$(_make_loop_dev "/cowspace/${img_name}.cow")
 
-    echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} N 8" | dmsetup create ${dm_snap_name}
+    if [[ "${cow_persistent}" == "P" ]]; then
+        if [[ -f "/cowspace/${cow_directory}/${img_name}.cow" ]]; then
+            msg ":: Found '/cowspace/${cow_directory}/${img_name}.cow', using as persistent."
+        else
+            msg ":: Creating '/cowspace/${cow_directory}/${img_name}.cow' as persistent."
+            dd of="/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+        fi
+    else
+        if [[ -f "/cowspace/${cow_directory}/${img_name}.cow" ]]; then
+            msg ":: Found '/cowspace/${cow_directory}/${img_name}.cow' but non-persistent requested, removing."
+            rm -f "/cowspace/${cow_directory}/${img_name}.cow"
+        fi
+        msg ":: Creating '/cowspace/${cow_directory}/${img_name}.cow' as non-persistent."
+        dd of="/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+    fi
+
+    _next_loop_dev
+    rw_dev=$(_make_loop_dev "/cowspace/${cow_directory}/${img_name}.cow")
+
+    echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8" | dmsetup create ${dm_snap_name}
 
     msg ":: Mounting '/dev/mapper/${dm_snap_name}' (${ro_dev_fs_type}) to '${mnt}'"
     if ! mount -t "${ro_dev_fs_type}" "/dev/mapper/${dm_snap_name}" "${mnt}" ; then
@@ -132,11 +148,24 @@ run_hook() {
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
+
     if [[ -z "${aitab}" ]]; then
         aitab="/bootmnt/${archisobasedir}/aitab"
     else
         aitab="/bootmnt/${aitab}"
     fi
+
+    if [[ -n "${cow_label}" ]]; then
+        cow_device="/dev/disk/by-label/${cow_label}"
+        [[ -z "${cow_persistent}" ]] && cow_persistent="P"
+    elif [[ -n "${cow_device}" ]]; then
+        [[ -z "${cow_persistent}" ]] && cow_persistent="P"
+    else
+        cow_persistent="N"
+    fi
+
+    [[ -z "${cow_directory}" ]] && cow_directory="persistent_${archisolabel}/${arch}"
+
     # set mount handler for archiso
     mount_handler="archiso_mount_handler"
 }
@@ -149,7 +178,12 @@ archiso_mount_handler() {
 
     _init_loop_dev
 
-    _mnt_dev "${archisodevice}" "/bootmnt" "-r"
+    if [[ "${archisodevice}" -ef "${cow_device}" ]]; then
+        _mnt_dev "${archisodevice}" "/bootmnt"
+    else
+        _mnt_dev "${archisodevice}" "/bootmnt" "-r"
+    fi
+
     if [[ ! -f "${aitab}" ]]; then
         echo "ERROR: '${aitab}' file does not exist."
         echo "   Falling back to interactive prompt"
@@ -174,14 +208,17 @@ archiso_mount_handler() {
     fi
 
     if [[ "${copytoram}" == "y" ]]; then
-        msg -n ":: Mounting /copytoram (tmpfs) filesystem, size=${copytoram_size}..."
+        msg ":: Mounting /copytoram (tmpfs) filesystem, size=${copytoram_size}"
         mount -t tmpfs -o "size=${copytoram_size}",mode=0755 copytoram /copytoram
-        msg "done."
     fi
 
-    msg -n ":: Mounting /cowspace (tmpfs) filesystem, size=${cowspace_size}..."
-    mount -t tmpfs -o "size=${cowspace_size}",mode=0755 cowspace /cowspace
-    msg "done."
+    if [[ -n "${cow_device}" ]]; then
+        _mnt_dev "${cow_device}" "/cowspace"
+    else
+        msg ":: Mounting /cowspace (tmpfs) filesystem, size=${cowspace_size}..."
+        mount -t tmpfs -o "size=${cowspace_size}",mode=0755 cowspace /cowspace
+    fi
+    mkdir -p "/cowspace/${cow_directory}"
 
     local aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size
     while read aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size; do
@@ -202,7 +239,7 @@ archiso_mount_handler() {
     if [[ "${copytoram}" == "y" ]]; then
         umount /bootmnt
     else
-        mkdir "${newroot}/bootmnt"
+        mkdir -p "${newroot}/bootmnt"
         mount --bind /bootmnt "${newroot}/bootmnt"
     fi
 }

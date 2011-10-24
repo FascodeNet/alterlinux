@@ -35,6 +35,16 @@ INDEX
                     performs a self-test of all files inside ${install_dir},
                     and continue booting if ok.
                     Default: (unset)
+* cow_label=        Set the filesystem label where COW (dm-snapshot)
+                    files must be stored.
+                    Default: (unset)
+* cow_device=       Set the device node where COW (dm-snapshot) files
+                    must be stored.
+                    Default: (unset) or "/dev/disk/by-label/${cow_label}"
+* cow_directory=    Set a directory inside ${cow_device}.
+                    Default: "/persistent_${archisolabel}/${arch}"
+* cow_persistent=   Set if snapshots are persistent "P" or non-persistent "N".
+                    Default: "N" (if no ${cow_device} is used) otherwise "P".
 * cowspace_size=    Set the size of tmpfs /cowspace. This space is used for
                     Copy-On-Write files of dm-snapshot.
                     (directory not visible outside initramfs)
