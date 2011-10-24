@@ -9,10 +9,6 @@ build ()
     BINARIES=""
     FILES=""
 
-    add_dir /cowspace
-    add_dir /copytoram
-    add_dir /bootmnt
-
     add_binary /lib/udev/cdrom_id
     add_binary /sbin/blockdev
     add_binary /sbin/dmsetup

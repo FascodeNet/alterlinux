@@ -40,23 +40,23 @@ _mnt_fs() {
 
 
     if [[ "${cow_persistent}" == "P" ]]; then
-        if [[ -f "/cowspace/${cow_directory}/${img_name}.cow" ]]; then
-            msg ":: Found '/cowspace/${cow_directory}/${img_name}.cow', using as persistent."
+        if [[ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]]; then
+            msg ":: Found '/run/archiso/cowspace/${cow_directory}/${img_name}.cow', using as persistent."
         else
-            msg ":: Creating '/cowspace/${cow_directory}/${img_name}.cow' as persistent."
-            dd of="/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+            msg ":: Creating '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' as persistent."
+            dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
         fi
     else
-        if [[ -f "/cowspace/${cow_directory}/${img_name}.cow" ]]; then
-            msg ":: Found '/cowspace/${cow_directory}/${img_name}.cow' but non-persistent requested, removing."
-            rm -f "/cowspace/${cow_directory}/${img_name}.cow"
+        if [[ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]]; then
+            msg ":: Found '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' but non-persistent requested, removing."
+            rm -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
         fi
-        msg ":: Creating '/cowspace/${cow_directory}/${img_name}.cow' as non-persistent."
-        dd of="/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+        msg ":: Creating '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' as non-persistent."
+        dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
     fi
 
     _next_loop_dev
-    rw_dev=$(_make_loop_dev "/cowspace/${cow_directory}/${img_name}.cow")
+    rw_dev=$(_make_loop_dev "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
 
     echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8" | dmsetup create ${dm_snap_name}
 
@@ -77,11 +77,11 @@ _mnt_sfs() {
 
     if [[ "${copytoram}" == "y" ]]; then
         msg -n ":: Copying squashfs image to RAM..."
-        if ! cp "${img}" "/copytoram/${img_fullname}" ; then
-            echo "ERROR: while copy '${img}' to '/copytoram/${img_fullname}'"
+        if ! cp "${img}" "/run/archiso/copytoram/${img_fullname}" ; then
+            echo "ERROR: while copy '${img}' to '/run/archiso/copytoram/${img_fullname}'"
             launch_interactive_shell
         fi
-        img="/copytoram/${img_fullname}"
+        img="/run/archiso/copytoram/${img_fullname}"
         msg "done."
     fi
     _next_loop_dev
@@ -99,6 +99,8 @@ _mnt_dev() {
     local flg="${3}"
 
     local fstype fserror
+
+    mkdir -p "${mnt}"
 
     msg ":: Mounting '${dev}' to '${mnt}'"
 
@@ -132,7 +134,7 @@ _mnt_dev() {
 
 _verify_checksum() {
     local _status
-    cd "/bootmnt/${archisobasedir}"
+    cd "/run/archiso/bootmnt/${archisobasedir}"
     md5sum -c checksum.md5 > /checksum.log 2>&1
     _status=$?
     cd "${OLDPWD}"
@@ -150,9 +152,9 @@ run_hook() {
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
 
     if [[ -z "${aitab}" ]]; then
-        aitab="/bootmnt/${archisobasedir}/aitab"
+        aitab="/run/archiso/bootmnt/${archisobasedir}/aitab"
     else
-        aitab="/bootmnt/${aitab}"
+        aitab="/run/archiso/bootmnt/${aitab}"
     fi
 
     if [[ -n "${cow_label}" ]]; then
@@ -179,9 +181,9 @@ archiso_mount_handler() {
     _init_loop_dev
 
     if [[ "${archisodevice}" -ef "${cow_device}" ]]; then
-        _mnt_dev "${archisodevice}" "/bootmnt"
+        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt"
     else
-        _mnt_dev "${archisodevice}" "/bootmnt" "-r"
+        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
     fi
 
     if [[ ! -f "${aitab}" ]]; then
@@ -192,7 +194,7 @@ archiso_mount_handler() {
     fi
 
     if [[ "${checksum}" == "y" ]]; then
-        if [[ -f "/bootmnt/${archisobasedir}/checksum.md5" ]]; then
+        if [[ -f "/run/archiso/bootmnt/${archisobasedir}/checksum.md5" ]]; then
             msg -n ":: Self-test requested, please wait..."
             if _verify_checksum; then
                 msg "done. Checksum is OK, continue booting."
@@ -208,17 +210,19 @@ archiso_mount_handler() {
     fi
 
     if [[ "${copytoram}" == "y" ]]; then
-        msg ":: Mounting /copytoram (tmpfs) filesystem, size=${copytoram_size}"
-        mount -t tmpfs -o "size=${copytoram_size}",mode=0755 copytoram /copytoram
+        msg ":: Mounting /run/archiso/copytoram (tmpfs) filesystem, size=${copytoram_size}"
+        mkdir -p /run/archiso/copytoram
+        mount -t tmpfs -o "size=${copytoram_size}",mode=0755 copytoram /run/archiso/copytoram
     fi
 
     if [[ -n "${cow_device}" ]]; then
-        _mnt_dev "${cow_device}" "/cowspace"
+        _mnt_dev "${cow_device}" "/run/archiso/cowspace"
     else
-        msg ":: Mounting /cowspace (tmpfs) filesystem, size=${cowspace_size}..."
-        mount -t tmpfs -o "size=${cowspace_size}",mode=0755 cowspace /cowspace
+        msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cowspace_size}..."
+        mkdir -p /run/archiso/cowspace
+        mount -t tmpfs -o "size=${cowspace_size}",mode=0755 cowspace /run/archiso/cowspace
     fi
-    mkdir -p "/cowspace/${cow_directory}"
+    mkdir -p "/run/archiso/cowspace/${cow_directory}"
 
     local aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size
     while read aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size; do
@@ -226,21 +230,21 @@ archiso_mount_handler() {
         [[ "${aitab_arch}" != "any" && "${aitab_arch}" != "${arch}" ]] && continue
         if [[ "${aitab_fs_type}" != "none" ]]; then
             if [[ "${aitab_sfs_comp}" != "none" ]]; then
-                _mnt_sfs "/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/sfs/${aitab_img}"
-                _mnt_fs "/sfs/${aitab_img}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
+                _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/run/archiso/sfs/${aitab_img}"
+                _mnt_fs "/run/archiso/sfs/${aitab_img}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
             else
-                _mnt_fs "/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
+                _mnt_fs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
             fi
         else
-            _mnt_sfs "/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "${newroot}${aitab_mnt}"
+            _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "${newroot}${aitab_mnt}"
         fi
     done < "${aitab}"
 
     if [[ "${copytoram}" == "y" ]]; then
-        umount /bootmnt
+        umount /run/archiso/bootmnt
     else
         mkdir -p "${newroot}/bootmnt"
-        mount --bind /bootmnt "${newroot}/bootmnt"
+        mount --bind /run/archiso/bootmnt "${newroot}/bootmnt"
     fi
 }
 

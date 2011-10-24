@@ -20,9 +20,10 @@ archiso_loop_mount_handler () {
     msg "::: Setup a loop device from ${img_loop} located at device ${img_dev}"
     FSTYPE=$(blkid -o value -s TYPE -p ${img_dev} 2> /dev/null)
     if [ -n "${FSTYPE}" ]; then
-        if mount -r -t "${FSTYPE}" ${img_dev} /img_dev > /dev/null 2>&1; then
+        mkdir -p /run/archiso/img_dev
+        if mount -r -t "${FSTYPE}" ${img_dev} /run/archiso/img_dev > /dev/null 2>&1; then
             _dev_loop=$(losetup -f)
-            losetup ${_dev_loop} /img_dev/${img_loop}
+            losetup ${_dev_loop} /run/archiso/img_dev/${img_loop}
         fi
     fi
 

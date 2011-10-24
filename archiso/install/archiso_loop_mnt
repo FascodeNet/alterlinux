@@ -6,7 +6,7 @@ build ()
 
     BINARIES=""
     FILES=""
-    add_dir /img_dev
+
     SCRIPT="archiso_loop_mnt"
 }
 

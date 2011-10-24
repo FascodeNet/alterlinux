@@ -47,13 +47,11 @@ INDEX
                     Default: "N" (if no ${cow_device} is used) otherwise "P".
 * cowspace_size=    Set the size of tmpfs /cowspace. This space is used for
                     Copy-On-Write files of dm-snapshot.
-                    (directory not visible outside initramfs)
                     Size is in bytes (suffix with "k", "m" and "g") or
                     in percentage of available RAM.
                     Default: "75%"
-* copytoram_size=   Set the size of tmpfs /cowpytoram. This space is used for
+* copytoram_size=   Set the size of tmpfs. This space is used for
                     copy of all SquashFS images used, if copytoram=y.
-                    (directory not visible outside initramfs)
                     Size is in bytes (suffix with "k", "m" and "g") or
                     in percentage of available RAM.
                     Default: "75%"
