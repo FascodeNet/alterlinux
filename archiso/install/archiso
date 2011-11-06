@@ -1,10 +1,6 @@
 build ()
 {
-    MODULES="cdrom ide-cd_mod ide-core ide-generic loop dm-mod dm-snapshot squashfs isofs $(all_modules '/kernel/fs' | grep -v "nls")"
-    MODULES="${MODULES} $(checked_modules "/usb/host" | grep -ve "_cs" -e "sl811_hcd" -e "isp116x_hcd")"
-    MODULES="${MODULES} usb_storage sd_mod sr_mod"
-    MODULES="${MODULES} virtio_pci virtio_blk"
-    MODULES=$(echo ${MODULES}) #trim whitespace
+    MODULES="cdrom loop dm-snapshot"
 
     BINARIES=""
     FILES=""
