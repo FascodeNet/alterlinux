@@ -1,6 +1,6 @@
 # vim: set ft=sh:
 run_hook () {
-    local line i address netmask gateway dns0 dns1 rootserver rootpath filename
+    local line i net_mac bootif_mac bootif_dev address netmask gateway dns0 dns1 rootserver rootpath filename
 
     : > /ip_opts
 
@@ -8,9 +8,14 @@ run_hook () {
         if [ -n "${BOOTIF}" ]; then
             bootif_mac=${BOOTIF#01-}
             bootif_mac=${bootif_mac//-/:}
-            bootif_dev=$(grep -l ${bootif_mac} /sys/class/net/*/address)
-            bootif_dev=${bootif_dev#/sys/class/net/}
-            bootif_dev=${bootif_dev%/address}
+            for i in /sys/class/net/*/address; do
+                read net_mac < ${i}
+                if [ "${bootif_mac}" == "${net_mac}" ]; then
+                    bootif_dev=${i#/sys/class/net/}
+                    bootif_dev=${bootif_dev%/address}
+                    break
+                fi
+            done
             ip="${ip}::${bootif_dev}"
         fi
 
