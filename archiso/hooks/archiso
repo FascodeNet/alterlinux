@@ -242,9 +242,6 @@ archiso_mount_handler() {
 
     if [[ "${copytoram}" == "y" ]]; then
         umount /run/archiso/bootmnt
-    else
-        mkdir -p "${newroot}/bootmnt"
-        mount --bind /run/archiso/bootmnt "${newroot}/bootmnt"
     fi
 }
 
