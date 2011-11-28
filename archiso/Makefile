@@ -22,6 +22,8 @@ install-hooks:
 	install -D -m 644 install/archiso_pxe_nbd $(DESTDIR)/lib/initcpio/install/archiso_pxe_nbd
 	install -D -m 644 hooks/archiso_pxe_curl $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_curl
 	install -D -m 644 install/archiso_pxe_curl $(DESTDIR)/lib/initcpio/install/archiso_pxe_curl
+	install -D -m 644 hooks/archiso_pxe_nfs $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_nfs
+	install -D -m 644 install/archiso_pxe_nfs $(DESTDIR)/lib/initcpio/install/archiso_pxe_nfs
 	install -D -m 644 hooks/archiso_loop_mnt $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt
 	install -D -m 644 install/archiso_loop_mnt $(DESTDIR)/lib/initcpio/install/archiso_loop_mnt
 
@@ -49,6 +51,8 @@ uninstall:
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_pxe_nbd
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_curl
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_pxe_curl
+	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_pxe_nfs
+	rm -f $(DESTDIR)/lib/initcpio/install/archiso_pxe_nfs
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_loop_mnt
 	rm -rf $(DESTDIR)/usr/share/archiso/

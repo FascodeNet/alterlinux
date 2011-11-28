@@ -1,0 +1,14 @@
+# vim: set ft=sh:
+
+build() {
+    MODULES="nfs"
+    SCRIPT="archiso_pxe_nfs"
+
+    add_binary "/lib/initcpio/nfsmount" "/bin/nfsmount"
+}
+
+help() {
+    cat <<HELPEOF
+  This hook loads the necessary modules for boot via PXE and NFS.
+HELPEOF
+}

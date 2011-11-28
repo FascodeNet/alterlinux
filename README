@@ -95,6 +95,26 @@ INDEX
                     Default: "75%"
 
 
+** hooks/archiso_pxe_nfs
+
+* archiso_nfs_srv=  Set the NFS-IP:/path of the server
+                    In the IP part if ${pxeserver} is used, PXE IP will be used.
+                    Default: (unset)
+* archiso_nfs_opt=  Set NFS mount options separated by comma.
+                    Default: (unset, see below)
+                    These are the implicit options:
+                      port            = as given by server portmap daemon
+                      rsize           = 1024
+                      wsize           = 1024
+                      timeo           = 7
+                      retrans         = 3
+                      acregmin        = 3
+                      acregmax        = 60
+                      acdirmin        = 30
+                      acdirmax        = 60
+                      flags           = hard, nointr, noposix, cto, ac
+
+
 ** hooks/archiso_loop_mnt
 
 * img_label=        Set the filesystem label where archiso-image.iso.
@@ -142,6 +162,8 @@ if nothing is specified on command line.
  + nbd                     for nbd-client
 * archiso_pxe_curl
  + curl                    for curl
+* archiso_pxe_nfs
+ + mkinitcpio-nfs-utils    for nfsmount
 * archiso_shutdown
  + (none)
 
