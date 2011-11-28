@@ -1,0 +1,24 @@
+# vim: set ft=sh:
+
+build ()
+{
+    MODULES="${MODULES} $(comm -2 -3 <(checked_modules "/drivers/net/" | sort) \
+                                     <(find $MODULEDIR/kernel/drivers/net/{irda,phy,wimax,wireless} \
+                                            -name '*.ko*' \
+                                            -exec bash -c 'printf "%s\n" "${@%%.ko*}" | sed "s@.*/@@;s@-@_@" | sort' _ {} +) \
+                                     | grep -v -e 'ppp_' -e 'plip' -e 'pppoe')"
+    BINARIES=""
+    FILES=""
+    SCRIPT="archiso_pxe_common"
+
+    add_dir /tmp
+
+    add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"
+}
+
+help ()
+{
+cat<<HELPEOF
+  This hook loads the necessary modules for boot via PXE.
+HELPEOF
+}

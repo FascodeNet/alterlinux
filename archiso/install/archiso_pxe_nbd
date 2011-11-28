@@ -3,20 +3,11 @@
 build ()
 {
     MODULES="nbd"
-    MODULES="${MODULES} $(comm -2 -3 <(checked_modules "/drivers/net/" | sort) \
-                                     <(find $MODULEDIR/kernel/drivers/net/{irda,phy,wimax,wireless} \
-                                            -name '*.ko*' \
-                                            -exec bash -c 'printf "%s\n" "${@%%.ko*}" | sed "s@.*/@@;s@-@_@" | sort' _ {} +) \
-                                     | grep -v -e 'ppp_' -e 'plip' -e 'pppoe')"
     BINARIES=""
     FILES=""
     SCRIPT="archiso_pxe_nbd"
 
-    add_dir /tmp
-
     add_binary "/usr/sbin/nbd-client" "/bin/nbd-client"
-    add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"
-
     add_file "/lib/initcpio/archiso_pxe_nbd" "/archiso_pxe_nbd"
 }
 
