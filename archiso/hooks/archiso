@@ -141,7 +141,7 @@ run_hook() {
     if [[ -z "${aitab}" ]]; then
         aitab="/run/archiso/bootmnt/${archisobasedir}/aitab"
     else
-        aitab="/run/archiso/bootmnt/${aitab}"
+        aitab="/run/archiso/bootmnt/${archisobasedir}/${aitab}"
     fi
 
     if [[ -n "${cow_label}" ]]; then
