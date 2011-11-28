@@ -55,6 +55,10 @@ archiso_pxe_curl_mount_handler () {
             fi
         done < "${_aitab_file}"
 
+        if [[ "${checksum}" == "y" ]]; then
+            _curl_get "${archiso_curl_url}${archisobasedir}/checksum.${arch}.md5" "${archisobasedir}"
+        fi
+
         mkdir -p "/run/archiso/bootmnt"
         mount -o bind /run/archiso/curlspace /run/archiso/bootmnt
     else
