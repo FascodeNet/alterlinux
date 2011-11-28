@@ -167,7 +167,7 @@ archiso_mount_handler() {
 
     _init_loop_dev
 
-    _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
+    mountpoint -q "/run/archiso/bootmnt" || _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
 
     if [[ ! -f "${aitab}" ]]; then
         echo "ERROR: '${aitab}' file does not exist."
