@@ -1,0 +1,18 @@
+# vim: set ft=sh:
+
+build ()
+{
+    MODULES=""
+    BINARIES=""
+    FILES=""
+    SCRIPT="archiso_pxe_curl"
+
+    add_binary "/usr/bin/curl"
+}
+
+help ()
+{
+cat<<HELPEOF
+  This hook loads the necessary modules for boot via PXE and HTTP/FTP with curl.
+HELPEOF
+}

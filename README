@@ -74,12 +74,25 @@ INDEX
                     BOOTIF=<hardware-address-of-boot-interface>
                     Default: (set via PXELINUX)
 
+
 ** hooks/archiso_pxe_nbd
 
 * archiso_nbd_name= Set NBD export name used by the server.
                     Default: archiso
 * archiso_nbd_srv=  Set an IP address where NBD reside.
                     Default: "${pxeserver}" (The <boot-server-ip from ip=)
+
+
+** hooks/archiso_pxe_curl
+
+* archiso_curl_url= Set an HTTP/FTP URL of an ISO file (first form),
+                    or a path (must end with /) where ${archisobasedir}
+                    is found with all *.sfs files (second form).
+                    In the IP part if ${pxeserver} is used, PXE IP will be used.
+                    Default: (unset)
+* curlspace_size=   Set the size of tmpfs of "curlspace" where the specified
+                    ISO image or *.sfs files are downloaded.
+                    Default: "75%"
 
 
 ** hooks/archiso_loop_mnt
@@ -127,6 +140,8 @@ if nothing is specified on command line.
  + mkinitcpio-nfs-utils    for ipconfig
 * archiso_pxe_nbd
  + nbd                     for nbd-client
+* archiso_pxe_curl
+ + curl                    for curl
 * archiso_shutdown
  + (none)
 

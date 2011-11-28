@@ -16,7 +16,7 @@ script_path=$(readlink -f ${0%/*})
 # Base installation (root-image)
 make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "base" create
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "memtest86+ syslinux mkinitcpio-nfs-utils nbd" create
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "memtest86+ syslinux mkinitcpio-nfs-utils nbd curl" create
 }
 
 # Additional packages (root-image)
@@ -28,7 +28,7 @@ make_packages() {
 make_setup_mkinitcpio() {
    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         local _hook
-        for _hook in archiso archiso_shutdown archiso_pxe_common archiso_pxe_nbd archiso_loop_mnt; do
+        for _hook in archiso archiso_shutdown archiso_pxe_common archiso_pxe_nbd archiso_pxe_curl archiso_loop_mnt; do
             cp /lib/initcpio/hooks/${_hook} ${work_dir}/root-image/lib/initcpio/hooks
             cp /lib/initcpio/install/${_hook} ${work_dir}/root-image/lib/initcpio/install
         done

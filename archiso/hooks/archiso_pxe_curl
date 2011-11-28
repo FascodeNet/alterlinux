@@ -1,0 +1,75 @@
+# vim: set ft=sh:
+
+run_hook() {
+    if [[ -n "${ip}" && -n "${archiso_curl_url}" ]]; then
+        archiso_curl_url=$(eval echo ${archiso_curl_url})
+        [[ -z "${curlspace_size}" ]] && curlspace_size="75%"
+        mount_handler="archiso_pxe_curl_mount_handler"
+    fi
+}
+
+# Fetch a file with CURL
+#
+# $1 URL
+# $2 Destination directory inside curlspace
+_curl_get() {
+    local _url="${1}"
+    local _dst="${2}"
+
+    msg ":: Downloading '${_url}'"
+    if ! curl -f -o "/run/archiso/curlspace/${_dst}/${_url##*/}" --create-dirs "${_url}"; then
+        echo "ERROR: Downloading '${_url}'"
+        echo "   Falling back to interactive prompt"
+        echo "   You can try to fix the problem manually, log out when you are finished"
+        launch_interactive_shell
+    fi
+}
+
+archiso_pxe_curl_mount_handler () {
+    newroot="${1}"
+
+    msg ":: Mounting /run/archiso/curlspace (tmpfs) filesystem, size='${curlspace_size}'"
+    mkdir -p "/run/archiso/curlspace"
+    mount -t tmpfs -o size="${curlspace_size}",mode=0755 curlspace "/run/archiso/curlspace"
+
+    # Check if URL ends in /
+    if [[ "${archiso_curl_url}" != "${archiso_curl_url%/}" ]]; then
+
+        local _aitab_url="${archiso_curl_url}${aitab#/run/archiso/bootmnt/}"
+        local _aitab_file="/run/archiso/curlspace/${aitab#/run/archiso/bootmnt/}"
+
+        _curl_get "${_aitab_url}" "${archisobasedir}"
+
+        local aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size
+        while read aitab_img aitab_mnt aitab_arch aitab_sfs_comp aitab_fs_type aitab_fs_size; do
+            [[ "${aitab_img#\#}" != "${aitab_img}" ]] && continue
+            [[ "${aitab_arch}" != "any" && "${aitab_arch}" != "${arch}" ]] && continue
+            if [[ "${aitab_fs_type}" != "none" ]]; then
+                if [[ "${aitab_sfs_comp}" != "none" ]]; then
+                    _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "${archisobasedir}/${aitab_arch}"
+                else
+                    _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.fs" "${archisobasedir}/${aitab_arch}"
+                fi
+            else
+                _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "${archisobasedir}/${aitab_arch}"
+            fi
+        done < "${_aitab_file}"
+
+        mkdir -p "/run/archiso/bootmnt"
+        mount -o bind /run/archiso/curlspace /run/archiso/bootmnt
+    else
+        local _dev_loop
+
+        _curl_get "${archiso_curl_url}" "/"
+
+        _dev_loop=$(losetup -f)
+        if ! losetup "${_dev_loop}" "/run/archiso/curlspace/${archiso_curl_url##*/}"; then
+            echo "ERROR: Setting loopback device '${_dev_loop}'"
+            echo "   for file '/run/archiso/curlspace/${archiso_curl_url##*/}'"
+            echo "   Falling back to interactive prompt"
+            echo "   You can try to fix the problem manually, log out when you are finished"
+            launch_interactive_shell
+        fi
+    fi
+    archiso_mount_handler ${newroot}
+}
