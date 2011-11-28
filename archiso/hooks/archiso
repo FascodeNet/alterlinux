@@ -98,8 +98,6 @@ _mnt_dev() {
     local mnt="${2}"
     local flg="${3}"
 
-    local fstype fserror
-
     mkdir -p "${mnt}"
 
     msg ":: Mounting '${dev}' to '${mnt}'"
@@ -111,21 +109,10 @@ _mnt_dev() {
         launch_interactive_shell
     done
 
-    fstype=$(blkid -o value -s TYPE -p "${dev}" 2> /dev/null)
-    if [[ -n "${fstype}" ]]; then
-        if mount ${flg} -t "${fstype}" "${dev}" "${mnt}"; then
-            msg ":: Device '${dev}' mounted successfully."
-            fserror=0
-        else
-            echo "ERROR; Failed to mount '${dev}' (FS is ${fstype})"
-            fserror=1
-        fi
+    if mount "${flg}" "${dev}" "${mnt}"; then
+        msg ":: Device '${dev}' mounted successfully."
     else
-        echo "ERROR: '${dev}' found, but the filesystem type is unknown."
-        fserror=1
-    fi
-
-    if [[ ${fserror} -eq 1 ]]; then
+        echo "ERROR; Failed to mount '${dev}'"
         echo "   Falling back to interactive prompt"
         echo "   You can try to fix the problem manually, log out when you are finished"
         launch_interactive_shell
