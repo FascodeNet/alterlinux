@@ -299,13 +299,23 @@ _mkfs () {
 command_checksum () {
     _show_config checksum
 
-    if _is_directory_changed "${work_dir}/iso/${install_dir}" "${work_dir}/iso/${install_dir}/checksum.md5"; then
-        _msg_info "Creating checksum file for self-test"
-        cd "${work_dir}/iso/${install_dir}"
-        find -type f ! -name checksum.md5 -print0 | xargs -0 md5sum > checksum.md5
-        cd ${OLDPWD}
-        _msg_info "Done!"
-    fi
+    local _chk_arch
+
+    for _chk_arch in i686 x86_64; do
+        if _is_directory_changed "${work_dir}/iso/${install_dir}" "${work_dir}/iso/${install_dir}/checksum.${_chk_arch}.md5"; then
+            _msg_info "Creating checksum file for self-test (${_chk_arch})"
+            cd "${work_dir}/iso/${install_dir}"
+            if [[ -d "${_chk_arch}" ]]; then
+                md5sum aitab > checksum.${_chk_arch}.md5
+                find ${_chk_arch} -type f -print0 | xargs -0 md5sum >> checksum.${_chk_arch}.md5
+                if [[ -d "any" ]]; then
+                    find any -type f -print0 | xargs -0 md5sum >> checksum.${_chk_arch}.md5
+                fi
+            fi
+            cd ${OLDPWD}
+            _msg_info "Done!"
+        fi
+    done
 }
 
 # Create an ISO9660 filesystem from "iso" directory.
