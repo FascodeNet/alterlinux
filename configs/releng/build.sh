@@ -24,21 +24,6 @@ make_packages() {
     mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" create
 }
 
-# Customize installation (root-image)
-make_customize_root_image() {
-    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        cp -af ${script_path}/root-image ${work_dir}
-        chmod 750 ${work_dir}/root-image/etc/sudoers.d
-        chmod 440 ${work_dir}/root-image/etc/sudoers.d/g_wheel
-        mkdir -p ${work_dir}/root-image/etc/pacman.d
-        wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
-        sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
-        chroot ${work_dir}/root-image /usr/sbin/locale-gen
-        chroot ${work_dir}/root-image /usr/sbin/useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch
-        : > ${work_dir}/build.${FUNCNAME}
-    fi
-}
-
 # Copy mkinitcpio archiso hooks (root-image)
 make_setup_mkinitcpio() {
    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
@@ -49,6 +34,7 @@ make_setup_mkinitcpio() {
         done
         cp /lib/initcpio/archiso_shutdown ${work_dir}/root-image/lib/initcpio
         cp /lib/initcpio/archiso_pxe_nbd ${work_dir}/root-image/lib/initcpio
+        cp ${script_path}/mkinitcpio.conf ${work_dir}/root-image/etc/mkinitcpio-archiso.conf
         : > ${work_dir}/build.${FUNCNAME}
    fi
 }
@@ -59,11 +45,8 @@ make_boot() {
         local _src=${work_dir}/root-image
         local _dst_boot=${work_dir}/iso/${install_dir}/boot
         mkdir -p ${_dst_boot}/${arch}
-        mkinitcpio \
-            -c ${script_path}/mkinitcpio.conf \
-            -b ${_src} \
-            -k /boot/vmlinuz-linux \
-            -g ${_dst_boot}/${arch}/archiso.img
+        mkarchroot -n -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img" ${_src}
+        mv ${_src}/boot/archiso.img ${_dst_boot}/${arch}/archiso.img
         mv ${_src}/boot/vmlinuz-linux ${_dst_boot}/${arch}/vmlinuz
         cp ${_src}/boot/memtest86+/memtest.bin ${_dst_boot}/memtest
         cp ${_src}/usr/share/licenses/common/GPL2/license.txt ${_dst_boot}/memtest.COPYING
@@ -99,6 +82,22 @@ make_isolinux() {
         sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
         cp ${work_dir}/root-image/usr/lib/syslinux/isolinux.bin ${work_dir}/iso/isolinux/
         cp ${work_dir}/root-image/usr/lib/syslinux/isohdpfx.bin ${work_dir}/iso/isolinux/
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
+
+# Customize installation (root-image)
+# NOTE: mkarchroot should not be executed after this function is executed, otherwise will overwrites some custom files.
+make_customize_root_image() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        cp -af ${script_path}/root-image ${work_dir}
+        chmod 750 ${work_dir}/root-image/etc/sudoers.d
+        chmod 440 ${work_dir}/root-image/etc/sudoers.d/g_wheel
+        mkdir -p ${work_dir}/root-image/etc/pacman.d
+        wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
+        sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
+        chroot ${work_dir}/root-image /usr/sbin/locale-gen
+        chroot ${work_dir}/root-image /usr/sbin/useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -247,11 +246,11 @@ clean_dual ()
 make_common_single() {
     make_basefs
     make_packages
-    make_customize_root_image
     make_setup_mkinitcpio
     make_boot
     make_syslinux
     make_isolinux
+    make_customize_root_image
     make_lib_modules
     make_usr_share
     make_aitab $1

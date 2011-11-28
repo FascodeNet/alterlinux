@@ -24,6 +24,7 @@ make_setup_mkinitcpio() {
    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         cp /lib/initcpio/hooks/archiso ${work_dir}/root-image/lib/initcpio/hooks
         cp /lib/initcpio/install/archiso ${work_dir}/root-image/lib/initcpio/install
+        cp ${script_path}/mkinitcpio.conf ${work_dir}/root-image/etc/mkinitcpio-archiso.conf
         : > ${work_dir}/build.${FUNCNAME}
    fi
 }
@@ -32,11 +33,8 @@ make_setup_mkinitcpio() {
 make_boot() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         mkdir -p ${work_dir}/iso/${install_dir}/boot/${arch}
-        mkinitcpio \
-            -c ${script_path}/mkinitcpio.conf \
-            -b ${work_dir}/root-image \
-            -k /boot/vmlinuz-linux \
-            -g ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
+        mkarchroot -n -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img" ${work_dir}/root-image
+        cp ${work_dir}/root-image/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
         cp ${work_dir}/root-image/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz
         : > ${work_dir}/build.${FUNCNAME}
     fi
