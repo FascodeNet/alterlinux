@@ -167,11 +167,7 @@ archiso_mount_handler() {
 
     _init_loop_dev
 
-    if [[ "${archisodevice}" -ef "${cow_device}" ]]; then
-        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt"
-    else
-        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
-    fi
+    _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
 
     if [[ ! -f "${aitab}" ]]; then
         echo "ERROR: '${aitab}' file does not exist."
@@ -203,7 +199,8 @@ archiso_mount_handler() {
     fi
 
     if [[ -n "${cow_device}" ]]; then
-        _mnt_dev "${cow_device}" "/run/archiso/cowspace"
+        _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-r"
+        mount -o remount,rw "/run/archiso/cowspace"
     else
         msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cowspace_size}..."
         mkdir -p /run/archiso/cowspace

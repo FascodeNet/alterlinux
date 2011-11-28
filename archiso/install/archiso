@@ -14,6 +14,9 @@ build ()
     add_file /lib/udev/rules.d/95-dm-notify.rules
     add_file /lib/initcpio/udev/11-dm-initramfs.rules /lib/udev/rules.d/11-dm-initramfs.rules
 
+    # Add an empty fstab to avoid mount warning when -o remount is used (this should go to install/base)
+    : > "$BUILDROOT/etc/fstab"
+
     SCRIPT="archiso"
 }
 

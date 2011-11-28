@@ -11,11 +11,7 @@ archiso_loop_mount_handler () {
     newroot="${1}"
 
     msg ":: Setup a loop device from ${img_loop} located at device ${img_dev}"
-    if [[ "${img_dev}" -ef "${cow_device}" ]]; then
-        _mnt_dev "${img_dev}" "/run/archiso/img_dev"
-    else
-        _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r"
-    fi
+    _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r"
 
     _dev_loop=$(losetup -f)
     if ! losetup "${_dev_loop}" "/run/archiso/img_dev/${img_loop}"; then
