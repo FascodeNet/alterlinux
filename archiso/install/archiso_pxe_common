@@ -11,9 +11,18 @@ build ()
     FILES=""
     SCRIPT="archiso_pxe_common"
 
+    # Add here for now, but this should go to "install/base".
     add_dir /tmp
+    add_dir /etc
 
     add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"
+
+    # Add hosts support files+dns
+    add_symlink $(readlink /lib/libnss_files.so.2) /lib/libnss_files.so.2
+    add_binary $(readlink -f /lib/libnss_files.so.2)
+    add_symlink $(readlink /lib/libnss_dns.so.2) /lib/libnss_dns.so.2
+    add_binary $(readlink -f /lib/libnss_dns.so.2)
+    echo "hosts: files dns" > $BUILDROOT/etc/nsswitch.conf
 }
 
 help ()

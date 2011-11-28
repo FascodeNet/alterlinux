@@ -30,5 +30,13 @@ run_hook () {
         . /tmp/net-*.conf
 
         pxeserver=${ROOTSERVER}
+
+        # setup DNS resolver
+        if [[ "${IPV4DNS0}" != "0.0.0.0" ]]; then
+            echo "nameserver ${IPV4DNS0}" > /etc/resolv.conf
+        fi
+        if [[ "${IPV4DNS1}" != "0.0.0.0" ]]; then
+            echo "nameserver ${IPV4DNS1}" >> /etc/resolv.conf
+        fi
     fi
 }
