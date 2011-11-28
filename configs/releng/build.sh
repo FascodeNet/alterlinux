@@ -60,9 +60,11 @@ make_syslinux() {
         local _src_syslinux=${work_dir}/root-image/usr/lib/syslinux
         local _dst_syslinux=${work_dir}/iso/${install_dir}/boot/syslinux
         mkdir -p ${_dst_syslinux}
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g;
-            s|%ARCH%|${arch}|g" ${script_path}/syslinux/syslinux.cfg > ${_dst_syslinux}/syslinux.cfg
+        for _cfg in ${script_path}/syslinux/*.cfg; do
+            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+                 s|%INSTALL_DIR%|${install_dir}|g;
+                 s|%ARCH%|${arch}|g" ${_cfg} > ${_dst_syslinux}/${_cfg##*/}
+        done
         cp ${script_path}/syslinux/splash.png ${_dst_syslinux}
         cp ${_src_syslinux}/*.c32 ${_dst_syslinux}
         cp ${_src_syslinux}/*.com ${_dst_syslinux}
@@ -188,7 +190,7 @@ make_dual() {
         cp -a -l -f ${_src_one} ${work_dir}/dual
         cp -a -l -n ${_src_two} ${work_dir}/dual
         rm -f ${work_dir}/dual/iso/${install_dir}/aitab
-        rm -f ${work_dir}/dual/iso/${install_dir}/boot/syslinux/syslinux.cfg
+        rm -f ${work_dir}/dual/iso/${install_dir}/boot/syslinux/*.cfg
         if [[ ${_iso_type} == "core" ]]; then
             if [[ ! -e ${work_dir}/dual/iso/${install_dir}/any/repo-core-any.sfs ||
                   ! -e ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs ||
