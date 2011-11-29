@@ -26,6 +26,7 @@ install-hooks:
 	install -D -m 644 install/archiso_pxe_nfs $(DESTDIR)/lib/initcpio/install/archiso_pxe_nfs
 	install -D -m 644 hooks/archiso_loop_mnt $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt
 	install -D -m 644 install/archiso_loop_mnt $(DESTDIR)/lib/initcpio/install/archiso_loop_mnt
+	install -D -m 644 install/archiso_kms $(DESTDIR)/lib/initcpio/install/archiso_kms
 
 install-examples:
 	# install examples
@@ -55,6 +56,7 @@ uninstall:
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_pxe_nfs
 	rm -f $(DESTDIR)/lib/initcpio/hooks/archiso_loop_mnt
 	rm -f $(DESTDIR)/lib/initcpio/install/archiso_loop_mnt
+	rm -f $(DESTDIR)/lib/initcpio/install/archiso_kms
 	rm -rf $(DESTDIR)/usr/share/archiso/
 
 .PHONY: install install-program install-hooks install-examples install-doc uninstall

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+build() {
+    MODULES="radeon nouveau i915 via-agp sis-agp intel-agp"
+    if [[ $(uname -m) == i686 ]]; then
+        MODULES+=" amd64-agp ati-agp sworks-agp ali-agp amd-k7-agp nvidia-agp efficeon-agp"
+    fi
+}
+
+help() {
+    cat << HELPEOF
+Adds all common KMS drivers to the initramfs image.
+HELPEOF
+}
