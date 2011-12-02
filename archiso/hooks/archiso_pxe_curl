@@ -2,8 +2,10 @@
 
 run_hook() {
     if [[ -n "${ip}" && -n "${archiso_curl_url}" ]]; then
+
         archiso_curl_url=$(eval echo ${archiso_curl_url})
         [[ -z "${curlspace_size}" ]] && curlspace_size="75%"
+
         mount_handler="archiso_pxe_curl_mount_handler"
     fi
 }

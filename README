@@ -3,7 +3,10 @@ INDEX
 
 * Boot parameters (initramfs stage)
   * hooks/archiso
+  * hooks/archiso_pxe_common
   * hooks/archiso_pxe_nbd
+  * hooks/archiso_pxe_curl
+  * hooks/archiso_pxe_nfs
   * hooks/archiso_loop_mnt
 * Boot parameters (only for configs/releng)
   * etc/rc.conf
@@ -80,7 +83,8 @@ INDEX
 * archiso_nbd_name= Set NBD export name used by the server.
                     Default: archiso
 * archiso_nbd_srv=  Set an IP address where NBD reside.
-                    Default: "${pxeserver}" (The <boot-server-ip from ip=)
+                    If ${pxeserver} is used, PXE IP will be used.
+                    Default: (unset)
 
 
 ** hooks/archiso_pxe_curl

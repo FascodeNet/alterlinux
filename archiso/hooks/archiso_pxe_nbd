@@ -1,9 +1,10 @@
 # vim: set ft=sh:
 
 run_hook() {
-    if [[ -n "${ip}" ]]; then
+    if [[ -n "${ip}" && -n "${archiso_nbd_srv}" ]]; then
+
+        archiso_nbd_srv=$(eval echo ${archiso_nbd_srv})
         [[ -z "${archiso_nbd_name}" ]] && archiso_nbd_name="archiso"
-        [[ -z "${archiso_nbd_srv}" ]] && archiso_nbd_srv="${pxeserver}"
 
         mount_handler="archiso_pxe_nbd_mount_handler"
     fi
