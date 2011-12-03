@@ -6,7 +6,7 @@ run_hook() {
         archiso_curl_url=$(eval echo ${archiso_curl_url})
         [[ -z "${curlspace_size}" ]] && curlspace_size="75%"
 
-        mount_handler="archiso_pxe_curl_mount_handler"
+        mount_handler="archiso_pxe_http_mount_handler"
     fi
 }
 
@@ -27,7 +27,7 @@ _curl_get() {
     fi
 }
 
-archiso_pxe_curl_mount_handler () {
+archiso_pxe_http_mount_handler () {
     newroot="${1}"
 
     msg ":: Mounting /run/archiso/curlspace (tmpfs) filesystem, size='${curlspace_size}'"

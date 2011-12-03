@@ -5,7 +5,7 @@ build ()
     MODULES=""
     BINARIES=""
     FILES=""
-    SCRIPT="archiso_pxe_curl"
+    SCRIPT="archiso_pxe_http"
 
     add_binary "/usr/bin/curl"
 }

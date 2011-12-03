@@ -5,7 +5,7 @@ INDEX
   * hooks/archiso
   * hooks/archiso_pxe_common
   * hooks/archiso_pxe_nbd
-  * hooks/archiso_pxe_curl
+  * hooks/archiso_pxe_http
   * hooks/archiso_pxe_nfs
   * hooks/archiso_loop_mnt
 * Boot parameters (only for configs/releng)
@@ -87,7 +87,7 @@ INDEX
                     Default: (unset)
 
 
-** hooks/archiso_pxe_curl
+** hooks/archiso_pxe_http
 
 * archiso_curl_url= Set an HTTP/FTP URL (must end with /) where ${archisobasedir}
                     is found with all *.sfs files.
@@ -163,7 +163,7 @@ if nothing is specified on command line.
  + mkinitcpio-nfs-utils    for ipconfig
 * archiso_pxe_nbd
  + nbd                     for nbd-client
-* archiso_pxe_curl
+* archiso_pxe_http
  + curl                    for curl
 * archiso_pxe_nfs
  + mkinitcpio-nfs-utils    for nfsmount
