@@ -89,10 +89,9 @@ INDEX
 
 ** hooks/archiso_pxe_curl
 
-* archiso_curl_url= Set an HTTP/FTP URL of an ISO file (first form),
-                    or a path (must end with /) where ${archisobasedir}
-                    is found with all *.sfs files (second form).
-                    In the IP part if ${pxeserver} is used, PXE IP will be used.
+* archiso_curl_url= Set an HTTP/FTP URL (must end with /) where ${archisobasedir}
+                    is found with all *.sfs files.
+                    In the IP/domain part if ${pxeserver} is used, use PXE IP.
                     Default: (unset)
 * curlspace_size=   Set the size of tmpfs of "curlspace" where the specified
                     ISO image or *.sfs files are downloaded.
