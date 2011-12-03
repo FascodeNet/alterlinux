@@ -13,6 +13,6 @@ build ()
 help ()
 {
 cat<<HELPEOF
-  This hook loads the necessary modules for boot via PXE and HTTP/FTP with curl.
+  This hook loads the necessary modules for boot via PXE and HTTP.
 HELPEOF
 }

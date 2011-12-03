@@ -1,10 +1,10 @@
 # vim: set ft=sh:
 
 run_hook() {
-    if [[ -n "${ip}" && -n "${archiso_curl_url}" ]]; then
+    if [[ -n "${ip}" && -n "${archiso_http_srv}" ]]; then
 
-        archiso_curl_url=$(eval echo ${archiso_curl_url})
-        [[ -z "${curlspace_size}" ]] && curlspace_size="75%"
+        archiso_http_srv=$(eval echo ${archiso_http_srv})
+        [[ -z "${archiso_http_spc}" ]] && archiso_http_spc="75%"
 
         mount_handler="archiso_pxe_http_mount_handler"
     fi
@@ -13,13 +13,13 @@ run_hook() {
 # Fetch a file with CURL
 #
 # $1 URL
-# $2 Destination directory inside curlspace/${archisobasedir}
+# $2 Destination directory inside httpspace/${archisobasedir}
 _curl_get() {
     local _url="${1}"
     local _dst="${2}"
 
     msg ":: Downloading '${_url}'"
-    if ! curl -f -o "/run/archiso/curlspace/${archisobasedir}${_dst}/${_url##*/}" --create-dirs "${_url}"; then
+    if ! curl -f -o "/run/archiso/httpspace/${archisobasedir}${_dst}/${_url##*/}" --create-dirs "${_url}"; then
         echo "ERROR: Downloading '${_url}'"
         echo "   Falling back to interactive prompt"
         echo "   You can try to fix the problem manually, log out when you are finished"
@@ -30,12 +30,12 @@ _curl_get() {
 archiso_pxe_http_mount_handler () {
     newroot="${1}"
 
-    msg ":: Mounting /run/archiso/curlspace (tmpfs) filesystem, size='${curlspace_size}'"
-    mkdir -p "/run/archiso/curlspace"
-    mount -t tmpfs -o size="${curlspace_size}",mode=0755 curlspace "/run/archiso/curlspace"
+    msg ":: Mounting /run/archiso/httpspace (tmpfs) filesystem, size='${archiso_http_spc}'"
+    mkdir -p "/run/archiso/httpspace"
+    mount -t tmpfs -o size="${archiso_http_spc}",mode=0755 httpspace "/run/archiso/httpspace"
 
-    local _aitab_url="${archiso_curl_url}${aitab#/run/archiso/bootmnt/}"
-    local _aitab_file="/run/archiso/curlspace/${aitab#/run/archiso/bootmnt/}"
+    local _aitab_url="${archiso_http_srv}${aitab#/run/archiso/bootmnt/}"
+    local _aitab_file="/run/archiso/httpspace/${aitab#/run/archiso/bootmnt/}"
 
     _curl_get "${_aitab_url}" "/"
 
@@ -44,18 +44,18 @@ archiso_pxe_http_mount_handler () {
         [[ "${aitab_img#\#}" != "${aitab_img}" ]] && continue
         [[ "${aitab_arch}" != "any" && "${aitab_arch}" != "${arch}" ]] && continue
         if [[ "${aitab_fs_type}" != "none" ]]; then
-            _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/${aitab_arch}"
+            _curl_get "${archiso_http_srv}${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/${aitab_arch}"
         else
-            _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "/${aitab_arch}"
+            _curl_get "${archiso_http_srv}${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "/${aitab_arch}"
         fi
     done < "${_aitab_file}"
 
     if [[ "${checksum}" == "y" ]]; then
-        _curl_get "${archiso_curl_url}${archisobasedir}/checksum.${arch}.md5" "/"
+        _curl_get "${archiso_http_srv}${archisobasedir}/checksum.${arch}.md5" "/"
     fi
 
     mkdir -p "/run/archiso/bootmnt"
-    mount -o bind /run/archiso/curlspace /run/archiso/bootmnt
+    mount -o bind /run/archiso/httpspace /run/archiso/bootmnt
 
     archiso_mount_handler ${newroot}
 }
