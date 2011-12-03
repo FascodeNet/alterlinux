@@ -363,25 +363,15 @@ command_prepare () {
         if [[ ${_aitab_img} =~ ^# ]]; then
             continue
         fi
-        if [[ ${_aitab_sfs_comp} == "none" && ${_aitab_fs_type} == "none" ]]; then
-            _msg_error "In aitab, both fields 'sfs_comp' and 'fs_type' are set to none for '${_aitab_img}' image" 1
-        fi
         local _src="${work_dir}/${_aitab_img}"
         local _dst="${work_dir}/iso/${install_dir}/${_aitab_arch}"
         mkdir -p "${_dst}"
         if [[ ${_aitab_fs_type} != "none" ]]; then
-            if [[ ${_aitab_sfs_comp} != "none" ]]; then
-                if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
-                    _mkfs ${_aitab_img} ${_aitab_fs_type} ${_aitab_fs_size}
-                    _mksfs ${_aitab_img}.fs ${_aitab_sfs_comp}
-                    mv "${_src}.fs.sfs" "${_dst}"
-                    rm "${_src}.fs"
-                fi
-            else
-                if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs"; then
-                    _mkfs ${_aitab_img} ${_aitab_fs_type} ${_aitab_fs_size}
-                    mv "${work_dir}/${_aitab_img}.fs" "${_dst}"
-                fi
+            if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
+                _mkfs ${_aitab_img} ${_aitab_fs_type} ${_aitab_fs_size}
+                _mksfs ${_aitab_img}.fs ${_aitab_sfs_comp}
+                mv "${_src}.fs.sfs" "${_dst}"
+                rm "${_src}.fs"
             fi
         else
             if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.sfs"; then

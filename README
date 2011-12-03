@@ -178,10 +178,6 @@ if nothing is specified on command line.
 * image-name.fs.sfs  SquashFS with only one file inside (image-name.fs),
                      which is an image of some type of filesystem
                      (ext4, ext3, ext2, xfs), all files reside on it.
-* image-name.fs      Like image-name.fs.sfs but without SquashFS.
-                     (For testing purposes only. The option copytoram
-                     for archiso hook does not have any effect on these images)
-
 
 
 *** File format for aitab.
@@ -196,7 +192,6 @@ It consists of some fields which define the behaviour of images.
 <mnt>      Mount point.
 <arch>     Architecture { i686 | x86_64 | any }.
 <sfs_comp> SquashFS compression type { gzip | lzo | xz }.
-           A special value of "none" denotes no usage of SquashFS.
 <fs_type>  Set the filesystem type of the image { ext4 | ext3 | ext2 | xfs }.
            A special value of "none" denotes no usage of a filesystem.
            In that case all files are pushed directly to SquashFS filesystem.
@@ -206,9 +201,6 @@ It consists of some fields which define the behaviour of images.
            {1%..99%} (example 50%, 10%, 7%).
            This is an estimation, and calculated in a simple way.
            Space used + 10% (estimated for metadata overhead) + desired %
-
-Note: Some combinations are invalid, example: sfs_comp=none and fs_type=none
-
 
 
 *** Why the /isolinux and /arch/boot/syslinux directories?

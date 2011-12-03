@@ -213,12 +213,8 @@ archiso_mount_handler() {
         [[ "${aitab_img#\#}" != "${aitab_img}" ]] && continue
         [[ "${aitab_arch}" != "any" && "${aitab_arch}" != "${arch}" ]] && continue
         if [[ "${aitab_fs_type}" != "none" ]]; then
-            if [[ "${aitab_sfs_comp}" != "none" ]]; then
-                _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/run/archiso/sfs/${aitab_img}"
-                _mnt_fs "/run/archiso/sfs/${aitab_img}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
-            else
-                _mnt_fs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
-            fi
+            _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "/run/archiso/sfs/${aitab_img}"
+            _mnt_fs "/run/archiso/sfs/${aitab_img}/${aitab_img}.fs" "${newroot}${aitab_mnt}"
         else
             _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "${newroot}${aitab_mnt}"
         fi

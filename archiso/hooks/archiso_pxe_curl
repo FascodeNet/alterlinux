@@ -47,11 +47,7 @@ archiso_pxe_curl_mount_handler () {
             [[ "${aitab_img#\#}" != "${aitab_img}" ]] && continue
             [[ "${aitab_arch}" != "any" && "${aitab_arch}" != "${arch}" ]] && continue
             if [[ "${aitab_fs_type}" != "none" ]]; then
-                if [[ "${aitab_sfs_comp}" != "none" ]]; then
-                    _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "${archisobasedir}/${aitab_arch}"
-                else
-                    _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.fs" "${archisobasedir}/${aitab_arch}"
-                fi
+                _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.fs.sfs" "${archisobasedir}/${aitab_arch}"
             else
                 _curl_get "${archiso_curl_url}${archisobasedir}/${aitab_arch}/${aitab_img}.sfs" "${archisobasedir}/${aitab_arch}"
             fi
