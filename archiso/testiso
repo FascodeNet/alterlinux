@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
     echo "usage: testiso <isofile> [id|ic|sd|sc|vd|vc]"
     echo
     echo "id    boot .iso as IDE disk"
@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
     echo "sd    boot .iso as SCSI disk"
     echo "sc    boot .iso as SCSI cd-rom"
     echo "vd    boot .iso as virtio disk"
-    echo "vc    boot .iso as virtio cd-rom"
+#    echo "vc    boot .iso as virtio cd-rom"
     exit 1
 fi
 
@@ -18,9 +18,9 @@ case "${2}" in
   sd) IF="scsi"; MEDIA="disk";;
   sc) IF="scsi"; MEDIA="cdrom";;
   vd) IF="virtio"; MEDIA="disk";;
-  vc) IF="virtio"; MEDIA="cdrom";;
+#  vc) IF="virtio"; MEDIA="cdrom";;
    *) IF="scsi"; MEDIA="cdrom";;
 esac
 
-echo qemu -m 256 -drive file=${1},if=${IF},media=${MEDIA},boot=on
-qemu -m 256 -drive file=${1},if=${IF},media=${MEDIA},boot=on
+echo qemu-system-x86_64 -m 256 -drive file=${1},if=${IF},media=${MEDIA},boot=on
+qemu-system-x86_64 -m 256 -drive file=${1},if=${IF},media=${MEDIA},boot=on
