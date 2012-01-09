@@ -1,27 +1,3 @@
-# Initialize loopback device logic (we using on-demand mode)
-# args: none
-_init_loop_dev() {
-    loop_dev_count=99
-    loop_dev_range=$(cat /sys/block/loop0/range)
-    loop_dev_minor=$((loop_dev_count*loop_dev_range))
-}
-
-# Call this function before _make_loop_dev() each time.
-# args: none
-_next_loop_dev() {
-    loop_dev_count=$((loop_dev_count+1))
-    loop_dev_minor=$((loop_dev_count*loop_dev_range))
-}
-
-# Setup a loopback device for image passed as argument and echo the path to loopback device used.
-# args: /path/to/image_file
-_make_loop_dev() {
-    local img="${1}"
-    mknod /dev/loop${loop_dev_count} b 7 ${loop_dev_minor} &> /dev/null
-    losetup /dev/loop${loop_dev_count} "${img}" &> /dev/null
-    echo /dev/loop${loop_dev_count}
-}
-
 # args: source, newroot, mountpoint
 _mnt_fs() {
     local img="${1}"
@@ -34,8 +10,7 @@ _mnt_fs() {
 
     mkdir -p "${newroot}${mnt}"
 
-    _next_loop_dev
-    ro_dev=$(_make_loop_dev "${img}")
+    ro_dev=$(losetup --find --show "${img}")
     ro_dev_size=$(blockdev --getsz ${ro_dev})
 
     if [[ "${cow_persistent}" == "P" ]]; then
@@ -54,8 +29,7 @@ _mnt_fs() {
         dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
     fi
 
-    _next_loop_dev
-    rw_dev=$(_make_loop_dev "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
+    rw_dev=$(losetup --find --show "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
 
     echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8" | dmsetup create ${dm_snap_name}
 
@@ -85,9 +59,8 @@ _mnt_sfs() {
         img="/run/archiso/copytoram/${img_fullname}"
         msg "done."
     fi
-    _next_loop_dev
     msg ":: Mounting '${img}' (SquashFS) to '${mnt}'"
-    if ! mount -r $(_make_loop_dev "${img}") "${mnt}" &> /dev/null ; then
+    if ! mount -r "${img}" "${mnt}" &> /dev/null ; then
         echo "ERROR: while mounting '${img}' to '${mnt}'"
         launch_interactive_shell
     fi
@@ -130,8 +103,6 @@ _verify_checksum() {
 }
 
 run_hook() {
-    modprobe loop
-
     [[ -z "${arch}" ]] && arch="$(uname -m)"
     [[ -z "${cowspace_size}" ]] && cowspace_size="75%"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
@@ -165,8 +136,6 @@ run_hook() {
 # args: /path/to/newroot
 archiso_mount_handler() {
     local newroot="${1}"
-
-    _init_loop_dev
 
     mountpoint -q "/run/archiso/bootmnt" || _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
 

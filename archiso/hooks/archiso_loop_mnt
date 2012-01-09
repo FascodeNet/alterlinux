@@ -10,15 +10,13 @@ run_hook () {
 archiso_loop_mount_handler () {
     newroot="${1}"
 
+    local _dev_loop
+
     msg ":: Setup a loop device from ${img_loop} located at device ${img_dev}"
     _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r"
 
-    _dev_loop=$(losetup -f)
-    if ! losetup "${_dev_loop}" "/run/archiso/img_dev/${img_loop}"; then
-        echo "ERROR: Setting loopback device '${_dev_loop}'"
-        echo "   for file '/run/archiso/img_dev/${img_loop}'"
-        echo "   Falling back to interactive prompt"
-        echo "   You can try to fix the problem manually, log out when you are finished"
+    if ! _dev_loop=$(losetup --find --show "/run/archiso/img_dev/${img_loop}"); then
+        echo "ERROR: Setting loopback device for file '/run/archiso/img_dev/${img_loop}'"
         launch_interactive_shell
     fi
 

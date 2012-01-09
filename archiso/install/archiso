@@ -8,6 +8,7 @@ build ()
     add_binary /lib/udev/cdrom_id
     add_binary /sbin/blockdev
     add_binary /sbin/dmsetup
+    add_binary /sbin/losetup
     add_binary /bin/mountpoint
 
     add_file /lib/udev/rules.d/60-cdrom_id.rules
