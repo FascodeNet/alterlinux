@@ -1,33 +1,30 @@
-# vim: set ft=sh:
+#!/bin/bash
 
-build ()
-{
+build() {
     MODULES="${MODULES} $(comm -2 -3 <(checked_modules "/drivers/net/" | sort) \
                                      <(find $MODULEDIR/kernel/drivers/net/{irda,phy,wimax,wireless} \
                                             -name '*.ko*' \
                                             -exec bash -c 'printf "%s\n" "${@%%.ko*}" | sed "s@.*/@@;s@-@_@" | sort' _ {} +) \
                                      | grep -v -e 'ppp_' -e 'plip' -e 'pppoe')"
-    BINARIES=""
-    FILES=""
     SCRIPT="archiso_pxe_common"
 
-    # Add here for now, but this should go to "install/base".
-    add_dir /tmp
-    add_dir /etc
 
-    add_binary "/lib/initcpio/ipconfig" "/bin/ipconfig"
+    add_binary /lib/initcpio/ipconfig /bin/ipconfig
 
     # Add hosts support files+dns
     add_symlink /lib/libnss_files.so.2 $(readlink /lib/libnss_files.so.2)
     add_binary $(readlink -f /lib/libnss_files.so.2)
     add_symlink /lib/libnss_dns.so.2 $(readlink /lib/libnss_dns.so.2)
     add_binary $(readlink -f /lib/libnss_dns.so.2)
+
+    add_dir /etc
     echo "hosts: files dns" > $BUILDROOT/etc/nsswitch.conf
 }
 
-help ()
-{
+help() {
 cat<<HELPEOF
   This hook loads the necessary modules for boot via PXE.
 HELPEOF
 }
+
+# vim: set ft=sh ts=4 sw=4 et:

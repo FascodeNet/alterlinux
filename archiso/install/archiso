@@ -1,9 +1,8 @@
-build ()
-{
-    MODULES="cdrom loop dm-snapshot"
+#!/bin/bash
 
-    BINARIES=""
-    FILES=""
+build() {
+    MODULES="cdrom loop dm-snapshot"
+    SCRIPT="archiso"
 
     add_binary /lib/udev/cdrom_id
     add_binary blockdev
@@ -15,11 +14,6 @@ build ()
     add_file /lib/udev/rules.d/10-dm.rules
     add_file /lib/udev/rules.d/95-dm-notify.rules
     add_file /lib/initcpio/udev/11-dm-initramfs.rules /lib/udev/rules.d/11-dm-initramfs.rules
-
-    # Add an empty fstab to avoid mount warning when -o remount is used (this should go to install/base)
-    : > "$BUILDROOT/etc/fstab"
-
-    SCRIPT="archiso"
 }
 
-# vim:ft=sh:ts=4:sw=4:et:
+# vim: set ft=sh ts=4 sw=4 et:

@@ -1,18 +1,13 @@
-# vim: set ft=sh:
+#!/bin/bash
 
-build ()
-{
-    MODULES=""
-
-    BINARIES=""
-    FILES=""
-
+build() {
     SCRIPT="archiso_loop_mnt"
 }
 
-help ()
-{
+help() {
 cat<<HELPEOF
   This hook loads the necessary modules for boot via loop device.
 HELPEOF
 }
+
+# vim: set ft=sh ts=4 sw=4 et:

@@ -1,20 +1,18 @@
-# vim: set ft=sh:
+#!/bin/bash
 
-build ()
-{
+build() {
     MODULES="nbd"
-    BINARIES=""
-    FILES=""
     SCRIPT="archiso_pxe_nbd"
 
     add_binary nbd-client
 
-    add_file "/lib/initcpio/archiso_pxe_nbd" "/archiso_pxe_nbd"
+    add_file /lib/initcpio/archiso_pxe_nbd /archiso_pxe_nbd
 }
 
-help ()
-{
+help() {
 cat<<HELPEOF
   This hook loads the necessary modules for boot via PXE and NBD.
 HELPEOF
 }
+
+# vim: set ft=sh ts=4 sw=4 et:
