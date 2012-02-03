@@ -7,7 +7,7 @@ build ()
     FILES=""
     SCRIPT="archiso_pxe_http"
 
-    add_binary "/usr/bin/curl"
+    add_binary curl
 }
 
 help ()

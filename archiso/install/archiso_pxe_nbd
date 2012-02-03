@@ -7,7 +7,8 @@ build ()
     FILES=""
     SCRIPT="archiso_pxe_nbd"
 
-    add_binary "/usr/sbin/nbd-client" "/bin/nbd-client"
+    add_binary nbd-client
+
     add_file "/lib/initcpio/archiso_pxe_nbd" "/archiso_pxe_nbd"
 }
 
