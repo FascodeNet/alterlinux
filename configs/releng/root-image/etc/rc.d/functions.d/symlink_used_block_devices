@@ -1,0 +1,7 @@
+symlink_used_block_devices()
+{
+    mkdir /run/aif
+    ln -s /run/archiso/used_block_devices /run/aif/ignore_block_devices
+}
+
+add_hook multi_end symlink_used_block_devices
