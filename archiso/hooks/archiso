@@ -8,8 +8,6 @@ _mnt_fs() {
     local dm_snap_name="${dm_snap_prefix}_${img_name}"
     local ro_dev ro_dev_size rw_dev
 
-    mkdir -p "${newroot}${mnt}"
-
     ro_dev=$(losetup --find --show "${img}")
     ro_dev_size=$(blockdev --getsz ${ro_dev})
 
@@ -33,13 +31,8 @@ _mnt_fs() {
 
     echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8" | dmsetup create ${dm_snap_name}
 
-    msg ":: Mounting '/dev/mapper/${dm_snap_name}' to '${newroot}${mnt}'"
-    if ! mount "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" ; then
-        echo "ERROR: while mounting '/dev/mapper/${dm_snap_name}' to '${newroot}${mnt}'"
-        launch_interactive_shell
-    else
-        echo "/dev/mapper/${dm_snap_name} ${mnt} auto defaults 0 0" >> ${newroot}/etc/fstab
-    fi
+    _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
+    echo "/dev/mapper/${dm_snap_name} ${mnt} auto defaults 0 0" >> ${newroot}/etc/fstab
 }
 
 # args: /path/to/image_file, mountpoint
@@ -47,8 +40,6 @@ _mnt_sfs() {
     local img="${1}"
     local mnt="${2}"
     local img_fullname="${img##*/}"
-
-    mkdir -p "${mnt}"
 
     if [[ "${copytoram}" == "y" ]]; then
         msg -n ":: Copying squashfs image to RAM..."
@@ -59,11 +50,7 @@ _mnt_sfs() {
         img="/run/archiso/copytoram/${img_fullname}"
         msg "done."
     fi
-    msg ":: Mounting '${img}' (SquashFS) to '${mnt}'"
-    if ! mount -r "${img}" "${mnt}" &> /dev/null ; then
-        echo "ERROR: while mounting '${img}' to '${mnt}'"
-        launch_interactive_shell
-    fi
+    _mnt_dev "${img}" "${mnt}" "-r"
 }
 
 # args: device, mountpoint, flags
