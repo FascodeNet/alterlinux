@@ -9,6 +9,7 @@ _mnt_fs() {
     local ro_dev ro_dev_size rw_dev
 
     ro_dev=$(losetup --find --show --read-only "${img}")
+    echo ${ro_dev} >> /run/archiso/used_block_devices
     ro_dev_size=$(blockdev --getsz ${ro_dev})
 
     if [[ "${cow_persistent}" == "P" ]]; then
@@ -28,10 +29,12 @@ _mnt_fs() {
     fi
 
     rw_dev=$(losetup --find --show "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
+    echo ${rw_dev} >> /run/archiso/used_block_devices
 
     echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8" | dmsetup create ${dm_snap_name}
 
     _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
+    echo /dev/mapper/${dm_snap_name} >> /run/archiso/used_block_devices
     echo "/dev/mapper/${dm_snap_name} ${mnt} auto defaults 0 0" >> ${newroot}/etc/fstab
 }
 
@@ -52,6 +55,7 @@ _mnt_sfs() {
         msg "done."
     fi
     sfs_dev=$(losetup --find --show --read-only "${img}")
+    echo ${sfs_dev} >> /run/archiso/used_block_devices
     _mnt_dev "${sfs_dev}" "${mnt}" "-r"
 }
 
@@ -126,7 +130,13 @@ run_hook() {
 archiso_mount_handler() {
     local newroot="${1}"
 
-    mountpoint -q "/run/archiso/bootmnt" || _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
+    if ! mountpoint -q "/run/archiso/bootmnt"; then
+        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r"
+        if [[ "${copytoram}" != "y" ]]; then
+            echo $(readlink -f ${archisodevice}) >> /run/archiso/used_block_devices
+        fi
+    fi
+
 
     if [[ ! -f "${aitab}" ]]; then
         echo "ERROR: '${aitab}' file does not exist."
@@ -159,6 +169,7 @@ archiso_mount_handler() {
 
     if [[ -n "${cow_device}" ]]; then
         _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-r"
+        echo $(readlink -f ${cow_device}) >> /run/archiso/used_block_devices
         mount -o remount,rw "/run/archiso/cowspace"
     else
         msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cowspace_size}..."
