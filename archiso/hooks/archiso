@@ -46,7 +46,7 @@ _mnt_fs() {
 _mnt_sfs() {
     local img="${1}"
     local mnt="${2}"
-    local img_fullname="${img##*/}";
+    local img_fullname="${img##*/}"
 
     mkdir -p "${mnt}"
 
