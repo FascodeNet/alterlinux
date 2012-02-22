@@ -40,6 +40,7 @@ _mnt_sfs() {
     local img="${1}"
     local mnt="${2}"
     local img_fullname="${img##*/}"
+    local sfs_dev
 
     if [[ "${copytoram}" == "y" ]]; then
         msg -n ":: Copying squashfs image to RAM..."
@@ -50,7 +51,8 @@ _mnt_sfs() {
         img="/run/archiso/copytoram/${img_fullname}"
         msg "done."
     fi
-    _mnt_dev "${img}" "${mnt}" "-r"
+    sfs_dev=$(losetup --find --show --read-only "${img}")
+    _mnt_dev "${sfs_dev}" "${mnt}" "-r"
 }
 
 # args: device, mountpoint, flags
