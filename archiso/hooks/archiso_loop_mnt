@@ -15,7 +15,7 @@ archiso_loop_mount_handler () {
     msg ":: Setup a loop device from ${img_loop} located at device ${img_dev}"
     _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r"
 
-    if ! _dev_loop=$(losetup --find --show "/run/archiso/img_dev/${img_loop}"); then
+    if ! _dev_loop=$(losetup --find --show --read-only "/run/archiso/img_dev/${img_loop}"); then
         echo "ERROR: Setting loopback device for file '/run/archiso/img_dev/${img_loop}'"
         launch_interactive_shell
     fi

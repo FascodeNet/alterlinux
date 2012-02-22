@@ -8,7 +8,7 @@ _mnt_fs() {
     local dm_snap_name="${dm_snap_prefix}_${img_name}"
     local ro_dev ro_dev_size rw_dev
 
-    ro_dev=$(losetup --find --show "${img}")
+    ro_dev=$(losetup --find --show --read-only "${img}")
     ro_dev_size=$(blockdev --getsz ${ro_dev})
 
     if [[ "${cow_persistent}" == "P" ]]; then
