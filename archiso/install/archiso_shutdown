@@ -3,7 +3,7 @@
 build() {
     SCRIPT="archiso_shutdown"
 
-    add_file /lib/initcpio/archiso_shutdown /shutdown
+    add_file /usr/lib/initcpio/archiso_shutdown /shutdown
 }
 
 help() {

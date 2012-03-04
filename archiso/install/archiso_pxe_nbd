@@ -6,7 +6,7 @@ build() {
 
     add_binary nbd-client
 
-    add_file /lib/initcpio/archiso_pxe_nbd /archiso_pxe_nbd
+    add_file /usr/lib/initcpio/archiso_pxe_nbd /archiso_pxe_nbd
 }
 
 help() {
