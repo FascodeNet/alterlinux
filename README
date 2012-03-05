@@ -226,11 +226,7 @@ When make your custom boot-pendrive, you need to copy /arch directory to it.
   [host] # make -C archiso/archiso DESTDIR=/tmp/chroot install
 
 * Enter to chroot (prefix with linux32 if needed).
-  [host] # mkarchroot -r bash /tmp/chroot
-
-* Create a loopback device.
-  (mkarchroot does not create it, use other number if not available)
-  [chroot] # mknod /dev/loop0 b 7 0
+  [host] # mkarchroot -d -r bash /tmp/chroot
 
 * Setup a mirror.
   [chroot] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
@@ -286,8 +282,7 @@ Note: These steps should be done with 64 bits support.
 
 * Enter 32 bits chroot enviroment then build core and netinstall single images.
 
-  [host32] # linux32 mkarchroot -r bash /tmp/chroot32
-  [chroot32] # mknod /dev/loop1032 b 7 1032  # assumed loop.max_part=0 (by default)
+  [host32] # linux32 mkarchroot -d -r bash /tmp/chroot32
   [chroot32] # cp -r /usr/share/archiso/configs/releng /tmp
   [chroot32] # cd /tmp/releng
   [chroot32] # ./build.sh build single all
@@ -295,8 +290,7 @@ Note: These steps should be done with 64 bits support.
 
 * Enter 64 bits chroot enviroment then build core and netinstall single images.
 
-  [host64] # mkarchroot -r bash /tmp/chroot64
-  [chroot64] # mknod /dev/loop1064 b 7 1064  # assumed loop.max_part=0 (by default)
+  [host64] # mkarchroot -d -r bash /tmp/chroot64
   [chroot64] # cp -r /usr/share/archiso/configs/releng /tmp
   [chroot64] # cd /tmp/releng
   [chroot64] # ./build.sh build single all
