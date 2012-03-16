@@ -150,7 +150,6 @@ if nothing is specified on command line.
 *** Build requirements
 
 ** For mkarchiso script needs these packages (build host):
- + devtools                for mkarchroot
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
 
@@ -223,34 +222,15 @@ When make your custom boot-pendrive, you need to copy /arch directory to it.
 
 *** Building the most basic Arch Linux live media. (configs/baseline)
 
-* Install devtools if needed, mkarchroot needs it
-  [host] # pacman -S devtools --needed
+* Install needed packages.
+  # pacman -S git make squashfs-tools libisoburn --needed
 
-* Create a base chroot to work on it.
-  (prefix with linux32 if you want to build a 32 bits enviroment under 64 bits)
-  [host] # mkarchroot /tmp/chroot base
-
-* Install archiso on chroot (needs git and make)
-  [host] # pacman -S git make --needed
-  [host] # git clone git://projects.archlinux.org/archiso.git
-  [host] # make -C archiso/archiso DESTDIR=/tmp/chroot install
-
-* Enter to chroot (prefix with linux32 if needed).
-  [host] # mkarchroot -d -r bash /tmp/chroot
-
-* Setup a mirror.
-  [chroot] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-
-* Install aditional packages needed for mkarchiso.
-  [chroot] # pacman -S devtools squashfs-tools libisoburn
+* Install archiso.
+  # git clone git://projects.archlinux.org/archiso.git
+  # make -C archiso/archiso install
 
 * Build a basic iso.
-  [chroot] # cp -r /usr/share/archiso/configs/baseline /tmp
-  [chroot] # cd /tmp/baseline
-  [chroot] # ./build.sh
-
-* Exit from chroot.
-  [chroot] # exit
+  # /usr/share/archiso/configs/baseline/build.sh
 
 Note: If you want to customize, just see the configs/releng directory which is
 used to build official images with much more things.
@@ -259,56 +239,30 @@ used to build official images with much more things.
 
 *** Building official Arch Linux live media. (configs/releng)
 
-Note: These steps should be done with 64 bits support.
+Note: These steps should be done in 64-bit and build.sh should be executed
+on the same build directory or use -w <work_dir> option.
 
-* Prepare a 32 bit chroot enviroment.
+* Install needed packages.
+  # pacman -S git make squashfs-tools libisoburn --needed
 
-  [host64] # linux32 mkarchroot /tmp/chroot32 base
-  [host64] # linux32 mkarchroot -r bash /tmp/chroot32
-  [chroot32] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-  [chroot32] # pacman -S devtools squashfs-tools libisoburn
-  [chroot32] # exit
+* Install archiso.
+  # git clone git://projects.archlinux.org/archiso.git
+  # make -C archiso/archiso install
 
-* Prepare a 64 bits chroot enviroment.
+* Build netinstall and core images (32-bit)
+  # linux32 /usr/share/archiso/configs/releng/build.sh build single all
 
-  [host64] # mkarchroot /tmp/chroot64 base
-  [host64] # mkarchroot -r bash /tmp/chroot64
-  [chroot64] # echo 'Server = MIRROR/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-  [chroot64] # pacman -S devtools squashfs-tools libisoburn
-  [chroot64] # exit
+* Delete uneeded files (32-bit)
+  # linux32 /usr/share/archiso/configs/releng/build.sh purge single
 
-* Install archiso on both chroots.
+* Build netinstall and core images (64-bit)
+  # /usr/share/archiso/configs/releng/build.sh build single all
 
-  [host64] # git clone git://projects.archlinux.org/archiso.git
-  [host64] # make -C archiso/archiso DESTDIR=/tmp/chroot32 install
-  [host64] # make -C archiso/archiso DESTDIR=/tmp/chroot64 install
+* Delete uneeded files (64-bit)
+  # /usr/share/archiso/configs/releng/build.sh purge single
 
-* Create a shared /tmp directory between two chroots for working.
+* Build netinstall and core images (dual 32/64 bit)
+  # /usr/share/archiso/configs/releng/build.sh build dual all
 
-  [host64] # mkdir /tmp/shared
-  [host64] # chmod 1777 /tmp/shared
-  [host64] # mount --bind /tmp/shared /tmp/chroot32/tmp
-  [host64] # mount --bind /tmp/shared /tmp/chroot64/tmp
-
-* Enter 32 bits chroot enviroment then build core and netinstall single images.
-
-  [host32] # linux32 mkarchroot -d -r bash /tmp/chroot32
-  [chroot32] # cp -r /usr/share/archiso/configs/releng /tmp
-  [chroot32] # cd /tmp/releng
-  [chroot32] # ./build.sh build single all
-  [chroot32] # ./build.sh purge single       # optional step
-
-* Enter 64 bits chroot enviroment then build core and netinstall single images.
-
-  [host64] # mkarchroot -d -r bash /tmp/chroot64
-  [chroot64] # cp -r /usr/share/archiso/configs/releng /tmp
-  [chroot64] # cd /tmp/releng
-  [chroot64] # ./build.sh build single all
-  [chroot64] # ./build.sh purge single       # optional step
-
-* Build core and netinstall dual images from any of the chroot enviroments.
-
-  [host64] # mkarchroot -r bash /tmp/chroot64
-  [chroot64] # cd /tmp/releng
-  [chroot64] # ./build.sh build dual all
-  [chroot64] # ./build.sh purge dual         # optional step
+* Delete uneeded files (dual 32/64 bit)
+  # /usr/share/archiso/configs/releng/build.sh purge dual
