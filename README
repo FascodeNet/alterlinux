@@ -239,9 +239,6 @@ used to build official images with much more things.
 
 *** Building official Arch Linux live media. (configs/releng)
 
-Note: These steps should be done in 64-bit and build.sh should be executed
-on the same build directory or use -w <work_dir> option.
-
 * Install needed packages.
   # pacman -S git make squashfs-tools libisoburn --needed
 
@@ -249,20 +246,7 @@ on the same build directory or use -w <work_dir> option.
   # git clone git://projects.archlinux.org/archiso.git
   # make -C archiso/archiso install
 
-* Build netinstall and core images (32-bit)
-  # linux32 /usr/share/archiso/configs/releng/build.sh build single all
+* Build them!
+  # /usr/share/archiso/configs/releng/build.sh build all all
 
-* Delete uneeded files (32-bit)
-  # linux32 /usr/share/archiso/configs/releng/build.sh purge single
-
-* Build netinstall and core images (64-bit)
-  # /usr/share/archiso/configs/releng/build.sh build single all
-
-* Delete uneeded files (64-bit)
-  # /usr/share/archiso/configs/releng/build.sh purge single
-
-* Build netinstall and core images (dual 32/64 bit)
-  # /usr/share/archiso/configs/releng/build.sh build dual all
-
-* Delete uneeded files (dual 32/64 bit)
-  # /usr/share/archiso/configs/releng/build.sh purge dual
+Note: See build.sh -h for more options.

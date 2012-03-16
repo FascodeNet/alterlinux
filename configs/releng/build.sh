@@ -10,6 +10,7 @@ arch=$(uname -m)
 work_dir=work
 out_dir=out
 verbose=""
+cmd_args=""
 
 script_path=$(readlink -f ${0%/*})
 
@@ -296,7 +297,7 @@ _usage ()
     echo "      Clean working directory and .iso file in output directory of build <mode>"
     echo
     echo " Command options:"
-    echo "         <mode> Valid values 'single' or 'dual'"
+    echo "         <mode> Valid values 'single', 'dual' or 'all'"
     echo "         <type> Valid values 'netinstall', 'core' or 'all'"
     exit ${1}
 }
@@ -308,13 +309,34 @@ fi
 
 while getopts 'N:V:L:D:w:o:vh' arg; do
     case "${arg}" in
-        N) iso_name="${OPTARG}" ;;
-        V) iso_version="${OPTARG}" ;;
-        L) iso_label="${OPTARG}" ;;
-        D) install_dir="${OPTARG}" ;;
-        w) work_dir="${OPTARG}" ;;
-        o) out_dir="${OPTARG}" ;;
-        v) verbose="-v" ;;
+        N)
+            iso_name="${OPTARG}"
+            cmd_args+=" -N ${iso_name}"
+            ;;
+        V)
+            iso_version="${OPTARG}"
+            cmd_args+=" -V ${iso_version}"
+            ;;
+        L)
+            iso_label="${OPTARG}"
+            cmd_args+=" -L ${iso_label}"
+            ;;
+        D)
+            install_dir="${OPTARG}"
+            cmd_args+=" -D ${install_dir}"
+            ;;
+        w)
+            work_dir="${OPTARG}"
+            cmd_args+=" -w ${work_dir}"
+            ;;
+        o)
+            out_dir="${OPTARG}"
+            cmd_args+=" -o ${out_dir}"
+            ;;
+        v)
+            verbose="-v"
+            cmd_args+=" -v"
+            ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
@@ -343,6 +365,11 @@ if [[ ${command_name} == "build" ]]; then
         _usage 1
     fi
 command_type="${3}"
+fi
+
+if [[ ${command_mode} == "all" && ${arch} != "x86_64" ]]; then
+    echo "This mode <all> needs to be run on x86_64"
+    _usage 1
 fi
 
 if [[ ${command_mode} == "single" ]]; then
@@ -390,6 +417,22 @@ case "${command_name}" in
                         ;;
                 esac
                 ;;
+            all)
+                case "${command_type}" in
+                    netinstall|core|all)
+                        $0 ${cmd_args} build single ${command_type}
+                        $0 ${cmd_args} purge single
+                        linux32 $0 ${cmd_args} build single ${command_type}
+                        linux32 $0 ${cmd_args} purge single
+                        $0 ${cmd_args} build dual ${command_type}
+                        $0 ${cmd_args} purge dual
+                        ;;
+                    *)
+                        echo "Invalid build type '${command_type}'"
+                        _usage 1
+                        ;;
+                esac
+                ;;
             *)
                 echo "Invalid build mode '${command_mode}'"
                 _usage 1
@@ -404,6 +447,11 @@ case "${command_name}" in
             dual)
                 purge_dual
                 ;;
+            all)
+                $0 ${cmd_args} purge single
+                linux32 $0 ${cmd_args} purge single
+                $0 ${cmd_args} purge dual
+                ;;
             *)
                 echo "Invalid purge mode '${command_mode}'"
                 _usage 1
@@ -417,6 +465,11 @@ case "${command_name}" in
                 ;;
             dual)
                 clean_dual
+                ;;
+            all)
+                $0 ${cmd_args} clean single
+                linux32 $0 ${cmd_args} clean single
+                $0 ${cmd_args} clean dual
                 ;;
             *)
                 echo "Invalid clean mode '${command_mode}'"
