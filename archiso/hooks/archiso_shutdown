@@ -9,6 +9,7 @@ run_hook ()
     cp /lib/ld-* /run/initramfs/lib/
     cp /lib/lib* /run/initramfs/lib/
     cp /usr/lib/lib* /run/initramfs/usr/lib/
+    cp /bin/mount /run/initramfs/bin/
     cp /sbin/dmsetup /run/initramfs/sbin/
     cp /sbin/losetup /run/initramfs/sbin/
     if [[ -x /bin/nbd-client ]]; then
