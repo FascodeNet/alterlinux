@@ -132,11 +132,12 @@ make_core_repo() {
         local _url _urls _pkg_name _cached_pkg _dst _pkgs
         mkdir -p ${work_dir}/repo-core-any
         mkdir -p ${work_dir}/repo-core-${arch}
-        pacman -Sy
-        _pkgs=$(comm -2 -3 <(pacman -Sql core | sort | sed 's@^@core/@') \
+        mkdir -p ${work_dir}/pacman.db/var/lib/pacman
+        pacman -Sy -r ${work_dir}/pacman.db
+        _pkgs=$(comm -2 -3 <(pacman -Sql -r ${work_dir}/pacman.db core | sort | sed 's@^@core/@') \
                            <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
-        _urls=$(pacman -Sddp ${_pkgs})
-        pacman -Swdd --noprogressbar --noconfirm ${_pkgs}
+        _urls=$(pacman -Sddp -r ${work_dir}/pacman.db ${_pkgs})
+        pacman -Swdd -r ${work_dir}/pacman.db --noprogressbar --noconfirm ${_pkgs}
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _cached_pkg=/var/cache/pacman/pkg/${_pkg_name}
