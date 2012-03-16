@@ -5,6 +5,7 @@ set -e -u
 app_name=${0##*/}
 arch=$(uname -m)
 pkg_list=""
+run_cmd=""
 quiet="y"
 pacman_conf="/etc/pacman.conf"
 export iso_label="ARCH_$(date +%Y%m)"
@@ -42,6 +43,44 @@ _show_space_usage () {
     local _fs _total _used _avail _pct_u=0 _mnt
     read _fs _total _used _avail _pct_u _mnt < <(df -m "${_where}" | tail -1) &> /dev/null
     _msg_info "Total: ${_total} MiB (100%) | Used: ${_used} MiB (${_pct_u}) | Avail: ${_avail} MiB ($((100 - ${_pct_u%\%}))%)"
+}
+
+_chroot_mount () {
+    mount -t devtmpfs dev "${work_dir}/root-image/dev"
+    mount -t devpts devpts "${work_dir}/root-image/dev/pts"
+    mount -t tmpfs devshm "${work_dir}/root-image/dev/shm"
+    mount -t proc proc "${work_dir}/root-image/proc"
+    mount -t tmpfs run "${work_dir}/root-image/run"
+    mount -t sysfs sys "${work_dir}/root-image/sys"
+    mount -t tmpfs tmp "${work_dir}/root-image/tmp"
+
+    trap '_chroot_umount' EXIT HUP INT TERM
+}
+
+_chroot_umount () {
+    umount "${work_dir}/root-image/tmp"
+    umount "${work_dir}/root-image/sys"
+    umount "${work_dir}/root-image/run"
+    umount "${work_dir}/root-image/proc"
+    umount "${work_dir}/root-image/dev/shm"
+    umount "${work_dir}/root-image/dev/pts"
+    umount "${work_dir}/root-image/dev"
+
+    trap - EXIT HUP INT TERM
+}
+
+_chroot_init() {
+    if [[ ! -d ${work_dir}/root-image/var/cache/pacman ]]; then
+        mkdir -p ${work_dir}/root-image/{dev,proc,run,sys,tmp,var/lib/pacman}
+        _pacman "base"
+        _pacman "syslinux"
+    fi
+}
+
+_chroot_run() {
+    _chroot_mount
+    eval chroot ${work_dir}/root-image "${run_cmd}"
+    _chroot_umount
 }
 
 # Mount a filesystem (trap signals in case of error for unmounting it
@@ -99,6 +138,7 @@ _usage ()
     echo "usage ${app_name} [options] command <command options>"
     echo " general options:"
     echo "    -p PACKAGE(S)    Package(s) to install, can be used multiple times"
+    echo "    -r <command>     Run <command> inside root-image"
     echo "    -C <file>        Config file for pacman. Default ${pacman_conf}"
     echo "    -L <label>       Set a label for the disk"
     echo "    -P <publisher>   Set a publisher for the disk"
@@ -113,9 +153,12 @@ _usage ()
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
     echo " commands:"
-    echo "   create"
-    echo "      create a base directory layout to work with"
-    echo "      includes all specified packages"
+    echo "   init"
+    echo "      Make base layout and install base group"
+    echo "   install"
+    echo "      Install all specified packages (-p)"
+    echo "   run"
+    echo "      run command specified by -r"
     echo "   prepare"
     echo "      build all images"
     echo "   checksum"
@@ -126,7 +169,7 @@ _usage ()
 }
 
 # Shows configuration according to command mode.
-# $1: create | prepare | iso
+# $1: init | install | run | prepare | checksum | iso
 _show_config () {
     local _mode="$1"
     echo
@@ -136,9 +179,15 @@ _show_config () {
     _msg_info "        Working directory:   ${work_dir}"
     _msg_info "   Installation directory:   ${install_dir}"
     case "${_mode}" in
-        create)
+        init)
+            _msg_info "       Pacman config file:   ${pacman_conf}"
+            ;;
+        install)
             _msg_info "       Pacman config file:   ${pacman_conf}"
             _msg_info "                 Packages:   ${pkg_list}"
+            ;;
+        run)
+            _msg_info "              Run command:   ${run_cmd}"
             ;;
         prepare)
             ;;
@@ -159,20 +208,23 @@ _pacman ()
 {
     _msg_info "Installing packages to '${work_dir}/root-image/'..."
 
+    _chroot_mount
+
     if [[ "${quiet}" = "y" ]]; then
-        mkarchroot -n -C "${pacman_conf}" -f "${work_dir}/root-image" $* &> /dev/null
+        pacman -Sy -r "${work_dir}/root-image" --config "${pacman_conf}" --needed --noconfirm $* &> /dev/null
     else
-        mkarchroot -n -C "${pacman_conf}" -f "${work_dir}/root-image" $*
+        pacman -Sy -r "${work_dir}/root-image" --config "${pacman_conf}" --needed --noconfirm $*
     fi
 
-    # Cleanup
-    find "${work_dir}" -name "*.pacnew" -name "*.pacsave" -name "*.pacorig" -delete
+    _chroot_umount
+
     _msg_info "Packages installed successfully!"
 }
 
 # Cleanup root-image
 _cleanup () {
     _msg_info "Cleaning up what we can on root-image"
+
     # remove the initcpio images that were generated for the host system
     if [[ -d "${work_dir}/root-image/boot" ]]; then 
         find "${work_dir}/root-image/boot" -name '*.img' -delete
@@ -201,6 +253,8 @@ _cleanup () {
     if [[ -d "${work_dir}/root-image/tmp" ]]; then
         find "${work_dir}/root-image/tmp" -mindepth 1 -delete
     fi
+    # Delete package pacman related files.
+    find "${work_dir}" -name "*.pacnew" -name "*.pacsave" -name "*.pacorig" -delete
     # Create etc/mtab if not is a symlink.
     if [[ ! -L "${work_dir}/root-image/etc/mtab" ]]; then
         ln -sf "/proc/self/mounts" "${work_dir}/root-image/etc/mtab"
@@ -384,7 +438,7 @@ command_prepare () {
 
 # Install packages on root-image.
 # A basic check to avoid double execution/reinstallation is done via hashing package names.
-command_create () {
+command_install () {
     if [[ ! -f "${pacman_conf}" ]]; then
         _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
     fi
@@ -397,27 +451,36 @@ command_create () {
         _usage 1
     fi
 
-    _show_config create
+    _show_config install
 
     local _pkg_list_hash
     _pkg_list_hash=$(echo ${pkg_list} | sort -u | md5sum | cut -c1-32)
-    if [[ -f "${work_dir}/create.${_pkg_list_hash}" ]]; then
+    if [[ -f "${work_dir}/install.${_pkg_list_hash}" ]]; then
         _msg_info "These packages are already installed, skipping."
     else
-        mkdir -p "${work_dir}/root-image/"
         _pacman "${pkg_list}"
-        : > "${work_dir}/create.${_pkg_list_hash}"
+        : > "${work_dir}/install.${_pkg_list_hash}"
     fi
 }
 
+command_init() {
+    _show_config init
+    _chroot_init
+}
+
+command_run() {
+    _show_config run
+    _chroot_run
+}
 
 if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
-while getopts 'p:C:L:P:A:D:w:o:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
+        r) run_cmd="${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
         L) iso_label="${OPTARG}" ;;
         P) iso_publisher="${OPTARG}" ;;
@@ -443,8 +506,14 @@ fi
 command_name="${1}"
 
 case "${command_name}" in
-    create)
-        command_create
+    init)
+        command_init
+        ;;
+    install)
+        command_install
+        ;;
+    run)
+        command_run
         ;;
     prepare)
         command_prepare

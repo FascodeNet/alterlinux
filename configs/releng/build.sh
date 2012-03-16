@@ -15,13 +15,13 @@ script_path=$(readlink -f ${0%/*})
 
 # Base installation (root-image)
 make_basefs() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "base" create
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "memtest86+ syslinux mkinitcpio-nfs-utils nbd curl" create
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" init
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "memtest86+ mkinitcpio-nfs-utils nbd curl" install
 }
 
 # Additional packages (root-image)
 make_packages() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" create
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" install
 }
 
 # Copy mkinitcpio archiso hooks (root-image)
@@ -46,7 +46,9 @@ make_boot() {
         local _src=${work_dir}/root-image
         local _dst_boot=${work_dir}/iso/${install_dir}/boot
         mkdir -p ${_dst_boot}/${arch}
-        mkarchroot -n -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img" ${_src}
+        mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
+            -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' \
+            run
         mv ${_src}/boot/archiso.img ${_dst_boot}/${arch}/archiso.img
         mv ${_src}/boot/vmlinuz-linux ${_dst_boot}/${arch}/vmlinuz
         cp ${_src}/boot/memtest86+/memtest.bin ${_dst_boot}/memtest
@@ -90,7 +92,6 @@ make_isolinux() {
 }
 
 # Customize installation (root-image)
-# NOTE: mkarchroot should not be executed after this function is executed, otherwise will overwrites some custom files.
 make_customize_root_image() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         cp -af ${script_path}/root-image ${work_dir}
@@ -99,8 +100,12 @@ make_customize_root_image() {
         mkdir -p ${work_dir}/root-image/etc/pacman.d
         wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
-        chroot ${work_dir}/root-image /usr/sbin/locale-gen
-        chroot ${work_dir}/root-image /usr/sbin/useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch
+        mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
+            -r 'locale-gen' \
+            run
+        mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
+            -r 'useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch' \
+            run
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
