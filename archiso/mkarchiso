@@ -2,6 +2,8 @@
 
 set -e -u
 
+export LANG=C
+
 app_name=${0##*/}
 arch=$(uname -m)
 pkg_list=""
