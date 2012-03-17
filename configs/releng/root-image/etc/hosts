@@ -3,7 +3,7 @@
 #
 
 #<ip-address>	<hostname.domain.org>	<hostname>
-127.0.0.1		localhost.localdomain	localhost	archiso
-::1				localhost.localdomain	localhost	archiso
+127.0.0.1	localhost.localdomain	localhost	archiso
+::1		localhost.localdomain	localhost	archiso
 
 # End of file
