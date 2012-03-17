@@ -101,6 +101,7 @@ make_customize_root_image() {
         mkdir -p ${work_dir}/root-image/etc/pacman.d
         wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist http://www.archlinux.org/mirrorlist/all/
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
+        sed -i 's/#\(en_US\.UTF-8\)/\1/' ${work_dir}/root-image/etc/locale.gen
         mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
             -r 'locale-gen' \
             run
