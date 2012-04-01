@@ -396,16 +396,19 @@ command_iso () {
         if [[ ${quiet} == "y" ]]; then
             _qflag="-quiet"
         fi
-        xorriso -as mkisofs ${_qflag} -r -l \
-            -b isolinux/isolinux.bin -c isolinux/boot.cat \
+        xorriso -as mkisofs ${_qflag} \
             -iso-level 3 \
+            -full-iso9660-filenames \
+            -volid "${iso_label}" \
+            -appid "${iso_application}" \
+            -publisher "${iso_publisher}" \
+            -preparer "prepared by mkarchiso" \
+            -eltorito-boot isolinux/isolinux.bin \
+            -eltorito-catalog isolinux/boot.cat \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
             -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
-            -p "prepared by mkarchiso" \
-            -publisher "${iso_publisher}" \
-            -A "${iso_application}" \
-            -V "${iso_label}" \
-            -o "${out_dir}/${img_name}" "${work_dir}/iso/"
+            -output "${out_dir}/${img_name}" \
+            "${work_dir}/iso/"
         _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
     fi
 }
