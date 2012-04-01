@@ -380,11 +380,18 @@ command_checksum () {
 
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
+    local _iso_efi_boot_args=""
+
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
     fi
     if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
+    fi
+
+    # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
+    if [[ -f "${work_dir}/iso/EFI/archiso/efiboot.img" ]]; then
+        _iso_efi_boot_args="--efi-boot EFI/archiso/efiboot.img"
     fi
 
     _show_config iso
@@ -406,6 +413,7 @@ command_iso () {
             -eltorito-boot isolinux/isolinux.bin \
             -eltorito-catalog isolinux/boot.cat \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
+            ${_iso_efi_boot_args} \
             -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
             -output "${out_dir}/${img_name}" \
             "${work_dir}/iso/"
