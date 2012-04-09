@@ -151,6 +151,8 @@ make_core_repo() {
                 ln -sf ../any/${_pkg_name} ${_dst}
             fi
         done
+        mkdir -p ${work_dir}/iso/${install_dir}
+        pacman -Sp -r ${work_dir}/pacman.db --print-format "%r/%n-%v" ${_pkgs} | sort > ${work_dir}/iso/${install_dir}/pkglist.repo-core.${arch}.txt
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -167,6 +169,7 @@ make_aitab() {
 
 # Build all filesystem images specified in aitab (.fs .fs.sfs .sfs)
 make_prepare() {
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
     mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" prepare
 }
 
