@@ -169,6 +169,8 @@ _usage ()
     echo "      build all images"
     echo "   checksum"
     echo "      make a checksum.md5 for self-test"
+    echo "   pkglist"
+    echo "      make a pkglist.txt of packages installed on root-image"
     echo "   iso <image name>"
     echo "      build an iso image from the working dir"
     exit ${1}
@@ -198,6 +200,8 @@ _show_config () {
         prepare)
             ;;
         checksum)
+            ;;
+        pkglist)
             ;;
         iso)
             _msg_info "               Image name:   ${img_name}"
@@ -378,6 +382,19 @@ command_checksum () {
     done
 }
 
+command_pkglist () {
+    _show_config pkglist
+
+    if _is_directory_changed "${work_dir}/root-image/var/lib/pacman/local" "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"; then
+        _msg_info "Creating a list of installed packages on live-enviroment"
+        pacman -Sl -r "${work_dir}/root-image" --config "${pacman_conf}" | \
+            awk '/\[installed\]$/ {print $1 "/" $2 "-" $3}' > \
+            "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
+        _msg_info "Done!"
+    fi
+
+}
+
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
     local _iso_efi_boot_args=""
@@ -537,6 +554,9 @@ case "${command_name}" in
         ;;
     checksum)
         command_checksum
+        ;;
+    pkglist)
+        command_pkglist
         ;;
     iso)
         if [[ $# -lt 2 ]]; then
