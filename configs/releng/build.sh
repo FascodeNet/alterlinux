@@ -214,6 +214,8 @@ make_dual() {
             rm -f ${work_dir}/dual/iso/${install_dir}/any/repo-core-any.sfs
             rm -f ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs
             rm -f ${work_dir}/dual/iso/${install_dir}/x86_64/repo-core-x86_64.sfs
+            rm -f ${work_dir}/dual/iso/${install_dir}/pkglist.repo-core.i686.txt
+            rm -f ${work_dir}/dual/iso/${install_dir}/pkglist.repo-core.x86_64.txt
         fi
         paste -d"\n" <(sed "s|%ARCH%|i686|g" ${script_path}/aitab.${_iso_type}) \
                      <(sed "s|%ARCH%|x86_64|g" ${script_path}/aitab.${_iso_type}) | uniq > ${work_dir}/dual/iso/${install_dir}/aitab
