@@ -10,6 +10,7 @@ dmraid
 dnsmasq
 dnsutils
 dosfstools
+efibootmgr
 elinks
 gnu-netcat
 gptfdisk
