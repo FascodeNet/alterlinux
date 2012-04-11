@@ -153,6 +153,9 @@ if nothing is specified on command line.
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
 
+** For configs/releng build.sh needs theses packages (build host):
+ + dosfstools              for mkfs.vfat
+
 ** For these hooks needs these packages (on target root-image)
 * archiso
  + (none)
