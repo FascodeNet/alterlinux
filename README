@@ -152,6 +152,7 @@ if nothing is specified on command line.
 ** For mkarchiso script needs these packages (build host):
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
+ + rsync                   for rsync
 
 ** For configs/releng build.sh needs theses packages (build host):
  + dosfstools              for mkfs.vfat
