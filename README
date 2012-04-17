@@ -227,7 +227,7 @@ When make your custom boot-pendrive, you need to copy /arch directory to it.
 *** Building the most basic Arch Linux live media. (configs/baseline)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn --needed
+  # pacman -S git make squashfs-tools libisoburn rsync --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
@@ -240,11 +240,10 @@ Note: If you want to customize, just see the configs/releng directory which is
 used to build official images with much more things.
 
 
-
 *** Building official Arch Linux live media. (configs/releng)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn --needed
+  # pacman -S git make squashfs-tools libisoburn rsync dosfstools --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
