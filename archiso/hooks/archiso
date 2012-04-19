@@ -34,7 +34,7 @@ _mnt_fs() {
     echo "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8" | dmsetup create ${dm_snap_name}
 
     _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
-    echo /dev/mapper/${dm_snap_name} >> /run/archiso/used_block_devices
+    echo $(readlink -f /dev/mapper/${dm_snap_name}) >> /run/archiso/used_block_devices
     echo "/dev/mapper/${dm_snap_name} ${mnt} auto defaults 0 0" >> ${newroot}/etc/fstab
 }
 
