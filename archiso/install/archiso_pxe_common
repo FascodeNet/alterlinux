@@ -9,7 +9,7 @@ build() {
     SCRIPT="archiso_pxe_common"
 
 
-    add_binary /lib/initcpio/ipconfig /bin/ipconfig
+    add_binary /usr/lib/initcpio/ipconfig /bin/ipconfig
 
     # Add hosts support files+dns
     add_symlink /lib/libnss_files.so.2 $(readlink /lib/libnss_files.so.2)

@@ -4,7 +4,7 @@ build() {
     MODULES="nfs"
     SCRIPT="archiso_pxe_nfs"
 
-    add_binary /lib/initcpio/nfsmount /bin/nfsmount
+    add_binary /usr/lib/initcpio/nfsmount /bin/nfsmount
 }
 
 help() {
