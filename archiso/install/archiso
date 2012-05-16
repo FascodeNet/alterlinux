@@ -1,8 +1,11 @@
 #!/bin/bash
 
 build() {
-    MODULES="cdrom loop dm-snapshot"
-    SCRIPT="archiso"
+    add_module "cdrom"
+    add_module "loop"
+    add_module "dm-snapshot"
+
+    add_runscript
 
     add_binary /usr/lib/udev/cdrom_id
     add_binary blockdev

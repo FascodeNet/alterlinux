@@ -1,8 +1,9 @@
 #!/bin/bash
 
 build() {
-    MODULES="nfs"
-    SCRIPT="archiso_pxe_nfs"
+    add_module "nfs"
+
+    add_runscript
 
     add_binary /usr/lib/initcpio/nfsmount /bin/nfsmount
 }

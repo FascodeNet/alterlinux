@@ -1,13 +1,9 @@
 #!/bin/bash
 
 build() {
-    MODULES="${MODULES} $(comm -2 -3 <(checked_modules "/drivers/net/" | sort) \
-                                     <(find $MODULEDIR/kernel/drivers/net/{irda,phy,wimax,wireless} \
-                                            -name '*.ko*' \
-                                            -exec bash -c 'printf "%s\n" "${@%%.ko*}" | sed "s@.*/@@;s@-@_@" | sort' _ {} +) \
-                                     | grep -v -e 'ppp_' -e 'plip' -e 'pppoe')"
-    SCRIPT="archiso_pxe_common"
+    add_checked_modules -f "(irda|phy|wimax|wireless|ppp_|plip|pppoe)" "/drivers/net/"
 
+    add_runscript
 
     add_binary /usr/lib/initcpio/ipconfig /bin/ipconfig
 

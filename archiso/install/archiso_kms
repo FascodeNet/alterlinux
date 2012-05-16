@@ -1,9 +1,21 @@
 #!/bin/bash
 
 build() {
-    MODULES="radeon nouveau i915 via-agp sis-agp intel-agp"
+    add_module "radeon"
+    add_module "nouveau"
+    add_module "i915"
+    add_module "via-agp"
+    add_module "sis-agp"
+    add_module "intel-agp"
+
     if [[ $(uname -m) == i686 ]]; then
-        MODULES+=" amd64-agp ati-agp sworks-agp ali-agp amd-k7-agp nvidia-agp efficeon-agp"
+        add_module "amd64-agp"
+        add_module "ati-agp"
+        add_module "sworks-agp"
+        add_module "ali-agp"
+        add_module "amd-k7-agp"
+        add_module "nvidia-agp"
+        add_module "efficeon-agp"
     fi
 }
 

@@ -1,8 +1,9 @@
 #!/bin/bash
 
 build() {
-    MODULES="nbd"
-    SCRIPT="archiso_pxe_nbd"
+    add_module "nbd"
+
+    add_runscript
 
     add_binary nbd-client
 
