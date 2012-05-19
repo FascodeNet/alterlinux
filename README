@@ -90,6 +90,9 @@ INDEX
                     when option "IPAPPEND" is set to 2 or 3 in config.
                     BOOTIF=<hardware-address-of-boot-interface>
                     Default: (set via PXELINUX)
+* copy_resolvconf=  Copy /etc/resolv.conf from initramfs to live-enviroment.
+                    Set to "n" to skip them.
+                    Default: "y"
 
 
 ** hooks/archiso_pxe_nbd

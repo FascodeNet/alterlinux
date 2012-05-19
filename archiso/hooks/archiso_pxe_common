@@ -40,3 +40,11 @@ run_hook () {
         fi
     fi
 }
+
+run_latehook () {
+    [[ -z "${copy_resolvconf}" ]] && copy_resolvconf="y"
+
+    if [[ "${copy_resolvconf}" != "n" && -f /etc/resolv.conf ]]; then
+        cp /etc/resolv.conf /new_root/etc/resolv.conf
+    fi
+}
