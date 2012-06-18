@@ -14,6 +14,7 @@ efibootmgr
 elinks
 gnu-netcat
 gptfdisk
+haveged
 hdparm
 ipw2100-fw
 ipw2200-fw

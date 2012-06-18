@@ -1,0 +1,34 @@
+#!/bin/bash
+
+. /etc/rc.conf
+. /etc/rc.d/functions
+
+case "$1" in
+	start)
+		stat_busy "Initializing pacman keyring"
+		if { pacman-key --init && pacman-key --populate archlinux; } &>/dev/null; then
+			add_daemon pacman-init
+			stat_done
+		else
+			stat_fail
+			exit 1
+		fi
+		;;
+
+	stop)
+		stat_busy "Removing pacman keyring"
+		rm -rf /etc/pacman.d/gnupg
+		rm_daemon pacman-init
+		stat_done
+		;;
+
+	restart)
+		$0 stop
+		$0 start
+		;;
+
+	*)
+		echo "usage: $0 {start|stop|restart}"
+esac
+
+exit 0
