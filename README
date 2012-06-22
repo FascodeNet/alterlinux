@@ -155,7 +155,7 @@ if nothing is specified on command line.
 * locale=             "en_US.UTF-8"
 * daemon_locale=      "no"
 * hardwareclock=      "UTC"
-* timezone=           "Canada/Pacific"
+* timezone=           "UTC"
 * keymap=             "us"
 * consolefont=        (unset)
 * consolemap=         (unset)
