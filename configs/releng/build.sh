@@ -112,7 +112,7 @@ make_syslinux() {
         cp ${_src_syslinux}/*.0 ${_dst_syslinux}
         cp ${_src_syslinux}/memdisk ${_dst_syslinux}
         mkdir -p ${_dst_syslinux}/hdt
-        wget -O - http://pciids.sourceforge.net/v2.2/pci.ids | gzip -9 > ${_dst_syslinux}/hdt/pciids.gz
+        cat ${work_dir}/root-image/usr/share/hwdata/pci.ids | gzip -9 > ${_dst_syslinux}/hdt/pciids.gz
         cat ${work_dir}/root-image/lib/modules/*-ARCH/modules.alias | gzip -9 > ${_dst_syslinux}/hdt/modalias.gz
         : > ${work_dir}/build.${FUNCNAME}
     fi
