@@ -168,7 +168,7 @@ make_usr_share() {
 # Make [core] repository, keep "any" pkgs in a separate fs (makes more "dual-iso" friendly)
 make_core_repo() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        local _url _urls _pkg_name _cached_pkg _dst _pkgs
+        local _url _urls _pkg_name _dst _pkgs _cache_dir _cache_dirs
         mkdir -p ${work_dir}/repo-core-any
         mkdir -p ${work_dir}/repo-core-${arch}
         mkdir -p ${work_dir}/pacman.db/var/lib/pacman
@@ -177,17 +177,27 @@ make_core_repo() {
                            <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
         _urls=$(pacman -Sddp -r ${work_dir}/pacman.db ${_pkgs})
         pacman -Swdd -r ${work_dir}/pacman.db --noprogressbar --noconfirm ${_pkgs}
+        _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
-            _cached_pkg=/var/cache/pacman/pkg/${_pkg_name}
             _dst=${work_dir}/repo-core-${arch}/${_pkg_name}
-            cp ${_cached_pkg} ${_dst}
+            for _cache_dir in ${_cache_dirs[@]}; do
+                if [[ -e "${_cache_dir}/${_pkg_name}" ]]; then
+                    cp "${_cache_dir}/${_pkg_name}" ${_dst}
+                fi
+            done
+            # download the package signature
+            curl -sC - -f "${_url}.sig" > "${_dst}.sig"
             repo-add -q ${work_dir}/repo-core-${arch}/core.db.tar.gz ${_dst}
+            # remove the signature file again as it is now included in the db file
+            rm -f "${_dst}.sig"
             if [[ ${_pkg_name} == *any.pkg.tar* ]]; then
                 mv ${_dst} ${work_dir}/repo-core-any/${_pkg_name}
                 ln -sf ../any/${_pkg_name} ${_dst}
             fi
         done
+        # Remove old copy of db file
+        rm -f ${work_dir}/repo-core-${arch}/core.db.tar.gz.old
         mkdir -p ${work_dir}/iso/${install_dir}
         pacman -Sp -r ${work_dir}/pacman.db --print-format "%r/%n-%v" ${_pkgs} | sort > ${work_dir}/iso/${install_dir}/pkglist.repo-core.${arch}.txt
         : > ${work_dir}/build.${FUNCNAME}
