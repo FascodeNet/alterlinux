@@ -13,16 +13,17 @@ verbose=""
 cmd_args=""
 
 script_path=$(readlink -f ${0%/*})
+pacman_conf="${script_path}/pacman.conf"
 
 # Base installation (root-image)
 make_basefs() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" init
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "memtest86+ mkinitcpio-nfs-utils nbd curl" install
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" init
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -p "memtest86+ mkinitcpio-nfs-utils nbd curl" install
 }
 
 # Additional packages (root-image)
 make_packages() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" install
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -p "$(grep -v ^# ${script_path}/packages.${arch})" install
 }
 
 # Copy mkinitcpio archiso hooks (root-image)
@@ -47,7 +48,7 @@ make_boot() {
         local _src=${work_dir}/root-image
         local _dst_boot=${work_dir}/iso/${install_dir}/boot
         mkdir -p ${_dst_boot}/${arch}
-        mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
+        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
             -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' \
             run
         mv ${_src}/boot/archiso.img ${_dst_boot}/${arch}/archiso.img
@@ -139,10 +140,10 @@ make_customize_root_image() {
         wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
         sed -i 's/#\(en_US\.UTF-8\)/\1/' ${work_dir}/root-image/etc/locale.gen
-        mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
+        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
             -r 'locale-gen' \
             run
-        mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" \
+        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
             -r 'useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch' \
             run
         : > ${work_dir}/build.${FUNCNAME}
@@ -172,12 +173,12 @@ make_core_repo() {
         mkdir -p ${work_dir}/repo-core-any
         mkdir -p ${work_dir}/repo-core-${arch}
         mkdir -p ${work_dir}/pacman.db/var/lib/pacman
-        pacman -Sy -r ${work_dir}/pacman.db
-        _pkgs=$(comm -2 -3 <(pacman -Sql -r ${work_dir}/pacman.db core | sort | sed 's@^@core/@') \
+        pacman --config "${pacman_conf}" -Sy -r ${work_dir}/pacman.db
+        _pkgs=$(comm -2 -3 <(pacman --config "${pacman_conf}" -Sql -r ${work_dir}/pacman.db core | sort | sed 's@^@core/@') \
                            <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
-        _urls=$(pacman -Sddp -r ${work_dir}/pacman.db ${_pkgs})
-        pacman -Swdd -r ${work_dir}/pacman.db --noprogressbar --noconfirm ${_pkgs}
-        _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
+        _urls=$(pacman --config "${pacman_conf}" -Sddp -r ${work_dir}/pacman.db ${_pkgs})
+        pacman --config "${pacman_conf}" -Swdd -r ${work_dir}/pacman.db --noprogressbar --noconfirm ${_pkgs}
+        _cache_dirs=($(pacman --config "${pacman_conf}" -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _dst=${work_dir}/repo-core-${arch}/${_pkg_name}
@@ -199,7 +200,7 @@ make_core_repo() {
         # Remove old copy of db file
         rm -f ${work_dir}/repo-core-${arch}/core.db.tar.gz.old
         mkdir -p ${work_dir}/iso/${install_dir}
-        pacman -Sp -r ${work_dir}/pacman.db --print-format "%r/%n-%v" ${_pkgs} | sort > ${work_dir}/iso/${install_dir}/pkglist.repo-core.${arch}.txt
+        pacman --config "${pacman_conf}" -Sp -r ${work_dir}/pacman.db --print-format "%r/%n-%v" ${_pkgs} | sort > ${work_dir}/iso/${install_dir}/pkglist.repo-core.${arch}.txt
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -216,16 +217,16 @@ make_aitab() {
 
 # Build all filesystem images specified in aitab (.fs .fs.sfs .sfs)
 make_prepare() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" prepare
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" pkglist
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" prepare
 }
 
 # Build ISO
 # args: $1 (core | netinstall)
 make_iso() {
     local _iso_type=${1}
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" checksum
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${_iso_type}-${arch}.iso"
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" checksum
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${_iso_type}-${arch}.iso"
 }
 
 # Build dual-iso images from ${work_dir}/i686/iso and ${work_dir}/x86_64/iso
