@@ -13,7 +13,14 @@ verbose=""
 cmd_args=""
 
 script_path=$(readlink -f ${0%/*})
-pacman_conf="${script_path}/pacman.conf"
+
+setup_workdir() {
+    cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
+    mkdir -p "${work_dir}"
+    pacman_conf="${work_dir}/pacman.conf"
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${cache_dirs[@]})|g" \
+        "${script_path}/pacman.conf" > "${pacman_conf}"
+}
 
 # Base installation (root-image)
 make_basefs() {
@@ -169,7 +176,7 @@ make_usr_share() {
 # Make [core] repository, keep "any" pkgs in a separate fs (makes more "dual-iso" friendly)
 make_core_repo() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        local _url _urls _pkg_name _dst _pkgs _cache_dir _cache_dirs
+        local _url _urls _pkg_name _dst _pkgs _cache_dir
         mkdir -p ${work_dir}/repo-core-any
         mkdir -p ${work_dir}/repo-core-${arch}
         mkdir -p ${work_dir}/pacman.db/var/lib/pacman
@@ -178,11 +185,10 @@ make_core_repo() {
                            <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
         _urls=$(pacman --config "${pacman_conf}" -Sddp -r ${work_dir}/pacman.db ${_pkgs})
         pacman --config "${pacman_conf}" -Swdd -r ${work_dir}/pacman.db --noprogressbar --noconfirm ${_pkgs}
-        _cache_dirs=($(pacman --config "${pacman_conf}" -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
         for _url in ${_urls}; do
             _pkg_name=${_url##*/}
             _dst=${work_dir}/repo-core-${arch}/${_pkg_name}
-            for _cache_dir in ${_cache_dirs[@]}; do
+            for _cache_dir in ${cache_dirs[@]}; do
                 if [[ -e "${_cache_dir}/${_pkg_name}" ]]; then
                     cp "${_cache_dir}/${_pkg_name}" ${_dst}
                 fi
@@ -430,6 +436,8 @@ fi
 if [[ ${command_mode} == "single" ]]; then
     work_dir=${work_dir}/${arch}
 fi
+
+setup_workdir
 
 case "${command_name}" in
     build)
