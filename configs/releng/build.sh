@@ -121,7 +121,7 @@ make_syslinux() {
         cp ${_src_syslinux}/memdisk ${_dst_syslinux}
         mkdir -p ${_dst_syslinux}/hdt
         cat ${work_dir}/root-image/usr/share/hwdata/pci.ids | gzip -9 > ${_dst_syslinux}/hdt/pciids.gz
-        cat ${work_dir}/root-image/lib/modules/*-ARCH/modules.alias | gzip -9 > ${_dst_syslinux}/hdt/modalias.gz
+        cat ${work_dir}/root-image/usr/lib/modules/*-ARCH/modules.alias | gzip -9 > ${_dst_syslinux}/hdt/modalias.gz
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -157,10 +157,10 @@ make_customize_root_image() {
     fi
 }
 
-# Split out /lib/modules from root-image (makes more "dual-iso" friendly)
-make_lib_modules() {
+# Split out /usr/lib/modules from root-image (makes more "dual-iso" friendly)
+make_usr_lib_modules() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        mv ${work_dir}/root-image/lib/modules ${work_dir}/lib-modules
+        mv ${work_dir}/root-image/usr/lib/modules ${work_dir}/usr-lib-modules
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
@@ -322,7 +322,7 @@ make_common_single() {
     make_syslinux
     make_isolinux
     make_customize_root_image
-    make_lib_modules
+    make_usr_lib_modules
     make_usr_share
     make_aitab $1
     make_prepare $1
