@@ -24,7 +24,7 @@ rh:06:wait:/etc/rc.shutdown
 su:S:wait:/sbin/sulogin -p
 
 # -8 options fixes umlauts problem on login
-c1:2345:respawn:/sbin/agetty -8 -s -n -l /usr/bin/autologin 38400 tty1 linux
+c1:2345:respawn:/sbin/agetty -8 -s -a root 38400 tty1 linux
 c2:2345:respawn:/sbin/agetty -8 -s 38400 tty2 linux
 c3:2345:respawn:/sbin/agetty -8 -s 38400 tty3 linux
 c4:2345:respawn:/sbin/agetty -8 -s 38400 tty4 linux
