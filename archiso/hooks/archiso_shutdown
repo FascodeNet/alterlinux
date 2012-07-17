@@ -1,23 +1,6 @@
-run_hook ()
-{
-    msg -n ":: Creating shutdown ramfs..."
-
-    for _dir in bin lib sbin usr/bin usr/lib usr/sbin; do
-        mkdir -p /run/initramfs/${_dir}
-    done
-    cp /bin/busybox /run/initramfs/bin/
-    cp /lib/ld-* /run/initramfs/lib/
-    cp /lib/lib* /run/initramfs/lib/
-    cp /usr/lib/lib* /run/initramfs/usr/lib/
-    cp /bin/mount /run/initramfs/bin/
-    cp /sbin/dmsetup /run/initramfs/sbin/
-    cp /sbin/losetup /run/initramfs/sbin/
-    if [[ -x /bin/nbd-client ]]; then
-        cp /bin/nbd-client /run/initramfs/bin/
-    fi
-
-    chroot /run/initramfs /bin/busybox --install
-    cp /shutdown /run/initramfs/
-
-    msg "done."
+run_cleanuphook() {
+    rm -rf /usr/lib/modules
+    cp -ax / /run/initramfs
 }
+
+# vim: set ft=sh ts=4 sw=4 et:
