@@ -1,0 +1,32 @@
+Author: Pierre Schmitz <pierre@archlinux.de>
+
+* pacman-key: Use lsign_keys function in --populate
+* pacman-key: reduce verbosity of --populate
+
+--- pacman-key	2012-07-10 18:45:32.000000000 -0300
++++ pacman-key	2012-07-18 16:38:18.264110004 -0300
+@@ -376,7 +376,7 @@
+ 	# Add keys from requested keyrings
+ 	for keyring in "${KEYRINGIDS[@]}"; do
+ 		msg "$(gettext "Appending keys from %s.gpg...")" "$keyring"
+-		"${GPG_PACMAN[@]}" --import "${KEYRING_IMPORT_DIR}/${keyring}.gpg"
++		"${GPG_PACMAN[@]}" --quiet --import "${KEYRING_IMPORT_DIR}/${keyring}.gpg"
+ 	done
+ 
+ 	# Read the trusted key IDs to an array. Because this is an ownertrust
+@@ -403,12 +403,13 @@
+ 		msg "$(gettext "Locally signing trusted keys in keyring...")"
+ 		for key_id in "${!trusted_ids[@]}"; do
+ 			msg2 "$(gettext "Locally signing key %s...")" "${key_id}"
+-			"${GPG_PACMAN[@]}" --quiet --lsign-key "${key_id}"
++			KEYIDS=("${key_id}")
++			lsign_keys
+ 		done
+ 		msg "$(gettext "Importing owner trust values...")"
+ 		for keyring in "${KEYRINGIDS[@]}"; do
+ 			if [[ -f "${KEYRING_IMPORT_DIR}/${keyring}-trusted" ]]; then
+-				"${GPG_PACMAN[@]}" --import-ownertrust "${KEYRING_IMPORT_DIR}/${keyring}-trusted"
++				"${GPG_PACMAN[@]}" --import-ownertrust "${KEYRING_IMPORT_DIR}/${keyring}-trusted" 2>/dev/null
+ 			fi
+ 		done
+ 	fi
