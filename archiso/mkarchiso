@@ -298,7 +298,7 @@ _mksfs () {
 
 # Makes a filesystem from a source directory.
 # $1: Source directory
-# $2: Target filesystem type (ext4 | ext3 | ext2 | xfs)
+# $2: Target filesystem type (ext4 | ext3 | ext2 | xfs | btrfs)
 # $3: Size of target filesystem. Can be an absolute value in MiB, or relative value of desired free space (1% - 99%)
 _mkfs () {
     local _src="${1}"
@@ -350,6 +350,9 @@ _mkfs () {
             ;;
         xfs)
             mkfs.xfs ${_qflag} "${_fs_img}"
+            ;;
+        btrfs)
+            mkfs.btrfs -M "${_fs_img}"
             ;;
         *)
             _msg_error "Invalid filesystem: ${_fs_type}" 1

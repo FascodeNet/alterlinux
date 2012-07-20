@@ -396,6 +396,7 @@ EOF
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
  + rsync                   for rsync
+ + btrfs-progs             for mkfs.btrfs (optional)
 
 ** For configs/releng build.sh needs theses packages (build host):
  + dosfstools              for mkfs.vfat
