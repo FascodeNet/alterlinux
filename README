@@ -438,7 +438,8 @@ It consists of some fields which define the behaviour of images.
 <mnt>      Mount point.
 <arch>     Architecture { i686 | x86_64 | any }.
 <sfs_comp> SquashFS compression type { gzip | lzo | xz }.
-<fs_type>  Set the filesystem type of the image { ext4 | ext3 | ext2 | xfs }.
+<fs_type>  Set the filesystem type of the image
+           { ext4 | ext3 | ext2 | xfs | btrfs }.
            A special value of "none" denotes no usage of a filesystem.
            In that case all files are pushed directly to SquashFS filesystem.
 <fs_size>  An absolute value of file system image size in MiB.
