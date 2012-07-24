@@ -400,6 +400,7 @@ EOF
 
 ** For configs/releng build.sh needs theses packages (build host):
  + dosfstools              for mkfs.vfat
+ + patch                   for patch
 
 ** For these hooks needs these packages (on target root-image)
 * archiso
