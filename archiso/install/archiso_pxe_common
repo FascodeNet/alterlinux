@@ -8,10 +8,10 @@ build() {
     add_binary /usr/lib/initcpio/ipconfig /bin/ipconfig
 
     # Add hosts support files+dns
-    add_symlink /lib/libnss_files.so.2 $(readlink /lib/libnss_files.so.2)
-    add_binary $(readlink -f /lib/libnss_files.so.2)
-    add_symlink /lib/libnss_dns.so.2 $(readlink /lib/libnss_dns.so.2)
-    add_binary $(readlink -f /lib/libnss_dns.so.2)
+    add_symlink /usr/lib/libnss_files.so.2 $(readlink /usr/lib/libnss_files.so.2)
+    add_binary $(readlink -f /usr/lib/libnss_files.so.2)
+    add_symlink /usr/lib/libnss_dns.so.2 $(readlink /usr/lib/libnss_dns.so.2)
+    add_binary $(readlink -f /usr/lib/libnss_dns.so.2)
 
     add_dir /etc
     echo "hosts: files dns" > $BUILDROOT/etc/nsswitch.conf
