@@ -490,7 +490,7 @@ used to build official images with much more things.
 *** Building official Arch Linux live media. (configs/releng)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn rsync dosfstools --needed
+  # pacman -S git make squashfs-tools libisoburn rsync dosfstools lynx patch --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
