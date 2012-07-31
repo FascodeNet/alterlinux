@@ -145,24 +145,6 @@ INDEX
 
 
 
-*** Boot parameters (only for configs/releng)
-
-** /etc/rc.conf
-
-By default these parameters are set by default to these values
-if nothing is specified on command line.
-
-* locale=             "en_US.UTF-8"
-* daemon_locale=      "no"
-* hardwareclock=      "UTC"
-* timezone=           "UTC"
-* keymap=             "us"
-* consolefont=        (unset)
-* consolemap=         (unset)
-* usecolor=           "yes"
-
-
-
 *** Transfer ISO image to target medium (configs/releng)
 
 ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-<ARCH>.iso
