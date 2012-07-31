@@ -376,7 +376,6 @@ EOF
 ** For mkarchiso script needs these packages (build host):
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
- + rsync                   for rsync
  + btrfs-progs             for mkfs.btrfs (optional)
 
 ** For configs/releng build.sh needs theses packages (build host):
@@ -471,7 +470,7 @@ used to build official images with much more things.
 *** Building official Arch Linux live media. (configs/releng)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn rsync dosfstools lynx patch --needed
+  # pacman -S git make squashfs-tools libisoburn dosfstools lynx patch --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git

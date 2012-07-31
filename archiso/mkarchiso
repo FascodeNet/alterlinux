@@ -361,7 +361,7 @@ _mkfs () {
     _msg_info "Done!"
     _mount_fs "${_fs_img}" "${work_dir}/mnt/${_src}"
     _msg_info "Copying '${_fs_src}/' to '${work_dir}/mnt/${_src}/'..."
-    rsync -aH "${_fs_src}/" "${work_dir}/mnt/${_src}/"
+    cp -aT "${_fs_src}/" "${work_dir}/mnt/${_src}/"
     _msg_info "Done!"
     _umount_fs "${work_dir}/mnt/${_src}"
 }
