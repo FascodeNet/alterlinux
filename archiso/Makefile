@@ -1,3 +1,5 @@
+V=1
+
 all:
 
 install: install-program install-hooks install-examples install-doc
@@ -54,4 +56,8 @@ uninstall:
 	rm -f $(DESTDIR)/usr/lib/initcpio/install/archiso_kms
 	rm -rf $(DESTDIR)/usr/share/archiso/
 
-.PHONY: install install-program install-hooks install-examples install-doc uninstall
+dist:
+	git archive --format=tar --prefix=archiso-$(V)/ v$(V) | gzip -9 > archiso-$(V).tar.gz
+	gpg --detach-sign --use-agent archiso-$(V).tar.gz
+
+.PHONY: install install-program install-hooks install-examples install-doc uninstall dist
