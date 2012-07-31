@@ -155,7 +155,10 @@ make_customize_root_image() {
             -r 'locale-gen' \
             run
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'useradd -m -p "" -g users -G "audio,disk,optical,wheel" arch' \
+            -r 'usermod -s /bin/zsh root' \
+            run
+        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
+            -r 'useradd -m -p "" -g users -G "audio,disk,optical,wheel" -s /bin/zsh arch' \
             run
         : > ${work_dir}/build.${FUNCNAME}
     fi

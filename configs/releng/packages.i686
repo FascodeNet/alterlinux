@@ -14,6 +14,7 @@ efibootmgr
 elinks
 gnu-netcat
 gptfdisk
+grml-zsh-config
 grub-bios
 haveged
 hdparm
@@ -45,3 +46,4 @@ vpnc
 wireless_tools
 wpa_actiond
 zd1211-firmware
+zsh
