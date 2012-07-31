@@ -1,6 +1,0 @@
-# <img>           <mnt>               <arch>   <sfs_comp>  <fs_type>  <fs_size>
-root-image        /                   %ARCH%   xz          ext4       50%
-usr-lib-modules   /usr/lib/modules    %ARCH%   xz          ext4       50%
-usr-share         /usr/share          any      xz          ext4       50%
-repo-core-%ARCH%  /repo/core/%ARCH%   %ARCH%   xz          none       0
-repo-core-any     /repo/core/any      any      xz          none       0

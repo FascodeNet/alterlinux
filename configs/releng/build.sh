@@ -175,51 +175,11 @@ make_usr_share() {
     fi
 }
 
-# Make [core] repository, keep "any" pkgs in a separate fs (makes more "dual-iso" friendly)
-make_core_repo() {
-    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
-        local _url _urls _pkg_name _dst _pkgs _cache_dir
-        mkdir -p ${work_dir}/repo-core-any
-        mkdir -p ${work_dir}/repo-core-${arch}
-        mkdir -p ${work_dir}/pacman.db/var/lib/pacman
-        pacman --config "${pacman_conf}" -Sy -r ${work_dir}/pacman.db
-        _pkgs=$(comm -2 -3 <(pacman --config "${pacman_conf}" -Sql -r ${work_dir}/pacman.db core | sort | sed 's@^@core/@') \
-                           <(grep -v ^# ${script_path}/core.exclude.${arch} | sort | sed 's@^@core/@'))
-        _urls=$(pacman --config "${pacman_conf}" -Sddp -r ${work_dir}/pacman.db ${_pkgs})
-        pacman --config "${pacman_conf}" -Swdd -r ${work_dir}/pacman.db --noprogressbar --noconfirm ${_pkgs}
-        for _url in ${_urls}; do
-            _pkg_name=${_url##*/}
-            _dst=${work_dir}/repo-core-${arch}/${_pkg_name}
-            for _cache_dir in ${cache_dirs[@]}; do
-                if [[ -e "${_cache_dir}/${_pkg_name}" ]]; then
-                    cp "${_cache_dir}/${_pkg_name}" ${_dst}
-                fi
-            done
-            # download the package signature
-            curl -sC - -f "${_url}.sig" > "${_dst}.sig"
-            repo-add -q ${work_dir}/repo-core-${arch}/core.db.tar.gz ${_dst}
-            # remove the signature file again as it is now included in the db file
-            rm -f "${_dst}.sig"
-            if [[ ${_pkg_name} == *any.pkg.tar* ]]; then
-                mv ${_dst} ${work_dir}/repo-core-any/${_pkg_name}
-                ln -sf ../any/${_pkg_name} ${_dst}
-            fi
-        done
-        # Remove old copy of db file
-        rm -f ${work_dir}/repo-core-${arch}/core.db.tar.gz.old
-        mkdir -p ${work_dir}/iso/${install_dir}
-        pacman --config "${pacman_conf}" -Sp -r ${work_dir}/pacman.db --print-format "%r/%n-%v" ${_pkgs} | sort > ${work_dir}/iso/${install_dir}/pkglist.repo-core.${arch}.txt
-        : > ${work_dir}/build.${FUNCNAME}
-    fi
-}
-
 # Process aitab
-# args: $1 (core | netinstall)
 make_aitab() {
-    local _iso_type=${1}
-    if [[ ! -e ${work_dir}/build.${FUNCNAME}_${_iso_type} ]]; then
-        sed "s|%ARCH%|${arch}|g" ${script_path}/aitab.${_iso_type} > ${work_dir}/iso/${install_dir}/aitab
-        : > ${work_dir}/build.${FUNCNAME}_${_iso_type}
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        sed "s|%ARCH%|${arch}|g" ${script_path}/aitab > ${work_dir}/iso/${install_dir}/aitab
+        : > ${work_dir}/build.${FUNCNAME}
     fi
 }
 
@@ -230,18 +190,14 @@ make_prepare() {
 }
 
 # Build ISO
-# args: $1 (core | netinstall)
 make_iso() {
-    local _iso_type=${1}
     mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" checksum
-    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${_iso_type}-${arch}.iso"
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${arch}.iso"
 }
 
 # Build dual-iso images from ${work_dir}/i686/iso and ${work_dir}/x86_64/iso
-# args: $1 (core | netinstall)
 make_dual() {
-    local _iso_type=${1}
-    if [[ ! -e ${work_dir}/dual/build.${FUNCNAME}_${_iso_type} ]]; then
+    if [[ ! -e ${work_dir}/dual/build.${FUNCNAME} ]]; then
         if [[ ! -d ${work_dir}/i686/iso || ! -d ${work_dir}/x86_64/iso ]]; then
             echo "ERROR: i686 or x86_64 builds does not exist."
             _usage 1
@@ -259,29 +215,15 @@ make_dual() {
         cp -a -l -n ${_src_two} ${work_dir}/dual
         rm -f ${work_dir}/dual/iso/${install_dir}/aitab
         rm -f ${work_dir}/dual/iso/${install_dir}/boot/syslinux/*.cfg
-        if [[ ${_iso_type} == "core" ]]; then
-            if [[ ! -e ${work_dir}/dual/iso/${install_dir}/any/repo-core-any.sfs ||
-                  ! -e ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs ||
-                  ! -e ${work_dir}/dual/iso/${install_dir}/x86_64/repo-core-x86_64.sfs ]]; then
-                    echo "ERROR: core_iso_single build is not found."
-                    _usage 1
-            fi
-        else
-            rm -f ${work_dir}/dual/iso/${install_dir}/any/repo-core-any.sfs
-            rm -f ${work_dir}/dual/iso/${install_dir}/i686/repo-core-i686.sfs
-            rm -f ${work_dir}/dual/iso/${install_dir}/x86_64/repo-core-x86_64.sfs
-            rm -f ${work_dir}/dual/iso/${install_dir}/pkglist.repo-core.i686.txt
-            rm -f ${work_dir}/dual/iso/${install_dir}/pkglist.repo-core.x86_64.txt
-        fi
-        paste -d"\n" <(sed "s|%ARCH%|i686|g" ${script_path}/aitab.${_iso_type}) \
-                     <(sed "s|%ARCH%|x86_64|g" ${script_path}/aitab.${_iso_type}) | uniq > ${work_dir}/dual/iso/${install_dir}/aitab
+        paste -d"\n" <(sed "s|%ARCH%|i686|g" ${script_path}/aitab) \
+                     <(sed "s|%ARCH%|x86_64|g" ${script_path}/aitab) | uniq > ${work_dir}/dual/iso/${install_dir}/aitab
         for _cfg in ${script_path}/syslinux.dual/*.cfg; do
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
                  s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/dual/iso/${install_dir}/boot/syslinux/${_cfg##*/}
         done
         mkarchiso ${verbose} -w "${work_dir}/dual" -D "${install_dir}" checksum
-        mkarchiso ${verbose} -w "${work_dir}/dual" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${_iso_type}-dual.iso"
-        : > ${work_dir}/dual/build.${FUNCNAME}_${_iso_type}
+        mkarchiso ${verbose} -w "${work_dir}/dual" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-dual.iso"
+        : > ${work_dir}/dual/build.${FUNCNAME}
     fi
 }
 
@@ -326,9 +268,9 @@ make_common_single() {
     make_customize_root_image
     make_usr_lib_modules
     make_usr_share
-    make_aitab $1
-    make_prepare $1
-    make_iso $1
+    make_aitab
+    make_prepare
+    make_iso
 }
 
 _usage ()
@@ -352,8 +294,8 @@ _usage ()
     echo "    -h                 This help message"
     echo
     echo " Commands:"
-    echo "   build <mode> <type>"
-    echo "      Build selected .iso by <mode> and <type>"
+    echo "   build <mode>"
+    echo "      Build selected .iso by <mode>"
     echo "   purge <mode>"
     echo "      Clean working directory except iso/ directory of build <mode>"
     echo "   clean <mode>"
@@ -361,7 +303,6 @@ _usage ()
     echo
     echo " Command options:"
     echo "         <mode> Valid values 'single', 'dual' or 'all'"
-    echo "         <type> Valid values 'netinstall', 'core' or 'all'"
     exit ${1}
 }
 
@@ -422,14 +363,6 @@ if [[ $# -lt 2 ]]; then
 fi
 command_mode="${2}"
 
-if [[ ${command_name} == "build" ]]; then
-    if [[ $# -lt 3 ]]; then
-        echo "No build type specified"
-        _usage 1
-    fi
-command_type="${3}"
-fi
-
 if [[ ${command_mode} == "all" && ${arch} != "x86_64" ]]; then
     echo "This mode <all> needs to be run on x86_64"
     _usage 1
@@ -445,58 +378,18 @@ case "${command_name}" in
     build)
         case "${command_mode}" in
             single)
-                case "${command_type}" in
-                    netinstall)
-                        make_common_single netinstall
-                        ;;
-                    core)
-                        make_core_repo
-                        make_common_single core
-                        ;;
-                    all)
-                        make_common_single netinstall
-                        make_core_repo
-                        make_common_single core
-                        ;;
-                    *)
-                        echo "Invalid build type '${command_type}'"
-                        _usage 1
-                        ;;
-                esac
+                make_common_single
                 ;;
             dual)
-                case "${command_type}" in
-                    netinstall)
-                        make_dual netinstall
-                        ;;
-                    core)
-                        make_dual core
-                        ;;
-                    all)
-                        make_dual netinstall
-                        make_dual core
-                        ;;
-                    *)
-                        echo "Invalid build type '${command_type}'"
-                        _usage 1
-                        ;;
-                esac
+                make_dual
                 ;;
             all)
-                case "${command_type}" in
-                    netinstall|core|all)
-                        $0 ${cmd_args} build single ${command_type}
-                        $0 ${cmd_args} purge single
-                        linux32 $0 ${cmd_args} build single ${command_type}
-                        linux32 $0 ${cmd_args} purge single
-                        $0 ${cmd_args} build dual ${command_type}
-                        $0 ${cmd_args} purge dual
-                        ;;
-                    *)
-                        echo "Invalid build type '${command_type}'"
-                        _usage 1
-                        ;;
-                esac
+                $0 ${cmd_args} build single
+                $0 ${cmd_args} purge single
+                linux32 $0 ${cmd_args} build single
+                linux32 $0 ${cmd_args} purge single
+                $0 ${cmd_args} build dual
+                $0 ${cmd_args} purge dual
                 ;;
             *)
                 echo "Invalid build mode '${command_mode}'"
