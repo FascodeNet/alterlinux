@@ -42,6 +42,7 @@ rp-pppoe
 rsync
 smartmontools
 speedtouch
+systemd
 tcpdump
 vpnc
 wireless_tools
