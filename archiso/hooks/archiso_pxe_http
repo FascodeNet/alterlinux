@@ -19,7 +19,7 @@ _curl_get() {
     local _dst="${2}"
 
     msg ":: Downloading '${_url}'"
-    if ! curl -f -o "/run/archiso/httpspace/${archisobasedir}${_dst}/${_url##*/}" --create-dirs "${_url}"; then
+    if ! curl -L -f -o "/run/archiso/httpspace/${archisobasedir}${_dst}/${_url##*/}" --create-dirs "${_url}"; then
         echo "ERROR: Downloading '${_url}'"
         echo "   Falling back to interactive prompt"
         echo "   You can try to fix the problem manually, log out when you are finished"
