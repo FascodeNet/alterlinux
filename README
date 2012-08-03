@@ -458,7 +458,7 @@ When make your custom boot-pendrive, you need to copy /arch directory to it.
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
-  # make -C archiso/archiso install
+  # make -C archiso install
 
 * Build a basic iso.
   # /usr/share/archiso/configs/baseline/build.sh
@@ -474,7 +474,7 @@ used to build official images with much more things.
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
-  # make -C archiso/archiso install
+  # make -C archiso install
 
 * Build them!
   # /usr/share/archiso/configs/releng/build.sh build all
