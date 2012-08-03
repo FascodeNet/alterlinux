@@ -55,6 +55,7 @@ uninstall:
 	rm -f $(DESTDIR)/usr/lib/initcpio/install/archiso_loop_mnt
 	rm -f $(DESTDIR)/usr/lib/initcpio/install/archiso_kms
 	rm -rf $(DESTDIR)/usr/share/archiso/
+	rm -f $(DESTDIR)/usr/share/doc/archiso/README
 
 dist:
 	git archive --format=tar --prefix=archiso-$(V)/ v$(V) | gzip -9 > archiso-$(V).tar.gz
