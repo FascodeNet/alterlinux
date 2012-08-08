@@ -12,7 +12,7 @@ automated_script ()
         fi
         if [ ${rt} -eq 0 ]; then
             chmod +x /tmp/startup_script
-            echo -e '\nif [ $(tty) = "/dev/tty1" ]; then\n    /tmp/startup_script\nfi\n' >> /root/.bash_profile
+            echo -e '\nif [ $(tty) = "/dev/tty1" ]; then\n    /tmp/startup_script\nfi\n' >> /root/.zprofile
             stat_done
         else
             stat_fail
