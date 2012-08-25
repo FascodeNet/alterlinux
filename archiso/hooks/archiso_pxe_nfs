@@ -22,5 +22,6 @@ archiso_nfs_mount_handler() {
         launch_interactive_shell
     fi
 
+    copytoram="y"
     archiso_mount_handler ${newroot}
 }
