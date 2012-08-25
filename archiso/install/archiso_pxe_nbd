@@ -6,8 +6,6 @@ build() {
     add_runscript
 
     add_binary nbd-client
-
-    add_file /usr/lib/initcpio/archiso_pxe_nbd /archiso_pxe_nbd
 }
 
 help() {

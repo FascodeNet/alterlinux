@@ -43,7 +43,6 @@ make_setup_mkinitcpio() {
         done
         cp /usr/lib/initcpio/install/archiso_kms ${work_dir}/root-image/usr/lib/initcpio/install
         cp /usr/lib/initcpio/archiso_shutdown ${work_dir}/root-image/usr/lib/initcpio
-        cp /usr/lib/initcpio/archiso_pxe_nbd ${work_dir}/root-image/usr/lib/initcpio
         cp ${script_path}/mkinitcpio.conf ${work_dir}/root-image/etc/mkinitcpio-archiso.conf
         : > ${work_dir}/build.${FUNCNAME}
    fi

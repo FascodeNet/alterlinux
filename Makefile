@@ -14,7 +14,6 @@ install-hooks:
 	install -D -m 755 archiso/archiso_shutdown $(DESTDIR)/usr/lib/initcpio/archiso_shutdown
 	install -D -m 644 archiso/hooks/archiso_shutdown $(DESTDIR)/usr/lib/initcpio/hooks/archiso_shutdown
 	install -D -m 644 archiso/install/archiso_shutdown $(DESTDIR)/usr/lib/initcpio/install/archiso_shutdown
-	install -D -m 644 archiso/archiso_pxe_nbd $(DESTDIR)/usr/lib/initcpio/archiso_pxe_nbd
 	install -D -m 644 archiso/hooks/archiso_pxe_common $(DESTDIR)/usr/lib/initcpio/hooks/archiso_pxe_common
 	install -D -m 644 archiso/install/archiso_pxe_common $(DESTDIR)/usr/lib/initcpio/install/archiso_pxe_common
 	install -D -m 644 archiso/hooks/archiso_pxe_nbd $(DESTDIR)/usr/lib/initcpio/hooks/archiso_pxe_nbd
@@ -42,7 +41,6 @@ uninstall:
 	rm -f $(DESTDIR)/usr/lib/initcpio/archiso_shutdown
 	rm -f $(DESTDIR)/usr/lib/initcpio/hooks/archiso_shutdown
 	rm -f $(DESTDIR)/usr/lib/initcpio/install/archiso_shutdown
-	rm -f $(DESTDIR)/usr/lib/initcpio/archiso_pxe_nbd
 	rm -f $(DESTDIR)/usr/lib/initcpio/hooks/archiso_pxe_common
 	rm -f $(DESTDIR)/usr/lib/initcpio/install/archiso_pxe_common
 	rm -f $(DESTDIR)/usr/lib/initcpio/hooks/archiso_pxe_nbd

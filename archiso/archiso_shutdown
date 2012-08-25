@@ -27,9 +27,6 @@ if [[ ! -d /oldrun/archiso/copytoram ]]; then
     else
         umount /oldrun/archiso/bootmnt
     fi
-    if [[ -f /oldrun/archiso/nbd_client.pid ]]; then
-        nbd-client -d /dev/nbd0
-    fi
 fi
 
 # reboot / poweroff / halt, depending on the argument passed by init

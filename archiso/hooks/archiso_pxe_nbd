@@ -15,6 +15,7 @@ archiso_pxe_nbd_mount_handler () {
 
     # Module autoloading like with loop devices does not work, doing manually...
     modprobe nbd 2> /dev/null
+
     msg ":: Waiting for boot device..."
     while ! poll_device /dev/nbd0 30; do
         echo "ERROR: boot device didn't show up after 30 seconds..."
@@ -24,22 +25,13 @@ archiso_pxe_nbd_mount_handler () {
     done
 
     msg ":: Setup NBD from ${archiso_nbd_srv} at /dev/nbd0"
-    if [[ "${copytoram}" = "y" ]]; then
-        nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} /dev/nbd0
-    else
-        nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} /dev/nbd0 -persist
-    fi
+    nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} /dev/nbd0
 
+    copytoram="y"
     archisodevice=/dev/nbd0
 
     archiso_mount_handler ${newroot}
 
-    if [[ "${copytoram}" = "y" ]]; then
-        msg ":: Disconnect NBD from ${archiso_nbd_srv} at /dev/nbd0"
-        nbd-client -d /dev/nbd0
-    else
-        mkdir -p /run/archiso
-        pidof nbd-client > /run/archiso/nbd_client.pid
-        cp /archiso_pxe_nbd ${newroot}/etc/rc.d/functions.d/
-    fi
+    msg ":: Disconnect NBD from ${archiso_nbd_srv} at /dev/nbd0"
+    nbd-client -d /dev/nbd0
 }
