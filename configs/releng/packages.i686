@@ -41,7 +41,6 @@ rp-pppoe
 rsync
 smartmontools
 speedtouch
-systemd
 tcpdump
 usb_modeswitch
 vpnc
