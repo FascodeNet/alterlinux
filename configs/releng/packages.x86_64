@@ -48,5 +48,6 @@ vpnc
 wireless_tools
 wpa_actiond
 wvdial
+xl2tpd
 zd1211-firmware
 zsh
