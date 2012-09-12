@@ -42,9 +42,11 @@ rp-pppoe
 rsync
 smartmontools
 speedtouch
+sudo
 tcpdump
 usb_modeswitch
 vpnc
+wget
 wireless_tools
 wpa_actiond
 wvdial
