@@ -94,7 +94,13 @@ make_boot_efi() {
 
             # Add an EFI shell script for automatic boot if ESC-key is not pressed within 5 seconds timeout.
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/EFI/boot/startup.nsh > ${work_dir}/efiboot/EFI/boot/startup.nsh
+                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/EFI/boot/startup_iso.nsh > ${work_dir}/efiboot/EFI/boot/startup.nsh
+
+            mkdir -p ${work_dir}/iso/EFI/boot
+            cp ${work_dir}/efiboot/EFI/boot/bootx64.efi ${work_dir}/iso/EFI/boot/bootx64.efi
+
+            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/EFI/boot/startup_usb.nsh > ${work_dir}/iso/EFI/boot/startup.nsh
 
             umount ${work_dir}/efiboot
         fi

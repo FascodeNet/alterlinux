@@ -1,6 +1,6 @@
 @echo -off
 
-for %m run (0 9)
+for %m run (0 20)
     if exist fs%m:\EFI\archiso\vmlinuz.efi then
         fs%m:
         cd fs%m:\EFI\archiso

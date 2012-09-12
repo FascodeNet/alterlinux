@@ -38,6 +38,7 @@ openssh
 openvpn
 parted
 pptpclient
+refind-efi-x86_64
 rp-pppoe
 rsync
 smartmontools
