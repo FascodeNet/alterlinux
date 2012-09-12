@@ -24,7 +24,7 @@ install-initcpio:
 
 install-examples:
 	install -d -m 755 $(DESTDIR)/usr/share/archiso/
-	cp -r configs $(DESTDIR)/usr/share/archiso/
+	cp -a configs $(DESTDIR)/usr/share/archiso/
 
 install-doc:
 	install -D -m 644 README $(DESTDIR)/usr/share/doc/archiso/README
