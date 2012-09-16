@@ -8,8 +8,6 @@ INDEX
   * hooks/archiso_pxe_http
   * hooks/archiso_pxe_nfs
   * hooks/archiso_loop_mnt
-* Boot parameters (only for configs/releng)
-  * etc/rc.conf
 * Transfer ISO file to target medium (configs/releng)
   * To -> CD / DVD / BD
   * To -> USB-key / SD / HDD / SSD
