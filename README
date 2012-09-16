@@ -217,7 +217,7 @@ Note: Using here a MBR partition mode as example, but GPT should also works
 4) Extract ISO image on target filesystem.
 # bsdtar -x --exclude=isolinux/ --exclude=EFI/ -f <ISO-SOURCE> -C <MNT-TARGET-N>
 
-5) Install syslinux bootloader on target filesystem.
+5) Install syslinux bootloader on target filesystem. (See know issue (2) if using FAT)
 # extlinux -i <MNT-TARGET-N>/arch/boot/syslinux
 
 6) Unmount target filesystem.
@@ -443,12 +443,18 @@ When make your custom boot-pendrive, you need to copy /arch directory to it.
 
 *** Know issues
 
-** On shutdown there are two steps that [FAIL]:
+** (1) On shutdown there are two steps that [FAIL]:
    "Unmounting Swap-backed Filesystems" and "Unmounting Non-API Filesystems",
     These filesystem are in use at this stage by archiso, but...
     This is not a real issue since, all mounted filesystem, loopback devices
     and device mapper devices made by archiso will be "free" on "shutdown tmpfs"
     (A.K.A deinitramfs), build at initramfs by [archiso_shutdown] initcpio hook.
+
+** (2) syslinux 4.05 bug with relative directories on FAT:
+
+    "Could not find kernel image: boot/syslinux/whichsys.c32"
+    This should be fixed in 4.06. For now, workaround with:
+    sed -i "s|../../|/arch|" /<MNT-TARGET-N>/arch/boot/syslinux/syslinux.cfg
 
 
 *** Building the most basic Arch Linux live media. (configs/baseline)
