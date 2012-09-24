@@ -12,6 +12,7 @@ dnsutils
 dosfstools
 efibootmgr
 elinks
+fsarchiver
 gnu-netcat
 gptfdisk
 grml-zsh-config
@@ -24,6 +25,7 @@ irssi
 lftp
 lilo
 linux-atm
+mc
 mtools
 netcfg
 nfs-utils
@@ -35,7 +37,9 @@ ntp
 openconnect
 openssh
 openvpn
+partclone
 parted
+partimage
 pptpclient
 rp-pppoe
 rsync
@@ -43,6 +47,7 @@ smartmontools
 speedtouch
 sudo
 tcpdump
+testdisk
 usb_modeswitch
 vpnc
 wget
