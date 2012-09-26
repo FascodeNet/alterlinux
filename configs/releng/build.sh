@@ -65,19 +65,17 @@ make_boot() {
     fi
 }
 
-# Prepare EFI "El Torito" boot image (using Linux >= 3.3 EFI boot stub)
-make_boot_efi() {
+make_efi() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         if [[ ${arch} == "x86_64" ]]; then
-            ## Start - UEFI USB
 
             mkdir -p ${work_dir}/iso/EFI/boot
             cp ${work_dir}/root-image/usr/lib/gummiboot/gummibootx64.efi ${work_dir}/iso/EFI/boot/bootx64.efi
 
             mkdir -p ${work_dir}/iso/loader/entries
-            cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/iso/loader/loader.conf
-            cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/uefi-shell-v2-x86_64.conf
-            cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/uefi-shell-v1-x86_64.conf
+            cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/iso/loader/
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/
 
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
                  s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
@@ -87,9 +85,14 @@ make_boot_efi() {
             # EFI Shell 1.0 for non UEFI 2.3+ ( http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=Efi-shell )
             wget -O ${work_dir}/iso/EFI/shellx64_v1.efi https://edk2.svn.sourceforge.net/svnroot/edk2/trunk/edk2/EdkShellBinPkg/FullShell/X64/Shell_Full.efi
 
-            ## End - UEFI USB
+        fi
+        : > ${work_dir}/build.${FUNCNAME}
+    fi
+}
 
-            ## Start - UEFI CD
+make_efiboot() {
+    if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
+        if [[ ${arch} == "x86_64" ]]; then
 
             mkdir -p ${work_dir}/iso/EFI/archiso
             dd of=${work_dir}/iso/EFI/archiso/efiboot.img bs=1 seek=20M count=0
@@ -106,24 +109,18 @@ make_boot_efi() {
             cp ${work_dir}/root-image/usr/lib/gummiboot/gummibootx64.efi ${work_dir}/efiboot/EFI/boot/bootx64.efi
 
             mkdir -p ${work_dir}/efiboot/loader/entries
-            cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/efiboot/loader/loader.conf
-            cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf
-            cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf
+            cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/efiboot/loader/
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/efiboot/loader/entries/
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/efiboot/loader/entries/
 
             sed "s|%ARCHISO_LABEL%|${iso_label}|g;
                  s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
 
-            cp ${work_dir}/iso/EFI/shellx64_v2.efi ${work_dir}/efiboot/EFI/shellx64_v2.efi
-            cp ${work_dir}/iso/EFI/shellx64_v1.efi ${work_dir}/efiboot/EFI/shellx64_v1.efi
-            
-            # There are plans to support command line options via a config file (not yet in linux-3.3)
-            #cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/boot/bootx64.efi
-            #cp ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img ${work_dir}/efiboot/EFI/boot/archiso.img
-            #echo "archisobasedir=${install_dir} archisolabel=${iso_label} initrd=\\EFI\\boot\\archiso.img" > ${work_dir}/efiboot/EFI/boot/linux.conf
-            
+            cp ${work_dir}/iso/EFI/shellx64_v2.efi ${work_dir}/efiboot/EFI/
+            cp ${work_dir}/iso/EFI/shellx64_v1.efi ${work_dir}/efiboot/EFI/
+
             umount ${work_dir}/efiboot
 
-            ## End - UEFI CD
         fi
         : > ${work_dir}/build.${FUNCNAME}
     fi
@@ -293,7 +290,8 @@ make_common_single() {
     make_packages
     make_setup_mkinitcpio
     make_boot
-    make_boot_efi
+    make_efi
+    make_efiboot
     make_syslinux
     make_isolinux
     make_customize_root_image
