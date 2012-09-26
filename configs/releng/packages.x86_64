@@ -42,7 +42,7 @@ partclone
 parted
 partimage
 pptpclient
-refind-efi-x86_64
+refind-efi
 rp-pppoe
 rsync
 smartmontools
