@@ -69,6 +69,28 @@ make_boot() {
 make_boot_efi() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         if [[ ${arch} == "x86_64" ]]; then
+            ## Start - UEFI USB
+
+            mkdir -p ${work_dir}/iso/EFI/boot
+            cp ${work_dir}/root-image/usr/lib/gummiboot/gummibootx64.efi ${work_dir}/iso/EFI/boot/bootx64.efi
+
+            mkdir -p ${work_dir}/iso/loader/entries
+            cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/iso/loader/loader.conf
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/uefi-shell-v2-x86_64.conf
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/uefi-shell-v1-x86_64.conf
+
+            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
+
+            # EFI Shell 2.0 for UEFI 2.3+ ( http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=UEFI_Shell )
+            wget -O ${work_dir}/iso/EFI/shellx64_v2.efi https://edk2.svn.sourceforge.net/svnroot/edk2/trunk/edk2/ShellBinPkg/UefiShell/X64/Shell.efi
+            # EFI Shell 1.0 for non UEFI 2.3+ ( http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=Efi-shell )
+            wget -O ${work_dir}/iso/EFI/shellx64_v1.efi https://edk2.svn.sourceforge.net/svnroot/edk2/trunk/edk2/EdkShellBinPkg/FullShell/X64/Shell_Full.efi
+
+            ## End - UEFI USB
+
+            ## Start - UEFI CD
+
             mkdir -p ${work_dir}/iso/EFI/archiso
             dd of=${work_dir}/iso/EFI/archiso/efiboot.img bs=1 seek=20M count=0
             mkfs.vfat ${work_dir}/iso/EFI/archiso/efiboot.img
@@ -80,29 +102,28 @@ make_boot_efi() {
             cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/archiso/vmlinuz.efi
             cp ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img ${work_dir}/efiboot/EFI/archiso/archiso.img
 
+            mkdir -p ${work_dir}/efiboot/EFI/boot
+            cp ${work_dir}/root-image/usr/lib/gummiboot/gummibootx64.efi ${work_dir}/efiboot/EFI/boot/bootx64.efi
+
+            mkdir -p ${work_dir}/efiboot/loader/entries
+            cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/efiboot/loader/loader.conf
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf
+            cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf
+
+            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+
+            cp ${work_dir}/iso/EFI/shellx64_v2.efi ${work_dir}/efiboot/EFI/shellx64_v2.efi
+            cp ${work_dir}/iso/EFI/shellx64_v1.efi ${work_dir}/efiboot/EFI/shellx64_v1.efi
+            
             # There are plans to support command line options via a config file (not yet in linux-3.3)
             #cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/boot/bootx64.efi
-            #cp ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img ${work_dir}/efiboot/EFI/boot/linux.img
-            #echo "archisolabel=${iso_label} initrd=\EFI\boot\linux.img" | iconv -f ascii -t ucs2 > ${work_dir}/iso/EFI/boot/linux.conf
-
-            # For now, provide an EFI-shell until 'linux.conf' hits mainline.
-            mkdir -p ${work_dir}/efiboot/EFI/boot
-            # EFI Shell 2.0 for UEFI 2.3+ ( http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=UEFI_Shell )
-            #wget -O ${work_dir}/efiboot/EFI/boot/bootx64.efi https://edk2.svn.sourceforge.net/svnroot/edk2/trunk/edk2/ShellBinPkg/UefiShell/X64/Shell.efi
-            # EFI Shell 1.0 for non UEFI 2.3+ ( http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=Efi-shell )
-            wget -O ${work_dir}/efiboot/EFI/boot/bootx64.efi https://edk2.svn.sourceforge.net/svnroot/edk2/trunk/edk2/EdkShellBinPkg/FullShell/X64/Shell_Full.efi
-
-            # Add an EFI shell script for automatic boot if ESC-key is not pressed within 5 seconds timeout.
-            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/EFI/boot/startup_iso.nsh > ${work_dir}/efiboot/EFI/boot/startup.nsh
-
-            mkdir -p ${work_dir}/iso/EFI/boot
-            cp ${work_dir}/efiboot/EFI/boot/bootx64.efi ${work_dir}/iso/EFI/boot/bootx64.efi
-
-            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-                 s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/efiboot/EFI/boot/startup_usb.nsh > ${work_dir}/iso/EFI/boot/startup.nsh
-
+            #cp ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img ${work_dir}/efiboot/EFI/boot/archiso.img
+            #echo "archisobasedir=${install_dir} archisolabel=${iso_label} initrd=\\EFI\\boot\\archiso.img" > ${work_dir}/efiboot/EFI/boot/linux.conf
+            
             umount ${work_dir}/efiboot
+
+            ## End - UEFI CD
         fi
         : > ${work_dir}/build.${FUNCNAME}
     fi

@@ -18,6 +18,7 @@ gptfdisk
 grml-zsh-config
 grub-bios
 grub-efi-x86_64
+gummiboot-efi
 haveged
 hdparm
 ipw2100-fw
