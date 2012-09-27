@@ -95,8 +95,8 @@ make_efiboot() {
         if [[ ${arch} == "x86_64" ]]; then
 
             mkdir -p ${work_dir}/iso/EFI/archiso
-            dd of=${work_dir}/iso/EFI/archiso/efiboot.img bs=1 seek=20M count=0
-            mkfs.vfat ${work_dir}/iso/EFI/archiso/efiboot.img
+            truncate -s 31M ${work_dir}/iso/EFI/archiso/efiboot.img
+            mkfs.vfat -n ARCHISO_EFI ${work_dir}/iso/EFI/archiso/efiboot.img
 
             mkdir -p ${work_dir}/efiboot
             mount ${work_dir}/iso/EFI/archiso/efiboot.img ${work_dir}/efiboot
