@@ -26,6 +26,14 @@ setup_workdir() {
 make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" init
     mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -p "memtest86+ mkinitcpio-nfs-utils nbd curl" install
+
+    # Install systemd-sysvcompat in this way until hits {base} group
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
+        -r 'pacman -R --noconfirm --noprogressbar initscripts sysvinit' \
+        run
+    mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
+        -p "systemd-sysvcompat" \
+        install
 }
 
 # Additional packages (root-image)
