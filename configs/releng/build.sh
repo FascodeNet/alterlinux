@@ -194,7 +194,7 @@ make_customize_root_image() {
             -r 'useradd -m -p "" -g users -G "audio,disk,optical,wheel" -s /bin/zsh arch' \
             run
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'systemctl -f enable multi-user.target haveged.service pacman-init.service autologin@.service dhcpcd@.service || true' \
+            -r 'systemctl -f enable multi-user.target haveged.service pacman-init.service autologin@.service dhcpcd.service || true' \
             run
         : > ${work_dir}/build.${FUNCNAME}
     fi
