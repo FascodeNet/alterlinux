@@ -42,6 +42,7 @@ partclone
 parted
 partimage
 pptpclient
+rfkill
 rp-pppoe
 rsync
 smartmontools

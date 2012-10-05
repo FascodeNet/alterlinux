@@ -45,6 +45,7 @@ parted
 partimage
 pptpclient
 refind-efi
+rfkill
 rp-pppoe
 rsync
 smartmontools
