@@ -35,7 +35,6 @@ _mnt_fs() {
 
     _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
     echo $(readlink -f /dev/mapper/${dm_snap_name}) >> /run/archiso/used_block_devices
-    echo "/dev/mapper/${dm_snap_name} ${mnt} auto defaults 0 0" >> ${newroot}/etc/fstab
 }
 
 # args: /path/to/image_file, mountpoint
