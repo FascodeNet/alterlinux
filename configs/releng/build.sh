@@ -191,7 +191,7 @@ make_customize_root_image() {
             -r 'usermod -s /bin/zsh root' \
             run
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'useradd -m -p "" -g users -G "audio,disk,optical,wheel" -s /bin/zsh arch' \
+            -r 'useradd -m -p "" -g users -G "adm,audio,floppy,log,network,rfkill,scanner,storage,optical,power,wheel" -s /bin/zsh arch' \
             run
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
             -r 'systemctl -f enable pacman-init.service getty@.service dhcpcd.service || true' \
