@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 # /oldroot depends on things inside /oldroot/run/archiso...
 mkdir /oldrun
