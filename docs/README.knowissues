@@ -1,0 +1,16 @@
+*** Know issues
+
+** (1) On shutdown lots of messages from systemd like:
+
+    "Could not unmount /run/archiso/<ABC>: Device or resource busy"
+    "Could not delete loopback /dev/loop<N>: Device or resource busy"
+    This is not a real issue since, all mounted filesystem, loopback devices
+    and device mapper devices made by archiso will be "free" on "shutdown tmpfs"
+    (A.K.A deinitramfs), build at initramfs by [archiso_shutdown] initcpio hook.
+    Proper shutdown is mostly important when persistent is used.
+
+** (2) syslinux 4.05 bug with relative directories on FAT:
+
+    "Could not find kernel image: boot/syslinux/whichsys.c32"
+    This should be fixed in 4.06. For now, workaround with:
+    sed -i "s|../../|/arch|" /<MNT-TARGET-N>/arch/boot/syslinux/syslinux.cfg
