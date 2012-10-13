@@ -11,13 +11,14 @@ _mnt_fs() {
     ro_dev=$(losetup --find --show --read-only "${img}")
     echo ${ro_dev} >> /run/archiso/used_block_devices
     ro_dev_size=$(blockdev --getsz ${ro_dev})
+    rw_dev_size=$((ro_dev_size*cowfile_size/100))
 
     if [[ "${cow_persistent}" == "P" ]]; then
         if [[ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]]; then
             msg ":: Found '/run/archiso/cowspace/${cow_directory}/${img_name}.cow', using as persistent."
         else
             msg ":: Creating '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' as persistent."
-            dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+            dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${rw_dev_size} &> /dev/null
         fi
     else
         if [[ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]]; then
@@ -25,7 +26,7 @@ _mnt_fs() {
             rm -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
         fi
         msg ":: Creating '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' as non-persistent."
-        dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${ro_dev_size} &> /dev/null
+        dd of="/run/archiso/cowspace/${cow_directory}/${img_name}.cow" count=0 seek=${rw_dev_size} &> /dev/null
     fi
 
     rw_dev=$(losetup --find --show "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
@@ -101,6 +102,11 @@ run_hook() {
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
+    if [[ -z "${cowfile_size}" ]]; then
+        cowfile_size="100"
+    else
+        cowfile_size=${cowfile_size/%}
+    fi
 
     if [[ -z "${aitab}" ]]; then
         aitab="/run/archiso/bootmnt/${archisobasedir}/aitab"

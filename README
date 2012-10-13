@@ -65,6 +65,11 @@ INDEX
                     Size is in bytes (suffix with "k", "m" and "g") or
                     in percentage of available RAM.
                     Default: "75%"
+* cowfile_size=     Set the size for all files to be used as COW (dm-snapshot),
+                    in percentage of the ro-device.fs file. This is mostly useful
+                    when cow_device= is used and filesystem does not support
+                    sparse files (ie VFAT).
+                    Default: "100%"
 * copytoram_size=   Set the size of tmpfs. This space is used for
                     copy of all SquashFS images used, if copytoram=y.
                     Size is in bytes (suffix with "k", "m" and "g") or
