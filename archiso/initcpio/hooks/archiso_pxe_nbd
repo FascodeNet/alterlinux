@@ -27,7 +27,10 @@ archiso_pxe_nbd_mount_handler () {
     msg ":: Setup NBD from ${archiso_nbd_srv} at /dev/nbd0"
     nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} /dev/nbd0
 
-    copytoram="y"
+    if [[ "${copytoram}" != "n" ]]; then
+        copytoram="y"
+    fi
+
     archisodevice=/dev/nbd0
 
     archiso_mount_handler ${newroot}
