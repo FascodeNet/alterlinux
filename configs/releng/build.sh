@@ -186,7 +186,7 @@ make_customize_root_image() {
             -r 'useradd -m -p "" -g users -G "adm,audio,floppy,log,network,rfkill,scanner,storage,optical,power,wheel" -s /bin/zsh arch' \
             run
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'systemctl -f enable pacman-init.service getty@.service dhcpcd.service || true' \
+            -r 'systemctl -f enable multi-user.target pacman-init.service getty@.service dhcpcd.service || true' \
             run
         : > ${work_dir}/build.${FUNCNAME}
     fi
