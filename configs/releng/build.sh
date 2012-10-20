@@ -174,8 +174,9 @@ make_customize_root_image() {
         sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
         patch ${work_dir}/root-image/usr/bin/pacman-key < ${script_path}/pacman-key-4.0.3_unattended-keyring-init.patch
         sed -i 's/#\(en_US\.UTF-8\)/\1/' ${work_dir}/root-image/etc/locale.gen
-        sed 's#\(^ExecStart=-/sbin/agetty\)#\1 --autologin root#' \
-            ${work_dir}/root-image/usr/lib/systemd/system/getty@.service > ${work_dir}/root-image/etc/systemd/system/getty@.service
+        sed 's#\(^ExecStart=-/sbin/agetty\)#\1 --autologin root#;
+             s#\(^Alias=getty.target.wants/\).\+#\1autologin@tty1.service#' \
+            ${work_dir}/root-image/usr/lib/systemd/system/getty@.service > ${work_dir}/root-image/etc/systemd/system/autologin@.service
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
             -r 'locale-gen' \
             run
@@ -186,7 +187,10 @@ make_customize_root_image() {
             -r 'useradd -m -p "" -g users -G "adm,audio,floppy,log,network,rfkill,scanner,storage,optical,power,wheel" -s /bin/zsh arch' \
             run
         mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'systemctl -f enable multi-user.target pacman-init.service getty@.service dhcpcd.service || true' \
+            -r 'systemctl disable getty@tty1.service || true' \
+            run
+        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
+            -r 'systemctl enable multi-user.target pacman-init.service autologin@.service dhcpcd.service || true' \
             run
         : > ${work_dir}/build.${FUNCNAME}
     fi
