@@ -255,6 +255,10 @@ _cleanup () {
     if [[ -d "${work_dir}/root-image/var/log" ]]; then
         find "${work_dir}/root-image/var/log" -type f -delete
     fi
+    # Avoid journald use permanent storage (Storage=auto)
+    if [[ -d "${work_dir}/root-image/var/log/journal" ]]; then
+       rm -rf "${work_dir}/root-image/var/log/journal"
+    fi
     # Delete all temporary files and dirs
     if [[ -d "${work_dir}/root-image/var/tmp" ]]; then
         find "${work_dir}/root-image/var/tmp" -mindepth 1 -delete
