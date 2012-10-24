@@ -259,10 +259,6 @@ _cleanup () {
     if [[ -d "${work_dir}/root-image/var/tmp" ]]; then
         find "${work_dir}/root-image/var/tmp" -mindepth 1 -delete
     fi
-    # Delete all temporary files and dirs
-    if [[ -d "${work_dir}/root-image/tmp" ]]; then
-        find "${work_dir}/root-image/tmp" -mindepth 1 -delete
-    fi
     # Delete package pacman related files.
     find "${work_dir}" -name "*.pacnew" -name "*.pacsave" -name "*.pacorig" -delete
     _msg_info "Done!"
