@@ -164,34 +164,14 @@ make_isolinux() {
 make_customize_root_image() {
     if [[ ! -e ${work_dir}/build.${FUNCNAME} ]]; then
         cp -af ${script_path}/root-image ${work_dir}
-        cp -aT ${work_dir}/root-image/etc/skel/ ${work_dir}/root-image/root/
-        ln -sf /usr/share/zoneinfo/UTC ${work_dir}/root-image/etc/localtime
-        chmod 750 ${work_dir}/root-image/etc/sudoers.d
-        chmod 440 ${work_dir}/root-image/etc/sudoers.d/g_wheel
-        mkdir -p ${work_dir}/root-image/etc/pacman.d
-        wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
-        lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/root-image/root/install.txt
-        sed -i "s/#Server/Server/g" ${work_dir}/root-image/etc/pacman.d/mirrorlist
+
         patch ${work_dir}/root-image/usr/bin/pacman-key < ${script_path}/pacman-key-4.0.3_unattended-keyring-init.patch
-        sed -i 's/#\(en_US\.UTF-8\)/\1/' ${work_dir}/root-image/etc/locale.gen
-        sed 's#\(^ExecStart=-/sbin/agetty\)#\1 --autologin root#;
-             s#\(^Alias=getty.target.wants/\).\+#\1autologin@tty1.service#' \
-            ${work_dir}/root-image/usr/lib/systemd/system/getty@.service > ${work_dir}/root-image/etc/systemd/system/autologin@.service
-        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'locale-gen' \
-            run
-        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'usermod -s /bin/zsh root' \
-            run
-        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'useradd -m -p "" -g users -G "adm,audio,floppy,log,network,rfkill,scanner,storage,optical,power,wheel" -s /bin/zsh arch' \
-            run
-        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'systemctl disable getty@tty1.service || true' \
-            run
-        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" \
-            -r 'systemctl enable multi-user.target pacman-init.service autologin@.service dhcpcd.service || true' \
-            run
+        wget -O ${work_dir}/root-image/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
+
+        lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/root-image/root/install.txt
+
+        mkarchiso ${verbose} -w "${work_dir}" -C "${pacman_conf}" -D "${install_dir}" -r '/root/customize_root_image.sh' run
+        rm ${work_dir}/root-image/root/customize_root_image.sh
         : > ${work_dir}/build.${FUNCNAME}
     fi
 }
