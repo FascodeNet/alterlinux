@@ -82,7 +82,7 @@ Note: Using here a MBR partition mode as example, but GPT should also works
 4) Extract ISO image on target filesystem.
 # bsdtar -x --exclude=isolinux/ --exclude=EFI/ --exclude=loader/ -f <ISO-SOURCE> -C <MNT-TARGET-N>
 
-5) Install syslinux bootloader on target filesystem. (See know issue (2) if using FAT)
+5) Install syslinux bootloader on target filesystem.
 # extlinux -i <MNT-TARGET-N>/arch/boot/syslinux
 
 6) Unmount target filesystem.
