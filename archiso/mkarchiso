@@ -333,7 +333,7 @@ _mkfs () {
     fi
     case "${_fs_type}" in
         ext4)
-            mkfs.ext4 ${_qflag} -O ^has_journal -m 0 -F "${_fs_img}"
+            mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${_fs_img}"
             tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
             ;;
         ext3)
