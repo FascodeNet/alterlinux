@@ -98,6 +98,7 @@ Note: COW is not supported on NTFS.
 
 Note: This method is the most easily, quick and dirty, but is the most limited
       if you want to use your target medium for other purposes.
+      See README.knownissues (2) if using this method does not boot.
 
 1) Dump ISO file to target medium.
 # dd if=<ISO-SOURCE> of=<DEV-TARGET>
