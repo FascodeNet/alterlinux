@@ -219,17 +219,9 @@ make_dual() {
             echo "ERROR: i686 or x86_64 builds does not exist."
             _usage 1
         fi
-        local _src_one _src_two _cfg
-        if [[ ${arch} == "i686" ]]; then
-            _src_one=${work_dir}/i686/iso
-            _src_two=${work_dir}/x86_64/iso
-        else
-            _src_one=${work_dir}/x86_64/iso
-            _src_two=${work_dir}/i686/iso
-        fi
         mkdir -p ${work_dir}/dual/iso
-        cp -a -l -f ${_src_one} ${work_dir}/dual
-        cp -a -l -n ${_src_two} ${work_dir}/dual
+        cp -a -l -f ${work_dir}/x86_64/iso ${work_dir}/dual
+        cp -a -l -n ${work_dir}/i686/iso ${work_dir}/dual
         rm -f ${work_dir}/dual/iso/${install_dir}/aitab
         rm -f ${work_dir}/dual/iso/${install_dir}/boot/syslinux/*.cfg
         paste -d"\n" <(sed "s|%ARCH%|i686|g" ${script_path}/aitab) \
