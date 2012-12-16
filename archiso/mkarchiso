@@ -235,9 +235,13 @@ _pacman ()
 _cleanup () {
     _msg_info "Cleaning up what we can on root-image..."
 
-    # remove the initcpio images that were generated for the host system
+    # Delete initcpio image(s)
     if [[ -d "${work_dir}/root-image/boot" ]]; then 
-        find "${work_dir}/root-image/boot" -name '*.img' -delete
+        find "${work_dir}/root-image/boot" -type f -name '*.img' -delete
+    fi
+    # Delete kernel(s)
+    if [[ -d "${work_dir}/root-image/boot" ]]; then
+        find "${work_dir}/root-image/boot" -type f -name 'vmlinuz*' -delete
     fi
     # Delete pacman database sync cache files (*.tar.gz)
     if [[ -d "${work_dir}/root-image/var/lib/pacman" ]]; then
