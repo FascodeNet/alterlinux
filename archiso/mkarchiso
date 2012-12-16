@@ -453,6 +453,9 @@ command_prepare () {
         if [[ ${_aitab_img} =~ ^# ]]; then
             continue
         fi
+        if [[ "${_aitab_arch}" != "any" && "${_aitab_arch}" != "${arch}" ]]; then
+            continue
+        fi
         local _src="${work_dir}/${_aitab_img}"
         local _dst="${work_dir}/iso/${install_dir}/${_aitab_arch}"
         mkdir -p "${_dst}"
