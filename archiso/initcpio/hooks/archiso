@@ -11,7 +11,12 @@ _mnt_fs() {
     ro_dev=$(losetup --find --show --read-only "${img}")
     echo ${ro_dev} >> /run/archiso/used_block_devices
     ro_dev_size=$(blockdev --getsz ${ro_dev})
-    rw_dev_size=$((ro_dev_size*cowfile_size/100))
+    if [[ "${cowfile_size}" == "100" ]]; then
+        rw_dev_size=${ro_dev_size}
+    else
+        # size calculation done in this way to avoid integer overflow when ro_dev_size is > 10.2G
+        rw_dev_size=$((ro_dev_size/100*cowfile_size))
+    fi
 
     if [[ "${cow_persistent}" == "P" ]]; then
         if [[ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]]; then
