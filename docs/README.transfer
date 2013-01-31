@@ -12,15 +12,12 @@ INDEX
 
 *** Transfer ISO image to target medium (configs/releng)
 
-ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-<ARCH>.iso
+ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-dual.iso
 
 Where:
     <YYYY> Year
     <MM> Month
     <DD> Day
-    <ARCH> i686 | x86_64 | dual(*)
-
-(*) "dual" includes both i686 and x86_64 architectures.
 
 
 ** To -> CD / DVD / BD
@@ -36,7 +33,7 @@ Nomeclature:
 
 
 1) Write it directly using your favorite recording program.
-# cdrecord dev=<B>,<T>,<L> -dao archlinux-<YYYY>.<MM>.<DD>-<ARCH>.iso
+# cdrecord dev=<B>,<T>,<L> -dao archlinux-<YYYY>.<MM>.<DD>-dual.iso
 
 
 ** To -> USB Flash Drive (USB-key) / Memory card (SD) /
@@ -55,10 +52,10 @@ Nomeclature:
                 (example: /dev/sdx1)
 <MNT-TARGET-N>: Mount point path where <DEV-TARGET-N> is mounted
                 (example: /mnt/sdx/1)
-<ISO-SOURCE>:   Path to the ISO file archlinux-<YYYY>.<MM>.<DD>-<ARCH>.iso
-                (example: ~/archlinux-2012.07.22-x86_64.iso)
+<ISO-SOURCE>:   Path to the ISO file archlinux-<YYYY>.<MM>.<DD>-dual.iso
+                (example: ~/archlinux-2012.07.22-dual.iso)
 <FS-LABEL>:     Represents the filesystem label of the <ISO-SOURCE>
-                (example: ARCH_201207 [for all ~/archlinux-2012.07.*.iso])
+                (example: ARCH_201302)
 
 
 * PC-BIOS (MBR):
