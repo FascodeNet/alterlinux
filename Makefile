@@ -1,4 +1,4 @@
-V=5
+V=6
 
 INSTALL_FILES=$(wildcard archiso/initcpio/install/*)
 HOOKS_FILES=$(wildcard archiso/initcpio/hooks/*)
