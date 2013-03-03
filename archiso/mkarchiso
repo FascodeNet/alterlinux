@@ -268,7 +268,7 @@ _cleanup () {
         find "${work_dir}/root-image/var/tmp" -mindepth 1 -delete
     fi
     # Delete package pacman related files.
-    find "${work_dir}" -name "*.pacnew" -name "*.pacsave" -name "*.pacorig" -delete
+    find "${work_dir}" \( -name "*.pacnew" -o -name "*.pacsave" -o -name "*.pacorig" \) -delete
     _msg_info "Done!"
 }
 
