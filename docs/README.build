@@ -19,7 +19,6 @@ INDEX
 
 ** For configs/releng build.sh needs theses packages (build host):
  + dosfstools              for mkfs.vfat
- + patch                   for patch
  + lynx                    for fetching the latest installation guide
 
 ** For these hooks needs these packages (on target root-image)
