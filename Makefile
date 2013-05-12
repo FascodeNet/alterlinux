@@ -18,7 +18,7 @@ all:
 install: install-program install-initcpio install-examples install-doc
 
 install-program:
-	install -D -m 755 archiso/mkarchiso $(DESTDIR)/usr/sbin/mkarchiso
+	install -D -m 755 archiso/mkarchiso $(DESTDIR)/usr/bin/mkarchiso
 
 install-initcpio:
 	install -d $(SCRIPT_DIR) $(HOOKS_DIR) $(INSTALL_DIR)
