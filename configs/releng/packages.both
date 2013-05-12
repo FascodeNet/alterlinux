@@ -12,8 +12,10 @@ dnsutils
 dosfstools
 elinks
 ethtool
+f2fs-tools
 fsarchiver
 gnu-netcat
+gpm
 gptfdisk
 grml-zsh-config
 grub-bios
