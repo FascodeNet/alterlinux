@@ -17,4 +17,4 @@ chmod 440 /etc/sudoers.d/g_wheel
 
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
 
-systemctl enable multi-user.target pacman-init.service
+systemctl enable multi-user.target pacman-init.service choose-mirror.service
