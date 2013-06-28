@@ -9,6 +9,8 @@ INDEX
   * hooks/archiso_pxe_nfs
   * hooks/archiso_loop_mnt
 
+* Boot parameters (configs/releng)
+  * scripts/choose-mirror
 
 
 *** Boot parameters (initramfs stage)
@@ -124,4 +126,16 @@ INDEX
 * img_dev=          Device where archiso-image.iso reside.
                     Default: (unset) or "/dev/disk/by-label/${img_label}"
 * img_loop=         Full path where archiso-image.iso is located on ${img_dev}
+                    Default: (unset)
+
+
+
+*** Boot parameters (configs/releng)
+
+** scripts/choose-mirror
+
+* mirror=           Takes a mirror URL and creates a new mirrorlist.
+                    When setting mirror=auto, the mirror is taken from
+                    archiso_http_srv= in order to keep using the mirror
+                    selected in the netboot menu.
                     Default: (unset)
