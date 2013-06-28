@@ -76,9 +76,7 @@ It consists of some fields which define the behaviour of images.
 
 The /isolinux directory holds files needed for the ISOLINUX boot loader
 module of SYSLINUX. ISOLINUX can not find config files on
-/arch/boot/syslinux, like other boot loaders modules (EXTLINUX, SYSLINUX, etc).
-When make your custom boot-pendrive, you need to copy /arch directory to it.
-/isolinux/isolinux.cfg just holds /arch/boot/syslinux/syslinux.cfg
+/arch/boot/syslinux, like other boot loaders modules (SYSLINUX, PXELINUX).
 
 
 
@@ -101,7 +99,7 @@ used to build official images with much more things.
 *** Building official Arch Linux live media. (configs/releng)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn dosfstools lynx patch --needed
+  # pacman -S git make squashfs-tools libisoburn dosfstools lynx --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
