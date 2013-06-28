@@ -9,15 +9,4 @@
     (A.K.A deinitramfs), build at initramfs by [archiso_shutdown] initcpio hook.
     Proper shutdown is mostly important when persistent is used.
 
-** (2) ISOHYBRID-MBR does boot on some hardware:
 
-    Some firmwares (BIOS) gets confused about using this hack
-    (first partition start at offset 0 -> MBR "infinite recursion").
-    Solutions:
-        (a) Do not use this method, instead copy files manually and
-            setup the bootloader [PC-BIOS (MBR)] (See README.transfer).
-        (b) Change offset of the partition on the ISO or on the target medium
-            (if ISO is already dumped):
-            # isohybrid.pl -offset 1 <ISO-SOURCE>
-            OR
-            # isohybrid.pl -offset 1 <DEV-TARGET>

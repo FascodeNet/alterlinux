@@ -7,6 +7,7 @@ INDEX
     * PC-BIOS (MBR)
     * PC-BIOS (ISOHYBRID-MBR)
     * PC-EFI (GPT) [x86_64 only]
+    * PC-EFI (ISOHYBRID-GPT) [x86_64 only]
 
 
 
@@ -95,7 +96,7 @@ Note: COW is not supported on NTFS.
 
 Note: This method is the most easily, quick and dirty, but is the most limited
       if you want to use your target medium for other purposes.
-      See README.knownissues (2) if using this method does not boot.
+      If using this does not work, use PC-BIOS (MBR) method instead.
 
 1) Dump ISO file to target medium.
 # dd if=<ISO-SOURCE> of=<DEV-TARGET>
@@ -120,3 +121,13 @@ Note: Using here a GPT partition mode as example, but MBR should also works
 
 5) Unmount target filesystem.
 # umount <MNT-TARGET-N>
+
+
+* PC-EFI (ISOHYBRID-GPT) [x86_64 only]
+
+Note: This method is the most easily, quick and dirty, but is the most limited
+      if you want to use your target medium for other purposes.
+      If using this does not work, use PC-EFI (GPT) method instead.
+
+1) Dump ISO file to target medium.
+# dd if=<ISO-SOURCE> of=<DEV-TARGET>
