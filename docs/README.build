@@ -13,6 +13,7 @@ INDEX
 *** Build requirements
 
 ** For mkarchiso script needs these packages (build host):
+ + arch-install-scripts    for pacstrap/arch-chroot
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
  + btrfs-progs             for mkfs.btrfs (optional)
@@ -83,7 +84,7 @@ module of SYSLINUX. ISOLINUX can not find config files on
 *** Building the most basic Arch Linux live media. (configs/baseline)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn rsync --needed
+  # pacman -S git make arch-install-scripts squashfs-tools libisoburn rsync --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git
@@ -99,7 +100,7 @@ used to build official images with much more things.
 *** Building official Arch Linux live media. (configs/releng)
 
 * Install needed packages.
-  # pacman -S git make squashfs-tools libisoburn dosfstools lynx --needed
+  # pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx --needed
 
 * Install archiso.
   # git clone git://projects.archlinux.org/archiso.git

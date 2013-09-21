@@ -47,42 +47,15 @@ _show_space_usage () {
     _msg_info "Total: ${_total} MiB (100%) | Used: ${_used} MiB (${_pct_u}) | Avail: ${_avail} MiB ($((100 - ${_pct_u%\%}))%)"
 }
 
-_chroot_mount () {
-    mount -t devtmpfs dev "${work_dir}/root-image/dev"
-    mount -t devpts devpts "${work_dir}/root-image/dev/pts"
-    mount -t tmpfs devshm "${work_dir}/root-image/dev/shm"
-    mount -t proc proc "${work_dir}/root-image/proc"
-    mount -t tmpfs run "${work_dir}/root-image/run"
-    mount -t sysfs sys "${work_dir}/root-image/sys"
-    mount -t tmpfs tmp "${work_dir}/root-image/tmp"
-
-    trap '_chroot_umount' EXIT HUP INT TERM
-}
-
-_chroot_umount () {
-    umount "${work_dir}/root-image/tmp"
-    umount "${work_dir}/root-image/sys"
-    umount "${work_dir}/root-image/run"
-    umount "${work_dir}/root-image/proc"
-    umount "${work_dir}/root-image/dev/shm"
-    umount "${work_dir}/root-image/dev/pts"
-    umount "${work_dir}/root-image/dev"
-
-    trap - EXIT HUP INT TERM
-}
-
 _chroot_init() {
-    if [[ ! -d ${work_dir}/root-image/var/cache/pacman ]]; then
-        mkdir -p ${work_dir}/root-image/{dev,proc,run,sys,tmp,var/lib/pacman}
-        _pacman "base"
-        _pacman "syslinux"
+    if [[ ! -d ${work_dir}/root-image ]]; then
+        mkdir -p ${work_dir}/root-image
+        _pacman "base syslinux"
     fi
 }
 
 _chroot_run() {
-    _chroot_mount
-    eval chroot ${work_dir}/root-image "${run_cmd}"
-    _chroot_umount
+    eval arch-chroot ${work_dir}/root-image "${run_cmd}"
 }
 
 # Mount a filesystem (trap signals in case of error for unmounting it
@@ -218,15 +191,11 @@ _pacman ()
 {
     _msg_info "Installing packages to '${work_dir}/root-image/'..."
 
-    _chroot_mount
-
     if [[ "${quiet}" = "y" ]]; then
-        pacman -Sy -r "${work_dir}/root-image" --config "${pacman_conf}" --needed --noconfirm $* &> /dev/null
+        pacstrap -C "${pacman_conf}" -c -d -G -M "${work_dir}/root-image" $* &> /dev/null
     else
-        pacman -Sy -r "${work_dir}/root-image" --config "${pacman_conf}" --needed --noconfirm $*
+        pacstrap -C "${pacman_conf}" -c -d -G -M "${work_dir}/root-image" $*
     fi
-
-    _chroot_umount
 
     _msg_info "Packages installed successfully!"
 }
