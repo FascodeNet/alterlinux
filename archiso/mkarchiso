@@ -236,7 +236,7 @@ _cleanup () {
     _msg_info "Cleaning up what we can on root-image..."
 
     # Delete initcpio image(s)
-    if [[ -d "${work_dir}/root-image/boot" ]]; then 
+    if [[ -d "${work_dir}/root-image/boot" ]]; then
         find "${work_dir}/root-image/boot" -type f -name '*.img' -delete
     fi
     # Delete kernel(s)
@@ -258,10 +258,6 @@ _cleanup () {
     # Delete all log files, keeps empty dirs.
     if [[ -d "${work_dir}/root-image/var/log" ]]; then
         find "${work_dir}/root-image/var/log" -type f -delete
-    fi
-    # Avoid journald use permanent storage (Storage=auto)
-    if [[ -d "${work_dir}/root-image/var/log/journal" ]]; then
-       rm -rf "${work_dir}/root-image/var/log/journal"
     fi
     # Delete all temporary files and dirs
     if [[ -d "${work_dir}/root-image/var/tmp" ]]; then
