@@ -48,9 +48,12 @@ _show_space_usage () {
 }
 
 _chroot_init() {
-    if [[ ! -d ${work_dir}/root-image ]]; then
+    if [[ -f "${work_dir}/mkarchiso.init" ]]; then
+        _msg_info "Initial enviroment already installed, skipping."
+    else
         mkdir -p ${work_dir}/root-image
         _pacman "base syslinux"
+        : > "${work_dir}/mkarchiso.init"
     fi
 }
 
