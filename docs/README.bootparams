@@ -68,11 +68,11 @@ INDEX
 ** hooks/archiso_pxe_common
 
 * ip=               This parameter is setup automatically by PXELINUX
-                    when option "IPAPPEND" is set to 1 or 2 in config.
+                    when option "SYSAPPEND" is set to 1 or 2 in config.
                     ip=<client-ip>:<boot-server-ip>:<gw-ip>:<netmask>
                     Default: (set via PXE server)
 * BOOTIF=           This parameter is setup automatically by PXELINUX
-                    when option "IPAPPEND" is set to 2 or 3 in config.
+                    when option "SYSAPPEND" is set to 2 or 3 in config.
                     BOOTIF=<hardware-address-of-boot-interface>
                     Default: (set via PXELINUX)
 * copy_resolvconf=  Copy /etc/resolv.conf from initramfs to live-enviroment.

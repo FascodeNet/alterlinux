@@ -81,7 +81,7 @@ Note: All NIC firmwares should support this.
           --enable-tftp \
           --tftp-root=/run/archiso/bootmnt \
           --dhcp-range=192.168.0.2,192.168.0.254,86400 \
-          --dhcp-boot=/arch/boot/syslinux/gpxelinux.0 \
+          --dhcp-boot=/arch/boot/syslinux/lpxelinux.0 \
           --dhcp-option-force=209,boot/syslinux/archiso.cfg \
           --dhcp-option-force=210,/arch/
 
@@ -92,7 +92,7 @@ Note: Not all NIC firmware supports HTTP and DNS (if domain name is used).
 
 # dnsmasq --port=0 \
           --dhcp-range=192.168.0.2,192.168.0.254,86400 \
-          --dhcp-boot=http://192.168.0.7/arch/boot/syslinux/gpxelinux.0 \
+          --dhcp-boot=http://192.168.0.7/arch/boot/syslinux/lpxelinux.0 \
           --dhcp-option-force=209,boot/syslinux/archiso.cfg \
           --dhcp-option-force=210,http://192.168.0.7/arch/
 

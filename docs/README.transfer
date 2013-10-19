@@ -89,7 +89,7 @@ Note: COW is not supported on NTFS.
 # umount <MNT-TARGET-N>
 
 7) Install syslinux MBR boot code on target drive.
-# dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr.bin of=<DEV-TARGET>
+# dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/bios/mbr.bin of=<DEV-TARGET>
 
 
 * PC-BIOS (ISOHYBRID-MBR):
