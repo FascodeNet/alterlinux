@@ -1,1 +1,1 @@
-ACTION=="add", SUBSYSTEM=="net", ENV{SYSTEMD_WANTS}="dhcpcd@$name.service"
+ACTION=="add", SUBSYSTEM=="net", NAME=="en*|eth*", ENV{SYSTEMD_WANTS}="dhcpcd@$name.service"
