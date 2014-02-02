@@ -22,6 +22,7 @@ grml-zsh-config
 grub
 haveged
 hdparm
+intel-ucode
 ipw2100-fw
 ipw2200-fw
 irssi
@@ -40,8 +41,8 @@ openvpn
 partclone
 parted
 partimage
-pptpclient
 ppp
+pptpclient
 rfkill
 rp-pppoe
 rsync
