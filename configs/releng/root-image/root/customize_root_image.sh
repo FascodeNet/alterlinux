@@ -18,4 +18,5 @@ chmod 440 /etc/sudoers.d/g_wheel
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
 sed -i 's/#\(Storage=\)auto/\1volatile/' /etc/systemd/journald.conf
 
-systemctl enable multi-user.target pacman-init.service choose-mirror.service
+systemctl enable pacman-init.service choose-mirror.service
+systemctl set-default multi-user.target
