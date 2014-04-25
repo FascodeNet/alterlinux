@@ -5,7 +5,7 @@ script_cmdline ()
     local param
     for param in $(< /proc/cmdline); do
         case "${param}" in
-            script=*) echo "${param##*=}" ; return 0 ;;
+            script=*) echo "${param#*=}" ; return 0 ;;
         esac
     done
 }
