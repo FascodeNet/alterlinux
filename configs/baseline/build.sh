@@ -67,7 +67,6 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    mkarchiso -v -w "${work_dir}" -D "${install_dir}" checksum
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-${arch}.iso"
 }
 

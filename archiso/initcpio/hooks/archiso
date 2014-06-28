@@ -93,8 +93,8 @@ _mnt_dev() {
 
 _verify_checksum() {
     local _status
-    cd "/run/archiso/bootmnt/${archisobasedir}"
-    md5sum -c checksum.${arch}.md5 > /tmp/checksum.${arch}.log 2>&1
+    cd "/run/archiso/bootmnt/${archisobasedir}/${arch}"
+    md5sum -c airootfs.md5 > /tmp/checksum.log 2>&1
     _status=$?
     cd "${OLDPWD}"
     return ${_status}
@@ -142,17 +142,17 @@ archiso_mount_handler() {
     fi
 
     if [[ "${checksum}" == "y" ]]; then
-        if [[ -f "/run/archiso/bootmnt/${archisobasedir}/checksum.${arch}.md5" ]]; then
+        if [[ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.md5" ]]; then
             msg -n ":: Self-test requested, please wait..."
             if _verify_checksum; then
                 msg "done. Checksum is OK, continue booting."
             else
                 echo "ERROR: one or more files are corrupted"
-                echo "see /tmp/checksum.${arch}.log for details"
+                echo "see /tmp/checksum.log for details"
                 launch_interactive_shell
             fi
         else
-            echo "ERROR: checksum=y option specified but checksum.${arch}.md5 not found"
+            echo "ERROR: checksum=y option specified but ${archisobasedir}/${arch}/airootfs.md5 not found"
             launch_interactive_shell
         fi
     fi

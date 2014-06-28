@@ -100,8 +100,6 @@ _usage ()
     echo "      run command specified by -r"
     echo "   prepare"
     echo "      build all images"
-    echo "   checksum"
-    echo "      make a checksum.md5 for self-test"
     echo "   pkglist"
     echo "      make a pkglist.txt of packages installed on airootfs"
     echo "   iso <image name>"
@@ -110,7 +108,7 @@ _usage ()
 }
 
 # Shows configuration according to command mode.
-# $1: init | install | run | prepare | checksum | iso
+# $1: init | install | run | prepare | iso
 _show_config () {
     local _mode="$1"
     echo
@@ -131,8 +129,6 @@ _show_config () {
             _msg_info "              Run command:   ${run_cmd}"
             ;;
         prepare)
-            ;;
-        checksum)
             ;;
         pkglist)
             ;;
@@ -228,20 +224,12 @@ _mkairootfs () {
     rm ${work_dir}/airootfs.img
 }
 
-command_checksum () {
-    _show_config checksum
-
-    local _chk_arch
-
-    for _chk_arch in i686 x86_64; do
-        _msg_info "Creating checksum file for self-test (${_chk_arch})..."
-        cd "${work_dir}/iso/${install_dir}"
-        if [[ -d "${_chk_arch}" ]]; then
-            find ${_chk_arch} -type f -print0 | xargs -0 md5sum > checksum.${_chk_arch}.md5
-        fi
-        cd ${OLDPWD}
-        _msg_info "Done!"
-    done
+_mkchecksum () {
+    _msg_info "Creating checksum file for self-test..."
+    cd "${work_dir}/iso/${install_dir}/${arch}"
+    md5sum airootfs.sfs > airootfs.md5
+    cd ${OLDPWD}
+    _msg_info "Done!"
 }
 
 command_pkglist () {
@@ -305,6 +293,7 @@ command_prepare () {
 
     _cleanup
     _mkairootfs
+    _mkchecksum
 }
 
 # Install packages on airootfs.
@@ -382,9 +371,6 @@ case "${command_name}" in
         ;;
     prepare)
         command_prepare
-        ;;
-    checksum)
-        command_checksum
         ;;
     pkglist)
         command_pkglist
