@@ -266,10 +266,8 @@ _mksfs () {
 
 # Makes a filesystem from a source directory.
 # $1: Source directory
-# $2: Size of target filesystem. Can be an absolute value in MiB, or relative value of desired free space (1% - 99%)
 _mkfs () {
     local _src="${1}"
-    local _fs_size="${2}"
 
     local _fs_src="${work_dir}/${_src}"
     local _fs_img="${work_dir}/${_src}.fs"
@@ -278,25 +276,9 @@ _mkfs () {
         _msg_error "The path '${_fs_src}' does not exist" 1
     fi
 
-    local _spc_used
-    _spc_used=$(du -sxm "${_fs_src}" | awk '{print $1}')
-
-    # Caculate FS size with desired % of free space, adds 10% overhead to used space.
-    if [[ ${_fs_size} != ${_fs_size%\%} ]]; then
-        if [[ ${_fs_size%\%} -le 0 || ${_fs_size%\%} -ge 100 ]]; then
-            _msg_error "Invalid percentage of free space specified '${_fs_size}' on '${_src}', should be 0% < x < 100%" 1
-        fi
-        _fs_size=$((_spc_used * 110 / (100 - ${_fs_size%\%})))
-    else
-        local _spc_used_over=$((_spc_used * 11 / 10))
-        if [[ ${_fs_size} -lt ${_spc_used_over} ]]; then
-            _msg_error "Filesystem size specified '${_fs_size}' MiB for '${_src}' is too small, must be at least '${_spc_used_over}' MiB" 1
-        fi
-    fi
-
-    _msg_info "Creating ext4 image of ${_fs_size} MiB..."
+    _msg_info "Creating ext4 image of 32GiB..."
     rm -f "${_fs_img}"
-    truncate -s ${_fs_size}M "${_fs_img}"
+    truncate -s 32G "${_fs_img}"
     local _qflag=""
     if [[ ${quiet} == "y" ]]; then
         _qflag="-q"
@@ -413,7 +395,7 @@ command_prepare () {
         mkdir -p "${_dst}"
         if [[ ${_aitab_fs_type} != "none" ]]; then
             if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
-                _mkfs ${_aitab_img} ${_aitab_fs_size}
+                _mkfs ${_aitab_img}
                 _mksfs ${_aitab_img}.fs ${_aitab_sfs_comp}
                 mv "${_src}.fs.sfs" "${_dst}"
                 rm "${_src}.fs"
