@@ -16,6 +16,7 @@ iso_application="Arch Linux Live/Rescue CD"
 install_dir="arch"
 work_dir="work"
 out_dir="out"
+sfs_comp="xz"
 
 # Show an INFO message
 # $1: message string
@@ -132,6 +133,8 @@ _usage ()
     echo "                     Default: '${work_dir}'"
     echo "    -o <out_dir>     Set the output directory"
     echo "                     Default: '${out_dir}'"
+    echo "    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz)"
+    echo "                     Default: '${sfs_comp}'"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
     echo " commands:"
@@ -242,10 +245,8 @@ _cleanup () {
 
 # Makes a SquashFS filesystem image of file/directory passes as argument with desired compression.
 # $1: Source file/directory
-# $2: SquashFS compression type (gzip | lzo | xz)
 _mksfs () {
     local _src="${1}"
-    local _sfs_comp="${2}"
 
     if [[ ! -e "${work_dir}/${_src}" ]]; then
         _msg_error "The path '${work_dir}/${_src}' does not exist" 1
@@ -256,9 +257,9 @@ _mksfs () {
     _msg_info "Creating SquashFS image for '${work_dir}/${_src}', This may take some time..."
     local _seconds=${SECONDS}
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}" -no-progress &> /dev/null
+        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${_sfs_comp}" -no-progress
+        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${sfs_comp}" -no-progress
     fi
     _seconds=$((SECONDS - _seconds))
     printf "[mkarchiso] INFO: Image creation done in %02d:%02d minutes\n" $((_seconds / 60)) $((_seconds % 60))
@@ -396,13 +397,13 @@ command_prepare () {
         if [[ ${_aitab_fs_type} != "none" ]]; then
             if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
                 _mkfs ${_aitab_img}
-                _mksfs ${_aitab_img}.fs ${_aitab_sfs_comp}
+                _mksfs ${_aitab_img}.fs
                 mv "${_src}.fs.sfs" "${_dst}"
                 rm "${_src}.fs"
             fi
         else
             if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.sfs"; then
-                _mksfs ${_aitab_img} ${_aitab_sfs_comp}
+                _mksfs ${_aitab_img}
                 mv "${work_dir}/${_aitab_img}.sfs" "${_dst}"
             fi
         fi
@@ -450,7 +451,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
-while getopts 'p:r:C:L:P:A:D:w:o:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:c:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
@@ -461,6 +462,7 @@ while getopts 'p:r:C:L:P:A:D:w:o:vh' arg; do
         D) install_dir="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
+        c) sfs_comp="${OPTARG}" ;;
         v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
