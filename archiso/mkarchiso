@@ -69,30 +69,6 @@ _umount_airootfs() {
     trap - EXIT HUP INT TERM
 }
 
-# Compare if a file/directory (source) is newer than other file (target)
-# $1: source file/directory
-# $2: target file
-# return: 0 if target does not exists or if target is older than source.
-#         1 if target is newer than source
-_is_directory_changed() {
-    local _src="${1}"
-    local _dst="${2}"
-
-    if [ -e "${_dst}" ]; then
-        if [[ $(find ${_src} -newer ${_dst} | wc -l) -gt 0 ]]; then
-            _msg_info "Target '${_dst}' is older than '${_src}', updating."
-            rm -f "${_dst}"
-            return 0
-        else
-            _msg_info "Target '${_dst}' is up to date with '${_src}', skipping."
-            return 1
-        fi
-    else
-        _msg_info "Target '${_dst}' does not exist, making it from '${_src}'"
-        return 0
-    fi
-}
-
 # Show help usage, with an exit status.
 # $1: exit status number.
 _usage ()
@@ -262,28 +238,24 @@ command_checksum () {
     local _chk_arch
 
     for _chk_arch in i686 x86_64; do
-        if _is_directory_changed "${work_dir}/iso/${install_dir}" "${work_dir}/iso/${install_dir}/checksum.${_chk_arch}.md5"; then
-            _msg_info "Creating checksum file for self-test (${_chk_arch})..."
-            cd "${work_dir}/iso/${install_dir}"
-            if [[ -d "${_chk_arch}" ]]; then
-                find ${_chk_arch} -type f -print0 | xargs -0 md5sum > checksum.${_chk_arch}.md5
-            fi
-            cd ${OLDPWD}
-            _msg_info "Done!"
+        _msg_info "Creating checksum file for self-test (${_chk_arch})..."
+        cd "${work_dir}/iso/${install_dir}"
+        if [[ -d "${_chk_arch}" ]]; then
+            find ${_chk_arch} -type f -print0 | xargs -0 md5sum > checksum.${_chk_arch}.md5
         fi
+        cd ${OLDPWD}
+        _msg_info "Done!"
     done
 }
 
 command_pkglist () {
     _show_config pkglist
 
-    if _is_directory_changed "${work_dir}/airootfs/var/lib/pacman/local" "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"; then
-        _msg_info "Creating a list of installed packages on live-enviroment..."
-        pacman -Sl -r "${work_dir}/airootfs" --config "${pacman_conf}" | \
-            awk '/\[installed\]$/ {print $1 "/" $2 "-" $3}' > \
-            "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
-        _msg_info "Done!"
-    fi
+    _msg_info "Creating a list of installed packages on live-enviroment..."
+    pacman -Sl -r "${work_dir}/airootfs" --config "${pacman_conf}" | \
+        awk '/\[installed\]$/ {print $1 "/" $2 "-" $3}' > \
+        "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
+    _msg_info "Done!"
 
 }
 
@@ -308,29 +280,27 @@ command_iso () {
 
     _show_config iso
 
-    if _is_directory_changed "${work_dir}/iso" "${out_dir}/${img_name}"; then
-        mkdir -p ${out_dir}
-        _msg_info "Creating ISO image..."
-        local _qflag=""
-        if [[ ${quiet} == "y" ]]; then
-            _qflag="-quiet"
-        fi
-        xorriso -as mkisofs ${_qflag} \
-            -iso-level 3 \
-            -full-iso9660-filenames \
-            -volid "${iso_label}" \
-            -appid "${iso_application}" \
-            -publisher "${iso_publisher}" \
-            -preparer "prepared by mkarchiso" \
-            -eltorito-boot isolinux/isolinux.bin \
-            -eltorito-catalog isolinux/boot.cat \
-            -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
-            ${_iso_efi_boot_args} \
-            -output "${out_dir}/${img_name}" \
-            "${work_dir}/iso/"
-        _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
+    mkdir -p ${out_dir}
+    _msg_info "Creating ISO image..."
+    local _qflag=""
+    if [[ ${quiet} == "y" ]]; then
+        _qflag="-quiet"
     fi
+    xorriso -as mkisofs ${_qflag} \
+        -iso-level 3 \
+        -full-iso9660-filenames \
+        -volid "${iso_label}" \
+        -appid "${iso_application}" \
+        -publisher "${iso_publisher}" \
+        -preparer "prepared by mkarchiso" \
+        -eltorito-boot isolinux/isolinux.bin \
+        -eltorito-catalog isolinux/boot.cat \
+        -no-emul-boot -boot-load-size 4 -boot-info-table \
+        -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+        ${_iso_efi_boot_args} \
+        -output "${out_dir}/${img_name}" \
+        "${work_dir}/iso/"
+    _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
 }
 
 # create airootfs.sfs filesystem, and push it in "iso" directory.
@@ -341,9 +311,7 @@ command_prepare () {
 
     mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
 
-    if _is_directory_changed "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs"; then
-        _mkairootfs
-    fi
+    _mkairootfs
 }
 
 # Install packages on airootfs.
