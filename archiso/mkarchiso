@@ -329,14 +329,7 @@ command_install () {
 
     _show_config install
 
-    local _pkg_list_hash
-    _pkg_list_hash=$(echo ${pkg_list} | sort -u | md5sum | cut -c1-32)
-    if [[ -f "${work_dir}/install.${_pkg_list_hash}" ]]; then
-        _msg_info "These packages are already installed, skipping."
-    else
-        _pacman "${pkg_list}"
-        : > "${work_dir}/install.${_pkg_list_hash}"
-    fi
+    _pacman "${pkg_list}"
 }
 
 command_init() {
