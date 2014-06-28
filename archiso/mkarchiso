@@ -39,15 +39,6 @@ _msg_error() {
     fi
 }
 
-# Show space usage similar to df, but better formatted.
-# $1: mount-point or mounted device.
-_show_space_usage () {
-    local _where="${1}"
-    local _fs _total _used _avail _pct_u=0 _mnt
-    read _fs _total _used _avail _pct_u _mnt < <(df -m "${_where}" | tail -1) &> /dev/null
-    _msg_info "Total: ${_total} MiB (100%) | Used: ${_used} MiB (${_pct_u}) | Avail: ${_avail} MiB ($((100 - ${_pct_u%\%}))%)"
-}
-
 _chroot_init() {
     if [[ -f "${work_dir}/mkarchiso.init" ]]; then
         _msg_info "Initial enviroment already installed, skipping."
@@ -62,27 +53,19 @@ _chroot_run() {
     eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
 }
 
-# Mount a filesystem (trap signals in case of error for unmounting it
-# $1: source image
-# $2: mount-point
-_mount_fs() {
-    local _src="${1}"
-    local _dst="${2}"
-    trap "_umount_fs ${_src}" EXIT HUP INT TERM
-    mkdir -p "${_dst}"
-    _msg_info "Mounting '${_src}' on '${_dst}'"
-    mount "${_src}" "${_dst}"
-    _show_space_usage "${_dst}"
+_mount_airootfs() {
+    trap "_umount_airootfs" EXIT HUP INT TERM
+    mkdir -p "${work_dir}/mnt/airootfs"
+    _msg_info "Mounting '${work_dir}/airootfs.img' on '${work_dir}/mnt/airootfs'"
+    mount "${work_dir}/airootfs.img" "${work_dir}/mnt/airootfs"
+    _msg_info "Done!"
 }
 
-# Unmount a filesystem (and untrap signals)
-# $1: mount-point or device/image
-_umount_fs() {
-    local _dst="${1}"
-    _show_space_usage "${_dst}"
-    _msg_info "Unmounting '${_dst}'"
-    umount "${_dst}"
-    rmdir "${_dst}"
+_umount_airootfs() {
+    _msg_info "Unmounting '${work_dir}/mnt/airootfs'"
+    umount "${work_dir}/mnt/airootfs"
+    _msg_info "Done!"
+    rmdir "${work_dir}/mnt/airootfs"
     trap - EXIT HUP INT TERM
 }
 
@@ -258,11 +241,11 @@ _mkairootfs () {
     mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
     tune2fs -c 0 -i 0 "${work_dir}/airootfs.img" &> /dev/null
     _msg_info "Done!"
-    _mount_fs "${work_dir}/airootfs.img" "${work_dir}/mnt/airootfs"
+    _mount_airootfs
     _msg_info "Copying '${work_dir}/airootfs/' to '${work_dir}/mnt/airootfs/'..."
     cp -aT "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
-    _umount_fs "${work_dir}/mnt/airootfs"
+    _umount_airootfs
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
         mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
