@@ -243,55 +243,34 @@ _cleanup () {
     _msg_info "Done!"
 }
 
-# Makes a SquashFS filesystem image of file/directory passes as argument with desired compression.
-# $1: Source file/directory
-_mksfs () {
-    local _src="${1}"
-
-    if [[ ! -e "${work_dir}/${_src}" ]]; then
-        _msg_error "The path '${work_dir}/${_src}' does not exist" 1
-    fi
-
-    local _sfs_img="${work_dir}/${_src}.sfs"
-
-    _msg_info "Creating SquashFS image for '${work_dir}/${_src}', This may take some time..."
-    local _seconds=${SECONDS}
-    if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
-    else
-        mksquashfs "${work_dir}/${_src}" "${_sfs_img}" -noappend -comp "${sfs_comp}" -no-progress
-    fi
-    _seconds=$((SECONDS - _seconds))
-    printf "[mkarchiso] INFO: Image creation done in %02d:%02d minutes\n" $((_seconds / 60)) $((_seconds % 60))
-}
-
 # Makes a filesystem from a source directory.
-# $1: Source directory
-_mkfs () {
-    local _src="${1}"
-
-    local _fs_src="${work_dir}/${_src}"
-    local _fs_img="${work_dir}/${_src}.img"
-
-    if [[ ! -e "${_fs_src}" ]]; then
-        _msg_error "The path '${_fs_src}' does not exist" 1
+_mkairootfs () {
+    if [[ ! -e "${work_dir}/airootfs" ]]; then
+        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
     fi
 
     _msg_info "Creating ext4 image of 32GiB..."
-    rm -f "${_fs_img}"
-    truncate -s 32G "${_fs_img}"
+    truncate -s 32G "${work_dir}/airootfs.img"
     local _qflag=""
     if [[ ${quiet} == "y" ]]; then
         _qflag="-q"
     fi
-    mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${_fs_img}"
-    tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
+    mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
+    tune2fs -c 0 -i 0 "${work_dir}/airootfs.img" &> /dev/null
     _msg_info "Done!"
-    _mount_fs "${_fs_img}" "${work_dir}/mnt/${_src}"
-    _msg_info "Copying '${_fs_src}/' to '${work_dir}/mnt/${_src}/'..."
-    cp -aT "${_fs_src}/" "${work_dir}/mnt/${_src}/"
+    _mount_fs "${work_dir}/airootfs.img" "${work_dir}/mnt/airootfs"
+    _msg_info "Copying '${work_dir}/airootfs/' to '${work_dir}/mnt/airootfs/'..."
+    cp -aT "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
-    _umount_fs "${work_dir}/mnt/${_src}"
+    _umount_fs "${work_dir}/mnt/airootfs"
+    _msg_info "Creating SquashFS image, this may take some time..."
+    if [[ "${quiet}" = "y" ]]; then
+        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
+    else
+        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
+    fi
+    _msg_info "Done!"
+    rm ${work_dir}/airootfs.img
 }
 
 command_checksum () {
@@ -377,16 +356,10 @@ command_prepare () {
 
     _cleanup
 
-    local _src="${work_dir}/airootfs"
-    local _dst="${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
 
-    mkdir -p "${_dst}"
-
-    if _is_directory_changed "${_src}" "${_dst}/airootfs.sfs"; then
-        _mkfs airootfs
-        _mksfs airootfs.img
-        mv "${_src}.sfs" "${_dst}"
-        rm "${_src}.img"
+    if _is_directory_changed "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs"; then
+        _mkairootfs
     fi
 }
 
