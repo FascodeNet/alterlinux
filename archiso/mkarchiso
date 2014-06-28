@@ -222,6 +222,7 @@ _mkairootfs () {
     cp -aT "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
     _umount_airootfs
+    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
         mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
@@ -308,9 +309,6 @@ command_prepare () {
     _show_config prepare
 
     _cleanup
-
-    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
-
     _mkairootfs
 }
 
