@@ -40,13 +40,8 @@ _msg_error() {
 }
 
 _chroot_init() {
-    if [[ -f "${work_dir}/mkarchiso.init" ]]; then
-        _msg_info "Initial enviroment already installed, skipping."
-    else
-        mkdir -p ${work_dir}/airootfs
-        _pacman "base syslinux"
-        : > "${work_dir}/mkarchiso.init"
-    fi
+    mkdir -p ${work_dir}/airootfs
+    _pacman "base syslinux"
 }
 
 _chroot_run() {
