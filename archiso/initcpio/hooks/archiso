@@ -174,8 +174,8 @@ archiso_mount_handler() {
     fi
     mkdir -p "/run/archiso/cowspace/${cow_directory}"
 
-    _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.fs.sfs" "/run/archiso/sfs/airootfs"
-    _mnt_fs "/run/archiso/sfs/airootfs/airootfs.fs" "${newroot}" "/"
+    _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" "/run/archiso/sfs/airootfs"
+    _mnt_fs "/run/archiso/sfs/airootfs/airootfs.img" "${newroot}" "/"
 
     if [[ "${copytoram}" == "y" ]]; then
         umount /run/archiso/bootmnt

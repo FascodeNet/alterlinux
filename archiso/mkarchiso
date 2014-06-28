@@ -271,7 +271,7 @@ _mkfs () {
     local _src="${1}"
 
     local _fs_src="${work_dir}/${_src}"
-    local _fs_img="${work_dir}/${_src}.fs"
+    local _fs_img="${work_dir}/${_src}.img"
 
     if [[ ! -e "${_fs_src}" ]]; then
         _msg_error "The path '${_fs_src}' does not exist" 1
@@ -371,7 +371,7 @@ command_iso () {
     fi
 }
 
-# create airootfs.fs.sfs filesystem, and push it in "iso" directory.
+# create airootfs.sfs filesystem, and push it in "iso" directory.
 command_prepare () {
     _show_config prepare
 
@@ -382,11 +382,11 @@ command_prepare () {
 
     mkdir -p "${_dst}"
 
-    if _is_directory_changed "${_src}" "${_dst}/airootfs.fs.sfs"; then
+    if _is_directory_changed "${_src}" "${_dst}/airootfs.sfs"; then
         _mkfs airootfs
-        _mksfs airootfs.fs
-        mv "${_src}.fs.sfs" "${_dst}"
-        rm "${_src}.fs"
+        _mksfs airootfs.img
+        mv "${_src}.sfs" "${_dst}"
+        rm "${_src}.img"
     fi
 }
 
