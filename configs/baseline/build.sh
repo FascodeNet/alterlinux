@@ -20,24 +20,24 @@ run_once() {
     fi
 }
 
-# Base installation (root-image)
+# Base installation (airootfs)
 make_basefs() {
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" init
 }
 
-# Copy mkinitcpio archiso hooks and build initramfs (root-image)
+# Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
-    cp /usr/lib/initcpio/hooks/archiso ${work_dir}/root-image/usr/lib/initcpio/hooks
-    cp /usr/lib/initcpio/install/archiso ${work_dir}/root-image/usr/lib/initcpio/install
-    cp ${script_path}/mkinitcpio.conf ${work_dir}/root-image/etc/mkinitcpio-archiso.conf
+    cp /usr/lib/initcpio/hooks/archiso ${work_dir}/airootfs/usr/lib/initcpio/hooks
+    cp /usr/lib/initcpio/install/archiso ${work_dir}/airootfs/usr/lib/initcpio/install
+    cp ${script_path}/mkinitcpio.conf ${work_dir}/airootfs/etc/mkinitcpio-archiso.conf
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
 }
 
 # Prepare ${install_dir}/boot/
 make_boot() {
     mkdir -p ${work_dir}/iso/${install_dir}/boot/${arch}
-    cp ${work_dir}/root-image/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
-    cp ${work_dir}/root-image/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz
+    cp ${work_dir}/airootfs/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img
+    cp ${work_dir}/airootfs/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -46,18 +46,18 @@ make_syslinux() {
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g;
          s|%ARCH%|${arch}|g" ${script_path}/syslinux/syslinux.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/syslinux.cfg
-    cp ${work_dir}/root-image/usr/lib/syslinux/bios/ldlinux.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
-    cp ${work_dir}/root-image/usr/lib/syslinux/bios/menu.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
-    cp ${work_dir}/root-image/usr/lib/syslinux/bios/libutil.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
+    cp ${work_dir}/airootfs/usr/lib/syslinux/bios/ldlinux.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
+    cp ${work_dir}/airootfs/usr/lib/syslinux/bios/menu.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
+    cp ${work_dir}/airootfs/usr/lib/syslinux/bios/libutil.c32 ${work_dir}/iso/${install_dir}/boot/syslinux/
 }
 
 # Prepare /isolinux
 make_isolinux() {
     mkdir -p ${work_dir}/iso/isolinux
     sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
-    cp ${work_dir}/root-image/usr/lib/syslinux/bios/isolinux.bin ${work_dir}/iso/isolinux/
-    cp ${work_dir}/root-image/usr/lib/syslinux/bios/isohdpfx.bin ${work_dir}/iso/isolinux/
-    cp ${work_dir}/root-image/usr/lib/syslinux/bios/ldlinux.c32 ${work_dir}/iso/isolinux/
+    cp ${work_dir}/airootfs/usr/lib/syslinux/bios/isolinux.bin ${work_dir}/iso/isolinux/
+    cp ${work_dir}/airootfs/usr/lib/syslinux/bios/isohdpfx.bin ${work_dir}/iso/isolinux/
+    cp ${work_dir}/airootfs/usr/lib/syslinux/bios/ldlinux.c32 ${work_dir}/iso/isolinux/
 }
 
 # Process aitab

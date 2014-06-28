@@ -51,14 +51,14 @@ _chroot_init() {
     if [[ -f "${work_dir}/mkarchiso.init" ]]; then
         _msg_info "Initial enviroment already installed, skipping."
     else
-        mkdir -p ${work_dir}/root-image
+        mkdir -p ${work_dir}/airootfs
         _pacman "base syslinux"
         : > "${work_dir}/mkarchiso.init"
     fi
 }
 
 _chroot_run() {
-    eval arch-chroot ${work_dir}/root-image "${run_cmd}"
+    eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
 }
 
 # Mount a filesystem (trap signals in case of error for unmounting it
@@ -116,7 +116,7 @@ _usage ()
     echo "usage ${app_name} [options] command <command options>"
     echo " general options:"
     echo "    -p PACKAGE(S)    Package(s) to install, can be used multiple times"
-    echo "    -r <command>     Run <command> inside root-image"
+    echo "    -r <command>     Run <command> inside airootfs"
     echo "    -C <file>        Config file for pacman."
     echo "                     Default: '${pacman_conf}'"
     echo "    -L <label>       Set a label for the disk"
@@ -146,7 +146,7 @@ _usage ()
     echo "   checksum"
     echo "      make a checksum.md5 for self-test"
     echo "   pkglist"
-    echo "      make a pkglist.txt of packages installed on root-image"
+    echo "      make a pkglist.txt of packages installed on airootfs"
     echo "   iso <image name>"
     echo "      build an iso image from the working dir"
     exit ${1}
@@ -189,51 +189,51 @@ _show_config () {
     echo
 }
 
-# Install desired packages to root-image
+# Install desired packages to airootfs
 _pacman ()
 {
-    _msg_info "Installing packages to '${work_dir}/root-image/'..."
+    _msg_info "Installing packages to '${work_dir}/airootfs/'..."
 
     if [[ "${quiet}" = "y" ]]; then
-        pacstrap -C "${pacman_conf}" -c -d -G -M "${work_dir}/root-image" $* &> /dev/null
+        pacstrap -C "${pacman_conf}" -c -d -G -M "${work_dir}/airootfs" $* &> /dev/null
     else
-        pacstrap -C "${pacman_conf}" -c -d -G -M "${work_dir}/root-image" $*
+        pacstrap -C "${pacman_conf}" -c -d -G -M "${work_dir}/airootfs" $*
     fi
 
     _msg_info "Packages installed successfully!"
 }
 
-# Cleanup root-image
+# Cleanup airootfs
 _cleanup () {
-    _msg_info "Cleaning up what we can on root-image..."
+    _msg_info "Cleaning up what we can on airootfs..."
 
     # Delete initcpio image(s)
-    if [[ -d "${work_dir}/root-image/boot" ]]; then
-        find "${work_dir}/root-image/boot" -type f -name '*.img' -delete
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
     fi
     # Delete kernel(s)
-    if [[ -d "${work_dir}/root-image/boot" ]]; then
-        find "${work_dir}/root-image/boot" -type f -name 'vmlinuz*' -delete
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
     fi
     # Delete pacman database sync cache files (*.tar.gz)
-    if [[ -d "${work_dir}/root-image/var/lib/pacman" ]]; then
-        find "${work_dir}/root-image/var/lib/pacman" -maxdepth 1 -type f -delete
+    if [[ -d "${work_dir}/airootfs/var/lib/pacman" ]]; then
+        find "${work_dir}/airootfs/var/lib/pacman" -maxdepth 1 -type f -delete
     fi
     # Delete pacman database sync cache
-    if [[ -d "${work_dir}/root-image/var/lib/pacman/sync" ]]; then
-        find "${work_dir}/root-image/var/lib/pacman/sync" -delete
+    if [[ -d "${work_dir}/airootfs/var/lib/pacman/sync" ]]; then
+        find "${work_dir}/airootfs/var/lib/pacman/sync" -delete
     fi
     # Delete pacman package cache
-    if [[ -d "${work_dir}/root-image/var/cache/pacman/pkg" ]]; then
-        find "${work_dir}/root-image/var/cache/pacman/pkg" -type f -delete
+    if [[ -d "${work_dir}/airootfs/var/cache/pacman/pkg" ]]; then
+        find "${work_dir}/airootfs/var/cache/pacman/pkg" -type f -delete
     fi
     # Delete all log files, keeps empty dirs.
-    if [[ -d "${work_dir}/root-image/var/log" ]]; then
-        find "${work_dir}/root-image/var/log" -type f -delete
+    if [[ -d "${work_dir}/airootfs/var/log" ]]; then
+        find "${work_dir}/airootfs/var/log" -type f -delete
     fi
     # Delete all temporary files and dirs
-    if [[ -d "${work_dir}/root-image/var/tmp" ]]; then
-        find "${work_dir}/root-image/var/tmp" -mindepth 1 -delete
+    if [[ -d "${work_dir}/airootfs/var/tmp" ]]; then
+        find "${work_dir}/airootfs/var/tmp" -mindepth 1 -delete
     fi
     # Delete package pacman related files.
     find "${work_dir}" \( -name "*.pacnew" -o -name "*.pacsave" -o -name "*.pacorig" \) -delete
@@ -359,9 +359,9 @@ command_checksum () {
 command_pkglist () {
     _show_config pkglist
 
-    if _is_directory_changed "${work_dir}/root-image/var/lib/pacman/local" "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"; then
+    if _is_directory_changed "${work_dir}/airootfs/var/lib/pacman/local" "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"; then
         _msg_info "Creating a list of installed packages on live-enviroment..."
-        pacman -Sl -r "${work_dir}/root-image" --config "${pacman_conf}" | \
+        pacman -Sl -r "${work_dir}/airootfs" --config "${pacman_conf}" | \
             awk '/\[installed\]$/ {print $1 "/" $2 "-" $3}' > \
             "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
         _msg_info "Done!"
@@ -450,7 +450,7 @@ command_prepare () {
     done < "${work_dir}/iso/${install_dir}/aitab"
 }
 
-# Install packages on root-image.
+# Install packages on airootfs.
 # A basic check to avoid double execution/reinstallation is done via hashing package names.
 command_install () {
     if [[ ! -f "${pacman_conf}" ]]; then

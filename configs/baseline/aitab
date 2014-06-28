@@ -1,2 +1,2 @@
 # <img>         <mnt>                 <arch>   <sfs_comp>  <fs_type>  <fs_size>
-root-image      /                     %ARCH%   gzip        ext4       50%
+airootfs      /                     %ARCH%   gzip        ext4       50%

@@ -22,7 +22,7 @@ INDEX
  + dosfstools              for mkfs.vfat
  + lynx                    for fetching the latest installation guide
 
-** For these hooks needs these packages (on target root-image)
+** For these hooks needs these packages (on target airootfs)
 * archiso
  + (none)
 * archiso_loop_mnt
