@@ -304,11 +304,7 @@ command_checksum () {
             _msg_info "Creating checksum file for self-test (${_chk_arch})..."
             cd "${work_dir}/iso/${install_dir}"
             if [[ -d "${_chk_arch}" ]]; then
-                md5sum aitab > checksum.${_chk_arch}.md5
-                find ${_chk_arch} -type f -print0 | xargs -0 md5sum >> checksum.${_chk_arch}.md5
-                if [[ -d "any" ]]; then
-                    find any -type f -print0 | xargs -0 md5sum >> checksum.${_chk_arch}.md5
-                fi
+                find ${_chk_arch} -type f -print0 | xargs -0 md5sum > checksum.${_chk_arch}.md5
             fi
             cd ${OLDPWD}
             _msg_info "Done!"
@@ -375,39 +371,23 @@ command_iso () {
     fi
 }
 
-# Parse aitab and create each filesystem specified on that, and push it in "iso" directory.
+# create airootfs.fs.sfs filesystem, and push it in "iso" directory.
 command_prepare () {
-    if [[ ! -f "${work_dir}/iso/${install_dir}/aitab" ]]; then
-         _msg_error "The file '${work_dir}/iso/${install_dir}/aitab' does not exist." 1
-    fi
     _show_config prepare
 
     _cleanup
-    local _aitab_img _aitab_mnt _aitab_arch _aitab_sfs_comp _aitab_fs_type _aitab_fs_size
-    while read _aitab_img _aitab_mnt _aitab_arch _aitab_sfs_comp _aitab_fs_type _aitab_fs_size ; do
-        if [[ ${_aitab_img} =~ ^# ]]; then
-            continue
-        fi
-        if [[ "${_aitab_arch}" != "any" && "${_aitab_arch}" != "${arch}" ]]; then
-            continue
-        fi
-        local _src="${work_dir}/${_aitab_img}"
-        local _dst="${work_dir}/iso/${install_dir}/${_aitab_arch}"
-        mkdir -p "${_dst}"
-        if [[ ${_aitab_fs_type} != "none" ]]; then
-            if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
-                _mkfs ${_aitab_img}
-                _mksfs ${_aitab_img}.fs
-                mv "${_src}.fs.sfs" "${_dst}"
-                rm "${_src}.fs"
-            fi
-        else
-            if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.sfs"; then
-                _mksfs ${_aitab_img}
-                mv "${work_dir}/${_aitab_img}.sfs" "${_dst}"
-            fi
-        fi
-    done < "${work_dir}/iso/${install_dir}/aitab"
+
+    local _src="${work_dir}/airootfs"
+    local _dst="${work_dir}/iso/${install_dir}/${arch}"
+
+    mkdir -p "${_dst}"
+
+    if _is_directory_changed "${_src}" "${_dst}/airootfs.fs.sfs"; then
+        _mkfs airootfs
+        _mksfs airootfs.fs
+        mv "${_src}.fs.sfs" "${_dst}"
+        rm "${_src}.fs"
+    fi
 }
 
 # Install packages on airootfs.

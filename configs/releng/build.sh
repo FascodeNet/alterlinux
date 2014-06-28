@@ -182,13 +182,7 @@ make_efiboot() {
     umount ${work_dir}/efiboot
 }
 
-# Copy aitab
-make_aitab() {
-    mkdir -p ${work_dir}/iso/${install_dir}
-    cp ${script_path}/aitab ${work_dir}/iso/${install_dir}/aitab
-}
-
-# Build all filesystem images specified in aitab (.fs.sfs .sfs)
+# Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f ${work_dir}/${arch}/airootfs ${work_dir}
     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
@@ -252,8 +246,6 @@ run_once make_syslinux
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
-
-run_once make_aitab
 
 for arch in i686 x86_64; do
     run_once make_prepare

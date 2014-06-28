@@ -23,8 +23,6 @@ INDEX
                     Default: "/dev/disk/by-label/${archisolabel}"
 * archisobasedir=   Set the base directory where all files reside.
                     Default: "arch"
-* aitab=            Set the path for "aitab" file.
-                    Default: ${archisobasedir}/aitab
 * copytoram=        If set to "y" or just "copytoram" without arguments,
                     all SquashFS are copied to "RAM".
                     Default: (unset)
@@ -59,10 +57,6 @@ INDEX
                     Default: "75%"
 * dm_snap_prefix=   Set a prefix for device-mapper snapshot node names.
                     Default: "arch"
-* arch=             Force an architecture type (i686 | x86_64).
-                    Do not set it for normal operations.
-                    Useful for running a 64 bit kernel / 32 bit userspace.
-                    Default: (architecture of running kernel)
 
 
 ** hooks/archiso_pxe_common

@@ -60,12 +60,7 @@ make_isolinux() {
     cp ${work_dir}/airootfs/usr/lib/syslinux/bios/ldlinux.c32 ${work_dir}/iso/isolinux/
 }
 
-# Process aitab
-make_aitab() {
-    sed "s|%ARCH%|${arch}|g" ${script_path}/aitab > ${work_dir}/iso/${install_dir}/aitab
-}
-
-# Build all filesystem images specified in aitab (.fs.sfs .sfs)
+# Build airootfs filesystem image
 make_prepare() {
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" prepare
 }
@@ -81,6 +76,5 @@ run_once make_setup_mkinitcpio
 run_once make_boot
 run_once make_syslinux
 run_once make_isolinux
-run_once make_aitab
 run_once make_prepare
 run_once make_iso

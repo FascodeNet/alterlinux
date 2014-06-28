@@ -1,3 +1,0 @@
-# <img>         <mnt>                 <arch>   <sfs_comp>  <fs_type>  <fs_size>
-airootfs      /                     i686     xz          ext4       50%
-airootfs      /                     x86_64   xz          ext4       50%
