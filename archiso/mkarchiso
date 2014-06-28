@@ -266,12 +266,10 @@ _mksfs () {
 
 # Makes a filesystem from a source directory.
 # $1: Source directory
-# $2: Target filesystem type (ext4 | ext3 | ext2 | xfs | btrfs)
-# $3: Size of target filesystem. Can be an absolute value in MiB, or relative value of desired free space (1% - 99%)
+# $2: Size of target filesystem. Can be an absolute value in MiB, or relative value of desired free space (1% - 99%)
 _mkfs () {
     local _src="${1}"
-    local _fs_type="${2}"
-    local _fs_size="${3}"
+    local _fs_size="${2}"
 
     local _fs_src="${work_dir}/${_src}"
     local _fs_img="${work_dir}/${_src}.fs"
@@ -296,36 +294,15 @@ _mkfs () {
         fi
     fi
 
-    _msg_info "Creating ${_fs_type} image of ${_fs_size} MiB..."
+    _msg_info "Creating ext4 image of ${_fs_size} MiB..."
     rm -f "${_fs_img}"
     truncate -s ${_fs_size}M "${_fs_img}"
     local _qflag=""
     if [[ ${quiet} == "y" ]]; then
         _qflag="-q"
     fi
-    case "${_fs_type}" in
-        ext4)
-            mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${_fs_img}"
-            tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
-            ;;
-        ext3)
-            mkfs.ext3 ${_qflag} -m 0 -F "${_fs_img}"
-            tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
-            ;;
-        ext2)
-            mkfs.ext2 ${_qflag} -m 0 -F "${_fs_img}"
-            tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
-            ;;
-        xfs)
-            mkfs.xfs ${_qflag} "${_fs_img}"
-            ;;
-        btrfs)
-            mkfs.btrfs -M "${_fs_img}"
-            ;;
-        *)
-            _msg_error "Invalid filesystem: ${_fs_type}" 1
-            ;;
-    esac
+    mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${_fs_img}"
+    tune2fs -c 0 -i 0 "${_fs_img}" &> /dev/null
     _msg_info "Done!"
     _mount_fs "${_fs_img}" "${work_dir}/mnt/${_src}"
     _msg_info "Copying '${_fs_src}/' to '${work_dir}/mnt/${_src}/'..."
@@ -436,7 +413,7 @@ command_prepare () {
         mkdir -p "${_dst}"
         if [[ ${_aitab_fs_type} != "none" ]]; then
             if _is_directory_changed "${_src}" "${_dst}/${_aitab_img}.fs.sfs"; then
-                _mkfs ${_aitab_img} ${_aitab_fs_type} ${_aitab_fs_size}
+                _mkfs ${_aitab_img} ${_aitab_fs_size}
                 _mksfs ${_aitab_img}.fs ${_aitab_sfs_comp}
                 mv "${_src}.fs.sfs" "${_dst}"
                 rm "${_src}.fs"
