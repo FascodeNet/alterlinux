@@ -1,7 +1,6 @@
 #!/bin/bash
 
 build() {
-    add_module "nls_iso8859-1"
     add_runscript
 }
 
