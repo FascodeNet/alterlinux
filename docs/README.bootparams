@@ -57,6 +57,9 @@ INDEX
                     Default: "75%"
 * dm_snap_prefix=   Set a prefix for device-mapper snapshot node names.
                     Default: "arch"
+* arch=             Force an architecture type (i686 | x86_64).
+                    Do not set it for normal operations.
+                    Default: (architecture of running kernel)
 
 
 ** hooks/archiso_pxe_common

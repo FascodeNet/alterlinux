@@ -101,7 +101,7 @@ _verify_checksum() {
 }
 
 run_hook() {
-    arch="$(uname -m)"
+    [[ -z "${arch}" ]] && arch="$(uname -m)"
     [[ -z "${cowspace_size}" ]] && cowspace_size="75%"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
