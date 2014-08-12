@@ -37,7 +37,7 @@ archiso_pxe_http_mount_handler () {
     _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs" "/${arch}"
 
     if [[ "${checksum}" == "y" ]]; then
-        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.md5" "/"
+        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.md5" "/${arch}"
     fi
 
     mkdir -p "/run/archiso/bootmnt"
