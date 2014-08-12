@@ -109,17 +109,17 @@ methods can be used to serve the rest of live-medium.
 * NFS
 
 # echo "/run/archiso/bootmnt 192.168.0.*(ro,no_subtree_check,no_root_squash)" >> /etc/exports
-# systemctl start rpc-mountd.service
+# systemctl start nfs-server.service
 
 
 * NBD
 
-Note: Adjust ARCH_201302 as needed.
+Note: Adjust ARCH_201408 as needed.
 
 # cat << EOF > /tmp/nbd-server.conf
 [generic]
 [archiso]
     readonly = true
-    exportname = /dev/disk/by-label/ARCH_201302
+    exportname = /dev/disk/by-label/ARCH_201408
 EOF
 # nbd-server -C /tmp/nbd-server.conf
