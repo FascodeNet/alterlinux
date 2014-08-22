@@ -205,7 +205,7 @@ _mkairootfs () {
     if [[ ${quiet} == "y" ]]; then
         _qflag="-q"
     fi
-    mkfs.ext4 ${_qflag} -O ^has_journal -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
+    mkfs.ext4 ${_qflag} -O ^has_journal,^resize_inode -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
     tune2fs -c 0 -i 0 "${work_dir}/airootfs.img" &> /dev/null
     _msg_info "Done!"
     _mount_airootfs
