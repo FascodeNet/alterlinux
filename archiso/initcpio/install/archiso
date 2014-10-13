@@ -12,6 +12,7 @@ build() {
     add_binary dmsetup
     add_binary losetup
     add_binary mountpoint
+    add_binary truncate
 
     add_file /usr/lib/udev/rules.d/60-cdrom_id.rules
     add_file /usr/lib/udev/rules.d/10-dm.rules
