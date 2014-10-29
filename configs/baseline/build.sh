@@ -27,8 +27,10 @@ make_basefs() {
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
-    cp /usr/lib/initcpio/hooks/archiso ${work_dir}/airootfs/usr/lib/initcpio/hooks
-    cp /usr/lib/initcpio/install/archiso ${work_dir}/airootfs/usr/lib/initcpio/install
+    mkdir -p ${work_dir}/airootfs/etc/initcpio/hooks
+    mkdir -p ${work_dir}/airootfs/etc/initcpio/install
+    cp /usr/lib/initcpio/hooks/archiso ${work_dir}/airootfs/etc/initcpio/hooks
+    cp /usr/lib/initcpio/install/archiso ${work_dir}/airootfs/etc/initcpio/install
     cp ${script_path}/mkinitcpio.conf ${work_dir}/airootfs/etc/mkinitcpio-archiso.conf
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
 }
