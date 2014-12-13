@@ -40,14 +40,9 @@ INDEX
                     Default: "/persistent_${archisolabel}/${arch}"
 * cow_persistent=   Set if snapshot is persistent "P" or non-persistent "N".
                     Default: "N" (if no ${cow_device} is used) otherwise "P".
-* cowspace_size=    Set the size of tmpfs /cowspace. This space is used for
-                    Copy-On-Write files of dm-snapshot.
-                    Size is in bytes (suffix with "k", "m" and "g") or
-                    in percentage of available RAM.
-                    Default: "75%"
 * cowfile_size=     Set the size for COW file (dm-snapshot).
                     The argument is an integer and optional unit.
-                    Units are M,G (powers of 1024) or MB,GB (powers of 1000).
+                    Units are M,G (powers of 1024).
                     Default: "256M"
 * copytoram_size=   Set the size of tmpfs. This space is used for
                     airootfs.sfs image if copytoram=y.

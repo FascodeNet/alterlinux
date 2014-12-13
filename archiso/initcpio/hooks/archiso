@@ -96,7 +96,6 @@ _verify_checksum() {
 
 run_hook() {
     [[ -z "${arch}" ]] && arch="$(uname -m)"
-    [[ -z "${cowspace_size}" ]] && cowspace_size="75%"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
@@ -160,9 +159,9 @@ archiso_mount_handler() {
         echo $(readlink -f ${cow_device}) >> /run/archiso/used_block_devices
         mount -o remount,rw "/run/archiso/cowspace"
     else
-        msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cowspace_size}..."
+        msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cowfile_size}..."
         mkdir -p /run/archiso/cowspace
-        mount -t tmpfs -o "size=${cowspace_size}",mode=0755 cowspace /run/archiso/cowspace
+        mount -t tmpfs -o "size=${cowfile_size}",mode=0755 cowspace /run/archiso/cowspace
     fi
     mkdir -p "/run/archiso/cowspace/${cow_directory}"
 
