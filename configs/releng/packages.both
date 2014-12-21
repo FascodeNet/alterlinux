@@ -20,9 +20,7 @@ gpm
 gptfdisk
 grml-zsh-config
 grub
-haveged
 hdparm
-intel-ucode
 ipw2100-fw
 ipw2200-fw
 irssi
@@ -59,4 +57,3 @@ wpa_actiond
 wvdial
 xl2tpd
 zd1211-firmware
-zsh

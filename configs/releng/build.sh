@@ -54,12 +54,17 @@ make_pacman_conf() {
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${pacman_conf}" -D "${install_dir}" init
-    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${pacman_conf}" -D "${install_dir}" -p "memtest86+ mkinitcpio-nfs-utils nbd" install
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${pacman_conf}" -D "${install_dir}" -p "haveged intel-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh" install
 }
 
 # Additional packages (airootfs)
 make_packages() {
     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${pacman_conf}" -D "${install_dir}" -p "$(grep -h -v ^# ${script_path}/packages.{both,${arch}})" install
+}
+
+# Needed packages for x86_64 EFI boot
+make_packages_efi() {
+    setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${pacman_conf}" -D "${install_dir}" -p "gummiboot prebootloader refind-efi" install
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -238,6 +243,11 @@ run_once make_pacman_conf
 for arch in i686 x86_64; do
     run_once make_basefs
     run_once make_packages
+done
+
+run_once make_packages_efi
+
+for arch in i686 x86_64; do
     run_once make_setup_mkinitcpio
     run_once make_customize_airootfs
 done
