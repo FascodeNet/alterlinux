@@ -44,6 +44,9 @@ INDEX
                     The argument is an integer and optional unit.
                     Units are M,G (powers of 1024).
                     Default: "256M"
+* cow_chunksize=    Set chunksize used for dm-snapshot. This is number
+                    of 512 byte blocks to write at once.
+		    Default: "8"
 * copytoram_size=   Set the size of tmpfs. This space is used for
                     airootfs.sfs image if copytoram=y.
                     Size is in bytes (suffix with "k", "m" and "g") or
