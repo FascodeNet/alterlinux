@@ -100,9 +100,7 @@ run_hook() {
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
-    if [[ -z "${cowfile_size}" ]]; then
-        cowfile_size="256M"
-    fi
+    [[ -z "${cowfile_size}" ]] && cowfile_size="256M"
 
     if [[ -n "${cow_label}" ]]; then
         cow_device="/dev/disk/by-label/${cow_label}"
