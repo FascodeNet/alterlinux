@@ -31,7 +31,7 @@ _mnt_fs() {
     rw_dev=$(losetup --find --show "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
     echo ${rw_dev} >> /run/archiso/used_block_devices
 
-    dmsetup create ${dm_snap_name} --table "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} 8"
+    dmsetup create ${dm_snap_name} --table "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} ${cow_chunksize}"
 
     _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
     echo $(readlink -f /dev/mapper/${dm_snap_name}) >> /run/archiso/used_block_devices
@@ -112,6 +112,7 @@ run_hook() {
     fi
 
     [[ -z "${cow_directory}" ]] && cow_directory="persistent_${archisolabel}/${arch}"
+    [[ -z "${cow_chunksize}" ]] && cow_chunksize="8"
 
     # set mount handler for archiso
     mount_handler="archiso_mount_handler"
