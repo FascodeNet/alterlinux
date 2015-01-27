@@ -30,17 +30,18 @@ INDEX
                     performs a self-test of all files inside ${install_dir},
                     and continue booting if ok.
                     Default: (unset)
-* cow_label=        Set the filesystem label where COW (dm-snapshot)
-                    file must be stored.
+* cow_label=        Set the filesystem label where COW file (for dm-snapshot)
+                    or upperdir/workdir files (for overlayfs) must be stored.
                     Default: (unset)
-* cow_device=       Set the device node where COW (dm-snapshot) file
-                    must be stored.
+* cow_device=       Like cow_label= but using device node.
                     Default: (unset) or "/dev/disk/by-label/${cow_label}"
 * cow_directory=    Set a directory inside ${cow_device}.
                     Default: "/persistent_${archisolabel}/${arch}"
 * cow_persistent=   Set if snapshot is persistent "P" or non-persistent "N".
+                    Only used for dm-snapshot mode, ignored for overlayfs.
                     Default: "N" (if no ${cow_device} is used) otherwise "P".
-* cowfile_size=     Set the size for COW file (dm-snapshot).
+* cow_spacesize=    Set the size for COW space (tmpfs). Valid for both
+                    dm-snapshot and overlayfs mode.
                     The argument is an integer and optional unit.
                     Units are M,G (powers of 1024).
                     Default: "256M"
@@ -52,7 +53,8 @@ INDEX
                     Size is in bytes (suffix with "k", "m" and "g") or
                     in percentage of available RAM.
                     Default: "75%"
-* dm_snap_prefix=   Set a prefix for device-mapper snapshot node names.
+* dm_snap_prefix=   Set a prefix for dm-snapshot node names.
+                    Only used for dm-snapshot mode, ignored for overlayfs.
                     Default: "arch"
 * arch=             Force an architecture type (i686 | x86_64).
                     Do not set it for normal operations.

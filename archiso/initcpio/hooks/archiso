@@ -17,7 +17,7 @@ _mnt_dmsnapshot() {
             msg ":: Found '/run/archiso/cowspace/${cow_directory}/${img_name}.cow', using as persistent."
         else
             msg ":: Creating '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' as persistent."
-            truncate -s "${cowfile_size}" "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
+            truncate -s "${cow_spacesize}" "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
         fi
     else
         if [[ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]]; then
@@ -25,7 +25,7 @@ _mnt_dmsnapshot() {
             rm -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
         fi
         msg ":: Creating '/run/archiso/cowspace/${cow_directory}/${img_name}.cow' as non-persistent."
-        truncate -s "${cowfile_size}" "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
+        truncate -s "${cow_spacesize}" "/run/archiso/cowspace/${cow_directory}/${img_name}.cow"
     fi
 
     rw_dev=$(losetup --find --show "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")
@@ -110,7 +110,7 @@ run_hook() {
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
-    [[ -z "${cowfile_size}" ]] && cowfile_size="256M"
+    [[ -z "${cow_spacesize}" ]] && cow_spacesize="256M"
 
     if [[ -n "${cow_label}" ]]; then
         cow_device="/dev/disk/by-label/${cow_label}"
@@ -168,9 +168,9 @@ archiso_mount_handler() {
         echo $(readlink -f ${cow_device}) >> /run/archiso/used_block_devices
         mount -o remount,rw "/run/archiso/cowspace"
     else
-        msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cowfile_size}..."
+        msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cow_spacesize}..."
         mkdir -p /run/archiso/cowspace
-        mount -t tmpfs -o "size=${cowfile_size}",mode=0755 cowspace /run/archiso/cowspace
+        mount -t tmpfs -o "size=${cow_spacesize}",mode=0755 cowspace /run/archiso/cowspace
     fi
     mkdir -p "/run/archiso/cowspace/${cow_directory}"
 
