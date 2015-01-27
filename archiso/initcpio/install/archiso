@@ -4,6 +4,7 @@ build() {
     add_module "cdrom"
     add_module "loop"
     add_module "dm-snapshot"
+    add_module "overlay"
 
     add_runscript
 

@@ -16,6 +16,7 @@ iso_application="Arch Linux Live/Rescue CD"
 install_dir="arch"
 work_dir="work"
 out_dir="out"
+sfs_mode="img"
 sfs_comp="xz"
 
 # Show an INFO message
@@ -87,6 +88,10 @@ _usage ()
     echo "                     Default: '${work_dir}'"
     echo "    -o <out_dir>     Set the output directory"
     echo "                     Default: '${out_dir}'"
+    echo "    -s <sfs_mode>    Set SquashFS image mode (img or sfs)"
+    echo "                     img: prepare airootfs.sfs for dm-snapshot usage"
+    echo "                     sfs: prepare airootfs.sfs for overlayfs usage"
+    echo "                     Default: ${sfs_mode}"
     echo "    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz)"
     echo "                     Default: '${sfs_comp}'"
     echo "    -v               Enable verbose output"
@@ -193,8 +198,8 @@ _cleanup () {
     _msg_info "Done!"
 }
 
-# Makes a filesystem from a source directory.
-_mkairootfs () {
+# Makes a ext4 filesystem inside a SquashFS from a source directory.
+_mkairootfs_img () {
     if [[ ! -e "${work_dir}/airootfs" ]]; then
         _msg_error "The path '${work_dir}/airootfs' does not exist" 1
     fi
@@ -222,6 +227,22 @@ _mkairootfs () {
     fi
     _msg_info "Done!"
     rm ${work_dir}/airootfs.img
+}
+
+# Makes a SquashFS filesystem from a source directory.
+_mkairootfs_sfs () {
+    if [[ ! -e "${work_dir}/airootfs" ]]; then
+        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    fi
+
+    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
+    _msg_info "Creating SquashFS image, this may take some time..."
+    if [[ "${quiet}" = "y" ]]; then
+        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
+    else
+        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
+    fi
+    _msg_info "Done!"
 }
 
 _mkchecksum () {
@@ -292,7 +313,11 @@ command_prepare () {
     _show_config prepare
 
     _cleanup
-    _mkairootfs
+    if [[ ${sfs_mode} == "sfs" ]]; then
+        _mkairootfs_sfs
+    else
+        _mkairootfs_img
+    fi
     _mkchecksum
 }
 
@@ -330,7 +355,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
-while getopts 'p:r:C:L:P:A:D:w:o:c:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:s:c:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
@@ -341,6 +366,7 @@ while getopts 'p:r:C:L:P:A:D:w:o:c:vh' arg; do
         D) install_dir="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
+        s) sfs_mode="${OPTARG}" ;;
         c) sfs_comp="${OPTARG}" ;;
         v) quiet="n" ;;
         h|?) _usage 0 ;;

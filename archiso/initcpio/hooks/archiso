@@ -1,5 +1,5 @@
 # args: source, newroot, mountpoint
-_mnt_fs() {
+_mnt_dmsnapshot() {
     local img="${1}"
     local newroot="${2}"
     local mnt="${3}"
@@ -36,6 +36,16 @@ _mnt_fs() {
     _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
     echo $(readlink -f /dev/mapper/${dm_snap_name}) >> /run/archiso/used_block_devices
 }
+
+# args: source, newroot, mountpoint
+_mnt_overlayfs() {
+    local src="${1}"
+    local newroot="${2}"
+    local mnt="${3}"
+    mkdir -p /run/archiso/cowspace/${cow_directory}/upperdir /run/archiso/cowspace/${cow_directory}/workdir
+    mount -t overlay -o lowerdir=${src},upperdir=/run/archiso/cowspace/${cow_directory}/upperdir,workdir=/run/archiso/cowspace/${cow_directory}/workdir airootfs "${newroot}${mnt}"
+}
+
 
 # args: /path/to/image_file, mountpoint
 _mnt_sfs() {
@@ -165,7 +175,11 @@ archiso_mount_handler() {
     mkdir -p "/run/archiso/cowspace/${cow_directory}"
 
     _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" "/run/archiso/sfs/airootfs"
-    _mnt_fs "/run/archiso/sfs/airootfs/airootfs.img" "${newroot}" "/"
+    if [[ -f "/run/archiso/sfs/airootfs/airootfs.img" ]]; then
+        _mnt_dmsnapshot "/run/archiso/sfs/airootfs/airootfs.img" "${newroot}" "/"
+    else
+        _mnt_overlayfs "/run/archiso/sfs/airootfs" "${newroot}" "/"
+    fi
 
     if [[ "${copytoram}" == "y" ]]; then
         umount /run/archiso/bootmnt
