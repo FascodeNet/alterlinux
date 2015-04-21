@@ -190,7 +190,7 @@ make_efiboot() {
     cp ${work_dir}/iso/EFI/shellx64_v2.efi ${work_dir}/efiboot/EFI/
     cp ${work_dir}/iso/EFI/shellx64_v1.efi ${work_dir}/efiboot/EFI/
 
-    umount ${work_dir}/efiboot
+    umount -d ${work_dir}/efiboot
 }
 
 # Build airootfs filesystem image

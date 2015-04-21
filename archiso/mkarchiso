@@ -59,7 +59,7 @@ _mount_airootfs() {
 
 _umount_airootfs() {
     _msg_info "Unmounting '${work_dir}/mnt/airootfs'"
-    umount "${work_dir}/mnt/airootfs"
+    umount -d "${work_dir}/mnt/airootfs"
     _msg_info "Done!"
     rmdir "${work_dir}/mnt/airootfs"
     trap - EXIT HUP INT TERM
