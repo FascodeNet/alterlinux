@@ -172,7 +172,7 @@ archiso_mount_handler() {
         mkdir -p /run/archiso/cowspace
         mount -t tmpfs -o "size=${cow_spacesize}",mode=0755 cowspace /run/archiso/cowspace
     fi
-    mkdir -p "/run/archiso/cowspace/${cow_directory}"
+    mkdir -p -m 0700 "/run/archiso/cowspace/${cow_directory}"
 
     _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" "/run/archiso/sfs/airootfs"
     if [[ -f "/run/archiso/sfs/airootfs/airootfs.img" ]]; then
