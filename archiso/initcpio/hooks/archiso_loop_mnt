@@ -26,7 +26,7 @@ archiso_loop_mount_handler () {
     archiso_mount_handler ${newroot}
 
     if [[ "${copytoram}" == "y" ]]; then
-        losetup -d ${_dev_loop}
+        losetup -d ${_dev_loop} 2>/dev/null
         umount /run/archiso/img_dev
     fi
 }

@@ -182,7 +182,7 @@ archiso_mount_handler() {
     fi
 
     if [[ "${copytoram}" == "y" ]]; then
-        umount /run/archiso/bootmnt
+        umount -d /run/archiso/bootmnt
     fi
 }
 
