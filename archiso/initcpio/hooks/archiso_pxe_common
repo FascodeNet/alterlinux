@@ -49,7 +49,9 @@ run_hook () {
 run_latehook () {
     [[ -z "${copy_resolvconf}" ]] && copy_resolvconf="y"
 
-    if [[ "${copy_resolvconf}" != "n" && -f /etc/resolv.conf ]]; then
+    if [[ "${copytoram}" == "y" ]]; then
+        ip address flush scope global
+    elif [[ "${copy_resolvconf}" != "n" && -f /etc/resolv.conf ]]; then
         cp /etc/resolv.conf /new_root/etc/resolv.conf
     fi
 }
