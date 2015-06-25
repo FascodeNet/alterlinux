@@ -41,6 +41,7 @@ parted
 partimage
 ppp
 pptpclient
+refind-efi
 rfkill
 rp-pppoe
 rsync
