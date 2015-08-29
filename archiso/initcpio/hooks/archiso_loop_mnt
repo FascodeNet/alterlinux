@@ -18,7 +18,9 @@ archiso_loop_mount_handler () {
         echo $(readlink -f ${img_dev}) >> /run/archiso/used_block_devices
     fi
 
-    if ! _dev_loop=$(losetup --find --show --read-only "/run/archiso/img_dev/${img_loop}"); then
+    if _dev_loop=$(losetup --find --show --read-only "/run/archiso/img_dev/${img_loop}"); then
+        archisodevice="${_dev_loop}"
+    else
         echo "ERROR: Setting loopback device for file '/run/archiso/img_dev/${img_loop}'"
         launch_interactive_shell
     fi

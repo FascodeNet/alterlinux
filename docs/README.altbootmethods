@@ -31,14 +31,14 @@ Note: Described method is for using with GRUB2.
 menuentry "Arch Linux (x86_64)" {
     set isofile="/<TARGET-PATH>/archlinux-<YYYY>.<MM>.<DD>-dual.iso"
     loopback loop (hd<D>,<P>)$isofile
-    linux (loop)/arch/boot/x86_64/vmlinuz archisolabel=<FS-LABEL> img_label=<TARGET-FS-LABEL> img_loop=$isofile
+    linux (loop)/arch/boot/x86_64/vmlinuz img_label=<TARGET-FS-LABEL> img_loop=$isofile
     initrd (loop)/arch/boot/x86_64/archiso.img
 }
 
 menuentry "Arch Linux (i686)" {
     set isofile="/<TARGET-PATH>/archlinux-<YYYY>.<MM>.<DD>-dual.iso"
     loopback loop (hd<D>,<P>)$isofile
-    linux (loop)/arch/boot/i686/vmlinuz archisolabel=<FS-LABEL> img_label=<TARGET-FS-LABEL> img_loop=$isofile
+    linux (loop)/arch/boot/i686/vmlinuz img_label=<TARGET-FS-LABEL> img_loop=$isofile
     initrd (loop)/arch/boot/i686/archiso.img
 }
 
