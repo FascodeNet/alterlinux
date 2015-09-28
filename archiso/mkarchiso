@@ -16,7 +16,7 @@ iso_application="Arch Linux Live/Rescue CD"
 install_dir="arch"
 work_dir="work"
 out_dir="out"
-sfs_mode="img"
+sfs_mode="sfs"
 sfs_comp="xz"
 
 # Show an INFO message
