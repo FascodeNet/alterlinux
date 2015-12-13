@@ -21,6 +21,8 @@ INDEX
                     Default: (unset)
 * archisodevice=    Set the device node where archiso medium is located.
                     Default: "/dev/disk/by-label/${archisolabel}"
+* archisoflags=     Set extra mount options, e.g. for btrfs subvolumes.
+                    Default: defaults
 * archisobasedir=   Set the base directory where all files reside.
                     Default: "arch"
 * copytoram=        If set to "y" or just "copytoram" without arguments,
@@ -35,6 +37,8 @@ INDEX
                     Default: (unset)
 * cow_device=       Like cow_label= but using device node.
                     Default: (unset) or "/dev/disk/by-label/${cow_label}"
+* cow_flags=        Set extra mount options, e.g. for btrfs subvolumes.
+                    Default: defaults
 * cow_directory=    Set a directory inside ${cow_device}.
                     Default: "/persistent_${archisolabel}/${arch}"
 * cow_persistent=   Set if snapshot is persistent "P" or non-persistent "N".
