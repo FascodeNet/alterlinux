@@ -21,8 +21,6 @@ INDEX
                     Default: (unset)
 * archisodevice=    Set the device node where archiso medium is located.
                     Default: "/dev/disk/by-label/${archisolabel}"
-* archisoflags=     Set extra mount options, e.g. for btrfs subvolumes.
-                    Default: defaults
 * archisobasedir=   Set the base directory where all files reside.
                     Default: "arch"
 * copytoram=        If set to "y" or just "copytoram" without arguments,
@@ -125,6 +123,8 @@ INDEX
                     Default: (unset)
 * img_dev=          Device where archiso-image.iso reside.
                     Default: (unset) or "/dev/disk/by-label/${img_label}"
+* img_flags=        Set extra mount options, e.g. for btrfs subvolumes.
+                    Default: defaults
 * img_loop=         Full path where archiso-image.iso is located on ${img_dev}
                     Default: (unset)
 

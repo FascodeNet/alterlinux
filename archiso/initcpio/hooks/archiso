@@ -33,7 +33,7 @@ _mnt_dmsnapshot() {
 
     dmsetup create ${dm_snap_name} --table "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} ${cow_chunksize}"
 
-    _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w"
+    _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w" "defaults"
     echo $(readlink -f /dev/mapper/${dm_snap_name}) >> /run/archiso/used_block_devices
 }
 
@@ -65,14 +65,15 @@ _mnt_sfs() {
     fi
     sfs_dev=$(losetup --find --show --read-only "${img}")
     echo ${sfs_dev} >> /run/archiso/used_block_devices
-    _mnt_dev "${sfs_dev}" "${mnt}" "-r"
+    _mnt_dev "${sfs_dev}" "${mnt}" "-r" "defaults"
 }
 
-# args: device, mountpoint, flags
+# args: device, mountpoint, flags, opts
 _mnt_dev() {
     local dev="${1}"
     local mnt="${2}"
     local flg="${3}"
+    local opts="${4}"
 
     mkdir -p "${mnt}"
 
@@ -85,7 +86,7 @@ _mnt_dev() {
         launch_interactive_shell
     done
 
-    if mount "${flg}" "${dev}" "${mnt}"; then
+    if mount -o "${opts}" "${flg}" "${dev}" "${mnt}"; then
         msg ":: Device '${dev}' mounted successfully."
     else
         echo "ERROR; Failed to mount '${dev}'"
@@ -110,7 +111,6 @@ run_hook() {
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
     [[ -z "${archisodevice}" ]] && archisodevice="/dev/disk/by-label/${archisolabel}"
-    [[ -z "${archisoflags}" ]] && archisoflags="defaults"
     [[ -z "${cow_spacesize}" ]] && cow_spacesize="256M"
 
     if [[ -n "${cow_label}" ]]; then
@@ -137,7 +137,7 @@ archiso_mount_handler() {
     local newroot="${1}"
 
     if ! mountpoint -q "/run/archiso/bootmnt"; then
-        _mnt_dev -o "${archisoflags}" "${archisodevice}" "/run/archiso/bootmnt" "-r"
+        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
         if [[ "${copytoram}" != "y" ]]; then
             echo $(readlink -f ${archisodevice}) >> /run/archiso/used_block_devices
         fi
@@ -166,7 +166,7 @@ archiso_mount_handler() {
     fi
 
     if [[ -n "${cow_device}" ]]; then
-        _mnt_dev -o "${cow_flags}" "${cow_device}" "/run/archiso/cowspace" "-r"
+        _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-r" "${cow_flags}"
         echo $(readlink -f ${cow_device}) >> /run/archiso/used_block_devices
         mount -o remount,rw "/run/archiso/cowspace"
     else

@@ -2,6 +2,7 @@
 
 run_hook () {
     [[ -n "${img_label}" ]] && img_dev="/dev/disk/by-label/${img_label}"
+    [[ -z "${img_flags}" ]] && img_flags="defaults"
     if [[ -n "${img_dev}" && -n "${img_loop}" ]]; then
         mount_handler="archiso_loop_mount_handler"
     fi
@@ -13,7 +14,7 @@ archiso_loop_mount_handler () {
     local _dev_loop
 
     msg ":: Setup a loop device from ${img_loop} located at device ${img_dev}"
-    _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r"
+    _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r" "${img_flags}"
     if [[ "${copytoram}" != "y" ]]; then
         echo $(readlink -f ${img_dev}) >> /run/archiso/used_block_devices
     fi
