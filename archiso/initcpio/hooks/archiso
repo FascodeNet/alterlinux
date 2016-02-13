@@ -105,6 +105,15 @@ _verify_checksum() {
     return ${_status}
 }
 
+_verify_signature() {
+    local _status
+    cd "/run/archiso/bootmnt/${archisobasedir}/${arch}"
+    gpg --homedir /gpg --status-fd 1 --verify airootfs.sfs.sig 2>/dev/null | grep -qE '^\[GNUPG:\] GOODSIG'
+    _status=$?
+    cd "${OLDPWD}"
+    return ${_status}
+}
+
 run_hook() {
     [[ -z "${arch}" ]] && arch="$(uname -m)"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
@@ -155,6 +164,21 @@ archiso_mount_handler() {
             fi
         else
             echo "ERROR: checksum=y option specified but ${archisobasedir}/${arch}/airootfs.md5 not found"
+            launch_interactive_shell
+        fi
+    fi
+
+    if [[ "${verify}" == "y" ]]; then
+        if [[ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs.sig" ]]; then
+            msg -n ":: Signature verification requested, please wait..."
+            if _verify_signature; then
+                msg "done. Signature is OK, continue booting."
+            else
+                echo "ERROR: one or more files are corrupted"
+                launch_interactive_shell
+            fi
+        else
+            echo "ERROR: verify=y option specified but ${archisobasedir}/${arch}/airootfs.sfs.sig not found"
             launch_interactive_shell
         fi
     fi

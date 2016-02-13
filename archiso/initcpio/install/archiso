@@ -15,6 +15,7 @@ build() {
     add_binary mountpoint
     add_binary truncate
     add_binary gpg
+    add_binary grep
 
     add_file /usr/lib/udev/rules.d/60-cdrom_id.rules
     add_file /usr/lib/udev/rules.d/10-dm.rules
