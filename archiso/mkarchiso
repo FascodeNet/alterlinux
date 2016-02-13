@@ -18,6 +18,7 @@ work_dir="work"
 out_dir="out"
 sfs_mode="sfs"
 sfs_comp="xz"
+gpg_key=
 
 # Show an INFO message
 # $1: message string
@@ -253,6 +254,14 @@ _mkchecksum () {
     _msg_info "Done!"
 }
 
+_mksignature () {
+    _msg_info "Creating signature file..."
+    cd "${work_dir}/iso/${install_dir}/${arch}"
+    gpg --detach-sign --default-key ${gpg_key} airootfs.sfs
+    cd ${OLDPWD}
+    _msg_info "Done!"
+}
+
 command_pkglist () {
     _show_config pkglist
 
@@ -319,6 +328,7 @@ command_prepare () {
         _mkairootfs_img
     fi
     _mkchecksum
+    [[ ${gpg_key} ]] && _mksignature
 }
 
 # Install packages on airootfs.
@@ -355,7 +365,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
-while getopts 'p:r:C:L:P:A:D:w:o:s:c:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
@@ -368,6 +378,7 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:vh' arg; do
         o) out_dir="${OPTARG}" ;;
         s) sfs_mode="${OPTARG}" ;;
         c) sfs_comp="${OPTARG}" ;;
+        g) gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
