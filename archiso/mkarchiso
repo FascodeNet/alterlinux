@@ -328,7 +328,9 @@ command_prepare () {
         _mkairootfs_img
     fi
     _mkchecksum
-    [[ ${gpg_key} ]] && _mksignature
+    if [[ ${gpg_key} ]]; then
+      _mksignature
+    fi
 }
 
 # Install packages on airootfs.
