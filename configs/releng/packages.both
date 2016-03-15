@@ -26,6 +26,7 @@ ipw2200-fw
 irssi
 lftp
 linux-atm
+lsscsi
 mc
 mtools
 nfs-utils
@@ -45,6 +46,8 @@ refind-efi
 rfkill
 rp-pppoe
 rsync
+sdparm
+sg3_utils
 smartmontools
 speedtouch
 sudo
