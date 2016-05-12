@@ -72,7 +72,7 @@ Note: Type "b" for FAT32, "83" for EXTFS or "7" for NTFS.
 
 2) Create a FAT32, EXTFS or NTFS filesystem on such partition and setup a label.
 Note: COW is not supported on NTFS.
-# mkfs.vfat -F 32 -n <FS-LABEL> <DEV-TARGET-N>
+# mkfs.fat -F 32 -n <FS-LABEL> <DEV-TARGET-N>
 # mkfs.ext4 -L <FS-LABEL> <DEV-TARGET-N>
 # mkfs.ntfs -L <FS-LABEL> <DEV-TARGET-N>
 
@@ -111,7 +111,7 @@ Note: Using here a GPT partition mode as example, but MBR should also works
 # gdisk <DEV-TARGET>
 
 2) Create a FAT32 filesystem on such partition and setup a label.
-# mkfs.vfat -F 32 -n <FS-LABEL> <DEV-TARGET-N>
+# mkfs.fat -F 32 -n <FS-LABEL> <DEV-TARGET-N>
 
 3) Mount target filesystem.
 # mount <DEV-TARGET-N> <MNT-TARGET-N>

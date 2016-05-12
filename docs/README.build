@@ -16,7 +16,7 @@ INDEX
  + btrfs-progs             for mkfs.btrfs (optional)
 
 ** For configs/releng build.sh needs theses packages (build host):
- + dosfstools              for mkfs.vfat
+ + dosfstools              for mkfs.fat
  + lynx                    for fetching the latest installation guide
 
 ** For these hooks needs these packages (on target airootfs)

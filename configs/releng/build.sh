@@ -170,7 +170,7 @@ make_efi() {
 make_efiboot() {
     mkdir -p ${work_dir}/iso/EFI/archiso
     truncate -s 40M ${work_dir}/iso/EFI/archiso/efiboot.img
-    mkfs.vfat -n ARCHISO_EFI ${work_dir}/iso/EFI/archiso/efiboot.img
+    mkfs.fat -n ARCHISO_EFI ${work_dir}/iso/EFI/archiso/efiboot.img
 
     mkdir -p ${work_dir}/efiboot
     mount ${work_dir}/iso/EFI/archiso/efiboot.img ${work_dir}/efiboot
