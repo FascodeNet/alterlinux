@@ -25,16 +25,19 @@ archiso_pxe_nbd_mount_handler () {
     done
 
     msg ":: Setup NBD from ${archiso_nbd_srv} at /dev/nbd0"
-    nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} /dev/nbd0
-
     if [[ "${copytoram}" != "n" ]]; then
+        nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} /dev/nbd0
         copytoram="y"
+    else
+        nbd-client ${archiso_nbd_srv} -N ${archiso_nbd_name} -systemd-mark -persist /dev/nbd0
     fi
 
     archisodevice=/dev/nbd0
 
     archiso_mount_handler ${newroot}
 
-    msg ":: Disconnect NBD from ${archiso_nbd_srv} at /dev/nbd0"
-    nbd-client -d /dev/nbd0
+    if [[ "${copytoram}" == "y" ]]; then
+        msg ":: Disconnect NBD from ${archiso_nbd_srv} at /dev/nbd0"
+        nbd-client -d /dev/nbd0
+    fi
 }
