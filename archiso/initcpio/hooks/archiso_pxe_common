@@ -47,12 +47,14 @@ run_hook () {
 }
 
 run_latehook () {
-    [[ -z "${copy_resolvconf}" ]] && copy_resolvconf="y"
+    if [[ -n "${ip}" ]]; then
+        [[ -z "${copy_resolvconf}" ]] && copy_resolvconf="y"
 
-    if [[ "${copytoram}" == "y" ]]; then
-        ip addr flush ${bootif_dev}
-        ip link set ${bootif_dev} down
-    elif [[ "${copy_resolvconf}" != "n" && -f /etc/resolv.conf ]]; then
-        cp /etc/resolv.conf /new_root/etc/resolv.conf
+        if [[ "${copytoram}" == "y" ]]; then
+            ip addr flush ${bootif_dev}
+            ip link set ${bootif_dev} down
+        elif [[ "${copy_resolvconf}" != "n" && -f /etc/resolv.conf ]]; then
+            cp /etc/resolv.conf /new_root/etc/resolv.conf
+        fi
     fi
 }
