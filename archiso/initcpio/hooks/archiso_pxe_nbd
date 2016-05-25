@@ -1,5 +1,12 @@
 # vim: set ft=sh:
 
+run_earlyhook() {
+    if [[ -n "${ip}" && -n "${archiso_nbd_srv}" ]]; then
+        # Module autoloading like with loop devices does not work, doing manually...
+         modprobe nbd 2> /dev/null
+    fi
+}
+
 run_hook() {
     if [[ -n "${ip}" && -n "${archiso_nbd_srv}" ]]; then
 
@@ -12,9 +19,6 @@ run_hook() {
 
 archiso_pxe_nbd_mount_handler () {
     newroot="${1}"
-
-    # Module autoloading like with loop devices does not work, doing manually...
-    modprobe nbd 2> /dev/null
 
     msg ":: Waiting for boot device..."
     while ! poll_device /dev/nbd0 30; do
