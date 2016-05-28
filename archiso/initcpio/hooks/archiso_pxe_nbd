@@ -3,7 +3,7 @@
 run_earlyhook() {
     if [[ -n "${ip}" && -n "${archiso_nbd_srv}" ]]; then
         # Module autoloading like with loop devices does not work, doing manually...
-         modprobe nbd 2> /dev/null
+        modprobe nbd 2> /dev/null
     fi
 }
 
