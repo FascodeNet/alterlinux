@@ -29,6 +29,7 @@ linux-atm
 lsscsi
 mc
 mtools
+ndisc6
 nfs-utils
 nilfs-utils
 nmap
