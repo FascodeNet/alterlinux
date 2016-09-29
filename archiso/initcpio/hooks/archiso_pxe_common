@@ -47,6 +47,7 @@ run_hook () {
         fi
         if [[ -n "${DNSDOMAIN}" ]]; then
             echo "search ${DNSDOMAIN}" >> /etc/resolv.conf
+            echo "domain ${DNSDOMAIN}" >> /etc/resolv.conf
         fi
     fi
 }
