@@ -45,6 +45,9 @@ run_hook () {
         if [[ "${IPV4DNS1}" != "0.0.0.0" ]]; then
             echo "nameserver ${IPV4DNS1}" >> /etc/resolv.conf
         fi
+        if [[ -n "${DNSDOMAIN}" ]]; then
+            echo "search ${DNSDOMAIN}" >> /etc/resolv.conf
+        fi
     fi
 }
 
