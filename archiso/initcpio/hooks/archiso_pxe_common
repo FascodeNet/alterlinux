@@ -39,7 +39,8 @@ run_hook () {
 
         # setup DNS resolver
         if [[ "${IPV4DNS0}" != "0.0.0.0" ]]; then
-            echo "nameserver ${IPV4DNS0}" > /etc/resolv.conf
+            echo "# added by archiso_pxe_common hook" > /etc/resolv.conf
+            echo "nameserver ${IPV4DNS0}" >> /etc/resolv.conf
         fi
         if [[ "${IPV4DNS1}" != "0.0.0.0" ]]; then
             echo "nameserver ${IPV4DNS1}" >> /etc/resolv.conf
