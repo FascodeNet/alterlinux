@@ -13,6 +13,7 @@ dnsutils
 dosfstools
 elinks
 ethtool
+exfat-utils
 f2fs-tools
 fsarchiver
 gnu-netcat
