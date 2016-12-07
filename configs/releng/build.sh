@@ -169,7 +169,7 @@ make_efi() {
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
     mkdir -p ${work_dir}/iso/EFI/archiso
-    truncate -s 40M ${work_dir}/iso/EFI/archiso/efiboot.img
+    truncate -s 64M ${work_dir}/iso/EFI/archiso/efiboot.img
     mkfs.fat -n ARCHISO_EFI ${work_dir}/iso/EFI/archiso/efiboot.img
 
     mkdir -p ${work_dir}/efiboot
