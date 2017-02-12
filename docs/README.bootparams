@@ -49,7 +49,7 @@ INDEX
                     Default: "256M"
 * cow_chunksize=    Set chunksize used for dm-snapshot. This is number
                     of 512 byte blocks to write at once.
-		    Default: "8"
+                    Default: "8"
 * copytoram_size=   Set the size of tmpfs. This space is used for
                     airootfs.sfs image if copytoram=y.
                     Size is in bytes (suffix with "k", "m" and "g") or

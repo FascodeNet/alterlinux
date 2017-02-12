@@ -54,9 +54,9 @@ Nomeclature:
 <MNT-TARGET-N>: Mount point path where <DEV-TARGET-N> is mounted
                 (example: /mnt/sdx/1)
 <ISO-SOURCE>:   Path to the ISO file archlinux-<YYYY>.<MM>.<DD>-dual.iso
-                (example: ~/archlinux-2012.07.22-dual.iso)
+                (example: ~/archlinux-2017.03.01-dual.iso)
 <FS-LABEL>:     Represents the filesystem label of the <ISO-SOURCE>
-                (example: ARCH_201302)
+                (example: ARCH_201703)
 
 
 * PC-BIOS (MBR):
