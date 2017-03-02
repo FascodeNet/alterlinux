@@ -13,7 +13,7 @@ INDEX
 
 *** Transfer ISO image to target medium (configs/releng)
 
-ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-dual.iso
+ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
 
 Where:
     <YYYY> Year
@@ -34,7 +34,7 @@ Nomeclature:
 
 
 1) Write it directly using your favorite recording program.
-# cdrecord dev=<B>,<T>,<L> -dao archlinux-<YYYY>.<MM>.<DD>-dual.iso
+# cdrecord dev=<B>,<T>,<L> -dao archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
 
 
 ** To -> USB Flash Drive (USB-key) / Memory card (SD) /
@@ -53,8 +53,8 @@ Nomeclature:
                 (example: /dev/sdx1)
 <MNT-TARGET-N>: Mount point path where <DEV-TARGET-N> is mounted
                 (example: /mnt/sdx/1)
-<ISO-SOURCE>:   Path to the ISO file archlinux-<YYYY>.<MM>.<DD>-dual.iso
-                (example: ~/archlinux-2017.03.01-dual.iso)
+<ISO-SOURCE>:   Path to the ISO file archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
+                (example: ~/archlinux-2017.03.01-x86_64.iso)
 <FS-LABEL>:     Represents the filesystem label of the <ISO-SOURCE>
                 (example: ARCH_201703)
 

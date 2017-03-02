@@ -13,7 +13,7 @@ INDEX
 
 *** Alternative boot methods (configs/releng)
 
-ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-dual.iso
+ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
 
 Where:
     <YYYY> Year
@@ -24,12 +24,12 @@ Where:
 ** ISO in loopback mode.
 
 Note: Described method is for using with GRUB2.
-      GRUB2 is installed on target media and archlinux-<YYYY>.<MM>.<DD>-dual.iso
+      GRUB2 is installed on target media and archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
       is at path <TARGET-PATH> on disk <D> and partition <P>,
       where filesystem is labeled as <TARGET-FS-LABEL>.
 
 menuentry "Arch Linux (x86_64)" {
-    set isofile="/<TARGET-PATH>/archlinux-<YYYY>.<MM>.<DD>-dual.iso"
+    set isofile="/<TARGET-PATH>/archlinux-<YYYY>.<MM>.<DD>-x86_64.iso"
     loopback loop (hd<D>,<P>)$isofile
     linux (loop)/arch/boot/x86_64/vmlinuz img_label=<TARGET-FS-LABEL> img_loop=$isofile
     initrd (loop)/arch/boot/x86_64/archiso.img
@@ -40,13 +40,13 @@ menuentry "Arch Linux (x86_64)" {
 
 Note: Described method is for using with SYSLINUX. Anyway MEMDISK from SYSLINUX can work
       with other bootloaders.
-      SYSLINUX is installed on target media and archlinux-<YYYY>.<MM>.<DD>-dual.iso
+      SYSLINUX is installed on target media and archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
       is at path <TARGET-PATH>.
 
 
 LABEL arch_x64
    LINUX memdisk
-   INITRD /<TARGET-PATH>/archlinux-<YYYY>.<MM>.<DD>-dual.iso
+   INITRD /<TARGET-PATH>/archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
    APPEND iso
 
 
