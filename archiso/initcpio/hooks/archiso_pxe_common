@@ -22,7 +22,11 @@ run_hook () {
                     break
                 fi
             done
-            ip="${ip}::${bootif_dev}"
+	    if [[ "${ip}" == "dhcp" ]]; then
+                ip=":::::${bootif_dev}:dhcp"
+	    else
+                ip="${ip}::${bootif_dev}"
+            fi
         fi
 
         # setup network and save some values
