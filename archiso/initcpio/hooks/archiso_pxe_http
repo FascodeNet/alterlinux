@@ -41,7 +41,7 @@ archiso_pxe_http_mount_handler () {
     _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs" "/${arch}"
 
     if [[ "${checksum}" == "y" ]]; then
-        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.md5" "/${arch}"
+        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sha512" "/${arch}"
     fi
     if [[ "${verify}" == "y" ]]; then
         _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs.sig" "/${arch}"

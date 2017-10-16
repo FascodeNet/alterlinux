@@ -249,7 +249,7 @@ _mkairootfs_sfs () {
 _mkchecksum () {
     _msg_info "Creating checksum file for self-test..."
     cd "${work_dir}/iso/${install_dir}/${arch}"
-    md5sum airootfs.sfs > airootfs.md5
+    sha512sum airootfs.sfs > airootfs.sha512
     cd ${OLDPWD}
     _msg_info "Done!"
 }
