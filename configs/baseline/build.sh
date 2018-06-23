@@ -12,6 +12,8 @@ out_dir=out
 
 script_path=$(readlink -f ${0%/*})
 
+umask 0022
+
 # Helper function to run make_*() only one time per architecture.
 run_once() {
     if [[ ! -e ${work_dir}/build.${1}_${arch} ]]; then

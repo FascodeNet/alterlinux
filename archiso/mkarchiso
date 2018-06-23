@@ -367,6 +367,8 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
+umask 0022
+
 while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
