@@ -266,7 +266,7 @@ command_pkglist () {
     _show_config pkglist
 
     _msg_info "Creating a list of installed packages on live-enviroment..."
-    pacman -Sl -r "${work_dir}/airootfs" --config "${pacman_conf}" | \
+    pacman -Sl --sysroot "${work_dir}/airootfs" --config "${pacman_conf}" | \
         awk '/\[installed\]$/ {print $1 "/" $2 "-" $3}' > \
         "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
     _msg_info "Done!"
