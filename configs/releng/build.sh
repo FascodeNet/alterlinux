@@ -4,6 +4,8 @@ set -e -u
 
 iso_name=archlinux
 iso_label="ARCH_$(date +%Y%m)"
+iso_publisher="Arch Linux <http://www.archlinux.org>"
+iso_application="Arch Linux Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=arch
 work_dir=work
@@ -26,6 +28,10 @@ _usage ()
     echo "                        Default: ${iso_version}"
     echo "    -L <iso_label>     Set an iso label (disk label)"
     echo "                        Default: ${iso_label}"
+    echo "    -P <publisher>     Set a publisher for the disk"
+    echo "                        Default: '${iso_publisher}'"
+    echo "    -A <application>   Set an application name for the disk"
+    echo "                        Default: '${iso_application}'"
     echo "    -D <install_dir>   Set an install_dir (directory inside iso)"
     echo "                        Default: ${install_dir}"
     echo "    -w <work_dir>      Set the working directory"
@@ -209,7 +215,7 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
 }
 
 if [[ ${EUID} -ne 0 ]]; then
@@ -217,11 +223,13 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:D:w:o:g:vh' arg; do
+while getopts 'N:V:L:P:A:D:w:o:g:vh' arg; do
     case "${arg}" in
         N) iso_name="${OPTARG}" ;;
         V) iso_version="${OPTARG}" ;;
         L) iso_label="${OPTARG}" ;;
+        P) iso_publisher="${OPTARG}" ;;
+        A) iso_application="${OPTARG}" ;;
         D) install_dir="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
