@@ -107,6 +107,16 @@ make_customize_airootfs() {
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
+# Prepare amd_ucode
+make_amd_ucode_img() {
+    mkdir -p ${work_dir}/amd-ucode/kernel/x86/microcode
+    cat ${work_dir}/x86_64/airootfs/lib/firmware/amd-ucode/microcode_amd*.bin > ${work_dir}/amd-ucode/kernel/x86/microcode/AuthenticAMD.bin
+    pushd ${work_dir}/amd-ucode > /dev/null
+    echo kernel/x86/microcode/AuthenticAMD.bin | bsdcpio -o -H newc -R 0:0 > amd-ucode.img
+    popd > /dev/null
+    cp ${work_dir}/amd-ucode/amd-ucode.img ${work_dir}/x86_64/airootfs/boot/amd-ucode.img
+}
+
 # Prepare kernel/initramfs ${install_dir}/boot/
 make_boot() {
     mkdir -p ${work_dir}/iso/${install_dir}/boot/x86_64
@@ -120,6 +130,8 @@ make_boot_extra() {
     cp ${work_dir}/x86_64/airootfs/usr/share/licenses/common/GPL2/license.txt ${work_dir}/iso/${install_dir}/boot/memtest.COPYING
     cp ${work_dir}/x86_64/airootfs/boot/intel-ucode.img ${work_dir}/iso/${install_dir}/boot/intel_ucode.img
     cp ${work_dir}/x86_64/airootfs/usr/share/licenses/intel-ucode/LICENSE ${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE
+    cp ${work_dir}/x86_64/airootfs/boot/amd-ucode.img ${work_dir}/iso/${install_dir}/boot/amd_ucode.img
+    cp ${work_dir}/x86_64/airootfs/usr/share/licenses/linux-firmware/LICENSE.amd-ucode ${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -185,6 +197,7 @@ make_efiboot() {
     cp ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img ${work_dir}/efiboot/EFI/archiso/archiso.img
 
     cp ${work_dir}/iso/${install_dir}/boot/intel_ucode.img ${work_dir}/efiboot/EFI/archiso/intel_ucode.img
+    cp ${work_dir}/iso/${install_dir}/boot/amd_ucode.img ${work_dir}/efiboot/EFI/archiso/amd_ucode.img
 
     mkdir -p ${work_dir}/efiboot/EFI/boot
     cp ${work_dir}/x86_64/airootfs/usr/share/efitools/efi/PreLoader.efi ${work_dir}/efiboot/EFI/boot/bootx64.efi
@@ -253,6 +266,7 @@ run_once make_basefs
 run_once make_packages
 run_once make_setup_mkinitcpio
 run_once make_customize_airootfs
+run_once make_amd_ucode_img
 run_once make_boot
 run_once make_boot_extra
 run_once make_syslinux
