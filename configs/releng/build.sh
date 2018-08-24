@@ -61,7 +61,7 @@ make_pacman_conf() {
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
-    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
+    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
 }
 
 # Additional packages (airootfs)
@@ -105,16 +105,6 @@ make_customize_airootfs() {
 
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r '/root/customize_airootfs.sh' run
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
-}
-
-# Prepare amd_ucode
-make_amd_ucode_img() {
-    mkdir -p ${work_dir}/amd-ucode/kernel/x86/microcode
-    cat ${work_dir}/x86_64/airootfs/lib/firmware/amd-ucode/microcode_amd*.bin > ${work_dir}/amd-ucode/kernel/x86/microcode/AuthenticAMD.bin
-    pushd ${work_dir}/amd-ucode > /dev/null
-    echo kernel/x86/microcode/AuthenticAMD.bin | bsdcpio -o -H newc -R 0:0 > amd-ucode.img
-    popd > /dev/null
-    cp ${work_dir}/amd-ucode/amd-ucode.img ${work_dir}/x86_64/airootfs/boot/amd-ucode.img
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/
@@ -266,7 +256,6 @@ run_once make_basefs
 run_once make_packages
 run_once make_setup_mkinitcpio
 run_once make_customize_airootfs
-run_once make_amd_ucode_img
 run_once make_boot
 run_once make_boot_extra
 run_once make_syslinux
