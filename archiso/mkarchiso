@@ -217,6 +217,7 @@ _mkairootfs_img () {
     _mount_airootfs
     _msg_info "Copying '${work_dir}/airootfs/' to '${work_dir}/mnt/airootfs/'..."
     cp -aT "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
+    chown root:root "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
     _umount_airootfs
     mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
