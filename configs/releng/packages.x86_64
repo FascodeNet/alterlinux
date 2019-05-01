@@ -61,5 +61,6 @@ vpnc
 wget
 wireless-regdb
 wireless_tools
+wpa_supplicant
 wvdial
 xl2tpd
