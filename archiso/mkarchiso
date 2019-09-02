@@ -93,7 +93,7 @@ _usage ()
     echo "                     img: prepare airootfs.sfs for dm-snapshot usage"
     echo "                     sfs: prepare airootfs.sfs for overlayfs usage"
     echo "                     Default: ${sfs_mode}"
-    echo "    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz)"
+    echo "    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                     Default: '${sfs_comp}'"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
