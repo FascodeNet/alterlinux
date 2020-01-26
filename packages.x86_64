@@ -69,8 +69,6 @@ tcpdump
 testdisk
 usb_modeswitch
 usbutils
-vi
-vim-minimal
 vpnc
 wget
 wireless-regdb
@@ -111,3 +109,8 @@ gparted
 ## Grub
 grub
 os-prober
+
+## Text Editor
+vi
+vim-minimal
+nano
