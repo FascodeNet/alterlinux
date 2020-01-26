@@ -114,6 +114,11 @@ os-prober
 ## Audio
 pulseaudio
 
+# Archivers
+unrar
+unzip-iconv
+xarchiver
+
 
 #-- AlterLinux utilities --#
 
