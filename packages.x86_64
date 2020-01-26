@@ -84,15 +84,24 @@ xl2tpd
 
 #-- AlterLinux --#
 
-# bash
+## bash
 bash-completion
 
-# Bluetooth
+## Bluetooth
 blueman
 bluez
 bluez-utils
+
+## Calamares Installer
 calamares
 
-# gvfs
+## gvfs
 gvfs
 gvfs-smb
+
+## Linux Kernel
+linux
+linux-headers
+
+## System Monitor
+gnome-system-monitor
