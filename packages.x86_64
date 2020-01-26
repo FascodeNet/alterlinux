@@ -83,4 +83,8 @@ xl2tpd
 
 
 # AlterLinux
+
+blueman
+bluez
+bluez-utils
 calamares
