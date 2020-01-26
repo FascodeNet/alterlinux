@@ -25,7 +25,6 @@ gnu-netcat
 gpm
 gptfdisk
 grml-zsh-config
-grub
 hdparm
 ipw2100-fw
 ipw2200-fw
@@ -108,3 +107,7 @@ gnome-system-monitor
 
 ## Gparted
 gparted
+
+## Grub
+grub
+os-prober
