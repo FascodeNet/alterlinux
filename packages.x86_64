@@ -1,3 +1,5 @@
+# ArchLinux base package
+
 arch-install-scripts
 b43-fwcutter
 broadcom-wl
@@ -78,3 +80,7 @@ wpa_supplicant
 wvdial
 xfsprogs
 xl2tpd
+
+
+# AlterLinux
+calamares
