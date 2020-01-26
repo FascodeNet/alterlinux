@@ -79,7 +79,7 @@ xfsprogs
 xl2tpd
 
 
-#-- AlterLinux --#
+#-- AlterLinux system tools --#
 
 ## bash
 bash-completion
@@ -110,7 +110,31 @@ gparted
 grub
 os-prober
 
+
+#-- AlterLinux utilities --#
+
 ## Text Editor
 vi
 vim-minimal
 nano
+
+#-- Desktop environment --#
+
+# xfce4 groups
+xfce4-session
+xfce4-settings
+xfce4-terminal
+xfce4-panel
+xfce4-power-manager
+xfce4-appfinder
+
+# xfce4 plugins
+xfce4-pulseaudio-plugin
+xfce4-whiskermenu-plugin
+xfce4-calculator-plugin
+xfce4-clipman-plugin
+
+# Thunar plugins
+thunar-archive-plugin
+thunar-media-tags-plugin
+
