@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Thunar File Manager
+Name[ja]=Thunar ファイルマネージャー
+Comment=Browse the filesystem with the file manager
+Comment[ja]=ファイルマネージャーでファイルシステムを参照します
+GenericName=File Manager
+GenericName[ja]=ファイルマネージャー
+Exec=thunar %F
+Icon=Thunar
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=System;Utility;Core;GTK;FileTools;FileManager;
+MimeType=inode/directory;
+X-XFCE-Source=file:///usr/share/applications/thunar.desktop
