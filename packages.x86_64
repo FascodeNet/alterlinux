@@ -83,7 +83,7 @@ xl2tpd
 
 
 # AlterLinux
-
+bash-completion
 blueman
 bluez
 bluez-utils
