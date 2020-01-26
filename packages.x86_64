@@ -142,6 +142,11 @@ xorg-xinit
 
 
 # xfce4 groups
+exo
+garcon
+thunar
+thunar-volman
+tumbler
 xfce4-session
 xfce4-settings
 xfce4-terminal
