@@ -11,6 +11,14 @@ usermod -s /usr/bin/zsh root
 cp -aT /etc/skel/ /root/
 chmod 700 /root
 
+<<DISABLED
+useradd -m -s /bin/bash alter
+groupadd sudo
+usermod -G sudo arch
+sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
+cp -aT /etc/skel/ /home/arch/
+DISABLED
+
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
 sed -i 's/#\(Storage=\)auto/\1volatile/' /etc/systemd/journald.conf
