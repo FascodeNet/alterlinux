@@ -114,10 +114,13 @@ os-prober
 ## Audio
 pulseaudio
 
-# Archivers
+## Archivers
 unrar
 unzip-iconv
 xarchiver
+
+## Network
+networkmanager
 
 
 #-- AlterLinux utilities --#
