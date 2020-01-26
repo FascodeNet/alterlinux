@@ -124,6 +124,11 @@ nano
 
 #-- Desktop environment --#
 
+# Xorg
+xorg-server
+xorg-xinit
+
+
 # xfce4 groups
 xfce4-session
 xfce4-settings
@@ -131,6 +136,10 @@ xfce4-terminal
 xfce4-panel
 xfce4-power-manager
 xfce4-appfinder
+xfconf
+xfdesktop
+xfwm4
+xfwm4-themes
 
 # xfce4 plugins
 xfce4-pulseaudio-plugin
