@@ -1,4 +1,4 @@
-# ArchLinux base package
+#-- ArchLinux base package --#
 
 arch-install-scripts
 b43-fwcutter
@@ -82,9 +82,17 @@ xfsprogs
 xl2tpd
 
 
-# AlterLinux
+#-- AlterLinux --#
+
+# bash
 bash-completion
+
+# Bluetooth
 blueman
 bluez
 bluez-utils
 calamares
+
+# gvfs
+gvfs
+gvfs-smb
