@@ -127,7 +127,11 @@ vi
 vim-minimal
 nano
 
-#-- Desktop environment --#
+#-- GUI and Desktop environment --#
+
+# Display Manager
+lightdm
+lightdm-gtk-greeter
 
 # Xorg
 xorg-server
