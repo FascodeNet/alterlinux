@@ -163,6 +163,7 @@ xfce4-pulseaudio-plugin
 xfce4-whiskermenu-plugin
 xfce4-calculator-plugin
 xfce4-clipman-plugin
+xfce4-docklike-plugin-git
 
 # Thunar plugins
 thunar-archive-plugin
