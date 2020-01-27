@@ -167,7 +167,3 @@ xfce4-clipman-plugin
 # Thunar plugins
 thunar-archive-plugin
 thunar-media-tags-plugin
-
-# Theme
-materia-gtk-theme
-paper-icon-theme
