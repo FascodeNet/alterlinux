@@ -8,9 +8,11 @@ locale-gen
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 # usermod -s /usr/bin/zsh root
-usermod -s /usr/bin/bash root
+usermod -s /bin/bash root
 cp -aT /etc/skel/ /root/
 chmod 700 /root
+LC_ALL=C xdg-user-dirs-update
+LANG=C xdg-user-dirs-update
 
 <<DISABLED
 useradd -m -s /bin/bash alter
