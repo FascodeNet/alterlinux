@@ -122,6 +122,9 @@ xarchiver
 ## Network
 networkmanager
 
+## user directory
+xdg-user-dirs
+
 
 #-- AlterLinux utilities --#
 
