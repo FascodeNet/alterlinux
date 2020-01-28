@@ -172,6 +172,6 @@ xfce4-docklike-plugin-git
 thunar-archive-plugin
 thunar-media-tags-plugin
 
-# Thunar plugins
-thunar-archive-plugin
-thunar-media-tags-plugin
+# Theme
+materia-gtk-theme
+paper-icon-theme
