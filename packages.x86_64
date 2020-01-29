@@ -175,3 +175,8 @@ thunar-media-tags-plugin
 # Theme
 materia-gtk-theme
 paper-icon-theme
+
+# Fonts
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
