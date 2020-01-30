@@ -41,13 +41,13 @@ windowSize: 800px,520px
 # bootloaderEntryName is how this installation / distro is named
 # in the boot loader (e.g. in the GRUB menu).
 strings:
-    productName:         Madeleine OS
-    shortProductName:    Madeleine OS
+    productName:         Alter Linux
+    shortProductName:    Alter Linux
     version:             
     shortVersion:        
-    versionedName:       Madeleine OS
-    shortVersionedName:  Madeleine OS
-    bootloaderEntryName: Madeleine OS
+    versionedName:       Alter Linux
+    shortVersionedName:  Alter Linux
+    bootloaderEntryName: Alter Linux
 
 # These images are loaded from the branding module directory.
 #
