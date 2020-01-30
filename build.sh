@@ -8,6 +8,7 @@ iso_publisher="Alter Linux <http://www.archlinux.org>"
 iso_application="Alter Linux Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=alter
+plymouth=false
 work_dir=work
 out_dir=out
 gpg_key=
@@ -38,6 +39,7 @@ _usage ()
     echo "                        Default: ${work_dir}"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
+    echo "    -p                 Enable plymouth."
     echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
@@ -62,11 +64,14 @@ make_pacman_conf() {
 make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
+    if [[ $plymouth = true ]]; then
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+    fi
 }
 
 # Additional packages (airootfs)
 make_packages() {
-    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^# ${script_path}/packages.x86_64)" install
+    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -81,7 +86,11 @@ make_setup_mkinitcpio() {
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" ${work_dir}/x86_64/airootfs/etc/initcpio/install/archiso_shutdown
     cp /usr/lib/initcpio/install/archiso_kms ${work_dir}/x86_64/airootfs/etc/initcpio/install
     cp /usr/lib/initcpio/archiso_shutdown ${work_dir}/x86_64/airootfs/etc/initcpio
-    cp ${script_path}/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+    if [[ $plymouth = true ]]; then
+        cp ${script_path}/mkinitcpio/archiso/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+    else
+        cp ${script_path}/mkinitcpio/archiso/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+    fi
     gnupg_fd=
     if [[ ${gpg_key} ]]; then
       gpg --export ${gpg_key} >${work_dir}/gpgkey
@@ -96,6 +105,10 @@ make_setup_mkinitcpio() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     cp -af ${script_path}/airootfs ${work_dir}/x86_64
+
+    if [[ $plymouth = true ]]; then
+        cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
+    fi
 
     cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
 
@@ -229,7 +242,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:P:A:D:w:o:g:vh' arg; do
+while getopts 'N:V:L:P:A:D:w:o:g:vhp' arg; do
     case "${arg}" in
         N) iso_name="${OPTARG}" ;;
         V) iso_version="${OPTARG}" ;;
@@ -241,6 +254,7 @@ while getopts 'N:V:L:P:A:D:w:o:g:vh' arg; do
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         v) verbose="-v" ;;
+        p) plymouth=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'"
