@@ -64,8 +64,8 @@ strings:
 #       the window. Use `welcomeExpandingLogo` to make it non-scaled.
 #       Recommended size is 320x150.
 images:
-    productLogo:         "logo.png"
-    productIcon:         "logo.png"
+    productIcon:         "logo-16.png"
+    productLogo:         "logo-128.png"
     productWelcome:      "languages.png"
 
 # The slideshow is displayed during execution steps (e.g. when the
