@@ -126,7 +126,7 @@ networkmanager
 xdg-user-dirs
 
 
-#-- AlterLinux utilities --#
+#-- GUI Application --#
 
 ## Text Editor
 vi
@@ -135,6 +135,12 @@ nano
 
 ## Photo viewer
 viewnior
+
+# Web browser
+chromium
+chromium-widevine
+
+
 
 #-- GUI and Desktop environment --#
 
