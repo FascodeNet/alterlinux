@@ -39,5 +39,5 @@ sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 # To disable start up of lightdm.
 # If it is enable, Users have to enter password.
 systemctl disable lightdm
-systemctl enable pacman-init.service choose-mirror.service
+systemctl enable pacman-init.service choose-mirror.service org.cups.cupsd.service
 systemctl set-default multi-user.target

@@ -125,6 +125,10 @@ networkmanager
 ## user directory
 xdg-user-dirs
 
+## Printers
+cups
+cups-pdf
+
 
 #-- GUI Application --#
 
