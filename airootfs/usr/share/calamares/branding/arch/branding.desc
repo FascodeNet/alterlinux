@@ -41,13 +41,13 @@ windowSize: 800px,520px
 # bootloaderEntryName is how this installation / distro is named
 # in the boot loader (e.g. in the GRUB menu).
 strings:
-    productName:         Madeleine OS
-    shortProductName:    Madeleine OS
+    productName:         Alter Linux
+    shortProductName:    Alter Linux
     version:             
     shortVersion:        
-    versionedName:       Madeleine OS
-    shortVersionedName:  Madeleine OS
-    bootloaderEntryName: Madeleine OS
+    versionedName:       Alter Linux
+    shortVersionedName:  Alter Linux
+    bootloaderEntryName: Alter Linux
 
 # These images are loaded from the branding module directory.
 #
@@ -64,8 +64,8 @@ strings:
 #       the window. Use `welcomeExpandingLogo` to make it non-scaled.
 #       Recommended size is 320x150.
 images:
-    productLogo:         "logo.png"
-    productIcon:         "logo.png"
+    productIcon:         "logo-16.png"
+    productLogo:         "logo-128.png"
     productWelcome:      "languages.png"
 
 # The slideshow is displayed during execution steps (e.g. when the
