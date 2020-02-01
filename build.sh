@@ -12,6 +12,7 @@ plymouth=false
 work_dir=work
 out_dir=out
 gpg_key=
+password=alter
 
 verbose=""
 script_path=$(readlink -f ${0%/*})
@@ -116,7 +117,7 @@ make_customize_airootfs() {
 
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
 
-    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r '/root/customize_airootfs.sh' run
+    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
@@ -242,7 +243,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:P:A:D:w:o:g:vhb' arg; do
+while getopts 'N:V:L:P:A:D:w:o:g:p:vhb' arg; do
     case "${arg}" in
         N) iso_name="${OPTARG}" ;;
         V) iso_version="${OPTARG}" ;;
@@ -250,6 +251,7 @@ while getopts 'N:V:L:P:A:D:w:o:g:vhb' arg; do
         P) iso_publisher="${OPTARG}" ;;
         A) iso_application="${OPTARG}" ;;
         D) install_dir="${OPTARG}" ;;
+        p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
