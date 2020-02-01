@@ -2,6 +2,18 @@
 
 set -e -u
 
+# パスワード
+password=alter
+
+# オプション解析
+while getopts 'p:' arg; do
+    case "${arg}" in
+        p) password=${OPTARG};;
+    esac
+done
+
+
+
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 
@@ -13,14 +25,23 @@ cp -aT /etc/skel/ /root/
 chmod 700 /root
 LC_ALL=C xdg-user-dirs-update
 LANG=C xdg-user-dirs-update
+echo -e "${password}\n${password}" | passwd root
 
-<<DISABLED
+
 useradd -m -s /bin/bash alter
 groupadd sudo
-usermod -G sudo arch
+usermod -G sudo alter
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
-cp -aT /etc/skel/ /home/arch/
-DISABLED
+cp -aT /etc/skel/ /home/alter/
+chmod 700 -R /home/alter
+chown alter:alter -R /home/alter
+echo -e "${password}\n${password}" | passwd alter
+
+cat >> /etc/sudoers << 'EOF'
+alter ALL=NOPASSWD: /usr/bin/calamares
+alter ALL=NOPASSWD: /usr/bin/calamares_polkit
+EOF
+
 
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
 rm /usr/share/backgrounds/xfce/xfce-stripes.png
