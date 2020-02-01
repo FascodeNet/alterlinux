@@ -39,7 +39,7 @@ _usage ()
     echo "                        Default: ${work_dir}"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
-    echo "    -p                 Enable plymouth."
+    echo "    -b                 Enable boot splash."
     echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
@@ -242,7 +242,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:P:A:D:w:o:g:vhp' arg; do
+while getopts 'N:V:L:P:A:D:w:o:g:vhb' arg; do
     case "${arg}" in
         N) iso_name="${OPTARG}" ;;
         V) iso_version="${OPTARG}" ;;
@@ -254,7 +254,7 @@ while getopts 'N:V:L:P:A:D:w:o:g:vhp' arg; do
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         v) verbose="-v" ;;
-        p) plymouth=true ;;
+        b) plymouth=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'"
