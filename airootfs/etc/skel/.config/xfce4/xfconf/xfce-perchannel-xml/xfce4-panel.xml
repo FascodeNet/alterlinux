@@ -87,9 +87,21 @@
     </property>
     <property name="plugin-2" type="string" value="docklike"/>
     <property name="plugin-3" type="string" value="whiskermenu"/>
-    <property name="plugin-4" type="string" value="launcher"/>
-    <property name="plugin-5" type="string" value="launcher"/>
-    <property name="plugin-6" type="string" value="launcher"/>
+    <property name="plugin-4" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="15804945041.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-5" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="15804945192.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-6" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="15804945513.desktop"/>
+      </property>
+    </property>
     <property name="plugin-11" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
@@ -112,7 +124,11 @@
     <property name="plugin-22" type="string" value="pulseaudio">
       <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
     </property>
-    <property name="plugin-23" type="string" value="systray"/>
+    <property name="plugin-23" type="string" value="systray">
+      <property name="names-ordered" type="array">
+        <value type="string" value="blueman-tray"/>
+      </property>
+    </property>
     <property name="plugin-24" type="string" value="showdesktop"/>
   </property>
 </channel>

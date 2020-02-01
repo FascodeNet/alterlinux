@@ -1,7 +1,7 @@
 favorites=exo-terminal-emulator.desktop,exo-file-manager.desktop,exo-mail-reader.desktop,exo-web-browser.desktop
-recent=exo-file-manager.desktop,exo-terminal-emulator.desktop,xfce-display-settings.desktop,exo-web-browser.desktop
+recent=xfce-settings-manager.desktop,exo-file-manager.desktop,exo-terminal-emulator.desktop,xfce-display-settings.desktop,exo-web-browser.desktop
 button-title=Alter
-button-icon=xfce4-whiskermenu
+button-icon=alter
 button-single-row=false
 show-button-title=true
 show-button-icon=true

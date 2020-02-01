@@ -133,8 +133,8 @@ cups-pdf
 #-- GUI Application --#
 
 ## Text Editor
-vi
-vim-minimal
+# vi
+# vim-minimal
 nano
 
 ## Photo viewer
