@@ -39,6 +39,8 @@ _usage ()
     echo "                        Default: ${work_dir}"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
+    echo "    -p <password>      Set a live user password"
+    echo "                        Default: alter"
     echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
