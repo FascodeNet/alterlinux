@@ -17,9 +17,9 @@ LANG=C xdg-user-dirs-update
 
 useradd -m -s /bin/bash alter
 groupadd sudo
-usermod -G sudo arch
+usermod -G sudo alter
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
-cp -aT /etc/skel/ /home/arch/
+cp -aT /etc/skel/ /home/alter/
 
 
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
