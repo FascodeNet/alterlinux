@@ -8,4 +8,4 @@ HOME_URL="https://www.archlinux.org/"
 DOCUMENTATION_URL="https://wiki.archlinux.org/"
 SUPPORT_URL="https://bbs.archlinux.org/"
 BUG_REPORT_URL="https://bugs.archlinux.org/"
-LOGO=archlinux
+LOGO=alter

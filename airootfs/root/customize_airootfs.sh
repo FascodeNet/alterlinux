@@ -35,6 +35,9 @@ sed -i 's/#\(HandleSuspendKey=\)suspend/\1ignore/' /etc/systemd/logind.conf
 sed -i 's/#\(HandleHibernateKey=\)hibernate/\1ignore/' /etc/systemd/logind.conf
 sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 
+# Create Icon Cache
+gtk-update-icon-cache -f /usr/share/icons/hicolor
+
 
 # To disable start up of lightdm.
 # If it is enable, Users have to enter password.
