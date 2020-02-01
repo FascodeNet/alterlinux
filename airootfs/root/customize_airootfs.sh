@@ -20,6 +20,8 @@ groupadd sudo
 usermod -G sudo alter
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 cp -aT /etc/skel/ /home/alter/
+chmod 700 -R /home/alter
+chown alter:alter -R /home/alter
 
 
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
