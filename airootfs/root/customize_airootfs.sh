@@ -14,13 +14,13 @@ chmod 700 /root
 LC_ALL=C xdg-user-dirs-update
 LANG=C xdg-user-dirs-update
 
-<<DISABLED
+
 useradd -m -s /bin/bash alter
 groupadd sudo
 usermod -G sudo arch
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 cp -aT /etc/skel/ /home/arch/
-DISABLED
+
 
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
 rm /usr/share/backgrounds/xfce/xfce-stripes.png
