@@ -37,6 +37,11 @@ chmod 700 -R /home/alter
 chown alter:alter -R /home/alter
 echo -e "${password}\n${password}" | passwd alter
 
+cat >> /etc/sudoers << 'EOF'
+alter ALL=NOPASSWD: /usr/bin/calamares
+alter ALL=NOPASSWD: /usr/bin/calamares_polkit
+EOF
+
 
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
 rm /usr/share/backgrounds/xfce/xfce-stripes.png
