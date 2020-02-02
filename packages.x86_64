@@ -110,6 +110,7 @@ gparted
 ## Grub
 grub
 os-prober
+grub-customizer
 
 ## Audio
 pulseaudio
