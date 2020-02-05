@@ -8,11 +8,12 @@ iso_publisher="Alter Linux <http://www.archlinux.org>"
 iso_application="Alter Linux Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=alter
-plymouth=false
 work_dir=work
 out_dir=out
 gpg_key=
+
 password=alter
+boot_splash=false
 
 verbose=""
 script_path=$(readlink -f ${0%/*})
@@ -65,7 +66,7 @@ make_pacman_conf() {
 make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
-    if [[ $plymouth = true ]]; then
+    if [[ ${boot_splash} = true ]]; then
         mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
     fi
 }
@@ -87,7 +88,7 @@ make_setup_mkinitcpio() {
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" ${work_dir}/x86_64/airootfs/etc/initcpio/install/archiso_shutdown
     cp /usr/lib/initcpio/install/archiso_kms ${work_dir}/x86_64/airootfs/etc/initcpio/install
     cp /usr/lib/initcpio/archiso_shutdown ${work_dir}/x86_64/airootfs/etc/initcpio
-    if [[ $plymouth = true ]]; then
+    if [[ ${boot_splash} = true ]]; then
         cp ${script_path}/mkinitcpio/archiso/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
     else
         cp ${script_path}/mkinitcpio/archiso/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
@@ -107,7 +108,7 @@ make_setup_mkinitcpio() {
 make_customize_airootfs() {
     cp -af ${script_path}/airootfs ${work_dir}/x86_64
 
-    if [[ $plymouth = true ]]; then
+    if [[ ${boot_splash} = true ]]; then
         cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
     fi
 
@@ -256,7 +257,7 @@ while getopts 'N:V:L:P:A:D:w:o:g:p:vhb' arg; do
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         v) verbose="-v" ;;
-        b) plymouth=true ;;
+        b) boot_splash=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'"
