@@ -92,6 +92,7 @@ pulseaudio-bluetooth
 
 ## Calamares Installer
 calamares
+libpwquality
 
 ## gvfs
 gvfs
@@ -110,6 +111,7 @@ gparted
 ## Grub
 grub
 os-prober
+grub-customizer
 
 ## Audio
 pulseaudio

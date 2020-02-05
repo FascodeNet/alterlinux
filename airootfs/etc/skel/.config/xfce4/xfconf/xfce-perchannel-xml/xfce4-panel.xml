@@ -7,10 +7,12 @@
     <value type="int" value="2"/>
     <value type="int" value="3"/>
     <value type="int" value="4"/>
+    <value type="int" value="5"/>
+    <value type="int" value="6"/>
     <property name="panel-1" type="empty">
-      <property name="position" type="string" value="p=12;x=629;y=858"/>
+      <property name="position" type="string" value="p=10;x=970;y=953"/>
       <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="62"/>
+      <property name="length" type="uint" value="60"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="1"/>
@@ -64,6 +66,34 @@
         <value type="int" value="22"/>
         <value type="int" value="23"/>
         <value type="int" value="24"/>
+      </property>
+    </property>
+    <property name="panel-5" type="empty">
+      <property name="position" type="string" value="p=8;x=98;y=949"/>
+      <property name="size" type="uint" value="40"/>
+      <property name="length" type="uint" value="20"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.750000"/>
+        <value type="double" value="0.250000"/>
+        <value type="double" value="0.250000"/>
+        <value type="double" value="0.000000"/>
+      </property>
+    </property>
+    <property name="panel-6" type="empty">
+      <property name="position" type="string" value="p=4;x=1824;y=949"/>
+      <property name="size" type="uint" value="40"/>
+      <property name="length" type="uint" value="20"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.750000"/>
+        <value type="double" value="0.250000"/>
+        <value type="double" value="0.250000"/>
+        <value type="double" value="0.000000"/>
       </property>
     </property>
   </property>
