@@ -141,6 +141,7 @@ yay-bin
 # vi
 # vim-minimal
 nano
+leafpad
 
 ## Photo viewer
 viewnior
