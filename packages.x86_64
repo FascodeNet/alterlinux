@@ -105,7 +105,8 @@ linux-headers
 ## System Monitor
 gnome-system-monitor
 
-## Gparted
+# Disk Management
+gnome-disk-utility
 gparted
 
 ## Grub
