@@ -1,4 +1,9 @@
+![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=appveyor)
+![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=appveyor)
+![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
+
 # 概要
+  
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 
 # ビルド
