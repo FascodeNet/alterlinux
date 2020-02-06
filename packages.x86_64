@@ -136,7 +136,9 @@ cups-pdf
 yay-bin
 
 ## JoyPad
-qjoypad
+# qjoypad
+jstest-gtk-git
+
 
 
 #-- GUI Application --#
