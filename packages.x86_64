@@ -131,6 +131,9 @@ xdg-user-dirs
 cups
 cups-pdf
 
+## AUR Helper
+yay-bin
+
 
 #-- GUI Application --#
 
