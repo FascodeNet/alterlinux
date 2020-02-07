@@ -50,6 +50,10 @@ mc
 sudo
 
 
+#-- chat --#
+irssi
+
+
 #-- display manager --#
 lightdm
 lightdm-gtk-greeter
@@ -116,6 +120,51 @@ usb_modeswitch
 usbutils
 
 
+#-- internet --#
+
+#=> connection
+dhclient
+dhcpcd
+dnsutils
+ndisc6
+netctl
+networkmanager
+ppp
+pptpclient
+rp-pppoe
+wvdial
+
+#=> client
+lftp
+ntp
+openssh
+wget
+
+#=> server
+darkhttpd
+dnsmasq
+
+#=> wireless
+crda
+iwd
+wireless-regdb
+wireless_tools
+wpa_supplicant
+
+#=> vpn
+openconnect
+openvpn
+vpnc
+xl2tpd
+
+#=> other tools
+ethtool
+gnu-netcat
+nmap
+rsync
+tcpdump
+
+
 #-- linux --#
 linux
 linux-atm
@@ -124,49 +173,19 @@ linux-headers
 
 
 #-- look and feel --#
-materia-gtk-theme
+
+#=> font
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+#=> icon
 paper-icon-theme
+#=> theme
+materia-gtk-theme
 
 
 #-- media player --#
 viewnior
-
-
-#-- network --#
-crda
-darkhttpd
-dhclient
-dhcpcd
-dnsmasq
-dnsutils
-ethtool
-gnu-netcat
-irssi
-iwd
-lftp
-ndisc6
-netctl
-networkmanager
-nmap
-ntp
-openconnect
-openssh
-openvpn
-ppp
-pptpclient
-rp-pppoe
-rsync
-tcpdump
-vpnc
-wget
-wireless-regdb
-wireless_tools
-wpa_supplicant
-wvdial
-xl2tpd
 
 
 #-- printers --#
