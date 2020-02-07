@@ -1,6 +1,0 @@
----
-type:       "job"
-name:       "services-systemd"
-interface:  "python"
-requires:   []
-script:     "main.py"
