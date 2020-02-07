@@ -1,208 +1,226 @@
-#-- ArchLinux base package --#
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : shun819.mail@gmail.com
+#
+# (c) 2019-2020 SereneTeam.
+#
 
+#-- aur helper --#
+yay-bin
+
+
+#-- archivers --#
+unrar
+unzip-iconv
+xarchiver
+
+
+#-- audio --#
+pulseaudio
+
+
+#-- bluetooth --#
+blueman
+bluez
+bluez-utils
+pulseaudio-bluetooth
+
+
+#-- boot manager --#
+grub
+grub-customizer
+os-prober
+refind-efi
+
+
+#-- calamares installer --#
+arco-calamares
+libpwquality
+
+
+#-- commandline tools --#
 arch-install-scripts
-b43-fwcutter
-broadcom-wl
-btrfs-progs
-clonezilla
-crda
-darkhttpd
-ddrescue
-dhclient
-dhcpcd
+bash-completion
 dialog
 diffutils
+mc
+sudo
+
+
+#-- display manager --#
+lightdm
+lightdm-gtk-greeter
+
+
+#-- disk management --#
+baobab
+clonezilla
+ddrescue
 dmraid
-dnsmasq
-dnsutils
-dosfstools
-elinks
-ethtool
-exfat-utils
-f2fs-tools
 fsarchiver
-gnu-netcat
-gpm
+gnome-disk-utility
+gparted
 gptfdisk
-grml-zsh-config
 hdparm
-ipw2100-fw
-ipw2200-fw
-irssi
-iwd
-jfsutils
-lftp
-linux-atm
-linux-firmware
-lsscsi
 lvm2
+mdadm
+partclone
+parted
+partimage
+sdparm
+smartmontools
+testdisk
+
+
+#-- documents --#
 man-db
 man-pages
-mc
-mdadm
+
+
+#-- drivers --#
+b43-fwcutter
+broadcom-wl
+ipw2100-fw
+ipw2200-fw
+
+
+#-- file system --#
+btrfs-progs
+dosfstools
+exfat-utils
+f2fs-tools
+grml-zsh-config
+gvfs
+gvfs-smb
+jfsutils
 mtools
-nano
-ndisc6
-netctl
 nfs-utils
 nilfs-utils
-nmap
 ntfs-3g
+reiserfsprogs
+xfsprogs
+
+
+#-- game pad --#
+# qjoypad
+jstest-gtk-git
+
+
+#-- interface --#
+lsscsi
+sg3_utils
+usb_modeswitch
+usbutils
+
+
+#-- linux --#
+linux
+linux-atm
+linux-firmware
+linux-headers
+
+
+#-- look and feel --#
+materia-gtk-theme
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+paper-icon-theme
+
+
+#-- media player --#
+viewnior
+
+
+#-- network --#
+crda
+darkhttpd
+dhclient
+dhcpcd
+dnsmasq
+dnsutils
+ethtool
+gnu-netcat
+irssi
+iwd
+lftp
+ndisc6
+netctl
+networkmanager
+nmap
 ntp
 openconnect
 openssh
 openvpn
-partclone
-parted
-partimage
 ppp
 pptpclient
-refind-efi
-reiserfsprogs
 rp-pppoe
 rsync
-sdparm
-sg3_utils
-smartmontools
-sudo
 tcpdump
-testdisk
-usb_modeswitch
-usbutils
 vpnc
 wget
 wireless-regdb
 wireless_tools
 wpa_supplicant
 wvdial
-xfsprogs
 xl2tpd
 
 
-#-- AlterLinux system tools --#
-
-## bash
-bash-completion
-
-## Bluetooth
-blueman
-bluez
-bluez-utils
-pulseaudio-bluetooth
-
-## Calamares Installer
-# calamares
-arco-calamares
-libpwquality
-
-## gvfs
-gvfs
-gvfs-smb
-
-## Linux Kernel
-linux
-linux-headers
-
-## System Monitor
-gnome-system-monitor
-
-# Disk Management
-gnome-disk-utility
-gparted
-baobab
-
-## Grub
-grub
-os-prober
-grub-customizer
-
-## Audio
-pulseaudio
-
-## Archivers
-unrar
-unzip-iconv
-xarchiver
-
-## Network
-networkmanager
-
-## user directory
-xdg-user-dirs
-
-## Printers
+#-- printers --#
 cups
 cups-pdf
 
-## AUR Helper
-yay-bin
 
-## JoyPad
-# qjoypad
-jstest-gtk-git
+#-- task manager --#
+gnome-system-monitor
 
 
+#-- user directory --#
+xdg-user-dirs
 
-#-- GUI Application --#
 
-## Text Editor
-# vi
-# vim-minimal
+#-- text editor --#
 nano
 leafpad
 
-## Photo viewer
-viewnior
 
-# Web browser
+#-- web browser --#
 chromium
+elinks
 
 
-
-#-- GUI and Desktop environment --#
-
-# Display Manager
-lightdm
-lightdm-gtk-greeter
-
-# Xorg
-xorg-server
-xorg-xinit
-
-
-# xfce4 groups
+#-- xfce4 base --#
 exo
 garcon
 thunar
 thunar-volman
 tumbler
+xfce4-appfinder
 xfce4-session
 xfce4-settings
 xfce4-terminal
 xfce4-panel
 xfce4-power-manager
-xfce4-appfinder
 xfconf
 xfdesktop
 xfwm4
 xfwm4-themes
 
-# xfce4 plugins
-xfce4-pulseaudio-plugin
-xfce4-whiskermenu-plugin
+
+#-- xfce4 plugins --#
+thunar-archive-plugin
+thunar-media-tags-plugin
 xfce4-calculator-plugin
 xfce4-clipman-plugin
 xfce4-docklike-plugin-git
+xfce4-pulseaudio-plugin
+xfce4-whiskermenu-plugin
 
-# Thunar plugins
-thunar-archive-plugin
-thunar-media-tags-plugin
 
-# Theme
-materia-gtk-theme
-paper-icon-theme
-
-# Fonts
-noto-fonts
-noto-fonts-cjk
-noto-fonts-emoji
+#-- xorg --#
+gpm
+xorg-server
+xorg-xinit
