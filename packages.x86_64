@@ -109,6 +109,7 @@ gnome-system-monitor
 # Disk Management
 gnome-disk-utility
 gparted
+baobab
 
 ## Grub
 grub
