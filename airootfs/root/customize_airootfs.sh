@@ -44,9 +44,11 @@ EOF
 
 
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
-rm /usr/share/backgrounds/xfce/xfce-stripes.png
-ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-chmod 644 /usr/share/backgrounds/alter.png
+if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
+    rm /usr/share/backgrounds/xfce/xfce-stripes.png
+    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
+fi
+[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
