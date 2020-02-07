@@ -11,7 +11,9 @@ install_dir=alter
 work_dir=work
 out_dir=out
 gpg_key=
+
 password=alter
+boot_splash=false
 
 verbose=""
 script_path=$(readlink -f ${0%/*})
@@ -41,6 +43,7 @@ _usage ()
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
     echo "                        Default: alter"
+    echo "    -b                 Enable boot splash."
     echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
@@ -66,6 +69,9 @@ make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
     # mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
+    if [[ ${boot_splash} = true ]]; then
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+    fi
 }
 
 # Additional packages (airootfs)
@@ -85,7 +91,11 @@ make_setup_mkinitcpio() {
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" ${work_dir}/x86_64/airootfs/etc/initcpio/install/archiso_shutdown
     cp /usr/lib/initcpio/install/archiso_kms ${work_dir}/x86_64/airootfs/etc/initcpio/install
     cp /usr/lib/initcpio/archiso_shutdown ${work_dir}/x86_64/airootfs/etc/initcpio
-    cp ${script_path}/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+    if [[ ${boot_splash} = true ]]; then
+        cp ${script_path}/mkinitcpio/archiso/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+    else
+        cp ${script_path}/mkinitcpio/archiso/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+    fi
     gnupg_fd=
     if [[ ${gpg_key} ]]; then
       gpg --export ${gpg_key} >${work_dir}/gpgkey
@@ -100,6 +110,10 @@ make_setup_mkinitcpio() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     cp -af ${script_path}/airootfs ${work_dir}/x86_64
+
+    if [[ ${boot_splash} = true ]]; then
+        cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
+    fi
 
     cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
 
@@ -233,7 +247,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:P:A:D:w:o:g:vhp:' arg; do
+while getopts 'N:V:L:P:A:D:w:o:g:p:vhb' arg; do
     case "${arg}" in
         N) iso_name="${OPTARG}" ;;
         V) iso_version="${OPTARG}" ;;
@@ -246,6 +260,7 @@ while getopts 'N:V:L:P:A:D:w:o:g:vhp:' arg; do
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         v) verbose="-v" ;;
+        b) boot_splash=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'"
