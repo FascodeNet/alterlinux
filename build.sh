@@ -271,7 +271,7 @@ done
 
 mkdir -p ${work_dir}
 
-[[ $boot_splash = "true" ]] && echo "boot splash is enabled."
+[[ $boot_splash = "true" ]] && echo "boot splash is enabled."; sleep 2
 
 run_once make_pacman_conf
 run_once make_basefs
