@@ -56,7 +56,9 @@ irssi
 
 #-- display manager --#
 lightdm
-lightdm-gtk-greeter
+#lightdm-gtk-greeter
+lightdm-slick-greeter
+lightdm-settings
 
 
 #-- disk management --#
