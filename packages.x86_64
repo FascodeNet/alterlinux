@@ -8,9 +8,6 @@
 # (c) 2019-2020 SereneTeam.
 #
 
-#-- aur helper --#
-yay-bin
-
 
 #-- archivers --#
 unrar
@@ -195,6 +192,11 @@ mailspring
 #-- media player --#
 viewnior
 vlc
+
+
+#-- pacmage management --#
+pamac
+yay-bin
 
 
 #-- printers --#
