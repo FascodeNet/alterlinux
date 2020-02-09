@@ -18,6 +18,9 @@ boot_splash=false
 verbose="-v"
 script_path=$(readlink -f ${0%/*})
 
+theme_name="alter-logo"
+theme_pkg="plymouth-theme-alter-logo-git"
+
 source plymouth-theme
 
 umask 0022
