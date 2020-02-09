@@ -5,13 +5,15 @@ set -e -u
 # デフォルト値
 password=alter
 boot_splash=false
+theme_name=alter-logo
 
 
 # オプション解析
-while getopts 'p:b' arg; do
+while getopts 'p:bt:' arg; do
     case "${arg}" in
-        p) password=${OPTARG};;
-        b) boot_splash=true;;
+        p) password="${OPTARG}" ;;
+        b) boot_splash=true ;;
+        t) theme_name="${OPTARG}" ;;
     esac
 done
 
@@ -57,6 +59,38 @@ fi
 if [[ $boot_splash = true ]]; then
     rm /usr/share/calamares/modules/services.conf
     mv /usr/share/calamares/modules/services-plymouth.conf /usr/share/calamares/modules/services.conf
+
+    rm /usr/share/calamares/modules/plymouthcfg.conf
+
+    function write () {
+        echo $@ >> /usr/share/calamares/modules/plymouthcfg.conf
+    }
+
+    write '# Plymouth Configuration Module'
+    write '#'
+    write '# This module can be used to setup the default plymouth theme to '
+    write '# be used with your distribution'
+    write '#'
+    write '# You should only use this module if the plymouth package is installed '
+    write '# on the build configurations of your distribution & the plymouth '
+    write '# theme you want to configure is installed as well. If the unpacked'
+    write '# filesystem configures a plymouth theme already, there is no need'
+    write '# to change it here.'
+    write '---'
+    write
+    write
+    write '# Leave this commented if you want to use the default theme '
+    write '# shipped with your distribution configurations. Make sure that '
+    write '# the theme exists in the themes directory of plymouth path. '
+    write '# Debian / Ubuntu comes with themes "joy", "script", "softwaves",'
+    write '# possibly others. Look in /usr/share/plymouth/themes for more.'
+    write '#'
+    write '# Specifying a non-existent theme will leave the plymouth'
+    write '# configuration set to that theme. It is up to plymouth to'
+    write '# deal with that.'
+    write
+    write "plymouth_theme: ${theme_name}"
+
 else
     rm /usr/share/calamares/modules/services-plymouth.conf
 fi

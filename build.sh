@@ -18,6 +18,8 @@ boot_splash=false
 verbose="-v"
 script_path=$(readlink -f ${0%/*})
 
+source plymouth-theme
+
 umask 0022
 
 _usage ()
@@ -70,7 +72,11 @@ make_basefs() {
     # mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
     if [[ ${boot_splash} = true ]]; then
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+        if [[ -n ${theme_pkg} ]]; then
+            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
+        else
+            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+        fi
     fi
 }
 
@@ -122,9 +128,11 @@ make_customize_airootfs() {
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
 
     if [[ $boot_splash = true ]]; then
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -b -p ${password}" run
-    else
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
+        if [[ -z ${theme_name} ]]; then
+            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
+        else
+            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -t ${theme_name}" run
+        fi
     fi
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
@@ -275,7 +283,7 @@ done
 
 mkdir -p ${work_dir}
 
-[[ $boot_splash = "true" ]] && echo "boot splash is enabled."
+[[ $boot_splash = "true" ]] && echo "boot splash is enabled."; echo "Theme is used ${theme_name}."
 echo "Live user password is ${password}."
 sleep 2
 
