@@ -195,7 +195,7 @@ vlc
 
 
 #-- pacmage management --#
-pamac
+pamac-gtk
 yay-bin
 
 
