@@ -221,7 +221,7 @@ xdg-user-dirs
 
 #-- web browser --#
 chromium
-elinks
+# elinks
 
 
 #-- xfce4 base --#
