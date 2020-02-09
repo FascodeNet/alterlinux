@@ -159,7 +159,7 @@ xl2tpd
 #=> other tools
 ethtool
 gnu-netcat
-nmap
+# nmap
 rsync
 tcpdump
 
