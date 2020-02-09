@@ -180,8 +180,10 @@ linux-headers
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+
 #=> icon
 paper-icon-theme
+
 #=> theme
 materia-gtk-theme
 
@@ -204,13 +206,14 @@ cups-pdf
 gnome-system-monitor
 
 
+#-- text editor --#
+code
+leafpad
+nano
+
+
 #-- user directory --#
 xdg-user-dirs
-
-
-#-- text editor --#
-nano
-leafpad
 
 
 #-- web browser --#
