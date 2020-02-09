@@ -134,7 +134,7 @@ rp-pppoe
 wvdial
 
 #=> client
-lftp
+# lftp
 ntp
 openssh
 wget
