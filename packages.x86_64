@@ -186,7 +186,7 @@ materia-gtk-theme
 
 
 #-- mail client --#
-mailspring
+# mailspring
 
 
 #-- media player --#
