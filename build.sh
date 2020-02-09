@@ -15,7 +15,7 @@ gpg_key=
 password=alter
 boot_splash=false
 
-verbose=""
+verbose="-v"
 script_path=$(readlink -f ${0%/*})
 
 umask 0022
@@ -44,7 +44,7 @@ _usage ()
     echo "    -p <password>      Set a live user password"
     echo "                        Default: alter"
     echo "    -b                 Enable boot splash."
-    echo "    -v                 Enable verbose output"
+#    echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
 }
