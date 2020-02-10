@@ -9,6 +9,26 @@
   
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 
+
+## リポジトリとソフトウェア
+
+### リポジトリ
+- [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
+全てのミラーサーバはこのリポジトリと同期しています。  
+
+
+### ソフトウェア
+Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
+全てのパッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。
+
+- [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
+- [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
+
+AURに無いソフトウェアのソースコードは以下にあります。
+
+- [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
+
+
 ## ビルド
 ArchLinux環境でビルドする必要があります。  
 事前に`archiso`パッケージをインストールしておいてください。
@@ -35,11 +55,11 @@ cd alterlinux
 ```
 
 
-### Plymouthについて
+#### Plymouthについて
 `build.sh`に`-b`をつけるとPlymouthが有効化されます。  
 ただし、現在Plymouthを有効化した状態だとインストール後に正常に起動しない問題が確認されています。
 
-### ライブ環境でのパスワード
+#### ライブ環境でのパスワード
 デフォルトのパスワードは`alter`です。  
 `build.sh`に`-p [password]`とすることでパスワードを変更できます。  
 オプション無しでパスワードを変更する場合は`build.sh`の`password`の値を変更してください。
