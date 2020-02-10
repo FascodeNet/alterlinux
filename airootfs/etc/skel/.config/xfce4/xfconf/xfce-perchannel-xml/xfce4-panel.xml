@@ -82,6 +82,7 @@
         <value type="double" value="0.250000"/>
         <value type="double" value="0.000000"/>
       </property>
+      <property name="autohide-behavior" type="uint" value="1"/>
     </property>
     <property name="panel-6" type="empty">
       <property name="position" type="string" value="p=4;x=1824;y=949"/>
@@ -95,6 +96,7 @@
         <value type="double" value="0.250000"/>
         <value type="double" value="0.000000"/>
       </property>
+      <property name="autohide-behavior" type="uint" value="1"/>
     </property>
   </property>
   <property name="plugins" type="empty">
