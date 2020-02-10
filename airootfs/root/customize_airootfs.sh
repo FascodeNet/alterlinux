@@ -2,13 +2,18 @@
 
 set -e -u
 
-# パスワード
+# デフォルト値
 password=alter
+boot_splash=false
+theme_name=alter-logo
+
 
 # オプション解析
-while getopts 'p:' arg; do
+while getopts 'p:bt:' arg; do
     case "${arg}" in
-        p) password=${OPTARG};;
+        p) password="${OPTARG}" ;;
+        b) boot_splash=true ;;
+        t) theme_name="${OPTARG}" ;;
     esac
 done
 
@@ -49,6 +54,19 @@ if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
     ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
 fi
 [[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
+
+
+if [[ $boot_splash = true ]]; then
+    rm /usr/share/calamares/modules/services.conf
+    mv /usr/share/calamares/modules/services-plymouth.conf /usr/share/calamares/modules/services.conf
+
+    cp /usr/share/calamares/modules/plymouthcfg.conf /usr/share/calamares/modules/plymouthcfg.conf.org
+    echo '---' > /usr/share/calamares/modules/plymouthcfg.conf
+    echo "plymouth_theme: ${theme_name}" >> /usr/share/calamares/modules/plymouthcfg.conf
+
+else
+    rm /usr/share/calamares/modules/services-plymouth.conf
+fi
 
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist

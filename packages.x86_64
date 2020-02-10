@@ -8,9 +8,6 @@
 # (c) 2019-2020 SereneTeam.
 #
 
-#-- aur helper --#
-yay-bin
-
 
 #-- archivers --#
 unrar
@@ -56,7 +53,9 @@ irssi
 
 #-- display manager --#
 lightdm
-lightdm-gtk-greeter
+#lightdm-gtk-greeter
+lightdm-slick-greeter
+lightdm-settings
 
 
 #-- disk management --#
@@ -135,7 +134,7 @@ rp-pppoe
 wvdial
 
 #=> client
-lftp
+# lftp
 ntp
 openssh
 wget
@@ -160,7 +159,7 @@ xl2tpd
 #=> other tools
 ethtool
 gnu-netcat
-nmap
+# nmap
 rsync
 tcpdump
 
@@ -178,14 +177,27 @@ linux-headers
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+
 #=> icon
 paper-icon-theme
+
 #=> theme
 materia-gtk-theme
 
 
+#-- mail client --#
+thunderbird
+# mailspring
+
+
 #-- media player --#
 viewnior
+vlc
+
+
+#-- pacmage management --#
+pamac-gtk
+yay-bin
 
 
 #-- printers --#
@@ -197,18 +209,19 @@ cups-pdf
 gnome-system-monitor
 
 
+#-- text editor --#
+code
+leafpad
+nano
+
+
 #-- user directory --#
 xdg-user-dirs
 
 
-#-- text editor --#
-nano
-leafpad
-
-
 #-- web browser --#
 chromium
-elinks
+# elinks
 
 
 #-- xfce4 base --#
