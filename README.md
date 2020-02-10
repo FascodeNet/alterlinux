@@ -25,7 +25,7 @@ cd alterlinux
 そのまま実行してください。デフォルトパスワードは`alter`です。Plymouthは無効化されています。
 
 #### オプション
-- Plymouthを有効化する ： '-b'
+- Plymouthを有効化する ： `-b`
 - パスワードを変更する ： `-p <password>`
 
 例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更する。
