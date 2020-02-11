@@ -43,7 +43,6 @@ _usage () {
     echo "                        Default: ${password}"
     echo "    -b                 Enable boot splash"
     echo "                        Default: disable"
-#    echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
 }
@@ -258,19 +257,12 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:P:A:D:w:o:g:p:vhb' arg; do
+while getopts 'w:o:g:p:hb' arg; do
     case "${arg}" in
-        N) iso_name="${OPTARG}" ;;
-        V) iso_version="${OPTARG}" ;;
-        L) iso_label="${OPTARG}" ;;
-        P) iso_publisher="${OPTARG}" ;;
-        A) iso_application="${OPTARG}" ;;
-        D) install_dir="${OPTARG}" ;;
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
-        v) verbose="-v" ;;
         b) boot_splash=true ;;
         h) _usage 0 ;;
         *)
