@@ -21,6 +21,12 @@ script_path=$(readlink -f ${0%/*})
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 
+function mkarchiso () {
+    ./mkalteriso
+}
+
+
+
 source plymouth-theme
 
 umask 0022
