@@ -25,9 +25,9 @@ function mkarchiso () {
     ./mkalteriso
 }
 
-
-
-source plymouth-theme
+if [[ -f ./config ]]; then
+    source config
+fi
 
 umask 0022
 
