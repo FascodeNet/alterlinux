@@ -8,6 +8,7 @@
 ## Overview
   
 Alter Linux is a new OS developed based on Arch Linux.
+このReadmeの日本語版は[こちら](https://github.com/SereneTeam/alterlinux/blob/dev/README_jp.md)にあります。
 
 
 ## Repositories and software
