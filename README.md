@@ -54,12 +54,6 @@ cd alterlinux
 ./build.sh -b -p 'ilovealter'
 ```
 
-
-#### Plymouthについて
-`build.sh`に`-b`をつけるとPlymouthが有効化されます。  
-ただし、現在Plymouthを有効化した状態だとインストール後に正常に起動しない問題が確認されています。
-
-#### ライブ環境でのパスワード
-デフォルトのパスワードは`alter`です。  
-`build.sh`に`-p [password]`とすることでパスワードを変更できます。  
-オプション無しでパスワードを変更する場合は`build.sh`の`password`の値を変更してください。
+## 開発者
+- [Hayao0819](https://twitter.com/Hayao0819)
+- [lap1sid](https://twitter.com/Pixel_3a)
