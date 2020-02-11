@@ -2,6 +2,7 @@
 
 set -e -u
 
+# archiso settings
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
 iso_publisher="Alter Linux <http://www.archlinux.org>"
@@ -11,23 +12,24 @@ install_dir=alter
 work_dir=work
 out_dir=out
 gpg_key=
+verbose="-v"
 
+# AlterLinux settings
 password=alter
 boot_splash=false
-
-verbose="-v"
-script_path=$(readlink -f ${0%/*})
-
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
+sfs_comp="xz"
+sfs_comp_opt=""
+
+# Load extra settings
+[[ -f ./config ]] && source config
+
+script_path=$(readlink -f ${0%/*})
 
 function mkarchiso () {
     ./mkalteriso "${@}"
 }
-
-if [[ -f ./config ]]; then
-    source config
-fi
 
 umask 0022
 
@@ -43,6 +45,10 @@ _usage () {
     echo "                        Default: ${password}"
     echo "    -b                 Enable boot splash"
     echo "                        Default: disable"
+    echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "                        Default: ${sfs_comp}"
+    echo "    -t <options>       Set compressor-specific options."
+    echo "                        Default: empty"
     echo "    -h                 This help message"
     exit ${1}
 }
@@ -241,8 +247,8 @@ make_efiboot() {
 # Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f ${work_dir}/x86_64/airootfs ${work_dir}
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} prepare
+    #mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
     # rm -rf ${work_dir}/x86_64/airootfs (if low space, this helps)
 }
@@ -257,12 +263,21 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:hb' arg; do
+while getopts 'w:o:g:p:c:t:hb' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
+        c)
+            if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
+                sfs_comp="${OPTARG}"
+            else
+                echo "Invalid compressors ${arg}"
+                _usage 1
+            fi
+            ;;
+        t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
         h) _usage 0 ;;
         *)
