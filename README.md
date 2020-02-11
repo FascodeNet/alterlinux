@@ -1,37 +1,37 @@
 
-## AlterLinux - 誰でも使えることを目標にした日本製のArchLinux派生のOS
+## AlterLinux - ArchLinux-derived OS made in Japan aimed at being usable by anyone
 
 ![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=appveyor)
 ![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=appveyor)
 ![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
 
-## 概要
+## Overview
   
-Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
+Alter Linux is a new OS developed based on Arch Linux.
 
 
-## リポジトリとソフトウェア
+## Repositories and software
 
-### リポジトリ
+### Repositories
 - [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
-全てのミラーサーバはこのリポジトリと同期しています。  
+All mirror servers are synchronized with this repository.  
 
 
-### ソフトウェア
-Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
-全てのパッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。
+### Software
+The source code of the original software included in Alter Linux is below.
+The first of all packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
 
-AURに無いソフトウェアのソースコードは以下にあります。
+The source code for software not in the AUR can be found below.
 
 - [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
 
 
-## ビルド
-ArchLinux環境でビルドする必要があります。  
-事前に`archiso`パッケージをインストールしておいてください。
+## build
+You need to build in ArchLinux environment.
+Please install `archiso` package beforehand.
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -39,21 +39,21 @@ cd alterlinux
 ./build.sh
 ```
 
-### build.shのオプション
+### build.sh options
 
-#### 基本
-そのまま実行してください。デフォルトパスワードは`alter`です。Plymouthは無効化されています。
+#### basic
+Please execute as it is. The default password is `alter`. Plymouth has been disabled.
 
-#### オプション
-- Plymouthを有効化する ： `-b`
-- パスワードを変更する ： `-p <password>`
+#### options
+- Enable Plymouth ： `-b`
+- Change the password ： `-p <password>`
 
-例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更する。
+Example: Enable Plymouth and change the password to `ilovearch`.
 
 ```bash
 ./build.sh -b -p 'ilovealter'
 ```
 
-## 開発者
+## Developer
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
