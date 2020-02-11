@@ -363,17 +363,22 @@ fi
 
 umask 0022
 
-while getopts 'p:r:C:w:o:s:c:g:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
+        L) iso_label="${OPTARG}" ;;
+        P) iso_publisher="${OPTARG}" ;;
+        A) iso_application="${OPTARG}" ;;
+        D) install_dir="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
         s) sfs_mode="${OPTARG}" ;;
         c) sfs_comp="${OPTARG}" ;;
         p) sfs_comp_opt="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
+        v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
