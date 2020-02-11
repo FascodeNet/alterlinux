@@ -131,6 +131,10 @@ _show_config () {
             _msg_info "              Run command:   ${run_cmd}"
             ;;
         prepare)
+            _msg_info "SquashFS compression type:   ${sfs_comp}"
+            if [[ -n "${sfs_comp_opt}" ]]; then
+                _msg_info "Squashfs compression opts:    ${sfs_comp_opt}"
+            fi
             ;;
         pkglist)
             ;;
