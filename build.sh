@@ -22,7 +22,7 @@ theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 
 function mkarchiso () {
-    ./mkalteriso
+    ./mkalteriso ${@}
 }
 
 if [[ -f ./config ]]; then
