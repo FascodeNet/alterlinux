@@ -291,6 +291,7 @@ mkdir -p ${work_dir}
 
 [[ $boot_splash = "true" ]] && echo "boot splash is enabled."; echo "Theme is used ${theme_name}."
 echo "Live user password is ${password}."
+echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
 
 
