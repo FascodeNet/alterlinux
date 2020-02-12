@@ -42,17 +42,72 @@ cd alterlinux
 ### build.shのオプション
 
 #### 基本
-そのまま実行してください。デフォルトパスワードは`alter`です。Plymouthは無効化されています。
+そのまま実行してください。  
+デフォルトパスワードは`alter`です。  
+Plymouthは無効化されています。  
+デフォルトの圧縮方式は`xz`です。
 
 #### オプション
-- Plymouthを有効化する ： `-b`
-- パスワードを変更する ： `-p <password>`
+- Plymouthを有効化する ：   `-b`
+- パスワードを変更する   ：   `-p <password>`
+- 圧縮方式を変える      ：   `-c <comp type>`
+- 圧縮のオプション      ：   `-t <options>`
 
-例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更する。
+例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`zstd`にする。
 
 ```bash
 ./build.sh -b -p 'ilovealter'
 ```
+
+##### 圧縮方式について
+圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
+2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
+
+```
+Compressors available and compressor specific options:
+gzip (default)
+    -Xcompression-level <compression-level>
+    <compression-level> should be 1 .. 9 (default 9)
+    -Xwindow-size <window-size>
+    <window-size> should be 8 .. 15 (default 15)
+    -Xstrategy strategy1,strategy2,...,strategyN
+    Compress using strategy1,strategy2,...,strategyN in turn
+    and choose the best compression.
+    Available strategies: default, filtered, huffman_only,
+    run_length_encoded and fixed
+lzma (no options)
+lzo
+    -Xalgorithm <algorithm>
+    Where <algorithm> is one of:
+        lzo1x_1
+        lzo1x_1_11
+        lzo1x_1_12
+        lzo1x_1_15
+        lzo1x_999 (default)
+    -Xcompression-level <compression-level>
+    <compression-level> should be 1 .. 9 (default 8)
+    Only applies to lzo1x_999 algorithm
+lz4
+    -Xhc
+    Compress using LZ4 High Compression
+xz
+    -Xbcj filter1,filter2,...,filterN
+    Compress using filter1,filter2,...,filterN in turn
+    (in addition to no filter), and choose the best compression.
+    Available filters: x86, arm, armthumb, powerpc, sparc, ia64
+    -Xdict-size <dict-size>
+    Use <dict-size> as the XZ dictionary size.  The dictionary size
+    can be specified as a percentage of the block size, or as an
+    absolute value.  The dictionary size must be less than or equal
+    to the block size and 8192 bytes or larger.  It must also be
+    storable in the xz header as either 2^n or as 2^n+2^(n+1).
+    Example dict-sizes are 75%, 50%, 37.5%, 25%, or 32K, 16K, 8K
+    etc.
+zstd
+    -Xcompression-level <compression-level>
+    <compression-level> should be 1 .. 22 (default 15)
+```
+
 
 ## 開発者
 - [Hayao0819](https://twitter.com/Hayao0819)
