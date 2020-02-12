@@ -33,6 +33,10 @@ AURに無いソフトウェアのソースコードは以下にあります。
 
 
 ## ビルド
+
+以下の手順は、実機のArchLinuxでビルドするためのものです。
+Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md)を参照してください。
+
 ArchLinux環境でビルドする必要があります。  
 事前に`archiso`パッケージをインストールしておいてください。
 
@@ -59,7 +63,7 @@ Plymouthは無効化されています。
 例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`zstd`にする。
 
 ```bash
-./build.sh -b -p 'ilovealter'
+./build.sh -b -p 'ilovealter' -c "zstd"
 ```
 
 ##### 圧縮方式について
