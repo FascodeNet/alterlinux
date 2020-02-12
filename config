@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+iso_label="ALTER_$(date +%Y%m)"
+iso_publisher="Alter Linux <http://www.archlinux.org>"
+iso_application="Alter Linux Live/Rescue CD"
+work_dir=work
+out_dir=out
+gpg_key=
+
+theme_name="alter-logo"
+theme_pkg="plymouth-theme-alter-logo-git"

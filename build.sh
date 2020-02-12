@@ -2,6 +2,7 @@
 
 set -e -u
 
+# archiso settings
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
 iso_publisher="Alter Linux <http://www.archlinux.org>"
@@ -11,17 +12,24 @@ install_dir=alter
 work_dir=work
 out_dir=out
 gpg_key=
+verbose="-v"
 
+# AlterLinux settings
 password=alter
 boot_splash=false
-
-verbose="-v"
-script_path=$(readlink -f ${0%/*})
-
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
+sfs_comp="xz"
+sfs_comp_opt=""
 
-source plymouth-theme
+# Load extra settings
+[[ -f ./config ]] && source config
+
+script_path=$(readlink -f ${0%/*})
+
+function mkarchiso () {
+    ./mkalteriso "${@}"
+}
 
 umask 0022
 
@@ -37,7 +45,10 @@ _usage () {
     echo "                        Default: ${password}"
     echo "    -b                 Enable boot splash"
     echo "                        Default: disable"
-#    echo "    -v                 Enable verbose output"
+    echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "                        Default: ${sfs_comp}"
+    echo "    -t <options>       Set compressor-specific options."
+    echo "                        Default: empty"
     echo "    -h                 This help message"
     exit ${1}
 }
@@ -237,7 +248,7 @@ make_efiboot() {
 make_prepare() {
     cp -a -l -f ${work_dir}/x86_64/airootfs ${work_dir}
     mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} prepare
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
     # rm -rf ${work_dir}/x86_64/airootfs (if low space, this helps)
 }
@@ -252,19 +263,21 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:P:A:D:w:o:g:p:vhb' arg; do
+while getopts 'w:o:g:p:c:t:hb' arg; do
     case "${arg}" in
-        N) iso_name="${OPTARG}" ;;
-        V) iso_version="${OPTARG}" ;;
-        L) iso_label="${OPTARG}" ;;
-        P) iso_publisher="${OPTARG}" ;;
-        A) iso_application="${OPTARG}" ;;
-        D) install_dir="${OPTARG}" ;;
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
-        v) verbose="-v" ;;
+        c)
+            if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
+                sfs_comp="${OPTARG}"
+            else
+                echo "Invalid compressors ${arg}"
+                _usage 1
+            fi
+            ;;
+        t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
         h) _usage 0 ;;
         *)
@@ -278,6 +291,7 @@ mkdir -p ${work_dir}
 
 [[ $boot_splash = "true" ]] && echo "boot splash is enabled."; echo "Theme is used ${theme_name}."
 echo "Live user password is ${password}."
+echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
 
 
