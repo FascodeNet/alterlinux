@@ -112,5 +112,11 @@ zstd
 
 
 ## Developer
+
+### code
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
+- [yamad](https://twitter.com/_unix_like)
+
+### design
+- [tukutun](https://twitter.com/tukutuN_27)
