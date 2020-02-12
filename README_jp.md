@@ -71,7 +71,6 @@ Plymouthは無効化されています。
 2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
 ```
-Compressors available and compressor specific options:
 gzip (default)
     -Xcompression-level <compression-level>
     <compression-level> should be 1 .. 9 (default 9)

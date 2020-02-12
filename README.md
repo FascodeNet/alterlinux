@@ -74,7 +74,6 @@ See the `mksquashfs` help for compression options and more options.
 As of February 12, 2019, `mksquashfs` supports the following methods and options.
 
 ```
-Compressors available and compressor specific options:
 gzip (default)
     -Xcompression-level <compression-level>
     <compression-level> should be 1 .. 9 (default 9)
