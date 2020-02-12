@@ -63,7 +63,7 @@ Plymouthは無効化されています。
 例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`zstd`にする。
 
 ```bash
-./build.sh -b -p 'ilovealter' -c "zstd"
+./build.sh -b -p 'ilovearch' -c "zstd"
 ```
 
 ##### 圧縮方式について
