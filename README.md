@@ -32,13 +32,6 @@ The source code for software not in the AUR can be found below.
 
 
 ## ビルド
-dockerがインストール済みのLinux環境で行ってください。
-
-```bash
-git clone https://github.com/SereneTeam/alterlinux.git
-cd alterlinux
-sudo ./docker-build.sh
-```
 
 以下は実機でビルドを行う場合の手順です。
 ArchLinux環境でビルドする必要があります。
@@ -57,8 +50,6 @@ cd alterlinux
 
 ### build.sh options
 
-#### Dockerでビルドする場合
-DockerfileのCMD欄を書き換えることでオプションが選べます。
 
 #### 基本
 そのまま実行してください。デフォルトパスワードは`alter`です。Plymouthは無効化されています。
