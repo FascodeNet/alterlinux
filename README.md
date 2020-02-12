@@ -31,15 +31,13 @@ The source code for software not in the AUR can be found below.
 
 
 
-## ビルド
-
-以下は実機でビルドを行う場合の手順です。
-ArchLinux環境でビルドする必要があります。
-事前に`archiso`パッケージをインストールしておいてください。
-
 ## build
-You need to build in ArchLinux environment.
-Please install `archiso` package beforehand.
+
+The following procedure is for building with the actual machine ArchLinux.  
+If you build on Docker, please refer to [this procedure](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md).  
+
+You need to build in ArchLinux environment.  
+Please install `archiso` package beforehand.  
 
 
 ```bash
