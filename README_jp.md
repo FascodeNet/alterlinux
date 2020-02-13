@@ -10,7 +10,7 @@
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に拘束で最新のOSを使用できます。  
   
-You can find the English version of this Readme [here](https://github.com/SereneTeam/alterlinux/blob/dev/README.md).  
+You can find the English version of this Readme [here](https://github.com/SereneTeam/alterlinux/blob/master/README.md).  
 
 
 ## リポジトリとソフトウェア
@@ -35,7 +35,7 @@ AURに無いソフトウェアのソースコードは以下にあります。
 ## ビルド
 
 以下の手順は、実機のArchLinuxでビルドするためのものです。
-Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md)を参照してください。
+Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
 
 ArchLinux環境でビルドする必要があります。  
 事前に`archiso`パッケージをインストールしておいてください。
