@@ -19,7 +19,7 @@ password=alter
 boot_splash=false
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
-sfs_comp="xz"
+sfs_comp="zstd"
 sfs_comp_opt=""
 
 # Load extra settings
