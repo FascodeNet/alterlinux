@@ -25,7 +25,7 @@ gpg_key=
 # $1: message string
 _msg_info() {
     local _msg="${1}"
-    echo "[mkarchiso] INFO: ${_msg}"
+    echo "[mkalteriso] INFO: ${_msg}"
 }
 
 # Show an ERROR message then exit with status
@@ -35,7 +35,7 @@ _msg_error() {
     local _msg="${1}"
     local _error=${2}
     echo
-    echo "[mkarchiso] ERROR: ${_msg}"
+    echo "[mkalteriso] ERROR: ${_msg}"
     echo
     if [[ ${_error} -gt 0 ]]; then
         exit ${_error}
@@ -313,7 +313,7 @@ command_iso () {
         -volid "${iso_label}" \
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
-        -preparer "prepared by mkarchiso" \
+        -preparer "prepared by mkalteriso" \
         -eltorito-boot isolinux/isolinux.bin \
         -eltorito-catalog isolinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
