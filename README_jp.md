@@ -1,46 +1,44 @@
 
-## AlterLinux - ArchLinux-derived OS made in Japan aimed at being usable by anyone
+## AlterLinux - 誰でも使えることを目標にした日本製のArchLinux派生のOS
 
 ![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=appveyor)
 ![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=appveyor)
 ![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
 
-## Overview
+## 概要
   
-Alter Linux is a new OS developed based on Arch Linux.  
-Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS with constraints.  
+Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
+Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に拘束で最新のOSを使用できます。  
   
-このReadmeの日本語版は[こちら](https://github.com/SereneTeam/alterlinux/blob/dev/README_jp.md)にあります。
+You can find the English version of this Readme [here](https://github.com/SereneTeam/alterlinux/blob/dev/README.md).  
 
 
-## Repositories and software
+## リポジトリとソフトウェア
 
-### Repositories
+### リポジトリ
 - [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
-All mirror servers are synchronized with this repository.  
+全てのミラーサーバはこのリポジトリと同期しています。  
 
 
-### Software
-The source code of the original software included in Alter Linux is below.
-The first of all packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
+### ソフトウェア
+Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
+全てのパッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
 
-The source code for software not in the AUR can be found below.
+AURに無いソフトウェアのソースコードは以下にあります。
 
 - [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
 
 
+## ビルド
 
-## build
+以下の手順は、実機のArchLinuxでビルドするためのものです。
+Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md)を参照してください。
 
-The following procedure is for building with the actual machine ArchLinux.  
-If you build on Docker, please refer to [this procedure](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md).  
-
-You need to build in ArchLinux environment.  
-Please install `archiso` package beforehand.  
-
+ArchLinux環境でビルドする必要があります。  
+事前に`archiso`パッケージをインストールしておいてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -48,30 +46,29 @@ cd alterlinux
 ./build.sh
 ```
 
-### build.sh options
+### build.shのオプション
 
-#### basic
-Please execute as it is.   
-The default password is `alter`.   
-Plymouth has been disabled.  
-Default compression type is `xz`.  
+#### 基本
+そのまま実行してください。  
+デフォルトパスワードは`alter`です。  
+Plymouthは無効化されています。  
+デフォルトの圧縮方式は`xz`です。
 
+#### オプション
+- Plymouthを有効化する ：   `-b`
+- パスワードを変更する   ：   `-p <password>`
+- 圧縮方式を変える      ：   `-c <comp type>`
+- 圧縮のオプション      ：   `-t <options>`
 
-#### options
-- Enable Plymouth ： `-b`
-- Change the password ： `-p <password>`
-- Change compression type : `-c <comp type>`
-- Set compression options : `-t <options>`
-
-Example: Enable Plymouth and change the password to `ilovearch` and change compression type to `zstd`.
+例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`zstd`にする。
 
 ```bash
-./build.sh -b -p 'ilovearch' -c 'zstd'
+./build.sh -b -p 'ilovearch' -c "zstd"
 ```
 
-##### About compression type
-See the `mksquashfs` help for compression options and more options.
-As of February 12, 2019, `mksquashfs` supports the following methods and options.
+##### 圧縮方式について
+圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
+2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
 ```
 gzip (default)
@@ -118,12 +115,12 @@ zstd
 ```
 
 
-## Developer
+## 開発者
 
-### code
+### コード
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-### design
+### デザイン
 - [tukutun](https://twitter.com/tukutuN_27)
