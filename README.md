@@ -10,7 +10,7 @@
 Alter Linux is a new OS developed based on Arch Linux.  
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS with constraints.  
   
-このReadmeの日本語版は[こちら](https://github.com/SereneTeam/alterlinux/blob/dev/README_jp.md)にあります。
+このReadmeの日本語版は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/README_jp.md)にあります。
 
 
 ## Repositories and software
