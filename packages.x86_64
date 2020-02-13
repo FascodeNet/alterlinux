@@ -95,7 +95,6 @@ btrfs-progs
 dosfstools
 exfat-utils
 f2fs-tools
-grml-zsh-config
 gvfs
 gvfs-smb
 jfsutils
