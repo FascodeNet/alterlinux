@@ -35,18 +35,26 @@ The source code for software not in the AUR can be found below.
 
 ## build
 
-The following procedure is for building with the actual machine ArchLinux.  
-If you build on Docker, please refer to [this procedure](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md).  
+The following procedure is for building with the actual machine ArchLinux. 
 
+### Preparation
+
+There are two ways to build, using Arch Linux on the actual machine and building on Docker.
+The options of `build.sh` are common.
+
+#### Build on real machine
 You need to build in ArchLinux environment.  
 Please install `archiso` package beforehand.  
-
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
 ./build.sh
 ```
+
+
+#### Build on container
+If you build on Docker, please refer to [this procedure](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md).  
 
 ### build.sh options
 
@@ -118,12 +126,18 @@ zstd
 ```
 
 
-## Developer
+## About SereneTeam and developers
+SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.
+[SereneLinux] (serenelinux.com) based on Ubuntu has been developed and released.
+Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.
 
-### code
+### Member Twitter
+Link to Twitter of main development members.
+
+#### Development
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-### design
+#### Design charge
 - [tukutun](https://twitter.com/tukutuN_27)

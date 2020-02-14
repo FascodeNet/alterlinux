@@ -35,16 +35,24 @@ AURに無いソフトウェアのソースコードは以下にあります。
 ## ビルド
 
 以下の手順は、実機のArchLinuxでビルドするためのものです。
-Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
 
+### 準備
+
+ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
+`build.sh`のオプションは共通です。  
+
+#### 実機でビルドする
 ArchLinux環境でビルドする必要があります。  
 事前に`archiso`パッケージをインストールしておいてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
-./build.sh
+./build.sh <options>
 ```
+
+#### コンテナ上でビルドする
+Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
 
 ### build.shのオプション
 
@@ -115,12 +123,18 @@ zstd
 ```
 
 
-## 開発者
+## SereneTeamと開発者について
+SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
+Ubuntuをベースとした[SereneLinux](serenelinux.com)を開発、公開しています。  
+私達はそのノウハウを活かし、日本での開発は初めてとなるArch Linux派生のOSとなるAlter Linuxの開発に取り組んでいます。  
 
-### コード
+### メンバーのTwitter
+主要な開発メンバーのTwitterへのリンクです。
+
+#### 開発担当
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-### デザイン
+#### デザイン担当
 - [tukutun](https://twitter.com/tukutuN_27)
