@@ -62,7 +62,7 @@ If you build on Docker, please refer to [this procedure](https://github.com/Sere
 Please execute as it is.   
 The default password is `alter`.   
 Plymouth has been disabled.  
-Default compression type is `xz`.  
+Default compression type is `zstd`.  
 
 
 #### options
@@ -71,10 +71,10 @@ Default compression type is `xz`.
 - Change compression type : `-c <comp type>`
 - Set compression options : `-t <options>`
 
-Example: Enable Plymouth and change the password to `ilovearch` and change compression type to `zstd`.
+Example: Enable Plymouth and change the password to `ilovearch` and change compression type to `gzip`.
 
 ```bash
-./build.sh -b -p 'ilovearch' -c 'zstd'
+./build.sh -b -p 'ilovearch' -c 'gzip'
 ```
 
 ##### About compression type
@@ -127,9 +127,9 @@ zstd
 
 
 ## About SereneTeam and developers
-SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.
-[SereneLinux] (serenelinux.com) based on Ubuntu has been developed and released.
-Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.
+SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
+[SereneLinux](serenelinux.com) based on Ubuntu has been developed and released.  
+Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
 
 ### Member Twitter
 Link to Twitter of main development members.

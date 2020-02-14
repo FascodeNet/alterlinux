@@ -60,7 +60,7 @@ Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam
 そのまま実行してください。  
 デフォルトパスワードは`alter`です。  
 Plymouthは無効化されています。  
-デフォルトの圧縮方式は`xz`です。
+デフォルトの圧縮方式は`zstd`です。
 
 #### オプション
 - Plymouthを有効化する ：   `-b`
@@ -68,10 +68,10 @@ Plymouthは無効化されています。
 - 圧縮方式を変える      ：   `-c <comp type>`
 - 圧縮のオプション      ：   `-t <options>`
 
-例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`zstd`にする。
+例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`gzip`にする。
 
 ```bash
-./build.sh -b -p 'ilovearch' -c "zstd"
+./build.sh -b -p 'ilovearch' -c "gzip"
 ```
 
 ##### 圧縮方式について
