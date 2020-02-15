@@ -1,5 +1,5 @@
 
-## AlterLinux - 誰でも使えることを目標にした日本製のArchLinux派生のOS
+## Alter Linux - 誰でも使えることを目標にした日本製でArch Linux派生のOS
 
 ![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=appveyor)
 ![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=appveyor)
@@ -8,9 +8,9 @@
 ## 概要
   
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
-Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に拘束で最新のOSを使用できます。  
+Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
   
-You can find the English version of this Readme [here](https://github.com/SereneTeam/alterlinux/blob/master/README.md).  
+You can find the English version of this Readme [here](README.md).  
 
 
 ## リポジトリとソフトウェア
@@ -126,10 +126,11 @@ zstd
 ## SereneTeamと開発者について
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
 Ubuntuをベースとした[SereneLinux](serenelinux.com)を開発、公開しています。  
-私達はそのノウハウを活かし、日本での開発は初めてとなるArch Linux派生のOSとなるAlter Linuxの開発に取り組んでいます。  
+私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
 
 ### メンバーのTwitter
-主要な開発メンバーのTwitterへのリンクです。
+主要な開発メンバーのTwitterへのリンクです。  
+このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
 
 #### 開発担当
 - [Hayao0819](https://twitter.com/Hayao0819)
