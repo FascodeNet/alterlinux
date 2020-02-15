@@ -1,5 +1,5 @@
 
-## AlterLinux - ArchLinux-derived OS made in Japan aimed at being usable by anyone
+## AlterLinux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
 
 ![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=appveyor)
 ![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=appveyor)
@@ -8,9 +8,9 @@
 ## Overview
   
 Alter Linux is a new OS developed based on Arch Linux.  
-Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS with constraints.  
+Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
   
-このReadmeの日本語版は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/README_jp.md)にあります。
+このReadmeの日本語版は[こちら](README_jp.md)にあります。
 
 
 ## Repositories and software
@@ -54,18 +54,18 @@ cd alterlinux
 
 
 #### Build on container
-If you build on Docker, please refer to [this procedure](https://github.com/SereneTeam/alterlinux/blob/dev/Howtobuild_on_docker.md).  
+If you build on Docker, please refer to [this procedure](Howtobuild_on_docker.md).  
 
 ### build.sh options
 
-#### basic
+#### Basic
 Please execute as it is.   
 The default password is `alter`.   
 Plymouth has been disabled.  
 Default compression type is `zstd`.  
 
 
-#### options
+#### Options
 - Enable Plymouth ： `-b`
 - Change the password ： `-p <password>`
 - Change compression type : `-c <comp type>`
@@ -128,11 +128,12 @@ zstd
 
 ## About SereneTeam and developers
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
-[SereneLinux](serenelinux.com) based on Ubuntu has been developed and released.  
+[SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  
 Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
 
 ### Member Twitter
-Link to Twitter of main development members.
+Link to Twitter of main development members.  
+All comments made on this account are not official SereneTeam statements and are solely for the developer.  
 
 #### Development
 - [Hayao0819](https://twitter.com/Hayao0819)

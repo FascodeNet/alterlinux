@@ -125,7 +125,7 @@ zstd
 
 ## SereneTeamと開発者について
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
-Ubuntuをベースとした[SereneLinux](serenelinux.com)を開発、公開しています。  
+Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
 私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
 
 ### メンバーのTwitter
