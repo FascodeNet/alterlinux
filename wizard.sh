@@ -45,30 +45,85 @@ function select_comp_type () {
 }
 
 function set_comp_option () {
-    local gzip
-    local lzma
-    local lzo
-    local lz4
-    local xz
-    local zstd
-    comp_option=""
 
-    function zstd () {
-        local level
-        local exit_code
-        echo -n "zstdの圧縮方式を入力してください。 (1~22) : "
-        read level
-        if [[ ${level} -lt 22 && ${level} -ge 4 ]]; then
-            comp_option="-Xcompression-level ${level}"
+    if [[ ! ${comp_type} = "lzma" ]]; then
+        local yn
+        local details
+        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
+        read yn
+        case ${yn} in
+            y | Y | yes | Yes | YES ) details=true    ;;
+            n | N | no  | No  | NO  ) details=false   ;;
+            *                       ) set_comp_option ;;
+        esac
+        if ${details}; then
+            :
         else
-            zstd
+            return 0
         fi
-    }
 
-    case ${comp_type} in
-        zstd ) zstd ;;
-        *    ) :    ;;
-    esac
+        local gzip
+        local lzma
+        local lzo
+        local lz4
+        local xz
+        local zstd
+        comp_option=""
+
+        function gzip () {
+            local comp_level
+            function comp_level () {
+                local level
+                echo -n "gzipの圧縮レベルを入力してください。 (1~22) : "
+                read level
+                if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
+                    comp_option="-Xcompression-level ${level}"
+                else
+                    comp_level
+                fi
+            }
+            local window_size
+            function window_size () {
+                local window
+                echo -n "gzipのウィンドウサイズを入力してください。 (1~15) : "
+                read window
+                if [[ ${window} -lt 16 && ${window} -ge 4 ]]; then
+                    comp_option="${comp_option} -Xwindow-size ${window}"
+                else
+                    window_size
+                fi
+            }
+
+        }
+
+        function lz4 () {
+            local yn
+            echo -n "高圧縮モードを有効化しますか？ （y/N） : "
+            read yn
+            case ${yn} in
+                y | Y | yes | Yes | YES ) comp_option="-Xhc" ;;
+                n | N | no  | No  | NO  ) :                  ;;
+                *                       ) lz4                ;;
+            esac
+        }
+
+        function zstd () {
+            local level
+            echo -n "zstdの圧縮レベルを入力してください。 (1~22) : "
+            read level
+            if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
+                comp_option="-Xcompression-level ${level}"
+            else
+                zstd
+            fi
+        }
+
+        case ${comp_type} in
+            gzip ) gzip ;;
+            zstd ) zstd ;;
+            *    ) :    ;;
+        esac
+    fi
 }
 
 function set_password () {
@@ -112,9 +167,9 @@ function ask () {
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
-    echo "Plymouth : ${plymouth}"
-    echo "圧縮方式   : ${comp_type}"
-    echo "Password : ${password}"
+    echo "          Plymouth : ${plymouth}"
+    echo "Compression method : ${comp_type}"
+    echo "          Password : ${password}"
     echo
     echo -n "この設定で続行します。よろしいですか？ (y/N) : "
     local yn
