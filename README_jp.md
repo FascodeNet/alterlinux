@@ -50,19 +50,27 @@ ArchLinux環境でビルドする必要があります。
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
-./build.sh <options>
 ```
 
 #### コンテナ上でビルドする
 Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
 
+### ビルドウィザード
+wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
+「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
+
+```bash
+./wizard.sh
+```
+
 ### build.shのオプション
 
 #### 基本
-そのまま実行してください。  
-デフォルトパスワードは`alter`です。  
-Plymouthは無効化されています。  
-デフォルトの圧縮方式は`zstd`です。
+通常はウィザードを使用してください。ウィザードを使用しない場合、デフォルトパスワードは`alter`です。Plymouthは無効化されています。デフォルトの圧縮方式は`zstd`です。  
+
+```bash
+./build.sh <options>
+```
 
 #### オプション
 - Plymouthを有効化する ：   `-b`
