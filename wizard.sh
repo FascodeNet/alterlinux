@@ -121,6 +121,7 @@ function set_comp_option () {
         case ${comp_type} in
             gzip ) gzip ;;
             zstd ) zstd ;;
+            lz4  ) lz4  ;;
             *    ) :    ;;
         esac
     fi
@@ -167,9 +168,10 @@ function ask () {
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
-    echo "          Plymouth : ${plymouth}"
-    echo "Compression method : ${comp_type}"
-    echo "          Password : ${password}"
+    echo "           Plymouth : ${plymouth}"
+    echo " Compression method : ${comp_type}"
+    echo "Compression options : ${comp_option}"
+    echo "          Password  : ${password}"
     echo
     echo -n "この設定で続行します。よろしいですか？ (y/N) : "
     local yn
