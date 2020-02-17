@@ -1,19 +1,19 @@
 
-## AlterLinux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
+## Alter Linux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
 
 ![AlterLogo](images/logo.png)
 
 ![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)
-![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=archlinux)
+![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)
 ![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
+
+| [日本語](README_jp.md) | [English](README.md) |
+|:-----:|:-----:|
 
 ## Overview
   
 Alter Linux is a new OS developed based on Arch Linux.  
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
-  
-このReadmeの日本語版は[こちら](README_jp.md)にあります。
-
 
 ## Repositories and software
 

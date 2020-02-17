@@ -7,15 +7,15 @@
 ![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)
 ![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
 
+| [日本語](README_jp.md) | [English](README.md) |
+|:-----:|:-----:|
+
 ## 概要
   
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
   
-You can find the English version of this Readme [here](README.md).  
-
-
-## リポジトリとソフトウェア
+ ## リポジトリとソフトウェア
 
 ### リポジトリ
 - [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
