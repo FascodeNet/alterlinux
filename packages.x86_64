@@ -164,10 +164,8 @@ tcpdump
 
 
 #-- linux --#
-linux
 linux-atm
 linux-firmware
-linux-headers
 
 
 #-- look and feel --#

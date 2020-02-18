@@ -17,6 +17,7 @@ verbose="-v"
 # AlterLinux settings
 password=alter
 boot_splash=false
+lts_kernel=false
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
@@ -43,6 +44,8 @@ _usage () {
     echo "                        Default: ${sfs_comp}"
     echo "    -g <gpg_key>       Set gpg key"
     echo "                        Default: empty"
+    echo "    -l                 Enable LTS linux kernel."
+    echo "                        Default: disable"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -82,6 +85,11 @@ make_basefs() {
             mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
         fi
     fi
+    if [[ ${lts_kernel} = true ]]; then
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-lts linux-lts-headers" install
+    else
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers" install
+    fi
 }
 
 # Additional packages (airootfs)
@@ -111,7 +119,13 @@ make_setup_mkinitcpio() {
       gpg --export ${gpg_key} >${work_dir}/gpgkey
       exec 17<>${work_dir}/gpgkey
     fi
-    ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
+
+    if [[ ${lts_kernel} = "true" ]]; then
+        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-lts -g /boot/archiso.img' run
+    else
+        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
+    fi
+
     if [[ ${gpg_key} ]]; then
       exec 17<&-
     fi
@@ -131,14 +145,21 @@ make_customize_airootfs() {
 
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
 
-    if [[ $boot_splash = true ]]; then
+    local options
+    if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
-            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -b" run
+            options="-b"
         else
-            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -t ${theme_name} -b" run
+            options="-b -t ${theme_name}"
         fi
-    else
+    fi
+    if [[ ${lts_kernel} = true ]]; then
+        options="${options} -l"
+    fi
+    if [[ -z ${options} ]]; then
         mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
+    else
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options}" run
     fi
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
@@ -147,7 +168,13 @@ make_customize_airootfs() {
 make_boot() {
     mkdir -p ${work_dir}/iso/${install_dir}/boot/x86_64
     cp ${work_dir}/x86_64/airootfs/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img
-    cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz
+
+    if [[ ${lts_kernel} = true ]]; then
+        cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-lts ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-lts
+    else
+        cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz
+    fi
+
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
@@ -162,8 +189,23 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux| awk 'f{print;f=0} /version/{f=1}' RS=' ')
+    if [[ ${lts_kernel} = true ]]; then
+        _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-lts | awk 'f{print;f=0} /version/{f=1}' RS=' ')
+    else
+        _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux | awk 'f{print;f=0} /version/{f=1}' RS=' ')
+    fi
     mkdir -p ${work_dir}/iso/${install_dir}/boot/syslinux
+
+    if [[ ${lts_kernel} = true ]]; then
+        rm ${script_path}/syslinux/archiso_pxe.cfg
+        mv ${script_path}/syslinux/archiso_pxe-lts.cfg ${script_path}/syslinux/archiso_pxe.cfg
+        rm ${script_path}/syslinux/archiso_sys.cfg
+        mv ${script_path}/syslinux/archiso_sys-lts.cfg ${script_path}/syslinux/archiso_sys.cfg
+    else
+        rm ${script_path}/syslinux/archiso_pxe-lts.cfg
+        rm ${script_path}/syslinux/archiso_sys-lts.cfg
+    fi
+
     for _cfg in ${script_path}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}
@@ -199,6 +241,13 @@ make_efi() {
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/
 
+    if [[ ${lts_kernel} = true ]]; then
+        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf
+        mv ${script_path}/efiboot/loader/entries/archiso-x86_64-usb-lts.conf ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf
+    else
+        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-usb-lts.conf
+    fi
+
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
@@ -219,7 +268,13 @@ make_efiboot() {
     mount ${work_dir}/iso/EFI/archiso/efiboot.img ${work_dir}/efiboot
 
     mkdir -p ${work_dir}/efiboot/EFI/archiso
-    cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/archiso/vmlinuz.efi
+
+    if [[ ${lts_kernel} = true ]]; then
+        cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-lts ${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-lts.efi
+    else
+        cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/archiso/vmlinuz.efi
+    fi
+
     cp ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img ${work_dir}/efiboot/EFI/archiso/archiso.img
 
     cp ${work_dir}/iso/${install_dir}/boot/intel_ucode.img ${work_dir}/efiboot/EFI/archiso/intel_ucode.img
@@ -235,6 +290,13 @@ make_efiboot() {
     cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/efiboot/loader/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/efiboot/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/efiboot/loader/entries/
+
+    if [[ ${lts_kernel} = true ]]; then
+        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
+        mv ${script_path}/efiboot/loader/entries/archiso-x86_64-cd-lts.conf ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
+    else
+        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-cd-lts.conf
+    fi
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
@@ -265,7 +327,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hb' arg; do
+while getopts 'w:o:g:p:c:t:hbl' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -281,6 +343,7 @@ while getopts 'w:o:g:p:c:t:hb' arg; do
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
+        l) lts_kernel=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'"
@@ -291,7 +354,8 @@ done
 
 mkdir -p ${work_dir}
 
-[[ $boot_splash = "true" ]] && echo "boot splash is enabled."; echo "Theme is used ${theme_name}."
+[[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
+[[ ${lts_kernel} = true ]] && echo "LTS kernel is enabled."
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
