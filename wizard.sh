@@ -63,7 +63,6 @@ function set_comp_option () {
         fi
 
         local gzip
-        local lzma
         local lzo
         local lz4
         local xz
@@ -118,10 +117,20 @@ function set_comp_option () {
             fi
         }
 
+        function lzo () {
+            echo "現在lzoは詳細プションのウィザードがサポートされていません。" >&2
+        }
+
+        function xz () {
+            echo "現在xzは詳細プションのウィザードがサポートされていません。" >&2
+        }
+
         case ${comp_type} in
             gzip ) gzip ;;
             zstd ) zstd ;;
             lz4  ) lz4  ;;
+            lzo  ) lzo  ;;
+            xz   ) xz   ;;
             *    ) :    ;;
         esac
     fi
