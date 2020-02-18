@@ -10,6 +10,9 @@
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
+| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) | [Unstable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [Develop](https://github.com/SereneTeam/alterlinux/tree/dev) |
+|:-----:|:-----:|:-----:|
+
 ## Overview
   
 Alter Linux is a new OS developed based on Arch Linux.  
