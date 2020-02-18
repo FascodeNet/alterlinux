@@ -1,19 +1,21 @@
 
-## AlterLinux - 誰でも使えることを目標にした日本製のArchLinux派生のOS
+## Alter Linux - 誰でも使えることを目標にした日本製でArch Linux派生のOS
 
-![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=appveyor)
-![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=appveyor)
+![AlterLogo](images/logo.png)
+
+![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)
+![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)
 ![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
+
+| [日本語](README_jp.md) | [English](README.md) |
+|:-----:|:-----:|
 
 ## 概要
   
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
-Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に拘束で最新のOSを使用できます。  
+Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
   
-You can find the English version of this Readme [here](https://github.com/SereneTeam/alterlinux/blob/master/README.md).  
-
-
-## リポジトリとソフトウェア
+ ## リポジトリとソフトウェア
 
 ### リポジトリ
 - [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
@@ -35,35 +37,52 @@ AURに無いソフトウェアのソースコードは以下にあります。
 ## ビルド
 
 以下の手順は、実機のArchLinuxでビルドするためのものです。
-Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
 
+### 準備
+
+ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
+`build.sh`のオプションは共通です。  
+
+#### 実機でビルドする
 ArchLinux環境でビルドする必要があります。  
 事前に`archiso`パッケージをインストールしておいてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
-./build.sh
+```
+
+#### コンテナ上でビルドする
+Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
+
+### ビルドウィザード
+wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
+「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
+
+```bash
+./wizard.sh
 ```
 
 ### build.shのオプション
 
 #### 基本
-そのまま実行してください。  
-デフォルトパスワードは`alter`です。  
-Plymouthは無効化されています。  
-デフォルトの圧縮方式は`xz`です。
+通常はウィザードを使用してください。ウィザードを使用しない場合、デフォルトパスワードは`alter`です。Plymouthは無効化されています。デフォルトの圧縮方式は`zstd`です。  
+
+```bash
+./build.sh <options>
+```
 
 #### オプション
 - Plymouthを有効化する ：   `-b`
+- LTSカーネルを有効化   :    `-l`
 - パスワードを変更する   ：   `-p <password>`
 - 圧縮方式を変える      ：   `-c <comp type>`
 - 圧縮のオプション      ：   `-t <options>`
 
-例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`zstd`にする。
+例 ： PlymouthとLTSカーネルを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`gzip`にする。
 
 ```bash
-./build.sh -b -p 'ilovearch' -c "zstd"
+./build.sh -l -b -p 'ilovearch' -c "gzip"
 ```
 
 ##### 圧縮方式について
@@ -115,12 +134,19 @@ zstd
 ```
 
 
-## 開発者
+## SereneTeamと開発者について
+SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
+Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
+私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
 
-### コード
+### メンバーのTwitter
+主要な開発メンバーのTwitterへのリンクです。  
+このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
+
+#### 開発担当
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-### デザイン
+#### デザイン担当
 - [tukutun](https://twitter.com/tukutuN_27)
