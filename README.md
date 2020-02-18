@@ -68,15 +68,16 @@ Default compression type is `zstd`.
 
 
 #### Options
-- Enable Plymouth ： `-b`
-- Change the password ： `-p <password>`
+- Enable Plymouth         ： `-b`
+- Enable LTS kernel       : `-l`
+- Change the password     ： `-p <password>`
 - Change compression type : `-c <comp type>`
 - Set compression options : `-t <options>`
 
-Example: Enable Plymouth and change the password to `ilovearch` and change compression type to `gzip`.
+Example: Enable Plymouth and change the password to `ilovearch` and change compression type to `gzip` and enable linux-lts.
 
 ```bash
-./build.sh -b -p 'ilovearch' -c 'gzip'
+./build.sh -l -b -p 'ilovearch' -c 'gzip'
 ```
 
 ##### About compression type

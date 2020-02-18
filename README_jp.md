@@ -74,14 +74,15 @@ wizard.shを使用して簡単に思い通りの設定でビルドできます�
 
 #### オプション
 - Plymouthを有効化する ：   `-b`
+- LTSカーネルを有効化   :    `-l`
 - パスワードを変更する   ：   `-p <password>`
 - 圧縮方式を変える      ：   `-c <comp type>`
 - 圧縮のオプション      ：   `-t <options>`
 
-例 ： Plymouthを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`gzip`にする。
+例 ： PlymouthとLTSカーネルを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`gzip`にする。
 
 ```bash
-./build.sh -b -p 'ilovearch' -c "gzip"
+./build.sh -l -b -p 'ilovearch' -c "gzip"
 ```
 
 ##### 圧縮方式について
