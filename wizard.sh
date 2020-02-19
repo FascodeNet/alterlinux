@@ -46,6 +46,7 @@ function select_comp_type () {
 
 function set_comp_option () {
 
+    # lzmaには詳細なオプションはありません。
     if [[ ! ${comp_type} = "lzma" ]]; then
         local yn
         local details
@@ -155,6 +156,7 @@ function set_password () {
     echo
 }
 
+# 最終的なbuild.shのオプションを生成
 function generate_argument () {
     if [[ ${plymouth} = true ]]; then
         argument="${argument} -b"
@@ -167,6 +169,7 @@ function generate_argument () {
     fi
 }
 
+#　上の質問の関数を実行
 function ask () {
     enable_plymouth
     select_comp_type
@@ -174,6 +177,7 @@ function ask () {
     set_password
 }
 
+# 将来的なビルド用の確認（このスクリプトは将来的には自動でcloneしビルドすることを目指しています。）
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
@@ -193,7 +197,10 @@ function lastcheck () {
 }
 
 
+# 関数を実行
 ask
 lastcheck
 generate_argument
+
+# build.shの引数を表示（デバッグ用）
 echo ${argument}
