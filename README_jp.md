@@ -10,6 +10,9 @@
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
+| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) | [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
+|:-----:|:-----:|:-----:|
+
 ## 概要
   
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  

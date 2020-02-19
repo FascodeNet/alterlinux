@@ -202,8 +202,9 @@ cups
 cups-pdf
 
 
-#-- task manager --#
+#-- system monitor --#
 gnome-system-monitor
+cpu-x
 
 
 #-- text editor --#

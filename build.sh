@@ -43,7 +43,11 @@ _usage () {
     echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                        Default: ${sfs_comp}"
     echo "    -g <gpg_key>       Set gpg key"
-    echo "                        Default: empty"
+    if [[ -z "${gpg_key}" ]]; then
+        echo "                        Default: empty"
+    else
+        echo "                        Default: ${gpg_key}"
+    fi
     echo "    -l                 Enable LTS linux kernel."
     echo "                        Default: disable"
     echo "    -o <out_dir>       Set the output directory"
