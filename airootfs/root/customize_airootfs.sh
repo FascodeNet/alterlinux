@@ -5,15 +5,18 @@ set -e -u
 # デフォルト値
 password=alter
 boot_splash=false
+lts_kernel=false
 theme_name=alter-logo
 
 
+
 # オプション解析
-while getopts 'p:bt:' arg; do
+while getopts 'p:bt:l' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
+        l) lts_kernel=true ;;
     esac
 done
 
@@ -66,6 +69,16 @@ if [[ $boot_splash = true ]]; then
 
 else
     rm /usr/share/calamares/modules/services-plymouth.conf
+fi
+
+if [[ ${lts_kernel} = true ]]; then
+    rm /usr/share/calamares/modules/unpackfs.conf
+    mv /usr/share/calamares/modules/unpackfs-lts.conf /usr/share/calamares/modules/unpackfs.conf
+
+    rm /usr/share/calamares/modules/initcpio.conf
+    mv /usr/share/calamares/modules/initcpio-lts.conf /usr/share/calamares/modules/initcpio.conf
+else
+    rm /usr/share/calamares/modules/initcpio-lts.conf
 fi
 
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config

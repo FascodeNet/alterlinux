@@ -164,10 +164,8 @@ tcpdump
 
 
 #-- linux --#
-linux
 linux-atm
 linux-firmware
-linux-headers
 
 
 #-- look and feel --#
@@ -204,8 +202,9 @@ cups
 cups-pdf
 
 
-#-- task manager --#
+#-- system monitor --#
 gnome-system-monitor
+cpu-x
 
 
 #-- text editor --#
