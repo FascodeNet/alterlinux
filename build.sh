@@ -3,6 +3,10 @@
 set -e -u
 
 # archiso settings
+#
+# Do not change this variable.
+# To change the settings permanently, edit the config file.
+
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
 iso_publisher="Alter Linux <http://www.archlinux.org>"
@@ -82,6 +86,8 @@ make_basefs() {
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
     # mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
     mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
+
+    # Install plymouth.
     if [[ ${boot_splash} = true ]]; then
         if [[ -n ${theme_pkg} ]]; then
             mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
@@ -89,6 +95,8 @@ make_basefs() {
             mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
         fi
     fi
+
+    # Install kernel.
     if [[ ${lts_kernel} = true ]]; then
         mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-lts linux-lts-headers" install
     else
@@ -148,6 +156,14 @@ make_customize_airootfs() {
     curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
 
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
+
+
+    # customize_airootfs.sh options
+    # -p <password> : Set password.
+    # -b            : Enable boot splash.
+    # -t            : Set plymouth theme.
+    # -l            : Enable lts kernel.
+
 
     local options
     if [[ ${boot_splash} = true ]]; then
@@ -338,6 +354,7 @@ while getopts 'w:o:g:p:c:t:hbl' arg; do
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         c)
+            # compression format check.
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
@@ -358,6 +375,7 @@ done
 
 mkdir -p ${work_dir}
 
+# Show Alter Linux build options.
 [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
 [[ ${lts_kernel} = true ]] && echo "LTS kernel is enabled."
 echo "Live user password is ${password}."
