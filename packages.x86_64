@@ -193,6 +193,7 @@ vlc
 
 
 #-- pacmage management --#
+eg-installer
 pamac-gtk
 yay-bin
 
