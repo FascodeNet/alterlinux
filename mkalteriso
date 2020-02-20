@@ -17,7 +17,7 @@ install_dir="alter"
 work_dir="work"
 out_dir="out"
 sfs_mode="sfs"
-sfs_comp="xz"
+sfs_comp="zstd"
 sfs_comp_opt=""
 gpg_key=
 
@@ -91,6 +91,7 @@ _usage ()
     echo "                     Default: '${sfs_comp}'"
     echo "    -t <options>     Set compressor-specific options. Run 'mksquashfs -h' for more help."
     echo "                     Default: empty"
+    # Verbose output is forced on.
     # echo "    -v               Enable verbose output"
     echo "    -h               This message"
     echo " commands:"
