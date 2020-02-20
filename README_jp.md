@@ -142,14 +142,24 @@ SereneTeamは主に中高生で構成されたLinuxディストリビューシ�
 Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
 私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
 
-### メンバーのTwitter
+### Twitter アカウント
 主要な開発メンバーのTwitterへのリンクです。  
 このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
 
-#### 開発担当
+#### 公式
+以下は公式のアカウントです。
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+#### 開発者
+主な開発メンバーのTwitterへのリンクです。  
+このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
+
+##### 開発担当
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-#### デザイン担当
+##### デザイン担当
 - [tukutun](https://twitter.com/tukutuN_27)

@@ -3,9 +3,9 @@
 
 ![AlterLogo](images/logo.png)
 
-![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)
-![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)
-![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
+[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://https://www.archlinux.org/)
+[![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
@@ -137,14 +137,22 @@ SereneTeam is a development team for a Linux distribution composed primarily of 
 [SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  
 Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
 
-### Member Twitter
+###  Twitter　account
+
+#### Official
+The following accounts are official.
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+#### Developer
 Link to Twitter of main development members.  
 All comments made on this account are not official SereneTeam statements and are solely for the developer.  
 
-#### Development
+##### Development
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-#### Design charge
+##### Design charge
 - [tukutun](https://twitter.com/tukutuN_27)
