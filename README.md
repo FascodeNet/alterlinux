@@ -144,7 +144,7 @@ All comments made on this account are not official SereneTeam statements and are
 #### Development
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
-- [yamad](https://twitter.com/_unix_like)
+- [yamad](https://twitter.com/yamad_linuxer)
 
 #### Design charge
 - [tukutun](https://twitter.com/tukutuN_27)
