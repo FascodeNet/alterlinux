@@ -5,24 +5,25 @@ set -e -u
 # デフォルト値
 password=alter
 boot_splash=false
-lts_kernel=false
+kernel=
 theme_name=alter-logo
 
 
 
 # オプション解析
-while getopts 'p:bt:l' arg; do
+while getopts 'p:bt:k:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        l) lts_kernel=true ;;
+        k) kernel="${OPTARG}" ;;
     esac
 done
 
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
+# sed -i 's/#\(ja_JP\.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 
 
@@ -85,15 +86,17 @@ fi
 
 
 # Replace calamares settings when lts kernel is enabled.
-if [[ ${lts_kernel} = true ]]; then
-    rm /usr/share/calamares/modules/unpackfs.conf
-    mv /usr/share/calamares/modules/unpackfs-lts.conf /usr/share/calamares/modules/unpackfs.conf
+if [[ -n ${kernel} ]]; then
+    # initcpio
+    [[ -f /usr/share/calamares/modules/initcpio.conf ]] && rm -f /usr/share/calamares/modules/initcpio.conf
+    mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
 
-    rm /usr/share/calamares/modules/initcpio.conf
-    mv /usr/share/calamares/modules/initcpio-lts.conf /usr/share/calamares/modules/initcpio.conf
-else
-    rm /usr/share/calamares/modules/initcpio-lts.conf
+    # unpackfs
+    [[ -f /usr/share/calamares/modules/unpackfs.conf ]] && rm -f /usr/share/calamares/modules/unpackfs.conf
+    mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
+[[ -d /usr/share/calamares/modules/initcpio/ ]] && rm -rf /usr/share/calamares/modules/initcpio/
+[[ -d /usr/share/calamares/modules/unpackfs/ ]] && rm -rf /usr/share/calamares/modules/unpackfs/
 
 
 # Enable root login with SSH.

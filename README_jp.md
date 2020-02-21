@@ -3,9 +3,9 @@
 
 ![AlterLogo](images/logo.png)
 
-![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)
-![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)
-![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
+[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://https://www.archlinux.org/)
+[![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
@@ -77,16 +77,31 @@ wizard.shを使用して簡単に思い通りの設定でビルドできます�
 
 #### オプション
 - Plymouthを有効化する ：   `-b`
-- LTSカーネルを有効化   :    `-l`
-- パスワードを変更する   ：   `-p <password>`
 - 圧縮方式を変える      ：   `-c <comp type>`
+- カーネルを変更する     :   `-k <kernel>`
+- パスワードを変更する   ：   `-p <password>`
 - 圧縮のオプション      ：   `-t <options>`
 
-例 ： PlymouthとLTSカーネルを有効化し、パスワードを`ilovearch`に変更し、圧縮方式を`gzip`にする。
+##### 例
+以下の条件でビルドするにはこのようにします。
+
+- Plymouthを有効化
+- 圧縮方式は`gzip`
+- カーネルは`linux-lqx`
+- パスワードは`ilovearch`
 
 ```bash
-./build.sh -l -b -p 'ilovearch' -c "gzip"
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' 
 ```
+
+##### カーネルについて
+カーネルは現在、以下の種類がサポートされています。未指定の場合は通常の`linux`カーネルが使用されます。  
+`-k`のオプションは必ず`linux-foo`の`foo`の部分を入れてください。例えば`linux-lts`の場合は`lts`が入ります。  
+  
+以下はサポートされている値とカーネルです。
+
+- lts  : `core`リポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
+- lqx    : デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
 
 ##### 圧縮方式について
 圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
@@ -142,14 +157,24 @@ SereneTeamは主に中高生で構成されたLinuxディストリビューシ�
 Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
 私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
 
-### メンバーのTwitter
+### Twitter アカウント
 主要な開発メンバーのTwitterへのリンクです。  
 このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
 
-#### 開発担当
+#### 公式
+以下は公式のアカウントです。
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+#### 開発者
+主な開発メンバーのTwitterへのリンクです。  
+このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
+
+##### 開発担当
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/_unix_like)
 
-#### デザイン担当
+##### デザイン担当
 - [tukutun](https://twitter.com/tukutuN_27)
