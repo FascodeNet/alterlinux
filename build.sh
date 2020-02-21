@@ -382,6 +382,7 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
             case ${OPTARG} in
                 "lts") kernel=lts ;;
                 "lqx") kernel=lqx ;;
+                "zen") kernel=zen ;;
                     *)
                         echo "Invalid kernel ${OPTARG}"
                         _usage 1
