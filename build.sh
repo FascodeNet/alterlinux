@@ -166,7 +166,7 @@ make_customize_airootfs() {
     # -p <password> : Set password.
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
-    # -l            : Enable lts kernel.
+    # -k <kernel>   : Set kernel name.
 
 
     local options
@@ -221,24 +221,29 @@ make_syslinux() {
     fi
     mkdir -p ${work_dir}/iso/${install_dir}/boot/syslinux
 
-    case ${kernel} in
-        lts)
-            rm ${script_path}/syslinux/archiso_pxe.cfg
-            mv ${script_path}/syslinux/archiso_pxe-lts.cfg ${script_path}/syslinux/archiso_pxe.cfg
-            rm ${script_path}/syslinux/archiso_sys.cfg
-            mv ${script_path}/syslinux/archiso_sys-lts.cfg ${script_path}/syslinux/archiso_sys.cfg
-            ;;
-
-        *   )
-            rm ${script_path}/syslinux/archiso_pxe-lts.cfg
-            rm ${script_path}/syslinux/archiso_sys-lts.cfg
-            ;;
-    esac
-
     for _cfg in ${script_path}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}
     done
+
+    if [[ -n ${kernel} ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_pxe/archiso_pxe-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg
+
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_sys/archiso_sys-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+    else
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_pxe/archiso_pxe.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg
+
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_sys/archiso_sys.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+    fi
+
     cp ${script_path}/syslinux/splash.png ${work_dir}/iso/${install_dir}/boot/syslinux
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/*.c32 ${work_dir}/iso/${install_dir}/boot/syslinux
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/lpxelinux.0 ${work_dir}/iso/${install_dir}/boot/syslinux
@@ -270,20 +275,15 @@ make_efi() {
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/
 
-    case ${kernel} in
-        lts)
-            rm ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf
-            mv ${script_path}/efiboot/loader/entries/archiso-x86_64-usb-lts.conf ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf
-            ;;
-
-        *  )
-            rm ${script_path}/efiboot/loader/entries/archiso-x86_64-usb-lts.conf
-            ;;
-    esac
-
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-        ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
+    if [[ -n ${kernel} ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
+    else
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
+    fi
 
     # EFI Shell 2.0 for UEFI 2.3+
     curl -o ${work_dir}/iso/EFI/shellx64_v2.efi https://raw.githubusercontent.com/tianocore/edk2/UDK2018/ShellBinPkg/UefiShell/X64/Shell.efi
@@ -324,20 +324,17 @@ make_efiboot() {
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/efiboot/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/efiboot/loader/entries/
 
-    case ${kernel} in
-        lts)
-            rm ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
-            mv ${script_path}/efiboot/loader/entries/archiso-x86_64-cd-lts.conf ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
-            ;;
-        
-          *)
-            rm ${script_path}/efiboot/loader/entries/archiso-x86_64-cd-lts.conf
-            ;;
-    esac
+    #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-        ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+    if [[ -n ${kernel} ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+    else
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+    fi
 
     cp ${work_dir}/iso/EFI/shellx64_v2.efi ${work_dir}/efiboot/EFI/
     cp ${work_dir}/iso/EFI/shellx64_v1.efi ${work_dir}/efiboot/EFI/
@@ -384,6 +381,7 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
         k) 
             case ${OPTARG} in
                 "lts") kernel=lts ;;
+                # "lqx") kernel=lqx ;;
                     *)
                         echo "Invalid kernel ${OPTARG}"
                         _usage 1

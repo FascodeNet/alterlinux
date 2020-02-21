@@ -23,6 +23,7 @@ done
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
+# sed -i 's/#\(ja_JP\.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 
 
@@ -85,21 +86,17 @@ fi
 
 
 # Replace calamares settings when lts kernel is enabled.
-case "${kernel}" in
-    lts)
-        rm /usr/share/calamares/modules/unpackfs.conf
-        mv /usr/share/calamares/modules/unpackfs-lts.conf /usr/share/calamares/modules/unpackfs.conf
+if [[ -n ${kernel} ]]; then
+    # initcpio
+    [[ -f /usr/share/calamares/modules/initcpio.conf ]] && rm -f /usr/share/calamares/modules/initcpio.conf
+    mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
 
-        rm /usr/share/calamares/modules/initcpio.conf
-        mv /usr/share/calamares/modules/initcpio-lts.conf /usr/share/calamares/modules/initcpio.conf
-        ;;
-    
-      *)
-        rm /usr/share/calamares/modules/initcpio-lts.conf
-        rm /usr/share/calamares/modules/unpackfs-lts.conf
-        ;;
-esac
-
+    # unpackfs
+    [[ -f /usr/share/calamares/modules/unpackfs.conf ]] && rm -f /usr/share/calamares/modules/unpackfs.conf
+    mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
+fi
+[[ -d /usr/share/calamares/modules/initcpio/ ]] && rm -rf /usr/share/calamares/modules/initcpio/
+[[ -d /usr/share/calamares/modules/unpackfs/ ]] &6 rm -rf /usr/share/calamares/modules/unpackfs/
 
 
 # Enable root login with SSH.
