@@ -52,7 +52,7 @@ _usage () {
     else
         echo "                        Default: ${gpg_key}"
     fi
-    echo "    -k                 Set special kernel type."
+    echo "    -k <kernel>        Set special kernel type."
     if [[ -z "${kernel}" ]]; then
         echo "                        Default: empty"
     else
@@ -170,6 +170,7 @@ make_customize_airootfs() {
 
 
     local options
+    options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
             options="-b"
@@ -382,7 +383,7 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
         b) boot_splash=true ;;
         k) 
             case ${OPTARG} in
-                "lts") kernel=lts
+                "lts") kernel=lts ;;
                     *)
                         echo "Invalid kernel ${OPTARG}"
                         _usage 1
