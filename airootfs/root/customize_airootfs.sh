@@ -96,7 +96,7 @@ if [[ -n ${kernel} ]]; then
     mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
 [[ -d /usr/share/calamares/modules/initcpio/ ]] && rm -rf /usr/share/calamares/modules/initcpio/
-[[ -d /usr/share/calamares/modules/unpackfs/ ]] &6 rm -rf /usr/share/calamares/modules/unpackfs/
+[[ -d /usr/share/calamares/modules/unpackfs/ ]] && rm -rf /usr/share/calamares/modules/unpackfs/
 
 
 # Enable root login with SSH.
