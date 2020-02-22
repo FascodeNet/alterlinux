@@ -123,7 +123,7 @@ gtk-update-icon-cache -f /usr/share/icons/hicolor
 
 # 鍵の追加
 curl -o /tmp/alter.pub https://xn--d-8o2b.com/repo/alter/alter.pub
-pacman=key -a /tmp/alter.pub
+pacman-key -a /tmp/alter.pub
 pacman-key --lsign-key repository@fascode.net
 rm -f /tmp/alter.pub
 
