@@ -94,10 +94,12 @@ To build under the following conditions:
 The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
 Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
   
-Below are the supported values and kernels.
+Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
 
-- lts: Long term support (LTS) Linux kernel and modules from the `core` repository.
-- lqx: Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
+- ck   : linux-ck contains patches to improve system response.
+- lts  : Long term support (LTS) Linux kernel and modules from the `core` repository.
+- lqx  : Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
+- zen  : `linux-zen` is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
 
 ##### About compression type
 See the `mksquashfs` help for compression options and more options.
