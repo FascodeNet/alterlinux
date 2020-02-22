@@ -34,7 +34,8 @@ refind-efi
 
 
 #-- calamares installer --#
-calamares
+# calamares
+alterlinux-calamares
 libpwquality
 
 
