@@ -383,6 +383,7 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
                 "lts") kernel=lts ;;
                 "lqx") kernel=lqx ;;
                 "zen") kernel=zen ;;
+                 "ck") kernel=ck  ;;
                     *)
                         echo "Invalid kernel ${OPTARG}"
                         _usage 1
