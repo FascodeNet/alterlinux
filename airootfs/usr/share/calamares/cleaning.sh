@@ -19,3 +19,5 @@ remove /etc/systemd/system/getty@tty1.service.d/autologin.conf
 remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
+remove /usr/bin/add-alter-key
+remove /etc/systemd/add-alter-key.service

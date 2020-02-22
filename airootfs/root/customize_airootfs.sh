@@ -121,20 +121,13 @@ sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 gtk-update-icon-cache -f /usr/share/icons/hicolor
 
 
-# 鍵の追加
-curl -o /tmp/alter.pub https://xn--d-8o2b.com/repo/alter/alter.pub
-pacman-key -a /tmp/alter.pub
-pacman-key --lsign-key repository@fascode.net
-rm -f /tmp/alter.pub
-
-
 # To disable start up of lightdm.
 # If it is enable, Users have to enter password.
 systemctl disable lightdm
 if [[ ${boot_splash} = true ]]; then
     systemctl disable lightdm-plymouth.service
 fi
-systemctl enable pacman-init.service choose-mirror.service org.cups.cupsd.service
+systemctl enable pacman-init.service choose-mirror.service org.cups.cupsd.service add-alter-key.service
 
 
 # systemctl set-default multi-user.target
