@@ -21,14 +21,14 @@ verbose="-v"
 # AlterLinux settings
 password=alter
 boot_splash=false
-lts_kernel=false
+kernel=
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
 sfs_comp_opt=""
 
 # Load extra settings
-[[ -f ./config ]] && source config
+[[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
 script_path=$(readlink -f ${0%/*})
 
@@ -52,8 +52,12 @@ _usage () {
     else
         echo "                        Default: ${gpg_key}"
     fi
-    echo "    -l                 Enable LTS linux kernel."
-    echo "                        Default: disable"
+    echo "    -k <kernel>        Set special kernel type."
+    if [[ -z "${kernel}" ]]; then
+        echo "                        Default: empty"
+    else
+        echo "                        Default: ${kernel}"
+    fi
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -97,10 +101,10 @@ make_basefs() {
     fi
 
     # Install kernel.
-    if [[ ${lts_kernel} = true ]]; then
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-lts linux-lts-headers" install
+    if [[ -n ${kernel} ]]; then
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
     else
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers" install
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
     fi
 }
 
@@ -132,8 +136,8 @@ make_setup_mkinitcpio() {
       exec 17<>${work_dir}/gpgkey
     fi
 
-    if [[ ${lts_kernel} = "true" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-lts -g /boot/archiso.img' run
+    if [[ -n ${kernel} ]]; then
+        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
     else
         ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
     fi
@@ -162,10 +166,11 @@ make_customize_airootfs() {
     # -p <password> : Set password.
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
-    # -l            : Enable lts kernel.
+    # -k <kernel>   : Set kernel name.
 
 
     local options
+    options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
             options="-b"
@@ -173,8 +178,8 @@ make_customize_airootfs() {
             options="-b -t ${theme_name}"
         fi
     fi
-    if [[ ${lts_kernel} = true ]]; then
-        options="${options} -l"
+    if [[ -n ${kernel} ]]; then
+        options="${options} -k ${kernel}"
     fi
     if [[ -z ${options} ]]; then
         mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
@@ -189,8 +194,8 @@ make_boot() {
     mkdir -p ${work_dir}/iso/${install_dir}/boot/x86_64
     cp ${work_dir}/x86_64/airootfs/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img
 
-    if [[ ${lts_kernel} = true ]]; then
-        cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-lts ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-lts
+    if [[ -n ${kernel} ]]; then
+        cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-${kernel} ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-${kernel}
     else
         cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz
     fi
@@ -209,27 +214,36 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    if [[ ${lts_kernel} = true ]]; then
-        _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-lts | awk 'f{print;f=0} /version/{f=1}' RS=' ')
+    if [[ -n ${kernel} ]]; then
+        _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-${kernel} | awk 'f{print;f=0} /version/{f=1}' RS=' ')
     else
         _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux | awk 'f{print;f=0} /version/{f=1}' RS=' ')
     fi
     mkdir -p ${work_dir}/iso/${install_dir}/boot/syslinux
 
-    if [[ ${lts_kernel} = true ]]; then
-        rm ${script_path}/syslinux/archiso_pxe.cfg
-        mv ${script_path}/syslinux/archiso_pxe-lts.cfg ${script_path}/syslinux/archiso_pxe.cfg
-        rm ${script_path}/syslinux/archiso_sys.cfg
-        mv ${script_path}/syslinux/archiso_sys-lts.cfg ${script_path}/syslinux/archiso_sys.cfg
-    else
-        rm ${script_path}/syslinux/archiso_pxe-lts.cfg
-        rm ${script_path}/syslinux/archiso_sys-lts.cfg
-    fi
-
     for _cfg in ${script_path}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}
     done
+
+    if [[ -n ${kernel} ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_pxe/archiso_pxe-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg
+
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_sys/archiso_sys-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+    else
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_pxe/archiso_pxe.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg
+
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_sys/archiso_sys.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+    fi
+
     cp ${script_path}/syslinux/splash.png ${work_dir}/iso/${install_dir}/boot/syslinux
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/*.c32 ${work_dir}/iso/${install_dir}/boot/syslinux
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/lpxelinux.0 ${work_dir}/iso/${install_dir}/boot/syslinux
@@ -261,16 +275,15 @@ make_efi() {
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/
 
-    if [[ ${lts_kernel} = true ]]; then
-        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf
-        mv ${script_path}/efiboot/loader/entries/archiso-x86_64-usb-lts.conf ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf
+    if [[ -n ${kernel} ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
     else
-        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-usb-lts.conf
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
     fi
-
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-        ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
 
     # EFI Shell 2.0 for UEFI 2.3+
     curl -o ${work_dir}/iso/EFI/shellx64_v2.efi https://raw.githubusercontent.com/tianocore/edk2/UDK2018/ShellBinPkg/UefiShell/X64/Shell.efi
@@ -289,8 +302,8 @@ make_efiboot() {
 
     mkdir -p ${work_dir}/efiboot/EFI/archiso
 
-    if [[ ${lts_kernel} = true ]]; then
-        cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-lts ${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-lts.efi
+    if [[ -n ${kernel} ]]; then
+        cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-${kernel} ${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-${kernel}.efi
     else
         cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/archiso/vmlinuz.efi
     fi
@@ -311,16 +324,17 @@ make_efiboot() {
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/efiboot/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/efiboot/loader/entries/
 
-    if [[ ${lts_kernel} = true ]]; then
-        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
-        mv ${script_path}/efiboot/loader/entries/archiso-x86_64-cd-lts.conf ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
-    else
-        rm ${script_path}/efiboot/loader/entries/archiso-x86_64-cd-lts.conf
-    fi
+    #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-        ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+    if [[ -n ${kernel} ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+    else
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
+    fi
 
     cp ${work_dir}/iso/EFI/shellx64_v2.efi ${work_dir}/efiboot/EFI/
     cp ${work_dir}/iso/EFI/shellx64_v1.efi ${work_dir}/efiboot/EFI/
@@ -347,7 +361,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbl' arg; do
+while getopts 'w:o:g:p:c:t:hbk:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -364,7 +378,19 @@ while getopts 'w:o:g:p:c:t:hbl' arg; do
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
-        l) lts_kernel=true ;;
+        k) 
+            case ${OPTARG} in
+                "lts") kernel=lts ;;
+                "lqx") kernel=lqx ;;
+                "zen") kernel=zen ;;
+                 "ck") kernel=ck  ;;
+                 "rt") kernel=rt  ;;
+                    *)
+                        echo "Invalid kernel ${OPTARG}"
+                        _usage 1
+                        ;;
+            esac
+            ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'"
@@ -377,7 +403,7 @@ mkdir -p ${work_dir}
 
 # Show Alter Linux build options.
 [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
-[[ ${lts_kernel} = true ]] && echo "LTS kernel is enabled."
+[[ -n "${kernel}" ]] && echo "kernel is changed to ${kernel}"
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2

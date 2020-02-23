@@ -3,9 +3,9 @@
 
 ![AlterLogo](images/logo.png)
 
-![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)
-![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)
-![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
+[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://https://www.archlinux.org/)
+[![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
@@ -71,17 +71,36 @@ Default compression type is `zstd`.
 
 
 #### Options
-- Enable Plymouth         ： `-b`
-- Enable LTS kernel       : `-l`
-- Change the password     ： `-p <password>`
+- Enable Plymouth         : `-b`
 - Change compression type : `-c <comp type>`
+- Change kernel           : `-k <kernel>`
+- Change the password     : `-p <password>`
 - Set compression options : `-t <options>`
 
-Example: Enable Plymouth and change the password to `ilovearch` and change compression type to `gzip` and enable linux-lts.
+##### Example
+
+To build under the following conditions:
+
+- Enable Plymouth
+- The compression method is `gzip`
+- The kernel is `linux-lqx`
+- The password is `ilovearch`
 
 ```bash
-./build.sh -l -b -p 'ilovearch' -c 'gzip'
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' 
 ```
+
+##### About the kernel
+The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
+Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
+  
+Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
+
+- ck   : linux-ck contains patches to improve system response.
+- lts  : Long term support (LTS) Linux kernel and modules from the `core` repository.
+- lqx  : Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
+- rt   : With this patch, almost all of the kernel can be run in real time.
+- zen  : `linux-zen` is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
 
 ##### About compression type
 See the `mksquashfs` help for compression options and more options.
@@ -137,14 +156,22 @@ SereneTeam is a development team for a Linux distribution composed primarily of 
 [SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  
 Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
 
-### Member Twitter
+###  Twitter　account
+
+#### Official
+The following accounts are official.
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+#### Developer
 Link to Twitter of main development members.  
 All comments made on this account are not official SereneTeam statements and are solely for the developer.  
 
-#### Development
+##### Development
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
 - [yamad](https://twitter.com/yamad_linuxer)
 
-#### Design charge
+##### Design charge
 - [tukutun](https://twitter.com/tukutuN_27)
