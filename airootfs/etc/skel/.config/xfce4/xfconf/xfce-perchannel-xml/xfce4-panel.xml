@@ -35,9 +35,7 @@
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="3"/>
-        <value type="int" value="4"/>
-        <value type="int" value="5"/>
-        <value type="int" value="6"/>
+        <value type="int" value="1"/>
         <value type="int" value="14"/>
       </property>
       <property name="enter-opacity" type="uint" value="75"/>
@@ -129,21 +127,6 @@
   <property name="plugins" type="empty">
     <property name="plugin-2" type="string" value="docklike"/>
     <property name="plugin-3" type="string" value="whiskermenu"/>
-    <property name="plugin-4" type="string" value="launcher">
-      <property name="items" type="array">
-        <value type="string" value="15804945041.desktop"/>
-      </property>
-    </property>
-    <property name="plugin-5" type="string" value="launcher">
-      <property name="items" type="array">
-        <value type="string" value="15804945192.desktop"/>
-      </property>
-    </property>
-    <property name="plugin-6" type="string" value="launcher">
-      <property name="items" type="array">
-        <value type="string" value="15804945513.desktop"/>
-      </property>
-    </property>
     <property name="plugin-11" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
@@ -174,5 +157,22 @@
       </property>
     </property>
     <property name="plugin-24" type="string" value="showdesktop"/>
+    <property name="plugin-1" type="string" value="actions">
+      <property name="appearance" type="uint" value="0"/>
+      <property name="items" type="array">
+        <value type="string" value="+shutdown"/>
+        <value type="string" value="+suspend"/>
+        <value type="string" value="+restart"/>
+        <value type="string" value="-logout"/>
+        <value type="string" value="-lock-screen"/>
+        <value type="string" value="-hibernate"/>
+        <value type="string" value="-switch-user"/>
+        <value type="string" value="-separator"/>
+        <value type="string" value="-hybrid-sleep"/>
+        <value type="string" value="-separator"/>
+        <value type="string" value="-separator"/>
+        <value type="string" value="-logout-dialog"/>
+      </property>
+    </property>
   </property>
 </channel>
