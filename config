@@ -34,3 +34,8 @@ theme_pkg="plymouth-theme-alter-logo-git"
 # See the `mksquashfs` help for details on these items.
 sfs_comp="zstd"
 sfs_comp_opt=""
+
+# Set the kernel that live session use.
+# Please don't set anything if you want to use normal kernel.
+# As of February 23, 2020, the available kernels are lts, zen, ck, and lqx.
+kernel=
