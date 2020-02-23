@@ -12,7 +12,7 @@
     <property name="panel-1" type="empty">
       <property name="position" type="string" value="p=10;x=970;y=953"/>
       <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="60"/>
+      <property name="length" type="uint" value="5"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="2"/>
