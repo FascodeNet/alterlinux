@@ -69,7 +69,10 @@ wizard.shを使用して簡単に思い通りの設定でビルドできます�
 ### build.shのオプション
 
 #### 基本
-通常はウィザードを使用してください。ウィザードを使用しない場合、デフォルトパスワードは`alter`です。Plymouthは無効化されています。デフォルトの圧縮方式は`zstd`です。  
+通常はウィザードを使用してください。  
+デフォルトパスワードは`alter`です。  
+lymouthは無効化されています。  
+デフォルトの圧縮方式は`zstd`です。  
 
 ```bash
 ./build.sh <options>
@@ -98,10 +101,13 @@ wizard.shを使用して簡単に思い通りの設定でビルドできます�
 カーネルは現在、以下の種類がサポートされています。未指定の場合は通常の`linux`カーネルが使用されます。  
 `-k`のオプションは必ず`linux-foo`の`foo`の部分を入れてください。例えば`linux-lts`の場合は`lts`が入ります。  
   
-以下はサポートされている値とカーネルです。
+以下はサポートされている値とカーネルです。カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
-- lts  : `core`リポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
-- lqx    : デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
+- ck    : linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
+- lts   : `core`リポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
+- lqx   : デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
+- rt    : このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
+- zen   : `linux-zen`はカーネルハッカーたちの知恵の結晶です。日常的な利用にうってつけの最高の Linux カーネルになります。
 
 ##### 圧縮方式について
 圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
@@ -174,7 +180,7 @@ Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公
 ##### 開発担当
 - [Hayao0819](https://twitter.com/Hayao0819)
 - [lap1sid](https://twitter.com/Pixel_3a)
-- [yamad](https://twitter.com/_unix_like)
+- [yamad](https://twitter.com/yamad_linuxer)
 
 ##### デザイン担当
 - [tukutun](https://twitter.com/tukutuN_27)

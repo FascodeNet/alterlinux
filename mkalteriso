@@ -259,8 +259,10 @@ _mkchecksum () {
 _mkisochecksum() {
     _msg_info "Creating md5 checksum ..."
     md5sum ${out_dir}/${img_name} > ${out_dir}/${img_name}.md5
+    _msg_info "Done! | $(ls -sh ${out_dir}/${img_name}.md5)"
     _msg_info "Creating sha256 checksum ..."
     sha256sum ${out_dir}/${img_name} > ${out_dir}/${img_name}.sha256
+     _msg_info "Done! | $(ls -sh ${out_dir}/${img_name}.sha256)"
 }
 
 _mksignature () {

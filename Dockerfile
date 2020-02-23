@@ -4,5 +4,5 @@ RUN pacman -Syyu --noconfirm
 RUN pacman -S git archiso arch-install-scripts --noconfirm
 RUN git clone https://github.com/SereneTeam/alterlinux.git alterlinux/
 WORKDIR /alterlinux
-RUN git checkout dev
+RUN git checkout dev-stable
 CMD ["./build.sh", "-c", "zstd"]
