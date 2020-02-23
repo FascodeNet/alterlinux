@@ -18,6 +18,15 @@
         <value type="int" value="2"/>
       </property>
       <property name="autohide-behavior" type="uint" value="1"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="1.000000"/>
+      </property>
+      <property name="enter-opacity" type="uint" value="75"/>
+      <property name="leave-opacity" type="uint" value="75"/>
     </property>
     <property name="panel-2" type="empty">
       <property name="position" type="string" value="p=6;x=64;y=25"/>
@@ -31,26 +40,34 @@
         <value type="int" value="6"/>
         <value type="int" value="14"/>
       </property>
-      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="enter-opacity" type="uint" value="75"/>
+      <property name="leave-opacity" type="uint" value="75"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="1.000000"/>
+      </property>
     </property>
     <property name="panel-3" type="empty">
       <property name="position" type="string" value="p=9;x=639;y=20"/>
       <property name="size" type="uint" value="35"/>
       <property name="length" type="uint" value="10"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="enter-opacity" type="uint" value="100"/>
-      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="enter-opacity" type="uint" value="75"/>
+      <property name="leave-opacity" type="uint" value="75"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="11"/>
         <value type="int" value="13"/>
         <value type="int" value="12"/>
       </property>
-      <property name="background-style" type="uint" value="0"/>
+      <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.750000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.250000"/>
         <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="1.000000"/>
       </property>
     </property>
     <property name="panel-4" type="empty">
@@ -66,14 +83,23 @@
         <value type="int" value="23"/>
         <value type="int" value="24"/>
       </property>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="1.000000"/>
+      </property>
+      <property name="enter-opacity" type="uint" value="75"/>
+      <property name="leave-opacity" type="uint" value="75"/>
     </property>
     <property name="panel-5" type="empty">
       <property name="position" type="string" value="p=8;x=98;y=949"/>
       <property name="size" type="uint" value="40"/>
       <property name="length" type="uint" value="20"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="enter-opacity" type="uint" value="100"/>
-      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="enter-opacity" type="uint" value="0"/>
+      <property name="leave-opacity" type="uint" value="0"/>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
         <value type="double" value="0.750000"/>
@@ -96,6 +122,8 @@
         <value type="double" value="0.000000"/>
       </property>
       <property name="autohide-behavior" type="uint" value="1"/>
+      <property name="enter-opacity" type="uint" value="0"/>
+      <property name="leave-opacity" type="uint" value="0"/>
     </property>
   </property>
   <property name="plugins" type="empty">
