@@ -99,6 +99,7 @@ Below are the supported values and kernels.The description of the kernel is from
 - ck   : linux-ck contains patches to improve system response.
 - lts  : Long term support (LTS) Linux kernel and modules from the `core` repository.
 - lqx  : Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
+- rt   : With this patch, almost all of the kernel can be run in real time.
 - zen  : `linux-zen` is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
 
 ##### About compression type
