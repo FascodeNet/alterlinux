@@ -86,7 +86,6 @@ man-pages
 
 #-- drivers --#
 b43-fwcutter
-broadcom-wl
 ipw2100-fw
 ipw2200-fw
 

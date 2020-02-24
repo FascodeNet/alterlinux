@@ -4,14 +4,31 @@
 # The variables here will override the default values.
 # This configuration file follows the bash syntax.
 
+# OS name used for the name of the image file.
 iso_name=alterlinux
+
+# Image file label
 iso_label="ALTER_$(date +%Y%m)"
+
+# Image file creator information
 iso_publisher="Alter Linux <http://www.archlinux.org>"
+
+# Image file name (not file name)
 iso_application="Alter Linux Live/Rescue CD"
+
+# Image file version
 iso_version=$(date +%Y.%m.%d)
+
+# Directory name used for installation
 install_dir=alter
+
+# Work directory to execute pacstrap etc
 work_dir=work
+
+# Directory to output image file and checksum
 out_dir=out
+
+# Key used for signature
 gpg_key=
 
 # AlterLinux settings
@@ -34,3 +51,8 @@ theme_pkg="plymouth-theme-alter-logo-git"
 # See the `mksquashfs` help for details on these items.
 sfs_comp="zstd"
 sfs_comp_opt=""
+
+# Set the kernel that live session use.
+# Please don't set anything if you want to use normal kernel.
+# As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
+kernel=

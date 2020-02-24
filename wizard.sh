@@ -55,7 +55,7 @@ function set_comp_option () {
         case ${yn} in
             y | Y | yes | Yes | YES ) details=true    ;;
             n | N | no  | No  | NO  ) details=false   ;;
-            *                       ) set_comp_option ;;
+            *                       ) set_comp_option ; return 0;;
         esac
         if ${details}; then
             :

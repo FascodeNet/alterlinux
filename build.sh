@@ -28,7 +28,7 @@ sfs_comp="zstd"
 sfs_comp_opt=""
 
 # Load extra settings
-[[ -f ./config ]] && source config
+[[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
 script_path=$(readlink -f ${0%/*})
 
@@ -102,9 +102,9 @@ make_basefs() {
 
     # Install kernel.
     if [[ -n ${kernel} ]]; then
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers" install
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
     else
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers" install
+        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
     fi
 }
 
@@ -382,6 +382,9 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
             case ${OPTARG} in
                 "lts") kernel=lts ;;
                 "lqx") kernel=lqx ;;
+                "zen") kernel=zen ;;
+                 "ck") kernel=ck  ;;
+                 "rt") kernel=rt  ;;
                     *)
                         echo "Invalid kernel ${OPTARG}"
                         _usage 1
