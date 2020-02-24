@@ -218,6 +218,10 @@ nano
 xdg-user-dirs
 
 
+#-- utility --#
+etcher-bin
+
+
 #-- web browser --#
 chromium
 # elinks
