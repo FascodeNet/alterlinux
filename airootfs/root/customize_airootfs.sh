@@ -2,7 +2,7 @@
 
 set -e -u
 
-# デフォルト値
+# Default Strings
 password=alter
 boot_splash=false
 kernel=
@@ -10,7 +10,7 @@ theme_name=alter-logo
 
 
 
-# オプション解析
+# Check options
 while getopts 'p:bt:k:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
