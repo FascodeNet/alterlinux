@@ -126,6 +126,7 @@ dnsutils
 ndisc6
 netctl
 networkmanager
+network-manager-applet
 ppp
 pptpclient
 rp-pppoe
@@ -191,7 +192,7 @@ viewnior
 vlc
 
 
-#-- pacmage management --#
+#-- package management --#
 eg-installer
 pamac-gtk
 yay-bin
@@ -225,10 +226,12 @@ chromium
 #-- xfce4 base --#
 exo
 garcon
+gnome-keyring
 thunar
 thunar-volman
 tumbler
 xfce4-appfinder
+xfce4-notifyd 
 xfce4-screenshooter
 xfce4-session
 xfce4-settings
