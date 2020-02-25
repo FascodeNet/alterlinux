@@ -45,7 +45,7 @@
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0.000000"/>
       </property>
     </property>
     <property name="panel-3" type="empty">
@@ -65,7 +65,7 @@
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0.000000"/>
       </property>
     </property>
     <property name="panel-4" type="empty">
@@ -86,7 +86,7 @@
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0.000000"/>
       </property>
       <property name="enter-opacity" type="uint" value="75"/>
       <property name="leave-opacity" type="uint" value="75"/>
