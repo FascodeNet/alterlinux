@@ -220,6 +220,8 @@ xdg-user-dirs
 
 #-- utility --#
 etcher-bin
+tlp
+tlpui
 
 
 #-- web browser --#
