@@ -127,7 +127,15 @@ systemctl disable lightdm
 if [[ ${boot_splash} = true ]]; then
     systemctl disable lightdm-plymouth.service
 fi
-systemctl enable pacman-init.service choose-mirror.service org.cups.cupsd.service
+systemctl enable pacman-init.service 
+systemctl enable choose-mirror.service 
+systemctl enable org.cups.cupsd.service
+
+# TLP
+systemctl enable tlp.service
+systemctl enable tlp-sleep.service
+systemctl mask systemd-rfkill.service
+systemctl mask systemd-rfkill.socket
 
 
 # systemctl set-default multi-user.target
