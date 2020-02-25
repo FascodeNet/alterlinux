@@ -135,7 +135,9 @@
       <property name="style" type="uint" value="0"/>
       <property name="expand" type="bool" value="true"/>
     </property>
-    <property name="plugin-13" type="string" value="clock"/>
+    <property name="plugin-13" type="string" value="clock">
+      <property name="digital-format" type="string" value="%m/%d %a %l:%M:%S"/>
+    </property>
     <property name="plugin-14" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
