@@ -17,6 +17,7 @@ while getopts 'p:bt:k:' arg; do
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel="${OPTARG}" ;;
+        x) set -x ;;
     esac
 done
 

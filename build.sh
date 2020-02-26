@@ -26,6 +26,7 @@ theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
 sfs_comp_opt=""
+debug=false
 
 # Load extra settings
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
@@ -69,6 +70,24 @@ _usage () {
     echo "    -h                 This help message"
     exit ${1}
 }
+
+# Check the value of a variable that can only be set to true or false.
+case ${boot_splash} in
+     true) : ;;
+    false) : ;;
+        *)
+            echo "The value ${boot_splash} set is invalid" >&2
+            ;;
+esac
+
+case ${debug} in
+     true) : ;;
+    false) : ;;
+        *)
+            echo "The value ${debug} set is invalid" >&2
+            ;;
+esac
+
 
 # Helper function to run make_*() only one time per architecture.
 run_once() {
@@ -173,14 +192,16 @@ make_customize_airootfs() {
     options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
-            options="-b"
+            options="${options} -b"
         else
-            options="-b -t ${theme_name}"
+            options="${options} -b -t ${theme_name}"
         fi
     fi
     if [[ -n ${kernel} ]]; then
         options="${options} -k ${kernel}"
     fi
+    if ${debug}; then
+        options="${options} -x"
     if [[ -z ${options} ]]; then
         mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
     else
@@ -361,7 +382,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:x' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -386,18 +407,26 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
                  "ck") kernel=ck  ;;
                  "rt") kernel=rt  ;;
                     *)
-                        echo "Invalid kernel ${OPTARG}"
+                        echo "Invalid kernel ${OPTARG}" >&2
                         _usage 1
                         ;;
             esac
             ;;
+        x) debug=true;;
         h) _usage 0 ;;
         *)
-           echo "Invalid argument '${arg}'"
+           echo "Invalid argument '${arg}'" >&2
            _usage 1
            ;;
     esac
 done
+
+# Debug mode
+if ${debug}; then
+    set -x
+else
+    set +x
+fi
 
 mkdir -p ${work_dir}
 
