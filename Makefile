@@ -26,27 +26,27 @@ zen:
 	@make cleanup
 
 test-linux:
-	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -t '-Xcompression-level 1'
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -t '-Xcompression-level 1' -x
 	@make cleanup
 
 test-ck:
-	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k ck -t '-Xcompression-level 1'
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k ck -t '-Xcompression-level 1' -x
 	@make cleanup
 
 test-lts:
-	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k lts -t '-Xcompression-level 1'
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k lts -t '-Xcompression-level 1' -x
 	@make cleanup
 
 test-lqx:
-	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k lqx -t '-Xcompression-level 1'
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k lqx -t '-Xcompression-level 1' -x
 	@make cleanup
 
 test-rt:
-	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt -t '-Xcompression-level 1'
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt -t '-Xcompression-level 1' -x
 	@make cleanup
 
 test-zen:
-	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k zen -t '-Xcompression-level 1'
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k zen -t '-Xcompression-level 1' -x
 	@make cleanup
 
 cleanup:
