@@ -28,7 +28,7 @@ sfs_comp="zstd"
 sfs_comp_opt=""
 debug=false
 
-# Load extra settings
+# Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
 script_path=$(readlink -f ${0%/*})
