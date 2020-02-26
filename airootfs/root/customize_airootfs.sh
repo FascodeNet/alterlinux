@@ -133,7 +133,6 @@ systemctl enable org.cups.cupsd.service
 
 # TLP
 systemctl enable tlp.service
-systemctl enable tlp-sleep.service
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
 
