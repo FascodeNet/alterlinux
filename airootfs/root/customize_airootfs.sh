@@ -17,6 +17,7 @@ while getopts 'p:bt:k:' arg; do
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel="${OPTARG}" ;;
+        x) set -x ;;
     esac
 done
 
@@ -127,7 +128,15 @@ systemctl disable lightdm
 if [[ ${boot_splash} = true ]]; then
     systemctl disable lightdm-plymouth.service
 fi
-systemctl enable pacman-init.service choose-mirror.service org.cups.cupsd.service
+systemctl enable pacman-init.service 
+systemctl enable choose-mirror.service 
+systemctl enable org.cups.cupsd.service
+systemctl enable NetworkManager.service
+
+# TLP
+systemctl enable tlp.service
+systemctl mask systemd-rfkill.service
+systemctl mask systemd-rfkill.socket
 
 
 # systemctl set-default multi-user.target
