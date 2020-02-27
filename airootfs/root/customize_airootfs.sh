@@ -131,6 +131,7 @@ fi
 systemctl enable pacman-init.service 
 systemctl enable choose-mirror.service 
 systemctl enable org.cups.cupsd.service
+systemctl enable NetworkManager.service
 
 # TLP
 systemctl enable tlp.service
