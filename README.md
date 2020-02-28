@@ -7,6 +7,9 @@
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
+| [日本語](README_jp.md) | [English](README.md) |
+|:-----:|:-----:|
+
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
 
