@@ -28,13 +28,32 @@ remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
 
-cat > /etc/skel/.config/gtk-3.0/bookmarks << EOF
-file:///home/${user}/Pictures
-file:///home/${user}/etc/skel/.config/gtk-3.0/bookmarks/Videos
-file:///home/${user}/Templates
-file:///home/${user}/Music
-file:///home/${user}/Downloads
-file:///home/${user}/Documents
-EOF
+if [[ -f /home/${user}/.config/user-dirs.dirs ]]
+    HOME="/home/${user}"
+    source ${HOME}/.config/user-dirs.dirs
 
-cp /etc/skel/.config/gtk-3.0/bookmarks /home/${user}/.config/gtk-3.0/bookmarks
+    # Add pictures to bookmark
+    echo -n "file://" >> ${HOME}/.config/user-dirs.dirs
+    echo -n "${XDG_PICTURES_DIR}" >> ${HOME}/.config/user-dirs.dirs
+    echo -ne "\n" >> ${HOME}/.config/user-dirs.dirs
+
+    # Add videos to bookmark
+    echo -n "file://" >> ${HOME}/.config/user-dirs.dirs
+    echo -n "${XDG_VIDEOS_DIR}" >> ${HOME}/.config/user-dirs.dirs
+    echo -ne "\n" >> ${HOME}/.config/user-dirs.dirs
+
+    # Add music to bookmark
+    echo -n "file://" >> ${HOME}/.config/user-dirs.dirs
+    echo -n "${XDG_VIDEOS_DIR}" >> ${HOME}/.config/user-dirs.dirs
+    echo -ne "\n" >> ${HOME}/.config/user-dirs.dirs
+
+    # Add downloads to bookmark
+    echo -n "file://" >> ${HOME}/.config/user-dirs.dirs
+    echo -n "${XDG_DOWNLOAD_DIR}" >> ${HOME}/.config/user-dirs.dirs
+    echo -ne "\n" >> ${HOME}/.config/user-dirs.dirs
+
+    # Add documents to bookmark
+    echo -n "file://" >> ${HOME}/.config/user-dirs.dirs
+    echo -n "${XDG_DOCUMENTS_DIR}" >> ${HOME}/.config/user-dirs.dirs
+    echo -ne "\n" >> ${HOME}/.config/user-dirs.dirs
+fi
