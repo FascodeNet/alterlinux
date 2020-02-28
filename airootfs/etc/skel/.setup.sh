@@ -1,36 +1,11 @@
 #!/usr/bin/env bash
 
-function remove () {
-    local list
-    local file
-    list=($(echo "$@"))
-    for file in "${list[@]}"; do
-        if [[ -f ${file} ]]; then
-            rm -f "${file}"
-        elif [[ -d ${file} ]]; then
-            rm -rf "${file}"
-        fi
-    done
-}
+# Creating a xdg
+LANG=C
+xdg-user-dirs-update
 
-while getopts 'u:' arg; do
-    case "${arg}" in
-        u) user="${OPTARG}";;
-    esac
-done
-
-remove /etc/skel/Desktop
-remove /etc/skel/.config/gtk-3.0/bookmarks
-remove /home/${user}/Desktop/calamares.desktop
-remove /home/${user}/.config/gtk-3.0/bookmarks
-remove /etc/systemd/system/getty@tty1.service.d/autologin.conf
-remove /root/.automated_script.sh
-remove /etc/mkinitcpio-archiso.conf
-remove /etc/initcpio
-
-<<DISABLED
-if [[ -f /home/${user}/.config/user-dirs.dirs ]]; then
-    HOME="/home/${user}"
+HOME="~"
+if [[ -f ${HOME}/.config/user-dirs.dirs ]]; then
     source ${HOME}/.config/user-dirs.dirs
 
     # Add pictures to bookmark
@@ -58,4 +33,3 @@ if [[ -f /home/${user}/.config/user-dirs.dirs ]]; then
     echo -n "${XDG_DOCUMENTS_DIR}" >> ${HOME}/.config/gtk-3.0/bookmarks
     echo -ne "\n" >> ${HOME}/.config/gtk-3.0/bookmarks
 fi
-DISABLED
