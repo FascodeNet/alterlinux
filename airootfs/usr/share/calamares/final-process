@@ -28,7 +28,7 @@ remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
 
-if [[ -f /home/${user}/.config/user-dirs.dirs ]]
+if [[ -f /home/${user}/.config/user-dirs.dirs ]]; then
     HOME="/home/${user}"
     source ${HOME}/.config/user-dirs.dirs
 
