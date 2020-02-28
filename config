@@ -56,3 +56,8 @@ sfs_comp_opt=""
 # Please don't set anything if you want to use normal kernel.
 # As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
 kernel=
+
+# Set debug mode.
+# This setting can only be set to true or false.
+# When enabled, bash debug mode is enabled, making it easier to identify which command caused the error.
+debug=false
