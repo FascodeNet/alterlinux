@@ -39,14 +39,22 @@
         <value type="int" value="14"/>
       </property>
       <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+      </property>
     </property>
     <property name="panel-3" type="empty">
       <property name="position" type="string" value="p=9;x=639;y=20"/>
       <property name="size" type="uint" value="35"/>
       <property name="length" type="uint" value="10"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="enter-opacity" type="uint" value="75"/>
-      <property name="leave-opacity" type="uint" value="75"/>
+      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="11"/>
         <value type="int" value="13"/>
@@ -54,6 +62,9 @@
       </property>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
       </property>
     </property>
@@ -70,6 +81,15 @@
         <value type="int" value="23"/>
         <value type="int" value="24"/>
       </property>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+        <value type="double" value="0.000000"/>
+      </property>
+      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
     </property>
     <property name="panel-5" type="empty">
       <property name="position" type="string" value="p=8;x=98;y=949"/>
