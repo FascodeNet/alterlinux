@@ -13,17 +13,9 @@
 ## ブランチ
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
 
-| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) |
-|:-----:|
-最も安定しています。バグの修正などは遅れる場合があります。
-
-| [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) |
-|:-----:|
-定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。
-
-|[開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|
-常に更新されます。問題が多数残っている場合があります。
+| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) |  [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
+|:-----:|:-----:|:-----:|
+| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。|
 
 ## 概要
   

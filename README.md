@@ -10,17 +10,9 @@
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
 
-| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) |
-|:-----:|
-Most stable. Bug fixes may be delayed.  
-
-| [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) |
-|:-----:|
-It is updated regularly. Relatively stable, with the latest features and fixes.  
-
-|[dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|
-Always updated. There may be many issues left.  
+| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
+|:-----:|:-----:|:-----:|
+| Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
 ## Overview
   
