@@ -27,6 +27,7 @@ remove /etc/systemd/system/getty@tty1.service.d/autologin.conf
 remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
+remove /usr/share/calamares/
 
 <<DISABLED
 if [[ -f /home/${user}/.config/user-dirs.dirs ]]; then
