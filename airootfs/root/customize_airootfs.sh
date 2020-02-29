@@ -83,9 +83,24 @@ alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 EOF
 
 
-# Delete unnecessary files for Manjaro.
-[[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
-[[ -f /usr/share/calamares/modules/mhwdcfg.conf ]] && /usr/share/calamares/modules/mhwdcfg.conf
+# Delete unnecessary files.
+
+# Delete file only if file exists
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
+
+remove /usr/share/calamares/branding/manjaro
+remove /usr/share/calamares/modules/mhwdcfg.conf
 
 
 # Replace wallpaper.
@@ -113,11 +128,11 @@ fi
 # Replace calamares settings when lts kernel is enabled.
 if [[ -n ${kernel} ]]; then
     # initcpio
-    [[ -f /usr/share/calamares/modules/initcpio.conf ]] && rm -f /usr/share/calamares/modules/initcpio.conf
+    remove /usr/share/calamares/modules/initcpio.conf
     mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
 
     # unpackfs
-    [[ -f /usr/share/calamares/modules/unpackfs.conf ]] && rm -f /usr/share/calamares/modules/unpackfs.conf
+    remove /usr/share/calamares/modules/unpackfs.conf
     mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
 [[ -d /usr/share/calamares/modules/initcpio/ ]] && rm -rf /usr/share/calamares/modules/initcpio/
