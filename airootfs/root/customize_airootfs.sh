@@ -41,16 +41,39 @@ LC_ALL=C xdg-user-dirs-update
 LANG=C xdg-user-dirs-update
 echo -e "${password}\n${password}" | passwd root
 
+# Allow sudo group to run sudo
+sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
 # Create alter user.
-useradd -m -s /bin/bash alter
-groupadd sudo
-usermod -G sudo alter
-sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
-cp -aT /etc/skel/ /home/alter/
-chmod 700 -R /home/alter
-chown alter:alter -R /home/alter
-echo -e "${password}\n${password}" | passwd alter
+# create_user -u <username> -p <password>
+function create_user () {
+    local _password
+    local _username
+
+    # Option analysis
+    while getopts 'p:u:' arg; do
+        case "${arg}" in
+            p) _password="${OPTARG}" ;;
+            u) _username="${OPTARG}" ;;
+        esac
+    done
+
+    # User name is empty
+    [[ -z "${_username}" ]] && echo "User name is empty" >&2; exit 1
+    [[ -z "${_password}" ]] && echo "User password is empty" >&2; exit 1
+
+
+    useradd -m -s /bin/bash ${_username}
+    groupadd sudo
+    usermod -G sudo ${_username}
+    cp -aT /etc/skel/ /home/${_username}/
+    chmod 700 -R /home/${_username}
+    chown ${_username}:${_username} -R /home/${_username}
+    echo -e "${_password}\n${_password}" | passwd ${_username}
+}
+
+create_user -u alter -p "${password}"
+
 
 
 # Set to execute calamares without password as alter user.
