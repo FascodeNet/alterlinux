@@ -2,7 +2,7 @@
 
 set -e -u
 
-# デフォルト値
+# Default value
 password=alter
 boot_splash=false
 kernel=
@@ -86,6 +86,7 @@ EOF
 # Delete unnecessary files.
 
 # Delete file only if file exists
+# remove <file1> <file2>
 function remove () {
     local _list
     local _file
@@ -158,9 +159,11 @@ sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 
 
 # Create new icon cache
+# This is because alter icon was added by airootfs.
 gtk-update-icon-cache -f /usr/share/icons/hicolor
 
 
+# Enable services.
 # To disable start up of lightdm.
 # If it is enable, Users have to enter password.
 systemctl disable lightdm
@@ -173,6 +176,7 @@ systemctl enable org.cups.cupsd.service
 systemctl enable NetworkManager.service
 
 # TLP
+# See ArchWiki for details.
 systemctl enable tlp.service
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
