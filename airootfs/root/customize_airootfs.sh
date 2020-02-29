@@ -49,6 +49,8 @@ sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 function create_user () {
     local _password
     local _username
+    _password=${password}
+    _username=alter
 
     # Option analysis
     while getopts 'p:u:' arg; do
@@ -58,11 +60,6 @@ function create_user () {
         esac
     done
 
-    # User name is empty
-    [[ -z "${_username}" ]] && echo "User name is empty" >&2; exit 1
-    [[ -z "${_password}" ]] && echo "User password is empty" >&2; exit 1
-
-
     useradd -m -s /bin/bash ${_username}
     groupadd sudo
     usermod -G sudo ${_username}
@@ -70,6 +67,7 @@ function create_user () {
     chmod 700 -R /home/${_username}
     chown ${_username}:${_username} -R /home/${_username}
     echo -e "${_password}\n${_password}" | passwd ${_username}
+    set -u
 }
 
 create_user -u alter -p "${password}"
