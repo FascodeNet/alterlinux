@@ -402,11 +402,12 @@ while getopts 'w:o:g:p:c:t:hbk:x' arg; do
         b) boot_splash=true ;;
         k) 
             case ${OPTARG} in
-                "lts") kernel=lts ;;
-                "lqx") kernel=lqx ;;
-                "zen") kernel=zen ;;
-                 "ck") kernel=ck  ;;
-                 "rt") kernel=rt  ;;
+                "lts") kernel="lts"    ;;
+                "lqx") kernel="lqx"    ;;
+                "zen") kernel="zen"    ;;
+                 "ck") kernel="ck"     ;;
+                 "rt") kernel="rt"     ;;
+             "rt-lts") kernel="rt-lts" ;;
                     *)
                         echo "Invalid kernel ${OPTARG}" >&2
                         _usage 1
