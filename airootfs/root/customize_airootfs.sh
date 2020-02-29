@@ -62,6 +62,7 @@ EOF
 
 # Delete unnecessary files for Manjaro.
 [[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
+[[ -f /usr/share/calamares/modules/mhwdcfg.conf ]] && /usr/share/calamares/modules/mhwdcfg.conf
 
 
 # Replace wallpaper.
