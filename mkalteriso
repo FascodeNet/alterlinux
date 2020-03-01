@@ -44,7 +44,7 @@ _msg_error() {
 
 _chroot_init() {
     mkdir -p ${work_dir}/airootfs
-    _pacman "base syslinux"
+    _pacman "base base-devel syslinux"
 }
 
 _chroot_run() {

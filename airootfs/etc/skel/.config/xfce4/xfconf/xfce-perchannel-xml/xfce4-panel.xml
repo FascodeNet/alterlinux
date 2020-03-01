@@ -25,8 +25,8 @@
         <value type="double" value="0.000000"/>
         <value type="double" value="1.000000"/>
       </property>
-      <property name="enter-opacity" type="uint" value="60"/>
-      <property name="leave-opacity" type="uint" value="60"/>
+      <property name="enter-opacity" type="uint" value="75"/>
+      <property name="leave-opacity" type="uint" value="75"/>
     </property>
     <property name="panel-2" type="empty">
       <property name="position" type="string" value="p=6;x=64;y=25"/>

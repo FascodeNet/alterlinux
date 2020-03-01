@@ -10,15 +10,19 @@
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
-| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) | [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|:-----:|:-----:|
-
 ## 概要
   
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
-  
- ## リポジトリとソフトウェア
+
+## ブランチ
+主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
+
+| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) |  [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
+|:-----:|:-----:|:-----:|
+| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。|
+
+## リポジトリとソフトウェア
 
 ### リポジトリ
 - [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
