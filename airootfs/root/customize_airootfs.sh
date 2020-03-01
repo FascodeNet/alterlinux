@@ -81,8 +81,22 @@ alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 EOF
 
 
-# Delete unnecessary files for Manjaro.
-[[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
+# Delete unnecessary files.
+
+# Delete file only if file exists
+# remove <file1> <file2>
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
 
 
 # Replace wallpaper.
