@@ -153,7 +153,6 @@ function set_password () {
         set_password
     fi
     unset confirm
-    echo
 }
 
 function select_kernel () {
@@ -234,6 +233,7 @@ function ask () {
     select_comp_type
     set_comp_option
     set_password
+    lastcheck
 }
 
 # 将来的なビルド用の確認（このスクリプトは将来的には自動でcloneしビルドすることを目指しています。）
@@ -256,11 +256,14 @@ function lastcheck () {
     esac
 }
 
+function start_build () {
+    # build.shの引数を表示（デバッグ用）
+    # echo ${argument}
+    sudo ./build.sh ${argument}
+    make cleanup
+}
 
 # 関数を実行
 ask
-lastcheck
 generate_argument
-
-# build.shの引数を表示（デバッグ用）
-echo ${argument}
+start_build
