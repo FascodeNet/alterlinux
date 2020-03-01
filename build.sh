@@ -434,7 +434,6 @@ echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
 
-exit
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
