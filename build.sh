@@ -68,6 +68,7 @@ _usage () {
     echo "    -w <work_dir>      Set the working directory"
     echo "                        Default: ${work_dir}"
     echo "    -h                 This help message"
+    echo "    -x                 Enable debug mode."
     exit ${1}
 }
 
@@ -186,6 +187,7 @@ make_customize_airootfs() {
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
     # -k <kernel>   : Set kernel name.
+    # -x            : Enable debug mode.
 
 
     local options
@@ -401,18 +403,12 @@ while getopts 'w:o:g:p:c:t:hbk:x' arg; do
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
         k) 
-            case ${OPTARG} in
-                "lts") kernel="lts"    ;;
-                "lqx") kernel="lqx"    ;;
-                "zen") kernel="zen"    ;;
-                 "ck") kernel="ck"     ;;
-                 "rt") kernel="rt"     ;;
-             "rt-lts") kernel="rt-lts" ;;
-                    *)
-                        echo "Invalid kernel ${OPTARG}" >&2
-                        _usage 1
-                        ;;
-            esac
+            if [[ -n $(cat ./kernel_list | grep -x "${OPTARG}") ]]; then
+                kernel="${OPTARG}"
+            else
+                echo "Invalid kernel ${OPTARG}" >&2
+                _usage 1
+            fi
             ;;
         x) debug=true;;
         h) _usage 0 ;;
@@ -439,7 +435,6 @@ mkdir -p ${work_dir}
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
-
 
 run_once make_pacman_conf
 run_once make_basefs
