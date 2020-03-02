@@ -31,10 +31,12 @@ All mirror servers are synchronized with this repository.
 
 ### Software
 The source code of the original software included in Alter Linux is below.
-The first of all packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
+The list of packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
+The perfect list of all packages is in live image file. 
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
+- [lightdm-webkit2-theme-alter](https://github.com/SereneTeam/lightdm-webkit2-theme-alter)([PKGBUILD](https://github.com/Hayao0819/alterlinux-pkgbuilds/tree/master/unstable/lightdm-webkit2-theme-alter))
 
 The source code for software not in the AUR can be found below.
 

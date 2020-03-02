@@ -31,10 +31,12 @@ Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツー�
 
 ### ソフトウェア
 Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
-全てのパッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。
+パッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。  
+すべての完全なパッケージ一覧はイメージファイル内にあります。
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
+- [lightdm-webkit2-theme-alter](https://github.com/SereneTeam/lightdm-webkit2-theme-alter)([PKGBUILD](https://github.com/Hayao0819/alterlinux-pkgbuilds/tree/master/unstable/lightdm-webkit2-theme-alter))
 
 AURに無いソフトウェアのソースコードは以下にあります。
 
