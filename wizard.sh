@@ -153,8 +153,62 @@ function set_password () {
         set_password
     fi
     unset confirm
-    echo
 }
+
+function select_kernel () {
+    set +e
+    local do_you_want_to_select_kernel
+
+    function do_you_want_to_select_kernel () {
+        set +e
+        local yn
+        echo -n "通常以外のLinuxカーネルを使用しますか？ （y/N） : "
+        read yn
+        case ${yn} in
+            y | Y | yes | Yes | YES ) return 0    ;;
+            n | N | no  | No  | NO  ) return 1    ;;
+            *                       ) do_you_want_to_select_kernel ; return;;
+        esac
+
+    }
+
+    local what_kernel
+
+    function what_kernel () {
+        echo "使用するカーネルを以下の番号から選択してください "
+        echo
+        echo "1: linux-lts"
+        echo "2: linux-zen"
+        echo "3: linux-ck"
+        echo "4: linux-rt"
+        echo "5: linux-lqx"
+        echo -n ": "
+
+        read yn
+
+        case ${yn} in
+            1) kernel="lts" ;;
+            2) kernel="zen" ;;
+            3) kernel="ck"  ;;
+            4) kernel="rt"  ;;
+            5) kernel="lqx" ;;
+            lts) kernel="lts" ;;
+            zen) kernel="zen" ;;
+            ck) kernel="ck"  ;;
+            rt) kernel="rt"  ;;
+            lqx) kernel="lqx" ;;
+            *) what_kernel ;;
+        esac
+    }
+
+    do_you_want_to_select_kernel
+    exit_code=$?
+    if [[ ${exit_code} = 0 ]]; then
+        what_kernel
+    fi
+    set -e
+}
+
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
@@ -164,6 +218,9 @@ function generate_argument () {
     if [[ -n ${comp_type} ]]; then
         argument="${argument} -c ${comp_type}"
     fi
+    if [[ -n ${kernel} ]]; then
+        argument="${argument} -k ${kernel}"
+    fi
     if [[ -n ${password} ]]; then
         argument="${argument} -p ${password}"
     fi
@@ -172,9 +229,11 @@ function generate_argument () {
 #　上の質問の関数を実行
 function ask () {
     enable_plymouth
+    select_kernel
     select_comp_type
     set_comp_option
     set_password
+    lastcheck
 }
 
 # 将来的なビルド用の確認（このスクリプトは将来的には自動でcloneしビルドすることを目指しています。）
@@ -182,6 +241,7 @@ function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
     echo "           Plymouth : ${plymouth}"
+    echo "             kernel : ${kernel}"
     echo " Compression method : ${comp_type}"
     echo "Compression options : ${comp_option}"
     echo "          Password  : ${password}"
@@ -196,11 +256,14 @@ function lastcheck () {
     esac
 }
 
+function start_build () {
+    # build.shの引数を表示（デバッグ用）
+    # echo ${argument}
+    sudo ./build.sh ${argument}
+    make cleanup
+}
 
 # 関数を実行
 ask
-lastcheck
 generate_argument
-
-# build.shの引数を表示（デバッグ用）
-echo ${argument}
+start_build

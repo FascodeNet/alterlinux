@@ -53,9 +53,11 @@ irssi
 
 #-- display manager --#
 lightdm
-#lightdm-gtk-greeter
-lightdm-slick-greeter
-lightdm-settings
+lightdm-webkit2-greeter
+lightdm-webkit2-theme-alter
+# lightdm-gtk-greeter
+# lightdm-slick-greeter
+# lightdm-settings
 
 
 #-- disk management --#
@@ -126,6 +128,7 @@ dnsutils
 ndisc6
 netctl
 networkmanager
+network-manager-applet
 ppp
 pptpclient
 rp-pppoe
@@ -191,7 +194,7 @@ viewnior
 vlc
 
 
-#-- pacmage management --#
+#-- package management --#
 eg-installer
 pamac-gtk
 yay-bin
@@ -217,6 +220,12 @@ nano
 xdg-user-dirs
 
 
+#-- utility --#
+etcher-bin
+tlp
+tlpui
+
+
 #-- web browser --#
 chromium
 # elinks
@@ -225,10 +234,12 @@ chromium
 #-- xfce4 base --#
 exo
 garcon
+gnome-keyring
 thunar
 thunar-volman
 tumbler
 xfce4-appfinder
+xfce4-notifyd 
 xfce4-screenshooter
 xfce4-session
 xfce4-settings

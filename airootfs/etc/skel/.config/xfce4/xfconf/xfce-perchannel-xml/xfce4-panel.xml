@@ -38,14 +38,14 @@
         <value type="int" value="1"/>
         <value type="int" value="14"/>
       </property>
-      <property name="enter-opacity" type="uint" value="75"/>
-      <property name="leave-opacity" type="uint" value="75"/>
+      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0.000000"/>
       </property>
     </property>
     <property name="panel-3" type="empty">
@@ -53,8 +53,8 @@
       <property name="size" type="uint" value="35"/>
       <property name="length" type="uint" value="10"/>
       <property name="position-locked" type="bool" value="true"/>
-      <property name="enter-opacity" type="uint" value="75"/>
-      <property name="leave-opacity" type="uint" value="75"/>
+      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="11"/>
         <value type="int" value="13"/>
@@ -65,7 +65,7 @@
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0.000000"/>
       </property>
     </property>
     <property name="panel-4" type="empty">
@@ -86,10 +86,10 @@
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
         <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0.000000"/>
       </property>
-      <property name="enter-opacity" type="uint" value="75"/>
-      <property name="leave-opacity" type="uint" value="75"/>
+      <property name="enter-opacity" type="uint" value="100"/>
+      <property name="leave-opacity" type="uint" value="100"/>
     </property>
     <property name="panel-5" type="empty">
       <property name="position" type="string" value="p=8;x=98;y=949"/>
@@ -135,7 +135,9 @@
       <property name="style" type="uint" value="0"/>
       <property name="expand" type="bool" value="true"/>
     </property>
-    <property name="plugin-13" type="string" value="clock"/>
+    <property name="plugin-13" type="string" value="clock">
+      <property name="digital-format" type="string" value="%m/%d %a %l:%M:%S"/>
+    </property>
     <property name="plugin-14" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
@@ -151,6 +153,7 @@
     </property>
     <property name="plugin-23" type="string" value="systray">
       <property name="names-ordered" type="array">
+        <value type="string" value="networkmanager applet"/>
         <value type="string" value="thunar"/>
         <value type="string" value="pamac-tray"/>
         <value type="string" value="blueman-tray"/>

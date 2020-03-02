@@ -44,7 +44,7 @@ _msg_error() {
 
 _chroot_init() {
     mkdir -p ${work_dir}/airootfs
-    _pacman "base syslinux"
+    _pacman "base base-devel syslinux"
 }
 
 _chroot_run() {
@@ -380,7 +380,7 @@ fi
 
 umask 0022
 
-while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:t:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
@@ -396,6 +396,7 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:t:vh' arg; do
         t) sfs_comp_opt="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
+        x) set -x ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0

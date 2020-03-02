@@ -16,7 +16,7 @@ install_dir=alter
 work_dir=work
 out_dir=out
 gpg_key=
-verbose="-v"
+alteriso_option="-v"
 
 # AlterLinux settings
 password=alter
@@ -26,8 +26,9 @@ theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
 sfs_comp_opt=""
+debug=false
 
-# Load extra settings
+# Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
 script_path=$(readlink -f ${0%/*})
@@ -67,8 +68,27 @@ _usage () {
     echo "    -w <work_dir>      Set the working directory"
     echo "                        Default: ${work_dir}"
     echo "    -h                 This help message"
+    echo "    -x                 Enable debug mode."
     exit ${1}
 }
+
+# Check the value of a variable that can only be set to true or false.
+case ${boot_splash} in
+     true) : ;;
+    false) : ;;
+        *)
+            echo "The value ${boot_splash} set is invalid" >&2
+            ;;
+esac
+
+case ${debug} in
+     true) : ;;
+    false) : ;;
+        *)
+            echo "The value ${debug} set is invalid" >&2
+            ;;
+esac
+
 
 # Helper function to run make_*() only one time per architecture.
 run_once() {
@@ -87,30 +107,30 @@ make_pacman_conf() {
 
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
-    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
-    # mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
-    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
+    mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
+    # mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
+    mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
 
     # Install plymouth.
     if [[ ${boot_splash} = true ]]; then
         if [[ -n ${theme_pkg} ]]; then
-            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
+            mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
         else
-            mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+            mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
         fi
     fi
 
     # Install kernel.
     if [[ -n ${kernel} ]]; then
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
+        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
     else
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
+        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
     fi
 }
 
 # Additional packages (airootfs)
 make_packages() {
-    mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
+    mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -137,9 +157,9 @@ make_setup_mkinitcpio() {
     fi
 
     if [[ -n ${kernel} ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
+        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
     else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
+        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
     fi
 
     if [[ ${gpg_key} ]]; then
@@ -167,24 +187,28 @@ make_customize_airootfs() {
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
     # -k <kernel>   : Set kernel name.
+    # -x            : Enable debug mode.
 
 
     local options
     options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
-            options="-b"
+            options="${options} -b"
         else
-            options="-b -t ${theme_name}"
+            options="${options} -b -t ${theme_name}"
         fi
     fi
     if [[ -n ${kernel} ]]; then
         options="${options} -k ${kernel}"
     fi
+    if ${debug}; then
+        options="${options} -x"
+    fi
     if [[ -z ${options} ]]; then
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
+        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
     else
-        mkarchiso ${verbose} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options}" run
+        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options}" run
     fi
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
@@ -345,15 +369,15 @@ make_efiboot() {
 # Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f ${work_dir}/x86_64/airootfs ${work_dir}
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" pkglist
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
+    mkarchiso ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    mkarchiso ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
     # rm -rf ${work_dir}/x86_64/airootfs (if low space, this helps)
 }
 
 # Build ISO
 make_iso() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    mkarchiso ${alteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
 }
 
 if [[ ${EUID} -ne 0 ]]; then
@@ -361,7 +385,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:x' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -379,25 +403,29 @@ while getopts 'w:o:g:p:c:t:hbk:' arg; do
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
         k) 
-            case ${OPTARG} in
-                "lts") kernel=lts ;;
-                "lqx") kernel=lqx ;;
-                "zen") kernel=zen ;;
-                 "ck") kernel=ck  ;;
-                 "rt") kernel=rt  ;;
-                    *)
-                        echo "Invalid kernel ${OPTARG}"
-                        _usage 1
-                        ;;
-            esac
+            if [[ -n $(cat ./kernel_list | grep -x "${OPTARG}") ]]; then
+                kernel="${OPTARG}"
+            else
+                echo "Invalid kernel ${OPTARG}" >&2
+                _usage 1
+            fi
             ;;
+        x) debug=true;;
         h) _usage 0 ;;
         *)
-           echo "Invalid argument '${arg}'"
+           echo "Invalid argument '${arg}'" >&2
            _usage 1
            ;;
     esac
 done
+
+# Debug mode
+if ${debug}; then
+    set -x
+    alteriso_option="${alteriso_option} -x"
+else
+    set +x
+fi
 
 mkdir -p ${work_dir}
 
@@ -407,7 +435,6 @@ mkdir -p ${work_dir}
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
-
 
 run_once make_pacman_conf
 run_once make_basefs

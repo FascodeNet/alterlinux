@@ -2,7 +2,7 @@
 
 set -e -u
 
-# デフォルト値
+# Default value
 password=alter
 boot_splash=false
 kernel=
@@ -17,6 +17,7 @@ while getopts 'p:bt:k:' arg; do
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel="${OPTARG}" ;;
+        x) set -x ;;
     esac
 done
 
@@ -40,16 +41,37 @@ LC_ALL=C xdg-user-dirs-update
 LANG=C xdg-user-dirs-update
 echo -e "${password}\n${password}" | passwd root
 
+# Allow sudo group to run sudo
+sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
 # Create alter user.
-useradd -m -s /bin/bash alter
-groupadd sudo
-usermod -G sudo alter
-sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
-cp -aT /etc/skel/ /home/alter/
-chmod 700 -R /home/alter
-chown alter:alter -R /home/alter
-echo -e "${password}\n${password}" | passwd alter
+# create_user -u <username> -p <password>
+function create_user () {
+    local _password
+    local _username
+    _password=${password}
+    _username=alter
+
+    # Option analysis
+    while getopts 'p:u:' arg; do
+        case "${arg}" in
+            p) _password="${OPTARG}" ;;
+            u) _username="${OPTARG}" ;;
+        esac
+    done
+
+    useradd -m -s /bin/bash ${_username}
+    groupadd sudo
+    usermod -G sudo ${_username}
+    cp -aT /etc/skel/ /home/${_username}/
+    chmod 700 -R /home/${_username}
+    chown ${_username}:${_username} -R /home/${_username}
+    echo -e "${_password}\n${_password}" | passwd ${_username}
+    set -u
+}
+
+create_user -u alter -p "${password}"
+
 
 
 # Set to execute calamares without password as alter user.
@@ -59,8 +81,25 @@ alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 EOF
 
 
-# Delete unnecessary files for Manjaro.
-[[ -d /usr/share/calamares/branding/manjaro ]] && rm -rf /usr/share/calamares/branding/manjaro
+# Delete unnecessary files.
+
+# Delete file only if file exists
+# remove <file1> <file2>
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
+
+remove /usr/share/calamares/branding/manjaro
+remove /usr/share/calamares/modules/mhwdcfg.conf
 
 
 # Replace wallpaper.
@@ -88,11 +127,11 @@ fi
 # Replace calamares settings when lts kernel is enabled.
 if [[ -n ${kernel} ]]; then
     # initcpio
-    [[ -f /usr/share/calamares/modules/initcpio.conf ]] && rm -f /usr/share/calamares/modules/initcpio.conf
+    remove /usr/share/calamares/modules/initcpio.conf
     mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
 
     # unpackfs
-    [[ -f /usr/share/calamares/modules/unpackfs.conf ]] && rm -f /usr/share/calamares/modules/unpackfs.conf
+    remove /usr/share/calamares/modules/unpackfs.conf
     mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
 [[ -d /usr/share/calamares/modules/initcpio/ ]] && rm -rf /usr/share/calamares/modules/initcpio/
@@ -118,16 +157,27 @@ sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 
 
 # Create new icon cache
+# This is because alter icon was added by airootfs.
 gtk-update-icon-cache -f /usr/share/icons/hicolor
 
 
+# Enable services.
 # To disable start up of lightdm.
 # If it is enable, Users have to enter password.
 systemctl disable lightdm
 if [[ ${boot_splash} = true ]]; then
     systemctl disable lightdm-plymouth.service
 fi
-systemctl enable pacman-init.service choose-mirror.service org.cups.cupsd.service
+systemctl enable pacman-init.service 
+systemctl enable choose-mirror.service 
+systemctl enable org.cups.cupsd.service
+systemctl enable NetworkManager.service
+
+# TLP
+# See ArchWiki for details.
+systemctl enable tlp.service
+systemctl mask systemd-rfkill.service
+systemctl mask systemd-rfkill.socket
 
 
 # systemctl set-default multi-user.target

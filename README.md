@@ -10,13 +10,17 @@
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
-| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) | [Unstable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [Develop](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|:-----:|:-----:|
-
 ## Overview
   
 Alter Linux is a new OS developed based on Arch Linux.  
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
+
+## Branch
+The main branches are: Other branches are temporary or used for specific purposes.
+
+| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
+|:-----:|:-----:|:-----:|
+| Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
 ## Repositories and software
 

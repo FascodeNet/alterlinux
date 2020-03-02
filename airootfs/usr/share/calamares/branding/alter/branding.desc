@@ -27,7 +27,7 @@ windowExpanding:    normal
 # This setting is ignored if "fullscreen" is selected for
 # *windowExpanding*, above. If not set, use constants defined
 # in CalamaresUtilsGui, 800x520.
-windowSize: 800px,520px
+windowSize: 800px,580px
 
 # These are strings shown to the user in the user interface.
 # There is no provision for translating them -- since they
