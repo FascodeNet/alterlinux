@@ -227,7 +227,7 @@ make_customize_airootfs() {
     if ${debug}; then
         options="${options} -x"
     fi
-    if ${rebuild}: then
+    if ${rebuild}; then
         options="${options} -r"
     fi
     if [[ -z ${options} ]]; then
