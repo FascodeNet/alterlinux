@@ -227,6 +227,9 @@ make_customize_airootfs() {
     if ${debug}; then
         options="${options} -x"
     fi
+    if ${rebuild}: then
+        options="${options} -r"
+    fi
     if [[ -z ${options} ]]; then
         mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
     else

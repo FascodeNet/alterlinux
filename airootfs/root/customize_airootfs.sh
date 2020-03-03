@@ -34,7 +34,7 @@ locale-gen
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 
-if ${rebuild}; then
+if [[ ${rebuild} = false ]] then
     # Creating a root user.
     # usermod -s /usr/bin/zsh root
 
