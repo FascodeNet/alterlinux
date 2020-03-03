@@ -182,6 +182,7 @@ function select_kernel () {
         echo "3: linux-ck"
         echo "4: linux-rt"
         echo "5: linux-lqx"
+        echo "6: linux-rt-lts"
         echo -n ": "
 
         read yn
@@ -192,10 +193,12 @@ function select_kernel () {
             3) kernel="ck"  ;;
             4) kernel="rt"  ;;
             5) kernel="lqx" ;;
+            6) kernel="rt-lts" ;;
             lts) kernel="lts" ;;
             zen) kernel="zen" ;;
             ck) kernel="ck"  ;;
             rt) kernel="rt"  ;;
+            rt-lts) kernel="rt-lts"
             lqx) kernel="lqx" ;;
             *) what_kernel ;;
         esac
