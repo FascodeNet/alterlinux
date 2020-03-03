@@ -83,6 +83,7 @@ fi
 cat >> /etc/sudoers << 'EOF'
 alter ALL=NOPASSWD: /usr/bin/calamares
 alter ALL=NOPASSWD: /usr/bin/calamares_polkit
+Defaults pwfeedback
 EOF
 
 
