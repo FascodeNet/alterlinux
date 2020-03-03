@@ -2,6 +2,15 @@
 
 set -e
 
+nobuild=false
+
+while getopts 'xn' arg; do
+    case "${arg}" in
+        n) nobuild=true ;;
+        x) set -x ;;
+    esac
+done
+
 function enable_plymouth () {
     local yn
     echo -n "Plymouthを有効化しますか？ （y/N） : "
@@ -269,4 +278,9 @@ function start_build () {
 # 関数を実行
 ask
 generate_argument
-start_build
+
+if ${nobuild}; then
+    echo "${argument}"
+else
+    start_build
+fi
