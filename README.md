@@ -7,6 +7,8 @@
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
+**日本人の方へ**：こちらに日本語版があります。
+
 | [日本語](doc/README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
