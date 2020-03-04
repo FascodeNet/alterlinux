@@ -123,6 +123,7 @@ cpu-x
 code
 leafpad
 nano
+vim
 
 
 #-- user directory --#
