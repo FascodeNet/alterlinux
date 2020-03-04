@@ -7,7 +7,7 @@
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
-| [日本語](README_jp.md) | [English](README.md) |
+| [日本語](doc/README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
 ## Overview
@@ -63,7 +63,7 @@ cd alterlinux
 
 
 #### Build on container
-If you build on Docker, please refer to [this procedure](Howtobuild_on_docker.md).  
+If you build on Docker, please refer to [this procedure](doc/Howtobuild_on_docker.md).  
 
 ### build.sh options
 
@@ -154,6 +154,10 @@ zstd
     <compression-level> should be 1 .. 22 (default 15)
 ```
 
+## Documents
+- [About packages](doc/packages.md)
+- [How to build on docker](doc/Howtobuild_on_docker.md)
+- [How to add supporting a new kernel.](doc/Support_a_new_kernel.md)
 
 ## About SereneTeam and developers
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  

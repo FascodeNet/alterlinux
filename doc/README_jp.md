@@ -7,7 +7,7 @@
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
-| [日本語](README_jp.md) | [English](README.md) |
+| [日本語](README_jp.md) | [English](../README.md) |
 |:-----:|:-----:|
 
 ## 概要
@@ -61,7 +61,7 @@ cd alterlinux
 ```
 
 #### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
+Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
 
 ### ビルドウィザード
 wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
@@ -162,6 +162,10 @@ zstd
     <compression-level> should be 1 .. 22 (default 15)
 ```
 
+## ドキュメント
+- [パッケージリストについての注意](packages.md)
+- [Docker上でビルドする方法](Howtobuild_on_docker.md)
+- [新しいカーネルを追加する方法](Support_a_new_kernel.md)
 
 ## SereneTeamと開発者について
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
