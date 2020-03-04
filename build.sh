@@ -161,18 +161,18 @@ make_packages() {
     local _pkg_list
     local _pkg
     local _file
-    for _file in $(ls ${script_path}/packages.d/*.x86_64); do
-        _pkg_list=( ${_pkg_list[@]} $(grep -h -v ^'#' ${_file}) )
+    for _file in "$(ls ${script_path}/packages.d/*.x86_64)"; do
+        _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
     
     # sort
     _pkg_list=(
-        $(
+        "$(
             for _pkg in ${_pkg_list[@]}; do
                 echo "${_pkg}"
             done \
             | sort
-        )
+        )"
     )
     set -eu
     # echo ${_pkg_list[@]}; exit
