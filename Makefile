@@ -49,7 +49,7 @@ test-rt:
 	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt -t '-Xcompression-level 1' -x
 	@make cleanup
 
-test-rt:
+test-rt-lts:
 	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt-lts -t '-Xcompression-level 1' -x
 	@make cleanup
 
