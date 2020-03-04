@@ -33,11 +33,6 @@ os-prober
 refind-efi
 
 
-#-- calamares installer --#
-calamares
-libpwquality
-
-
 #-- commandline tools --#
 arch-install-scripts
 bash-completion
@@ -67,7 +62,7 @@ ipw2200-fw
 jstest-gtk-git
 
 
-#-- interface --#
+#-- interface support --#
 lsscsi
 sg3_utils
 usb_modeswitch
@@ -77,20 +72,6 @@ usbutils
 #-- linux --#
 linux-atm
 linux-firmware
-
-
-#-- look and feel --#
-
-#=> font
-noto-fonts
-noto-fonts-cjk
-noto-fonts-emoji
-
-#=> icon
-paper-icon-theme
-
-#=> theme
-materia-gtk-theme
 
 
 #-- mail client --#
@@ -104,7 +85,6 @@ vlc
 
 
 #-- package management --#
-eg-installer
 pamac-gtk
 yay-bin
 
@@ -126,14 +106,11 @@ nano
 vim
 
 
-#-- user directory --#
-xdg-user-dirs
-
-
 #-- utility --#
 etcher-bin
 tlp
 tlpui
+xdg-user-dirs
 
 
 #-- web browser --#
