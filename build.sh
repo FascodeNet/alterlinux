@@ -1,8 +1,15 @@
 #!/bin/bash
+# 
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : shun819.mail@gmail.com
+#
+# (c) 2019-2020 Fascode Network.
+#
 
 set -e -u
 
-# archiso settings
+# alteriso settings
 #
 # Do not change this variable.
 # To change the settings permanently, edit the config file.
@@ -18,7 +25,7 @@ out_dir=out
 gpg_key=
 alteriso_option="-v"
 
-# AlterLinux settings
+# AlterLinux additional settings
 password=alter
 boot_splash=false
 kernel=
