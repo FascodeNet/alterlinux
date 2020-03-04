@@ -41,7 +41,9 @@ rebuild=false
 
 script_path=$(readlink -f ${0%/*})
 
-mkalteriso="${script_path}/mkalteriso"
+mkalteriso="${script_path}/system/mkalteriso"
+
+pacman_conf=${script_path}/system/pacman.conf
 
 umask 0022
 
@@ -129,7 +131,7 @@ prepare_rebuild() {
 make_pacman_conf() {
     local _cache_dirs
     _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${script_path}/pacman.conf > ${work_dir}/pacman.conf
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${pacman_conf} > ${work_dir}/pacman.conf
 }
 
 # Base installation, plus needed packages (airootfs)
@@ -224,6 +226,7 @@ make_customize_airootfs() {
     fi
 
     # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
+    # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
 
     curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
 
@@ -331,7 +334,7 @@ make_syslinux() {
 # Prepare /isolinux
 make_isolinux() {
     mkdir -p ${work_dir}/iso/isolinux
-    sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/isolinux/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
+    sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/system/isolinux.cfg > ${work_dir}/iso/isolinux/isolinux.cfg
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/isolinux.bin ${work_dir}/iso/isolinux/
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/isohdpfx.bin ${work_dir}/iso/isolinux/
     cp ${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/ldlinux.c32 ${work_dir}/iso/isolinux/
@@ -454,7 +457,7 @@ while getopts 'w:o:g:p:c:t:hbk:rx' arg; do
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
         k) 
-            if [[ -n $(cat ./kernel_list | grep -x "${OPTARG}") ]]; then
+            if [[ -n $(cat ${script_path}/system/kernel_list | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
                 echo "Invalid kernel ${OPTARG}" >&2
