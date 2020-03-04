@@ -68,6 +68,7 @@ _usage () {
     echo "    -w <work_dir>      Set the working directory"
     echo "                        Default: ${work_dir}"
     echo "    -h                 This help message"
+    echo "    -x                 Enable debug mode."
     exit ${1}
 }
 
@@ -186,6 +187,7 @@ make_customize_airootfs() {
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
     # -k <kernel>   : Set kernel name.
+    # -x            : Enable debug mode.
 
 
     local options
