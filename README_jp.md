@@ -19,9 +19,9 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 ## ブランチ
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
 
-| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) |  [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|:-----:|:-----:|
-| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。|
+| [master](https://github.com/SereneTeam/alterlinux/tree/master) |  [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) | [Japanese](https://github.com/SereneTeam/alterlinux/tree/Japanese) |
+|:-----:|:-----:|:-----:|:-----:|
+| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。| 日本語版のAlterLinuxです。OS本体の更新は`master`に追従していますが、日本語独自の更新は遅れることがあります。 |
 
 ## リポジトリとソフトウェア
 

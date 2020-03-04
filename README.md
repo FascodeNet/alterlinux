@@ -19,7 +19,7 @@ Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
 
-| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
+| [master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
 |:-----:|:-----:|:-----:|
 | Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
