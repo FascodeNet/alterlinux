@@ -223,7 +223,7 @@ make_customize_airootfs() {
         cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
     fi
 
-    cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
+    # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
 
     curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
 
