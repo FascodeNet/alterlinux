@@ -51,35 +51,6 @@ sudo
 irssi
 
 
-#-- display manager --#
-lightdm
-lightdm-webkit2-greeter
-lightdm-webkit2-theme-alter
-# lightdm-gtk-greeter
-# lightdm-slick-greeter
-# lightdm-settings
-
-
-#-- disk management --#
-baobab
-clonezilla
-ddrescue
-dmraid
-fsarchiver
-gnome-disk-utility
-gparted
-gptfdisk
-hdparm
-lvm2
-mdadm
-partclone
-parted
-partimage
-sdparm
-smartmontools
-testdisk
-
-
 #-- documents --#
 man-db
 man-pages
@@ -89,22 +60,6 @@ man-pages
 b43-fwcutter
 ipw2100-fw
 ipw2200-fw
-
-
-#-- file system --#
-btrfs-progs
-dosfstools
-exfat-utils
-f2fs-tools
-gvfs
-gvfs-smb
-jfsutils
-mtools
-nfs-utils
-nilfs-utils
-ntfs-3g
-reiserfsprogs
-xfsprogs
 
 
 #-- game pad --#
@@ -117,52 +72,6 @@ lsscsi
 sg3_utils
 usb_modeswitch
 usbutils
-
-
-#-- internet --#
-
-#=> connection
-dhclient
-dhcpcd
-dnsutils
-ndisc6
-netctl
-networkmanager
-network-manager-applet
-ppp
-pptpclient
-rp-pppoe
-wvdial
-
-#=> client
-# lftp
-ntp
-openssh
-wget
-
-#=> server
-darkhttpd
-dnsmasq
-
-#=> wireless
-crda
-iwd
-wireless-regdb
-wireless_tools
-wpa_supplicant
-
-#=> vpn
-openconnect
-openvpn
-vpnc
-xl2tpd
-
-#=> other tools
-ethtool
-gnu-netcat
-# nmap
-rsync
-tcpdump
 
 
 #-- linux --#
@@ -229,40 +138,3 @@ tlpui
 #-- web browser --#
 chromium
 # elinks
-
-
-#-- xfce4 base --#
-exo
-garcon
-gnome-keyring
-thunar
-thunar-volman
-tumbler
-xfce4-appfinder
-xfce4-notifyd 
-xfce4-screenshooter
-xfce4-session
-xfce4-settings
-xfce4-terminal
-xfce4-panel
-xfce4-power-manager
-xfconf
-xfdesktop
-xfwm4
-xfwm4-themes
-
-
-#-- xfce4 plugins --#
-thunar-archive-plugin
-thunar-media-tags-plugin
-xfce4-calculator-plugin
-xfce4-clipman-plugin
-xfce4-docklike-plugin-git
-xfce4-pulseaudio-plugin
-xfce4-whiskermenu-plugin
-
-
-#-- xorg --#
-gpm
-xorg-server
-xorg-xinit
