@@ -41,9 +41,7 @@ rebuild=false
 
 script_path=$(readlink -f ${0%/*})
 
-function mkarchiso () {
-    ./mkalteriso "${@}"
-}
+mkalteriso="${script_path}/mkalteriso"
 
 umask 0022
 
@@ -136,24 +134,24 @@ make_pacman_conf() {
 
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
-    mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
-    # mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
-    mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
+    ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
+    # ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
+    ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
 
     # Install plymouth.
     if [[ ${boot_splash} = true ]]; then
         if [[ -n ${theme_pkg} ]]; then
-            mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
+            ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
         else
-            mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+            ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
         fi
     fi
 
     # Install kernel.
     if [[ -n ${kernel} ]]; then
-        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
     else
-        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
     fi
 }
 
@@ -179,8 +177,8 @@ make_packages() {
     set -eu
     # echo ${_pkg_list[@]}; exit
 
-    # mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
-    mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
+    # ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
+    ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -207,9 +205,9 @@ make_setup_mkinitcpio() {
     fi
 
     if [[ -n ${kernel} ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
+        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
     else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
+        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
     fi
 
     if [[ ${gpg_key} ]]; then
@@ -259,9 +257,9 @@ make_customize_airootfs() {
         options="${options} -r"
     fi
     if [[ -z ${options} ]]; then
-        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
     else
-        mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options}" run
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options}" run
     fi
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
@@ -422,15 +420,15 @@ make_efiboot() {
 # Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f ${work_dir}/x86_64/airootfs ${work_dir}
-    mkarchiso ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
-    mkarchiso ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
+    ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
     # rm -rf ${work_dir}/x86_64/airootfs (if low space, this helps)
 }
 
 # Build ISO
 make_iso() {
-    mkarchiso ${alteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
 }
 
 if [[ ${EUID} -ne 0 ]]; then
