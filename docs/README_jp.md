@@ -3,11 +3,11 @@
 
 ![AlterLogo](../images/logo.png)
 
-[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
-| [日本語](README_jp.md) | [English](../README.md) |
+| [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
 ## 概要

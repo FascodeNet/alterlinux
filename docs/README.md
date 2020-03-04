@@ -1,15 +1,15 @@
 
 ## Alter Linux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
 
-![AlterLogo](images/logo.png)
+![AlterLogo](../images/logo.png)
 
-[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
 **日本人の方へ**：こちらに日本語版があります。
 
-| [日本語](doc/README_jp.md) | [English](README.md) |
+| [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
 
 ## Overview
@@ -65,7 +65,7 @@ cd alterlinux
 
 
 #### Build on container
-If you build on Docker, please refer to [this procedure](doc/Howtobuild_on_docker.md).  
+If you build on Docker, please refer to [this procedure](Howtobuild_on_docker.md).  
 
 ### build.sh options
 
@@ -157,9 +157,9 @@ zstd
 ```
 
 ## Documents
-- [About packages](doc/packages.md)
-- [How to build on docker](doc/Howtobuild_on_docker.md)
-- [How to add supporting a new kernel.](doc/Support_a_new_kernel.md)
+- [About packages](packages.md)
+- [How to build on docker](Howtobuild_on_docker.md)
+- [How to add supporting a new kernel.](Support_a_new_kernel.md)
 
 ## About SereneTeam and developers
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  

@@ -11,6 +11,6 @@ Please report bugs and vulnerabilities according to [Arch's bug reporting guidel
 ## Alter's own bugs and vulnerabilities
 If you find a bug or vulnerability and it is an Alter-specific issue, post it to the Alter Linux Issue.
 In this case, please follow the arch bug report guidelines and inform the developer of the problem and environment in detail.
-As long as developers adhere to the minimum courtesy and [code of conduct](https://github.com/SereneTeam/alterlinux/blob/master/CODE_OF_CONDUCT.md), no further courtesy is required. Tell the developer in detail what you have done, your environment and the version.
+As long as developers adhere to the minimum courtesy and [code of conduct](CODE_OF_CONDUCT.md), no further courtesy is required. Tell the developer in detail what you have done, your environment and the version.
 
 
