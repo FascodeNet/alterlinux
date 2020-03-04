@@ -14,6 +14,7 @@
   
 Alter Linux is a new OS developed based on Arch Linux.  
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
+Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
 
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
@@ -31,15 +32,14 @@ All mirror servers are synchronized with this repository.
 
 ### Software
 The source code of the original software included in Alter Linux is below.
-The first of all packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
+The list of packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
+The perfect list of all packages is in live image file. 
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
-
-The source code for software not in the AUR can be found below.
-
+- [lightdm-webkit2-theme-alter](https://github.com/SereneTeam/lightdm-webkit2-theme-alter)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/lightdm-webkit2-theme-alter))
 - [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
-
+- [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares))
 
 
 ## build

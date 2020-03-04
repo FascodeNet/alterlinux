@@ -21,6 +21,10 @@ rt:
 	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt
 	@make cleanup
 
+rt-lts:
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt-lts
+	@make cleanup
+
 zen:
 	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k zen
 	@make cleanup
@@ -43,6 +47,10 @@ test-lqx:
 
 test-rt:
 	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt -t '-Xcompression-level 1' -x
+	@make cleanup
+
+test-rt-lts:
+	@sudo ./${BUILD_SCRIPT} -b -c "zstd" -p "alter" -k rt-lts -t '-Xcompression-level 1' -x
 	@make cleanup
 
 test-zen:

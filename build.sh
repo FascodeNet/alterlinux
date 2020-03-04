@@ -27,6 +27,7 @@ theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
 sfs_comp_opt=""
 debug=false
+rebuild=false
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
@@ -95,6 +96,27 @@ run_once() {
     if [[ ! -e ${work_dir}/build.${1} ]]; then
         $1
         touch ${work_dir}/build.${1}
+    fi
+}
+
+# rm helper
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
+
+# Preparation for rebuild
+prepare_rebuild() {
+    if ${rebuild}; then
+        remove ${work_dir}/build.*
     fi
 }
 
@@ -204,6 +226,9 @@ make_customize_airootfs() {
     fi
     if ${debug}; then
         options="${options} -x"
+    fi
+    if ${rebuild}; then
+        options="${options} -r"
     fi
     if [[ -z ${options} ]]; then
         mkarchiso ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
@@ -385,7 +410,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:x' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rx' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -411,6 +436,7 @@ while getopts 'w:o:g:p:c:t:hbk:x' arg; do
             fi
             ;;
         x) debug=true;;
+        r) rebuild=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'" >&2
@@ -436,6 +462,7 @@ echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2
 
+prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
