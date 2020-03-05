@@ -16,5 +16,6 @@ calamares
 libpwquality
 
 
-#-- wizard --#
+#-- packge --#
+aptpac-git
 eg-installer
