@@ -33,15 +33,11 @@ zen:
 	@make cleanup
 
 xanmod:
-@sudo ./${BUILD_SCRIPT} -k xanmod ${SHARE_OPTION}
-@make cleanup
+	@sudo ./${BUILD_SCRIPT} -k xanmod ${SHARE_OPTION}
+	@make cleanup
 
 xanmod-lts:
 	@sudo ./${BUILD_SCRIPT} -k xanmod-lts ${SHARE_OPTION}
-	@make cleanup
-
-zen:
-	@sudo ./${BUILD_SCRIPT} -k zen ${SHARE_OPTION}
 	@make cleanup
 
 test-linux:
