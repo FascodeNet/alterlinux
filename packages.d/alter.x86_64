@@ -11,8 +11,7 @@
 
 
 #-- installer --#
-# alterlinux-calamares
-calamares
+alterlinux-calamares
 libpwquality
 
 
