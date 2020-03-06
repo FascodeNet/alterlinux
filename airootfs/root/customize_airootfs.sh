@@ -11,7 +11,7 @@ rebuild=false
 
 
 
-# オプション解析
+# Check options
 while getopts 'p:bt:k:r' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
@@ -103,9 +103,6 @@ function remove () {
         fi
     done
 }
-
-remove /usr/share/calamares/branding/manjaro
-remove /usr/share/calamares/modules/mhwdcfg.conf
 
 
 # Replace wallpaper.
