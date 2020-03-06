@@ -1,10 +1,10 @@
 
 ## Alter Linux - 誰でも使えることを目標にした日本製でArch Linux派生のOS
 
-![AlterLogo](images/logo.png)
+![AlterLogo](../images/logo.png)
 
-[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
-[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://https://www.archlinux.org/)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
+[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
 
 | [日本語](README_jp.md) | [English](README.md) |
@@ -19,9 +19,9 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 ## ブランチ
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
 
-| [安定版](https://github.com/SereneTeam/alterlinux/tree/master) |  [リリース候補](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [開発](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|:-----:|:-----:|
-| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。|
+| [master](https://github.com/SereneTeam/alterlinux/tree/master) |  [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) | [Japanese](https://github.com/SereneTeam/alterlinux/tree/Japanese) |
+|:-----:|:-----:|:-----:|:-----:|
+| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。| 日本語版のAlterLinuxです。OS本体の更新は`master`に追従していますが、日本語独自の更新は遅れることがあります。 |
 
 ## リポジトリとソフトウェア
 
@@ -61,7 +61,7 @@ cd alterlinux
 ```
 
 #### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](https://github.com/SereneTeam/alterlinux/blob/master/Howtobuild_on_docker.md)を参照してください。
+Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
 
 ### ビルドウィザード
 wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
@@ -162,6 +162,10 @@ zstd
     <compression-level> should be 1 .. 22 (default 15)
 ```
 
+## ドキュメント
+- [パッケージリストについての注意](packages.md)
+- [Docker上でビルドする方法](Howtobuild_on_docker.md)
+- [新しいカーネルを追加する方法](Support_a_new_kernel.md)
 
 ## SereneTeamと開発者について
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  

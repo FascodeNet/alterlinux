@@ -1,11 +1,13 @@
 
 ## Alter Linux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
 
-![AlterLogo](images/logo.png)
+![AlterLogo](../images/logo.png)
 
-[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](LICENSE)
-[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://https://www.archlinux.org/)
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
+[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
 [![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
+
+**日本人の方へ**：こちらに日本語版があります。
 
 | [日本語](README_jp.md) | [English](README.md) |
 |:-----:|:-----:|
@@ -19,7 +21,7 @@ Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
 
-| [Stable](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
+| [master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
 |:-----:|:-----:|:-----:|
 | Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
@@ -154,6 +156,10 @@ zstd
     <compression-level> should be 1 .. 22 (default 15)
 ```
 
+## Documents
+- [About packages](packages.md)
+- [How to build on docker](Howtobuild_on_docker.md)
+- [How to add supporting a new kernel.](Support_a_new_kernel.md)
 
 ## About SereneTeam and developers
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
