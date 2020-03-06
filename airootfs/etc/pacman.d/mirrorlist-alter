@@ -4,7 +4,11 @@
 ## (c) 2019-2020 Fascode Network.
 ##
 
-Server = https://sereneteam.github.io/alter-repo/$repo/$arch
-Server = https://ja.osdn.net/projects/serene/storage/repo/$repo/$arch
-Server = https://h.0u0.biz/repo/$repo/$arch
+# YamaD
 Server = https://xn--d-8o2b.com/repo/$repo/$arch
+
+# OSDN
+Server = https://ja.osdn.net/projects/serene/storage/repo/$repo/$arch
+
+# Hayao
+Server = https://h.0u0.biz/repo/$repo/$arch
