@@ -3,9 +3,12 @@ SHARE_OPTION = -b -c "zstd" -p "alter"
 DEBUG_OPTION = -t '-Xcompression-level 1' -x
 
 
-
-linux:
+basic:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION}
+	@make cleanup
+
+core:
+	@sudo ./${BUILD_SCRIPT} -k core ${SHARE_OPTION}
 	@make cleanup
 
 ck :
@@ -32,16 +35,21 @@ zen:
 	@sudo ./${BUILD_SCRIPT} -k zen ${SHARE_OPTION}
 	@make cleanup
 
-xanmod:
-	@sudo ./${BUILD_SCRIPT} -k xanmod ${SHARE_OPTION}
-	@make cleanup
+# xanmod:
+	# @sudo ./${BUILD_SCRIPT} -k xanmod ${SHARE_OPTION}
+	# @make cleanup
 
 xanmod-lts:
 	@sudo ./${BUILD_SCRIPT} -k xanmod-lts ${SHARE_OPTION}
 	@make cleanup
 
-test-linux:
+
+test-basic:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${DEBUG_OPTION}
+	@make cleanup
+
+test-core:
+	@sudo ./${BUILD_SCRIPT} -k core ${SHARE_OPTION} ${DEBUG_OPTION}
 	@make cleanup
 
 test-ck:
@@ -68,13 +76,14 @@ test-zen:
 	@sudo ./${BUILD_SCRIPT} -k zen ${SHARE_OPTION} ${DEBUG_OPTION}
 	@make cleanup
 
-test-xanmod:
-	@sudo ./${BUILD_SCRIPT} -k xanmod ${SHARE_OPTION} ${DEBUG_OPTION}
-	@make cleanup
+# test-xanmod:
+	# @sudo ./${BUILD_SCRIPT} -k xanmod ${SHARE_OPTION} ${DEBUG_OPTION}
+	# @make cleanup
 
 test-xanmod-lts:
 	@sudo ./${BUILD_SCRIPT} -k xanmod-lts ${SHARE_OPTION} ${DEBUG_OPTION}
 	@make cleanup
+
 
 cleanup:
 	@sudo rm -rf ./work
