@@ -5,7 +5,7 @@ set -e -u
 # Default value
 password=alter
 boot_splash=false
-kernel=
+kernel=core
 theme_name=alter-logo
 rebuild=false
 
@@ -132,7 +132,7 @@ fi
 
 
 # Replace calamares settings when lts kernel is enabled.
-if [[ -n ${kernel} ]]; then
+if [[ ! ${kernel} = "core" ]]; then
     # initcpio
     remove /usr/share/calamares/modules/initcpio.conf
     mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
