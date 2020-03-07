@@ -1,5 +1,13 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+# 
+# mkalteriso
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
 set -e -u
 
 export LANG=C
