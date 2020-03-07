@@ -37,9 +37,6 @@ password=alter
 # Set to true to enable plymouth.(-b)
 boot_splash=false
 
-# Set to true to build using the lts kernel.(-l)
-lts_kernel=false
-
 # Set the theme name of plymouth.
 theme_name="alter-logo"
 
