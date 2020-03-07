@@ -58,7 +58,7 @@ sfs_comp_opt=""
 # Set the kernel that live session use.
 # Please don't set anything if you want to use normal kernel.
 # As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
-kernel=
+kernel=zen
 
 # Set debug mode.
 # This setting can only be set to true or false.

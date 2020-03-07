@@ -28,7 +28,7 @@ alteriso_option="-v"
 # AlterLinux additional settings
 password=alter
 boot_splash=false
-kernel=
+kernel=zen
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
