@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+curl https://xn--d-8o2b.com/repo/alter.pub | pacman-key -a -
+pacman-key --lsign-key development@fascode.net

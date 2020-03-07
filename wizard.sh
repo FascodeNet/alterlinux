@@ -207,7 +207,7 @@ function select_kernel () {
             zen) kernel="zen" ;;
             ck) kernel="ck"  ;;
             rt) kernel="rt"  ;;
-            rt-lts) kernel="rt-lts"
+            rt-lts) kernel="rt-lts" ;;
             lqx) kernel="lqx" ;;
             *) what_kernel ;;
         esac

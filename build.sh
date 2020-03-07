@@ -2,7 +2,7 @@
 # 
 # Yamada Hayao 
 # Twitter: @Hayao0819
-# Email  : shun819.mail@gmail.com
+# Email  : hayao@fascone.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -28,7 +28,7 @@ alteriso_option="-v"
 # AlterLinux additional settings
 password=alter
 boot_splash=false
-kernel=
+kernel=zen
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
@@ -44,6 +44,8 @@ script_path=$(readlink -f ${0%/*})
 mkalteriso="${script_path}/system/mkalteriso"
 
 pacman_conf=${script_path}/system/pacman.conf
+
+[[ -z ${kernel} ]] && kernel=core
 
 umask 0022
 
@@ -62,11 +64,8 @@ _usage () {
         echo "                        Default: ${gpg_key}"
     fi
     echo "    -k <kernel>        Set special kernel type."
-    if [[ -z "${kernel}" ]]; then
-        echo "                        Default: empty"
-    else
-        echo "                        Default: ${kernel}"
-    fi
+    echo "                       core means normal linux kernel"
+    echo "                        Default: ${kernel}"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -150,7 +149,7 @@ make_basefs() {
     fi
 
     # Install kernel.
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
     else
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
@@ -206,7 +205,7 @@ make_setup_mkinitcpio() {
       exec 17<>${work_dir}/gpgkey
     fi
 
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
     else
         ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
@@ -250,9 +249,6 @@ make_customize_airootfs() {
             options="${options} -b -t ${theme_name}"
         fi
     fi
-    if [[ -n ${kernel} ]]; then
-        options="${options} -k ${kernel}"
-    fi
     if ${debug}; then
         options="${options} -x"
     fi
@@ -260,9 +256,9 @@ make_customize_airootfs() {
         options="${options} -r"
     fi
     if [[ -z ${options} ]]; then
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password}" run
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
     else
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options}" run
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
     fi
     rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
@@ -272,7 +268,7 @@ make_boot() {
     mkdir -p ${work_dir}/iso/${install_dir}/boot/x86_64
     cp ${work_dir}/x86_64/airootfs/boot/archiso.img ${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img
 
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-${kernel} ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-${kernel}
     else
         cp ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz
@@ -292,7 +288,7 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux-${kernel} | awk 'f{print;f=0} /version/{f=1}' RS=' ')
     else
         _uname_r=$(file -b ${work_dir}/x86_64/airootfs/boot/vmlinuz-linux | awk 'f{print;f=0} /version/{f=1}' RS=' ')
@@ -304,7 +300,7 @@ make_syslinux() {
              s|%INSTALL_DIR%|${install_dir}|g" ${_cfg} > ${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}
     done
 
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
             ${script_path}/syslinux/archiso_pxe/archiso_pxe-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg
@@ -353,7 +349,7 @@ make_efi() {
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf ${work_dir}/iso/loader/entries/
     cp ${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf ${work_dir}/iso/loader/entries/
 
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
             ${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
@@ -380,7 +376,7 @@ make_efiboot() {
 
     mkdir -p ${work_dir}/efiboot/EFI/archiso
 
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz-linux-${kernel} ${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-${kernel}.efi
     else
         cp ${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz ${work_dir}/efiboot/EFI/archiso/vmlinuz.efi
@@ -404,7 +400,7 @@ make_efiboot() {
 
     #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
-    if [[ -n ${kernel} ]]; then
+    if [[ ! ${kernel} = "core" ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
             ${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
@@ -486,7 +482,7 @@ mkdir -p ${work_dir}
 
 # Show Alter Linux build options.
 [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
-[[ -n "${kernel}" ]] && echo "kernel is changed to ${kernel}"
+echo "kernel is changed to ${kernel}"
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 sleep 2

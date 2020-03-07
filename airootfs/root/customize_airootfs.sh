@@ -5,13 +5,13 @@ set -e -u
 # Default value
 password=alter
 boot_splash=false
-kernel=
+kernel=core
 theme_name=alter-logo
 rebuild=false
 
 
 
-# オプション解析
+# Check options
 while getopts 'p:bt:k:r' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
@@ -104,9 +104,6 @@ function remove () {
     done
 }
 
-remove /usr/share/calamares/branding/manjaro
-remove /usr/share/calamares/modules/mhwdcfg.conf
-
 
 # Replace wallpaper.
 if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
@@ -135,7 +132,7 @@ fi
 
 
 # Replace calamares settings when lts kernel is enabled.
-if [[ -n ${kernel} ]]; then
+if [[ ! ${kernel} = "core" ]]; then
     # initcpio
     remove /usr/share/calamares/modules/initcpio.conf
     mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
