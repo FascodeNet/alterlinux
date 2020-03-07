@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-
+# 
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
 # Alter Linux build config
 # The variables here will override the default values.
 # This configuration file follows the bash syntax.
