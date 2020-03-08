@@ -38,6 +38,7 @@ function remove () {
         elif [[ -d ${_file} ]]; then
             rm -rf "${_file}"
         fi
+        echo "${_file} was deleted."
     done
 }
 
