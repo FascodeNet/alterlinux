@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 
+#
 # Yamada Hayao 
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
