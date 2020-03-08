@@ -64,6 +64,7 @@ _usage () {
     else
         echo "                        Default: ${gpg_key}"
     fi
+    echp "    -j                 Enable Japanese mode."
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
@@ -245,6 +246,7 @@ make_customize_airootfs() {
     # -p <password> : Set password.
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
+    # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -x            : Enable debug mode.
 
