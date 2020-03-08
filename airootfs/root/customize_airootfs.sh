@@ -13,7 +13,7 @@ japanese=false
 
 
 # Check options
-while getopts 'p:bt:k:rx' arg; do
+while getopts 'p:bt:k:rxj' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
