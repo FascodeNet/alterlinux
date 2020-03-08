@@ -160,10 +160,18 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages() {
     set +eu
+    local _loadfilelist
     local _pkg_list
     local _pkg
     local _file
-    for _file in "$(ls ${script_path}/packages.d/*.x86_64)"; do
+
+    _loadfilelist=($(ls ${script_path}/packages.d/*.x86_64))
+
+    if ${japanese}; do
+        _loadfilelist=($(echo ${_loadfilelist[@]} | grep -xv japanese.x86_64))
+    fi
+
+    for _file in ${_loadfilelist[@]}; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
     
