@@ -14,7 +14,7 @@
 alterlinux-keyring
 
 #-- installer --#
-alterlinux-calamares
+alterlinux-calamares-git
 libpwquality
 
 
