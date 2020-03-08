@@ -132,7 +132,7 @@ fi
 
 
 # Replace calamares settings when lts kernel is enabled.
-if [[ ! ${kernel} = "core" ]]; then
+if [[ ! ${kernel} = "zen" ]]; then
     # initcpio
     remove /usr/share/calamares/modules/initcpio.conf
     mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
