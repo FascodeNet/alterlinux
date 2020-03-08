@@ -35,7 +35,7 @@ locale-gen
 
 
 # Setting the time zone.
-if ${japanese}: then
+if ${japanese}; then
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 else
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
