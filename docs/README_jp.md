@@ -54,7 +54,18 @@ Alter Linuxに入っている独自のソフトウェアのソースコードは
 
 #### 実機でビルドする
 ArchLinux環境でビルドする必要があります。  
-事前に`archiso`パッケージをインストールしておいてください。
+AlterLinuxのリポジトリを使用するために鍵を追加します。
+
+```bash
+curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
+鍵を追加したらビルドに使用するパッケージをインストールします。
+
+```bash
+sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+```
+そしてソースコードをダウンロードしてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git

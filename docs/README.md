@@ -56,7 +56,18 @@ The options of `build.sh` are common.
 
 #### Build on real machine
 You need to build in ArchLinux environment.  
-Please install `archiso` package beforehand.  
+Add a key to use the AlterLinux repository.
+
+```bash
+curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
+Once you have added the key, install the package that will be used for the build.
+
+```bash
+sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+```
+Then download the source code.
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
