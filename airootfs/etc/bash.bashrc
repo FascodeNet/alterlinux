@@ -10,8 +10,7 @@
 # PS1='[\u@\h \W]\$ '
 PS1='\u@\h:\w\$ ' 
 
-if [[ -f /etc/bash_aliases ]]; then
-    source /etc/bash_aliases
-fi
+[[ -f /etc/bash_aliases ]] && source /etc/bash_aliases
+[[ -f /etc/bash_functions ]] && source /etc/bash_functions
 
 export EDITOR=nano

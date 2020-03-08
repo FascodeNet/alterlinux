@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # 
 # Yamada Hayao 
 # Twitter: @Hayao0819
@@ -435,7 +435,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:rx' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -458,6 +458,13 @@ while getopts 'w:o:g:p:c:t:hbk:rx' arg; do
             else
                 echo "Invalid kernel ${OPTARG}" >&2
                 _usage 1
+            fi
+            ;;
+        s) 
+            if [[ -f "${OPTARG}" ]]; then
+                source "${OPTARG}"
+            else
+                echo "Invalid configuration file ${OPTARG}." >&2
             fi
             ;;
         x) debug=true;;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e -u
 
@@ -12,7 +12,7 @@ rebuild=false
 
 
 # Check options
-while getopts 'p:bt:k:r' arg; do
+while getopts 'p:bt:k:rx' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
