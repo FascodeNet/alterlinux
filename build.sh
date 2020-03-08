@@ -35,6 +35,7 @@ sfs_comp="zstd"
 sfs_comp_opt=""
 debug=false
 rebuild=false
+japanese=false
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
@@ -252,6 +253,9 @@ make_customize_airootfs() {
     if ${debug}; then
         options="${options} -x"
     fi
+    if ${japanese}; then
+        options="${options} -j"
+    fi
     if ${rebuild}; then
         options="${options} -r"
     fi
@@ -435,7 +439,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -469,6 +473,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
             ;;
         x) debug=true;;
         r) rebuild=true ;;
+        j) japanese=true;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'" >&2
