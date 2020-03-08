@@ -2,6 +2,7 @@
 
 set -e -u
 
+
 # Default value
 password=alter
 boot_splash=false
@@ -9,7 +10,6 @@ kernel=core
 theme_name=alter-logo
 rebuild=false
 japanese=false
-
 
 
 # Check options
@@ -26,6 +26,22 @@ while getopts 'p:bt:k:rxj' arg; do
 done
 
 
+# Delete file only if file exists
+# remove <file1> <file2>
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
+
+
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
 if ${japanese}; then
@@ -39,6 +55,11 @@ if ${japanese}; then
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 else
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+fi
+
+
+if [[ ${japanese} = false ]]; then
+    remove /etc/skel/.config/fcitx
 fi
 
 
@@ -93,25 +114,6 @@ alter ALL=NOPASSWD: /usr/bin/calamares
 alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 Defaults pwfeedback
 EOF
-
-
-# Delete unnecessary files.
-
-# Delete file only if file exists
-# remove <file1> <file2>
-function remove () {
-    local _list
-    local _file
-    _list=($(echo "$@"))
-    for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            rm -rf "${_file}"
-        fi
-    done
-}
-
 
 # Replace wallpaper.
 if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
