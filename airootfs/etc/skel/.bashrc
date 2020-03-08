@@ -5,8 +5,7 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-
-alias ls='ls --color=auto'
+[[ -f ~/.bash_aliases ]] && source ~/.bash_aliases
 
 # ArchLinux default
 # PS1='[\u@\h \W]\$ '
