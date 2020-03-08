@@ -64,7 +64,7 @@ _usage () {
     else
         echo "                        Default: ${gpg_key}"
     fi
-    echp "    -j                 Enable Japanese mode."
+    echo "    -j                 Enable Japanese mode."
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
