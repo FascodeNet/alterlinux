@@ -167,7 +167,7 @@ make_packages() {
 
     _loadfilelist=($(ls ${script_path}/packages.d/*.x86_64))
 
-    if ${japanese}; do
+    if ${japanese}; then
         _loadfilelist=($(echo ${_loadfilelist[@]} | grep -xv japanese.x86_64))
     fi
 
