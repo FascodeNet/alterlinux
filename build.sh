@@ -164,15 +164,19 @@ make_packages() {
     local _pkg_list
     local _pkg
     local _file
+    local jplist
+    jplist=${script_path}/packages.d/jp.x86_64
+    nojplist=${script_path}/packages.d/non-jp.x86_64
 
     _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
     if ${japanese}; then
-        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv non-jp.x86_64))
+        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${nojplist}))
     else
-        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv jp.x86_64))
+        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
     fi
-
+    echo ${_loadfilelist[@]}
+    exit 1
     for _file in ${_loadfilelist[@]}; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
