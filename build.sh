@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
 #
@@ -36,15 +36,14 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
+mkalteriso="${script_path}/system/mkalteriso"
+pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
 script_path=$(readlink -f ${0%/*})
 
-mkalteriso="${script_path}/system/mkalteriso"
-
-pacman_conf=${script_path}/system/pacman.conf
 
 [[ -z ${kernel} ]] && kernel=core
 
@@ -175,7 +174,7 @@ make_packages() {
     for _file in ${_loadfilelist[@]}; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
-    
+
     # sort
     _pkg_list=(
         "$(
@@ -466,7 +465,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
-        k) 
+        k)
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
@@ -474,7 +473,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
                 _usage 1
             fi
             ;;
-        s) 
+        s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
