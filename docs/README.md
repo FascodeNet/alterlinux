@@ -89,11 +89,14 @@ Default compression type is `zstd`.
 
 
 #### Options
-- Enable Plymouth         : `-b`
-- Change compression type : `-c <comp type>`
-- Change kernel           : `-k <kernel>`
-- Change the password     : `-p <password>`
-- Set compression options : `-t <options>`
+ Purpose | Usage
+--- | ---
+ Enable boot splash | -b
+ Change kernel | -k [kernel]
+ Change the password | -p [password]
+ Japanese | -j
+ Change compression method | -c [comp type]
+ Set compression options | -t [comp option]
 
 ##### Example
 
