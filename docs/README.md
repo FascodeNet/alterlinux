@@ -98,6 +98,9 @@ Default compression type is `zstd`.
  Japanese | -j
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
+ Specify output destination directory | -o [dir]
+Specify working directory | -w [dir]
+
 
 ##### Example
 
