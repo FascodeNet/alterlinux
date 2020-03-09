@@ -60,7 +60,7 @@ You need to build in ArchLinux environment.
 Add a key to use the AlterLinux repository.
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+curl https://xn--d-8o2b.com/repo/fascode.pub | sudo pacman-key -a -
 sudo pacman-key --lsign-key development@fascode.net
 ```
 Once you have added the key, install the package that will be used for the build.
