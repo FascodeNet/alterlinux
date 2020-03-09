@@ -14,7 +14,7 @@
 |:-----:|:-----:|
 
 ## Overview
-  
+
 Alter Linux is a new OS developed based on Arch Linux.  
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
 Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
@@ -35,8 +35,8 @@ All mirror servers are synchronized with this repository.
 
 ### Software
 The source code of the original software included in Alter Linux is below.
-The list of packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
-The perfect list of all packages is in live image file. 
+The list of packages is [here](../packages.d).
+The perfect list of all packages is in live image file.
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
@@ -47,7 +47,7 @@ The perfect list of all packages is in live image file.
 
 ## build
 
-The following procedure is for building with the actual machine ArchLinux. 
+The following procedure is for building with the actual machine ArchLinux.
 
 ### Preparation
 
@@ -105,7 +105,7 @@ To build under the following conditions:
 - The password is `ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' 
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
 ```
 
 ##### About the kernel

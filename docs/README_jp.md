@@ -12,7 +12,7 @@
 |:-----:|:-----:|
 
 ## 概要
-  
+
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
 AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/orgs/SereneTeam/projects/2)を確認してください。
@@ -33,7 +33,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 
 ### ソフトウェア
 Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
-パッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。  
+パッケージ一覧は[こちら](../packages.d/)にあります。  
 すべての完全なパッケージ一覧はイメージファイル内にあります。
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
@@ -111,13 +111,13 @@ lymouthは無効化されています。
 - パスワードは`ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' 
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
 ```
 
 ##### カーネルについて
 カーネルは現在、以下の種類がサポートされています。未指定の場合は通常の`linux`カーネルが使用されます。  
 `-k`のオプションは必ず`linux-foo`の`foo`の部分を入れてください。例えば`linux-lts`の場合は`lts`が入ります。  
-  
+
 以下はサポートされている値とカーネルです。カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
 - ck    : linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
