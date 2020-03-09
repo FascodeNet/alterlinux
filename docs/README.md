@@ -21,6 +21,7 @@ Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the
 
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
+The previously used Japanese branch has been removed.
 
 | [master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
 |:-----:|:-----:|:-----:|
