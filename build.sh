@@ -8,6 +8,7 @@
 #
 
 set -e -u
+script_path=$(readlink -f ${0%/*})
 
 # alteriso settings
 #
@@ -41,8 +42,6 @@ pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
-
-script_path=$(readlink -f ${0%/*})
 
 
 [[ -z ${kernel} ]] && kernel=core
