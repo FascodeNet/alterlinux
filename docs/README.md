@@ -14,13 +14,14 @@
 |:-----:|:-----:|
 
 ## Overview
-  
+
 Alter Linux is a new OS developed based on Arch Linux.  
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
 Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
 
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
+The previously used Japanese branch has been removed.
 
 | [master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
 |:-----:|:-----:|:-----:|
@@ -35,8 +36,8 @@ All mirror servers are synchronized with this repository.
 
 ### Software
 The source code of the original software included in Alter Linux is below.
-The list of packages is [here](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64).
-The perfect list of all packages is in live image file. 
+The list of packages is [here](../packages.d).
+The perfect list of all packages is in live image file.
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
 - [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
@@ -47,7 +48,7 @@ The perfect list of all packages is in live image file.
 
 ## build
 
-The following procedure is for building with the actual machine ArchLinux. 
+The following procedure is for building with the actual machine ArchLinux.
 
 ### Preparation
 
@@ -56,7 +57,18 @@ The options of `build.sh` are common.
 
 #### Build on real machine
 You need to build in ArchLinux environment.  
-Please install `archiso` package beforehand.  
+Add a key to use the AlterLinux repository.
+
+```bash
+curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
+Once you have added the key, install the package that will be used for the build.
+
+```bash
+sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+```
+Then download the source code.
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -78,11 +90,14 @@ Default compression type is `zstd`.
 
 
 #### Options
-- Enable Plymouth         : `-b`
-- Change compression type : `-c <comp type>`
-- Change kernel           : `-k <kernel>`
-- Change the password     : `-p <password>`
-- Set compression options : `-t <options>`
+ Purpose | Usage
+--- | ---
+ Enable boot splash | -b
+ Change kernel | -k [kernel]
+ Change the password | -p [password]
+ Japanese | -j
+ Change compression method | -c [comp type]
+ Set compression options | -t [comp option]
 
 ##### Example
 
@@ -94,7 +109,7 @@ To build under the following conditions:
 - The password is `ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' 
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
 ```
 
 ##### About the kernel

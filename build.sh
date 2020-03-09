@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 
-# Yamada Hayao 
+#
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
 #
@@ -8,6 +8,7 @@
 #
 
 set -e -u
+script_path=$(readlink -f ${0%/*})
 
 # alteriso settings
 #
@@ -35,15 +36,13 @@ sfs_comp="zstd"
 sfs_comp_opt=""
 debug=false
 rebuild=false
+japanese=false
+mkalteriso="${script_path}/system/mkalteriso"
+pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
-script_path=$(readlink -f ${0%/*})
-
-mkalteriso="${script_path}/system/mkalteriso"
-
-pacman_conf=${script_path}/system/pacman.conf
 
 [[ -z ${kernel} ]] && kernel=core
 
@@ -63,6 +62,7 @@ _usage () {
     else
         echo "                        Default: ${gpg_key}"
     fi
+    echo "    -j                 Enable Japanese mode."
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
@@ -159,13 +159,21 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages() {
     set +eu
+    local _loadfilelist
     local _pkg_list
     local _pkg
     local _file
-    for _file in "$(ls ${script_path}/packages.d/*.x86_64)"; do
+
+    _loadfilelist=($(ls ${script_path}/packages.d/*.x86_64))
+
+    if ${japanese}; then
+        _loadfilelist=($(echo ${_loadfilelist[@]} | grep -xv japanese.x86_64))
+    fi
+
+    for _file in ${_loadfilelist[@]}; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
-    
+
     # sort
     _pkg_list=(
         "$(
@@ -236,6 +244,7 @@ make_customize_airootfs() {
     # -p <password> : Set password.
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
+    # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -x            : Enable debug mode.
 
@@ -251,6 +260,9 @@ make_customize_airootfs() {
     fi
     if ${debug}; then
         options="${options} -x"
+    fi
+    if ${japanese}; then
+        options="${options} -j"
     fi
     if ${rebuild}; then
         options="${options} -r"
@@ -435,7 +447,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -452,7 +464,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
-        k) 
+        k)
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
@@ -460,7 +472,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
                 _usage 1
             fi
             ;;
-        s) 
+        s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
@@ -469,6 +481,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:' arg; do
             ;;
         x) debug=true;;
         r) rebuild=true ;;
+        j) japanese=true;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'" >&2

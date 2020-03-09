@@ -1,0 +1,147 @@
+[Hotkey]
+# 入力メソッドのオンオフ
+TriggerKey=CTRL_SPACE ZENKAKUHANKAKU
+# アクティブでない時だけその他のトリガーキーを使用する
+# 可能な値:
+# True False
+#UseExtraTriggerKeyOnlyWhenUseItToInactivate=True
+# 入力メソッド起動のその他のキー
+# 可能な値:
+# R_CTRL
+# R_SHIFT
+# L_SHIFT
+# L_CTRL
+# ALT_L_SHIFT
+# ALT_R_SHIFT
+# CTRL Both
+# SHIFT Both
+# L_ALT
+# R_ALT
+# ALT Both
+# Left Super
+# Right Super
+# Super Both
+# Ctrl+Left Super
+# Ctrl+Right Super
+# Super+Left Ctrl
+# Super+Right Ctrl
+# Disabled
+# Custom
+#SwitchKey=L_SHIFT
+# カスタム切り替えキー
+#CustomSwitchKey=
+# 入力メソッドをオンに
+#ActivateKey=
+# 入力メソッドをオフに
+#InactivateKey=
+# 入力メソッドの切換をホットキーで
+# 可能な値:
+# True False
+#IMSwitchKey=True
+# 入力メソッドの切換にオフも含む
+# 可能な値:
+# True False
+#IMSwitchIncludeInactive=False
+# 入力メソッドの切換
+# 可能な値:
+# CTRL_SHIFT
+# ALT_SHIFT
+# CTRL_SUPER
+# ALT_SUPER
+#IMSwitchHotkey=CTRL_SHIFT
+# 設定の再読み込み
+#ReloadConfig=CTRL_5
+# 2つのキー入力の間隔
+#TimeInterval=250
+# 仮想キーボードに切り替え
+#VKSwitchKey=CTRL_ALT_B
+# リマインドモードの切り替え
+#RemindSwitchKey=
+# 全角文字モードに切り替え
+#FullWidthSwitchKey=
+# 全角句読点モードに切り替え
+#PuncSwitchKey=CTRL_.
+# 前のページ
+#PrevPageKey=- UP
+# 次のページ
+#NextPageKey== DOWN
+# 二番目と三番目の候補を選択
+#SecondThirdCandWordKey=
+# すべての設定と入力履歴を保存
+#SaveAllKey=CTRL_ALT_S
+# Switch Embedded Preedit
+#SwitchPreedit=CTRL_ALT_P
+# 前の候補
+#PrevWord=SHIFT_TAB
+# 次の候補
+#NextWord=TAB
+
+[Program]
+# fcitxが本当に起動するまでのスリープ時間(秒)
+#DelayStart=0
+# ウィンドウ間で状態を共有
+# 可能な値:
+# No
+# All
+# PerProgram
+#ShareStateAmongWindow=No
+# 既定の入力メソッドの状態
+# 可能な値:
+# Inactive
+# Active
+#DefaultInputMethodState=Inactive
+
+[Output]
+# 数字の後に半角句読点を入力
+# 可能な値:
+# True False
+#HalfPuncAfterNumber=True
+# リマインドモードでページを無効に
+# 可能な値:
+# True False
+#RemindModeDisablePaging=True
+# 状態を切り替えたら確定する
+# 可能な値:
+# True False
+#SendTextWhenSwitchEng=True
+# 候補の単語数
+#CandidateWordNumber=5
+# Tipsのフレーズにヒントを与える
+# 可能な値:
+# True False
+#PhraseTips=True
+# フォーカスを外しても未確定文字をコミットしない
+# 可能な値:
+# True False
+#DontCommitPreeditWhenUnfocus=False
+
+[Appearance]
+# 入力メソッドを切換後に入力メソッドのヒントを表示
+# 可能な値:
+# True False
+#ShowInputWindowAfterTriggering=True
+# 入力メソッドを切換え、フォーカスした際に入力メソッドのヒントを表示
+# 可能な値:
+# True False
+#ShowInputWindowWhenFocusIn=False
+# 有効の時だけ入力メソッドのヒントを表示
+# 可能な値:
+# True False
+#ShowInputWindowOnlyWhenActive=True
+# 入力速度の表示
+# 可能な値:
+# True False
+#ShowInputSpeed=False
+# バージョンの表示
+# 可能な値:
+# True False
+#ShowVersion=False
+# プレエディットを表示している場合は入力ウィンドウを表示しない
+# 可能な値:
+# True False
+#HideInputWindowWhenOnlyPreeditString=False
+# 候補とプレエディットに1つの候補しか表示されていない場合は入力ウィンドウを表示しない
+# 可能な値:
+# True False
+#HideInputWindowWhenOnlyOneCandidate=False
+

@@ -12,17 +12,18 @@
 |:-----:|:-----:|
 
 ## 概要
-  
+
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
 Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
 AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/orgs/SereneTeam/projects/2)を確認してください。
 
 ## ブランチ
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
+以前に使用されていたJapaneseブランチは削除されました。
 
-| [master](https://github.com/SereneTeam/alterlinux/tree/master) |  [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) | [Japanese](https://github.com/SereneTeam/alterlinux/tree/Japanese) |
-|:-----:|:-----:|:-----:|:-----:|
-| 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。| 日本語版のAlterLinuxです。OS本体の更新は`master`に追従していますが、日本語独自の更新は遅れることがあります。 |
+[master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev)
+--- | --- | ---
+最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。
 
 ## リポジトリとソフトウェア
 
@@ -33,7 +34,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 
 ### ソフトウェア
 Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
-パッケージ一覧は[こちら](https://github.com/SereneTeam/alterlinux/blob/master/packages.x86_64)にあります。  
+パッケージ一覧は[こちら](../packages.d/)にあります。  
 すべての完全なパッケージ一覧はイメージファイル内にあります。
 
 - [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
@@ -54,7 +55,18 @@ Alter Linuxに入っている独自のソフトウェアのソースコードは
 
 #### 実機でビルドする
 ArchLinux環境でビルドする必要があります。  
-事前に`archiso`パッケージをインストールしておいてください。
+AlterLinuxのリポジトリを使用するために鍵を追加します。
+
+```bash
+curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
+鍵を追加したらビルドに使用するパッケージをインストールします。
+
+```bash
+sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+```
+そしてソースコードをダウンロードしてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -85,11 +97,14 @@ lymouthは無効化されています。
 ```
 
 #### オプション
-- Plymouthを有効化する ：   `-b`
-- 圧縮方式を変える      ：   `-c <comp type>`
-- カーネルを変更する     :   `-k <kernel>`
-- パスワードを変更する   ：   `-p <password>`
-- 圧縮のオプション      ：   `-t <options>`
+用途 | 使い方
+--- | ---
+ブートスプラッシュを有効化 | -b
+カーネルを変える | -k [kernel]
+パスワードを変更する | -p [password]
+日本語にする | -j
+圧縮方式を変更する | -c [comp type]
+圧縮のオプションを設定する | -t [comp option]
 
 ##### 例
 以下の条件でビルドするにはこのようにします。
@@ -100,13 +115,13 @@ lymouthは無効化されています。
 - パスワードは`ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' 
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
 ```
 
 ##### カーネルについて
 カーネルは現在、以下の種類がサポートされています。未指定の場合は通常の`linux`カーネルが使用されます。  
 `-k`のオプションは必ず`linux-foo`の`foo`の部分を入れてください。例えば`linux-lts`の場合は`lts`が入ります。  
-  
+
 以下はサポートされている値とカーネルです。カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
 - ck    : linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
