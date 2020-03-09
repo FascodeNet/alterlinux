@@ -175,8 +175,7 @@ make_packages() {
     else
         _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
     fi
-    echo ${_loadfilelist[@]}
-    exit 1
+    
     for _file in ${_loadfilelist[@]}; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
