@@ -160,16 +160,17 @@ make_basefs() {
 make_packages() {
     set +eu
     local _loadfilelist
+    local _loadfilelist_cmd
     local _pkg_list
     local _pkg
     local _file
 
-    _loadfilelist=($(ls ${script_path}/packages.d/*.x86_64))
+    _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
     if ${japanese}; then
-        _loadfilelist=($(echo ${_loadfilelist[@]} | grep -xv non-jp.x86_64))
+        _loadfilelist=(${_loadfilelist_cmd} | grep -xv non-jp.x86_64))
     else
-        _loadfilelist=($(echo ${_loadfilelist[@]} | grep -xv jp.x86_64))
+        _loadfilelist=(${_loadfilelist_cmd} | grep -xv jp.x86_64))
     fi
 
     for _file in ${_loadfilelist[@]}; do
