@@ -168,9 +168,9 @@ make_packages() {
     _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
     if ${japanese}; then
-        _loadfilelist=(${_loadfilelist_cmd} | grep -xv non-jp.x86_64))
+        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv non-jp.x86_64))
     else
-        _loadfilelist=(${_loadfilelist_cmd} | grep -xv jp.x86_64))
+        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv jp.x86_64))
     fi
 
     for _file in ${_loadfilelist[@]}; do
