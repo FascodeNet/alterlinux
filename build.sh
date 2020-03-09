@@ -508,6 +508,7 @@ mkdir -p ${work_dir}
 echo "kernel is changed to ${kernel}"
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
+[[ ${japanese} = true ]] && echo "Japanese mode has been activated."
 sleep 2
 
 prepare_rebuild
