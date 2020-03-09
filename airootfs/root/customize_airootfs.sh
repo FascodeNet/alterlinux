@@ -61,6 +61,7 @@ fi
 
 if [[ ${japanese} = false ]]; then
     remove /etc/skel/.config/fcitx
+    remove /etc/skel/.xprofile
 fi
 
 
@@ -192,8 +193,8 @@ systemctl disable lightdm
 if [[ ${boot_splash} = true ]]; then
     systemctl disable lightdm-plymouth.service
 fi
-systemctl enable pacman-init.service 
-systemctl enable choose-mirror.service 
+systemctl enable pacman-init.service
+systemctl enable choose-mirror.service
 systemctl enable org.cups.cupsd.service
 systemctl enable NetworkManager.service
 
