@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
 #
@@ -10,6 +10,9 @@
 # This package list will only be installed if the Japanese option is enabled.
 #
 # Japanese package
+
+# Config file
+alterlinux-xfce-conf-jp
 
 # Fcitx
 fcitx-im
