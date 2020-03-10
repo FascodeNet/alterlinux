@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
 #
@@ -9,6 +9,8 @@
 #
 # Alter Linux original
 
+#-- Config --#
+alterlinux-xfce-conf
 
 #-- keyring --#
 alterlinux-keyring

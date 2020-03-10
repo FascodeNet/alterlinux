@@ -11,8 +11,8 @@
 #
 # Japanese package
 
-# Config file
-alterlinux-xfce-conf-jp
+# Fcitx config
+alterlinux-fcitx-conf
 
 # Fcitx
 fcitx-im
