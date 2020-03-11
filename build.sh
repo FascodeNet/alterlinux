@@ -46,9 +46,6 @@ pacman_conf=${script_path}/system/pacman.conf
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
 
-
-[[ -z ${kernel} ]] && kernel=core
-
 umask 0022
 
 _usage () {
