@@ -14,10 +14,10 @@
 iso_name=alterlinux
 
 # Image file label
-iso_label="ALTER_$(date +%Y%m)"
+iso_label="ALTER_$(date +%Y%m%d)"
 
 # Image file creator information
-iso_publisher='Alter Linux <http://www.archlinux.org>'
+iso_publisher='Fascode Network <https://fascode.net>'
 
 # Image file name (not file name)
 iso_application="Alter Linux Live/Rescue CD"

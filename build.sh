@@ -17,7 +17,7 @@ script_path=$(readlink -f ${0%/*})
 
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
-iso_publisher="Alter Linux <http://www.archlinux.org>"
+iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="Alter Linux Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=alter
