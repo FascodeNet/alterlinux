@@ -42,10 +42,6 @@ function remove () {
     done
 }
 
-if [[ ! ${kernel} = "core" ]]; then
-    remove /etc/modprobe.d/broadcom-wl.conf
-fi
-
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
