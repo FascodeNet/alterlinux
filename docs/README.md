@@ -54,22 +54,28 @@ All comments made on this account are not official SereneTeam statements and are
 </p>
 
 ## Repositories and software
+To use packages from the repository, you need to add a key.
+Execute the following command to add the key.
+
+```bash
+curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
 
 ### Repositories
-- [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
-All mirror servers are synchronized with this repository.  
+GitHub repositories that were used before are no longer used. Currently [this server](https://xn--d-8o2b.com/repo/) is the latest repository.
 
 
 ### Software
-The source code of the original software included in Alter Linux is below.
-The list of packages is [here](../packages.d).
-The perfect list of all packages is in live image file.
+Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.  
+If you need a binary file, access [the AlterLinux repository](https://xn--d-8o2b.com/repo/alter-stable/x86_64/).
 
-- [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
-- [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
-- [lightdm-webkit2-theme-alter](https://github.com/SereneTeam/lightdm-webkit2-theme-alter)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/lightdm-webkit2-theme-alter))
-- [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
 - [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares))
+- [alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf))
+- [alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring))
+- [alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist))
+- [alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers))
+- [alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf))
 
 
 ## build
@@ -82,14 +88,10 @@ There are two ways to build, using Arch Linux on the actual machine and building
 The options of `build.sh` are common.
 
 #### Build on real machine
-You need to build in ArchLinux environment.  
-Add a key to use the AlterLinux repository.
+When building with an actual machine, it is necessary to build in an ArchLinux environment.  
+You need to add a key to use AlterLinux repository. How to add a key is described above.  
 
-```bash
-curl https://xn--d-8o2b.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
-Once you have added the key, install the package that will be used for the build.
+Install the necessary packages for the build.
 
 ```bash
 sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx

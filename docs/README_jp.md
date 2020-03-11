@@ -54,22 +54,28 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 </p>
 
 ## リポジトリとソフトウェア
+リポジトリのパッケージを使用するには鍵を追加する必要があります。  
+以下のコマンドを実行して鍵を追加して下さい。
+
+```bash
+curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
 
 ### リポジトリ
-- [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
-全てのミラーサーバはこのリポジトリと同期しています。  
+以前まで使用されていたGitHubのリポジトリは現在は使用されていません。現在は[こちらのサーバ](https://xn--d-8o2b.com/repo/)が最新のリポジトリです。
 
 
 ### ソフトウェア
-Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
-パッケージ一覧は[こちら](../packages.d/)にあります。  
-すべての完全なパッケージ一覧はイメージファイル内にあります。
+ほとんどのパッケージは公式パッケージか、AUR上に公開していますが、一部のものはどちらにもありません。そのようなパッケージのソースコードとPKGBUILDへのリンクを以下に記載します。  
+バイナリファイルが必要な場合は[AlterLinuxリポジトリ](https://xn--d-8o2b.com/repo/alter-stable/x86_64/)にアクセスして下さい。
 
-- [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
-- [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
-- [lightdm-webkit2-theme-alter](https://github.com/SereneTeam/lightdm-webkit2-theme-alter)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/lightdm-webkit2-theme-alter))
-- [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
 - [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares))
+- [alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf))
+- [alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring))
+- [alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist))
+- [alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers))
+- [alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf))
 
 
 ## ビルド
@@ -82,14 +88,10 @@ Alter Linuxに入っている独自のソフトウェアのソースコードは
 `build.sh`のオプションは共通です。  
 
 #### 実機でビルドする
-ArchLinux環境でビルドする必要があります。  
-AlterLinuxのリポジトリを使用するために鍵を追加します。
+実機でビルドする場合はArchLinux環境でビルドする必要があります。  
+AlterLinuxのリポジトリを使用するために鍵を追加する必要があります。鍵を追加する方法は上記記載されています。
 
-```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
-鍵を追加したらビルドに使用するパッケージをインストールします。
+ビルドに必要なパッケージをインストールして下さい。
 
 ```bash
 sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
