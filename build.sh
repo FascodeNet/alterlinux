@@ -123,6 +123,17 @@ function remove () {
     done
 }
 
+# Show settings.
+# $1 = Time to show
+show_settings() {
+    [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
+    echo "Use the ${kernel} kernel."
+    echo "Live user password is ${password}."
+    echo "The compression method of squashfs is ${sfs_comp}."
+    [[ ${japanese} = true ]] && echo "Japanese mode has been activated."
+    sleep ${1}
+}
+
 # Preparation for rebuild
 prepare_rebuild() {
     if ${rebuild}; then
@@ -517,14 +528,7 @@ fi
 
 mkdir -p ${work_dir}
 
-# Show Alter Linux build options.
-[[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
-echo "Use the ${kernel} kernel."
-echo "Live user password is ${password}."
-echo "The compression method of squashfs is ${sfs_comp}."
-[[ ${japanese} = true ]] && echo "Japanese mode has been activated."
-sleep 2
-
+show_settings 3
 prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
