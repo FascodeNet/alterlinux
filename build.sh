@@ -508,7 +508,7 @@ mkdir -p ${work_dir}
 
 # Show Alter Linux build options.
 [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
-echo "kernel is changed to ${kernel}"
+echo "Use the ${kernel} kernel."
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
 [[ ${japanese} = true ]] && echo "Japanese mode has been activated."
