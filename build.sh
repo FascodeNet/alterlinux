@@ -39,6 +39,8 @@ rebuild=false
 japanese=false
 cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
+
+# Pacman configuration file used only when building
 pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
@@ -208,8 +210,11 @@ make_customize_airootfs() {
 
     # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
     # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
-
-    curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
+    if ${japanese}; then
+        curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=JP&protocol=http&use_mirror_status=on'
+    else
+        curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
+    fi
 
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
 
