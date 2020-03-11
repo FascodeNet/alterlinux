@@ -13,6 +13,3 @@ pkg/
 src/
 out/
 work/
-
-airootfs/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-notifyd.xml
-airootfs/etc/skel/.config/xfce4/desktop/
