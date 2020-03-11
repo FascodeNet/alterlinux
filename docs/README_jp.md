@@ -25,6 +25,34 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 --- | --- | ---
 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。
 
+### Twitter アカウント
+主要な開発メンバーのTwitterへのリンクです。  
+このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
+
+#### 公式
+以下は公式のアカウントです。
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+#### 開発者
+主な開発メンバーのTwitterへのリンクです。  
+このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
+
+<h5 align="center">開発担当</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
+</p>
+
+
+<h5 align="center">デザイン担当</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
+</p>
+
 ## リポジトリとソフトウェア
 
 ### リポジトリ
@@ -200,31 +228,3 @@ loglevel=3 quiet splash udev.log-priority=3
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
 Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
 私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
-
-### Twitter アカウント
-主要な開発メンバーのTwitterへのリンクです。  
-このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
-
-#### 公式
-以下は公式のアカウントです。
-- [Alter Linux](https://twitter.com/AlterLinux)
-- [SereneLinux Global](https://twitter.com/SereneLinux)
-- [SereneLinux JP](https://twitter.com/SereneDevJP)
-
-#### 開発者
-主な開発メンバーのTwitterへのリンクです。  
-このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
-
-<h5 align="center">開発担当</h5>
-<p align="center">
-<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
-</p>
-
-
-<h5 align="center">デザイン担当</h5>
-<p align="center">
-<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
-</p>

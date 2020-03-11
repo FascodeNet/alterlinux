@@ -27,6 +27,32 @@ The previously used Japanese branch has been removed.
 |:-----:|:-----:|:-----:|
 | Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
+###  Twitter　account
+
+#### Official
+The following accounts are official.
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+#### Developer
+Link to Twitter of main development members.  
+All comments made on this account are not official SereneTeam statements and are solely for the developer.  
+
+<h5 align="center">Development</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
+</p>
+
+
+<h5 align="center">Design</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
+</p>
+
 ## Repositories and software
 
 ### Repositories
@@ -194,29 +220,3 @@ This will disable bootsplash and display a detailed log at startup.
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
 [SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  
 Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
-
-###  Twitter　account
-
-#### Official
-The following accounts are official.
-- [Alter Linux](https://twitter.com/AlterLinux)
-- [SereneLinux Global](https://twitter.com/SereneLinux)
-- [SereneLinux JP](https://twitter.com/SereneDevJP)
-
-#### Developer
-Link to Twitter of main development members.  
-All comments made on this account are not official SereneTeam statements and are solely for the developer.  
-
-<h5 align="center">Development</h5>
-<p align="center">
-<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
-</p>
-
-
-<h5 align="center">Design</h5>
-<p align="center">
-<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
-</p>
