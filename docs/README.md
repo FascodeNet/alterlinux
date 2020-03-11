@@ -180,6 +180,16 @@ zstd
 - [How to build on docker](Howtobuild_on_docker.md)
 - [How to add supporting a new kernel.](Support_a_new_kernel.md)
 
+## If you cannot start
+If the built disk cannot be started, change the kernel options according to the following procedure and check the log.
+Boot from disk and if you cannot boot, press the `Tab` key and delete the following:
+
+```
+loglevel=3 quiet splash udev.log-priority=3
+```
+This will disable bootsplash and display a detailed log at startup.
+
+
 ## About SereneTeam and developers
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
 [SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  

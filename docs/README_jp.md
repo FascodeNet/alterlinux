@@ -186,6 +186,16 @@ zstd
 - [Docker上でビルドする方法](Howtobuild_on_docker.md)
 - [新しいカーネルを追加する方法](Support_a_new_kernel.md)
 
+## 起動できない場合
+ビルドしたディスクが起動ができない場合、以下の手順でカーネルオプションを変更し、ログを確認して下さい。　　
+ディスクから起動し、起動ができない場合、`Tab`キーを押して以下の部分を削除してください。　　
+
+```
+loglevel=3 quiet splash udev.log-priority=3
+```
+これによりブートスプラッシュが無効化され、起動時に詳細なログが表示されます。
+
+
 ## SereneTeamと開発者について
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
 Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
