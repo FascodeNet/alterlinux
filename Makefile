@@ -86,4 +86,5 @@ test-xanmod-lts:
 
 
 cleanup:
-	@sudo rm -rf ./work
+	@[[ -d ./work ]] && sudo rm -rf ./work
+	@[[ -d ./out  ]] && sudo rm -rf ./out

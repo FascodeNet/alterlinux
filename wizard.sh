@@ -66,7 +66,7 @@ function set_comp_option () {
             n | N | no  | No  | NO  ) details=false   ;;
             *                       ) set_comp_option ; return 0;;
         esac
-        if ${details}; then
+        if [[ ${details} = true ]]; then
             :
         else
             return 0
@@ -279,7 +279,7 @@ function start_build () {
 ask
 generate_argument
 
-if ${nobuild}; then
+if [[ ${nobuild} = true ]]; then
     echo "${argument}"
 else
     start_build

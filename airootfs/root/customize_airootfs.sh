@@ -42,30 +42,20 @@ function remove () {
     done
 }
 
-if [[ ! ${kernel} = "core" ]]; then
-    remove /etc/modprobe.d/broadcom-wl.conf
-fi
-
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if ${japanese}; then
+if [[ ${japanese} = true ]]; then
     sed -i 's/#\(ja_JP\.UTF-8\)/\1/' /etc/locale.gen
 fi
 locale-gen
 
 
 # Setting the time zone.
-if ${japanese}; then
+if [[ ${japanese} = true ]]; then
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 else
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-fi
-
-
-if [[ ${japanese} = false ]]; then
-    remove /etc/skel/.config/fcitx
-    remove /etc/skel/.xprofile
 fi
 
 
@@ -143,7 +133,7 @@ else
 fi
 
 # Japanese
-if ${japanese}; then
+if [[ ${japanese} = true ]]; then
     remove /etc/locale.conf
     echo 'LANG=ja_JP.UTF-8' > /etc/locale.conf
 fi

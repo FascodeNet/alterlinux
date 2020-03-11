@@ -17,7 +17,7 @@ script_path=$(readlink -f ${0%/*})
 
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
-iso_publisher="Alter Linux <http://www.archlinux.org>"
+iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="Alter Linux Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=alter
@@ -37,14 +37,14 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
+cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
+
+# Pacman configuration file used only when building
 pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
-
-
-[[ -z ${kernel} ]] && kernel=core
 
 umask 0022
 
@@ -66,6 +66,7 @@ _usage () {
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
+    echo "    -l                 Enable post-build cleaning."
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -119,9 +120,20 @@ function remove () {
     done
 }
 
+# Show settings.
+# $1 = Time to show
+show_settings() {
+    [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
+    echo "Use the ${kernel} kernel."
+    echo "Live user password is ${password}."
+    echo "The compression method of squashfs is ${sfs_comp}."
+    [[ ${japanese} = true ]] && echo "Japanese mode has been activated."
+    sleep ${1}
+}
+
 # Preparation for rebuild
 prepare_rebuild() {
-    if ${rebuild}; then
+    if [[ ${rebuild} = true ]]; then
         remove ${work_dir}/build.*
     fi
 }
@@ -170,7 +182,7 @@ make_packages() {
 
     _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
-    if ${japanese}; then
+    if [[ ${japanese} = true ]]; then
         _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${nojplist}))
     else
         _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
@@ -194,6 +206,60 @@ make_packages() {
 
     # ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
     ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
+}
+
+# Customize installation (airootfs)
+make_customize_airootfs() {
+    cp -af ${script_path}/airootfs ${work_dir}/x86_64
+
+    if [[ ${boot_splash} = true ]]; then
+        cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
+    fi
+
+    # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
+    # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
+    if [[ ${japanese} = true ]]; then
+        curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=JP&protocol=http&use_mirror_status=on'
+    else
+        curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
+    fi
+
+    # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
+
+
+    # customize_airootfs.sh options
+    # -p <password> : Set password.
+    # -b            : Enable boot splash.
+    # -t            : Set plymouth theme.
+    # -j            : Enable Japanese.
+    # -k <kernel>   : Set kernel name.
+    # -x            : Enable debug mode.
+
+
+    local options
+    options=
+    if [[ ${boot_splash} = true ]]; then
+        if [[ -z ${theme_name} ]]; then
+            options="${options} -b"
+        else
+            options="${options} -b -t ${theme_name}"
+        fi
+    fi
+    if [[ ${debug} = true ]]; then
+        options="${options} -x"
+    fi
+    if [[ ${japanese} = true ]]; then
+        options="${options} -j"
+    fi
+    if [[ ${rebuild} = true ]]; then
+        options="${options} -r"
+    fi
+    if [[ -z ${options} ]]; then
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
+    else
+        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
+    fi
+    rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -228,57 +294,6 @@ make_setup_mkinitcpio() {
     if [[ ${gpg_key} ]]; then
       exec 17<&-
     fi
-}
-
-# Customize installation (airootfs)
-make_customize_airootfs() {
-    cp -af ${script_path}/airootfs ${work_dir}/x86_64
-
-    if [[ ${boot_splash} = true ]]; then
-        cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
-    fi
-
-    # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
-    # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
-
-    curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
-
-    # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/x86_64/airootfs/root/install.txt
-
-
-    # customize_airootfs.sh options
-    # -p <password> : Set password.
-    # -b            : Enable boot splash.
-    # -t            : Set plymouth theme.
-    # -j            : Enable Japanese.
-    # -k <kernel>   : Set kernel name.
-    # -x            : Enable debug mode.
-
-
-    local options
-    options=
-    if [[ ${boot_splash} = true ]]; then
-        if [[ -z ${theme_name} ]]; then
-            options="${options} -b"
-        else
-            options="${options} -b -t ${theme_name}"
-        fi
-    fi
-    if ${debug}; then
-        options="${options} -x"
-    fi
-    if ${japanese}; then
-        options="${options} -j"
-    fi
-    if ${rebuild}; then
-        options="${options} -r"
-    fi
-    if [[ -z ${options} ]]; then
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
-    else
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
-    fi
-    rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/
@@ -440,7 +455,10 @@ make_prepare() {
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
-    # rm -rf ${work_dir}/x86_64/airootfs (if low space, this helps)
+
+    if [[ ${cleaning} = true ]]; then
+        rm -rf ${work_dir}/x86_64/airootfs
+    fi
 }
 
 # Build ISO
@@ -453,7 +471,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -487,7 +505,8 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
             ;;
         x) debug=true;;
         r) rebuild=true ;;
-        j) japanese=true;;
+        j) japanese=true ;;
+        l) cleaning=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'" >&2
@@ -497,7 +516,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
 done
 
 # Debug mode
-if ${debug}; then
+if [[ ${debug} = true ]]; then
     set -x
     alteriso_option="${alteriso_option} -x"
 else
@@ -506,25 +525,13 @@ fi
 
 mkdir -p ${work_dir}
 
-# Show Alter Linux build options.
-[[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
-echo "Use the ${kernel} kernel."
-echo "Live user password is ${password}."
-echo "The compression method of squashfs is ${sfs_comp}."
-[[ ${japanese} = true ]] && echo "Japanese mode has been activated."
-sleep 2
-
+show_settings 3
 prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-
-#run_once make_setup_mkinitcpio
-#run_once make_customize_airootfs
-
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
-
 run_once make_boot
 run_once make_boot_extra
 run_once make_syslinux

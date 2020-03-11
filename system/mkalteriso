@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# 
+#
 # mkalteriso
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
 #
@@ -19,7 +19,7 @@ run_cmd=""
 quiet="n"
 pacman_conf="/etc/pacman.conf"
 export iso_label="ALTER_$(date +%Y%m)"
-iso_publisher="Alter Linux <http://www.archlinux.org>"
+iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="Alter Linux Live/Rescue CD"
 install_dir="alter"
 work_dir="work"
