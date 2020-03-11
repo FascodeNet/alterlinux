@@ -215,10 +215,16 @@ Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公
 主な開発メンバーのTwitterへのリンクです。  
 このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
 
-##### 開発担当
-- [Hayao0819](https://twitter.com/Hayao0819)
-- [lap1sid](https://twitter.com/Pixel_3a)
-- [yamad](https://twitter.com/yamad_linuxer)
+<h5 align="center">開発担当</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
+</p>
 
-##### デザイン担当
-- [tukutun](https://twitter.com/tukutuN_27)
+
+<h5 align="center">デザイン担当</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
+</p>
