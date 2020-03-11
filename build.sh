@@ -175,7 +175,7 @@ make_packages() {
     else
         _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
     fi
-    
+
     for _file in ${_loadfilelist[@]}; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
@@ -518,8 +518,13 @@ prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-run_once make_setup_mkinitcpio
+
+#run_once make_setup_mkinitcpio
+#run_once make_customize_airootfs
+
 run_once make_customize_airootfs
+run_once make_setup_mkinitcpio
+
 run_once make_boot
 run_once make_boot_extra
 run_once make_syslinux
