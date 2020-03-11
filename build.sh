@@ -37,6 +37,7 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
+cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
 pacman_conf=${script_path}/system/pacman.conf
 
@@ -66,6 +67,7 @@ _usage () {
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
+    echo "    -l                 Enable post-build cleaning."
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -440,7 +442,10 @@ make_prepare() {
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
-    # rm -rf ${work_dir}/x86_64/airootfs (if low space, this helps)
+
+    if ${cleaning}; then
+        rm -rf ${work_dir}/x86_64/airootfs
+    fi
 }
 
 # Build ISO
@@ -453,7 +458,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
-while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -487,7 +492,8 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:j' arg; do
             ;;
         x) debug=true;;
         r) rebuild=true ;;
-        j) japanese=true;;
+        j) japanese=true ;;
+        l) cleaning=true ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'" >&2
