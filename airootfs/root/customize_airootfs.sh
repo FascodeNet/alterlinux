@@ -63,12 +63,6 @@ else
 fi
 
 
-if [[ ${japanese} = false ]]; then
-    remove /etc/skel/.config/fcitx
-    remove /etc/skel/.xprofile
-fi
-
-
 if [[ ${rebuild} = false ]]; then
     # Creating a root user.
     # usermod -s /usr/bin/zsh root
