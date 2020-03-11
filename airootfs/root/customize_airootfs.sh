@@ -49,14 +49,14 @@ fi
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if ${japanese}; then
+if [[ ${japanese} = true ]]; then
     sed -i 's/#\(ja_JP\.UTF-8\)/\1/' /etc/locale.gen
 fi
 locale-gen
 
 
 # Setting the time zone.
-if ${japanese}; then
+if [[ ${japanese} = true ]]; then
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 else
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
@@ -137,7 +137,7 @@ else
 fi
 
 # Japanese
-if ${japanese}; then
+if [[ ${japanese} = true ]]; then
     remove /etc/locale.conf
     echo 'LANG=ja_JP.UTF-8' > /etc/locale.conf
 fi

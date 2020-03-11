@@ -136,7 +136,7 @@ show_settings() {
 
 # Preparation for rebuild
 prepare_rebuild() {
-    if ${rebuild}; then
+    if [[ ${rebuild} = true ]]; then
         remove ${work_dir}/build.*
     fi
 }
@@ -185,7 +185,7 @@ make_packages() {
 
     _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
-    if ${japanese}; then
+    if [[ ${japanese} = true ]]; then
         _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${nojplist}))
     else
         _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
@@ -221,7 +221,7 @@ make_customize_airootfs() {
 
     # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
     # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
-    if ${japanese}; then
+    if [[ ${japanese} = true ]]; then
         curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=JP&protocol=http&use_mirror_status=on'
     else
         curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
@@ -248,13 +248,13 @@ make_customize_airootfs() {
             options="${options} -b -t ${theme_name}"
         fi
     fi
-    if ${debug}; then
+    if [[ ${debug} = true ]]; then
         options="${options} -x"
     fi
-    if ${japanese}; then
+    if [[ ${japanese} = true ]]; then
         options="${options} -j"
     fi
-    if ${rebuild}; then
+    if [[ ${rebuild} = true ]]; then
         options="${options} -r"
     fi
     if [[ -z ${options} ]]; then
@@ -459,7 +459,7 @@ make_prepare() {
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     rm -rf ${work_dir}/airootfs
 
-    if ${cleaning}; then
+    if [[ ${cleaning} = true ]]; then
         rm -rf ${work_dir}/x86_64/airootfs
     fi
 }
@@ -519,7 +519,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
 done
 
 # Debug mode
-if ${debug}; then
+if [[ ${debug} = true ]]; then
     set -x
     alteriso_option="${alteriso_option} -x"
 else
