@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 
-# Yamada Hayao 
+#
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -64,3 +64,8 @@ kernel=zen
 # This setting can only be set to true or false.
 # When enabled, bash debug mode is enabled, making it easier to identify which command caused the error.
 debug=false
+
+# Set the Japanese mode.
+# When this is enabled, the packages in the japanese package list will be installed.
+# A file for Japanese input is added.
+japanese=false

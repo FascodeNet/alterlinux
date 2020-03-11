@@ -60,7 +60,7 @@ You need to build in ArchLinux environment.
 Add a key to use the AlterLinux repository.
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+curl https://xn--d-8o2b.com/repo/fascode.pub | sudo pacman-key -a -
 sudo pacman-key --lsign-key development@fascode.net
 ```
 Once you have added the key, install the package that will be used for the build.
@@ -98,6 +98,9 @@ Default compression type is `zstd`.
  Japanese | -j
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
+ Specify output destination directory | -o [dir]
+Specify working directory | -w [dir]
+
 
 ##### Example
 
@@ -176,6 +179,16 @@ zstd
 - [About packages](packages.md)
 - [How to build on docker](Howtobuild_on_docker.md)
 - [How to add supporting a new kernel.](Support_a_new_kernel.md)
+
+## If you cannot start
+If the built disk cannot be started, change the kernel options according to the following procedure and check the log.
+Boot from disk and if you cannot boot, press the `Tab` key and delete the following:
+
+```
+loglevel=3 quiet splash udev.log-priority=3
+```
+This will disable bootsplash and display a detailed log at startup.
+
 
 ## About SereneTeam and developers
 SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  

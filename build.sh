@@ -160,14 +160,20 @@ make_basefs() {
 make_packages() {
     set +eu
     local _loadfilelist
+    local _loadfilelist_cmd
     local _pkg_list
     local _pkg
     local _file
+    local jplist
+    jplist=${script_path}/packages.d/jp.x86_64
+    nojplist=${script_path}/packages.d/non-jp.x86_64
 
-    _loadfilelist=($(ls ${script_path}/packages.d/*.x86_64))
+    _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
     if ${japanese}; then
-        _loadfilelist=($(echo ${_loadfilelist[@]} | grep -xv japanese.x86_64))
+        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${nojplist}))
+    else
+        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
     fi
 
     for _file in ${_loadfilelist[@]}; do
@@ -502,17 +508,23 @@ mkdir -p ${work_dir}
 
 # Show Alter Linux build options.
 [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
-echo "kernel is changed to ${kernel}"
+echo "Use the ${kernel} kernel."
 echo "Live user password is ${password}."
 echo "The compression method of squashfs is ${sfs_comp}."
+[[ ${japanese} = true ]] && echo "Japanese mode has been activated."
 sleep 2
 
 prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-run_once make_setup_mkinitcpio
+
+#run_once make_setup_mkinitcpio
+#run_once make_customize_airootfs
+
 run_once make_customize_airootfs
+run_once make_setup_mkinitcpio
+
 run_once make_boot
 run_once make_boot_extra
 run_once make_syslinux
