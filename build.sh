@@ -341,6 +341,10 @@ make_syslinux() {
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
             ${script_path}/syslinux/archiso_sys/archiso_sys-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_sys_res/archiso_sys_res-${kernel}.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_res.cfg
     else
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
@@ -348,7 +352,11 @@ make_syslinux() {
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-            ${script_path}/syslinux/archiso_sys/archiso_sys.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+            ${script_path}/syslinux/archiso_sys_res/archiso_sys.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg
+
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+            ${script_path}/syslinux/archiso_sys_res/archiso_sys_res.cfg > ${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_res.cfg
     fi
 
     cp ${script_path}/syslinux/splash.png ${work_dir}/iso/${install_dir}/boot/syslinux
