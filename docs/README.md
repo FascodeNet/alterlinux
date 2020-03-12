@@ -209,13 +209,8 @@ zstd
 - [How to add supporting a new kernel.](Support_a_new_kernel.md)
 
 ## If you cannot start
-If the built disk cannot be started, change the kernel options according to the following procedure and check the log.
-Boot from disk and if you cannot boot, press the `Tab` key and delete the following:
-
-```
-loglevel=3 quiet splash udev.log-priority=3
-```
-This will disable bootsplash and display a detailed log at startup.
+You can disable the boot animation and boot to see the logs.
+Boot from the disk and select `Boot Alter Linux without boot splash (x86_64)`.
 
 
 ## About SereneTeam and developers
