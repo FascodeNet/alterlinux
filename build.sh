@@ -466,7 +466,7 @@ make_iso() {
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
 
     if [[ ${cleaning} = true ]]; then
-        remove $(ls ${work_dir}| grep "build.make")
+        remove $(ls ${work_dir}/* | grep "build.make")
         remove ${work_dir}/pacman.conf
         remove ${work_dir}/efiboot
         remove ${work_dir}/iso
