@@ -27,6 +27,10 @@ The previously used Japanese branch has been removed.
 |:-----:|:-----:|:-----:|
 | Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
+## If you want to give an opinion or impression
+If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).  
+We are soliciting opinions from various users to make AlterLinux better.
+
 ###  Twitter　account
 
 #### Official
