@@ -62,7 +62,7 @@ To use packages from the repository, you need to add a key.
 Execute the following command to add the key.
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
 sudo pacman-key --lsign-key development@fascode.net
 ```
 

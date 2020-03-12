@@ -62,7 +62,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 以下のコマンドを実行して鍵を追加して下さい。
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
 sudo pacman-key --lsign-key development@fascode.net
 ```
 
