@@ -32,6 +32,7 @@ If AlterLinux doesn't start, is hard to use, or has any software you want to ins
 We are soliciting opinions from various users to make AlterLinux better.
 
 ##  Twitter　account
+The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
 
 ### Official
 The following accounts are official.
