@@ -25,17 +25,21 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 --- | --- | ---
 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。
 
-### Twitter アカウント
+## 意見や感想について
+もしAlterLinuxが起動しなかったり、使いにくかったり、標準でインストールしてほしいソフトウェアがあったら、遠慮なく[Issue](https://github.com/SereneTeam/alterlinux/issues)に投稿して下さい。  
+私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
+
+## Twitter アカウント
 主要な開発メンバーのTwitterへのリンクです。  
 このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
 
-#### 公式
+### 公式
 以下は公式のアカウントです。
 - [Alter Linux](https://twitter.com/AlterLinux)
 - [SereneLinux Global](https://twitter.com/SereneLinux)
 - [SereneLinux JP](https://twitter.com/SereneDevJP)
 
-#### 開発者
+### 開発者
 主な開発メンバーのTwitterへのリンクです。  
 このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
 
@@ -87,7 +91,7 @@ sudo pacman-key --lsign-key development@fascode.net
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
 `build.sh`のオプションは共通です。  
 
-#### 実機でビルドする
+### 実機でビルドする
 実機でビルドする場合はArchLinux環境でビルドする必要があります。  
 AlterLinuxのリポジトリを使用するために鍵を追加する必要があります。鍵を追加する方法は上記記載されています。
 
@@ -103,16 +107,16 @@ git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
 ```
 
-#### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
-
-### ビルドウィザード
-wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
+#### ビルドウィザード
+実機で直接ビルドする場合、wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
 「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
 
 ```bash
 ./wizard.sh
 ```
+
+### コンテナ上でビルドする
+Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
 
 ### build.shのオプション
 
@@ -217,13 +221,8 @@ zstd
 - [新しいカーネルを追加する方法](Support_a_new_kernel.md)
 
 ## 起動できない場合
-ビルドしたディスクが起動ができない場合、以下の手順でカーネルオプションを変更し、ログを確認して下さい。　　
-ディスクから起動し、起動ができない場合、`Tab`キーを押して以下の部分を削除してください。　　
-
-```
-loglevel=3 quiet splash udev.log-priority=3
-```
-これによりブートスプラッシュが無効化され、起動時に詳細なログが表示されます。
+ブート時のアニメーションを無効化してブートし、ログを確認することができます。  
+ディスクから起動し、`Boot Alter Linux without boot splash (x86_64)`を選択して下さい。
 
 
 ## SereneTeamと開発者について
