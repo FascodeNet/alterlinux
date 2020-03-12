@@ -172,7 +172,7 @@ lymouthは無効化されています。
 2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
 ```
-gzip (default)
+gzip
     -Xcompression-level <compression-level>
     <compression-level> should be 1 .. 9 (default 9)
     -Xwindow-size <window-size>
