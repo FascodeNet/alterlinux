@@ -134,7 +134,7 @@ show_settings() {
 # Preparation for rebuild
 prepare_rebuild() {
     if [[ ${rebuild} = true ]]; then
-        remove ${work_dir}/build.*
+        remove $(ls ${work_dir}/* | grep "build.make")
     fi
 }
 
