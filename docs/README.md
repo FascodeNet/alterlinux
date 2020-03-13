@@ -32,6 +32,7 @@ If AlterLinux doesn't start, is hard to use, or has any software you want to ins
 We are soliciting opinions from various users to make AlterLinux better.
 
 ##  Twitter　account
+The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
 
 ### Official
 The following accounts are official.
@@ -62,7 +63,7 @@ To use packages from the repository, you need to add a key.
 Execute the following command to add the key.
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
 sudo pacman-key --lsign-key development@fascode.net
 ```
 
@@ -164,7 +165,7 @@ See the `mksquashfs` help for compression options and more options.
 As of February 12, 2019, `mksquashfs` supports the following methods and options.
 
 ```
-gzip (default)
+gzip
     -Xcompression-level <compression-level>
     <compression-level> should be 1 .. 9 (default 9)
     -Xwindow-size <window-size>

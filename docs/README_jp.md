@@ -30,8 +30,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
 
 ## Twitter アカウント
-主要な開発メンバーのTwitterへのリンクです。  
-このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
+Alter Linuxの最新の状況は随時Twitterで発信しています。時々、今後の方針についてのアンケートなども行っています。
 
 ### 公式
 以下は公式のアカウントです。
@@ -62,7 +61,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 以下のコマンドを実行して鍵を追加して下さい。
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
 sudo pacman-key --lsign-key development@fascode.net
 ```
 
@@ -172,7 +171,7 @@ lymouthは無効化されています。
 2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
 ```
-gzip (default)
+gzip
     -Xcompression-level <compression-level>
     <compression-level> should be 1 .. 9 (default 9)
     -Xwindow-size <window-size>

@@ -107,7 +107,7 @@ run_once() {
 }
 
 # rm helper
-function remove () {
+remove() {
     local _list
     local _file
     _list=($(echo "$@"))
@@ -134,7 +134,7 @@ show_settings() {
 # Preparation for rebuild
 prepare_rebuild() {
     if [[ ${rebuild} = true ]]; then
-        remove ${work_dir}/build.*
+        remove $(ls ${work_dir}/* | grep "build.make")
     fi
 }
 
@@ -259,7 +259,7 @@ make_customize_airootfs() {
     else
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
     fi
-    rm ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
+    remove ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -454,16 +454,24 @@ make_prepare() {
     cp -a -l -f ${work_dir}/x86_64/airootfs ${work_dir}
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
-    rm -rf ${work_dir}/airootfs
+    remove ${work_dir}/airootfs
 
     if [[ ${cleaning} = true ]]; then
-        rm -rf ${work_dir}/x86_64/airootfs
+        remove ${work_dir}/x86_64/airootfs
     fi
 }
 
 # Build ISO
 make_iso() {
     ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+
+    if [[ ${cleaning} = true ]]; then
+        remove $(ls ${work_dir}/* | grep "build.make")
+        remove ${work_dir}/pacman.conf
+        remove ${work_dir}/efiboot
+        remove ${work_dir}/iso
+        remove ${work_dir}/x86_64
+    fi
 }
 
 if [[ ${EUID} -ne 0 ]]; then
