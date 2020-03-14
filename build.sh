@@ -37,6 +37,7 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
+channel=stable
 cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
 
@@ -177,18 +178,29 @@ make_packages() {
     local _pkg
     local _file
     local jplist
-    jplist=${script_path}/packages.d/jp.x86_64
-    nojplist=${script_path}/packages.d/non-jp.x86_64
 
-    _loadfilelist_cmd="ls ${script_path}/packages.d/*.x86_64"
 
+    jplist=${script_path}/packages.d/share/jp.x86_64
+    nojplist=${script_path}/packages.d/share/non-jp.x86_64
+    _loadfilelist_cmd="ls ${script_path}/packages.d/share/*.x86_64"
     if [[ ${japanese} = true ]]; then
-        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${nojplist}))
+        _loadfilelist=("$(${_loadfilelist_cmd} | grep -xv ${nojplist})")
     else
-        _loadfilelist=($(${_loadfilelist_cmd} | grep -xv ${jplist}))
+        _loadfilelist=("$(${_loadfilelist_cmd} | grep -xv ${jplist})")
     fi
 
-    for _file in ${_loadfilelist[@]}; do
+
+    jplist=${script_path}/packages.d/${channel}/jp.x86_64
+    nojplist=${script_path}/packages.d/${channel}/non-jp.x86_64
+    _loadfilelist_cmd="ls ${script_path}/packages.d/${channel}/*.x86_64"
+    if [[ ${japanese} = true ]]; then
+        _loadfilelist=("${_loadfilelist[@]}" "$(${_loadfilelist_cmd} | grep -xv ${nojplist})")
+    else
+        _loadfilelist=("${_loadfilelist[@]}" "$(${_loadfilelist_cmd} | grep -xv ${jplist})")
+    fi
+
+
+    for _file in "${_loadfilelist[@]}"; do
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
     done
 
@@ -522,6 +534,16 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
            ;;
     esac
 done
+
+set +u
+shift $((OPTIND - 1))
+channel="${1}"
+case "${channel}" in
+    stable) channel="stable" ;;
+    unstable) channel="unstable" ;;
+    *) echo "Invalid channel '${channel}'" >&2
+esac
+set -u
 
 # Debug mode
 if [[ ${debug} = true ]]; then
