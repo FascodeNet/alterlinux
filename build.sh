@@ -537,11 +537,15 @@ done
 
 set +u
 shift $((OPTIND - 1))
-channel="${1}"
+
+if [[ -n ${1} ]]; then
+    channel="${1}"
+fi
+
 case "${channel}" in
     stable) channel="stable" ;;
     unstable) channel="unstable" ;;
-    *) echo "Invalid channel '${channel}'" >&2
+    *) echo "Invalid channel '${channel}'" >&2; exit 1;;
 esac
 set -u
 
