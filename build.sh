@@ -128,6 +128,7 @@ show_settings() {
     echo "Use the ${kernel} kernel."
     echo "Live user password is ${password}."
     echo "The compression method of squashfs is ${sfs_comp}."
+    echo "Use the ${channel} channel."
     [[ ${japanese} = true ]] && echo "Japanese mode has been activated."
     sleep ${1}
 }
