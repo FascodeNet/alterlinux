@@ -135,6 +135,16 @@ Default compression type is `zstd`.
 Specify working directory | -w [dir]
 
 
+#### Channel
+The channel switches the list of packages to be installed.
+Supported channels are `stable` and` unstable` as of March 14, 2020.
+
+Name | Purpose
+--- | ---
+stable | Default channel.
+unstable | Build using packages from the `alter-testing` repository.
+
+
 ##### Example
 
 To build under the following conditions:
