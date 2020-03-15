@@ -25,6 +25,18 @@ while getopts 'p:bt:k:rxj' arg; do
     esac
 done
 
+check_bool() {
+    local 
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                   *) echo "The value ${boot_splash} set is invalid" >&2 ;;
+    esac
+}
+
+check_bool boot_splash
+check_bool rebuild
+check_bool japanese
+
 
 # Delete file only if file exists
 # remove <file1> <file2>
