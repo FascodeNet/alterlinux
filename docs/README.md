@@ -164,11 +164,14 @@ Make sure to include the `foo` part of` linux-foo` in the `-k` option. For examp
   
 Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
 
-- ck   : linux-ck contains patches to improve system response.
-- lts  : Long term support (LTS) Linux kernel and modules from the `core` repository.
-- lqx  : Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
-- rt   : With this patch, almost all of the kernel can be run in real time.
-- zen  : `linux-zen` is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
+Name | Feature
+--- | ---
+ck | linux-ck contains patches to improve system response.
+lts |  Long term support (LTS) Linux kernel and modules from the core repository.
+lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
+rt | With this patch, almost all of the kernel can be run in real time.
+zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
+
 
 ##### About compression type
 See the `mksquashfs` help for compression options and more options.
