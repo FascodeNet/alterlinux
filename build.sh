@@ -27,9 +27,9 @@ gpg_key=
 alteriso_option="-v"
 
 # AlterLinux additional settings
-password=alter
+password='alter'
 boot_splash=false
-kernel=zen
+kernel='zen'
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
@@ -37,7 +37,7 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
-channel=stable
+channel='stable'
 cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
 
