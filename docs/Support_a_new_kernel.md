@@ -17,7 +17,7 @@ Alter Linuxを新しいカーネルに対応させる手順です。ここでは
 リストに追加する値は`linux-`の後の文字です。今回の場合は`fooo`になります。
 
 ```bash
-echo "fooo" >> ./kernel_list
+echo "fooo" >> ./system/kernel_list
 ```
 
 #### 3.ファイルを作成する
