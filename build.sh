@@ -88,21 +88,19 @@ _usage () {
 }
 
 # Check the value of a variable that can only be set to true or false.
-case ${boot_splash} in
-     true) : ;;
-    false) : ;;
-        *)
-            echo "The value ${boot_splash} set is invalid" >&2
-            ;;
-esac
+check_bool() {
+    local 
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                   *) echo "The value ${boot_splash} set is invalid" >&2 ;;
+    esac
+}
 
-case ${debug} in
-     true) : ;;
-    false) : ;;
-        *)
-            echo "The value ${debug} set is invalid" >&2
-            ;;
-esac
+check_bool boot_splash
+check_bool debug
+check_bool rebuild
+check_bool japanese
+check_bool cleaning
 
 
 # Helper function to run make_*() only one time per architecture.
