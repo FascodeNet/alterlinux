@@ -127,20 +127,23 @@
     </property>
     <property name="panel-7" type="empty">
       <property name="position" type="string" value="p=7;x=32;y=384"/>
-      <property name="size" type="uint" value="48"/>
+      <property name="size" type="uint" value="47"/>
       <property name="mode" type="uint" value="2"/>
-      <property name="length" type="uint" value="44"/>
+      <property name="length" type="uint" value="50"/>
       <property name="length-adjust" type="bool" value="true"/>
       <property name="autohide-behavior" type="uint" value="1"/>
       <property name="enter-opacity" type="uint" value="75"/>
       <property name="leave-opacity" type="uint" value="75"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
+        <value type="int" value="8"/>
         <value type="int" value="10"/>
         <value type="int" value="5"/>
+        <value type="int" value="9"/>
         <value type="int" value="6"/>
         <value type="int" value="4"/>
         <value type="int" value="15"/>
+        <value type="int" value="7"/>
       </property>
     </property>
   </property>
@@ -198,7 +201,7 @@
       </property>
     </property>
     <property name="plugin-10" type="string" value="directorymenu">
-      <property name="base-directory" type="string"/>
+      <property name="base-directory" type="string" value="(null)"/>
       <property name="icon-name" type="string" value="folder_home"/>
       <property name="hidden-files" type="bool" value="false"/>
     </property>
@@ -214,6 +217,18 @@
     <property name="plugin-6" type="string" value="directorymenu">
       <property name="base-directory" type="string" value="Music"/>
       <property name="icon-name" type="string" value="folder-music"/>
+    </property>
+    <property name="plugin-7" type="string" value="separator">
+      <property name="expand" type="bool" value="true"/>
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <property name="plugin-8" type="string" value="separator">
+      <property name="expand" type="bool" value="true"/>
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <property name="plugin-9" type="string" value="directorymenu">
+      <property name="base-directory" type="string" value="/home/alter/Documents"/>
+      <property name="icon-name" type="string" value="folder-documents"/>
     </property>
   </property>
 </channel>
