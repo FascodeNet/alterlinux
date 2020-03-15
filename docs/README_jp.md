@@ -73,12 +73,15 @@ sudo pacman-key --lsign-key development@fascode.net
 ほとんどのパッケージは公式パッケージか、AUR上に公開していますが、一部のものはどちらにもありません。そのようなパッケージのソースコードとPKGBUILDへのリンクを以下に記載します。  
 バイナリファイルが必要な場合は[AlterLinuxリポジトリ](https://xn--d-8o2b.com/repo/alter-stable/x86_64/)にアクセスして下さい。
 
-- [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares))
-- [alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf))
-- [alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring))
-- [alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist))
-- [alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers))
-- [alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf))
+ソースコード | PKGBUILD
+--- | ---
+ [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares)
+[alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf)
+[alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring)
+[alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)
+[alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)
+[alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf)
+
 
 
 ## ビルド
@@ -126,7 +129,7 @@ lymouthは無効化されています。
 デフォルトの圧縮方式は`zstd`です。  
 
 ```bash
-./build.sh <options>
+./build.sh <options> <channel>
 ```
 
 #### オプション
@@ -140,6 +143,16 @@ lymouthは無効化されています。
 圧縮のオプションを設定する | -t [comp option]
 出力先ディレクトリを指定する| -o [dir]
 作業ディレクトリを指定する | -w [dir]
+
+
+#### チャンネルについて
+チャンネルは、インストールするパッケージのリストを切り替えます。  
+2020年3月14日現在でサポートされているチャンネルは`stable`と`unstable`です。  
+名前 | 目的
+--- | ---
+stable | デフォルトのチャンネルです。
+unstable | `alter-testing`リポジトリのパッケージを利用してビルドします。
+
 
 
 ##### 例
@@ -160,11 +173,13 @@ lymouthは無効化されています。
 
 以下はサポートされている値とカーネルです。カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
-- ck    : linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
-- lts   : `core`リポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
-- lqx   : デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
-- rt    : このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
-- zen   : `linux-zen`はカーネルハッカーたちの知恵の結晶です。日常的な利用にうってつけの最高の Linux カーネルになります。
+名前 | 特徴
+--- | ---
+ck | linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
+lts | coreリポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
+lqx | デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
+rt | このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
+zen | linux-zenはカーネルハッカーたちの知恵の結晶です。日常的な利用にうってつけの最高の Linux カーネルになります。
 
 ##### 圧縮方式について
 圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。

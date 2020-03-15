@@ -75,13 +75,14 @@ GitHub repositories that were used before are no longer used. Currently [this se
 Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.  
 If you need a binary file, access [the AlterLinux repository](https://xn--d-8o2b.com/repo/alter-stable/x86_64/).
 
-- [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares))
-- [alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf))
-- [alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring))
-- [alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist))
-- [alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers))
-- [alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf))
-
+Source code | PKGBUILD
+--- | ---
+ [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares)
+[alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf)
+[alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring)
+[alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)
+[alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)
+[alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf)
 
 ## build
 
@@ -135,6 +136,16 @@ Default compression type is `zstd`.
 Specify working directory | -w [dir]
 
 
+#### Channel
+The channel switches the list of packages to be installed.
+Supported channels are `stable` and` unstable` as of March 14, 2020.
+
+Name | Purpose
+--- | ---
+stable | Default channel.
+unstable | Build using packages from the `alter-testing` repository.
+
+
 ##### Example
 
 To build under the following conditions:
@@ -154,11 +165,14 @@ Make sure to include the `foo` part of` linux-foo` in the `-k` option. For examp
   
 Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
 
-- ck   : linux-ck contains patches to improve system response.
-- lts  : Long term support (LTS) Linux kernel and modules from the `core` repository.
-- lqx  : Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
-- rt   : With this patch, almost all of the kernel can be run in real time.
-- zen  : `linux-zen` is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
+Name | Feature
+--- | ---
+ck | linux-ck contains patches to improve system response.
+lts |  Long term support (LTS) Linux kernel and modules from the core repository.
+lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
+rt | With this patch, almost all of the kernel can be run in real time.
+zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
+
 
 ##### About compression type
 See the `mksquashfs` help for compression options and more options.

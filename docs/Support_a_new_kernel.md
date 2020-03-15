@@ -22,7 +22,7 @@ echo "fooo" >> ./kernel_list
 
 #### 3.ファイルを作成する
 そのカーネル用のファイルを6つ作成する必要があります。以下はカーネルの一覧です。  
-「既存のファイルを名前を変えてコピーし、カーネルへのパスを修正する」という作成砲お方が最も簡単です。  
+「既存のファイルを名前を変えてコピーし、カーネルへのパスを修正する」という方法が最も簡単です。  
 ファイル名は`fooo`に置き換えてあります。  
 - syslinux/archiso_sys/archiso_sys-fooo.cfg
 - syslinux/archiso_pxe/archiso_pxe-fooo.cfg
