@@ -297,9 +297,9 @@ make_setup_mkinitcpio() {
     cp /usr/lib/initcpio/install/archiso_kms ${work_dir}/x86_64/airootfs/etc/initcpio/install
     cp /usr/lib/initcpio/archiso_shutdown ${work_dir}/x86_64/airootfs/etc/initcpio
     if [[ ${boot_splash} = true ]]; then
-        cp ${script_path}/mkinitcpio/archiso/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+        cp ${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
     else
-        cp ${script_path}/mkinitcpio/archiso/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+        cp ${script_path}/mkinitcpio/mkinitcpio-archiso.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
     fi
     gnupg_fd=
     if [[ ${gpg_key} ]]; then
