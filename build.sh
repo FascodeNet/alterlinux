@@ -217,9 +217,16 @@ make_packages() {
         )"
     )
     set -eu
-    # echo ${_pkg_list[@]}; exit
+    
+    # Log
+    unset _pkg
+    echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
+    echo "#" > ${work_dir}/packages.list
+    echo > ${work_dir}/packages.list
+    for _pkg in ${_pkg_list[@]}; do
+        echo ${_pkg} > ${work_dir}/packages.list
+    done
 
-    # ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
     ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
 }
 
