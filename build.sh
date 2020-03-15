@@ -50,7 +50,7 @@ pacman_conf=${script_path}/system/pacman.conf
 umask 0022
 
 _usage () {
-    echo "usage ${0} [options]"
+    echo "usage ${0} [options] [channel]"
     echo
     echo " General options:"
     echo "    -b                 Enable boot splash"
@@ -78,6 +78,12 @@ _usage () {
     echo "                        Default: ${work_dir}"
     echo "    -h                 This help message"
     echo "    -x                 Enable debug mode."
+    echo
+    echo " You can switch the packages to be installed on the channel."
+    echo " Channel:"
+    echo "    stable             Use stable packages. This is the default."
+    echo "    unstable           Use packages from the alter-testing repository."
+
     exit ${1}
 }
 
