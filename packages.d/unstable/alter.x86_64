@@ -10,7 +10,7 @@
 # Alter Linux original
 
 #-- Config --#
-alterlinux-xfce-conf
+alterlinux-xfce-conf-git
 
 #-- keyring --#
 alterlinux-keyring
@@ -22,5 +22,5 @@ libpwquality
 
 #-- packge --#
 alterlinux-mirrorlist
-aptpac
+aptpac-git
 eg-installer
