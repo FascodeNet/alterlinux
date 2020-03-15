@@ -22,6 +22,17 @@ function enable_plymouth () {
     esac
 }
 
+function enable_japanese () {
+    local yn
+    echo -n "日本語を有効化しますか？ （y/N） : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) japanese=true   ;;
+        n | N | no  | No  | NO  ) japanese=false  ;;
+        *                       ) enable_japanese ;;
+    esac
+}
+
 function select_comp_type () {
     local yn
     echo "圧縮方式を以下の番号から選択してください "
@@ -224,6 +235,8 @@ function select_kernel () {
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
+    if [[ ${japanese} = true ]]; then
+        argument="${argument} -j"
     if [[ ${plymouth} = true ]]; then
         argument="${argument} -b"
     fi
@@ -240,6 +253,7 @@ function generate_argument () {
 
 #　上の質問の関数を実行
 function ask () {
+    enable_japanese
     enable_plymouth
     select_kernel
     select_comp_type
@@ -252,6 +266,7 @@ function ask () {
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
+    echo "           Japanese : ${japanese}"
     echo "           Plymouth : ${plymouth}"
     echo "             kernel : ${kernel}"
     echo " Compression method : ${comp_type}"
