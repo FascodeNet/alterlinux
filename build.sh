@@ -532,6 +532,7 @@ make_iso() {
         remove ${work_dir}/efiboot
         remove ${work_dir}/iso
         remove ${work_dir}/x86_64
+        remove ${work_dir}/packages.list
     fi
 }
 
