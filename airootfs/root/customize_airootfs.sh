@@ -26,6 +26,7 @@ while getopts 'p:bt:k:rxj' arg; do
     esac
 done
 
+
 # Check whether true or false is assigned to the variable.
 function check_bool() {
     local 
@@ -127,6 +128,7 @@ alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 Defaults pwfeedback
 EOF
 
+
 # Replace wallpaper.
 if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
     remove /usr/share/backgrounds/xfce/xfce-stripes.png
@@ -157,6 +159,7 @@ else
     # Delete the configuration file for plymouth.
     remove /usr/share/calamares/modules/services-plymouth.conf
 fi
+
 
 # Japanese
 if [[ ${japanese} = true ]]; then
