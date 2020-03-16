@@ -87,6 +87,7 @@ _usage () {
     exit ${1}
 }
 
+
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local 
@@ -103,7 +104,7 @@ check_bool japanese
 check_bool cleaning
 
 
-# Helper function to run make_*() only one time per architecture.
+# Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e ${work_dir}/build.${1} ]]; then
         $1
@@ -111,7 +112,12 @@ run_once() {
     fi
 }
 
+
 # rm helper
+# Delete the file if it exists.
+# For directories, rm -rf is used.
+# If the file does not exist, skip it.
+# remove <file> <file> ...
 remove() {
     local _list
     local _file
@@ -140,6 +146,7 @@ show_settings() {
 # Preparation for rebuild
 prepare_rebuild() {
     if [[ ${rebuild} = true ]]; then
+        # Delete the lock file.
         remove $(ls ${work_dir}/* | grep "build.make")
     fi
 }
@@ -185,33 +192,45 @@ make_packages() {
     local jplist
 
 
+    # Append the file in the share directory to the file to be read.
+
+    # Package list for Japanese
     jplist=${script_path}/packages.d/share/jp.x86_64
+
+    # Package list for non-Japanese
     nojplist=${script_path}/packages.d/share/non-jp.x86_64
-    _loadfilelist_cmd="ls ${script_path}/packages.d/share/*.x86_64"
+
     if [[ ${japanese} = true ]]; then
-        _loadfilelist=("$(${_loadfilelist_cmd} | grep -xv ${nojplist})")
+        _loadfilelist=("$(ls ${script_path}/packages.d/share/*.x86_64 | grep -xv ${nojplist})")
     else
-        _loadfilelist=("$(${_loadfilelist_cmd} | grep -xv ${jplist})")
+        _loadfilelist=("$(ls ${script_path}/packages.d/share/*.x86_64 | grep -xv ${jplist})")
     fi
 
 
+    # Add the files for each channel to the list of files to read.
+
+    # Package list for Japanese
     jplist=${script_path}/packages.d/${channel}/jp.x86_64
+
+    # Package list for non-Japanese
     nojplist=${script_path}/packages.d/${channel}/non-jp.x86_64
-    _loadfilelist_cmd="ls ${script_path}/packages.d/${channel}/*.x86_64"
+
     if [[ ${japanese} = true ]]; then
-        _loadfilelist=("${_loadfilelist[@]}" "$(${_loadfilelist_cmd} | grep -xv ${nojplist})")
+        # If Japanese is enabled, add it to the list of files to read other than non-jp.
+        _loadfilelist=("${_loadfilelist[@]}" "$($ls ${script_path}/packages.d/${channel}/*.x86_64 | grep -xv ${nojplist})")
     else
-        _loadfilelist=("${_loadfilelist[@]}" "$(${_loadfilelist_cmd} | grep -xv ${jplist})")
+        # If Japanese is disabled, add it to the list of files to read other than jp.
+        _loadfilelist=("${_loadfilelist[@]}" "$(ls ${script_path}/packages.d/${channel}/*.x86_64 | grep -xv ${jplist})")
     fi
 
-
+    # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in "${_loadfilelist[@]}"; do
         echo "Loaded package file ${_file}."
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
         sleep 0.5
     done
 
-    # sort
+    # Sort the list of packages in abc order.
     _pkg_list=(
         "$(
             for _pkg in ${_pkg_list[@]}; do
@@ -221,9 +240,10 @@ make_packages() {
         )"
     )
     set -eu
-    
-    # Log
+
     unset _pkg
+
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
     echo "#" > ${work_dir}/packages.list
     echo > ${work_dir}/packages.list
@@ -231,20 +251,27 @@ make_packages() {
         echo ${_pkg} > ${work_dir}/packages.list
     done
 
+    # Install packages on airootfs
     ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
 }
 
 # Customize installation (airootfs)
 make_customize_airootfs() {
+    # Overwrite airootfs with customize_airootfs.
     cp -af ${script_path}/airootfs ${work_dir}/x86_64
 
+    # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ ${boot_splash} = true ]]; then
         cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
     fi
 
+    # Code to use common pacman.conf in archiso.
     # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
     # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
+
+    # Get the optimal mirror list.
     if [[ ${japanese} = true ]]; then
+        # Use Japanese optimized mirror list when Japanese is enabled.
         curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=JP&protocol=http&use_mirror_status=on'
     else
         curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
@@ -262,6 +289,7 @@ make_customize_airootfs() {
     # -x            : Enable debug mode.
 
 
+    # Generate options of customize_airootfs.sh.
     local options
     options=
     if [[ ${boot_splash} = true ]]; then
@@ -280,11 +308,17 @@ make_customize_airootfs() {
     if [[ ${rebuild} = true ]]; then
         options="${options} -r"
     fi
+
+
+    # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
     else
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
     fi
+
+
+    # Delete customize_airootfs.sh.
     remove ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
@@ -337,6 +371,7 @@ make_boot() {
 
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
+    # In AlterLinux, memtest has been removed.
     # cp ${work_dir}/x86_64/airootfs/boot/memtest86+/memtest.bin ${work_dir}/iso/${install_dir}/boot/memtest
     # cp ${work_dir}/x86_64/airootfs/usr/share/licenses/common/GPL2/license.txt ${work_dir}/iso/${install_dir}/boot/memtest.COPYING
     cp ${work_dir}/x86_64/airootfs/boot/intel-ucode.img ${work_dir}/iso/${install_dir}/boot/intel_ucode.img
@@ -505,6 +540,8 @@ if [[ ${EUID} -ne 0 ]]; then
     _usage 1
 fi
 
+
+# Parse options
 while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
@@ -549,6 +586,8 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
     esac
 done
 
+
+# Parse options
 set +u
 shift $((OPTIND - 1))
 
@@ -563,6 +602,7 @@ case "${channel}" in
 esac
 set -u
 
+
 # Debug mode
 if [[ ${debug} = true ]]; then
     set -x
@@ -571,7 +611,10 @@ else
     set +x
 fi
 
-mkdir -p ${work_dir}
+
+# Create a working directory.
+[[ ! -d ${work_dir} ]] && mkdir -p ${work_dir}
+
 
 show_settings 3
 prepare_rebuild
