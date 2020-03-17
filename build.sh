@@ -596,11 +596,10 @@ if [[ -n ${1} ]]; then
     channel="${1}"
 fi
 
-case "${channel}" in
-    stable) channel="stable" ;;
-    unstable) channel="unstable" ;;
-    *) echo "Invalid channel '${channel}'" >&2; exit 1;;
-esac
+if [[ -z $(ls -l ${script_path}/packages.d/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x ${channel}) ]]; then
+    echo "Invalid channel '${channel}'" >&2
+    exit 1
+fi
 set -u
 
 
