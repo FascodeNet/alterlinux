@@ -163,7 +163,7 @@ To build under the following conditions:
 The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
 Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
   
-Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
+Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.org/index.php/Kernel).
 
 Name | Feature
 --- | ---
