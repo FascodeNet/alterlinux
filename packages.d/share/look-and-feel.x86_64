@@ -17,8 +17,10 @@ noto-fonts-emoji
 
 
 # icon
-paper-icon-theme
+# paper-icon-theme
+inverse-icon-theme-blue-git
 
 
 # theme
-materia-gtk-theme
+# materia-gtk-theme
+arc-gtk-theme
