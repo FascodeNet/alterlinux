@@ -100,7 +100,7 @@ AlterLinuxのリポジトリを使用するために鍵を追加する必要が�
 ビルドに必要なパッケージをインストールして下さい。
 
 ```bash
-sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
 ```
 そしてソースコードをダウンロードしてください。
 

@@ -100,7 +100,7 @@ You need to add a key to use AlterLinux repository. How to add a key is describe
 Install the necessary packages for the build.
 
 ```bash
-sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
 ```
 Then download the source code.
 
