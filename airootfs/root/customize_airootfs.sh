@@ -4,6 +4,7 @@ set -e -u
 
 
 # Default value
+# All values can be changed by arguments.
 password=alter
 boot_splash=false
 kernel=core
@@ -12,7 +13,7 @@ rebuild=false
 japanese=false
 
 
-# Check options
+# Parse arguments
 while getopts 'p:bt:k:rxj' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
@@ -26,8 +27,22 @@ while getopts 'p:bt:k:rxj' arg; do
 done
 
 
+# Check whether true or false is assigned to the variable.
+function check_bool() {
+    local 
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                   *) echo "The value ${boot_splash} set is invalid" >&2 ;;
+    esac
+}
+
+check_bool boot_splash
+check_bool rebuild
+check_bool japanese
+
+
 # Delete file only if file exists
-# remove <file1> <file2>
+# remove <file1> <file2> ...
 function remove () {
     local _list
     local _file
@@ -59,6 +74,8 @@ else
 fi
 
 
+# If rebuild is enabled, do not create users.
+# This is described in detail on ArchWiki.
 if [[ ${rebuild} = false ]]; then
     # Creating a root user.
     # usermod -s /usr/bin/zsh root
@@ -111,6 +128,7 @@ alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 Defaults pwfeedback
 EOF
 
+
 # Replace wallpaper.
 if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
     remove /usr/share/backgrounds/xfce/xfce-stripes.png
@@ -119,27 +137,40 @@ fi
 [[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 
-# Replace calamares settings when plymouth is enabled.
+# Configure Plymouth settings
 if [[ $boot_splash = true ]]; then
+    # Edit calamares settings for Plymouth.
+
+    # Use lightdm-plymouth instead of lightdm.
     remove /usr/share/calamares/modules/services.conf
     mv /usr/share/calamares/modules/services-plymouth.conf /usr/share/calamares/modules/services.conf
 
-    cp /usr/share/calamares/modules/plymouthcfg.conf /usr/share/calamares/modules/plymouthcfg.conf.org
+    # Back up default plymouth settings.
+    # cp /usr/share/calamares/modules/plymouthcfg.conf /usr/share/calamares/modules/plymouthcfg.conf.org
+
+    # Override theme settings.
+    remove /usr/share/calamares/modules/plymouthcfg.conf
     echo '---' > /usr/share/calamares/modules/plymouthcfg.conf
     echo "plymouth_theme: ${theme_name}" >> /usr/share/calamares/modules/plymouthcfg.conf
+
+    # Apply plymouth theme settings.
     plymouth-set-default-theme ${theme_name}
 else
+    # Delete the configuration file for plymouth.
     remove /usr/share/calamares/modules/services-plymouth.conf
 fi
 
+
 # Japanese
 if [[ ${japanese} = true ]]; then
+    # Change the language to Japanese.
+
     remove /etc/locale.conf
     echo 'LANG=ja_JP.UTF-8' > /etc/locale.conf
 fi
 
 
-# Replace calamares settings when lts kernel is enabled.
+# If the specified kernel is different from calamares configuration, replace the configuration file.
 if [[ ! ${kernel} = "zen" ]]; then
     # initcpio
     remove /usr/share/calamares/modules/initcpio.conf
@@ -149,6 +180,7 @@ if [[ ! ${kernel} = "zen" ]]; then
     remove /usr/share/calamares/modules/unpackfs.conf
     mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
+# Remove configuration files for other kernels.
 remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
 
@@ -157,7 +189,7 @@ remove /usr/share/calamares/modules/unpackfs/
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 
 
-# Enable all mirror lists.
+# Comment out the mirror list.
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
 
 
@@ -176,24 +208,28 @@ sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 gtk-update-icon-cache -f /usr/share/icons/hicolor
 
 
-# Enable services.
+# Enable graphical.
+systemctl set-default graphical.target
+
+
+# Disable services.
 # To disable start up of lightdm.
 # If it is enable, Users have to enter password.
 systemctl disable lightdm
 if [[ ${boot_splash} = true ]]; then
     systemctl disable lightdm-plymouth.service
 fi
+
+
+# Enable services.
 systemctl enable pacman-init.service
 systemctl enable choose-mirror.service
 systemctl enable org.cups.cupsd.service
 systemctl enable NetworkManager.service
+
 
 # TLP
 # See ArchWiki for details.
 systemctl enable tlp.service
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
-
-
-# systemctl set-default multi-user.target
-systemctl set-default graphical.target

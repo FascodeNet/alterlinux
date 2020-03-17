@@ -232,6 +232,26 @@ function select_kernel () {
     set -e
 }
 
+# チャンネルの指定
+function select_channel () {
+    local yn
+    echo "チャンネルを以下の番号から選択してください "
+    echo
+    echo "1: stable"
+    echo "2: unstable"
+    echo -n ": "
+
+    read yn
+
+    case ${yn} in
+           1) channel="stable"   ;;
+           2) channel="unstanle" ;;
+    'stable') channel="stable"   ;;
+  'unstable') channel="unstable" ;;
+           *) select_channel     ;;
+    esac
+}
+
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
@@ -249,6 +269,7 @@ function generate_argument () {
     if [[ -n ${password} ]]; then
         argument="${argument} -p ${password}"
     fi
+    argument="${argument} ${channel}"
 }
 
 #　上の質問の関数を実行
@@ -259,6 +280,7 @@ function ask () {
     select_comp_type
     set_comp_option
     set_password
+    select_channel
     lastcheck
 }
 
@@ -271,7 +293,8 @@ function lastcheck () {
     echo "             kernel : ${kernel}"
     echo " Compression method : ${comp_type}"
     echo "Compression options : ${comp_option}"
-    echo "          Password  : ${password}"
+    echo "           Password : ${password}"
+    echo "            Channel : ${channel}"
     echo
     echo -n "この設定で続行します。よろしいですか？ (y/N) : "
     local yn

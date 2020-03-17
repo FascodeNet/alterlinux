@@ -27,9 +27,9 @@ gpg_key=
 alteriso_option="-v"
 
 # AlterLinux additional settings
-password=alter
+password='alter'
 boot_splash=false
-kernel=zen
+kernel='zen'
 theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
@@ -37,7 +37,7 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
-channel=stable
+channel='stable'
 cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
 
@@ -50,7 +50,7 @@ pacman_conf=${script_path}/system/pacman.conf
 umask 0022
 
 _usage () {
-    echo "usage ${0} [options]"
+    echo "usage ${0} [options] [channel]"
     echo
     echo " General options:"
     echo "    -b                 Enable boot splash"
@@ -78,28 +78,33 @@ _usage () {
     echo "                        Default: ${work_dir}"
     echo "    -h                 This help message"
     echo "    -x                 Enable debug mode."
+    echo
+    echo " You can switch the packages to be installed on the channel."
+    echo " Channel:"
+    echo "    stable             Use stable packages. This is the default."
+    echo "    unstable           Use packages from the alter-testing repository."
+
     exit ${1}
 }
 
+
 # Check the value of a variable that can only be set to true or false.
-case ${boot_splash} in
-     true) : ;;
-    false) : ;;
-        *)
-            echo "The value ${boot_splash} set is invalid" >&2
-            ;;
-esac
+check_bool() {
+    local 
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                   *) echo "The value ${boot_splash} set is invalid" >&2 ;;
+    esac
+}
 
-case ${debug} in
-     true) : ;;
-    false) : ;;
-        *)
-            echo "The value ${debug} set is invalid" >&2
-            ;;
-esac
+check_bool boot_splash
+check_bool debug
+check_bool rebuild
+check_bool japanese
+check_bool cleaning
 
 
-# Helper function to run make_*() only one time per architecture.
+# Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e ${work_dir}/build.${1} ]]; then
         $1
@@ -107,7 +112,12 @@ run_once() {
     fi
 }
 
+
 # rm helper
+# Delete the file if it exists.
+# For directories, rm -rf is used.
+# If the file does not exist, skip it.
+# remove <file> <file> ...
 remove() {
     local _list
     local _file
@@ -136,6 +146,7 @@ show_settings() {
 # Preparation for rebuild
 prepare_rebuild() {
     if [[ ${rebuild} = true ]]; then
+        # Delete the lock file.
         remove $(ls ${work_dir}/* | grep "build.make")
     fi
 }
@@ -181,33 +192,45 @@ make_packages() {
     local jplist
 
 
+    # Append the file in the share directory to the file to be read.
+
+    # Package list for Japanese
     jplist=${script_path}/packages.d/share/jp.x86_64
+
+    # Package list for non-Japanese
     nojplist=${script_path}/packages.d/share/non-jp.x86_64
-    _loadfilelist_cmd="ls ${script_path}/packages.d/share/*.x86_64"
+
     if [[ ${japanese} = true ]]; then
-        _loadfilelist=("$(${_loadfilelist_cmd} | grep -xv ${nojplist})")
+        _loadfilelist=("$(ls ${script_path}/packages.d/share/*.x86_64 | grep -xv ${nojplist})")
     else
-        _loadfilelist=("$(${_loadfilelist_cmd} | grep -xv ${jplist})")
+        _loadfilelist=("$(ls ${script_path}/packages.d/share/*.x86_64 | grep -xv ${jplist})")
     fi
 
 
+    # Add the files for each channel to the list of files to read.
+
+    # Package list for Japanese
     jplist=${script_path}/packages.d/${channel}/jp.x86_64
+
+    # Package list for non-Japanese
     nojplist=${script_path}/packages.d/${channel}/non-jp.x86_64
-    _loadfilelist_cmd="ls ${script_path}/packages.d/${channel}/*.x86_64"
+
     if [[ ${japanese} = true ]]; then
-        _loadfilelist=("${_loadfilelist[@]}" "$(${_loadfilelist_cmd} | grep -xv ${nojplist})")
+        # If Japanese is enabled, add it to the list of files to read other than non-jp.
+        _loadfilelist=("${_loadfilelist[@]}" "$($ls ${script_path}/packages.d/${channel}/*.x86_64 | grep -xv ${nojplist})")
     else
-        _loadfilelist=("${_loadfilelist[@]}" "$(${_loadfilelist_cmd} | grep -xv ${jplist})")
+        # If Japanese is disabled, add it to the list of files to read other than jp.
+        _loadfilelist=("${_loadfilelist[@]}" "$(ls ${script_path}/packages.d/${channel}/*.x86_64 | grep -xv ${jplist})")
     fi
 
-
+    # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in "${_loadfilelist[@]}"; do
         echo "Loaded package file ${_file}."
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
         sleep 0.5
     done
 
-    # sort
+    # Sort the list of packages in abc order.
     _pkg_list=(
         "$(
             for _pkg in ${_pkg_list[@]}; do
@@ -217,23 +240,38 @@ make_packages() {
         )"
     )
     set -eu
-    # echo ${_pkg_list[@]}; exit
 
-    # ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(grep -h -v ^'#' ${script_path}/packages.x86_64)" install
+    unset _pkg
+
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
+    echo "#" > ${work_dir}/packages.list
+    echo > ${work_dir}/packages.list
+    for _pkg in ${_pkg_list[@]}; do
+        echo ${_pkg} > ${work_dir}/packages.list
+    done
+
+    # Install packages on airootfs
     ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
 }
 
 # Customize installation (airootfs)
 make_customize_airootfs() {
+    # Overwrite airootfs with customize_airootfs.
     cp -af ${script_path}/airootfs ${work_dir}/x86_64
 
+    # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ ${boot_splash} = true ]]; then
         cp ${script_path}/mkinitcpio/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf
     fi
 
+    # Code to use common pacman.conf in archiso.
     # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
     # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
+
+    # Get the optimal mirror list.
     if [[ ${japanese} = true ]]; then
+        # Use Japanese optimized mirror list when Japanese is enabled.
         curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=JP&protocol=http&use_mirror_status=on'
     else
         curl -o ${work_dir}/x86_64/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
@@ -251,6 +289,7 @@ make_customize_airootfs() {
     # -x            : Enable debug mode.
 
 
+    # Generate options of customize_airootfs.sh.
     local options
     options=
     if [[ ${boot_splash} = true ]]; then
@@ -269,11 +308,17 @@ make_customize_airootfs() {
     if [[ ${rebuild} = true ]]; then
         options="${options} -r"
     fi
+
+
+    # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
     else
         ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
     fi
+
+
+    # Delete customize_airootfs.sh.
     remove ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh
 }
 
@@ -290,9 +335,9 @@ make_setup_mkinitcpio() {
     cp /usr/lib/initcpio/install/archiso_kms ${work_dir}/x86_64/airootfs/etc/initcpio/install
     cp /usr/lib/initcpio/archiso_shutdown ${work_dir}/x86_64/airootfs/etc/initcpio
     if [[ ${boot_splash} = true ]]; then
-        cp ${script_path}/mkinitcpio/archiso/mkinitcpio-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+        cp ${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
     else
-        cp ${script_path}/mkinitcpio/archiso/mkinitcpio.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
+        cp ${script_path}/mkinitcpio/mkinitcpio-archiso.conf ${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf
     fi
     gnupg_fd=
     if [[ ${gpg_key} ]]; then
@@ -326,6 +371,7 @@ make_boot() {
 
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
+    # In AlterLinux, memtest has been removed.
     # cp ${work_dir}/x86_64/airootfs/boot/memtest86+/memtest.bin ${work_dir}/iso/${install_dir}/boot/memtest
     # cp ${work_dir}/x86_64/airootfs/usr/share/licenses/common/GPL2/license.txt ${work_dir}/iso/${install_dir}/boot/memtest.COPYING
     cp ${work_dir}/x86_64/airootfs/boot/intel-ucode.img ${work_dir}/iso/${install_dir}/boot/intel_ucode.img
@@ -486,14 +532,18 @@ make_iso() {
         remove ${work_dir}/efiboot
         remove ${work_dir}/iso
         remove ${work_dir}/x86_64
+        remove ${work_dir}/packages.list
     fi
 }
 
 if [[ ${EUID} -ne 0 ]]; then
     echo "This script must be run as root."
-    _usage 1
+    # _usage 1
+    exit 1
 fi
 
+
+# Parse options
 while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
@@ -538,19 +588,6 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
     esac
 done
 
-set +u
-shift $((OPTIND - 1))
-
-if [[ -n ${1} ]]; then
-    channel="${1}"
-fi
-
-case "${channel}" in
-    stable) channel="stable" ;;
-    unstable) channel="unstable" ;;
-    *) echo "Invalid channel '${channel}'" >&2; exit 1;;
-esac
-set -u
 
 # Debug mode
 if [[ ${debug} = true ]]; then
@@ -560,7 +597,25 @@ else
     set +x
 fi
 
-mkdir -p ${work_dir}
+
+# Parse options
+set +u
+shift $((OPTIND - 1))
+
+if [[ -n ${1} ]]; then
+    channel="${1}"
+fi
+
+if [[ -z $(ls -l ${script_path}/packages.d/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x ${channel}) ]]; then
+    echo "Invalid channel '${channel}'" >&2
+    exit 1
+fi
+set -u
+
+
+# Create a working directory.
+[[ ! -d ${work_dir} ]] && mkdir -p ${work_dir}
+
 
 show_settings 3
 prepare_rebuild
