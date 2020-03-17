@@ -588,6 +588,15 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
 done
 
 
+# Debug mode
+if [[ ${debug} = true ]]; then
+    set -x
+    alteriso_option="${alteriso_option} -x"
+else
+    set +x
+fi
+
+
 # Parse options
 set +u
 shift $((OPTIND - 1))
@@ -601,15 +610,6 @@ if [[ -z $(ls -l ${script_path}/packages.d/ | awk '$1 ~ /d/ {print $9 }' | grep 
     exit 1
 fi
 set -u
-
-
-# Debug mode
-if [[ ${debug} = true ]]; then
-    set -x
-    alteriso_option="${alteriso_option} -x"
-else
-    set +x
-fi
 
 
 # Create a working directory.
