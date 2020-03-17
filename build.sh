@@ -538,7 +538,7 @@ make_iso() {
 
 if [[ ${EUID} -ne 0 ]]; then
     echo "This script must be run as root."
-    _usage 1
+    # _usage 1
 fi
 
 
