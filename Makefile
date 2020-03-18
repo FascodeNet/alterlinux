@@ -1,5 +1,5 @@
 BUILD_SCRIPT = build.sh
-SHARE_OPTION = -b -c "zstd" -p "alter"
+SHARE_OPTION = -b -c "zstd" -u "alter" -p "alter"
 DEBUG_OPTION = -t '-Xcompression-level 1' -x
 CHANNEL_NAME = "stable"
 
