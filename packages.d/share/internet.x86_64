@@ -10,7 +10,11 @@
 # Internet
 
 
-#=> connection
+#-- chat --#
+irssi
+
+
+#-- connection --#
 dhclient
 dhcpcd
 dnsutils
@@ -23,30 +27,45 @@ pptpclient
 rp-pppoe
 wvdial
 
-#=> client
+
+#-- client --#
 # lftp
 ntp
 openssh
 wget
 
-#=> server
+
+#-- mail client --#
+thunderbird
+# mailspring
+
+
+#-- server --#
 darkhttpd
 dnsmasq
 
-#=> wireless
+
+#-- web browser --#
+chromium
+# elinks
+
+
+#-- wireless --#
 crda
 iwd
 wireless-regdb
 wireless_tools
 wpa_supplicant
 
-#=> vpn
+
+#-- vpn --#
 openconnect
 openvpn
 vpnc
 xl2tpd
 
-#=> other tools
+
+#-- other tools --#
 ethtool
 gnu-netcat
 # nmap

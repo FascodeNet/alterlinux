@@ -42,41 +42,18 @@ mc
 sudo
 
 
-#-- chat --#
-irssi
-
-
 #-- documents --#
 man-db
 man-pages
 
 
-#-- drivers --#
-b43-fwcutter
-ipw2100-fw
-ipw2200-fw
-
-
 #-- game pad --#
-# qjoypad
 jstest-gtk-git
-
-
-#-- interface support --#
-lsscsi
-sg3_utils
-usb_modeswitch
-usbutils
 
 
 #-- linux --#
 linux-atm
 linux-firmware
-
-
-#-- mail client --#
-thunderbird
-# mailspring
 
 
 #-- media player --#
@@ -87,11 +64,6 @@ vlc
 #-- package management --#
 pamac-gtk
 yay-bin
-
-
-#-- printers --#
-cups
-cups-pdf
 
 
 #-- system monitor --#
@@ -111,8 +83,3 @@ etcher-bin
 tlp
 tlpui
 xdg-user-dirs
-
-
-#-- web browser --#
-chromium
-# elinks
