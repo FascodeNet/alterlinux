@@ -24,7 +24,7 @@ install_dir=alter
 work_dir=work
 out_dir=out
 gpg_key=
-alteriso_option="-v"
+mkalteriso_option="-v"
 
 # AlterLinux additional settings
 password='alter'
@@ -160,24 +160,24 @@ make_pacman_conf() {
 
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
-    ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
-    # ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
-    ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
+    # ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
 
     # Install plymouth.
     if [[ ${boot_splash} = true ]]; then
         if [[ -n ${theme_pkg} ]]; then
-            ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
+            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
         else
-            ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
+            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "plymouth" install
         fi
     fi
 
     # Install kernel.
     if [[ ! ${kernel} = "core" ]]; then
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
     else
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
     fi
 }
 
@@ -252,7 +252,7 @@ make_packages() {
     done
 
     # Install packages on airootfs
-    ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
 }
 
 # Customize installation (airootfs)
@@ -312,9 +312,9 @@ make_customize_airootfs() {
 
     # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
     else
-        ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
     fi
 
 
@@ -346,9 +346,9 @@ make_setup_mkinitcpio() {
     fi
 
     if [[ ! ${kernel} = "core" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
+        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
     else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${alteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
+        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
     fi
 
     if [[ ${gpg_key} ]]; then
@@ -513,8 +513,8 @@ make_efiboot() {
 # Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f ${work_dir}/x86_64/airootfs ${work_dir}
-    ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
-    ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove ${work_dir}/airootfs
 
     if [[ ${cleaning} = true ]]; then
@@ -524,7 +524,7 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    ${mkalteriso} ${alteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
 
     if [[ ${cleaning} = true ]]; then
         remove $(ls ${work_dir}/* | grep "build.make")
@@ -592,7 +592,7 @@ done
 # Debug mode
 if [[ ${debug} = true ]]; then
     set -x
-    alteriso_option="${alteriso_option} -x"
+    mkalteriso_option="${mkalteriso_option} -x"
 else
     set +x
 fi
