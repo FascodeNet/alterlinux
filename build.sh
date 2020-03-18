@@ -139,6 +139,7 @@ remove() {
 show_settings() {
     [[ ${boot_splash} = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
     echo "Use the ${kernel} kernel."
+    echo "Live username is ${username}."
     echo "Live user password is ${password}."
     echo "The compression method of squashfs is ${sfs_comp}."
     echo "Use the ${channel} channel."
