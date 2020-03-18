@@ -15,7 +15,7 @@ username='alter'
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxj' arg; do
+while getopts 'p:bt:k:rxju:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
