@@ -295,6 +295,7 @@ make_customize_airootfs() {
 
     # Generate options of customize_airootfs.sh.
     local options
+    local share_options
     options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
@@ -313,12 +314,13 @@ make_customize_airootfs() {
         options="${options} -r"
     fi
 
+    share_options="-p ${password} -k ${kernel} -u ${username}"
 
     # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} -k ${kernel}" run
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options}" run
     else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh -p ${password} ${options} -k ${kernel}" run
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options} ${options}" run
     fi
 
 
