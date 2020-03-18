@@ -548,7 +548,7 @@ fi
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
+while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -584,6 +584,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jl' arg; do
         r) rebuild=true ;;
         j) japanese=true ;;
         l) cleaning=true ;;
+        u) username="${OPTARG}" ;;
         h) _usage 0 ;;
         *)
            echo "Invalid argument '${arg}'" >&2
