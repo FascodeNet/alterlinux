@@ -31,7 +31,7 @@ The previously used Japanese branch has been removed.
 If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).  
 We are soliciting opinions from various users to make AlterLinux better.
 
-##  Twitter　account
+##  Twitter account
 The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
 
 ### Official
