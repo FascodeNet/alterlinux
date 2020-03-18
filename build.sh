@@ -42,7 +42,7 @@ cleaning=false
 mkalteriso="${script_path}/system/mkalteriso"
 
 # Pacman configuration file used only when building
-pacman_conf=${script_path}/system/pacman.conf
+build_pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
 [[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
@@ -155,7 +155,7 @@ prepare_rebuild() {
 make_pacman_conf() {
     local _cache_dirs
     _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${pacman_conf} > ${work_dir}/pacman.conf
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > ${work_dir}/pacman.conf
 }
 
 # Base installation, plus needed packages (airootfs)
@@ -267,7 +267,7 @@ make_customize_airootfs() {
 
     # Code to use common pacman.conf in archiso.
     # cp ${script_path}/pacman.conf ${work_dir}/x86_64/airootfs/etc
-    # cp ${pacman_conf} ${work_dir}/x86_64/airootfs/etc
+    # cp ${build_pacman_conf} ${work_dir}/x86_64/airootfs/etc
 
     # Get the optimal mirror list.
     if [[ ${japanese} = true ]]; then
