@@ -227,7 +227,7 @@ make_packages() {
     fi
 
     # Read the file and remove comments starting with # and add it to the list of packages to install.
-    for _file in "${_loadfilelist[@]}"; do
+    for _file in ${_loadfilelist[@]}; do
         echo "Loaded package file ${_file}."
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
         sleep 0.5
@@ -248,10 +248,10 @@ make_packages() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
-    echo "#" > ${work_dir}/packages.list
-    echo > ${work_dir}/packages.list
+    echo "#" >> ${work_dir}/packages.list
+    echo >> ${work_dir}/packages.list
     for _pkg in ${_pkg_list[@]}; do
-        echo ${_pkg} > ${work_dir}/packages.list
+        echo ${_pkg} >> ${work_dir}/packages.list
     done
 
     # Install packages on airootfs
