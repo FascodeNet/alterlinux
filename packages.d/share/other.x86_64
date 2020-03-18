@@ -9,37 +9,11 @@
 #
 
 
-#-- archivers --#
-unrar
-unzip-iconv
-xarchiver
-
-
-#-- audio --#
-pulseaudio
-
-
-#-- bluetooth --#
-blueman
-bluez
-bluez-utils
-pulseaudio-bluetooth
-
-
 #-- boot manager --#
 grub
 grub-customizer
 os-prober
 refind-efi
-
-
-#-- commandline tools --#
-arch-install-scripts
-bash-completion
-dialog
-diffutils
-mc
-sudo
 
 
 #-- documents --#
@@ -54,11 +28,6 @@ jstest-gtk-git
 #-- linux --#
 linux-atm
 linux-firmware
-
-
-#-- media player --#
-viewnior
-vlc
 
 
 #-- package management --#
@@ -76,10 +45,3 @@ code
 leafpad
 nano
 vim
-
-
-#-- utility --#
-etcher-bin
-tlp
-tlpui
-xdg-user-dirs
