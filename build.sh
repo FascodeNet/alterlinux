@@ -39,6 +39,7 @@ rebuild=false
 japanese=false
 channel='stable'
 cleaning=false
+username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 
 # Pacman configuration file used only when building
@@ -74,6 +75,8 @@ _usage () {
     echo "                        Default: ${password}"
     echo "    -t <options>       Set compressor-specific options."
     echo "                        Default: empty"
+    echo "    -u <username>      Set user name."
+    echo "                        Default: ${username}"
     echo "    -w <work_dir>      Set the working directory"
     echo "                        Default: ${work_dir}"
     echo "    -h                 This help message"
@@ -286,6 +289,7 @@ make_customize_airootfs() {
     # -t            : Set plymouth theme.
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
+    # -u <username> : Set live user name.
     # -x            : Enable debug mode.
 
 
