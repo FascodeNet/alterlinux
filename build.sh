@@ -205,9 +205,9 @@ make_packages() {
     nojplist="${script_path}/packages.d/share/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
-        _loadfilelist=("$(ls ${script_path}/packages.d/share/*.x86_64 | grep -xv ${nojplist})")
+        _loadfilelist=($(ls "${script_path}/packages.d/share/*.x86_64" | grep -xv "${nojplist}"))
     else
-        _loadfilelist=("$(ls ${script_path}/packages.d/share/*.x86_64 | grep -xv ${jplist})")
+        _loadfilelist=($(ls "${script_path}/packages.d/share/*.x86_64" | grep -xv "${jplist}"))
     fi
 
 
@@ -221,10 +221,10 @@ make_packages() {
 
     if [[ "${japanese}" = true ]]; then
         # If Japanese is enabled, add it to the list of files to read other than non-jp.
-        _loadfilelist=("${_loadfilelist[@]}" "$($ls ${script_path}/packages.d/${channel}/*.x86_64 | grep -xv ${nojplist})")
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}/packages.d/${channel}/*.x86_64" | grep -xv "${nojplist}"))
     else
         # If Japanese is disabled, add it to the list of files to read other than jp.
-        _loadfilelist=("${_loadfilelist[@]}" "$(ls ${script_path}/packages.d/${channel}/*.x86_64 | grep -xv ${jplist})")
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}/packages.d/${channel}/*.x86_64" | grep -xv ${jplist}))
     fi
 
     # Read the file and remove comments starting with # and add it to the list of packages to install.
