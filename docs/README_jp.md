@@ -137,6 +137,7 @@ lymouthは無効化されています。
 --- | ---
 ブートスプラッシュを有効化 | -b
 カーネルを変える | -k [kernel]
+ユーザ名を変える | -u [username]
 パスワードを変更する | -p [password]
 日本語にする | -j
 圧縮方式を変更する | -c [comp type]
@@ -164,7 +165,7 @@ unstable | `alter-testing`リポジトリのパッケージを利用してビル
 - パスワードは`ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
 ```
 
 ##### カーネルについて

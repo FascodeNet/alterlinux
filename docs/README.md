@@ -128,12 +128,13 @@ Default compression type is `zstd`.
 --- | ---
  Enable boot splash | -b
  Change kernel | -k [kernel]
+ Change the username | -u [username]
  Change the password | -p [password]
  Japanese | -j
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
  Specify output destination directory | -o [dir]
-Specify working directory | -w [dir]
+ Specify working directory | -w [dir]
 
 
 #### Channel
@@ -156,7 +157,7 @@ To build under the following conditions:
 - The password is `ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
 ```
 
 ##### About the kernel
