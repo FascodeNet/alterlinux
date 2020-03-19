@@ -110,7 +110,7 @@ if [[ ${rebuild} = false ]]; then
 
         useradd -m -s /bin/bash ${_username}
         groupadd sudo
-        usermod -G sudo ${_username}
+        usermod -U -g ${_username} -G sudo ${_username}
         cp -aT /etc/skel/ /home/${_username}/
         chmod 700 -R /home/${_username}
         chown ${_username}:${_username} -R /home/${_username}
