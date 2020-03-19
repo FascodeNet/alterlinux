@@ -543,6 +543,7 @@ make_iso() {
         remove "${work_dir}/x86_64"
         remove "${work_dir}/packages.list"
     fi
+    echo "The password for the live user and root is ${password}."
 }
 
 
