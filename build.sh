@@ -111,7 +111,7 @@ check_bool cleaning
 run_once() {
     if [[ ! -e "${work_dir}/build.${1}" ]]; then
         "$1"
-        "touch ${work_dir}/build.${1}"
+        touch "${work_dir}/build.${1}"
     fi
 }
 
