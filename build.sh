@@ -231,8 +231,10 @@ make_packages() {
     for _file in ${_loadfilelist[@]}; do
         echo "Loaded package file ${_file}."
         _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
-        sleep 0.5
     done
+    if [[ ${debug} = true ]]; then
+        sleep 3
+    fi
 
     # Sort the list of packages in abc order.
     _pkg_list=(
