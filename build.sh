@@ -545,12 +545,6 @@ make_iso() {
     fi
 }
 
-if [[ ${EUID} -ne 0 ]]; then
-    echo "This script must be run as root."
-    # _usage 1
-    exit 1
-fi
-
 
 # Parse options
 while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
@@ -607,6 +601,15 @@ if [[ "${debug}" = true ]]; then
 fi
 
 
+# Check root.
+if [[ ${EUID} -ne 0 ]]; then
+    echo "This script must be run as root." >&2
+    echo "Use -h to display script details." >&2
+    # _usage 1
+    exit 1
+fi
+
+
 # Parse options
 set +u
 shift $((OPTIND - 1))
@@ -619,6 +622,8 @@ if [[ -z $(ls -l "${script_path}"/packages.d/ | awk '$1 ~ /d/ {print $9 }' | gre
     echo "Invalid channel '${channel}'" >&2
     exit 1
 fi
+
+
 set -u
 
 
