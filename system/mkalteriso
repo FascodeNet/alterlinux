@@ -404,7 +404,7 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
         t) sfs_comp_opt="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
-        x) set -x ;;
+        x) set -xv ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0

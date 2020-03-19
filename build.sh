@@ -600,9 +600,8 @@ done
 # Debug mode
 if [[ "${debug}" = true ]]; then
     set -x
+    set -v
     mkalteriso_option="${mkalteriso_option} -x"
-else
-    set +x
 fi
 
 

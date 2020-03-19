@@ -24,7 +24,7 @@ while getopts 'p:bt:k:rxju:' arg; do
         r) rebuild=true ;;
         j) japanese=true;;
         u) username="${OPTARG}" ;;
-        x) set -x ;;
+        x) set -xv ;;
     esac
 done
 
