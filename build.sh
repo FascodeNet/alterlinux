@@ -205,9 +205,9 @@ make_packages() {
     nojplist="${script_path}/packages.d/share/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
-        _loadfilelist=($(ls "${script_path}/packages.d/share/*.x86_64" | grep -xv "${nojplist}"))
+        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${nojplist}"))
     else
-        _loadfilelist=($(ls "${script_path}/packages.d/share/*.x86_64" | grep -xv "${jplist}"))
+        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${jplist}"))
     fi
 
 
