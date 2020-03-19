@@ -523,6 +523,7 @@ make_efiboot() {
 make_prepare() {
     cp -a -l -f "${work_dir}/x86_64/airootfs" "${work_dir}"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
 
@@ -542,6 +543,7 @@ make_iso() {
         remove "${work_dir}/iso"
         remove "${work_dir}/x86_64"
         remove "${work_dir}/packages.list"
+        remove "${work_dir}/packages-full.list"
     fi
     echo "The password for the live user and root is ${password}."
 }
