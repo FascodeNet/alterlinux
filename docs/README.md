@@ -31,7 +31,7 @@ The previously used Japanese branch has been removed.
 If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).  
 We are soliciting opinions from various users to make AlterLinux better.
 
-##  Twitter　account
+##  Twitter account
 The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
 
 ### Official
@@ -128,12 +128,13 @@ Default compression type is `zstd`.
 --- | ---
  Enable boot splash | -b
  Change kernel | -k [kernel]
+ Change the username | -u [username]
  Change the password | -p [password]
  Japanese | -j
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
  Specify output destination directory | -o [dir]
-Specify working directory | -w [dir]
+ Specify working directory | -w [dir]
 
 
 #### Channel
@@ -156,14 +157,14 @@ To build under the following conditions:
 - The password is `ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
 ```
 
 ##### About the kernel
 The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
 Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
   
-Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
+Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.org/index.php/Kernel).
 
 Name | Feature
 --- | ---

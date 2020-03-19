@@ -11,10 +11,11 @@ kernel=core
 theme_name=alter-logo
 rebuild=false
 japanese=false
+username='alter'
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxj' arg; do
+while getopts 'p:bt:k:rxju:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -22,7 +23,8 @@ while getopts 'p:bt:k:rxj' arg; do
         k) kernel="${OPTARG}" ;;
         r) rebuild=true ;;
         j) japanese=true;;
-        x) set -x ;;
+        u) username="${OPTARG}" ;;
+        x) set -xv ;;
     esac
 done
 
@@ -96,7 +98,7 @@ if [[ ${rebuild} = false ]]; then
         local _password
         local _username
         _password=${password}
-        _username=alter
+        _username=${username}
 
         # Option analysis
         while getopts 'p:u:' arg; do
@@ -116,9 +118,14 @@ if [[ ${rebuild} = false ]]; then
         set -u
     }
 
-    create_user -u alter -p "${password}"
+    create_user -u "${username}" -p "${password}"
 fi
 
+
+# Set up auto login
+if [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; then
+    sed -i s/%USERNAME%/${username}/ /etc/systemd/system/getty@tty1.service.d/autologin.conf
+fi
 
 
 # Set to execute calamares without password as alter user.

@@ -9,23 +9,6 @@
 #
 
 
-#-- archivers --#
-unrar
-unzip-iconv
-xarchiver
-
-
-#-- audio --#
-pulseaudio
-
-
-#-- bluetooth --#
-blueman
-bluez
-bluez-utils
-pulseaudio-bluetooth
-
-
 #-- boot manager --#
 grub
 grub-customizer
@@ -33,40 +16,13 @@ os-prober
 refind-efi
 
 
-#-- commandline tools --#
-arch-install-scripts
-bash-completion
-dialog
-diffutils
-mc
-sudo
-
-
-#-- chat --#
-irssi
-
-
 #-- documents --#
 man-db
 man-pages
 
 
-#-- drivers --#
-b43-fwcutter
-ipw2100-fw
-ipw2200-fw
-
-
 #-- game pad --#
-# qjoypad
 jstest-gtk-git
-
-
-#-- interface support --#
-lsscsi
-sg3_utils
-usb_modeswitch
-usbutils
 
 
 #-- linux --#
@@ -74,24 +30,9 @@ linux-atm
 linux-firmware
 
 
-#-- mail client --#
-thunderbird
-# mailspring
-
-
-#-- media player --#
-viewnior
-vlc
-
-
 #-- package management --#
 pamac-gtk
 yay-bin
-
-
-#-- printers --#
-cups
-cups-pdf
 
 
 #-- system monitor --#
@@ -104,15 +45,3 @@ code
 leafpad
 nano
 vim
-
-
-#-- utility --#
-etcher-bin
-tlp
-tlpui
-xdg-user-dirs
-
-
-#-- web browser --#
-chromium
-# elinks

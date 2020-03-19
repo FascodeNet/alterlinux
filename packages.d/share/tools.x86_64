@@ -1,0 +1,32 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Tools
+
+
+#-- archivers --#
+unrar
+unzip-iconv
+xarchiver
+
+
+#-- commandline tools --#
+arch-install-scripts
+bash-completion
+dialog
+diffutils
+mc
+sudo
+
+
+#-- utility --#
+etcher-bin
+tlp
+tlpui
+xdg-user-dirs
