@@ -446,7 +446,7 @@ make_efi() {
     cp "${work_dir}/x86_64/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/loader.efi"
 
     mkdir -p "${work_dir}/iso/loader/entries"
-    cp "${script_path}/efiboot/loader/loader.conf ${work_dir}/iso/loader/"
+    cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
     cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/iso/loader/entries/"
     cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/iso/loader/entries/"
 
