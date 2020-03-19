@@ -237,7 +237,7 @@ _mkairootfs_img () {
         mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" ${sfs_comp_opt}
     fi
     _msg_info "Done!"
-    rm ${work_dir}/airootfs.img
+    rm "${work_dir}/airootfs.img"
 }
 
 # Makes a SquashFS filesystem from a source directory.
@@ -260,7 +260,7 @@ _mkchecksum () {
     _msg_info "Creating checksum file for self-test..."
     cd "${work_dir}/iso/${install_dir}/${arch}"
     sha512sum airootfs.sfs > airootfs.sha512
-    cd ${OLDPWD}
+    cd "${OLDPWD}"
     _msg_info "Done!"
 }
 
@@ -277,7 +277,7 @@ _mksignature () {
     _msg_info "Creating signature file..."
     cd "${work_dir}/iso/${install_dir}/${arch}"
     gpg --detach-sign --default-key ${gpg_key} airootfs.sfs
-    cd ${OLDPWD}
+    cd "${OLDPWD}"
     _msg_info "Done!"
 }
 
@@ -312,7 +312,7 @@ command_iso () {
 
     _show_config iso
 
-    mkdir -p ${out_dir}
+    mkdir -p "${out_dir}"
     _msg_info "Creating ISO image..."
     local _qflag=""
     if [[ ${quiet} == "y" ]]; then
