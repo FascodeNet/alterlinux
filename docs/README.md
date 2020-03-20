@@ -138,13 +138,14 @@ Default compression type is `zstd`.
 
 
 #### Channel
-The channel switches the list of packages to be installed.
-Supported channels are `stable` and` unstable` as of March 14, 2020.
+Channels switch between packages to install and files to include.
+This mechanism allows you to build various versions of AlterLinux.
+The supported channels as of March 21, 2020 are:
 
 Name | Purpose
 --- | ---
-stable | Default channel.
-unstable | Build using packages from the `alter-testing` repository.
+xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
+core | It has only a minimal GUI and installer, and after installation it has a minimal ArchLinux. This is an ArchLinux installer.
 
 
 ##### Example
