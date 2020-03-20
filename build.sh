@@ -205,9 +205,9 @@ make_packages() {
     nojplist="${script_path}/channels/share/packages/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
-        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${nojplist}"))
+        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${nojplist}"))
     else
-        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${jplist}"))
+        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${jplist}"))
     fi
 
 
@@ -221,10 +221,10 @@ make_packages() {
 
     if [[ "${japanese}" = true ]]; then
         # If Japanese is enabled, add it to the list of files to read other than non-jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/packages.d/${channel_name}/*.x86_64 | grep -xv "${nojplist}"))
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv "${nojplist}"))
     else
         # If Japanese is disabled, add it to the list of files to read other than jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/packages.d/${channel_name}/*.x86_64 | grep -xv ${jplist}))
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv ${jplist}))
     fi
 
     # Read the file and remove comments starting with # and add it to the list of packages to install.
@@ -325,7 +325,7 @@ make_customize_airootfs() {
     else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options} ${options}" run
     fi
-
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs_${channel_name}.sh" run
 
     # Delete customize_airootfs.sh.
     remove "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
@@ -618,10 +618,10 @@ set +u
 shift $((OPTIND - 1))
 
 if [[ -n "${1}" ]]; then
-    channel="${1}"
+    channel_name="${1}"
 fi
 
-if [[ -z $(ls -l "${script_path}"/packages.d/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x "${channel_name}") ]]; then
+if [[ -z $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x "${channel_name}") ]]; then
     echo "Invalid channel '${channel_name}'" >&2
     exit 1
 fi
