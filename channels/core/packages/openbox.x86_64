@@ -16,6 +16,7 @@ pcmanfm
 
 #-- openbox --#
 openbox
+lxpanel
 
 
 #-- Terminal --#
