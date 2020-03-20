@@ -122,7 +122,7 @@ if [[ ${rebuild} = false ]]; then
         set -u
     }
 
-    create_user -u "${username}" -p "${password}"
+    create_user "${username}" "${password}"
 fi
 
 
