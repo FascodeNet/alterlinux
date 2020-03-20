@@ -93,18 +93,13 @@ if [[ ${rebuild} = false ]]; then
     sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
     # Create alter user.
-    # create_user -u <username> -p <password>
+    # create_user <username> <password>
     function create_user () {
         local _password
         local _username
 
-        # Option analysis
-        while getopts 'p:u:' arg; do
-            case "${arg}" in
-                p) _password="${OPTARG}" ;;
-                u) _username="${OPTARG}" ;;
-            esac
-        done
+        _username=${1}
+        _password=${2}
 
         set +u
         if [[ -z "${_username}" ]]; then
