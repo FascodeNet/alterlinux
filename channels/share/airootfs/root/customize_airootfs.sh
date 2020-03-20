@@ -106,7 +106,7 @@ if [[ ${rebuild} = false ]]; then
             esac
         done
 
-        set +e
+        set +u
         if [[ -z "${_username}" ]]; then
             echo "User name is not specified." >&2
             return 1
@@ -115,7 +115,7 @@ if [[ ${rebuild} = false ]]; then
             echo "No password has been specified." >&2
             return 1
         fi
-        set -e
+        set -u
 
         useradd -m -s /bin/bash ${_username}
         groupadd sudo
