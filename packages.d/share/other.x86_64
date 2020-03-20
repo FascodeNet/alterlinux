@@ -30,11 +30,6 @@ linux-atm
 linux-firmware
 
 
-#-- package management --#
-pamac-gtk
-yay-bin
-
-
 #-- system monitor --#
 gnome-system-monitor
 cpu-x
