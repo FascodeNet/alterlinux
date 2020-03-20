@@ -325,8 +325,10 @@ make_customize_airootfs() {
 
     # X permission
     chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
-    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
-
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
+    fi
+    
 
     # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
