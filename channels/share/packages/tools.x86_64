@@ -26,7 +26,6 @@ sudo
 
 
 #-- utility --#
-etcher-bin
 tlp
 tlpui
 xdg-user-dirs
