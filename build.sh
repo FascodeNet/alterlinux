@@ -264,7 +264,10 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    cp -af "${script_path}/airootfs" "${work_dir}/x86_64"
+    cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
+        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    fi
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
