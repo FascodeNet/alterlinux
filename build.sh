@@ -325,10 +325,10 @@ make_customize_airootfs() {
 
     # X permission
     chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
-    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+    
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
     fi
-    
+
 
     # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
@@ -336,7 +336,9 @@ make_customize_airootfs() {
     else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options} ${options}" run
     fi
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs_${channel_name}.sh" run
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs_${channel_name}.sh" run
+    fi
 
 
     # Delete customize_airootfs.sh.
