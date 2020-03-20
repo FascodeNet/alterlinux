@@ -5,7 +5,7 @@
 <menu id="root-menu" label="Openbox 3">
   <item label="Chromium">
     <action name="Execute">
-      <command>chromium-browser</command>
+      <command>chromium</command>
       <startupnotify>
         <enabled>yes</enabled>
       </startupnotify>
