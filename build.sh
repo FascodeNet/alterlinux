@@ -322,6 +322,12 @@ make_customize_airootfs() {
 
     share_options="-p ${password} -k ${kernel} -u ${username}"
 
+
+    # X permission
+    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
+
+
     # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options}" run
@@ -330,8 +336,10 @@ make_customize_airootfs() {
     fi
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs_${channel_name}.sh" run
 
+
     # Delete customize_airootfs.sh.
     remove "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    remove "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
