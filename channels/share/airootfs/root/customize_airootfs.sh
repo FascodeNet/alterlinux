@@ -93,19 +93,15 @@ if [[ ${rebuild} = false ]]; then
     sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
     # Create alter user.
-    # create_user -u <username> -p <password>
+    # create_user <username> <password>
     function create_user () {
         local _password
         local _username
 
-        # Option analysis
-        while getopts 'p:u:' arg; do
-            case "${arg}" in
-                p) _password="${OPTARG}" ;;
-                u) _username="${OPTARG}" ;;
-            esac
-        done
+        _username=${1}
+        _password=${2}
 
+        set +u
         if [[ -z "${_username}" ]]; then
             echo "User name is not specified." >&2
             return 1
@@ -114,6 +110,7 @@ if [[ ${rebuild} = false ]]; then
             echo "No password has been specified." >&2
             return 1
         fi
+        set -u
 
         useradd -m -s /bin/bash ${_username}
         groupadd sudo
@@ -125,7 +122,7 @@ if [[ ${rebuild} = false ]]; then
         set -u
     }
 
-    create_user -u "${username}" -p "${password}"
+    create_user "${username}" "${password}"
 fi
 
 
@@ -141,14 +138,6 @@ alter ALL=NOPASSWD: /usr/bin/calamares
 alter ALL=NOPASSWD: /usr/bin/calamares_polkit
 Defaults pwfeedback
 EOF
-
-
-# Replace wallpaper.
-if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
-    remove /usr/share/backgrounds/xfce/xfce-stripes.png
-    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-fi
-[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 
 # Configure Plymouth settings

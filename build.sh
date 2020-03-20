@@ -37,7 +37,7 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
-channel='stable'
+channel_name='xfce'
 cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
@@ -84,8 +84,8 @@ _usage () {
     echo
     echo " You can switch the packages to be installed on the channel."
     echo " Channel:"
-    echo "    stable             Use stable packages. This is the default."
-    echo "    unstable           Use packages from the alter-testing repository."
+    echo "    xfce               Use Xfce4 for desktop environment."
+    echo "    kde                Uses KDE and Qt software."
 
     exit "${1}"
 }
@@ -142,7 +142,7 @@ show_settings() {
     echo "Live username is ${username}."
     echo "Live user password is ${password}."
     echo "The compression method of squashfs is ${sfs_comp}."
-    echo "Use the ${channel} channel."
+    echo "Use the ${channel_name} channel."
     [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
     sleep "${1}"
 }
@@ -199,32 +199,32 @@ make_packages() {
     # Append the file in the share directory to the file to be read.
 
     # Package list for Japanese
-    jplist="${script_path}/packages.d/share/jp.x86_64"
+    jplist="${script_path}/channels/share/packages/jp.x86_64"
 
     # Package list for non-Japanese
-    nojplist="${script_path}/packages.d/share/non-jp.x86_64"
+    nojplist="${script_path}/channels/share/packages/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
-        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${nojplist}"))
+        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${nojplist}"))
     else
-        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${jplist}"))
+        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${jplist}"))
     fi
 
 
     # Add the files for each channel to the list of files to read.
 
     # Package list for Japanese
-    jplist="${script_path}/packages.d/${channel}/jp.x86_64"
+    jplist="${script_path}/channels/${channel_name}/packages/jp.x86_64"
 
     # Package list for non-Japanese
-    nojplist="${script_path}/packages.d/${channel}/non-jp.x86_64"
+    nojplist="${script_path}/channels/${channel_name}/packages/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
         # If Japanese is enabled, add it to the list of files to read other than non-jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/packages.d/${channel}/*.x86_64 | grep -xv "${nojplist}"))
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv "${nojplist}"))
     else
         # If Japanese is disabled, add it to the list of files to read other than jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/packages.d/${channel}/*.x86_64 | grep -xv ${jplist}))
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv ${jplist}))
     fi
 
     # Read the file and remove comments starting with # and add it to the list of packages to install.
@@ -264,7 +264,10 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    cp -af "${script_path}/airootfs" "${work_dir}/x86_64"
+    cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
+        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    fi
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
@@ -319,16 +322,28 @@ make_customize_airootfs() {
 
     share_options="-p ${password} -k ${kernel} -u ${username}"
 
+
+    # X permission
+    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
+    fi
+
+
     # Execute customize_airootfs.sh.
     if [[ -z ${options} ]]; then
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options}" run
     else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options} ${options}" run
     fi
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs_${channel_name}.sh" run
+    fi
 
 
     # Delete customize_airootfs.sh.
     remove "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    remove "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -618,11 +633,11 @@ set +u
 shift $((OPTIND - 1))
 
 if [[ -n "${1}" ]]; then
-    channel="${1}"
+    channel_name="${1}"
 fi
 
-if [[ -z $(ls -l "${script_path}"/packages.d/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x "${channel}") ]]; then
-    echo "Invalid channel '${channel}'" >&2
+if [[ -z $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x "${channel_name}") ]]; then
+    echo "Invalid channel '${channel_name}'" >&2
     exit 1
 fi
 
