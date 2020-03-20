@@ -10,8 +10,20 @@
 # OpenBox
 
 
+#-- File manager --#
+pcmanfs
+
+
 #-- openbox --#
 openbox
+
+
+#-- Terminal --#
+lxterminal
+
+
+#-- Settings --#
+arandr
 
 
 #-- xorg --#
