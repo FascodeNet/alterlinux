@@ -97,8 +97,6 @@ if [[ ${rebuild} = false ]]; then
     function create_user () {
         local _password
         local _username
-        _password=${password}
-        _username=${username}
 
         # Option analysis
         while getopts 'p:u:' arg; do
@@ -108,9 +106,18 @@ if [[ ${rebuild} = false ]]; then
             esac
         done
 
+        if [[ -z "${_username}" ]]; then
+            echo "User name is not specified." >&2
+            return 1
+        fi
+        if [[ -z "${_password}" ]]; then
+            echo "No password has been specified." >&2
+            return 1
+        fi
+
         useradd -m -s /bin/bash ${_username}
         groupadd sudo
-        usermod -G sudo ${_username}
+        usermod -U -g ${_username} -G sudo ${_username}
         cp -aT /etc/skel/ /home/${_username}/
         chmod 700 -R /home/${_username}
         chown ${_username}:${_username} -R /home/${_username}

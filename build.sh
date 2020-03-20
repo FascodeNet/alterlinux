@@ -523,6 +523,7 @@ make_efiboot() {
 make_prepare() {
     cp -a -l -f "${work_dir}/x86_64/airootfs" "${work_dir}"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
 
@@ -542,14 +543,10 @@ make_iso() {
         remove "${work_dir}/iso"
         remove "${work_dir}/x86_64"
         remove "${work_dir}/packages.list"
+        remove "${work_dir}/packages-full.list"
     fi
+    echo "The password for the live user and root is ${password}."
 }
-
-if [[ ${EUID} -ne 0 ]]; then
-    echo "This script must be run as root."
-    # _usage 1
-    exit 1
-fi
 
 
 # Parse options
@@ -607,6 +604,15 @@ if [[ "${debug}" = true ]]; then
 fi
 
 
+# Check root.
+if [[ ${EUID} -ne 0 ]]; then
+    echo "This script must be run as root." >&2
+    echo "Use -h to display script details." >&2
+    # _usage 1
+    exit 1
+fi
+
+
 # Parse options
 set +u
 shift $((OPTIND - 1))
@@ -619,6 +625,8 @@ if [[ -z $(ls -l "${script_path}"/packages.d/ | awk '$1 ~ /d/ {print $9 }' | gre
     echo "Invalid channel '${channel}'" >&2
     exit 1
 fi
+
+
 set -u
 
 
