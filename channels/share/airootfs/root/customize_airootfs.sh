@@ -186,6 +186,8 @@ fi
 # Remove configuration files for other kernels.
 remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
+# Set up calamares removeuser
+sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser/removeuser.conf
 
 
 # Enable root login with SSH.
