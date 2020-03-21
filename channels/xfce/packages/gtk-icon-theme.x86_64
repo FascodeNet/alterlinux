@@ -1,0 +1,26 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# look and feel
+
+
+# font
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+
+
+# icon
+# paper-icon-theme
+inverse-icon-theme-blue-git
+
+
+# theme
+# materia-gtk-theme
+arc-gtk-theme
