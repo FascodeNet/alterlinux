@@ -25,23 +25,63 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 --- | --- | ---
 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。
 
+## 意見や感想について
+もしAlterLinuxが起動しなかったり、使いにくかったり、標準でインストールしてほしいソフトウェアがあったら、遠慮なく[Issue](https://github.com/SereneTeam/alterlinux/issues)に投稿して下さい。  
+私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
+
+## Twitter アカウント
+Alter Linuxの最新の状況は随時Twitterで発信しています。時々、今後の方針についてのアンケートなども行っています。
+
+### 公式
+以下は公式のアカウントです。
+- [Alter Linux](https://twitter.com/AlterLinux)
+- [SereneLinux Global](https://twitter.com/SereneLinux)
+- [SereneLinux JP](https://twitter.com/SereneDevJP)
+
+### 開発者
+主な開発メンバーのTwitterへのリンクです。  
+このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
+
+<h5 align="center">開発担当</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
+<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
+</p>
+
+
+<h5 align="center">デザイン担当</h5>
+<p align="center">
+<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
+</p>
+
 ## リポジトリとソフトウェア
+リポジトリのパッケージを使用するには鍵を追加する必要があります。  
+以下のコマンドを実行して鍵を追加して下さい。
+
+```bash
+curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
+sudo pacman-key --lsign-key development@fascode.net
+```
 
 ### リポジトリ
-- [SereneTeam/alter-repo](https://github.com/SereneTeam/alter-repo)  
-全てのミラーサーバはこのリポジトリと同期しています。  
+以前まで使用されていたGitHubのリポジトリは現在は使用されていません。現在は[こちらのサーバ](https://xn--d-8o2b.com/repo/)が最新のリポジトリです。
 
 
 ### ソフトウェア
-Alter Linuxに入っている独自のソフトウェアのソースコードは以下にあります。
-パッケージ一覧は[こちら](../packages.d/)にあります。  
-すべての完全なパッケージ一覧はイメージファイル内にあります。
+ほとんどのパッケージは公式パッケージか、AUR上に公開していますが、一部のものはどちらにもありません。そのようなパッケージのソースコードとPKGBUILDへのリンクを以下に記載します。  
+バイナリファイルが必要な場合は[AlterLinuxリポジトリ](https://xn--d-8o2b.com/repo/alter-stable/x86_64/)にアクセスして下さい。
 
-- [EG-Installer](https://github.com/Hayao0819/EG-Installer)([PKGBUILD](https://github.com/Hayao0819/EG-Installer-PKGBUILD))
-- [plymouth-theme-alter](https://github.com/yamad-linuxer/plymouth-theme-alter)([PKGBUILD](https://github.com/Hayao0819/plymouth-theme-alter))
-- [lightdm-webkit2-theme-alter](https://github.com/SereneTeam/lightdm-webkit2-theme-alter)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/lightdm-webkit2-theme-alter))
-- [calamares](https://gitlab.manjaro.org/applications/calamares)([PKGBUILD](https://gitlab.manjaro.org/packages/extra/calamares))
-- [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares)([PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares))
+ソースコード | PKGBUILD
+--- | ---
+ [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares)
+[alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf)
+[alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring)
+[alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)
+[alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)
+[alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf)
+
 
 
 ## ビルド
@@ -53,18 +93,14 @@ Alter Linuxに入っている独自のソフトウェアのソースコードは
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
 `build.sh`のオプションは共通です。  
 
-#### 実機でビルドする
-ArchLinux環境でビルドする必要があります。  
-AlterLinuxのリポジトリを使用するために鍵を追加します。
+### 実機でビルドする
+実機でビルドする場合はArchLinux環境でビルドする必要があります。  
+AlterLinuxのリポジトリを使用するために鍵を追加する必要があります。鍵を追加する方法は上記記載されています。
+
+ビルドに必要なパッケージをインストールして下さい。
 
 ```bash
-curl https://山d.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
-鍵を追加したらビルドに使用するパッケージをインストールします。
-
-```bash
-sudo pacman -S git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
 ```
 そしてソースコードをダウンロードしてください。
 
@@ -73,16 +109,16 @@ git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
 ```
 
-#### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
-
-### ビルドウィザード
-wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
+#### ビルドウィザード
+実機で直接ビルドする場合、wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
 「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
 
 ```bash
 ./wizard.sh
 ```
+
+### コンテナ上でビルドする
+Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
 
 ### build.shのオプション
 
@@ -93,7 +129,7 @@ lymouthは無効化されています。
 デフォルトの圧縮方式は`zstd`です。  
 
 ```bash
-./build.sh <options>
+./build.sh <options> <channel>
 ```
 
 #### オプション
@@ -101,10 +137,25 @@ lymouthは無効化されています。
 --- | ---
 ブートスプラッシュを有効化 | -b
 カーネルを変える | -k [kernel]
+ユーザ名を変える | -u [username]
 パスワードを変更する | -p [password]
 日本語にする | -j
 圧縮方式を変更する | -c [comp type]
 圧縮のオプションを設定する | -t [comp option]
+出力先ディレクトリを指定する| -o [dir]
+作業ディレクトリを指定する | -w [dir]
+
+
+#### チャンネルについて
+チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
+この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。
+2020年3月21日現在でサポートされているチャンネルは以下のとおりです。
+名前 | 目的
+--- | ---
+xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネルです。
+core | 最小限のGUIとインストーラーのみを搭載し、インストール後は最小限のArchLinuxになります。つまりこれはArchLinuxのインストーラーです。
+
+
 
 ##### 例
 以下の条件でビルドするにはこのようにします。
@@ -115,7 +166,7 @@ lymouthは無効化されています。
 - パスワードは`ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch'
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
 ```
 
 ##### カーネルについて
@@ -124,18 +175,20 @@ lymouthは無効化されています。
 
 以下はサポートされている値とカーネルです。カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
-- ck    : linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
-- lts   : `core`リポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
-- lqx   : デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
-- rt    : このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
-- zen   : `linux-zen`はカーネルハッカーたちの知恵の結晶です。日常的な利用にうってつけの最高の Linux カーネルになります。
+名前 | 特徴
+--- | ---
+ck | linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
+lts | coreリポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
+lqx | デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
+rt | このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
+zen | linux-zenはカーネルハッカーたちの知恵の結晶です。日常的な利用にうってつけの最高の Linux カーネルになります。
 
 ##### 圧縮方式について
 圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
 2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
 ```
-gzip (default)
+gzip
     -Xcompression-level <compression-level>
     <compression-level> should be 1 .. 9 (default 9)
     -Xwindow-size <window-size>
@@ -183,29 +236,12 @@ zstd
 - [Docker上でビルドする方法](Howtobuild_on_docker.md)
 - [新しいカーネルを追加する方法](Support_a_new_kernel.md)
 
+## 起動できない場合
+ブート時のアニメーションを無効化してブートし、ログを確認することができます。  
+ディスクから起動し、`Boot Alter Linux without boot splash (x86_64)`を選択して下さい。
+
+
 ## SereneTeamと開発者について
 SereneTeamは主に中高生で構成されたLinuxディストリビューションの開発チームです。ほぼ全員が日本人で、メンバーは合計で24人います。  
 Ubuntuをベースとした[SereneLinux](https://serenelinux.com)を開発、公開しています。  
 私達はそのノウハウを活かし、Alter Linuxの開発に取り組んでいます。  
-
-### Twitter アカウント
-主要な開発メンバーのTwitterへのリンクです。  
-このアカウントでの発言はすべてSereneTeam公式のものではなく、あくまでも開発者個人のものとします。  
-
-#### 公式
-以下は公式のアカウントです。
-- [Alter Linux](https://twitter.com/AlterLinux)
-- [SereneLinux Global](https://twitter.com/SereneLinux)
-- [SereneLinux JP](https://twitter.com/SereneDevJP)
-
-#### 開発者
-主な開発メンバーのTwitterへのリンクです。  
-このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
-
-##### 開発担当
-- [Hayao0819](https://twitter.com/Hayao0819)
-- [lap1sid](https://twitter.com/Pixel_3a)
-- [yamad](https://twitter.com/yamad_linuxer)
-
-##### デザイン担当
-- [tukutun](https://twitter.com/tukutuN_27)

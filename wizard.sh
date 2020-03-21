@@ -22,6 +22,17 @@ function enable_plymouth () {
     esac
 }
 
+function enable_japanese () {
+    local yn
+    echo -n "日本語を有効化しますか？ （y/N） : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) japanese=true   ;;
+        n | N | no  | No  | NO  ) japanese=false  ;;
+        *                       ) enable_japanese ;;
+    esac
+}
+
 function select_comp_type () {
     local yn
     echo "圧縮方式を以下の番号から選択してください "
@@ -66,7 +77,7 @@ function set_comp_option () {
             n | N | no  | No  | NO  ) details=false   ;;
             *                       ) set_comp_option ; return 0;;
         esac
-        if ${details}; then
+        if [[ ${details} = true ]]; then
             :
         else
             return 0
@@ -221,9 +232,31 @@ function select_kernel () {
     set -e
 }
 
+# チャンネルの指定
+function select_channel () {
+    local yn
+    echo "チャンネルを以下の番号から選択してください "
+    echo
+    echo "1: stable"
+    echo "2: unstable"
+    echo -n ": "
+
+    read yn
+
+    case ${yn} in
+           1) channel="stable"   ;;
+           2) channel="unstanle" ;;
+    'stable') channel="stable"   ;;
+  'unstable') channel="unstable" ;;
+           *) select_channel     ;;
+    esac
+}
+
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
+    if [[ ${japanese} = true ]]; then
+        argument="${argument} -j"
     if [[ ${plymouth} = true ]]; then
         argument="${argument} -b"
     fi
@@ -236,15 +269,18 @@ function generate_argument () {
     if [[ -n ${password} ]]; then
         argument="${argument} -p ${password}"
     fi
+    argument="${argument} ${channel}"
 }
 
 #　上の質問の関数を実行
 function ask () {
+    enable_japanese
     enable_plymouth
     select_kernel
     select_comp_type
     set_comp_option
     set_password
+    select_channel
     lastcheck
 }
 
@@ -252,11 +288,13 @@ function ask () {
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
+    echo "           Japanese : ${japanese}"
     echo "           Plymouth : ${plymouth}"
     echo "             kernel : ${kernel}"
     echo " Compression method : ${comp_type}"
     echo "Compression options : ${comp_option}"
-    echo "          Password  : ${password}"
+    echo "           Password : ${password}"
+    echo "            Channel : ${channel}"
     echo
     echo -n "この設定で続行します。よろしいですか？ (y/N) : "
     local yn
@@ -279,7 +317,7 @@ function start_build () {
 ask
 generate_argument
 
-if ${nobuild}; then
+if [[ ${nobuild} = true ]]; then
     echo "${argument}"
 else
     start_build

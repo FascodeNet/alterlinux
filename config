@@ -14,10 +14,10 @@
 iso_name=alterlinux
 
 # Image file label
-iso_label="ALTER_$(date +%Y%m)"
+iso_label="ALTER_$(date +%Y%m%d)"
 
 # Image file creator information
-iso_publisher="Alter Linux <http://www.archlinux.org>"
+iso_publisher='Fascode Network <https://fascode.net>'
 
 # Image file name (not file name)
 iso_application="Alter Linux Live/Rescue CD"
@@ -69,3 +69,7 @@ debug=false
 # When this is enabled, the packages in the japanese package list will be installed.
 # A file for Japanese input is added.
 japanese=false
+
+# Enable post-build cleaning.
+# When enabled, airootfs in the working directory is deleted after squashfs is created.
+cleaning=false

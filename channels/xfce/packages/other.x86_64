@@ -1,0 +1,47 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+
+
+#-- boot manager --#
+grub
+grub-customizer
+os-prober
+refind-efi
+
+
+#-- documents --#
+man-db
+man-pages
+
+
+#-- game pad --#
+jstest-gtk-git
+
+
+#-- linux --#
+linux-atm
+linux-firmware
+
+
+#-- system monitor --#
+gnome-system-monitor
+cpu-x
+
+
+#-- text editor --#
+code
+leafpad
+nano
+vim
+
+
+#-- other --#
+etcher-bin
+tlpui

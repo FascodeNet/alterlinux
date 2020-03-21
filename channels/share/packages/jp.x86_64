@@ -1,0 +1,20 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# This package list will only be installed if the Japanese option is enabled.
+#
+# Japanese package
+
+# Fcitx config
+alterlinux-fcitx-conf
+
+# Fcitx
+fcitx-im
+fcitx-configtool
+fcitx-mozc
