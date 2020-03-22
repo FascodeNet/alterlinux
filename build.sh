@@ -85,7 +85,7 @@ _usage () {
     echo " You can switch the packages to be installed on the channel."
     echo " Channel:"
     echo "    xfce               Use Xfce4 for desktop environment."
-    echo "    kde                Uses KDE and Qt software."
+    echo "    plasma                Uses KDE and Qt software."
 
     exit "${1}"
 }
