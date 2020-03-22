@@ -55,3 +55,5 @@ etcher-bin
 lsd
 powerline
 tlpui
+zsh
+zsh-completions
