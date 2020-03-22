@@ -14,7 +14,7 @@
 
 
 # Load alias file.
-[[ -f ~/.bash_aliases ]] && source ~/.bash_aliases
+[[ -f ~/.aliases ]] && source ~/.aliases
 
 # Pass the path to ~ / .bin.
 [[ -d ~/.bin ]] && export PATH=${PATH}:~/.bin
