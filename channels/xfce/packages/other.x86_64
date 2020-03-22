@@ -52,4 +52,6 @@ vim
 
 #-- other --#
 etcher-bin
+lsd
+powerline
 tlpui
