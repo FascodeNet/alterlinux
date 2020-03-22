@@ -9,6 +9,10 @@
 #
 
 
+#-- archiver --#
+xarchiver
+
+
 #-- boot manager --#
 grub
 grub-customizer
@@ -35,6 +39,10 @@ gnome-system-monitor
 cpu-x
 
 
+#-- pacman --#
+pamac-gtk
+
+
 #-- text editor --#
 code
 leafpad
@@ -44,4 +52,8 @@ vim
 
 #-- other --#
 etcher-bin
+lsd
+powerline
 tlpui
+zsh
+zsh-completions

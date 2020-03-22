@@ -13,12 +13,15 @@
 [[ $- != *i* ]] && return
 
 
-# Load alias file.
-[[ -f ~/.bash_aliases ]] && source ~/.bash_aliases
+#-- Load scripts --#
+[[ -f ~/.aliases ]] && source ~/.aliases
 
-# Pass the path to ~ / .bin.
+
+#-- Pass to the path --#
 [[ -d ~/.bin ]] && export PATH=${PATH}:~/.bin
 
+
+#-- Set prompt --#
 # ArchLinux default
 # PS1='[\u@\h \W]\$ '
 
@@ -27,3 +30,7 @@
 
 # Colored
 PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
+# PowerLine
+powerline-daemon -q
+source /usr/share/powerline/bindings/bash/powerline.sh

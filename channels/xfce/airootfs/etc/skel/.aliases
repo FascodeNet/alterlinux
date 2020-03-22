@@ -8,4 +8,4 @@
 # Write the alias here.
 #
 
-alias ls='ls --color=auto'
+alias ls='lsd'
