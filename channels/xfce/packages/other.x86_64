@@ -9,6 +9,10 @@
 #
 
 
+#-- archiver --#
+xarchiver
+
+
 #-- boot manager --#
 grub
 grub-customizer
@@ -33,6 +37,10 @@ linux-firmware
 #-- system monitor --#
 gnome-system-monitor
 cpu-x
+
+
+#-- pacman --#
+pamac-gtk
 
 
 #-- text editor --#

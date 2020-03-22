@@ -17,7 +17,6 @@ yay-bin
 
 #-- gui frontend--#
 eg-installer
-pamac-gtk
 
 
 #-- keyring --#
@@ -27,4 +26,3 @@ archlinux-keyring
 
 #-- mirrorlist --#
 alterlinux-mirrorlist
-
