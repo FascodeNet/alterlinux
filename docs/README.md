@@ -15,8 +15,8 @@
 
 ## Overview
 
-Alter Linux is a new OS developed based on Arch Linux.  
-Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
+Alter Linux is a new OS developed based on Arch Linux.
+Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.
 Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
 
 ## Branch
@@ -28,10 +28,10 @@ The previously used Japanese branch has been removed.
 | Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
 ## If you want to give an opinion or impression
-If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).  
+If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).
 We are soliciting opinions from various users to make AlterLinux better.
 
-##  Twitter account
+##Twitter account
 The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
 
 ### Official
@@ -41,8 +41,8 @@ The following accounts are official.
 - [SereneLinux JP](https://twitter.com/SereneDevJP)
 
 ### Developer
-Link to Twitter of main development members.  
-All comments made on this account are not official SereneTeam statements and are solely for the developer.  
+Link to Twitter of main development members.
+All comments made on this account are not official SereneTeam statements and are solely for the developer.
 
 <h5 align="center">Development</h5>
 <p align="center">
@@ -72,7 +72,7 @@ GitHub repositories that were used before are no longer used. Currently [this se
 
 
 ### Software
-Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.  
+Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.
 If you need a binary file, access [the AlterLinux repository](https://xn--d-8o2b.com/repo/alter-stable/x86_64/).
 
 Source code | PKGBUILD
@@ -94,8 +94,8 @@ There are two ways to build, using Arch Linux on the actual machine and building
 The options of `build.sh` are common.
 
 #### Build on real machine
-When building with an actual machine, it is necessary to build in an ArchLinux environment.  
-You need to add a key to use AlterLinux repository. How to add a key is described above.  
+When building with an actual machine, it is necessary to build in an ArchLinux environment.
+You need to add a key to use AlterLinux repository. How to add a key is described above.
 
 Install the necessary packages for the build.
 
@@ -112,15 +112,15 @@ cd alterlinux
 
 
 #### Build on container
-If you build on Docker, please refer to [this procedure](Howtobuild_on_docker.md).  
+If you build on Docker, please refer to [this procedure](Howtobuild_on_docker.md).
 
 ### build.sh options
 
 #### Basic
-Please execute as it is.   
-The default password is `alter`.   
-Plymouth has been disabled.  
-Default compression type is `zstd`.  
+Please execute as it is.
+The default password is `alter`.
+Plymouth has been disabled.
+Default compression type is `zstd`.
 
 
 #### Options
@@ -170,7 +170,7 @@ Below are the supported values and kernels.The description of the kernel is from
 Name | Feature
 --- | ---
 ck | linux-ck contains patches to improve system response.
-lts |  Long term support (LTS) Linux kernel and modules from the core repository.
+lts |Long term support (LTS) Linux kernel and modules from the core repository.
 lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
 rt | With this patch, almost all of the kernel can be run in real time.
 zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
@@ -235,6 +235,6 @@ Boot from the disk and select `Boot Alter Linux without boot splash (x86_64)`.
 
 
 ## About SereneTeam and developers
-SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
-[SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  
-Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
+SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.
+[SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.
+Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.

@@ -15,6 +15,7 @@ plasma-meta
 dolphin
 konsole
 kde-gtk-config
+ark
 
 #-- KDE Plasma 5 config --#
 #alterlinux-plasmalnf
@@ -22,6 +23,7 @@ kde-gtk-config
 
 #-- KDE Plasma 5 Extensions --#
 kdeplasma-addons
+
 
 #-- xorg --#
 gpm
