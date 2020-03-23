@@ -13,6 +13,11 @@
 xarchiver
 
 
+#-- GVFS --#
+gvfs
+gvfs-smb
+
+
 #-- boot manager --#
 grub
 grub-customizer

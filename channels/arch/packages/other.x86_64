@@ -25,6 +25,12 @@ linux-atm
 linux-firmware
 
 
+#-- GVFS --#
+#gvfs
+#gvfs-smb
+# Need this?
+
+
 #-- text editor --#
 nano
 vim
