@@ -217,15 +217,6 @@ gtk-update-icon-cache -f /usr/share/icons/hicolor
 systemctl set-default graphical.target
 
 
-# Disable services.
-# To disable start up of lightdm.
-# If it is enable, Users have to enter password.
-systemctl disable lightdm
-if [[ ${boot_splash} = true ]]; then
-    systemctl disable lightdm-plymouth.service
-fi
-
-
 # Enable services.
 systemctl enable pacman-init.service
 systemctl enable choose-mirror.service

@@ -302,24 +302,24 @@ make_customize_airootfs() {
 
 
     # Generate options of customize_airootfs.sh.
-    local options
+    local addition_options
     local share_options
-    options=
+    addition_options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
-            options="${options} -b"
+            addition_options="${addition_options} -b"
         else
-            options="${options} -b -t ${theme_name}"
+            addition_options="${addition_options} -b -t ${theme_name}"
         fi
     fi
     if [[ ${debug} = true ]]; then
-        options="${options} -x"
+        addition_options="${addition_options} -x"
     fi
     if [[ ${japanese} = true ]]; then
-        options="${options} -j"
+        addition_options="${addition_options} -j"
     fi
     if [[ ${rebuild} = true ]]; then
-        options="${options} -r"
+        addition_options="${addition_options} -r"
     fi
 
     share_options="-p ${password} -k ${kernel} -u ${username}"
@@ -333,13 +333,38 @@ make_customize_airootfs() {
 
 
     # Execute customize_airootfs.sh.
-    if [[ -z ${options} ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options}" run
+    if [[ -z ${addition_options} ]]; then
+        ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs.sh ${share_options}" \
+            run
+
+        if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+            ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs_${channel_name}.sh ${share_options}" \
+            run
+        fi
     else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options} ${options}" run
-    fi
-    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs_${channel_name}.sh" run
+        ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs.sh ${share_options} ${addition_options}" \
+            run
+
+        if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+            ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs_${channel_name}.sh ${share_options} ${addition_options}" \
+            run
+        fi
     fi
 
 
