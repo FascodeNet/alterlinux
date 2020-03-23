@@ -6,19 +6,6 @@ wheel:Vertical;NoModifier=org.kde.switchdesktop
 [ActionPlugins][1]
 RightButton;NoModifier=org.kde.contextmenu
 
-[Containments][1]
-ItemGeometriesHorizontal=
-activityId=7ad8a2d1-e26c-4986-949b-f43316b936ce
-formfactor=0
-immutability=1
-lastScreen=0
-location=0
-plugin=org.kde.plasma.folder
-wallpaperplugin=org.kde.image
-
-[Containments][1][Wallpaper][org.kde.image][General]
-Image=file:///usr/share/wallpapers/Next/contents/images/1366x768.jpg
-
 [Containments][2]
 activityId=
 formfactor=2
@@ -32,8 +19,11 @@ wallpaperplugin=org.kde.image
 immutability=1
 plugin=org.kde.plasma.icontasks
 
+[Containments][2][Applets][19][Configuration]
+PreloadWeight=42
+
 [Containments][2][Applets][19][Configuration][General]
-launchers=applications:chromium.desktop,applications:org.kde.dolphin.desktop
+launchers=applications:chromium.desktop,applications:org.kde.dolphin.desktop,applications:org.kde.konsole.desktop
 
 [Containments][2][Applets][3]
 immutability=1
@@ -60,12 +50,15 @@ global=Alt+F1
 immutability=1
 plugin=org.kde.plasma.pager
 
+[Containments][2][Applets][4][Configuration]
+PreloadWeight=42
+
 [Containments][2][Applets][6]
 immutability=1
 plugin=org.kde.plasma.systemtray
 
 [Containments][2][Applets][6][Configuration]
-PreloadWeight=65
+PreloadWeight=57
 SystrayContainmentId=7
 
 [Containments][2][Applets][8]
@@ -73,18 +66,48 @@ immutability=1
 plugin=org.kde.plasma.digitalclock
 
 [Containments][2][Applets][8][Configuration]
-PreloadWeight=55
+PreloadWeight=47
 
 [Containments][2][Applets][9]
 immutability=1
 plugin=org.kde.plasma.showdesktop
 
+[Containments][2][Applets][9][Configuration]
+PreloadWeight=42
+
 [Containments][2][ConfigDialog]
 DialogHeight=72
-DialogWidth=1366
+DialogWidth=1360
+
+[Containments][2][Configuration]
+PreloadWeight=42
 
 [Containments][2][General]
 AppletOrder=3;4;19;6;8;9
+
+[Containments][20]
+ItemGeometriesHorizontal=
+activityId=99287b9a-aa87-4533-ab32-248b668e7357
+formfactor=0
+immutability=1
+lastScreen=0
+location=0
+plugin=org.kde.plasma.folder
+wallpaperplugin=org.kde.image
+
+[Containments][20][ConfigDialog]
+DialogHeight=697
+DialogWidth=720
+
+[Containments][20][Configuration]
+PreloadWeight=42
+
+[Containments][20][General]
+ToolBoxButtonState=topcenter
+ToolBoxButtonX=464
+
+[Containments][20][Wallpaper][org.kde.image][General]
+Image=file:///usr/share/backgrounds/alter-jiju.png
 
 [Containments][7]
 activityId=
@@ -100,42 +123,66 @@ immutability=1
 plugin=org.kde.plasma.volume
 
 [Containments][7][Applets][10][Configuration]
-PreloadWeight=55
+PreloadWeight=47
 
 [Containments][7][Applets][11]
 immutability=1
 plugin=org.kde.plasma.clipboard
 
 [Containments][7][Applets][11][Configuration]
-PreloadWeight=55
+PreloadWeight=47
 
 [Containments][7][Applets][12]
 immutability=1
 plugin=org.kde.plasma.devicenotifier
 
+[Containments][7][Applets][12][Configuration]
+PreloadWeight=42
+
 [Containments][7][Applets][13]
 immutability=1
 plugin=org.kde.plasma.keyboardindicator
+
+[Containments][7][Applets][13][Configuration]
+PreloadWeight=42
 
 [Containments][7][Applets][14]
 immutability=1
 plugin=org.kde.plasma.nightcolorcontrol
 
+[Containments][7][Applets][14][Configuration]
+PreloadWeight=42
+
 [Containments][7][Applets][15]
 immutability=1
 plugin=org.kde.plasma.notifications
+
+[Containments][7][Applets][15][Configuration]
+PreloadWeight=42
 
 [Containments][7][Applets][16]
 immutability=1
 plugin=org.kde.plasma.vault
 
+[Containments][7][Applets][16][Configuration]
+PreloadWeight=42
+
 [Containments][7][Applets][17]
 immutability=1
 plugin=org.kde.plasma.battery
 
+[Containments][7][Applets][17][Configuration]
+PreloadWeight=42
+
 [Containments][7][Applets][18]
 immutability=1
 plugin=org.kde.plasma.networkmanagement
+
+[Containments][7][Applets][18][Configuration]
+PreloadWeight=42
+
+[Containments][7][Configuration]
+PreloadWeight=42
 
 [Containments][7][General]
 extraItems=org.kde.plasma.battery,org.kde.plasma.bluetooth,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.keyboardindicator,org.kde.plasma.mediacontroller,org.kde.plasma.networkmanagement,org.kde.plasma.nightcolorcontrol,org.kde.plasma.notifications,org.kde.plasma.vault,org.kde.plasma.volume

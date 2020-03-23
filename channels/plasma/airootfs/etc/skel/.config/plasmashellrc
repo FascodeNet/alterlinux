@@ -1,13 +1,14 @@
 [KFileDialog Settings]
-Recent Files[$e]=alter.svg,file:///usr/share/icons/hicolor/scalable/alter.svg
-Recent URLs[$e]=file:///usr/share/icons/hicolor/scalable/
+Recent Files[$e]=alter.svg,file:///usr/share/backgrounds/alter-jiju.png,file:///usr/share/icons/hicolor/scalable/alter.svg
+Recent URLs[$e]=file:///usr/share/backgrounds/
 detailViewIconSize=0
 
 [PlasmaRunnerManager]
+LaunchCounts=3 services_org.kde.ksysguard.desktop
 pluginWhiteList=desktopsessions,services,places,PowerDevil,calculator,unitconverter,shell,bookmarks,recentdocuments,locations,baloosearch
 
 [PlasmaTransientsConfig]
-PreloadWeight=42
+PreloadWeight=34
 
 [PlasmaViews][Panel 2][Defaults]
 thickness=36
