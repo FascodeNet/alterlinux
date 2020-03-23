@@ -46,6 +46,12 @@ function remove () {
 }
 
 
+# Delete icon cache
+if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
+    rm /home/${username}/.cache/icon-cache.kcache
+fi
+
+
 # Disable services.
 # To disable start up of sddm.
 # If it is enable, Users have to enter password.
