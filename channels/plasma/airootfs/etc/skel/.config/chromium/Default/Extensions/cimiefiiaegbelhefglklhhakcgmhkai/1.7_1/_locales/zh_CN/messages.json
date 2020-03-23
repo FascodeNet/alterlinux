@@ -1,0 +1,149 @@
+{
+   "browseraction_mpris_enable_on": {
+      "message": "启用媒体控制的域名："
+   },
+   "browseraction_mpris_title": {
+      "message": "媒体控制"
+   },
+   "browseraction_title": {
+      "message": "Plasma 浏览器集成"
+   },
+   "general_error_host_disconnected_title": {
+      "message": "本地主机意外断开连接。"
+   },
+   "general_error_not_supported_os": {
+      "message": "此扩展仅在 Linux 和 FreeBSD 上支持。"
+   },
+   "general_error_not_supported_os_title": {
+      "message": "不支持的操作系统"
+   },
+   "general_error_startup_failed": {
+      "message": "请确保软件包 plasma-browser-integration 已正确安装，且您运行 Plasma 5.13 以上版本。"
+   },
+   "general_error_startup_failed_title": {
+      "message": "连接到本地主机失败。"
+   },
+   "general_error_startup_failed_wiki_link": {
+      "message": "访问项目维基页面以获取更多信息"
+   },
+   "general_error_unknown": {
+      "message": "未知错误"
+   },
+   "kdeconnect_open_device": {
+      "message": "在“$1”上打开"
+   },
+   "kdeconnect_open_via": {
+      "message": "通过 KDE Connect 打开"
+   },
+   "options_about_bugs": {
+      "message": "如果发现问题，请检查 \u003Ca href=\"$1\">打开状态的错误\u003C/a>，然后\u003Ca href=\"$2\">提交一个错误报告\u003C/a>。"
+   },
+   "options_about_copyright": {
+      "message": "© 2017-2019 Kai Uwe Broulik 和 David Edmundson"
+   },
+   "options_about_created_by_kde": {
+      "message": "此浏览器扩展是由 \u003Ca href=\"$1\">KDE 社区\u003C/a>创建的。您可以在 \u003Ca href=\"$2\">KDE 社区 Wiki\u003C/a> 中找到有关此项目的详细信息。"
+   },
+   "options_about_donate": {
+      "message": "如果您喜欢这个插件，请考虑\u003Ca href=\"$1\">捐赠给 KDE\u003C/a>，让我们可以让最好的免费软件成为可能。"
+   },
+   "options_about_extension_version": {
+      "message": "扩展版本：$1"
+   },
+   "options_about_host_version": {
+      "message": "主机版本：$1"
+   },
+   "options_about_kde": {
+      "message": "KDE 是一个由众多软件工程师、艺术家、作家、翻译家和其他有志于\u003Ca href=\"$1\">自由软件\u003C/a>事业的人们组成的世界性社区。KDE 推出了 Plasma 桌面环境，数以百计的自由软件应用，以及许多支持它们的程序库。KDE 是一个合作事业：它的方向或产品不受任何单独的团体、公司或机构控制。欢迎每个人\u003Ca href=\"$2\">参与和贡献\u003C/a>，包括您。您可以访问 \u003Ca href=\"$3\">$3\u003C/a> 来了解有关 KDE 社区和我们开发的软件的更多信息。"
+   },
+   "options_about_license": {
+      "message": "许可证：\u003Ca href=\"$1\">GNU 通用公共许可证版本 3\u003C/a>"
+   },
+   "options_about_translated_by": {
+      "message": "翻译者：$1"
+   },
+   "options_about_translators": {
+      "message": "KDE 中国"
+   },
+   "options_not_supported_os": {
+      "message": "此操作系统不支持此扩展。"
+   },
+   "options_plugin_breezeScrollBars_description": {
+      "message": "这可能会影响已经对其滚动条应用自定义样式的网站的外观。"
+   },
+   "options_plugin_breezeScrollBars_title": {
+      "message": "使用微风样式的滚动条"
+   },
+   "options_plugin_downloads_saveOriginUrl": {
+      "message": "将下载文件的来源 URL 作为文件属性保存在文件中"
+   },
+   "options_plugin_downloads_saveOriginUrl_description": {
+      "message": "注意：URL 可能包含敏感信息，在被他人访问或共享时可能会泄露。"
+   },
+   "options_plugin_downloads_title": {
+      "message": "在通知区域显示下载"
+   },
+   "options_plugin_kdeconnect_description": {
+      "message": "添加右键菜单项目来让您可以将它们通过\u003Ca href=\"$1\">KDE Connect\u003C/a>发送到您的手机和其他配对的设备上。"
+   },
+   "options_plugin_kdeconnect_title": {
+      "message": "通过 KDE Connect 发送"
+   },
+   "options_plugin_mpris_description": {
+      "message": "允许您使用媒体控制器小部件控制网站中的视频和音频播放器。"
+   },
+   "options_plugin_mpris_media_sessions_description": {
+      "message": "提取当前播放内容的元数据和缩略图。"
+   },
+   "options_plugin_mpris_media_sessions_title": {
+      "message": "增强的媒体控件"
+   },
+   "options_plugin_mpris_title": {
+      "message": "媒体控制"
+   },
+   "options_plugin_purpose_description": {
+      "message": "添加“分享...”上下文菜单项，允许网站使用网络分享 API 来打开对话框以共享内容。"
+   },
+   "options_plugin_purpose_title": {
+      "message": "内容分享"
+   },
+   "options_plugin_tabsrunner_description": {
+      "message": "请确保在\u003Ca id=\"$1\" href=\"$2\">Plasma 搜索设置\u003C/a>中启用了“浏览器标签”模块。"
+   },
+   "options_plugin_tabsrunner_title": {
+      "message": "在“运行命令”窗口中查找浏览器标签"
+   },
+   "options_save_failed": {
+      "message": "保存设置失败"
+   },
+   "options_save_success": {
+      "message": "成功保存设置"
+   },
+   "options_tab_about": {
+      "message": "关于"
+   },
+   "options_tab_general": {
+      "message": "常规"
+   },
+   "options_title": {
+      "message": "Plasma 集成设置"
+   },
+   "purpose_share": {
+      "message": "分享..."
+   },
+   "purpose_share_failed_text": {
+      "message": "无法分享此内容：$1"
+   },
+   "purpose_share_failed_title": {
+      "message": "分享失败"
+   },
+   "purpose_share_finished_text": {
+      "message": "已复制分享内容链接($1) 到剪贴板。"
+   },
+   "purpose_share_finished_title": {
+      "message": "内容已分享"
+   },
+   "store_description": {
+      "message": "Multitask efficiently by controlling browser functions from the desktop, even while Chrome is in the background. Manage audio and video playback, check downloads in the notification area, send files to your phone using KDE Connect and more inside the KDE Plasma Desktop!\\n\\nThe plasma-browser-integration package must be installed for this extension to work. It should be available from your distribution's package manager when running Plasma 5.13 or later.\\n\\nNOTE: This extension is not supported on Debian."
+   }
+}

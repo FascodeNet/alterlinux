@@ -1,7 +1,15 @@
+[FileDialogSize]
+Height 768=697
+Width 1360=738
+
 [KFileDialog Settings]
 Recent Files[$e]=alter.svg,file:///usr/share/backgrounds/alter-jiju.png,file:///usr/share/icons/hicolor/scalable/alter.svg
 Recent URLs[$e]=file:///usr/share/backgrounds/
 detailViewIconSize=0
+
+[KPropertiesDialog]
+Height 768=464
+Width 1360=450
 
 [PlasmaRunnerManager]
 LaunchCounts=3 services_org.kde.ksysguard.desktop
