@@ -661,7 +661,7 @@ if [[ -n "${1}" ]]; then
 
     if [[ $(check_channel ${channel_name}) = false ]]; then
         echo "Invalid channel ${channel_name}" >&2
-        exit 1
+        _usage 1
     fi
 fi
 
