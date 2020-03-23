@@ -18,7 +18,6 @@ noto-fonts-emoji
 
 # icon
 #paper-icon-theme
-#inverse-icon-theme-blue-git
 papirus-icon-theme
 
 # Advanced Theme Manager
@@ -27,4 +26,5 @@ kvantum-qt5
 # theme
 materia-gtk-theme
 materia-kde
+kvantum-theme-materia
 #arc-gtk-theme
