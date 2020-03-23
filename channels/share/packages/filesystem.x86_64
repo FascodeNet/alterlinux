@@ -14,8 +14,6 @@ btrfs-progs
 dosfstools
 exfat-utils
 f2fs-tools
-gvfs
-gvfs-smb
 jfsutils
 mtools
 nfs-utils
