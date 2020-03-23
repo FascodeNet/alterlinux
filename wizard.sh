@@ -237,18 +237,21 @@ function select_channel () {
     local yn
     echo "チャンネルを以下の番号から選択してください "
     echo
-    echo "1: stable"
-    echo "2: unstable"
+    echo "1: arch"
+    echo "2: xfce"
+    echo "3: plasma"
     echo -n ": "
 
     read yn
 
     case ${yn} in
-           1) channel="stable"   ;;
-           2) channel="unstanle" ;;
-    'stable') channel="stable"   ;;
-  'unstable') channel="unstable" ;;
-           *) select_channel     ;;
+           1) channel="arch"   ;;
+           2) channel="xfce"   ;;
+           3) channel="plasma" ;;
+      'arch') channel="arch"   ;;
+      'xfce') channel="xfce"   ;;
+    'plasma') channel="plasma" ;;
+           *) select_channel   ;;
     esac
 }
 
