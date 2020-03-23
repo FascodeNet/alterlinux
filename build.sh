@@ -84,8 +84,10 @@ _usage () {
     echo
     echo " You can switch the packages to be installed on the channel."
     echo " Channel:"
+    echo "    arch               AlterLinux with a minimal GUI. "
+    echo "                       You can install a minimal CLI ArchLinux with Calamares."
     echo "    xfce               Use Xfce4 for desktop environment."
-    echo "    plasma                Uses KDE and Qt software."
+    echo "    plasma             Uses KDE and Qt software."
 
     exit "${1}"
 }
