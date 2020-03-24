@@ -76,6 +76,10 @@ colors
 [[ -d ~/.bin ]] && export PATH="~/.bin:${PATH}"
 
 
-#-- PowerLine --#
-powerline-daemon -q
-source /usr/share/powerline/bindings/zsh/powerline.zsh
+#-- PROMPT --#
+if [[ ${TERM} = linux ]]; then
+    PROMPT='%B%F{red}%(?..%? )%f%b%B%F{red}%n%f%b@%m %B%40<..<%~%<< %b%# '
+else
+    powerline-daemon -q
+    source /usr/share/powerline/bindings/zsh/powerline.zsh
+fi
