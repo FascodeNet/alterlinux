@@ -22,15 +22,20 @@
 
 
 #-- Set prompt --#
-# ArchLinux default
-# PS1='[\u@\h \W]\$ '
+if [[ ${TERM} = "linux" ]]; then
+    # No color
+    PS1='\u@\h:\w\$ '
+else
+    # ArchLinux default
+    # PS1='[\u@\h \W]\$ '
 
-# No color
-# PS1='\u@\h:\w\$ '
+    # No color
+    # PS1='\u@\h:\w\$ '
 
-# Colored
-PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    # Colored
+    # PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ ']
 
-# PowerLine
-powerline-daemon -q
-source /usr/share/powerline/bindings/bash/powerline.sh
+    # PowerLine
+    powerline-daemon -q
+    source /usr/share/powerline/bindings/bash/powerline.sh
+fi
