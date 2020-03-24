@@ -49,8 +49,7 @@ pamac-gtk
 
 
 #-- text editor --#
-code
-leafpad
+medit
 nano
 vim
 
