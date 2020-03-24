@@ -16,12 +16,18 @@ noto-fonts-cjk
 noto-fonts-emoji
 
 
+# Wallpaper
+alterlinux-wallpapers
+
+
 # icon
 #paper-icon-theme
 papirus-icon-theme
 
+
 # Advanced Theme Manager
 kvantum-qt5
+
 
 # theme
 materia-gtk-theme
