@@ -8,11 +8,11 @@ alter_pacman_conf="${script_path}/system/pacman.conf"
 
 
 msg_error() {
-    echo -e "[add-key.sh E] : ${@}" >&2
+    echo -e "[add-key.sh] ERROR : ${@}" >&2
 }
 
 msg_info() {
-    echo -e "[add-key.sh I] : ${@}" >&1
+    echo -e "[add-key.sh] INFO: ${@}" >&1
 }
 
 
