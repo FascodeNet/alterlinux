@@ -114,7 +114,7 @@ cd alterlinux
 
 
 #### Build on container
-If you build on Docker, please refer to [this procedure](build_on_docker.md).
+If you build on Docker, please refer to [this procedure](en/DOCKER.md).
 
 ### build.sh options
 
@@ -228,9 +228,9 @@ zstd
 ```
 
 ## Documents
-- [About packages](packages.md)
-- [How to build on docker](build_on_docker.md)
-- [How to add supporting a new kernel.](add_new_kernel.md)
+- [About packages](jp/PACKAGE.md)
+- [How to build on docker](en/DOCKER.md)
+- [How to add supporting a new kernel.](jp/KERNEL.md)
 
 ## If you cannot start
 You can disable the boot animation and boot to see the logs.

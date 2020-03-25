@@ -122,7 +122,7 @@ cd alterlinux
 ```
 
 ### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](build_on_docker.md)を参照してください。
+Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照してください。
 
 ### build.shのオプション
 
@@ -237,9 +237,9 @@ zstd
 ```
 
 ## ドキュメント
-- [パッケージリストについての注意](packages.md)
-- [Docker上でビルドする方法](build_on_docker.md)
-- [新しいカーネルを追加する方法](add_a_new_kernel.md)
+- [パッケージリストについての注意](jp/PACKAGE.md)
+- [Docker上でビルドする方法](jp/DOCKER.md)
+- [新しいカーネルを追加する方法](jp/KERNEL.md)
 
 ## 起動できない場合
 ブート時のアニメーションを無効化してブートし、ログを確認することができます。  
