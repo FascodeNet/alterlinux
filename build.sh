@@ -139,7 +139,10 @@ remove() {
 # Show settings.
 # $1 = Time to show
 show_settings() {
-    [[ "${boot_splash}" = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
+    if [[ "${boot_splash}" = true ]]; then
+        echo "Boot splash is enabled."
+        echo "Theme is used ${theme_name}."
+    fi
     echo "Use the ${kernel} kernel."
     echo "Live username is ${username}."
     echo "Live user password is ${password}."
