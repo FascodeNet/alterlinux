@@ -57,13 +57,9 @@ Alter Linuxの最新の状況は随時Twitterで発信しています。時々�
 </p>
 
 ## リポジトリとソフトウェア
-リポジトリのパッケージを使用するには鍵を追加する必要があります。
-以下のコマンドを実行して鍵を追加して下さい。
 
-```bash
-curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
+### 鍵の追加
+AlterLinuxのリポジトリを使用する場合は鍵を追加する必要が有ります。ビルドの準備を参照して下さい。
 
 ### リポジトリ
 以前まで使用されていたGitHubのリポジトリは現在は使用されていません。現在は[こちらのサーバ](https://xn--d-8o2b.com/repo/)が最新のリポジトリです。
@@ -93,14 +89,22 @@ sudo pacman-key --lsign-key development@fascode.net
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。
 `build.sh`のオプションは共通です。
 
-### 実機でビルドする
-実機でビルドする場合はArchLinux環境でビルドする必要があります。
-AlterLinuxのリポジトリを使用するために鍵を追加する必要があります。鍵を追加する方法は上記記載されています。
+```bash
+git clone https://github.com/SereneTeam/alterlinux.git alterlinux
+cd ./alterlinux/
+```
+AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
 
+```bash
+sudo ./add-key.sh --alter
+```
+
+### 実機でビルドする
+実機でビルドする場合はArchLinux環境でビルドする必要があります。　　
 ビルドに必要なパッケージをインストールして下さい。
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 そしてソースコードをダウンロードしてください。
 

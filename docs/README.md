@@ -59,13 +59,7 @@ All comments made on this account are not official SereneTeam statements and are
 </p>
 
 ## Repositories and software
-To use packages from the repository, you need to add a key.
-Execute the following command to add the key.
-
-```bash
-curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
+If you use the AlterLinux repository, you need to add a key. See Preparing for a build.
 
 ### Repositories
 GitHub repositories that were used before are no longer used. Currently [this server](https://xn--d-8o2b.com/repo/) is the latest repository.
@@ -93,14 +87,22 @@ The following procedure is for building with the actual machine ArchLinux.
 There are two ways to build, using Arch Linux on the actual machine and building on Docker.
 The options of `build.sh` are common.
 
-#### Build on real machine
-When building with an actual machine, it is necessary to build in an ArchLinux environment.
-You need to add a key to use AlterLinux repository. How to add a key is described above.
+```bash
+git clone https://github.com/SereneTeam/alterlinux.git alterlinux
+cd ./alterlinux/
+```
+AlterLinux includes a script to easily add keys.
 
+```bash
+sudo ./add-key.sh --alter
+```
+
+#### Build on real machine
+When building with an actual machine, it is necessary to build in an ArchLinux environment.  
 Install the necessary packages for the build.
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 Then download the source code.
 
