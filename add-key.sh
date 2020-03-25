@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# add-key.sh
+#
+# Script to import AlterLinux and ArchLinux keys.
+#
 
 set -eu
 
