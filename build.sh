@@ -649,10 +649,11 @@ fi
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     echo "This script must be run as root." >&2
-    echo "Use -h to display script details." >&2
+    # echo "Use -h to display script details." >&2
     # _usage 1
-    # exit 1
-    sudo ${0}
+    set +u
+    sudo ${0} ${@}
+    set -u
     exit 1
 fi
 
