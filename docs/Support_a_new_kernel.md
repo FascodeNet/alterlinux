@@ -24,33 +24,32 @@ echo "fooo" >> ./system/kernel_list
 そのカーネル用のファイルを6つ作成する必要があります。以下はカーネルの一覧です。  
 「既存のファイルを名前を変えてコピーし、カーネルへのパスを修正する」という方法が最も簡単です。  
 ファイル名は`fooo`に置き換えてあります。  
-- syslinux/archiso_sys/archiso_sys-fooo.cfg
-- syslinux/archiso_pxe/archiso_pxe-fooo.cfg
-- efiboot/loader/entries/cd/archiso-x86_64-cd-fooo.conf
-- efiboot/loader/entries/usb/archiso-x86_64-usb-fooo.conf
-- airootfs/usr/share/calamares/modules/unpackfs/unpackfs-fooo.conf
-- airootfs/usr/share/calamares/modules/initcpio/initcpio-fooo.conf
 
-##### archiso_sys-fooo.cfg
+1. syslinux/pxe/archiso_pxe-fooo.cfg
+2. syslinux/pxe-plymouth/archiso-fooo.cfg
+3. syslinux/sys/archiso_sys-fooo.cfg
+4. syslinux/sys-plymouth/archiso_sys-fooo.cfg
+5. efiboot/loader/entries/cd/archiso-x86_64-cd-fooo.conf
+6. efiboot/loader/entries/usb/archiso-x86_64-usb-fooo.conf
+7. airootfs/usr/share/calamares/modules/unpackfs/unpackfs-fooo.conf
+8. airootfs/usr/share/calamares/modules/initcpio/initcpio-fooo.conf
 
-9行目のパスを変更してください。
+##### 1 2
 
-##### archiso_pxe-fooo.cfg
+7行目、18行目、29行目のパスを変更してください。
 
-9行目、20行目、31行目のパスを変更してください。
+##### 3 4
 
-##### archiso-x86_64-cd-fooo.conf
+7行目のパスを変更してください。
+
+##### 5 6
 
 2行目のパスを変更してください。
 
-##### archiso-x86_64-usb-fooo.conf
-
-2行目のパスを変更してください。
-
-##### unpackfs-fooo.conf
+##### 7
 95行目、97行目のパスを変更してください。
 
-##### initcpio-fooo.conf
+##### 8
 18行目のパスを変更してください。
 
 #### 4.プルリクエストを送る
