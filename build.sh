@@ -302,6 +302,7 @@ make_customize_airootfs() {
     # -k <kernel>   : Set kernel name.
     # -u <username> : Set live user name.
     # -x            : Enable debug mode.
+    # -r            : Enable rebuild.
 
 
     # Generate options of customize_airootfs.sh.
