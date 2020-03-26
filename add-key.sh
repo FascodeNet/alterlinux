@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
 
 set -eu
 
 script_path="$(readlink -f ${0%/*})"
 
+# Set pacman.conf when build alterlinux
 alter_pacman_conf="${script_path}/system/pacman.conf"
 
 
@@ -22,6 +30,7 @@ _usage () {
     echo " General options:"
     echo "    --alter            Add alterlinux-keyring."
     echo "    --arch             Add archlinux-keyring"
+    echo "    -h                 Show this help and exit."  
 }
 
 
@@ -98,9 +107,10 @@ updae_alter_key() {
 }
 
 
+# 引数解析
 while getopts 'h-:' arg; do
     case "${arg}" in
-        h) _usage ;;
+        h) _usage ; exit 0;;
         -)
             case "${OPTARG}" in
                 alter)
@@ -119,10 +129,12 @@ while getopts 'h-:' arg; do
                 help) _usage ;;
             esac
             ;;
+	*) _usage; exit 1;;
     esac
 done
 
 
+# 引数が何もなければ全てを実行する
 if [[ ${#} = 0 ]]; then
     run prepare
     run update_arch_key
