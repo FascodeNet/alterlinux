@@ -297,17 +297,18 @@ function select_channel () {
 function generate_argument () {
     if [[ ${japanese} = true ]]; then
         argument="${argument} -j"
+    fi
     if [[ ${plymouth} = true ]]; then
         argument="${argument} -b"
     fi
     if [[ -n ${comp_type} ]]; then
-        argument="${argument} -c ${comp_type}"
+        argument="${argument} -c '${comp_type}'"
     fi
     if [[ -n ${kernel} ]]; then
-        argument="${argument} -k ${kernel}"
+        argument="${argument} -k '${kernel}'"
     fi
     if [[ -n ${password} ]]; then
-        argument="${argument} -p ${password}"
+        argument="${argument} -p '${password}'"
     fi
     argument="${argument} ${channel}"
 }
