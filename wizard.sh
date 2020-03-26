@@ -219,7 +219,7 @@ function select_kernel () {
     function do_you_want_to_select_kernel () {
         set +e
         local yn
-        echo -n "通常以外のLinuxカーネルを使用しますか？ （y/N） : "
+        echo -n "linux-zen以外のカーネルを使用しますか？ （y/N） : "
         read yn
         case ${yn} in
             y | Y | yes | Yes | YES ) return 0    ;;
@@ -234,29 +234,39 @@ function select_kernel () {
     function what_kernel () {
         echo "使用するカーネルを以下の番号から選択してください "
         echo
-        echo "1: linux-lts"
-        echo "2: linux-zen"
-        echo "3: linux-ck"
-        echo "4: linux-rt"
-        echo "5: linux-lqx"
+        echo "1: linux"
+        echo "2: linux-lts"
+        echo "3: linux-zen"
+        echo "4: linux-ck"
+        echo "5: linux-rt"
         echo "6: linux-rt-lts"
+        echo "7: linux-lqx"
+        echo "8: linux-xanmod"
+        echo "9: linux-xanmod-lts"
         echo -n ": "
 
         read yn
 
         case ${yn} in
-            1) kernel="lts" ;;
-            2) kernel="zen" ;;
-            3) kernel="ck"  ;;
-            4) kernel="rt"  ;;
-            5) kernel="lqx" ;;
+            1) kernel="core"
+            2) kernel="lts" ;;
+            3) kernel="zen" ;;
+            4) kernel="ck"  ;;
+            5) kernel="rt"  ;;
             6) kernel="rt-lts" ;;
+            7) kernel="lqx" ;;
+            8) kernel="xanmod" ;;
+            9) kernel="xanmod-lts" ;;
+            linux) kernel="kernel" ;;
+            core) kernel="core" ;;
             lts) kernel="lts" ;;
             zen) kernel="zen" ;;
             ck) kernel="ck"  ;;
             rt) kernel="rt"  ;;
             rt-lts) kernel="rt-lts" ;;
             lqx) kernel="lqx" ;;
+            xanmod) kernel="xanmod" ;;
+            xanmod-lts) kernel="xanmod-lts" ;;
             *) what_kernel ;;
         esac
     }
