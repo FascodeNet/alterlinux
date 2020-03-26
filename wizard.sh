@@ -324,7 +324,7 @@ function ask () {
     lastcheck
 }
 
-# 将来的なビルド用の確認（このスクリプトは将来的には自動でcloneしビルドすることを目指しています。）
+# ビルド設定の確認
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
