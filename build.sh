@@ -6,6 +6,10 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
+# build.sh
+#
+# The main script that runs the build
+#
 
 set -e -u
 script_path="$(readlink -f ${0%/*})"

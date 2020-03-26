@@ -6,9 +6,11 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Alter Linux build config
-# The variables here will override the default values.
+# config
+#
+# Overwrites the first to read and set the build script
 # This configuration file follows the bash syntax.
+#
 
 # OS name used for the name of the image file.
 iso_name=alterlinux
