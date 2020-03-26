@@ -40,9 +40,9 @@ function select_comp_type () {
     echo -n "圧縮方式を設定しますか？ （y/N） : "
     read yn
     case ${yn} in
-        y | Y | yes | Yes | YES ) details=true    ;;
-        n | N | no  | No  | NO  ) details=false   ;;
-        *                       ) select_comp_type ; return 0;;
+        y | Y | yes | Yes | YES ) details=true               ;;
+        n | N | no  | No  | NO  ) details=false              ;;
+        *                       ) select_comp_type; return 0 ;;
     esac
 
     function ask_comp_type () {
@@ -59,19 +59,19 @@ function select_comp_type () {
         read yn
 
         case ${yn} in
-            1) comp_type="gzip" ;;
-            2) comp_type="lzma" ;;
-            3) comp_type="lzo"  ;;
-            4) comp_type="lz4"  ;;
-            5) comp_type="xz"   ;;
-            6) comp_type="zstd" ;;
-            gzip) comp_type="gzip" ;;
-            lzma) comp_type="lzma" ;;
-            lzo ) comp_type="lzo"  ;;
-            lz4 ) comp_type="lz4"  ;;
-            xz  ) comp_type="xz"   ;;
-            zstd) comp_type="zstd" ;;
-            *) ask_comp_type ;;
+            1    ) comp_type="gzip" ;;
+            2    ) comp_type="lzma" ;;
+            3    ) comp_type="lzo"  ;;
+            4    ) comp_type="lz4"  ;;
+            5    ) comp_type="xz"   ;;
+            6    ) comp_type="zstd" ;;
+            gzip ) comp_type="gzip" ;;
+            lzma ) comp_type="lzma" ;;
+            lzo  ) comp_type="lzo"  ;;
+            lz4  ) comp_type="lz4"  ;;
+            xz   ) comp_type="xz"   ;;
+            zstd ) comp_type="zstd" ;;
+            *    ) ask_comp_type    ;;
         esac
     }
 
@@ -91,9 +91,9 @@ function set_comp_option () {
         echo -n "圧縮の詳細を設定しますか？ （y/N） : "
         read yn
         case ${yn} in
-            y | Y | yes | Yes | YES ) details=true    ;;
-            n | N | no  | No  | NO  ) details=false   ;;
-            *                       ) set_comp_option ; return 0;;
+            y | Y | yes | Yes | YES ) details=true              ;;
+            n | N | no  | No  | NO  ) details=false             ;;
+            *                       ) set_comp_option; return 0 ;;
         esac
         if [[ ${details} = true ]]; then
             :
@@ -181,9 +181,9 @@ function set_password () {
     echo -n "デフォルトではないパスワードを設定しますか？ （y/N） : "
     read yn
     case ${yn} in
-        y | Y | yes | Yes | YES ) details=true    ;;
-        n | N | no  | No  | NO  ) details=false   ;;
-        *                       ) set_password ; return 0;;
+        y | Y | yes | Yes | YES ) details=true           ;;
+        n | N | no  | No  | NO  ) details=false          ;;
+        *                       ) set_password; return 0 ;;
     esac
 
     function ask_password () {
@@ -219,12 +219,12 @@ function select_kernel () {
     function do_you_want_to_select_kernel () {
         set +e
         local yn
-        echo -n "linux-zen以外のカーネルを使用しますか？ （y/N） : "
+        echo -n "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : "
         read yn
         case ${yn} in
-            y | Y | yes | Yes | YES ) return 0    ;;
-            n | N | no  | No  | NO  ) return 1    ;;
-            *                       ) do_you_want_to_select_kernel ; return;;
+            y | Y | yes | Yes | YES ) return 0                               ;;
+            n | N | no  | No  | NO  ) return 1                               ;;
+            *                       ) do_you_want_to_select_kernel; return 0 ;;
         esac
 
     }
@@ -248,26 +248,35 @@ function select_kernel () {
         read yn
 
         case ${yn} in
-            1) kernel="core"
-            2) kernel="lts" ;;
-            3) kernel="zen" ;;
-            4) kernel="ck"  ;;
-            5) kernel="rt"  ;;
-            6) kernel="rt-lts" ;;
-            7) kernel="lqx" ;;
-            8) kernel="xanmod" ;;
-            9) kernel="xanmod-lts" ;;
-            linux) kernel="kernel" ;;
-            core) kernel="core" ;;
-            lts) kernel="lts" ;;
-            zen) kernel="zen" ;;
-            ck) kernel="ck"  ;;
-            rt) kernel="rt"  ;;
-            rt-lts) kernel="rt-lts" ;;
-            lqx) kernel="lqx" ;;
-            xanmod) kernel="xanmod" ;;
-            xanmod-lts) kernel="xanmod-lts" ;;
-            *) what_kernel ;;
+            1                ) kernel="core"       ;;
+            2                ) kernel="lts"        ;;
+            3                ) kernel="zen"        ;;
+            4                ) kernel="ck"         ;;
+            5                ) kernel="rt"         ;;
+            6                ) kernel="rt-lts"     ;;
+            7                ) kernel="lqx"        ;;
+            8                ) kernel="xanmod"     ;;
+            9                ) kernel="xanmod-lts" ;;
+            linux            ) kernel="kernel"     ;;
+            linux-lts        ) kernel="lts"        ;;
+            linux-zen        ) kernel="zen"        ;;
+            linux-ck         ) kernel="ck"         ;;
+            linux-rt         ) kernel="rt"         ;;
+            linux-rt-lts     ) kernel="rt-lts"     ;;
+            linux-lqx        ) kernel="lqx"        ;;
+            linux-xanmod     ) kernel="xanmod"     ;;
+            linux-xanmod-lts ) kernel="xanmod-lts" ;;
+
+            core             ) kernel="core"       ;;
+            lts              ) kernel="lts"        ;;
+            zen              ) kernel="zen"        ;;
+            ck               ) kernel="ck"         ;;
+            rt               ) kernel="rt"         ;;
+            rt-lts           ) kernel="rt-lts"     ;;
+            lqx              ) kernel="lqx"        ;;
+            xanmod           ) kernel="xanmod"     ;;
+            xanmod-lts       ) kernel="xanmod-lts" ;;
+            *                ) what_kernel         ;;
         esac
     }
 
@@ -281,25 +290,43 @@ function select_kernel () {
 
 # チャンネルの指定
 function select_channel () {
-    local yn
-    echo "チャンネルを以下の番号から選択してください "
-    echo
-    echo "1: arch"
-    echo "2: xfce"
-    echo "3: plasma"
-    echo -n ": "
+    local ask_channel
 
+    echo -n "デフォルト（xfce）以外のチャンネルを使用しますか？ （y/N） : "
     read yn
-
     case ${yn} in
-           1) channel="arch"   ;;
-           2) channel="xfce"   ;;
-           3) channel="plasma" ;;
-      'arch') channel="arch"   ;;
-      'xfce') channel="xfce"   ;;
-    'plasma') channel="plasma" ;;
-           *) select_channel   ;;
+        y | Y | yes | Yes | YES ) details=true             ;;
+        n | N | no  | No  | NO  ) details=false            ;;
+        *                       ) select_channel; return 0 ;;
     esac
+
+    function ask_channel () {
+        local yn
+
+        echo "チャンネルを以下の番号から選択してください "
+        echo
+        echo "1: arch"
+        echo "2: xfce"
+        echo "3: plasma"
+        echo -n ": "
+
+        read yn
+
+        case ${yn} in
+            1        ) channel="arch"   ;;
+            2        ) channel="xfce"   ;;
+            3        ) channel="plasma" ;;
+            arch     ) channel="arch"   ;;
+            xfce     ) channel="xfce"   ;;
+            plasma   ) channel="plasma" ;;
+            *        ) select_channel   ;;
+        esac
+    }
+
+    if [[ ${details} = true ]]; then
+        ask_channel
+    fi
+    return 0
 }
 
 
