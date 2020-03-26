@@ -366,13 +366,13 @@ function ask () {
 function lastcheck () {
     echo "以下の設定でビルドを開始します。"
     echo
-    echo "           Japanese : ${japanese}"
-    echo "           Plymouth : ${plymouth}"
-    echo "             kernel : ${kernel}"
-    echo " Compression method : ${comp_type}"
-    echo "Compression options : ${comp_option}"
-    echo "           Password : ${password}"
-    echo "            Channel : ${channel}"
+    [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
+    [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
+    [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
+    [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"
+    [[ -n "${comp_option}" ]] && echo "Compression options : ${comp_option}"
+    [[ -n "${password}"    ]] && echo "           Password : ${password}"
+    [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
     echo
     echo -n "この設定で続行します。よろしいですか？ (y/N) : "
     local yn
