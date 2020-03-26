@@ -387,6 +387,7 @@ function lastcheck () {
 function start_build () {
     # build.shの引数を表示（デバッグ用）
     # echo ${argument}
+    sudo ./add-key.sh --alter
     sudo ./build.sh ${argument}
     make cleanup
 }
