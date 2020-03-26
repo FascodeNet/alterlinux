@@ -1,7 +1,7 @@
 
 ## Alter Linux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
 
-![AlterLogo](../images/logo.png)
+![AlterLogo](../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png)
 
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
