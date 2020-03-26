@@ -11,36 +11,47 @@
 # Script to import AlterLinux and ArchLinux keys.
 #
 
+
 set -eu
 
 script_path="$(readlink -f ${0%/*})"
+
 
 # Set pacman.conf when build alterlinux
 alter_pacman_conf="${script_path}/system/pacman.conf"
 
 
+# erro message
 msg_error() {
     echo -e "[add-key.sh] ERROR : ${@}" >&2
 }
 
+
+# info message
 msg_info() {
     echo -e "[add-key.sh] INFO: ${@}" >&1
 }
 
 
+# Show usage
 _usage () {
     echo "usage ${0} [options]"
     echo
     echo " General options:"
     echo "    --alter            Add alterlinux-keyring."
     echo "    --arch             Add archlinux-keyring"
-    echo "    -h                 Show this help and exit."  
+    echo "    -h                 Show this help and exit."
 }
 
 
+# Check if the package is installed.
 checkpkg() {
     local _pkg
-    _pkg=$(echo "${@}" | cut -d'/' -f2)
+    _pkg=$(echo "${1}" | cut -d'/' -f2)
+
+    if [[ ${#} -gt 2 ]]; then
+        msg_error "Multiple package specification is not available."
+    fi
 
     if [[ -n $( pacman -Q "${_pkg}" 2> /dev/null| awk '{print $1}' ) ]]; then
         echo -n "true"
