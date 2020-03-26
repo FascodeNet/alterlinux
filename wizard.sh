@@ -176,21 +176,40 @@ function set_comp_option () {
 }
 
 function set_password () {
-    echo -n "パスワードを入力してください : "
-    read -s password
-    echo
-    echo -n "もう一度入力してください : "
-    read -s confirm
-    if [[ ! $password = $confirm ]]; then
+    local details
+    local ask_comp_type
+    echo -n "デフォルトではないパスワードを設定しますか？ （y/N） : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) details=true    ;;
+        n | N | no  | No  | NO  ) details=false   ;;
+        *                       ) set_password ; return 0;;
+    esac
+
+    function ask_password () {
+        echo -n "パスワードを入力してください : "
+        read -s password
         echo
-        echo "同じパスワードが入力されませんでした。"
-        set_password
-    elif [[ -z $password || -z $confirm ]]; then
+        echo -n "もう一度入力してください : "
+        read -s confirm
+        if [[ ! $password = $confirm ]]; then
+            echo
+            echo "同じパスワードが入力されませんでした。"
+            set_password
+        elif [[ -z $password || -z $confirm ]]; then
+            echo
+            echo "パスワードを入力してください。"
+            set_password
+        fi
         echo
-        echo "パスワードを入力してください。"
-        set_password
+        unset confirm
+    }
+
+    if [[ ${details} = true ]]; then
+        ask_password
     fi
-    unset confirm
+
+    return 0
 }
 
 function select_kernel () {
