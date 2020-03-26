@@ -35,33 +35,51 @@ function enable_japanese () {
 
 function select_comp_type () {
     local yn
-    echo "圧縮方式を以下の番号から選択してください "
-    echo
-    echo "1: gzip"
-    echo "2: lzma"
-    echo "3: lzo"
-    echo "4: lz4"
-    echo "5: xz"
-    echo "6: zstd"
-    echo -n ": "
-
+    local details
+    local ask_comp_type
+    echo -n "圧縮方式を設定しますか？ （y/N） : "
     read yn
-
     case ${yn} in
-           1) comp_type="gzip" ;;
-           2) comp_type="lzma" ;;
-           3) comp_type="lzo"  ;;
-           4) comp_type="lz4"  ;;
-           5) comp_type="xz"   ;;
-           6) comp_type="zstd" ;;
-        gzip) comp_type="gzip" ;;
-        lzma) comp_type="lzma" ;;
-        lzo ) comp_type="lzo"  ;;
-        lz4 ) comp_type="lz4"  ;;
-        xz  ) comp_type="xz"   ;;
-        zstd) comp_type="zstd" ;;
-        *) select_comp_type ;;
+        y | Y | yes | Yes | YES ) details=true    ;;
+        n | N | no  | No  | NO  ) details=false   ;;
+        *                       ) select_comp_type ; return 0;;
     esac
+
+    function ask_comp_type () {
+        echo "圧縮方式を以下の番号から選択してください "
+        echo
+        echo "1: gzip"
+        echo "2: lzma"
+        echo "3: lzo"
+        echo "4: lz4"
+        echo "5: xz"
+        echo "6: zstd"
+        echo -n ": "
+
+        read yn
+
+        case ${yn} in
+            1) comp_type="gzip" ;;
+            2) comp_type="lzma" ;;
+            3) comp_type="lzo"  ;;
+            4) comp_type="lz4"  ;;
+            5) comp_type="xz"   ;;
+            6) comp_type="zstd" ;;
+            gzip) comp_type="gzip" ;;
+            lzma) comp_type="lzma" ;;
+            lzo ) comp_type="lzo"  ;;
+            lz4 ) comp_type="lz4"  ;;
+            xz  ) comp_type="xz"   ;;
+            zstd) comp_type="zstd" ;;
+            *) ask_comp_type ;;
+        esac
+    }
+
+    if [[ ${details} = true ]]; then
+        ask_comp_type
+    fi
+
+    return 0
 }
 
 function set_comp_option () {
