@@ -61,5 +61,6 @@ fi
 [[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 
-# Enable services
+# Bluetooth
+rfkill unblock bluetooth
 systemctl enable bluetooth
