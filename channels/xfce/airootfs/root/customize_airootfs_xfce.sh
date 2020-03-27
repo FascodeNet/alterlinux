@@ -62,5 +62,5 @@ fi
 
 
 # Bluetooth
-rfkill unblock bluetooth
+rfkill unblock all
 systemctl enable bluetooth
