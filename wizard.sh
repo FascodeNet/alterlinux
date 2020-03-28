@@ -26,6 +26,17 @@ function check_files () {
     fi
 }
 
+function run_add_key_script () {
+    local yn
+    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) "${script_path}/add-key.sh" --alter   ;;
+        n | N | no  | No  | NO  ) return 0                              ;;
+        *                       ) run_add_key_script                    ;;
+    esac
+}
+
 function enable_plymouth () {
     local yn
     echo -n "Plymouthを有効化しますか？ （y/N） : "
@@ -409,6 +420,7 @@ function start_build () {
 
 # 関数を実行
 check_files
+run_add_key_script
 ask
 generate_argument
 
