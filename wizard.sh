@@ -11,6 +11,21 @@ while getopts 'xn' arg; do
     esac
 done
 
+
+script_path="$(readlink -f ${0%/*})"
+
+
+function check_files () {
+    if [[ ! -f "${script_path}/build.sh" ]]; then
+        echo "${script_path}/build.shが見つかりませんでした。" >&2
+        exit 1
+    fi
+    if [[ -f "${script_path}/add-key.sh" ]]; then
+        echo "${script_path}/add-key.shが見つかりませんでした。" >&2
+        exit 1
+    fi
+}
+
 function enable_plymouth () {
     local yn
     echo -n "Plymouthを有効化しますか？ （y/N） : "
@@ -393,6 +408,7 @@ function start_build () {
 }
 
 # 関数を実行
+check_files
 ask
 generate_argument
 
