@@ -215,11 +215,9 @@ function set_username () {
     function ask_username () {
         echo -n "ユーザー名を入力してください : "
         read username
-        echo
         if [[ -z ${username} ]]; then
             ask_username
         fi
-        echo
     }
 
     if [[ ${details} = true ]]; then
