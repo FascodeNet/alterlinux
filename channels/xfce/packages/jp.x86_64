@@ -11,10 +11,14 @@
 #
 # Japanese package
 
-# Fcitx config
+# fcitx config
 alterlinux-fcitx-conf
 
-# Fcitx
+# fcitx
 fcitx-im
 fcitx-configtool
 fcitx-mozc
+
+
+# other
+libreoffice-still-ja

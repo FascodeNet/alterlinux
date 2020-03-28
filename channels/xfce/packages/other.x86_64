@@ -48,6 +48,12 @@ cpu-x
 pamac-gtk
 
 
+#-- shell --#
+lsd
+powerline
+zsh
+zsh-completions
+
 #-- text editor --#
 medit
 nano
@@ -55,9 +61,6 @@ vim
 
 
 #-- other --#
-etcher-bin
-lsd
-powerline
+# etcher-bin
+libreoffice
 tlpui
-zsh
-zsh-completions
