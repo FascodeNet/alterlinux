@@ -398,6 +398,9 @@ function generate_argument () {
     if [[ -n ${kernel} ]]; then
         argument="${argument} -k '${kernel}'"
     fi
+    if [[ -n "${username}" ]]; then
+        argument="${argument} -u '${username}'"
+    fi
     if [[ -n ${password} ]]; then
         argument="${argument} -p '${password}'"
     fi
@@ -426,6 +429,7 @@ function lastcheck () {
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
     [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"
     [[ -n "${comp_option}" ]] && echo "Compression options : ${comp_option}"
+    [[ -n "${username}"    ]] && echo "           Username : ${username}"
     [[ -n "${password}"    ]] && echo "           Password : ${password}"
     [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
     echo
