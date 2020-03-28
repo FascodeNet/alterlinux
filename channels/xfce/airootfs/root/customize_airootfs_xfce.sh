@@ -64,3 +64,7 @@ fi
 # Bluetooth
 rfkill unblock all
 systemctl enable bluetooth
+
+
+# Update system datebase
+dconf update
