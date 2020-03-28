@@ -20,7 +20,7 @@ function check_files () {
         echo "${script_path}/build.shが見つかりませんでした。" >&2
         exit 1
     fi
-    if [[ -f "${script_path}/add-key.sh" ]]; then
+    if [[ ! -f "${script_path}/add-key.sh" ]]; then
         echo "${script_path}/add-key.shが見つかりませんでした。" >&2
         exit 1
     fi
