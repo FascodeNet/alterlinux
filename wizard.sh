@@ -201,6 +201,34 @@ function set_comp_option () {
     fi
 }
 
+function set_username () {
+    local details
+    local ask_comp_type
+    echo -n "デフォルトではないユーザー名を設定しますか？ （y/N） : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) details=true           ;;
+        n | N | no  | No  | NO  ) details=false          ;;
+        *                       ) set_username; return 0 ;;
+    esac
+
+    function ask_username () {
+        echo -n "ユーザー名を入力してください : "
+        read username
+        echo
+        if [[ -z ${username} ]]; then
+            ask_username
+        fi
+        echo
+    }
+
+    if [[ ${details} = true ]]; then
+        ask_username
+    fi
+
+    return 0
+}
+
 function set_password () {
     local details
     local ask_comp_type
@@ -383,6 +411,7 @@ function ask () {
     select_kernel
     select_comp_type
     set_comp_option
+    set_username
     set_password
     select_channel
     lastcheck
