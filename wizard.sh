@@ -247,11 +247,11 @@ function set_password () {
         if [[ ! $password = $confirm ]]; then
             echo
             echo "同じパスワードが入力されませんでした。"
-            set_password
+            ask_password
         elif [[ -z $password || -z $confirm ]]; then
             echo
             echo "パスワードを入力してください。"
-            set_password
+            ask_password
         fi
         echo
         unset confirm
