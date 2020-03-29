@@ -6,6 +6,10 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
+# build.sh
+#
+# The main script that runs the build
+#
 
 set -e -u
 script_path="$(readlink -f ${0%/*})"
@@ -37,7 +41,7 @@ sfs_comp_opt=""
 debug=false
 rebuild=false
 japanese=false
-channel='stable'
+channel_name='xfce'
 cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
@@ -46,7 +50,7 @@ mkalteriso="${script_path}/system/mkalteriso"
 build_pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
-[[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
+[[ -f ./config ]] && source config
 
 umask 0022
 
@@ -84,8 +88,10 @@ _usage () {
     echo
     echo " You can switch the packages to be installed on the channel."
     echo " Channel:"
-    echo "    stable             Use stable packages. This is the default."
-    echo "    unstable           Use packages from the alter-testing repository."
+    echo "    arch               AlterLinux with a minimal GUI. "
+    echo "                       You can install a minimal CLI ArchLinux with Calamares."
+    echo "    xfce               Use Xfce4 for desktop environment."
+    echo "    plasma             Uses KDE and Qt software."
 
     exit "${1}"
 }
@@ -137,12 +143,15 @@ remove() {
 # Show settings.
 # $1 = Time to show
 show_settings() {
-    [[ "${boot_splash}" = true ]] && echo "Boot splash is enabled."; echo "Theme is used ${theme_name}."
+    if [[ "${boot_splash}" = true ]]; then
+        echo "Boot splash is enabled."
+        echo "Theme is used ${theme_name}."
+    fi
     echo "Use the ${kernel} kernel."
     echo "Live username is ${username}."
     echo "Live user password is ${password}."
     echo "The compression method of squashfs is ${sfs_comp}."
-    echo "Use the ${channel} channel."
+    echo "Use the ${channel_name} channel."
     [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
     sleep "${1}"
 }
@@ -199,32 +208,32 @@ make_packages() {
     # Append the file in the share directory to the file to be read.
 
     # Package list for Japanese
-    jplist="${script_path}/packages.d/share/jp.x86_64"
+    jplist="${script_path}/channels/share/packages/jp.x86_64"
 
     # Package list for non-Japanese
-    nojplist="${script_path}/packages.d/share/non-jp.x86_64"
+    nojplist="${script_path}/channels/share/packages/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
-        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${nojplist}"))
+        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${nojplist}"))
     else
-        _loadfilelist=($(ls "${script_path}"/packages.d/share/*.x86_64 | grep -xv "${jplist}"))
+        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${jplist}"))
     fi
 
 
     # Add the files for each channel to the list of files to read.
 
     # Package list for Japanese
-    jplist="${script_path}/packages.d/${channel}/jp.x86_64"
+    jplist="${script_path}/channels/${channel_name}/packages/jp.x86_64"
 
     # Package list for non-Japanese
-    nojplist="${script_path}/packages.d/${channel}/non-jp.x86_64"
+    nojplist="${script_path}/channels/${channel_name}/packages/non-jp.x86_64"
 
     if [[ "${japanese}" = true ]]; then
         # If Japanese is enabled, add it to the list of files to read other than non-jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/packages.d/${channel}/*.x86_64 | grep -xv "${nojplist}"))
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv "${nojplist}"))
     else
         # If Japanese is disabled, add it to the list of files to read other than jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/packages.d/${channel}/*.x86_64 | grep -xv ${jplist}))
+        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv ${jplist}))
     fi
 
     # Read the file and remove comments starting with # and add it to the list of packages to install.
@@ -264,7 +273,10 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    cp -af "${script_path}/airootfs" "${work_dir}/x86_64"
+    cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
+        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    fi
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
@@ -294,41 +306,82 @@ make_customize_airootfs() {
     # -k <kernel>   : Set kernel name.
     # -u <username> : Set live user name.
     # -x            : Enable debug mode.
+    # -r            : Enable rebuild.
 
 
     # Generate options of customize_airootfs.sh.
-    local options
+    local addition_options
     local share_options
-    options=
+    addition_options=
     if [[ ${boot_splash} = true ]]; then
         if [[ -z ${theme_name} ]]; then
-            options="${options} -b"
+            addition_options="${addition_options} -b"
         else
-            options="${options} -b -t ${theme_name}"
+            addition_options="${addition_options} -b -t ${theme_name}"
         fi
     fi
     if [[ ${debug} = true ]]; then
-        options="${options} -x"
+        addition_options="${addition_options} -x"
     fi
     if [[ ${japanese} = true ]]; then
-        options="${options} -j"
+        addition_options="${addition_options} -j"
     fi
     if [[ ${rebuild} = true ]]; then
-        options="${options} -r"
+        addition_options="${addition_options} -r"
     fi
 
     share_options="-p ${password} -k ${kernel} -u ${username}"
 
+
+    # X permission
+    if [[ -f ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh ]]; then
+    	chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
+    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
+    fi
+
+
     # Execute customize_airootfs.sh.
-    if [[ -z ${options} ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options}" run
+    if [[ -z ${addition_options} ]]; then
+        ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs.sh ${share_options}" \
+            run
+
+        if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+            ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs_${channel_name}.sh ${share_options}" \
+            run
+        fi
     else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r "/root/customize_airootfs.sh ${share_options} ${options}" run
+        ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs.sh ${share_options} ${addition_options}" \
+            run
+
+        if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+            ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs_${channel_name}.sh ${share_options} ${addition_options}" \
+            run
+        fi
     fi
 
 
     # Delete customize_airootfs.sh.
     remove "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    remove "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -403,22 +456,22 @@ make_syslinux() {
              s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
 
-    if [[ ! ${kernel} = "core" ]]; then
+    if [[ ${boot_splash} = true ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/archiso_pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
+            "${script_path}/syslinux/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/archiso_sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+            "${script_path}/syslinux/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     else
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/archiso_pxe/archiso_pxe.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
+            "${script_path}/syslinux/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/archiso_sys/archiso_sys.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+            "${script_path}/syslinux/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     fi
 
     cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -607,27 +660,55 @@ fi
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     echo "This script must be run as root." >&2
-    echo "Use -h to display script details." >&2
+    # echo "Use -h to display script details." >&2
     # _usage 1
+    set +u
+    sudo ${0} ${@}
+    set -u
     exit 1
 fi
+
+
+# Show config message
+[[ -f ./config ]] && echo "The settings have been overwritten by the config file."
 
 
 # Parse options
-set +u
+set +eu
+
 shift $((OPTIND - 1))
 
 if [[ -n "${1}" ]]; then
-    channel="${1}"
+    channel_name="${1}"
+
+    # Channel list
+    # check_channel <channel name>
+    check_channel() {
+        local channel_list
+        local i
+        channel_list=()
+        for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+                channel_list="${channel_list[@]} ${i}"
+            fi
+        done
+        for i in ${channel_list[@]}; do
+            if [[ ${i} = ${1} ]]; then
+                echo -n "true"
+                return 0
+            fi
+        done
+        echo -n "false"
+        return 1
+    }
+
+    if [[ $(check_channel ${channel_name}) = false ]]; then
+        echo "Invalid channel ${channel_name}" >&2
+        _usage 1
+    fi
 fi
 
-if [[ -z $(ls -l "${script_path}"/packages.d/ | awk '$1 ~ /d/ {print $9 }' | grep -xv share | grep -x "${channel}") ]]; then
-    echo "Invalid channel '${channel}'" >&2
-    exit 1
-fi
-
-
-set -u
+set -eu
 
 
 # Create a working directory.

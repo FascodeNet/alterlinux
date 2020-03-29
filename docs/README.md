@@ -1,7 +1,7 @@
 
 ## Alter Linux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
 
-![AlterLogo](../images/logo.png)
+![AlterLogo](../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png)
 
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
@@ -15,8 +15,8 @@
 
 ## Overview
 
-Alter Linux is a new OS developed based on Arch Linux.  
-Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.  
+Alter Linux is a new OS developed based on Arch Linux.
+Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.
 Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
 
 ## Branch
@@ -28,10 +28,10 @@ The previously used Japanese branch has been removed.
 | Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
 
 ## If you want to give an opinion or impression
-If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).  
+If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).
 We are soliciting opinions from various users to make AlterLinux better.
 
-##  Twitter account
+##Twitter account
 The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
 
 ### Official
@@ -41,8 +41,8 @@ The following accounts are official.
 - [SereneLinux JP](https://twitter.com/SereneDevJP)
 
 ### Developer
-Link to Twitter of main development members.  
-All comments made on this account are not official SereneTeam statements and are solely for the developer.  
+Link to Twitter of main development members.
+All comments made on this account are not official SereneTeam statements and are solely for the developer.
 
 <h5 align="center">Development</h5>
 <p align="center">
@@ -59,20 +59,14 @@ All comments made on this account are not official SereneTeam statements and are
 </p>
 
 ## Repositories and software
-To use packages from the repository, you need to add a key.
-Execute the following command to add the key.
-
-```bash
-curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
+If you use the AlterLinux repository, you need to add a key. See Preparing for a build.
 
 ### Repositories
 GitHub repositories that were used before are no longer used. Currently [this server](https://xn--d-8o2b.com/repo/) is the latest repository.
 
 
 ### Software
-Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.  
+Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.
 If you need a binary file, access [the AlterLinux repository](https://xn--d-8o2b.com/repo/alter-stable/x86_64/).
 
 Source code | PKGBUILD
@@ -93,14 +87,22 @@ The following procedure is for building with the actual machine ArchLinux.
 There are two ways to build, using Arch Linux on the actual machine and building on Docker.
 The options of `build.sh` are common.
 
+```bash
+git clone https://github.com/SereneTeam/alterlinux.git alterlinux
+cd ./alterlinux/
+```
+AlterLinux includes a script to easily add keys.
+
+```bash
+sudo ./add-key.sh --alter
+```
+
 #### Build on real machine
 When building with an actual machine, it is necessary to build in an ArchLinux environment.  
-You need to add a key to use AlterLinux repository. How to add a key is described above.  
-
 Install the necessary packages for the build.
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 Then download the source code.
 
@@ -112,15 +114,15 @@ cd alterlinux
 
 
 #### Build on container
-If you build on Docker, please refer to [this procedure](Howtobuild_on_docker.md).  
+If you build on Docker, please refer to [this procedure](en/DOCKER.md).
 
 ### build.sh options
 
 #### Basic
-Please execute as it is.   
-The default password is `alter`.   
-Plymouth has been disabled.  
-Default compression type is `zstd`.  
+Please execute as it is.
+The default password is `alter`.
+Plymouth has been disabled.
+Default compression type is `zstd`.
 
 
 #### Options
@@ -137,16 +139,6 @@ Default compression type is `zstd`.
  Specify working directory | -w [dir]
 
 
-#### Channel
-The channel switches the list of packages to be installed.
-Supported channels are `stable` and` unstable` as of March 14, 2020.
-
-Name | Purpose
---- | ---
-stable | Default channel.
-unstable | Build using packages from the `alter-testing` repository.
-
-
 ##### Example
 
 To build under the following conditions:
@@ -160,7 +152,20 @@ To build under the following conditions:
 ./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
 ```
 
-##### About the kernel
+
+#### Channel
+Channels switch between packages to install and files to include.
+This mechanism allows you to build various versions of AlterLinux.
+The supported channels as of March 21, 2020 are:
+
+Name | Purpose
+--- | ---
+xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
+plasma | This is an edition with Plasma and Qt apps. Currently in development and not stable.
+arch | It has only a minimal GUI and installer, and after installation it has a minimal ArchLinux. This is an ArchLinux installer.
+
+
+#### About the kernel
 The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
 Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
   
@@ -169,7 +174,7 @@ Below are the supported values and kernels.The description of the kernel is from
 Name | Feature
 --- | ---
 ck | linux-ck contains patches to improve system response.
-lts |  Long term support (LTS) Linux kernel and modules from the core repository.
+lts |Long term support (LTS) Linux kernel and modules from the core repository.
 lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
 rt | With this patch, almost all of the kernel can be run in real time.
 zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
@@ -224,9 +229,9 @@ zstd
 ```
 
 ## Documents
-- [About packages](packages.md)
-- [How to build on docker](Howtobuild_on_docker.md)
-- [How to add supporting a new kernel.](Support_a_new_kernel.md)
+- [About packages](jp/PACKAGE.md)
+- [How to build on docker](en/DOCKER.md)
+- [How to add supporting a new kernel.](jp/KERNEL.md)
 
 ## If you cannot start
 You can disable the boot animation and boot to see the logs.
@@ -234,6 +239,6 @@ Boot from the disk and select `Boot Alter Linux without boot splash (x86_64)`.
 
 
 ## About SereneTeam and developers
-SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.  
-[SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.  
-Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.  
+SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.
+[SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.
+Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.

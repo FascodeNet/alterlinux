@@ -1,7 +1,7 @@
 
 ## Alter Linux - 誰でも使えることを目標にした日本製でArch Linux派生のOS
 
-![AlterLogo](../images/logo.png)
+![AlterLogo](../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png)
 
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
 [![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
@@ -13,8 +13,8 @@
 
 ## 概要
 
-Alter LinuxはArch Linuxをベースに開発されている新しいOSです。  
-Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。  
+Alter LinuxはArch Linuxをベースに開発されている新しいOSです。
+Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。
 AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/orgs/SereneTeam/projects/2)を確認してください。
 
 ## ブランチ
@@ -26,7 +26,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。
 
 ## 意見や感想について
-もしAlterLinuxが起動しなかったり、使いにくかったり、標準でインストールしてほしいソフトウェアがあったら、遠慮なく[Issue](https://github.com/SereneTeam/alterlinux/issues)に投稿して下さい。  
+もしAlterLinuxが起動しなかったり、使いにくかったり、標準でインストールしてほしいソフトウェアがあったら、遠慮なく[Issue](https://github.com/SereneTeam/alterlinux/issues)に投稿して下さい。
 私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
 
 ## Twitter アカウント
@@ -39,8 +39,8 @@ Alter Linuxの最新の状況は随時Twitterで発信しています。時々�
 - [SereneLinux JP](https://twitter.com/SereneDevJP)
 
 ### 開発者
-主な開発メンバーのTwitterへのリンクです。  
-このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。  
+主な開発メンバーのTwitterへのリンクです。
+このアカウントで行われたすべての発言はSereneTeamの公式ではなく、開発者個人の見解です。
 
 <h5 align="center">開発担当</h5>
 <p align="center">
@@ -57,20 +57,16 @@ Alter Linuxの最新の状況は随時Twitterで発信しています。時々�
 </p>
 
 ## リポジトリとソフトウェア
-リポジトリのパッケージを使用するには鍵を追加する必要があります。  
-以下のコマンドを実行して鍵を追加して下さい。
 
-```bash
-curl -s https://山d.com/repo/fascode.pub | sudo pacman-key -a -
-sudo pacman-key --lsign-key development@fascode.net
-```
+### 鍵の追加
+AlterLinuxのリポジトリを使用する場合は鍵を追加する必要が有ります。ビルドの準備を参照して下さい。
 
 ### リポジトリ
 以前まで使用されていたGitHubのリポジトリは現在は使用されていません。現在は[こちらのサーバ](https://xn--d-8o2b.com/repo/)が最新のリポジトリです。
 
 
 ### ソフトウェア
-ほとんどのパッケージは公式パッケージか、AUR上に公開していますが、一部のものはどちらにもありません。そのようなパッケージのソースコードとPKGBUILDへのリンクを以下に記載します。  
+ほとんどのパッケージは公式パッケージか、AUR上に公開していますが、一部のものはどちらにもありません。そのようなパッケージのソースコードとPKGBUILDへのリンクを以下に記載します。
 バイナリファイルが必要な場合は[AlterLinuxリポジトリ](https://xn--d-8o2b.com/repo/alter-stable/x86_64/)にアクセスして下さい。
 
 ソースコード | PKGBUILD
@@ -90,17 +86,25 @@ sudo pacman-key --lsign-key development@fascode.net
 
 ### 準備
 
-ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
-`build.sh`のオプションは共通です。  
+ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。
+`build.sh`のオプションは共通です。
+
+```bash
+git clone https://github.com/SereneTeam/alterlinux.git alterlinux
+cd ./alterlinux/
+```
+AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
+
+```bash
+sudo ./add-key.sh --alter
+```
 
 ### 実機でビルドする
-実機でビルドする場合はArchLinux環境でビルドする必要があります。  
-AlterLinuxのリポジトリを使用するために鍵を追加する必要があります。鍵を追加する方法は上記記載されています。
-
+実機でビルドする場合はArchLinux環境でビルドする必要があります。　　
 ビルドに必要なパッケージをインストールして下さい。
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx
+sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 そしてソースコードをダウンロードしてください。
 
@@ -110,23 +114,23 @@ cd alterlinux
 ```
 
 #### ビルドウィザード
-実機で直接ビルドする場合、wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。  
-「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
+実機で直接ビルドする場合、wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。
+「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。
 
 ```bash
 ./wizard.sh
 ```
 
 ### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](Howtobuild_on_docker.md)を参照してください。
+Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照してください。
 
 ### build.shのオプション
 
 #### 基本
-通常はウィザードを使用してください。  
-デフォルトパスワードは`alter`です。  
-lymouthは無効化されています。  
-デフォルトの圧縮方式は`zstd`です。  
+通常はウィザードを使用してください。
+デフォルトパスワードは`alter`です。
+lymouthは無効化されています。
+デフォルトの圧縮方式は`zstd`です。
 
 ```bash
 ./build.sh <options> <channel>
@@ -146,17 +150,7 @@ lymouthは無効化されています。
 作業ディレクトリを指定する | -w [dir]
 
 
-#### チャンネルについて
-チャンネルは、インストールするパッケージのリストを切り替えます。  
-2020年3月14日現在でサポートされているチャンネルは`stable`と`unstable`です。  
-名前 | 目的
---- | ---
-stable | デフォルトのチャンネルです。
-unstable | `alter-testing`リポジトリのパッケージを利用してビルドします。
-
-
-
-##### 例
+#### 例
 以下の条件でビルドするにはこのようにします。
 
 - Plymouthを有効化
@@ -165,12 +159,24 @@ unstable | `alter-testing`リポジトリのパッケージを利用してビル
 - パスワードは`ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
 ```
 
-##### カーネルについて
-カーネルは現在、以下の種類がサポートされています。未指定の場合は通常の`linux`カーネルが使用されます。  
-`-k`のオプションは必ず`linux-foo`の`foo`の部分を入れてください。例えば`linux-lts`の場合は`lts`が入ります。  
+
+#### チャンネルについて
+チャンネルは、インストールするパッケージと含めるファイルを切り替えます。
+この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。
+2020年3月21日現在でサポートされているチャンネルは以下のとおりです。
+名前 | 目的
+--- | ---
+xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネルです。
+plasma | PlasmaとQtアプリを搭載したエディションです。 現在開発中で、安定していません。
+arch | 最小限のGUIとインストーラーのみを搭載し、インストール後は最小限のArchLinuxになります。つまりこれはArchLinuxのインストーラーです。
+
+
+#### カーネルについて
+カーネルは現在、以下の種類がサポートされています。未指定の場合は通常の`linux`カーネルが使用されます。
+`-k`のオプションは必ず`linux-foo`の`foo`の部分を入れてください。例えば`linux-lts`の場合は`lts`が入ります。
 
 以下はサポートされている値とカーネルです。カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
@@ -231,9 +237,9 @@ zstd
 ```
 
 ## ドキュメント
-- [パッケージリストについての注意](packages.md)
-- [Docker上でビルドする方法](Howtobuild_on_docker.md)
-- [新しいカーネルを追加する方法](Support_a_new_kernel.md)
+- [パッケージリストについての注意](jp/PACKAGE.md)
+- [Docker上でビルドする方法](jp/DOCKER.md)
+- [新しいカーネルを追加する方法](jp/KERNEL.md)
 
 ## 起動できない場合
 ブート時のアニメーションを無効化してブートし、ログを確認することができます。  

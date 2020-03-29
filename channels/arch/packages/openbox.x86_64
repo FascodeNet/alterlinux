@@ -1,0 +1,33 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# OpenBox
+
+
+#-- File manager --#
+pcmanfm
+
+
+#-- openbox --#
+openbox
+lxpanel
+
+
+#-- Terminal --#
+lxterminal
+
+
+#-- Settings --#
+arandr
+
+
+#-- xorg --#
+gpm
+xorg-server
+xorg-xinit
