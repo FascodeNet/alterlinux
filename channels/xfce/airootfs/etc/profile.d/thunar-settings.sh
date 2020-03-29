@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-if [ -a .shortcat.sh ]; then
+if [ -a ~/.setup.sh ]; then
   sh ~/.setup.sh
 fi
