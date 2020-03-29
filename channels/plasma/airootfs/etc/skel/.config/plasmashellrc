@@ -1,0 +1,31 @@
+[FileDialogSize]
+Height 768=697
+Width 1360=738
+
+[KFileDialog Settings]
+Recent Files[$e]=alter.svg,file:///usr/share/backgrounds/alter-jiju.png,file:///usr/share/icons/hicolor/scalable/alter.svg
+Recent URLs[$e]=file:///usr/share/backgrounds/
+detailViewIconSize=0
+
+[KPropertiesDialog]
+Height 768=464
+Width 1360=450
+
+[PlasmaRunnerManager]
+LaunchCounts=3 services_org.kde.ksysguard.desktop
+pluginWhiteList=desktopsessions,services,places,PowerDevil,calculator,unitconverter,shell,bookmarks,recentdocuments,locations,baloosearch
+
+[PlasmaTransientsConfig]
+PreloadWeight=34
+
+[PlasmaViews][Panel 2][Defaults]
+thickness=36
+
+[PlasmaViews][Panel 2][Horizontal800]
+thickness=36
+
+[ScreenConnectors]
+0=VGA-1
+
+[Updates]
+performed=/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/move_desktop_layout_config.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/obsolete_kickoffrc.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/unlock_widgets.js

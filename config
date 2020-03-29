@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
-
-# Alter Linux build config
-# The variables here will override the default values.
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# config
+#
+# Overwrites the first to read and set the build script
 # This configuration file follows the bash syntax.
+#
 
 # OS name used for the name of the image file.
 iso_name=alterlinux
 
 # Image file label
-iso_label="ALTER_$(date +%Y%m)"
+iso_label="ALTER_$(date +%Y%m%d)"
 
 # Image file creator information
-iso_publisher="Alter Linux <http://www.archlinux.org>"
+iso_publisher='Fascode Network <https://fascode.net>'
 
 # Image file name (not file name)
 iso_application="Alter Linux Live/Rescue CD"
@@ -37,9 +45,6 @@ password=alter
 # Set to true to enable plymouth.(-b)
 boot_splash=false
 
-# Set to true to build using the lts kernel.(-l)
-lts_kernel=false
-
 # Set the theme name of plymouth.
 theme_name="alter-logo"
 
@@ -55,9 +60,18 @@ sfs_comp_opt=""
 # Set the kernel that live session use.
 # Please don't set anything if you want to use normal kernel.
 # As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
-kernel=
+kernel=zen
 
 # Set debug mode.
 # This setting can only be set to true or false.
 # When enabled, bash debug mode is enabled, making it easier to identify which command caused the error.
 debug=false
+
+# Set the Japanese mode.
+# When this is enabled, the packages in the japanese package list will be installed.
+# A file for Japanese input is added.
+japanese=false
+
+# Enable post-build cleaning.
+# When enabled, airootfs in the working directory is deleted after squashfs is created.
+cleaning=false
