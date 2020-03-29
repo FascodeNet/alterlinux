@@ -161,7 +161,7 @@ The supported channels as of March 21, 2020 are:
 Name | Purpose
 --- | ---
 xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
-plasma | This is an edition with Plasma and Qt apps.
+plasma | This is an edition with Plasma and Qt apps. Currently in development and not stable.
 arch | It has only a minimal GUI and installer, and after installation it has a minimal ArchLinux. This is an ArchLinux installer.
 
 
