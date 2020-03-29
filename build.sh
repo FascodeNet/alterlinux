@@ -50,7 +50,7 @@ mkalteriso="${script_path}/system/mkalteriso"
 build_pacman_conf=${script_path}/system/pacman.conf
 
 # Load config file
-[[ -f ./config ]] && source config; echo "The settings have been overwritten by the config file."
+[[ -f ./config ]] && source config
 
 umask 0022
 
@@ -667,6 +667,10 @@ if [[ ${EUID} -ne 0 ]]; then
     set -u
     exit 1
 fi
+
+
+# Show config message
+[[ -f ./config ]] && echo "The settings have been overwritten by the config file."
 
 
 # Parse options
