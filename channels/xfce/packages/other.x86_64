@@ -48,11 +48,16 @@ cpu-x
 pamac-gtk
 
 
+#-- printer --#
+system-config-printer
+
+
 #-- shell --#
 lsd
 powerline
 zsh
 zsh-completions
+
 
 #-- text editor --#
 medit
