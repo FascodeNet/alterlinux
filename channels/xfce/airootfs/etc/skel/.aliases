@@ -8,7 +8,7 @@
 # Write the alias here.
 #
 
-[[ ! ${TERM} = "linux" ]] && [[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
+[[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
 
 alias apt='aptpac'
 alias apt-get='aptpac'
