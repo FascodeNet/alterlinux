@@ -9,3 +9,6 @@
 #
 
 [[ ! ${TERM} = "linux" ]] && alias ls='lsd'
+
+alias apt='aptpac'
+alias apt-get='aptpac
