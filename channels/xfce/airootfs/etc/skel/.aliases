@@ -11,4 +11,4 @@
 [[ ! ${TERM} = "linux" ]] && [[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
 
 alias apt='aptpac'
-alias apt-get='aptpac
+alias apt-get='aptpac'
