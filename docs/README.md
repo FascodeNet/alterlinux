@@ -139,18 +139,6 @@ Default compression type is `zstd`.
  Specify working directory | -w [dir]
 
 
-#### Channel
-Channels switch between packages to install and files to include.
-This mechanism allows you to build various versions of AlterLinux.
-The supported channels as of March 21, 2020 are:
-
-Name | Purpose
---- | ---
-xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
-plasma | This is an edition with Plasma and Qt apps.
-core | It has only a minimal GUI and installer, and after installation it has a minimal ArchLinux. This is an ArchLinux installer.
-
-
 ##### Example
 
 To build under the following conditions:
@@ -164,7 +152,20 @@ To build under the following conditions:
 ./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
 ```
 
-##### About the kernel
+
+#### Channel
+Channels switch between packages to install and files to include.
+This mechanism allows you to build various versions of AlterLinux.
+The supported channels as of March 21, 2020 are:
+
+Name | Purpose
+--- | ---
+xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
+plasma | This is an edition with Plasma and Qt apps.
+arch | It has only a minimal GUI and installer, and after installation it has a minimal ArchLinux. This is an ArchLinux installer.
+
+
+#### About the kernel
 The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
 Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
   
