@@ -31,7 +31,7 @@ function run_add_key_script () {
     echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
     read yn
     case ${yn} in
-        y | Y | yes | Yes | YES ) "${script_path}/add-key.sh" --alter   ;;
+        y | Y | yes | Yes | YES ) sudo "${script_path}/add-key.sh" --alter   ;;
         n | N | no  | No  | NO  ) return 0                              ;;
         *                       ) run_add_key_script                    ;;
     esac
