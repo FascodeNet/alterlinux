@@ -728,6 +728,12 @@ fi
 set -eu
 
 
+# If there is pacman.conf for each channel, use that for building
+if [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]]; then
+    build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+fi
+
+
 # Create a working directory.
 [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
