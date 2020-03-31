@@ -229,6 +229,7 @@ zstd
 ```
 
 ## Documents
+- [Channel specifications](jp/CHANNEL.md)
 - [About packages](jp/PACKAGE.md)
 - [How to build on docker](en/DOCKER.md)
 - [How to add supporting a new kernel.](jp/KERNEL.md)
