@@ -491,7 +491,11 @@ make_syslinux() {
             "${script_path}/syslinux/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     fi
 
-    cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
+        cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    else
+        cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    fi
     cp "${work_dir}"/x86_64/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/memdisk" "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -729,9 +733,11 @@ set -eu
 
 
 # If there is pacman.conf for each channel, use that for building
-if [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]]; then
-    build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
-fi
+[[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+
+
+# If there is config for each channel. load that.
+[[ -f "${script_path}/channels/${channel_name}/config" ]] && source "${script_path}/channels/${channel_name}/config"
 
 
 # Create a working directory.
