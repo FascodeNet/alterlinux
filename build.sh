@@ -86,12 +86,29 @@ _usage () {
     echo "    -h                 This help message"
     echo "    -x                 Enable debug mode."
     echo
+
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+            channel_list="${channel_list[@]} ${i}"
+        fi
+    done
+
     echo " You can switch the packages to be installed on the channel."
     echo " Channel:"
-    echo "    arch               AlterLinux with a minimal GUI. "
-    echo "                       You can install a minimal CLI ArchLinux with Calamares."
-    echo "    xfce               Use Xfce4 for desktop environment."
-    echo "    plasma             Uses KDE and Qt software."
+
+    for _channel in ${channel_list[@]}; do
+        if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
+            description=$(cat "${script_path}/channels/${_channel}/description.txt")
+        else
+            description="This channel does not have a description.txt."
+        fi
+        echo -ne "    ${_channel}"
+        for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+            echo -ne " "
+        done
+        echo -ne "${description}\n"
+    done
+
 
     exit "${1}"
 }
