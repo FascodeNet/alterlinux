@@ -93,7 +93,7 @@ _usage () {
         fi
     done
 
-    echo " You can switch the packages to be installed on the channel."
+    echo "You can switch between installed packages, files included in images, etc. by channel."
     echo " Channel:"
 
     for _channel in ${channel_list[@]}; do
