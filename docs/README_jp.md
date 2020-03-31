@@ -237,6 +237,7 @@ zstd
 ```
 
 ## ドキュメント
+- [チャンネルに関する仕様](jp/CHANNEL.md)
 - [パッケージリストについての注意](jp/PACKAGE.md)
 - [Docker上でビルドする方法](jp/DOCKER.md)
 - [新しいカーネルを追加する方法](jp/KERNEL.md)

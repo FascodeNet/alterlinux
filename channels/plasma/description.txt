@@ -1,0 +1,1 @@
+Uses KDE and Qt software.
