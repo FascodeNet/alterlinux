@@ -9,25 +9,8 @@
 #
 # Internet
 
-#-- connection --#
-dhclient
-dhcpcd
-dnsutils
-ndisc6
-netctl
-networkmanager
+#-- connection Tools--#
 plasma-nm
-ppp
-pptpclient
-rp-pppoe
-wvdial
-
-
-#-- client --#
-# lftp
-ntp
-openssh
-wget
 
 
 #-- mail client --#
@@ -35,28 +18,9 @@ thunderbird
 # mailspring
 
 
-#-- server --#
-#darkhttpd
-#dnsmasq
-
-
 #-- web browser --#
 chromium
-# elinks
-
-
-#-- wireless --#
-crda
-iwd
-wireless-regdb
-wireless_tools
-wpa_supplicant
 
 
 #-- other tools --#
 kdenetwork-filesharing
-ethtool
-gnu-netcat
-# nmap
-rsync
-tcpdump
