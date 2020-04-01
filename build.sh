@@ -63,16 +63,14 @@ _usage () {
     echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                        Default: ${sfs_comp}"
     echo "    -g <gpg_key>       Set gpg key"
-    if [[ -z "${gpg_key}" ]]; then
-        echo "                        Default: empty"
-    else
-        echo "                        Default: ${gpg_key}"
-    fi
+    echo "                        Default: ${gpg_key}"
     echo "    -j                 Enable Japanese mode."
+    echo "                        Default: disable"
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
     echo "    -l                 Enable post-build cleaning."
+    echo "                        Default: disable"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -83,8 +81,9 @@ _usage () {
     echo "                        Default: ${username}"
     echo "    -w <work_dir>      Set the working directory"
     echo "                        Default: ${work_dir}"
-    echo "    -h                 This help message"
     echo "    -x                 Enable debug mode."
+    echo "                        Default: disable"
+    echo "    -h                 This help message and exit."
     echo
 
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
@@ -94,6 +93,7 @@ _usage () {
     done
 
     echo "You can switch between installed packages, files included in images, etc. by channel."
+    echo
     echo " Channel:"
 
     for _channel in ${channel_list[@]}; do
@@ -119,7 +119,7 @@ check_bool() {
     local 
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                   *) echo "The value ${boot_splash} set is invalid" >&2 ;;
+                   *) echo "The value ${boot_splash} set is invalid" >&2 ; exit 1;;
     esac
 }
 
@@ -135,6 +135,8 @@ run_once() {
     if [[ ! -e "${work_dir}/build.${1}" ]]; then
         "$1"
         touch "${work_dir}/build.${1}"
+    else
+        echo "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -368,7 +370,6 @@ make_customize_airootfs() {
             -D "${install_dir}" \
             -r "/root/customize_airootfs.sh ${share_options}" \
             run
-
         if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
             ${mkalteriso} ${mkalteriso_option} \
             -w "${work_dir}/x86_64" \
@@ -445,7 +446,6 @@ make_boot() {
     else
         cp "${work_dir}/x86_64/airootfs/boot/vmlinuz-linux" "${work_dir}/iso/${install_dir}/boot/x86_64/vmlinuz"
     fi
-
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
