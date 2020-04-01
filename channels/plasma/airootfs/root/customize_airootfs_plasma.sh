@@ -55,7 +55,7 @@ fi
 # Disable services.
 # To disable start up of sddm.
 # If it is enable, Users have to enter password.
-#systemctl disable sddm
-#if [[ ${boot_splash} = true ]]; then
-#    systemctl disable sddm-plymouth.service
-#fi
+systemctl disable sddm
+if [[ ${boot_splash} = true ]]; then
+    systemctl disable sddm-plymouth.service
+fi
