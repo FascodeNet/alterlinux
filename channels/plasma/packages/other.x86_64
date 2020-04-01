@@ -40,5 +40,11 @@ nano
 vim
 
 
+#-- shells --#
+zsh
+zsh-completions
+grml-zsh-config
+
+
 #-- other --#
 packagekit-qt5
