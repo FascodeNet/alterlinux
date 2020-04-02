@@ -20,10 +20,6 @@ man-db
 man-pages
 
 
-#-- game pad --#
-#jstest-gtk-git
-
-
 #-- linux --#
 linux-atm
 linux-firmware
@@ -38,6 +34,12 @@ cpu-x
 kate
 nano
 vim
+
+
+#-- shells --#
+zsh
+zsh-completions
+grml-zsh-config
 
 
 #-- other --#
