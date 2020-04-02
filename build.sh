@@ -608,7 +608,7 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
 
     if [[ ${cleaning} = true ]]; then
         remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -742,6 +742,14 @@ set -eu
 
 # Create a working directory.
 [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+
+# Generate iso file name.
+if [[ "${japanese}" = true  ]]; then
+    iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-x86_64.iso"
+else
+    iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
+fi
 
 
 show_settings 3
