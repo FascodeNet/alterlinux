@@ -17,7 +17,9 @@
 
 Alter Linux is a new OS developed based on Arch Linux.
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.
-Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
+Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.  
+
+![Screenshot](../images/screenshot/desktop.png)
 
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
