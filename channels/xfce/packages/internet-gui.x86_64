@@ -7,12 +7,18 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# look and feel
+# Internet
 
 
-# icon
-inverse-icon-theme-blue-git
+#-- connection --#
+network-manager-applet
 
 
-# theme
-arc-gtk-theme
+#-- mail client --#
+thunderbird
+# mailspring
+
+
+#-- web browser --#
+chromium
+# elinks

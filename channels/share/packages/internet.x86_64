@@ -21,7 +21,6 @@ dnsutils
 ndisc6
 netctl
 networkmanager
-network-manager-applet
 ppp
 pptpclient
 rp-pppoe
@@ -35,19 +34,10 @@ openssh
 wget
 
 
-#-- mail client --#
-thunderbird
-# mailspring
-
-
 #-- server --#
 darkhttpd
 dnsmasq
 
-
-#-- web browser --#
-chromium
-# elinks
 
 
 #-- wireless --#
