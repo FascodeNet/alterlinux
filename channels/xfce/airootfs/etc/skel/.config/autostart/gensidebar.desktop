@@ -6,4 +6,4 @@ Icon=utilities-terminal
 Exec=~/.setup.sh
 Terminal=false
 Type=Application
-Hidden=false
+Hidden=true
