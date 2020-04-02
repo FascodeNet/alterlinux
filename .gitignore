@@ -14,3 +14,5 @@ src/
 out/
 work/
 *.ignore*
+*.ig*
+*.add*
