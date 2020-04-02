@@ -13,6 +13,7 @@
 #-- archiver --#
 unrar
 unzip-iconv
+zip
 
 
 #-- commandline tools --#
