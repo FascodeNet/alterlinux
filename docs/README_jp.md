@@ -103,12 +103,7 @@ sudo ./add-key.sh --alter
 
 ### 実機でビルドする
 実機でビルドする場合はArchLinux環境でビルドする必要があります。　　
-ビルドに必要なパッケージをインストールして下さい。
-
-```bash
-sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
-```
-そしてソースコードをダウンロードしてください。
+ソースコードをダウンロードしてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -122,6 +117,14 @@ cd alterlinux
 ```bash
 ./wizard.sh
 ```
+
+#### 手動でオプションを指定してビルドする
+ビルドに必要なパッケージをインストールして下さい。  
+
+```bash
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+```
+オプションは[こちら](#buildsh-options)を参照して下さい。
 
 ### コンテナ上でビルドする
 Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照してください。

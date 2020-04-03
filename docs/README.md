@@ -104,7 +104,7 @@ When building with an actual machine, it is necessary to build in an ArchLinux e
 Install the necessary packages for the build.
 
 ```bash
-sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 Then download the source code.
 
