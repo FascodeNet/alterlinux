@@ -13,4 +13,6 @@ pkg/
 src/
 out/
 work/
-*.local.*
+*.ignore*
+*.ig*
+*.add*

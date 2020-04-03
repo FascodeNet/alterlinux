@@ -17,7 +17,9 @@
 
 Alter Linux is a new OS developed based on Arch Linux.
 Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.
-Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
+Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.  
+
+![Screenshot](../images/screenshot/desktop.png)
 
 ## Branch
 The main branches are: Other branches are temporary or used for specific purposes.
@@ -102,7 +104,7 @@ When building with an actual machine, it is necessary to build in an ArchLinux e
 Install the necessary packages for the build.
 
 ```bash
-sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 Then download the source code.
 

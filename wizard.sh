@@ -37,6 +37,46 @@ function run_add_key_script () {
     esac
 }
 
+function install_dependencies () {
+    local checkpkg
+    local dependence
+    local pkg
+
+    function checkpkg () {
+        if [[ $(pacman -Q "${1}" 2> /dev/null | awk '{print $1}') = "${1}" ]]; then
+            if [[ $(pacman -Q "${1}" 2> /dev/null | awk '{print $2}') = $(pacman -Sp --print-format '%v' "${1}") ]]; then
+                echo -n "true"
+            else
+                echo -n "false"
+            fi
+        else
+            echo -n "false"
+        fi
+    }
+
+    # dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso")
+    dependence=("sl")
+
+    echo "依存関係を確認しています..."
+    for pkg in ${dependence[@]}; do
+        if [[ $(checkpkg ${pkg}) = false ]]; then
+            install=(${install[@]} ${pkg})
+        fi
+    done
+
+    if [[ -n "${install[@]}" ]]; then
+        sudo pacman -Sy
+        sudo pacman -S --needed ${install[@]}
+    fi
+            
+}
+
+function remove_dependencies () {
+    if [[ -n "${install[@]}" ]]; then
+        sudo pacman -Rsn ${install[@]}
+    fi
+}
+
 function enable_plymouth () {
     local yn
     echo -n "Plymouthを有効化しますか？ （y/N） : "
@@ -442,21 +482,22 @@ function lastcheck () {
 }
 
 function start_build () {
-    # build.shの引数を表示（デバッグ用）
-    # echo ${argument}
-    sudo ./add-key.sh --alter
-    sudo ./build.sh ${argument}
-    make cleanup
+    if [[ ${nobuild} = true ]]; then
+        echo "${argument}"
+    else
+        # build.shの引数を表示（デバッグ用）
+        # echo ${argument}
+        sudo ./add-key.sh --alter
+        sudo ./build.sh ${argument}
+        make cleanup
+    fi
 }
 
 # 関数を実行
-check_files
-run_add_key_script
-ask
-generate_argument
-
-if [[ ${nobuild} = true ]]; then
-    echo "${argument}"
-else
-    start_build
-fi
+# check_files
+# run_add_key_script
+install_dependencies
+#ask
+#generate_argument
+# start_build
+remove_dependencies

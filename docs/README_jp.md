@@ -15,7 +15,9 @@
 
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。
 Xfce4による洗練されたUIとGUIで完結するパッケージ管理ツールを兼ね備え、誰でも簡単に高速で最新のOSを使用できます。
-AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/orgs/SereneTeam/projects/2)を確認してください。
+AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/orgs/SereneTeam/projects/2)を確認してください。  
+
+![Screenshot](../images/screenshot/desktop.png)
 
 ## ブランチ
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
@@ -101,12 +103,7 @@ sudo ./add-key.sh --alter
 
 ### 実機でビルドする
 実機でビルドする場合はArchLinux環境でビルドする必要があります。　　
-ビルドに必要なパッケージをインストールして下さい。
-
-```bash
-sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
-```
-そしてソースコードをダウンロードしてください。
+ソースコードをダウンロードしてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -120,6 +117,14 @@ cd alterlinux
 ```bash
 ./wizard.sh
 ```
+
+#### 手動でオプションを指定してビルドする
+ビルドに必要なパッケージをインストールして下さい。  
+
+```bash
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+```
+オプションは[こちら](#buildsh-options)を参照して下さい。
 
 ### コンテナ上でビルドする
 Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照してください。

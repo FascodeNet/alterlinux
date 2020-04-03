@@ -87,8 +87,10 @@ _usage () {
     echo
 
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
-            channel_list="${channel_list[@]} ${i}"
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+            if [[ ! ${i} = "share" ]]; then
+                    channel_list="${channel_list[@]} ${i}"
+            fi
         fi
     done
 
@@ -102,10 +104,17 @@ _usage () {
         else
             description="This channel does not have a description.txt."
         fi
-        echo -ne "    ${_channel}"
-        for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
-            echo -ne " "
-        done
+        if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
+            for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+                echo -ne " "
+            done
+        else
+            echo -ne "    ${_channel}"
+            for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+                echo -ne " "
+            done
+        fi
         echo -ne "${description}\n"
     done
 
@@ -170,7 +179,11 @@ show_settings() {
     echo "Live username is ${username}."
     echo "Live user password is ${password}."
     echo "The compression method of squashfs is ${sfs_comp}."
-    echo "Use the ${channel_name} channel."
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        echo "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+    else
+        echo "Use the ${channel_name} channel."
+    fi
     [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
     sleep "${1}"
 }
@@ -608,7 +621,7 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
 
     if [[ ${cleaning} = true ]]; then
         remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -709,23 +722,36 @@ if [[ -n "${1}" ]]; then
         local i
         channel_list=()
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
-                channel_list="${channel_list[@]} ${i}"
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+                if [[ ! ${i} = "share" ]]; then
+                    channel_list="${channel_list[@]} ${i}"
+                fi
             fi
         done
         for i in ${channel_list[@]}; do
-            if [[ ${i} = ${1} ]]; then
-                echo -n "true"
-                return 0
+            if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
+                    echo -n "true"
+                    return 0
+                fi
+            else
+                if [[ ${i} = ${1} ]]; then
+                    echo -n "true"
+                    return 0
+                fi
             fi
         done
         echo -n "false"
         return 1
     }
 
-    if [[ $(check_channel ${channel_name}) = false ]]; then
-        echo "Invalid channel ${channel_name}" >&2
+    if [[ $(check_channel "${channel_name}") = false ]]; then
+        echo "Invalid channel "${channel_name}"" >&2
         _usage 1
+    fi
+
+    if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
+        channel_name="${channel_name}.add"
     fi
 fi
 
@@ -742,6 +768,22 @@ set -eu
 
 # Create a working directory.
 [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+
+# Generate iso file name.
+if [[ "${japanese}" = true  ]]; then
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-x86_64.iso"
+    else
+        iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-x86_64.iso"
+    fi
+else
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-x86_64.iso"
+    else
+        iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
+    fi
+fi
 
 
 show_settings 3
