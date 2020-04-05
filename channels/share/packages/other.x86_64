@@ -14,9 +14,7 @@
 arch-install-scripts
 bash-completion
 dialog
-diffutils
 mc
-sudo
 
 
 #-- utility --#
