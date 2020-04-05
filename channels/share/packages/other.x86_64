@@ -10,12 +10,6 @@
 # Other
 
 
-#-- archiver --#
-unrar
-unzip-iconv
-zip
-
-
 #-- commandline tools --#
 arch-install-scripts
 bash-completion
