@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Install Alter Linux
-GenericName=Alter Linux Installer
+Name=Install %OS_NAME%
+GenericName=%OS_NAME% Installer
 Keywords=calamares;alter;linux;installer;
 TryExec=calamares
 Exec=pkexec /usr/bin/calamares
-Comment=Alter Linux Installer - by Calamares
+Comment=%OS_NAME% Installer - by Calamares
 Icon=calamares
 Terminal=false
 StartupNotify=true

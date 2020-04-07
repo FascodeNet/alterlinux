@@ -85,6 +85,10 @@ else
 fi
 
 
+# Set os name
+sed -i "s/%OS_NAME%/${os_name}/g" /etc/skel/Desktop/calamares.desktop
+
+
 # If rebuild is enabled, do not create users.
 # This is described in detail on ArchWiki.
 if [[ ${rebuild} = false ]]; then
