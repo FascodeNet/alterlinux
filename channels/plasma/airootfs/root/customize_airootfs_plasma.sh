@@ -7,7 +7,7 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel=core
+kernel='zen'
 theme_name=alter-logo
 rebuild=false
 japanese=false
