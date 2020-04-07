@@ -19,10 +19,11 @@ script_path="$(readlink -f ${0%/*})"
 # Do not change this variable.
 # To change the settings permanently, edit the config file.
 
+os_name="Alter Linux"
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
 iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="Alter Linux Live/Rescue CD"
+iso_application="${os_name} Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=alter
 work_dir=work
@@ -483,25 +484,30 @@ make_syslinux() {
 
     for _cfg in ${script_path}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%OS_NAME%|${os_name}|g;
              s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
 
     if [[ ${boot_splash} = true ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     else
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     fi
 
     if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
@@ -520,7 +526,9 @@ make_syslinux() {
 # Prepare /isolinux
 make_isolinux() {
     mkdir -p "${work_dir}/iso/isolinux"
-    sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/system/isolinux.cfg > "${work_dir}/iso/isolinux/isolinux.cfg"
+
+    sed "s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/system/isolinux.cfg" > "${work_dir}/iso/isolinux/isolinux.cfg"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/isolinux.bin" "${work_dir}/iso/isolinux/"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/isohdpfx.bin" "${work_dir}/iso/isolinux/"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/ldlinux.c32" "${work_dir}/iso/isolinux/"
