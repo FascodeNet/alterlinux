@@ -19,10 +19,11 @@ theme_name=alter-logo
 rebuild=false
 japanese=false
 username='alter'
+os_name="Alter Linux"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:' arg; do
+while getopts 'p:bt:k:rxju:o:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -31,6 +32,7 @@ while getopts 'p:bt:k:rxju:' arg; do
         r) rebuild=true ;;
         j) japanese=true;;
         u) username="${OPTARG}" ;;
+        o) os_name="${OPTARG}" ;;
         x) set -xv ;;
     esac
 done

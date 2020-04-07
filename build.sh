@@ -337,6 +337,7 @@ make_customize_airootfs() {
     # -t            : Set plymouth theme.
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
+    # -o <os name>  : Set os name.
     # -u <username> : Set live user name.
     # -x            : Enable debug mode.
     # -r            : Enable rebuild.
@@ -363,7 +364,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p ${password} -k ${kernel} -u ${username}"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}'"
 
 
     # X permission
