@@ -199,6 +199,10 @@ remove /usr/share/calamares/modules/unpackfs/
 sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser.conf
 
 
+# Set os name
+sed -i "s/%OS_NAME%/${os_name}/g" /usr/lib/os-release
+
+
 # Enable root login with SSH.
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 
