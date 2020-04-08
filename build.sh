@@ -550,12 +550,14 @@ make_efi() {
 
     if [[ ! ${kernel} = "core" ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
     else
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
     fi
 
     # EFI Shell 2.0 for UEFI 2.3+
