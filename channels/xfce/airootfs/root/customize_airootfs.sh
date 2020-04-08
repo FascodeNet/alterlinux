@@ -14,15 +14,16 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel=core
+kernel='zen'
 theme_name=alter-logo
 rebuild=false
 japanese=false
 username='alter'
+os_name="Alter Linux"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:' arg; do
+while getopts 'p:bt:k:rxju:o:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -31,6 +32,7 @@ while getopts 'p:bt:k:rxju:' arg; do
         r) rebuild=true ;;
         j) japanese=true;;
         u) username="${OPTARG}" ;;
+        o) os_name="${OPTARG}" ;;
         x) set -xv ;;
     esac
 done
@@ -38,7 +40,7 @@ done
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
-    local 
+    local
     case $(eval echo '$'${1}) in
         true | false) : ;;
                    *) echo "The value ${boot_splash} set is invalid" >&2 ;;
@@ -83,13 +85,17 @@ else
 fi
 
 
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
+
+
 # If rebuild is enabled, do not create users.
 # This is described in detail on ArchWiki.
 if [[ ${rebuild} = false ]]; then
     # Creating a root user.
     # usermod -s /usr/bin/zsh root
 
-    usermod -s /bin/bash root
+    usermod -s /bin/zsh root
     cp -aT /etc/skel/ /root/
     chmod 700 /root
     LC_ALL=C xdg-user-dirs-update
@@ -195,6 +201,10 @@ remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
 # Set up calamares removeuser
 sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser.conf
+
+
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
 
 
 # Enable root login with SSH.

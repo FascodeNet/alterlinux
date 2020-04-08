@@ -8,7 +8,12 @@
 # Write the alias here.
 #
 
+# lsd-control
 [[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
 
+# aptpac
 alias apt='aptpac'
 alias apt-get='aptpac'
+
+# no-beep less
+alias less='less -Q'

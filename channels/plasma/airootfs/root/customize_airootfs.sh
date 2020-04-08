@@ -14,15 +14,16 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel=core
+kernel='zen'
 theme_name=alter-logo
 rebuild=false
 japanese=false
 username='alter'
+os_name="Alter Linux"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:' arg; do
+while getopts 'p:bt:k:rxju:o:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -31,6 +32,7 @@ while getopts 'p:bt:k:rxju:' arg; do
         r) rebuild=true ;;
         j) japanese=true;;
         u) username="${OPTARG}" ;;
+        o) os_name="${OPTARG}" ;;
         x) set -xv ;;
     esac
 done
@@ -81,6 +83,10 @@ if [[ ${japanese} = true ]]; then
 else
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 fi
+
+
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 
 
 # If rebuild is enabled, do not create users.
@@ -195,6 +201,10 @@ remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
 # Set up calamares removeuser
 sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser.conf
+
+
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
 
 
 # Enable root login with SSH.

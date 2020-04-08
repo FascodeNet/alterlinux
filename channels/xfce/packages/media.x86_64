@@ -10,16 +10,16 @@
 # Media
 
 
+#-- audio --#
+pavucontrol
+pulseaudio
+
+
 #-- bluetooth --#
 blueman
 bluez
 bluez-utils
 pulseaudio-bluetooth
-
-
-#-- audio --#
-pavucontrol
-pulseaudio
 
 
 #-- media player --#
