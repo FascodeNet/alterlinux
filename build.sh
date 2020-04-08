@@ -19,10 +19,11 @@ script_path="$(readlink -f ${0%/*})"
 # Do not change this variable.
 # To change the settings permanently, edit the config file.
 
+os_name="Alter Linux"
 iso_name=alterlinux
 iso_label="ALTER_$(date +%Y%m)"
 iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="Alter Linux Live/Rescue CD"
+iso_application="${os_name} Live/Rescue CD"
 iso_version=$(date +%Y.%m.%d)
 install_dir=alter
 work_dir=work
@@ -336,6 +337,7 @@ make_customize_airootfs() {
     # -t            : Set plymouth theme.
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
+    # -o <os name>  : Set os name.
     # -u <username> : Set live user name.
     # -x            : Enable debug mode.
     # -r            : Enable rebuild.
@@ -362,7 +364,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p ${password} -k ${kernel} -u ${username}"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}'"
 
 
     # X permission
@@ -483,25 +485,30 @@ make_syslinux() {
 
     for _cfg in ${script_path}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%OS_NAME%|${os_name}|g;
              s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
 
     if [[ ${boot_splash} = true ]]; then
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     else
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/syslinux/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+             s|%OS_NAME%|${os_name}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" \
+             "${script_path}/syslinux/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
     fi
 
     if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
@@ -520,7 +527,9 @@ make_syslinux() {
 # Prepare /isolinux
 make_isolinux() {
     mkdir -p "${work_dir}/iso/isolinux"
-    sed "s|%INSTALL_DIR%|${install_dir}|g" ${script_path}/system/isolinux.cfg > "${work_dir}/iso/isolinux/isolinux.cfg"
+
+    sed "s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/system/isolinux.cfg" > "${work_dir}/iso/isolinux/isolinux.cfg"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/isolinux.bin" "${work_dir}/iso/isolinux/"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/isohdpfx.bin" "${work_dir}/iso/isolinux/"
     cp "${work_dir}/x86_64/airootfs/usr/lib/syslinux/bios/ldlinux.c32" "${work_dir}/iso/isolinux/"
@@ -539,15 +548,10 @@ make_efi() {
     cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/iso/loader/entries/"
     cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/iso/loader/entries/"
 
-    if [[ ! ${kernel} = "core" ]]; then
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
-    else
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
-    fi
+    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+         s|%OS_NAME%|${os_name}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
     # EFI Shell 2.0 for UEFI 2.3+
     curl -o "${work_dir}/iso/EFI/shellx64_v2.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/ShellBinPkg/UefiShell/X64/Shell.efi"
@@ -590,15 +594,10 @@ make_efiboot() {
 
     #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
-    if [[ ! ${kernel} = "core" ]]; then
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
-    else
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-            "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
-    fi
+    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+         s|%OS_NAME%|${os_name}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
     cp "${work_dir}/iso/EFI/shellx64_v2.efi" "${work_dir}/efiboot/EFI/"
     cp "${work_dir}/iso/EFI/shellx64_v1.efi" "${work_dir}/efiboot/EFI/"
