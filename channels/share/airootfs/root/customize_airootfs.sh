@@ -40,7 +40,7 @@ done
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
-    local 
+    local
     case $(eval echo '$'${1}) in
         true | false) : ;;
                    *) echo "The value ${boot_splash} set is invalid" >&2 ;;
@@ -204,7 +204,7 @@ sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser.conf
 
 
 # Set os name
-sed -i "s/%OS_NAME%/${os_name}/g" /usr/lib/os-release
+sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
 
 
 # Enable root login with SSH.
