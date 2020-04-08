@@ -1,15 +1,28 @@
+#
+# ~/.zshrc
+#
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+
+
 #-- Alias --#
-if [[ -f .aliases ]]; then
-    source .aliases
-fi
+[[ -f .aliases ]] && source .aliases
 
 
 #-- Completion --#
-if [ -e /usr/local/share/zsh-completions ]; then
-    fpath=(/usr/local/share/zsh-completions $fpath)
-fi
+[ -e /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -U compinit
 compinit -u
+
+
+#-- Archive settings --#
+export ZIPINFOOPT=-OCP932
+export UNZIPOPT=-OCP932
 
 
 #-- Key --#

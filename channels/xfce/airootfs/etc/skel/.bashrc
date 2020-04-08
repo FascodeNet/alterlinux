@@ -13,6 +13,11 @@
 [[ $- != *i* ]] && return
 
 
+#-- Archive settings --#
+export ZIPINFOOPT=-OCP932
+export UNZIPOPT=-OCP932
+
+
 #-- Load scripts --#
 [[ -f ~/.aliases ]] && source ~/.aliases
 
