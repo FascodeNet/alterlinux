@@ -6,7 +6,7 @@
 <a href="../LICENSE"><img src="https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu" alt="License: GPLv3.0"></a>
 <a href="https://www.archlinux.org/"><img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base"></a>
 <a href="https://git.archlinux.org/archiso.git/tag/?h=v43"><img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor" alt="archiso-version"></a>
-<a href="https://github.com/SereneTeam/alterlinux/releases"><img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release"></a>
+<a href="https://github.com/FascodeNet/alterlinux/releases"><img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release"></a>
 
 <table>
 	<thead>
