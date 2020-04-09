@@ -8,8 +8,18 @@
 <a href="https://git.archlinux.org/archiso.git/tag/?h=v43"><img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor" alt="archiso-version"></a>
 <a href="https://github.com/SereneTeam/alterlinux/releases"><img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release"></a>
 
-| [日本語](README_jp.md) | [English](README.md) |
-|:-----:|:-----:|
+<table>
+	<thead>
+		<tr>
+			<th style="text-align:center">
+				<a href="README_jp.md">日本語</a>
+			</th>
+			<th style="text-align:center">
+				<a href="README.md">English</a>
+			</th>
+		</tr>
+	</thead>
+</table>
 
 <h2 align="center">概要</h2>
 
@@ -38,9 +48,34 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 <h2 align="center">ブランチ</h2>
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
 
-[master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev)
---- | --- | ---
-最も安定しています。バグの修正などは遅れる場合があります。 | 定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。 | 常に更新されます。問題が多数残っている場合があります。
+<table>
+	<thead>
+		<tr>
+			<th>
+				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
+			</th>
+			<th>
+				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
+			</th>
+			<th>
+				<a href="https://github.com/SereneTeam/alterlinux/tree/dev">dev</a>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				最も安定しています。バグの修正などは遅れる場合があります。
+			</td>
+			<td>
+				定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。
+			</td>
+			<td>
+				常に更新されます。問題が多数残っている場合があります。
+			</td>
+		</tr>
+	</tbody>
+</table>
 
 
 <h2 align="center">意見や感想について</h2>
