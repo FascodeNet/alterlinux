@@ -8,7 +8,7 @@
 <a href="https://git.archlinux.org/archiso.git/tag/?h=v43"><img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor" alt="archiso-version"></a>
 <a href="https://github.com/SereneTeam/alterlinux/releases"><img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release"></a>
 
-<table>
+<table align="center">
 	<thead>
 		<tr>
 			<th style="text-align:center">
