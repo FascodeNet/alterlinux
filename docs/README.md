@@ -106,7 +106,7 @@ In addition, please write down the situation and model name <a href="https://git
 <a href="https://fascode.net/">Fascode Network</a>is a creative team mainly composed of students.<br>
 We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
 
-<h3 align="center">Official Twitter account</h3>
+<h3>Official Twitter account</h3>
 <a href="https://twitter.com/FascodeNetwork">
 	<img src="https://pbs.twimg.com/profile_images/1245716817831530497/JEkKX1XN_400x400.jpg" width="100px">
 </a>
@@ -114,7 +114,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux
 	<img src="https://pbs.twimg.com/profile_images/1245682659231068160/Nn5tPUvB_400x400.jpg" width="100px">
 </a>
 
-<h3 align="center">Developer Twitter account</h3>
+<h3>Developer Twitter account</h3>
 <a href="https://twitter.com/Hayao0819">
 	<img src="https://avatars1.githubusercontent.com/u/32128205" width="100px">
 </a>
