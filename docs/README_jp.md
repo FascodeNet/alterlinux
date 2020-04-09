@@ -33,7 +33,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 <ul>
 	<li>既に構築されたArchLinux環境をGUIでインストール</li>
 	<li>洗練されたUIやテーマ、アイコンを搭載</li>
-	<li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用可能
+	<li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用可能</li>
 	<li>archisoをベースとしたフレームワークにより簡単に派生OSを開発可能</li>
 </ul>
 
