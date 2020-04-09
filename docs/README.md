@@ -1,5 +1,5 @@
 
-<h2 align="center">Alter Linux - Arch Linux-derived OS made in Japan aimed at anyone to use</h2>
+<h2>Alter Linux - Arch Linux-derived OS made in Japan aimed at anyone to use</h2>
 
 <img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="AlterLinux logo">
 
@@ -23,7 +23,7 @@
 
 <b>日本語版はこちらにあります</b>
 
-<h2 align="center">〈Overview〉</h2>
+<h2>〈Overview〉</h2>
 
 Alter Linux is a new OS developed based on Arch Linux.<br>
 Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of AlterLinux.<br>
@@ -31,7 +31,7 @@ Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board<
 <img src="../images/screenshot/desktop.png" alt="screenshot">
 
 
-<h2 align="center">〈Feature〉</h2>
+<h2>〈Feature〉</h2>
 <ul>
 	<li>Install the already built ArchLinux environment with GUI</li>
 	<li>Equipped with sophisticated UI, themes and icons</li>
@@ -39,7 +39,7 @@ Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board<
 	<li>Easy development of derived OS by framework based on archiso</li>
 </ul>
 
-<h2 align="center">〈Download〉</h2>
+<h2>〈Download〉</h2>
 The image file can be downloaded from the official <a href="https://fascode.net/projects/linux/alter/#downloads">website</a>.
 <br>
 <b>We are looking for a mirror server provider for repositories and image file distribution.</b>
@@ -47,7 +47,7 @@ The image file can be downloaded from the official <a href="https://fascode.net/
 If you would like us to provide a mirror please contact the developer's Twitter.
 
 
-<h2 align="center">〈Branch〉</h2>
+<h2>〈Branch〉</h2>
 These are a list of major branches. Other branches are temporary or used for specific purposes.
 
 <table>
@@ -80,11 +80,11 @@ These are a list of major branches. Other branches are temporary or used for spe
 </table>
 
 
-<h2 align="center">〈About opinion and impression〉</h2>
+<h2>〈About opinion and impression〉</h2>
 If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>.<br>
 We are soliciting opinions from various users to make AlterLinux better.
 
-<h2 align="center">〈Documents〉</h2>
+<h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
@@ -96,13 +96,13 @@ Some documents may have outdated information or only some languages.<br>
 </ul>
 
 
-<h2 align="center">〈If you cannot start〉</h2>
+<h2>〈If you cannot start〉</h2>
 You can disable the boot animation and boot to see the logs.<br>
 Boot from the disk and select <code>Boot Alter Linux without boot splash (x86_64)</code>.<br>
 In addition, please write down the situation and model name <a href="https://github.com/FascodeNet/alterlinux/issues">here</a>, and report it to the developer.
 
 
-<h2 align="center">〈About FascodeNetwork and developers〉</h2>
+<h2>〈About FascodeNetwork and developers〉</h2>
 <a href="https://fascode.net/">Fascode Network</a>is a creative team mainly composed of students.<br>
 We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
 
