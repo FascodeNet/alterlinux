@@ -96,7 +96,7 @@ cd ./alterlinux/
 AlterLinux includes a script to easily add keys.
 
 ```bash
-sudo ./add-key.sh --alter
+sudo ./keyring.sh --alter-add
 ```
 
 #### Build on real machine

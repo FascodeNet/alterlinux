@@ -6,7 +6,7 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# add-key.sh
+# keyring.sh
 #
 # Script to import AlterLinux and ArchLinux keys.
 #

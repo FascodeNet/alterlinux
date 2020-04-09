@@ -97,7 +97,7 @@ cd ./alterlinux/
 AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
 
 ```bash
-sudo ./add-key.sh --alter
+sudo ./keyring.sh --alter-add
 ```
 
 ### 実機でビルドする
