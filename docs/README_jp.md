@@ -40,9 +40,9 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 <h2 align="center">[ダウンロード]</h2>
 イメージファイルは<a href="https://fascode.net/projects/linux/alter/#downloads">公式サイト</a>からダウンロードできます。
 <br>
-<b>私達はリポジトリやイメージファイル配布のミラーサーバ提供者を探しています。</b>
+<b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
 <br>
-もし私達にミラーを提供してくださる場合は開発者のTwitterまでお願いします。
+もし私達にミラーを提供して頂ける場合は開発者のTwitterまでお願いします。
 
 
 <h2 align="center">[ブランチ]</h2>
@@ -79,7 +79,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 
 
 <h2 align="center">[意見や感想について]</h2>
-もしAlterLinuxが起動しなかったり、使いにくかったり、標準でインストールしてほしいソフトウェアがあったら、遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>に投稿して下さい。<br>
+もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
 私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
 
 
@@ -98,7 +98,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 <h2 align="center">[起動できない場合]</h2>
 ブート時のアニメーションを無効化してブートし、ログを確認することができます。<br>
 ディスクから起動し、<code>Boot Alter Linux without boot splash (x86_64)</code>を選択して下さい。<br>
-また、発生した状況や機種名などを<a href="https://github.com/FascodeNet/alterlinux/issues">こちら</a>に書いて開発者に報告して下さい。
+また、発生した状況や機種名などを記載の上<a href="https://github.com/FascodeNet/alterlinux/issues">こちら</a>までご報告をお願いします。
 
 
 <h2 align="center">[FascodeNetworkと開発者について]</h2>
