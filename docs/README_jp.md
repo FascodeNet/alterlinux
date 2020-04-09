@@ -9,8 +9,8 @@
 <a href="https://github.com/SereneTeam/alterlinux/releases"><img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release"></a>
 
 <table align="center">
-	<thead>
-		<tr>
+	<thead align="center">
+		<tr align="center">
 			<th style="text-align:center">
 				<a href="README_jp.md">日本語</a>
 			</th>
