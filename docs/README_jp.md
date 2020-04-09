@@ -21,7 +21,7 @@
 	</thead>
 </table>
 
-<h2 align="center">概要</h2>
+<h2 align="center">[概要]</h2>
 
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。<br>
 AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/orgs/FascodeNet/projects/2)を確認してください。<br>
@@ -29,7 +29,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 <img src="../images/screenshot/desktop.png" alt="スクリーンショット">
 
 
-<h2 align="center">特徴</h2>
+<h2 align="center">[特徴]</h2>
 <ul>
 	<li>既に構築されたArchLinux環境をGUIでインストール</li>
 	<li>洗練されたUIやテーマ、アイコンを搭載</li>
@@ -37,7 +37,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 	<li>archisoをベースとしたフレームワークにより簡単に派生OSを開発可能</li>
 </ul>
 
-<h2 align="center">ダウンロード</h2>
+<h2 align="center">[ダウンロード]</h2>
 イメージファイルは<a href="https://fascode.net/projects/linux/alter/#downloads">公式サイト</a>からダウンロードできます。
 <br>
 <b>私達はリポジトリやイメージファイル配布のミラーサーバ提供者を探しています。</b>
@@ -45,7 +45,7 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 もし私達にミラーを提供してくださる場合は開発者のTwitterまでお願いします。
 
 
-<h2 align="center">ブランチ</h2>
+<h2 align="center">[ブランチ]</h2>
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
 
 <table>
@@ -78,12 +78,12 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 </table>
 
 
-<h2 align="center">意見や感想について</h2>
+<h2 align="center">[意見や感想について]</h2>
 もしAlterLinuxが起動しなかったり、使いにくかったり、標準でインストールしてほしいソフトウェアがあったら、遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>に投稿して下さい。<br>
 私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
 
 
-<h2 align="center">ドキュメント</h2>
+<h2 align="center">[ドキュメント]</h2>
 一部のドキュメントは情報が古かったり、一部の言語しかない場合が有ります。<br>
 <ul>
 	<li><a href="jp/BUILD.md">AlterLinuxをビルドする</a></li>
@@ -95,13 +95,13 @@ AlterLinuxの最新の状況は[プロジェクトボード](https://github.com/
 </ul>
 
 
-<h2 align="center">起動できない場合</h2>
+<h2 align="center">[起動できない場合]</h2>
 ブート時のアニメーションを無効化してブートし、ログを確認することができます。<br>
 ディスクから起動し、<code>Boot Alter Linux without boot splash (x86_64)</code>を選択して下さい。<br>
 また、発生した状況や機種名などを<a href="https://github.com/FascodeNet/alterlinux/issues">こちら</a>に書いて開発者に報告して下さい。
 
 
-<h2 align="center">FascodeNetworkと開発者について</h2>
+<h2 align="center">[FascodeNetworkと開発者について]</h2>
 <a href="https://fascode.net/">Fascode Network</a>は学生を主体とする創作チームです。<br>
 <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a>と<a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>の開発を行っています。
 
