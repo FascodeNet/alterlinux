@@ -27,13 +27,15 @@
 
 Alter Linux is a new OS developed based on Arch Linux.<br>
 Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of AlterLinux.<br>
+Please see the <a href="https://fascode.net/projects/linux/alter/">official website</a> for information on announcements and bugs for users.
 
 <img src="../images/screenshot/desktop.png" alt="screenshot">
 
 
 <h2>〈Feature〉</h2>
 <ul>
-	<li>Install the already built ArchLinux environment with GUI</li>
+	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>Adopt ZEN kernel by default</li>
 	<li>Equipped with sophisticated UI, themes and icons</li>
 	<li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
 	<li>Easy development of derived OS by framework based on archiso</li>

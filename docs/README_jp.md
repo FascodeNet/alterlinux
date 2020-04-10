@@ -24,17 +24,20 @@
 <h2>〈概要〉</h2>
 
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。<br>
-AlterLinuxの最新の状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
+AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
+ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
 
 <img src="../images/screenshot/desktop.png" alt="スクリーンショット">
 
 
 <h2>〈特徴〉</h2>
 <ul>
-	<li>既に構築されたArchLinux環境をGUIでインストール</li>
-	<li>洗練されたUIやテーマ、アイコンを搭載</li>
-	<li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用可能</li>
-	<li>archisoをベースとしたフレームワークにより簡単に派生OSを開発可能</li>
+	<li>既に構築されたArchLinux環境をGUIでインストールできます</li>
+	<li>既に完全に日本語化されており、インストールしてすぐに日本語入力を使用できます</li>
+	<li>デフォルトでZENカーネルを採用</li>
+	<li>洗練されたUIやテーマ、アイコンを搭載しています</li>
+	<li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用できます</li>
+	<li>archisoをベースとしたフレームワークにより簡単に派生OSを開発できます</li>
 </ul>
 
 <h2>〈ダウンロード〉</h2>
