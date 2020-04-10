@@ -21,10 +21,11 @@ japanese=false
 username='alter'
 os_name="Alter Linux"
 install_dir="alter"
+usershell="/bin/bash"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:i:' arg; do
+while getopts 'p:bt:k:rxju:o:i:s:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -35,6 +36,7 @@ while getopts 'p:bt:k:rxju:o:i:' arg; do
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
+        s) usershell="${OPTARG}" ;;
         x) set -xv ;;
     esac
 done
@@ -97,7 +99,7 @@ if [[ ${rebuild} = false ]]; then
     # Creating a root user.
     # usermod -s /usr/bin/zsh root
 
-    usermod -s /bin/bash root
+    usermod -s "${usershell}" root
     cp -aT /etc/skel/ /root/
     chmod 700 /root
     LC_ALL=C xdg-user-dirs-update
@@ -127,7 +129,7 @@ if [[ ${rebuild} = false ]]; then
         fi
         set -u
 
-        useradd -m -s /bin/bash ${_username}
+        useradd -m -s ${usershell} ${_username}
         groupadd sudo
         usermod -U -g ${_username} -G sudo ${_username}
         cp -aT /etc/skel/ /home/${_username}/

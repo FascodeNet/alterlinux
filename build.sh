@@ -46,6 +46,7 @@ channel_name='xfce'
 cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
+usershell="/bin/bash"
 
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman.conf
@@ -339,6 +340,7 @@ make_customize_airootfs() {
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
+    # -s <shell>    : Set user shell.
     # -u <username> : Set live user name.
     # -x            : Enable debug mode.
     # -r            : Enable rebuild.
@@ -365,7 +367,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}'"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}'"
 
 
     # X permission
