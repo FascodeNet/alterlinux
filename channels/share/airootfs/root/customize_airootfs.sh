@@ -23,7 +23,7 @@ os_name="Alter Linux"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:' arg; do
+while getopts 'p:bt:k:rxju:o:i:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -33,6 +33,7 @@ while getopts 'p:bt:k:rxju:o:' arg; do
         j) japanese=true;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
+        i) install_dir="${OPTARG}" ;;
         x) set -xv ;;
     esac
 done
@@ -200,7 +201,9 @@ fi
 remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
 # Set up calamares removeuser
-sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser.conf
+sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+# Set INSTALL_DIR
+sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
 
 
 # Set os name
