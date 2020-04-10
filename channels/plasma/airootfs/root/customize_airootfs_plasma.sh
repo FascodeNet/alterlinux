@@ -13,10 +13,11 @@ rebuild=false
 japanese=false
 username='alter'
 os_name="Alter Linux"
+install_dir="alter"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:' arg; do
+while getopts 'p:bt:k:rxju:o:i:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -26,6 +27,7 @@ while getopts 'p:bt:k:rxju:o:' arg; do
         j) japanese=true;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
+        i) install_dir="${OPTARG}" ;;
         x) set -xv ;;
     esac
 done

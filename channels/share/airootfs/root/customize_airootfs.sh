@@ -20,6 +20,7 @@ rebuild=false
 japanese=false
 username='alter'
 os_name="Alter Linux"
+install_dir="alter"
 
 
 # Parse arguments
