@@ -204,6 +204,39 @@ prepare_rebuild() {
     fi
 }
 
+# Preparation for build
+prepare_build() {
+    # If there is pacman.conf for each channel, use that for building
+    [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+
+
+    # If there is config for each channel. load that.
+    if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
+        source "${script_path}/channels/${channel_name}/config"
+        echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+    fi
+
+
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+
+    # Generate iso file name.
+    if [[ "${japanese}" = true  ]]; then
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-x86_64.iso"
+        else
+            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-x86_64.iso"
+        fi
+    else
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-x86_64.iso"
+        else
+            iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
+        fi
+    fi
+}
+
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     local _cache_dirs
@@ -766,39 +799,9 @@ fi
 set -eu
 
 
-# If there is pacman.conf for each channel, use that for building
-[[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
-
-
-# If there is config for each channel. load that.
-if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
-    source "${script_path}/channels/${channel_name}/config"
-    echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
-fi
-
-
-# Create a working directory.
-[[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-
-
-# Generate iso file name.
-if [[ "${japanese}" = true  ]]; then
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-x86_64.iso"
-    else
-        iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-x86_64.iso"
-    fi
-else
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-x86_64.iso"
-    else
-        iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
-    fi
-fi
-
-
 show_settings
 prepare_rebuild
+prepare_build
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
