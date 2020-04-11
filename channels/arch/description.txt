@@ -1,1 +1,0 @@
-AlterLinux with a minimal GUI.You can install a minimal CLI ArchLinux with Calamares."

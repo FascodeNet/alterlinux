@@ -6,7 +6,7 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# add-key.sh
+# keyring.sh
 #
 # Script to import AlterLinux and ArchLinux keys.
 #
@@ -23,13 +23,13 @@ alter_pacman_conf="${script_path}/system/pacman.conf"
 
 # erro message
 msg_error() {
-    echo -e "[add-key.sh] ERROR : ${@}" >&2
+    echo -e "[keyring.sh] ERROR : ${@}" >&2
 }
 
 
 # info message
 msg_info() {
-    echo -e "[add-key.sh] INFO: ${@}" >&1
+    echo -e "[keyring.sh] INFO: ${@}" >&1
 }
 
 
@@ -38,8 +38,9 @@ _usage () {
     echo "usage ${0} [options]"
     echo
     echo " General options:"
-    echo "    --alter            Add alterlinux-keyring."
-    echo "    --arch             Add archlinux-keyring"
+    echo "    --alter-add        Add alterlinux-keyring."
+    echo "    --alter-remove     Remove alterlinux-keyring."
+    echo "    --arch-add         Add archlinux-keyring."
     echo "    -h                 Show this help and exit."
 }
 
@@ -122,17 +123,29 @@ updae_alter_key() {
 }
 
 
+remove_alter_key() {
+    pacman-key -d BDC396346243AB57ACD090F9F50544048389DA36
+    if checkpkg alterlinux-keyring; then
+        pacman -Rsnc alterlinux-keyring
+    fi
+}
+
+
 # 引数解析
 while getopts 'h-:' arg; do
     case "${arg}" in
         h) _usage ; exit 0;;
         -)
             case "${OPTARG}" in
-                alter)
+                alter-add)
                     run prepare
                     run updae_alter_key
                     ;;
-                arch)
+                alter-remove)
+                    run prepare
+                    run remove_alter_key
+                    ;;
+                arch-add)
                     run prepare
                     run update_arch_key
                     ;;
@@ -141,6 +154,8 @@ while getopts 'h-:' arg; do
                     run update_system
                     run upgrade_system
                     ;;
+                *)
+                    _usage ; exit 1 ;;
                 help) _usage ;;
             esac
             ;;

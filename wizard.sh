@@ -20,8 +20,8 @@ function check_files () {
         echo "${script_path}/build.shが見つかりませんでした。" >&2
         exit 1
     fi
-    if [[ ! -f "${script_path}/add-key.sh" ]]; then
-        echo "${script_path}/add-key.shが見つかりませんでした。" >&2
+    if [[ ! -f "${script_path}/keyring.sh" ]]; then
+        echo "${script_path}/keyring.shが見つかりませんでした。" >&2
         exit 1
     fi
 }
@@ -31,7 +31,7 @@ function run_add_key_script () {
     echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
     read yn
     case ${yn} in
-        y | Y | yes | Yes | YES ) sudo "${script_path}/add-key.sh" --alter   ;;
+        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter   ;;
         n | N | no  | No  | NO  ) return 0                              ;;
         *                       ) run_add_key_script                    ;;
     esac
@@ -487,7 +487,7 @@ function start_build () {
     else
         # build.shの引数を表示（デバッグ用）
         # echo ${argument}
-        sudo ./add-key.sh --alter
+        sudo ./keyring.sh --alter-add
         sudo ./build.sh ${argument}
         make cleanup
     fi

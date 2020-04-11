@@ -46,12 +46,16 @@ channel_name='xfce'
 cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
+usershell="/bin/bash"
+
 
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman.conf
 
+
 # Load config file
-[[ -f ./config ]] && source config
+[[ -f "${script_path}"/config ]] && source "${script_path}"/config
+
 
 umask 0022
 
@@ -172,6 +176,7 @@ remove() {
 # Show settings.
 # $1 = Time to show
 show_settings() {
+    echo
     if [[ "${boot_splash}" = true ]]; then
         echo "Boot splash is enabled."
         echo "Theme is used ${theme_name}."
@@ -186,7 +191,9 @@ show_settings() {
         echo "Use the ${channel_name} channel."
     fi
     [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
-    sleep "${1}"
+    echo
+    echo "Press Enter to continue or Ctrl + C to exit."
+    read
 }
 
 # Preparation for rebuild
@@ -335,9 +342,11 @@ make_customize_airootfs() {
     # -p <password> : Set password.
     # -b            : Enable boot splash.
     # -t            : Set plymouth theme.
+    # -i <inst_dir> : Set install dir
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
+    # -s <shell>    : Set user shell.
     # -u <username> : Set live user name.
     # -x            : Enable debug mode.
     # -r            : Enable rebuild.
@@ -364,7 +373,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}'"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}'"
 
 
     # X permission
@@ -703,7 +712,7 @@ fi
 
 
 # Show config message
-[[ -f ./config ]] && echo "The settings have been overwritten by the config file."
+[[ -f "${script_path}"/config ]] && echo "The settings have been overwritten by the "${script_path}"/config."
 
 
 # Parse options
@@ -762,7 +771,10 @@ set -eu
 
 
 # If there is config for each channel. load that.
-[[ -f "${script_path}/channels/${channel_name}/config" ]] && source "${script_path}/channels/${channel_name}/config"
+if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
+    source "${script_path}/channels/${channel_name}/config"
+    echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+fi
 
 
 # Create a working directory.
@@ -785,7 +797,7 @@ else
 fi
 
 
-show_settings 3
+show_settings
 prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
