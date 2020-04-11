@@ -14,7 +14,7 @@ cd ./alterlinux/
 AlterLinux includes a script to easily add keys.
 
 ```bash
-sudo ./keyring.sh --alter-add
+sudo ./keyring.sh -a
 ```
 
 #### Build on real machine
