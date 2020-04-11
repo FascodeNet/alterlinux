@@ -48,11 +48,14 @@ username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
 
+
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman.conf
 
+
 # Load config file
-[[ -f ./config ]] && source config
+[[ -f "${script_path}"/config ]] && source "${script_path}"/config
+
 
 umask 0022
 
@@ -709,7 +712,7 @@ fi
 
 
 # Show config message
-[[ -f ./config ]] && echo "The settings have been overwritten by the config file."
+[[ -f "${script_path}"/config ]] && echo "The settings have been overwritten by the "${script_path}"/config."
 
 
 # Parse options
@@ -768,7 +771,10 @@ set -eu
 
 
 # If there is config for each channel. load that.
-[[ -f "${script_path}/channels/${channel_name}/config" ]] && source "${script_path}/channels/${channel_name}/config"
+if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
+    source "${script_path}/channels/${channel_name}/config"
+    echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+fi
 
 
 # Create a working directory.
