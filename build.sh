@@ -173,6 +173,7 @@ remove() {
 # Show settings.
 # $1 = Time to show
 show_settings() {
+    echo
     if [[ "${boot_splash}" = true ]]; then
         echo "Boot splash is enabled."
         echo "Theme is used ${theme_name}."
@@ -187,7 +188,9 @@ show_settings() {
         echo "Use the ${channel_name} channel."
     fi
     [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
-    sleep "${1}"
+    echo
+    echo "Press Enter to continue or Ctrl + C to exit."
+    read
 }
 
 # Preparation for rebuild
@@ -788,7 +791,7 @@ else
 fi
 
 
-show_settings 3
+show_settings
 prepare_rebuild
 run_once make_pacman_conf
 run_once make_basefs
