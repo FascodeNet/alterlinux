@@ -38,10 +38,11 @@ _usage () {
     echo "usage ${0} [options]"
     echo
     echo " General options:"
-    echo "    --alter-add        Add alterlinux-keyring."
-    echo "    --alter-remove     Remove alterlinux-keyring."
-    echo "    --arch-add         Add archlinux-keyring."
-    echo "    -h                 Show this help and exit."
+    echo "    -a | --alter-add     Add alterlinux-keyring."
+    echo "    -r | --alter-remove  Remove alterlinux-keyring."
+    echo "    -c | --arch-add      Add archlinux-keyring."
+    echo "    -h | --help          Show this help and exit."
+    exit "${1}"
 }
 
 
@@ -88,6 +89,7 @@ prepare() {
         msg_error "${alter_pacman_conf} does not exist."
         exit 1
     fi
+    #pacman -Sy
 }
 
 
@@ -96,50 +98,61 @@ update_arch_key() {
     pacman-key --populate archlinux
     _pacman_install core/archlinux-keyring
     pacman-key --refresh-keys
+    pacman -Sy
 }
 
 
-update_system() {
-    pacman -Syy
-}
-
-
-upgrade_system() {
-    pacman -Syu
-}
-
-
-updae_alter_key() {
+update_alter_key() {
     curl -L -o "/tmp/fascode.pub" "https://山d.com/repo/fascode.pub"
     pacman-key -a "/tmp/fascode.pub"
     rm -f "/tmp/fascode.pub"
     pacman-key --lsign-key development@fascode.net
 
-    pacman --config "${alter_pacman_conf}" -Syy --noconfirm
+    pacman --config "${alter_pacman_conf}" -Sy --noconfirm
     pacman --config "${alter_pacman_conf}" -S --noconfirm alter-stable/alterlinux-keyring
 
     pacman-key --init
     pacman-key --populate alterlinux
+    pacman -Sy
 }
 
 
 remove_alter_key() {
     pacman-key -d BDC396346243AB57ACD090F9F50544048389DA36
     if checkpkg alterlinux-keyring; then
-        pacman -Rsnc alterlinux-keyring
+        pacman -Rsnc --noconfirm alterlinux-keyring
     fi
+    pacman -Sy
 }
 
 
 # 引数解析
-while getopts 'h-:' arg; do
+while getopts 'arch-:' arg; do
     case "${arg}" in
-        h) _usage ; exit 0;;
+        # alter-add
+        a)
+            run prepare
+            run update_alter_key
+            ;;
+        # alter-remove
+        r)
+            run prepare
+            run remove_alter_key
+            ;;
+        # arch-add
+        c)
+            run prepare
+            run update_arch_key
+            ;;
+        # help
+        h) 
+            _usage 0
+            ;;
         -)
             case "${OPTARG}" in
                 alter-add)
                     run prepare
-                    run updae_alter_key
+                    run update_alter_key
                     ;;
                 alter-remove)
                     run prepare
@@ -149,14 +162,12 @@ while getopts 'h-:' arg; do
                     run prepare
                     run update_arch_key
                     ;;
-                system)
-                    run prepare
-                    run update_system
-                    run upgrade_system
+                help)
+                    _usage 0
                     ;;
                 *)
-                    _usage ; exit 1 ;;
-                help) _usage ;;
+                    _usage 1
+                    ;;
             esac
             ;;
 	*) _usage; exit 1;;
@@ -167,8 +178,6 @@ done
 # 引数が何もなければ全てを実行する
 if [[ ${#} = 0 ]]; then
     run prepare
-    run update_arch_key
-    run update_system
-    run updae_alter_key
-    run update_system
+    # run update_arch_key
+    run update_alter_key
 fi
