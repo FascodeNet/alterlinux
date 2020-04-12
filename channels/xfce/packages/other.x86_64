@@ -19,11 +19,8 @@ gvfs-smb
 
 
 #-- boot manager --#
-grub
 grub-theme-vimix
 grub-customizer
-os-prober
-refind-efi
 
 
 #-- documents --#
