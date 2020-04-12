@@ -192,7 +192,7 @@ show_settings() {
     fi
     [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
     echo
-    echo "Press Enter to continue or Ctrl + C to exit."
+    echo "Press Enter to continue or Ctrl + C to cancel."
     read
 }
 
