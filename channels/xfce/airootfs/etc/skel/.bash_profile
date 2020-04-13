@@ -4,4 +4,6 @@
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 [[ -f ~/.setup.sh ]] && ~/.setup.sh
-[[ -z "${DISPLAY}" && "${XDG_VTNR}" -eq 1 && $(tty) = "/dev/tty1" ]] && exec startx
+if systemctl -q is-active graphical.target && [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
+  exec startx
+fi
