@@ -416,8 +416,9 @@ make_customize_airootfs() {
     chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
     if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
+    elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
     fi
-
 
     # Execute customize_airootfs.sh.
     if [[ -z ${addition_options} ]]; then
@@ -434,6 +435,13 @@ make_customize_airootfs() {
             -D "${install_dir}" \
             -r "/root/customize_airootfs_${channel_name}.sh ${share_options}" \
             run
+        elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
+            ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${share_options}" \
+            run
         fi
     else
         ${mkalteriso} ${mkalteriso_option} \
@@ -449,6 +457,13 @@ make_customize_airootfs() {
             -C "${work_dir}/pacman.conf" \
             -D "${install_dir}" \
             -r "/root/customize_airootfs_${channel_name}.sh ${share_options} ${addition_options}" \
+            run
+        elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
+            ${mkalteriso} ${mkalteriso_option} \
+            -w "${work_dir}/x86_64" \
+            -C "${work_dir}/pacman.conf" \
+            -D "${install_dir}" \
+            -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${share_options} ${addition_options}" \
             run
         fi
     fi
