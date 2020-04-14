@@ -1,4 +1,4 @@
-## チャンネルとは
+## What is a channel
 A channel is an AlterLinux original mechanism that is made so that you can easily switch the files (airootfs) included in the image file, the packages to install, the configuration files, etc.  
 This mechanism allows you to easily create an AlterLinux derivative OS.  
 Initially it was only possible to switch packages, but now the specifications have changed significantly, and various changes can be made for each channel.  
@@ -90,7 +90,7 @@ By placing `channels / <channel_name> / splash.png`, you can change the backgrou
 Placing `channels / <channel_name> / config` allows you to overwrite the existing build configuration. Be sure to write it in the shell script syntax. The template is placed in the same hierarchy as `build.sh`.  
 This configuration file will be overwritten ** even the settings by the argument **, so please describe only the minimum required items. (For example, Plymouth theme name and package name)  
 
-## 特殊なチャンネル
+## Special channel
 There is a special channel, the `share` channel. The `share` channel is a shared channel used regardless of the specified channel.  
 Although `share` has the same structure as other channels, it cannot be built by specifying` share` alone as a channel.  
 Add here basic packages and common files that will be installed on all channels.  
