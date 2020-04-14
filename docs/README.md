@@ -104,10 +104,10 @@ Some documents may have outdated information or only some languages.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
 	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
-	<li><a href="jp/CHANNEL.md">Channel specifications</a></li>
+	<li><a href="en/CHANNEL.md">Channel specifications</a></li>
 	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
-	<li><a href="jp/KERNEL.md">How to add a new kernel</a></li>
+	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
 </ul>
 
 

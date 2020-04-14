@@ -103,7 +103,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<li><a href="jp/BUILD.md">AlterLinuxをビルドする</a></li>
 	<li><a href="jp/SOFTWARE.md">独自のパッケージのソースコードについて</a></li>
 	<li><a href="jp/CHANNEL.md">チャンネルに関する仕様</a></li>
-	<li><a href="en/PACKAGE.md">パッケージリストについての注意</a></li>
+	<li><a href="jp/PACKAGE.md">パッケージリストについての注意</a></li>
 	<li><a href="jp/DOCKER.md">Docker上でビルドする方法</a></li>
 	<li><a href="jp/KERNEL.md">新しいカーネルを追加する方法</a></li>
 </ul>
