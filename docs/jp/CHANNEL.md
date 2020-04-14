@@ -38,7 +38,7 @@
 このディレクトリ内を`/`としてファイルを配置して下さい。全てのファイルの権限はなるべく引き継がれるようになっています。  
 
 ### customize_airootfs.sh
-各チャンネルの`airootfs`で、`/root/customize_airootfs_<チャンネル名>.sh`といゆファイルが配置された場合、ビルドスクリプトは、`customize_airootfs.sh`が実行された後に実行します。  
+各チャンネルの`airootfs`で、`/root/customize_airootfs_<チャンネル名>.sh`というファイルが配置された場合、ビルドスクリプトは、`customize_airootfs.sh`が実行された後に実行します。  
 もしrootfsの設定を変更したい場合、このファイルを作成して下さい。
 
 
