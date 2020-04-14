@@ -269,78 +269,128 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    set +eu
-    local _loadfilelist
-    local _loadfilelist_cmd
-    local _pkg_list
-    local _pkg
-    local _file
-    local jplist
+    # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
+    installpkglist() {
+        set +eu
+        local _loadfilelist
+        local _pkg
+        local _file
+        local jplist
+        local excludefile
+        local excludelist
+        local _pkglist
+
+        #-- Detect package list to load --#
+        # Append the file in the share directory to the file to be read.
+
+        # Package list for Japanese
+        jplist="${script_path}/channels/share/packages/jp.x86_64"
+
+        # Package list for non-Japanese
+        nojplist="${script_path}/channels/share/packages/non-jp.x86_64"
+
+        if [[ "${japanese}" = true ]]; then
+            _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${nojplist}"))
+        else
+            _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${jplist}"))
+        fi
 
 
-    # Append the file in the share directory to the file to be read.
+        # Add the files for each channel to the list of files to read.
 
-    # Package list for Japanese
-    jplist="${script_path}/channels/share/packages/jp.x86_64"
+        # Package list for Japanese
+        jplist="${script_path}/channels/${channel_name}/packages/jp.x86_64"
 
-    # Package list for non-Japanese
-    nojplist="${script_path}/channels/share/packages/non-jp.x86_64"
+        # Package list for non-Japanese
+        nojplist="${script_path}/channels/${channel_name}/packages/non-jp.x86_64"
 
-    if [[ "${japanese}" = true ]]; then
-        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${nojplist}"))
-    else
-        _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.x86_64 | grep -xv "${jplist}"))
-    fi
+        if [[ "${japanese}" = true ]]; then
+            # If Japanese is enabled, add it to the list of files to read other than non-jp.
+            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv "${nojplist}"))
+        else
+            # If Japanese is disabled, add it to the list of files to read other than jp.
+            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv ${jplist}))
+        fi
 
 
-    # Add the files for each channel to the list of files to read.
+        #-- Read package list --#
+        # Read the file and remove comments starting with # and add it to the list of packages to install.
+        for _file in ${_loadfilelist[@]}; do
+            echo "Loaded package file ${_file}."
+            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        done
+        if [[ ${debug} = true ]]; then
+            sleep 3
+        fi
 
-    # Package list for Japanese
-    jplist="${script_path}/channels/${channel_name}/packages/jp.x86_64"
+        # Exclude packages from the share exclusion list
+        excludefile="${script_path}/channels/share/packages/exclude"
+        if [[ -f "${excludefile}" ]]; then
+            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
 
-    # Package list for non-Japanese
-    nojplist="${script_path}/channels/${channel_name}/packages/non-jp.x86_64"
+            # 現在のpkglistをコピーする
+            _pkglist=(${pkglist[@]})
+            unset pkglist
+            for _pkg in ${_pkglist[@]}; do
+                # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+                if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+                    pkglist=(${pkglist[@]} "${_pkg}")
+                fi
+            done
+        fi
 
-    if [[ "${japanese}" = true ]]; then
-        # If Japanese is enabled, add it to the list of files to read other than non-jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv "${nojplist}"))
-    else
-        # If Japanese is disabled, add it to the list of files to read other than jp.
-        _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.x86_64 | grep -xv ${jplist}))
-    fi
+        # Exclude packages from the exclusion list for each channel
+        excludefile="${script_path}/channels/${channel_name}/packages/exclude"
+        if [[ -f "${excludefile}" ]]; then
+            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+        
+            # 現在のpkglistをコピーする
+            _pkglist=(${pkglist[@]})
+            unset pkglist
+            for _pkg in ${_pkglist[@]}; do
+                # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+                if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+                    pkglist=(${pkglist[@]} "${_pkg}")
+                fi
+            done
+        fi
+            
+        
+        # Sort the list of packages in abc order.
+        pkglist=(
+            "$(
+                for _pkg in ${pkglist[@]}; do
+                    echo "${_pkg}"
+                done \
+                | sort
+            )"
+        )
 
-    # Read the file and remove comments starting with # and add it to the list of packages to install.
-    for _file in ${_loadfilelist[@]}; do
-        echo "Loaded package file ${_file}."
-        _pkg_list=( ${_pkg_list[@]} "$(grep -h -v ^'#' ${_file})" )
-    done
-    if [[ ${debug} = true ]]; then
-        sleep 3
-    fi
 
-    # Sort the list of packages in abc order.
-    _pkg_list=(
-        "$(
-            for _pkg in ${_pkg_list[@]}; do
-                echo "${_pkg}"
-            done \
-            | sort
-        )"
-    )
-    set -eu
+        #-- Drbug code --#
+        #for _pkg in ${pkglist[@]}; do
+        #    echo -n "${_pkg} "
+        #done
+        # echo "${pkglist[@]}"
 
-    unset _pkg
+
+        set -eu
+    }
+
+    installpkglist    
+
+    # echo ${pkglist[@]}
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
     echo "#" >> ${work_dir}/packages.list
     echo >> ${work_dir}/packages.list
-    for _pkg in ${_pkg_list[@]}; do
+    for _pkg in ${pkglist[@]}; do
         echo ${_pkg} >> ${work_dir}/packages.list
     done
 
     # Install packages on airootfs
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${_pkg_list[@]}" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "${pkglist[@]}" install
 }
 
 # Customize installation (airootfs)
