@@ -19,7 +19,8 @@ gvfs-smb
 
 
 #-- boot manager --#
-grub-theme-vimix-alter
+# grub-theme-vimix-alter
+grub-theme-vimix
 grub-customizer
 
 
