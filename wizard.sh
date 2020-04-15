@@ -26,16 +26,6 @@ function check_files () {
     fi
 }
 
-function run_add_key_script () {
-    local yn
-    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
-        n | N | no  | No  | NO  ) return 0                              ;;
-        *                       ) run_add_key_script                    ;;
-    esac
-}
 
 function install_dependencies () {
     local checkpkg
@@ -70,11 +60,25 @@ function install_dependencies () {
             
 }
 
+
+function run_add_key_script () {
+    local yn
+    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
+        n | N | no  | No  | NO  ) return 0                              ;;
+        *                       ) run_add_key_script                    ;;
+    esac
+}
+
+
 function remove_dependencies () {
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Rsn ${install[@]}
     fi
 }
+
 
 function enable_plymouth () {
     local yn
@@ -87,6 +91,7 @@ function enable_plymouth () {
     esac
 }
 
+
 function enable_japanese () {
     local yn
     echo -n "日本語を有効化しますか？ （y/N） : "
@@ -97,6 +102,7 @@ function enable_japanese () {
         *                       ) enable_japanese ;;
     esac
 }
+
 
 function select_comp_type () {
     local yn
@@ -146,6 +152,7 @@ function select_comp_type () {
 
     return 0
 }
+
 
 function set_comp_option () {
 
@@ -240,6 +247,7 @@ function set_comp_option () {
     fi
 }
 
+
 function set_username () {
     local details
     local ask_comp_type
@@ -265,6 +273,7 @@ function set_username () {
 
     return 0
 }
+
 
 function set_password () {
     local details
@@ -302,6 +311,7 @@ function set_password () {
 
     return 0
 }
+
 
 function select_kernel () {
     set +e
@@ -378,6 +388,7 @@ function select_kernel () {
     fi
     set -e
 }
+
 
 # チャンネルの指定
 function select_channel () {
