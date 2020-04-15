@@ -27,6 +27,13 @@ If the directory name ends in `.add`, the channel name will be the string before
 This is to exclude it from Git management and add your own customized channel.
 Finally, check the channel name that can be used as an argument by executing `./build -h`.
 
+### About duplicate channel names
+**Please DO NOT duplicate the channel name with or without `.add`!**  
+Duplicate channel names are not considered in the script and can lead to unexpected behavior.  
+In the future, if there are duplicates with and without `.add`, the policy with `.add` will be prioritized.  
+Even if you deal with duplicate channel names in the future, the official channel will still be unavailable, so please DO NOT duplicate channel names.
+
+
 
 ## Specifications of each channel
 The main directories that make up the channel are airootfs and packages.  
