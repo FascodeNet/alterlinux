@@ -31,7 +31,7 @@ function run_add_key_script () {
     echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
     read yn
     case ${yn} in
-        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter   ;;
+        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
         n | N | no  | No  | NO  ) return 0                              ;;
         *                       ) run_add_key_script                    ;;
     esac
@@ -516,9 +516,8 @@ function start_build () {
     else
         # build.shの引数を表示（デバッグ用）
         # echo ${argument}
-        sudo ./keyring.sh --alter-add
         sudo ./build.sh ${argument}
-        make cleanup
+        sudo rm -rf work/
     fi
 }
 
