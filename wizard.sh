@@ -464,10 +464,10 @@ function generate_argument () {
         argument="${argument} -b"
     fi
     if [[ -n ${comp_type} ]]; then
-        argument="${argument} -c '${comp_type}'"
+        argument="${argument} -c ${comp_type}"
     fi
     if [[ -n ${kernel} ]]; then
-        argument="${argument} -k '${kernel}'"
+        argument="${argument} -k ${kernel}"
     fi
     if [[ -n "${username}" ]]; then
         argument="${argument} -u '${username}'"
