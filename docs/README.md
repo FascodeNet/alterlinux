@@ -14,6 +14,8 @@
 	<a href="https://git.archlinux.org/archiso.git/tag/?h=v43">
 		<img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
 	</a>
+</p>
+<p align="center">
 	<a href="https://github.com/FascodeNet/alterlinux/issues">
 		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
 	</a>
