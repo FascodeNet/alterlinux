@@ -436,7 +436,7 @@ function set_out_dir {
     echo -n ": "
     read out_dir
     if [[ -z "${out_dir}" ]]; then
-        out_dir="${script_path}/out"
+        out_dir=out
     else
         if [[ ! -d "${out_dir}" ]]; then
             echo "存在しているディレクトリを指定して下さい"
