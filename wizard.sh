@@ -407,18 +407,15 @@ function select_channel () {
 
         echo "チャンネルを以下の番号から選択してください "
         echo
-        echo "1: arch"
-        echo "2: xfce"
-        echo "3: plasma"
+        echo "1: xfce"
+        echo "2: plasma"
         echo -n ": "
 
         read yn
 
         case ${yn} in
-            1        ) channel="arch"   ;;
-            2        ) channel="xfce"   ;;
-            3        ) channel="plasma" ;;
-            arch     ) channel="arch"   ;;
+            1        ) channel="xfce"   ;;
+            2        ) channel="plasma" ;;
             xfce     ) channel="xfce"   ;;
             plasma   ) channel="plasma" ;;
             *        ) select_channel   ;;
@@ -534,8 +531,8 @@ function start_build () {
 
 # 関数を実行
 check_files
-run_add_key_script
 install_dependencies
+run_add_key_script
 ask
 generate_argument
 start_build
