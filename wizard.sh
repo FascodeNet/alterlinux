@@ -54,8 +54,7 @@ function install_dependencies () {
         fi
     }
 
-    # dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso")
-    dependence=("sl")
+    dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso")
 
     echo "依存関係を確認しています..."
     for pkg in ${dependence[@]}; do
@@ -494,10 +493,10 @@ function start_build () {
 }
 
 # 関数を実行
-# check_files
-# run_add_key_script
+check_files
+run_add_key_script
 install_dependencies
-#ask
-#generate_argument
-# start_build
+ask
+generate_argument
+start_build
 remove_dependencies
