@@ -491,7 +491,7 @@ function ask () {
     set_username
     set_password
     select_channel
-    set_out_dir
+    # set_out_dir
     lastcheck
 }
 
