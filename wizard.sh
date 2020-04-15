@@ -421,6 +421,32 @@ function select_channel () {
 }
 
 
+# イメージファイルの作成先
+function set_out_dir {
+    echo "イメージファイルの作成先を入力して下さい。"
+    echo "デフォルトは ${script_path}/out です。"
+    echo -n ": "
+    read out_dir
+    if [[ -z "${out_dir}" ]]; then
+        out_dir="${script_path}/out"
+    else
+        if [[ ! -d "${out_dir}" ]]; then
+            echo "存在しているディレクトリを指定して下さい"
+            set_out_dir
+            return 0
+        elif [[ "${out_dir}" = / ]] || [[ "${out_dir}" = /home ]]; then
+            echo "そのディレクトリは使用できません。"
+            set_out_dir
+            return 0
+        elif [[ -n "$(ls ${out_dir})" ]]; then
+            echo "ディレクトリは空ではありません。"
+            set_out_dir
+            return 0
+        fi
+    fi
+}
+
+
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
     if [[ ${japanese} = true ]]; then
@@ -441,6 +467,9 @@ function generate_argument () {
     if [[ -n ${password} ]]; then
         argument="${argument} -p '${password}'"
     fi
+    if [[ -n ${out_dir} ]]; then
+        argument="${argument} -o '${out_dir}'"
+    fi
     argument="${argument} ${channel}"
 }
 
@@ -454,6 +483,7 @@ function ask () {
     set_username
     set_password
     select_channel
+    set_out_dir
     lastcheck
 }
 
