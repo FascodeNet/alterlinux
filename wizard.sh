@@ -403,28 +403,74 @@ function select_channel () {
     esac
 
     function ask_channel () {
-        local yn
+        local i
+        local count
+        local _channel
+        local channel_list
+        local description
 
+        # チャンネルの一覧を生成
+        for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+                if [[ ! ${i} = "share" ]]; then
+                        channel_list=(${channel_list[@]} ${i})
+                fi
+            fi
+        done
         echo "チャンネルを以下の番号から選択してください "
-        echo
-        echo "1: xfce"
-        echo "2: plasma"
-        echo -n ": "
+        count=1
+        for _channel in ${channel_list[@]}; do
+            if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
+                description=$(cat "${script_path}/channels/${_channel}/description.txt")
+            else
+                description="This channel does not have a description.txt."
+            fi
+            if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                echo -ne "${count}    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
+                for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+                    echo -ne " "
+                done
+            else
+                echo -ne "${count}    ${_channel}"
+                for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+                    echo -ne " "
+                done
+            fi
+            echo -ne "${description}\n"
+            count=$(( count + 1 ))
+        done
+        echo -n ":"
+        read channel
 
-        read yn
-
-        case ${yn} in
-            1        ) channel="xfce"   ;;
-            2        ) channel="plasma" ;;
-            xfce     ) channel="xfce"   ;;
-            plasma   ) channel="plasma" ;;
-            *        ) select_channel   ;;
-        esac
+        # 数字かどうか判定する
+        set +e
+        expr "${channel}" + 1 >/dev/null 2>&1
+        if [[ ${?} -lt 2 ]]; then
+            set -e
+            # 数字である
+            channel=$(( channel - 1 ))
+            if [[ -z "${channel_list[${channel}]}" ]]; then
+                ask_channel
+                return 0
+            else
+                channel="${channel_list[${channel}]}"
+            fi
+        else
+            set -e
+            # 数字ではない
+            if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}.add"; echo -n ${?} ) -eq 0 ]]; then
+                if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}"; echo -n ${?} ) -eq 0 ]]; then
+                    ask_channel
+                    return 0
+                fi
+            fi
+        fi
     }
 
     if [[ ${details} = true ]]; then
         ask_channel
     fi
+    # echo ${channel}
     return 0
 }
 
