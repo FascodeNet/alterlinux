@@ -490,8 +490,32 @@ function select_channel () {
 }
 
 
+# イメージファイルの所有者
+function set_iso_owner () {
+    local owner
+    local user_check
+    function user_check () {
+    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
+        if [[ -z $1 ]]; then
+            echo -n "false"
+        fi
+        echo -n "true"
+    else
+        echo -n "false"
+    fi
+    }
+
+    echo -n "イメージファイルの所有者を入力してください。: "
+    read owner
+    if [[ $(user_check ${owner}) = false ]]; then
+        set_iso_owner
+        return 0
+    fi
+}
+
+
 # イメージファイルの作成先
-function set_out_dir {
+function set_out_dir () {
     echo "イメージファイルの作成先を入力して下さい。"
     echo "デフォルトは ${script_path}/out です。"
     echo -n ": "
@@ -590,6 +614,20 @@ function start_build () {
     fi
 }
 
+
+remove_work_dir() {
+    if [[ -d "${script_path}/work/" ]]; then
+        sudo rm -rf "${script_path}/work/"
+    fi
+}
+
+
+change_iso_permission() {
+    if [[ -n "${owner}" ]]; then
+        chown -R "${owner}" "${script_path}/out/"
+        chmod -R 750 "${script_path}/out/"
+}
+
 # 関数を実行
 check_files
 install_dependencies
@@ -598,3 +636,5 @@ ask
 generate_argument
 start_build
 remove_dependencies
+remove_work_dir
+change_iso_permission
