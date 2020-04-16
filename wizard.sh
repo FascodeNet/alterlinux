@@ -71,11 +71,15 @@ function run_add_key_script () {
     local yn
     echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
     read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
-        n | N | no  | No  | NO  ) return 0                              ;;
-        *                       ) run_add_key_script                    ;;
-    esac
+    if ${nobuild}; then
+        echo "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。"
+    else
+        case ${yn} in
+            y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
+            n | N | no  | No  | NO  ) return 0                                       ;;
+            *                       ) run_add_key_script                             ;;
+        esac
+    fi
 }
 
 
