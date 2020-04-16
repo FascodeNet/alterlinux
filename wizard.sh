@@ -82,7 +82,7 @@ function remove_dependencies () {
 
 function enable_plymouth () {
     local yn
-    echo -n "Plymouthを有効化しますか？ （y/N） : "
+    echo -n "Plymouthを有効化しますか？[no]（y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
@@ -94,7 +94,7 @@ function enable_plymouth () {
 
 function enable_japanese () {
     local yn
-    echo -n "日本語を有効化しますか？ （y/N） : "
+    echo -n "日本語を有効化しますか？[no]（y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
@@ -108,7 +108,7 @@ function select_comp_type () {
     local yn
     local details
     local ask_comp_type
-    echo -n "圧縮方式を設定しますか？ （y/N） : "
+    echo -n "圧縮方式を設定しますか？[zstd]（y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true               ;;
@@ -124,7 +124,7 @@ function select_comp_type () {
         echo "3: lzo"
         echo "4: lz4"
         echo "5: xz"
-        echo "6: zstd"
+        echo "6: zstd (default)"
         echo -n ": "
 
         read yn
@@ -148,6 +148,8 @@ function select_comp_type () {
 
     if [[ ${details} = true ]]; then
         ask_comp_type
+    else
+        comp_type="zstd"
     fi
 
     return 0
@@ -155,24 +157,8 @@ function select_comp_type () {
 
 
 function set_comp_option () {
-
-    # lzmaには詳細なオプションはありません。
-    if [[ ! ${comp_type} = "lzma" ]]; then
-        local yn
-        local details
-        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
-        read yn
-        case ${yn} in
-            y | Y | yes | Yes | YES ) details=true              ;;
-            n | N | no  | No  | NO  ) details=false             ;;
-            *                       ) set_comp_option; return 0 ;;
-        esac
-        if [[ ${details} = true ]]; then
-            :
-        else
-            return 0
-        fi
-
+    local ask_comp_option
+    ask_comp_option() {
         local gzip
         local lzo
         local lz4
@@ -244,6 +230,25 @@ function set_comp_option () {
             xz   ) xz   ;;
             *    ) :    ;;
         esac
+    }
+
+    # lzmaには詳細なオプションはありません。
+    if [[ ! ${comp_type} = "lzma" ]]; then
+        local yn
+        local details
+        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
+        read yn
+        case ${yn} in
+            y | Y | yes | Yes | YES ) details=true              ;;
+            n | N | no  | No  | NO  ) details=false             ;;
+            *                       ) set_comp_option; return 0 ;;
+        esac
+        if [[ ${details} = true ]]; then
+            ask_comp_option
+            return 0
+        else
+            return 0
+        fi
     fi
 }
 
@@ -529,9 +534,11 @@ function generate_argument () {
 
 #　上の質問の関数を実行
 function ask () {
+<<D
     enable_japanese
     enable_plymouth
     select_kernel
+D
     select_comp_type
     set_comp_option
     set_username
