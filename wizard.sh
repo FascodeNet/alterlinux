@@ -626,6 +626,7 @@ change_iso_permission() {
     if [[ -n "${owner}" ]]; then
         chown -R "${owner}" "${script_path}/out/"
         chmod -R 750 "${script_path}/out/"
+    fi
 }
 
 # 関数を実行
