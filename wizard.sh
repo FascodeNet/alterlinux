@@ -534,11 +534,9 @@ function generate_argument () {
 
 #　上の質問の関数を実行
 function ask () {
-<<D
     enable_japanese
     enable_plymouth
     select_kernel
-D
     select_comp_type
     set_comp_option
     set_username
