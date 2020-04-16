@@ -508,7 +508,15 @@ function set_iso_owner () {
     echo -n "イメージファイルの所有者を入力してください。: "
     read owner
     if [[ $(user_check ${owner}) = false ]]; then
+        echo "ユーザーが存在しません。"
         set_iso_owner
+        return 0
+    elif  [[ -z "${owner}" ]]; then
+        echo "ユーザー名を入力して下さい。"
+        set_iso_owner
+        return 0
+    elif [[ "${owner}" = root ]]; then
+        echo "所有者の変更を行いません。"
         return 0
     fi
 }
