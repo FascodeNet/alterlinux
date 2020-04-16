@@ -50,7 +50,7 @@ function install_dependencies () {
         fi
     }
 
-    dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso")
+    dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso" "bash" "base")
 
     echo "依存関係を確認しています..."
     for pkg in ${dependence[@]}; do
