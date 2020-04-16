@@ -62,8 +62,8 @@ function install_dependencies () {
         return 0
     }
 
-    echo "依存関係を確認しています..."
     for pkg in ${dependence[@]}; do
+        echo "依存パッケージ ${pkg} を確認しています..."
         if [[ $(check_pkg ${pkg}) = false ]]; then
             install=(${install[@]} ${pkg})
         fi
