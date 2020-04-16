@@ -37,24 +37,34 @@ function install_dependencies () {
     local checkpkg
     local dependence
     local pkg
-
-    function checkpkg () {
-        if [[ $(pacman -Q "${1}" 2> /dev/null | awk '{print $1}') = "${1}" ]]; then
-            if [[ $(pacman -Q "${1}" 2> /dev/null | awk '{print $2}') = $(pacman -Sp --print-format '%v' "${1}") ]]; then
-                echo -n "true"
-            else
-                echo -n "false"
-            fi
-        else
-            echo -n "false"
-        fi
-    }
+    local installed_pkg
+    local installed_ver
+    local check_pkg
 
     dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso" "bash" "base")
+    installed_pkg=($(pacman -Q | awk '{print $1}'))
+    installed_ver=($(pacman -Q | awk '{print $2}'))
+
+    check_pkg() {
+        local i
+        for i in $(seq 1 ${#installed_pkg[@]}); do
+            if [[ ${installed_pkg[${i}]} = ${1} ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                    echo -n "true"
+                    return 0
+                else
+                    echo -n "false"
+                    return 0
+                fi
+            fi
+        done
+        echo -n "false"
+        return 0
+    }
 
     echo "依存関係を確認しています..."
     for pkg in ${dependence[@]}; do
-        if [[ $(checkpkg ${pkg}) = false ]]; then
+        if [[ $(check_pkg ${pkg}) = false ]]; then
             install=(${install[@]} ${pkg})
         fi
     done
