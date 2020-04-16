@@ -6,8 +6,14 @@ nobuild=false
 
 while getopts 'xn' arg; do
     case "${arg}" in
-        n) nobuild=true ;;
-        x) set -x ;;
+        n)
+            nobuild=true
+            echo "シミュレーションモードを有効化しました"
+            ;;
+        x)
+            set -x 
+            echo "デバッグモードを有効化しました"
+            ;;
     esac
 done
 
