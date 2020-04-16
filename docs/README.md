@@ -12,7 +12,15 @@
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
 	</a>
 	<a href="https://git.archlinux.org/archiso.git/tag/?h=v43">
-		<img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor" alt="archiso-version">
+		<img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+	</a>
+</p>
+<p align="center">
+	<a href="https://github.com/FascodeNet/alterlinux/issues">
+		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
+		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
 	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/releases">
 		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">

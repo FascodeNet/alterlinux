@@ -6,8 +6,14 @@ nobuild=false
 
 while getopts 'xn' arg; do
     case "${arg}" in
-        n) nobuild=true ;;
-        x) set -x ;;
+        n)
+            nobuild=true
+            echo "シミュレーションモードを有効化しました"
+            ;;
+        x)
+            set -x 
+            echo "デバッグモードを有効化しました"
+            ;;
     esac
 done
 
@@ -26,40 +32,39 @@ function check_files () {
     fi
 }
 
-function run_add_key_script () {
-    local yn
-    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter   ;;
-        n | N | no  | No  | NO  ) return 0                              ;;
-        *                       ) run_add_key_script                    ;;
-    esac
-}
 
 function install_dependencies () {
     local checkpkg
     local dependence
     local pkg
+    local installed_pkg
+    local installed_ver
+    local check_pkg
 
-    function checkpkg () {
-        if [[ $(pacman -Q "${1}" 2> /dev/null | awk '{print $1}') = "${1}" ]]; then
-            if [[ $(pacman -Q "${1}" 2> /dev/null | awk '{print $2}') = $(pacman -Sp --print-format '%v' "${1}") ]]; then
-                echo -n "true"
-            else
-                echo -n "false"
+    dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso" "bash" "base")
+    installed_pkg=($(pacman -Q | awk '{print $1}'))
+    installed_ver=($(pacman -Q | awk '{print $2}'))
+
+    check_pkg() {
+        local i
+        for i in $(seq 1 ${#installed_pkg[@]}); do
+            if [[ ${installed_pkg[${i}]} = ${1} ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                    echo -n "true"
+                    return 0
+                else
+                    echo -n "false"
+                    return 0
+                fi
             fi
-        else
-            echo -n "false"
-        fi
+        done
+        echo -n "false"
+        return 0
     }
-
-    # dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso")
-    dependence=("sl")
 
     echo "依存関係を確認しています..."
     for pkg in ${dependence[@]}; do
-        if [[ $(checkpkg ${pkg}) = false ]]; then
+        if [[ $(check_pkg ${pkg}) = false ]]; then
             install=(${install[@]} ${pkg})
         fi
     done
@@ -71,15 +76,33 @@ function install_dependencies () {
             
 }
 
+
+function run_add_key_script () {
+    local yn
+    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
+    read yn
+    if ${nobuild}; then
+        echo "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。"
+    else
+        case ${yn} in
+            y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
+            n | N | no  | No  | NO  ) return 0                                       ;;
+            *                       ) run_add_key_script                             ;;
+        esac
+    fi
+}
+
+
 function remove_dependencies () {
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Rsn ${install[@]}
     fi
 }
 
+
 function enable_plymouth () {
     local yn
-    echo -n "Plymouthを有効化しますか？ （y/N） : "
+    echo -n "Plymouthを有効化しますか？[no]（y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
@@ -88,9 +111,10 @@ function enable_plymouth () {
     esac
 }
 
+
 function enable_japanese () {
     local yn
-    echo -n "日本語を有効化しますか？ （y/N） : "
+    echo -n "日本語を有効化しますか？[no]（y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
@@ -99,11 +123,12 @@ function enable_japanese () {
     esac
 }
 
+
 function select_comp_type () {
     local yn
     local details
     local ask_comp_type
-    echo -n "圧縮方式を設定しますか？ （y/N） : "
+    echo -n "圧縮方式を設定しますか？[zstd]（y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true               ;;
@@ -119,7 +144,7 @@ function select_comp_type () {
         echo "3: lzo"
         echo "4: lz4"
         echo "5: xz"
-        echo "6: zstd"
+        echo "6: zstd (default)"
         echo -n ": "
 
         read yn
@@ -143,30 +168,17 @@ function select_comp_type () {
 
     if [[ ${details} = true ]]; then
         ask_comp_type
+    else
+        comp_type="zstd"
     fi
 
     return 0
 }
 
+
 function set_comp_option () {
-
-    # lzmaには詳細なオプションはありません。
-    if [[ ! ${comp_type} = "lzma" ]]; then
-        local yn
-        local details
-        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
-        read yn
-        case ${yn} in
-            y | Y | yes | Yes | YES ) details=true              ;;
-            n | N | no  | No  | NO  ) details=false             ;;
-            *                       ) set_comp_option; return 0 ;;
-        esac
-        if [[ ${details} = true ]]; then
-            :
-        else
-            return 0
-        fi
-
+    local ask_comp_option
+    ask_comp_option() {
         local gzip
         local lzo
         local lz4
@@ -238,8 +250,28 @@ function set_comp_option () {
             xz   ) xz   ;;
             *    ) :    ;;
         esac
+    }
+
+    # lzmaには詳細なオプションはありません。
+    if [[ ! ${comp_type} = "lzma" ]]; then
+        local yn
+        local details
+        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
+        read yn
+        case ${yn} in
+            y | Y | yes | Yes | YES ) details=true              ;;
+            n | N | no  | No  | NO  ) details=false             ;;
+            *                       ) set_comp_option; return 0 ;;
+        esac
+        if [[ ${details} = true ]]; then
+            ask_comp_option
+            return 0
+        else
+            return 0
+        fi
     fi
 }
+
 
 function set_username () {
     local details
@@ -266,6 +298,7 @@ function set_username () {
 
     return 0
 }
+
 
 function set_password () {
     local details
@@ -303,6 +336,7 @@ function set_password () {
 
     return 0
 }
+
 
 function select_kernel () {
     set +e
@@ -380,6 +414,7 @@ function select_kernel () {
     set -e
 }
 
+
 # チャンネルの指定
 function select_channel () {
     local ask_channel
@@ -393,32 +428,133 @@ function select_channel () {
     esac
 
     function ask_channel () {
-        local yn
+        local i
+        local count
+        local _channel
+        local channel_list
+        local description
 
+        # チャンネルの一覧を生成
+        for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+                if [[ ! ${i} = "share" ]]; then
+                        channel_list=(${channel_list[@]} ${i})
+                fi
+            fi
+        done
         echo "チャンネルを以下の番号から選択してください "
-        echo
-        echo "1: arch"
-        echo "2: xfce"
-        echo "3: plasma"
-        echo -n ": "
+        count=1
+        for _channel in ${channel_list[@]}; do
+            if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
+                description=$(cat "${script_path}/channels/${_channel}/description.txt")
+            else
+                description="This channel does not have a description.txt."
+            fi
+            if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                echo -ne "${count}    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
+                for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+                    echo -ne " "
+                done
+            else
+                echo -ne "${count}    ${_channel}"
+                for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+                    echo -ne " "
+                done
+            fi
+            echo -ne "${description}\n"
+            count=$(( count + 1 ))
+        done
+        echo -n ":"
+        read channel
 
-        read yn
-
-        case ${yn} in
-            1        ) channel="arch"   ;;
-            2        ) channel="xfce"   ;;
-            3        ) channel="plasma" ;;
-            arch     ) channel="arch"   ;;
-            xfce     ) channel="xfce"   ;;
-            plasma   ) channel="plasma" ;;
-            *        ) select_channel   ;;
-        esac
+        # 数字かどうか判定する
+        set +e
+        expr "${channel}" + 1 >/dev/null 2>&1
+        if [[ ${?} -lt 2 ]]; then
+            set -e
+            # 数字である
+            channel=$(( channel - 1 ))
+            if [[ -z "${channel_list[${channel}]}" ]]; then
+                ask_channel
+                return 0
+            else
+                channel="${channel_list[${channel}]}"
+            fi
+        else
+            set -e
+            # 数字ではない
+            if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}.add"; echo -n ${?} ) -eq 0 ]]; then
+                if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}"; echo -n ${?} ) -eq 0 ]]; then
+                    ask_channel
+                    return 0
+                fi
+            fi
+        fi
     }
 
     if [[ ${details} = true ]]; then
         ask_channel
     fi
+    # echo ${channel}
     return 0
+}
+
+
+# イメージファイルの所有者
+function set_iso_owner () {
+    local owner
+    local user_check
+    function user_check () {
+    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
+        if [[ -z $1 ]]; then
+            echo -n "false"
+        fi
+        echo -n "true"
+    else
+        echo -n "false"
+    fi
+    }
+
+    echo -n "イメージファイルの所有者を入力してください。: "
+    read owner
+    if [[ $(user_check ${owner}) = false ]]; then
+        echo "ユーザーが存在しません。"
+        set_iso_owner
+        return 0
+    elif  [[ -z "${owner}" ]]; then
+        echo "ユーザー名を入力して下さい。"
+        set_iso_owner
+        return 0
+    elif [[ "${owner}" = root ]]; then
+        echo "所有者の変更を行いません。"
+        return 0
+    fi
+}
+
+
+# イメージファイルの作成先
+function set_out_dir () {
+    echo "イメージファイルの作成先を入力して下さい。"
+    echo "デフォルトは ${script_path}/out です。"
+    echo -n ": "
+    read out_dir
+    if [[ -z "${out_dir}" ]]; then
+        out_dir=out
+    else
+        if [[ ! -d "${out_dir}" ]]; then
+            echo "存在しているディレクトリを指定して下さい"
+            set_out_dir
+            return 0
+        elif [[ "${out_dir}" = / ]] || [[ "${out_dir}" = /home ]]; then
+            echo "そのディレクトリは使用できません。"
+            set_out_dir
+            return 0
+        elif [[ -n "$(ls ${out_dir})" ]]; then
+            echo "ディレクトリは空ではありません。"
+            set_out_dir
+            return 0
+        fi
+    fi
 }
 
 
@@ -431,16 +567,19 @@ function generate_argument () {
         argument="${argument} -b"
     fi
     if [[ -n ${comp_type} ]]; then
-        argument="${argument} -c '${comp_type}'"
+        argument="${argument} -c ${comp_type}"
     fi
     if [[ -n ${kernel} ]]; then
-        argument="${argument} -k '${kernel}'"
+        argument="${argument} -k ${kernel}"
     fi
     if [[ -n "${username}" ]]; then
         argument="${argument} -u '${username}'"
     fi
     if [[ -n ${password} ]]; then
         argument="${argument} -p '${password}'"
+    fi
+    if [[ -n ${out_dir} ]]; then
+        argument="${argument} -o '${out_dir}'"
     fi
     argument="${argument} ${channel}"
 }
@@ -455,6 +594,8 @@ function ask () {
     set_username
     set_password
     select_channel
+    set_iso_owner
+    # set_out_dir
     lastcheck
 }
 
@@ -487,17 +628,33 @@ function start_build () {
     else
         # build.shの引数を表示（デバッグ用）
         # echo ${argument}
-        sudo ./keyring.sh --alter-add
         sudo ./build.sh ${argument}
-        make cleanup
+        sudo rm -rf work/
+    fi
+}
+
+
+remove_work_dir() {
+    if [[ -d "${script_path}/work/" ]]; then
+        sudo rm -rf "${script_path}/work/"
+    fi
+}
+
+
+change_iso_permission() {
+    if [[ -n "${owner}" ]]; then
+        chown -R "${owner}" "${script_path}/out/"
+        chmod -R 750 "${script_path}/out/"
     fi
 }
 
 # 関数を実行
-# check_files
-# run_add_key_script
+check_files
 install_dependencies
-#ask
-#generate_argument
-# start_build
+run_add_key_script
+ask
+generate_argument
+start_build
 remove_dependencies
+remove_work_dir
+change_iso_permission
