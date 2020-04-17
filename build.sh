@@ -179,7 +179,7 @@ prepare_build() {
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
-    
+
     # Save build options
     local save_var
     save_var() {
@@ -881,14 +881,19 @@ if [[ -n "${1}" ]]; then
                     return 0
                 fi
             else
-                if [[ ${i} = ${1} ]] || [[ ${1} = "share" ]]; then
+                if [[ ${i} = ${1} ]]; then
                     echo -n "true"
                     return 0
                 fi
             fi
         done
-        echo -n "false"
-        return 1
+        if [[ "${channel_name}" = "rebuild" ]]; then
+            echo -n "true"
+            return 0
+        else
+            echo -n "false"
+            return 1
+        fi
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
