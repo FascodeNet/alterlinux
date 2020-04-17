@@ -904,7 +904,12 @@ if [[ -n "${1}" ]]; then
     if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
         channel_name="${channel_name}.add"
     elif [[ ${channel_name} = rebuild ]]; then
-        rebuild=true
+        if [[ -f "${work_dir}/build_options" ]]; then
+            rebuild=true
+        else
+            echo "The previous build information is not in the working directory."
+            exit 1
+        fi
     fi
 fi
 
