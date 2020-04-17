@@ -908,7 +908,6 @@ set -eu
 
 prepare_build
 show_settings
-exit
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
