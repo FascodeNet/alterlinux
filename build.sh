@@ -48,15 +48,22 @@ username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
 dependence=(
-    "archiso"
-    "git"
-    "make"
+    "alterlinux-keyring"
+#   "archiso"
     "arch-install-scripts"
+    "dosfstools"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
     "squashfs-tools"
     "libisoburn"
-    "dosfstools"
- #   "lynx"
-    "alterlinux-keyring"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
 )
 
 
