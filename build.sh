@@ -90,7 +90,9 @@ _usage () {
     echo "                        Default: disable"
     echo "    -h                 This help message and exit."
     echo
-
+    echo "You can switch between installed packages, files included in images, etc. by channel."
+    echo
+    echo " Channel:"
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
@@ -98,14 +100,12 @@ _usage () {
             fi
         fi
     done
-
-    echo "You can switch between installed packages, files included in images, etc. by channel."
-    echo
-    echo " Channel:"
-
+    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
+        elif [[ "${_channel}" = "rebuild" ]]; then
+            description="Rebuild using the settings of the previous build."
         else
             description="This channel does not have a description.txt."
         fi
