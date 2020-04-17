@@ -905,7 +905,12 @@ if [[ -n "${1}" ]]; then
         channel_name="${channel_name}.add"
     elif [[ ${channel_name} = rebuild ]]; then
         if [[ -f "${work_dir}/build_options" ]]; then
-            rebuild=true
+            if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
+                echo "Options cannot be specified for the rebuild channel.All options will use the previous settings."
+                exit 1
+            else
+                rebuild=true
+            fi
         else
             echo "The previous build information is not in the working directory."
             exit 1
