@@ -70,6 +70,48 @@ build_pacman_conf=${script_path}/system/pacman.conf
 
 umask 0022
 
+
+# Show an INFO message
+# $1: message string
+_msg_info() {
+    local _msg="${1}"
+    echo "[build.sh] Info: ${_msg}"
+}
+
+
+# Show an Warning message
+# $1: message string
+_msg_warn() {
+    local _msg="${1}"
+    echo "[build.sh] Warning: ${_msg}" >&2
+}
+
+
+# Show an debug message
+# $1: message string
+_msg_debug() {
+    local _msg="${1}"
+    if [[ ${debug} = true ]]; then
+        echo "[build.sh] Debug: ${_msg}"
+    fi
+}
+
+
+# Show an ERROR message then exit with status
+# $1: message string
+# $2: exit code number (with 0 does not exit)
+_msg_error() {
+    local _msg="${1}"
+    local _error=${2}
+    echo
+    echo "[build.sh] Error: ${_msg}" >&2
+    echo
+    if [[ ${_error} -gt 0 ]]; then
+        exit ${_error}
+    fi
+}
+
+
 _usage () {
     echo "usage ${0} [options] [channel]"
     echo
@@ -150,7 +192,7 @@ check_bool() {
     local 
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                   *) echo "The value ${boot_splash} set is invalid" >&2 ; exit 1;;
+                   *) _msg_error "The value ${boot_splash} set is invalid" 1 ;;
     esac
 }
 
@@ -167,7 +209,7 @@ run_once() {
         "$1"
         touch "${work_dir}/build.${1}"
     else
-        echo "Skipped because ${1} has already been executed."
+        _msg_info "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -219,7 +261,7 @@ prepare_build() {
         # If there is config for each channel. load that.
         if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
             source "${script_path}/channels/${channel_name}/config"
-            echo "[Info] The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+            _msg_info "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
         fi
         save_var \
             os_name \
@@ -297,7 +339,7 @@ prepare_build() {
     }
     echo
     for pkg in ${dependence[@]}; do
-        echo "[Info] Checking ${pkg} ..."
+        _msg_info "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
             "old") 
                 echo "[Warning] ${pkg} is not the latest package." >&2
@@ -315,17 +357,17 @@ prepare_build() {
 show_settings() {
     echo
     if [[ "${boot_splash}" = true ]]; then
-        echo "[Info] Boot splash is enabled."
-        echo "[Info] Theme is used ${theme_name}."
+        _msg_info "Boot splash is enabled."
+        _msg_info "Theme is used ${theme_name}."
     fi
-    echo "[Info] Use the ${kernel} kernel."
-    echo "[Info] Live username is ${username}."
-    echo "[Info] Live user password is ${password}."
-    echo "[Info] The compression method of squashfs is ${sfs_comp}."
+    _msg_info "Use the ${kernel} kernel."
+    _msg_info "Live username is ${username}."
+    _msg_info "Live user password is ${password}."
+    _msg_info "The compression method of squashfs is ${sfs_comp}."
     if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        echo "[Info] Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+        _msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
     else
-        echo "[Info] Use the ${channel_name} channel."
+        _msg_info "Use the ${channel_name} channel."
     fi
     [[ "${japanese}" = true ]] && echo " [Info] Japanese mode has been activated."
     echo
@@ -413,7 +455,7 @@ make_packages() {
         #-- Read package list --#
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
-            echo "[Info] Loaded package file ${_file}."
+            _msg_info "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
         if [[ ${debug} = true ]]; then
@@ -464,7 +506,7 @@ make_packages() {
         )
 
 
-        #-- Drbug code --#
+        #-- Debug code --#
         #for _pkg in ${pkglist[@]}; do
         #    echo -n "${_pkg} "
         #done
@@ -835,7 +877,7 @@ make_iso() {
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
     fi
-    echo "[Info] The password for the live user and root is ${password}."
+    _msg_info "The password for the live user and root is ${password}."
 }
 
 
@@ -851,8 +893,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                echo "[Error] Invalid compressors ${arg}" >&2
-                _usage 1
+                _msg_error "[Error] Invalid compressors ${arg}" 1
             fi
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
@@ -861,15 +902,14 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                echo "[Error] Invalid kernel ${OPTARG}" >&2
-                _usage 1
+                _msg_error "[Error] Invalid kernel ${OPTARG}" 1
             fi
             ;;
         s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                echo "[Error] Invalid configuration file ${OPTARG}." >&2
+                _msg_error "[Error] Invalid configuration file ${OPTARG}." 1
             fi
             ;;
         x) debug=true;;
@@ -878,7 +918,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
         *)
-           echo "[Error] Invalid argument '${arg}'" >&2
+           _msg_error "[Error] Invalid argument '${arg}'"
            _usage 1
            ;;
     esac
@@ -895,7 +935,7 @@ fi
 
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
-    echo "[Warning] This script must be run as root." >&2
+    _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
     set +u
@@ -906,7 +946,7 @@ fi
 
 
 # Show config message
-[[ -f "${script_path}"/config ]] && echo "[Info] The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${script_path}"/config ]] && _msg_info "The settings have been overwritten by the "${script_path}"/config."
 
 
 # Parse options
@@ -959,8 +999,7 @@ if [[ -n "${1}" ]]; then
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        echo "[Error] Invalid channel ${channel_name}" >&2
-        exit 1
+        _msg_error "[Error] Invalid channel ${channel_name}" 1
     fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
@@ -971,19 +1010,17 @@ if [[ -n "${1}" ]]; then
                 if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
                     rebuild=true
                 else
-                    echo "[Error] Options cannot be specified for the rebuild channel.All options will use the previous settings." >&2
-                    exit 1
+                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." 1
                 fi
             else
                 rebuild=true
             fi
         else
-            echo "[Error] The previous build information is not in the working directory." >&2
-            exit 1
+            _msg_error "The previous build information is not in the working directory." 1
         fi
     fi
 
-    echo "Debug code : ${channel_name}"
+    _msg_debug "channel_name is ${channel_name}"
 fi
 
 set -eu
