@@ -90,7 +90,9 @@ _usage () {
     echo "                        Default: disable"
     echo "    -h                 This help message and exit."
     echo
-
+    echo "You can switch between installed packages, files included in images, etc. by channel."
+    echo
+    echo " Channel:"
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
@@ -98,14 +100,12 @@ _usage () {
             fi
         fi
     done
-
-    echo "You can switch between installed packages, files included in images, etc. by channel."
-    echo
-    echo " Channel:"
-
+    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
+        elif [[ "${_channel}" = "rebuild" ]]; then
+            description="Rebuild using the settings of the previous build."
         else
             description="This channel does not have a description.txt."
         fi
@@ -173,8 +173,89 @@ remove() {
     done
 }
 
+
+# Preparation for build
+prepare_build() {
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+
+    # Save build options
+    local save_var
+    save_var() {
+        local out_file="${work_dir}/build_options"
+        local i
+        echo "#!/usr/bin/env bash" > "${out_file}"
+        echo "# Build options are stored here." >> "${out_file}"
+        for i in ${@}; do
+            echo -n "${i}=" >> "${out_file}"
+            echo -n '"' >> "${out_file}"
+            eval echo -n '$'{${i}} >> "${out_file}"
+            echo '"' >> "${out_file}"
+        done
+    }
+    if [[ ${rebuild} = false ]]; then
+        # If there is pacman.conf for each channel, use that for building
+        [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+
+
+        # If there is config for each channel. load that.
+        if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
+            source "${script_path}/channels/${channel_name}/config"
+            echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+        fi
+        save_var \
+            os_name \
+            iso_name \
+            iso_label \
+            iso_publisher \
+            iso_application \
+            iso_version \
+            install_dir \
+            work_dir \
+            out_dir \
+            gpg_key \
+            mkalteriso_option \
+            password \
+            boot_splash \
+            kernel \
+            theme_name \
+            theme_pkg \
+            sfs_comp \
+            sfs_comp_opt \
+            debug \
+            japanese \
+            channel_name \
+            cleaning \
+            username mkalteriso \
+            usershell \
+            build_pacman_conf
+    else
+        # Load rebuild file
+        source "${work_dir}/build_options"
+        # Delete the lock file.
+        remove "$(ls ${work_dir}/* | grep "build.make")"
+    fi
+
+
+    # Generate iso file name.
+    if [[ "${japanese}" = true  ]]; then
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-x86_64.iso"
+        else
+            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-x86_64.iso"
+        fi
+    else
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-x86_64.iso"
+        else
+            iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
+        fi
+    fi
+}
+
+
 # Show settings.
-# $1 = Time to show
 show_settings() {
     echo
     if [[ "${boot_splash}" = true ]]; then
@@ -196,46 +277,6 @@ show_settings() {
     read
 }
 
-# Preparation for rebuild
-prepare_rebuild() {
-    if [[ "${rebuild}" = true ]]; then
-        # Delete the lock file.
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-    fi
-}
-
-# Preparation for build
-prepare_build() {
-    # If there is pacman.conf for each channel, use that for building
-    [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
-
-
-    # If there is config for each channel. load that.
-    if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
-        source "${script_path}/channels/${channel_name}/config"
-        echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
-    fi
-
-
-    # Create a working directory.
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-
-
-    # Generate iso file name.
-    if [[ "${japanese}" = true  ]]; then
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-x86_64.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-x86_64.iso"
-        fi
-    else
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-x86_64.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
-        fi
-    fi
-}
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
@@ -743,7 +784,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -776,7 +817,6 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
             fi
             ;;
         x) debug=true;;
-        r) rebuild=true ;;
         j) japanese=true ;;
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
@@ -847,8 +887,13 @@ if [[ -n "${1}" ]]; then
                 fi
             fi
         done
-        echo -n "false"
-        return 1
+        if [[ "${channel_name}" = "rebuild" ]]; then
+            echo -n "true"
+            return 0
+        else
+            echo -n "false"
+            return 1
+        fi
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
@@ -858,15 +903,21 @@ if [[ -n "${1}" ]]; then
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
         channel_name="${channel_name}.add"
+    elif [[ ${channel_name} = rebuild ]]; then
+        if [[ -f "${work_dir}/build_options" ]]; then
+            rebuild=true
+        else
+            echo "The previous build information is not in the working directory."
+            exit 1
+        fi
     fi
 fi
 
 set -eu
 
 
-show_settings
-prepare_rebuild
 prepare_build
+show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
