@@ -107,7 +107,13 @@ _usage () {
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        channel_list="${channel_list[@]} ${i}"
+                    fi
+                else
                     channel_list="${channel_list[@]} ${i}"
+                fi
             fi
         fi
     done
@@ -920,7 +926,13 @@ if [[ -n "${1}" ]]; then
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
             if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
                 if [[ ! ${i} = "share" ]]; then
-                    channel_list="${channel_list[@]} ${i}"
+                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                            channel_list="${channel_list[@]} ${i}"
+                        fi
+                    else
+                        channel_list="${channel_list[@]} ${i}"
+                    fi
                 fi
             fi
         done
@@ -951,7 +963,7 @@ if [[ -n "${1}" ]]; then
         exit 1
     fi
 
-    if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
+    if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
     elif [[ ${channel_name} = rebuild ]]; then
         if [[ -f "${work_dir}/build_options" ]]; then
@@ -970,6 +982,8 @@ if [[ -n "${1}" ]]; then
             exit 1
         fi
     fi
+
+    echo "Debug code : ${channel_name}"
 fi
 
 set -eu
