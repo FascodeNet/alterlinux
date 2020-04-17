@@ -1,0 +1,37 @@
+#!/bin/ash
+
+# /oldroot depends on things inside /oldroot/run/archiso...
+mkdir /oldrun
+mount -n --move /oldroot/run /oldrun
+
+# Unmount all mounts now.
+umount $(mount | awk '$3 ~/^\/oldroot/ {print $3}' | sort -r)
+
+# Remove all dm-snapshot devices.
+dmsetup remove_all
+
+# Remove all loopback devices.
+for _lup in $(grep ^/dev/loop /oldrun/archiso/used_block_devices | tac); do
+    if ! losetup -d ${_lup} 2> /dev/null; then
+        umount -d ${_lup}
+    fi
+done
+
+# Unmount the space used to store *.cow.
+umount /oldrun/archiso/cowspace
+
+# Unmount boot device if needed (no copytoram=y used)
+if [[ ! -d /oldrun/archiso/copytoram ]]; then
+    if [[ -d /oldrun/archiso/img_dev ]]; then
+        umount /oldrun/archiso/img_dev
+    else
+        umount /oldrun/archiso/bootmnt
+    fi
+fi
+
+# reboot / poweroff / halt, depending on the argument passed by init
+# if something invalid is passed, we halt
+case "$1" in
+  reboot|poweroff|halt) "$1" -f ;;
+  *) halt -f;;
+esac
