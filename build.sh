@@ -55,7 +55,7 @@ dependence=(
     "squashfs-tools"
     "libisoburn"
     "dosfstools"
-    "lynx"
+ #   "lynx"
     "alterlinux-keyring"
 )
 
