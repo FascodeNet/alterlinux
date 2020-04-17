@@ -203,7 +203,7 @@ prepare_build() {
         # If there is config for each channel. load that.
         if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
             source "${script_path}/channels/${channel_name}/config"
-            echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+            echo "[Info] The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
         fi
         save_var \
             os_name \
@@ -937,7 +937,7 @@ if [[ -n "${1}" ]]; then
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        echo "[Error] Invalid channel "${channel_name}"" >&2
+        echo "[Error] Invalid channel ${channel_name}" >&2
         exit 1
     fi
 
