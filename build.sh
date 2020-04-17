@@ -176,6 +176,10 @@ remove() {
 
 # Preparation for build
 prepare_build() {
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+    
     # Save build options
     local save_var
     save_var() {
@@ -232,10 +236,6 @@ prepare_build() {
         # Delete the lock file.
         remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
-
-
-    # Create a working directory.
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
 
     # Generate iso file name.
