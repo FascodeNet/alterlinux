@@ -265,8 +265,8 @@ prepare_build() {
 
     check_pkg() {
         local i
-        for i in $(seq 1 ${#installed_pkg[@]}); do
-            if [[ ${installed_pkg[${i}]} = ${1} ]]; then
+        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+            if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
                 if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
                     echo -n "installed"
                     return 0
