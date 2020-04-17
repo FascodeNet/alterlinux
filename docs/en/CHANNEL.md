@@ -98,9 +98,16 @@ Placing `channels / <channel_name> / config` allows you to overwrite the existin
 This configuration file will be overwritten ** even the settings by the argument **, so please describe only the minimum required items. (For example, Plymouth theme name and package name)  
 
 ## Special channel
+### share
 There is a special channel, the `share` channel. The `share` channel is a shared channel used regardless of the specified channel.  
 Although `share` has the same structure as other channels, it cannot be built by specifying` share` alone as a channel.  
 Add here basic packages and common files that will be installed on all channels.  
   
 If files are duplicated in `airootfs`, the files in` share` will be overwritten.
 For example, if there is a file with the same location in `share` and` xfce`, the file in `xfce` will be used.
+  
+### rebuild
+There is also another `rebuild` channel. This channel is visible in the help, but it is not a directory entity. This channel is embedded in the script.  
+This channel is a channel to read the file which saved the build option generated in the working directory and rebuild.  
+Therefore, if the working directory does not exist, an error will be output and it will not function properly.  
+**This channel is still in alpha. Rebuilding can cause unexpected problems.**
