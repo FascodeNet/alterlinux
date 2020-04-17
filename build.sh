@@ -906,8 +906,12 @@ if [[ -n "${1}" ]]; then
     elif [[ ${channel_name} = rebuild ]]; then
         if [[ -f "${work_dir}/build_options" ]]; then
             if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
-                echo "Options cannot be specified for the rebuild channel.All options will use the previous settings."
-                exit 1
+                if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
+                    rebuild=true
+                else
+                    echo "Options cannot be specified for the rebuild channel.All options will use the previous settings."
+                    exit 1
+                fi
             else
                 rebuild=true
             fi
