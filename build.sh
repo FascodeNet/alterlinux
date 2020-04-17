@@ -284,10 +284,10 @@ prepare_build() {
         echo "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
             "old") 
-                echo "[Warning] ${pkg} is not the latest package."
+                echo "[Warning] ${pkg} is not the latest package." >&2
                 ;;
             "not")
-                echo "[Error] ${pkg} is not installed."
+                echo "[Error] ${pkg} is not installed." >&2
                 exit 1
                 ;;
         esac
@@ -299,19 +299,19 @@ prepare_build() {
 show_settings() {
     echo
     if [[ "${boot_splash}" = true ]]; then
-        echo "Boot splash is enabled."
-        echo "Theme is used ${theme_name}."
+        echo "[Info] Boot splash is enabled."
+        echo "[Info] Theme is used ${theme_name}."
     fi
-    echo "Use the ${kernel} kernel."
-    echo "Live username is ${username}."
-    echo "Live user password is ${password}."
-    echo "The compression method of squashfs is ${sfs_comp}."
+    echo "[Info] Use the ${kernel} kernel."
+    echo "[Info] Live username is ${username}."
+    echo "[Info] Live user password is ${password}."
+    echo "[Info] The compression method of squashfs is ${sfs_comp}."
     if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        echo "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+        echo "[Info] Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
     else
-        echo "Use the ${channel_name} channel."
+        echo "[Info] Use the ${channel_name} channel."
     fi
-    [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
+    [[ "${japanese}" = true ]] && echo " [Info] Japanese mode has been activated."
     echo
     echo "Press Enter to continue or Ctrl + C to cancel."
     read
@@ -397,7 +397,7 @@ make_packages() {
         #-- Read package list --#
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
-            echo "Loaded package file ${_file}."
+            echo "[Info] Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
         if [[ ${debug} = true ]]; then
@@ -819,7 +819,7 @@ make_iso() {
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
     fi
-    echo "The password for the live user and root is ${password}."
+    echo "[Info] The password for the live user and root is ${password}."
 }
 
 
@@ -835,7 +835,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                echo "Invalid compressors ${arg}"
+                echo "[Error] Invalid compressors ${arg}" >&2
                 _usage 1
             fi
             ;;
@@ -845,7 +845,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                echo "Invalid kernel ${OPTARG}" >&2
+                echo "[Error] Invalid kernel ${OPTARG}" >&2
                 _usage 1
             fi
             ;;
@@ -853,7 +853,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                echo "Invalid configuration file ${OPTARG}." >&2
+                echo "[Error] Invalid configuration file ${OPTARG}." >&2
             fi
             ;;
         x) debug=true;;
@@ -862,7 +862,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
         *)
-           echo "Invalid argument '${arg}'" >&2
+           echo "[Error] Invalid argument '${arg}'" >&2
            _usage 1
            ;;
     esac
@@ -879,7 +879,7 @@ fi
 
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
-    echo "This script must be run as root." >&2
+    echo "[Warning] This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
     set +u
@@ -890,7 +890,7 @@ fi
 
 
 # Show config message
-[[ -f "${script_path}"/config ]] && echo "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${script_path}"/config ]] && echo "[Info] The settings have been overwritten by the "${script_path}"/config."
 
 
 # Parse options
@@ -937,8 +937,8 @@ if [[ -n "${1}" ]]; then
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        echo "Invalid channel "${channel_name}"" >&2
-        _usage 1
+        echo "[Error] Invalid channel "${channel_name}"" >&2
+        exit 1
     fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
@@ -949,14 +949,14 @@ if [[ -n "${1}" ]]; then
                 if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
                     rebuild=true
                 else
-                    echo "Options cannot be specified for the rebuild channel.All options will use the previous settings."
+                    echo "[Error] Options cannot be specified for the rebuild channel.All options will use the previous settings." >&2
                     exit 1
                 fi
             else
                 rebuild=true
             fi
         else
-            echo "The previous build information is not in the working directory."
+            echo "[Error] The previous build information is not in the working directory." >&2
             exit 1
         fi
     fi
