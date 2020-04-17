@@ -41,7 +41,7 @@ function install_dependencies () {
     local installed_ver
     local check_pkg
 
-    dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso" "bash" "base")
+    dependence=("archiso" "git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx")
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
