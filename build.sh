@@ -47,7 +47,17 @@ cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
-dependence=("archiso" "git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx")
+dependence=(
+    "archiso"
+    "git"
+    "make"
+    "arch-install-scripts"
+    "squashfs-tools"
+    "libisoburn"
+    "dosfstools"
+    "lynx"
+    "alterlinux-keyring"
+)
 
 
 # Pacman configuration file used only when building
@@ -279,9 +289,9 @@ prepare_build() {
         echo -n "not"
         return 0
     }
-
+    echo
     for pkg in ${dependence[@]}; do
-        echo "Checking ${pkg} ..."
+        echo "[Info] Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
             "old") 
                 echo "[Warning] ${pkg} is not the latest package." >&2
