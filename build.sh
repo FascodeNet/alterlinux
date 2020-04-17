@@ -173,47 +173,64 @@ remove() {
     done
 }
 
-# Show settings.
-# $1 = Time to show
-show_settings() {
-    echo
-    if [[ "${boot_splash}" = true ]]; then
-        echo "Boot splash is enabled."
-        echo "Theme is used ${theme_name}."
-    fi
-    echo "Use the ${kernel} kernel."
-    echo "Live username is ${username}."
-    echo "Live user password is ${password}."
-    echo "The compression method of squashfs is ${sfs_comp}."
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        echo "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
-    else
-        echo "Use the ${channel_name} channel."
-    fi
-    [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
-    echo
-    echo "Press Enter to continue or Ctrl + C to cancel."
-    read
-}
-
-# Preparation for rebuild
-prepare_rebuild() {
-    if [[ "${rebuild}" = true ]]; then
-        # Delete the lock file.
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-    fi
-}
 
 # Preparation for build
 prepare_build() {
-    # If there is pacman.conf for each channel, use that for building
-    [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+    # Save build options
+    local save_var
+    save_var() {
+        local out_file="${work_dir}/build_options"
+        local i
+        echo "#!/usr/bin/env bash" > "${out_file}"
+        echo "# Build options are stored here." >> "${out_file}"
+        for i in ${@}; do
+            echo -n "${i}=" >> "${out_file}"
+            echo -n '"' >> "${out_file}"
+            eval echo -n '$'{${i}} >> "${out_file}"
+            echo '"' >> "${out_file}"
+        done
+    }
+    if [[ ${rebuild} = false ]]; then
+        # If there is pacman.conf for each channel, use that for building
+        [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
 
 
-    # If there is config for each channel. load that.
-    if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
-        source "${script_path}/channels/${channel_name}/config"
-        echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+        # If there is config for each channel. load that.
+        if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
+            source "${script_path}/channels/${channel_name}/config"
+            echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+        fi
+        save_var \
+            os_name \
+            iso_name \
+            iso_label \
+            iso_publisher \
+            iso_application \
+            iso_version \
+            install_dir \
+            work_dir \
+            out_dir \
+            gpg_key \
+            mkalteriso_option \
+            password \
+            boot_splash \
+            kernel \
+            theme_name \
+            theme_pkg \
+            sfs_comp \
+            sfs_comp_opt \
+            debug \
+            japanese \
+            channel_name \
+            cleaning \
+            username mkalteriso \
+            usershell \
+            build_pacman_conf
+    else
+        # Load rebuild file
+        source "${work_dir}/build_options"
+        # Delete the lock file.
+        remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
 
 
@@ -236,6 +253,30 @@ prepare_build() {
         fi
     fi
 }
+
+
+# Show settings.
+show_settings() {
+    echo
+    if [[ "${boot_splash}" = true ]]; then
+        echo "Boot splash is enabled."
+        echo "Theme is used ${theme_name}."
+    fi
+    echo "Use the ${kernel} kernel."
+    echo "Live username is ${username}."
+    echo "Live user password is ${password}."
+    echo "The compression method of squashfs is ${sfs_comp}."
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        echo "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+    else
+        echo "Use the ${channel_name} channel."
+    fi
+    [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
+    echo
+    echo "Press Enter to continue or Ctrl + C to cancel."
+    read
+}
+
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
@@ -743,7 +784,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -776,7 +817,6 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
             fi
             ;;
         x) debug=true;;
-        r) rebuild=true ;;
         j) japanese=true ;;
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
@@ -841,7 +881,7 @@ if [[ -n "${1}" ]]; then
                     return 0
                 fi
             else
-                if [[ ${i} = ${1} ]]; then
+                if [[ ${i} = ${1} ]] || [[ ${1} = "share" ]]; then
                     echo -n "true"
                     return 0
                 fi
@@ -858,15 +898,17 @@ if [[ -n "${1}" ]]; then
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
         channel_name="${channel_name}.add"
+    elif [[ ${channel_name} = rebuild ]]; then
+        rebuild=true
     fi
 fi
 
 set -eu
 
 
-show_settings
-prepare_rebuild
 prepare_build
+show_settings
+exit
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
