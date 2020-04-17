@@ -47,6 +47,7 @@ cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
+dependence=("archiso" "git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx")
 
 
 # Pacman configuration file used only when building
@@ -252,6 +253,45 @@ prepare_build() {
             iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
         fi
     fi
+
+
+    # Check packages
+    local installed_pkg
+    local installed_ver
+    local check_pkg
+
+    installed_pkg=($(pacman -Q | awk '{print $1}'))
+    installed_ver=($(pacman -Q | awk '{print $2}'))
+
+    check_pkg() {
+        local i
+        for i in $(seq 1 ${#installed_pkg[@]}); do
+            if [[ ${installed_pkg[${i}]} = ${1} ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                    echo -n "installed"
+                    return 0
+                else
+                    echo -n "old"
+                    return 0
+                fi
+            fi
+        done
+        echo -n "not"
+        return 0
+    }
+
+    for pkg in ${dependence[@]}; do
+        echo "Checking ${pkg} ..."
+        case $(check_pkg ${pkg}) in
+            "old") 
+                echo "[Warning] ${pkg} is not the latest package."
+                ;;
+            "not")
+                echo "[Error] ${pkg} is not installed."
+                exit 1
+                ;;
+        esac
+    done
 }
 
 
