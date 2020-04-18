@@ -963,6 +963,10 @@ make_iso() {
         remove "${work_dir}/x86_64"
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
+        remove "${work_dir}/build_options"
+        if [[ -z $(ls $(realpath "${work_dir}")/* )]]; then
+            remove ${work_dir}/*
+        fi
     fi
     _msg_info "The password for the live user and root is ${password}."
 }
