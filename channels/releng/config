@@ -13,7 +13,7 @@
 #
 
 # OS name used for startup screen, etc.
-os_name="Alter Linux"
+os_name="Arch Linux"
 
 # OS name used for the name of the image file.
 iso_name=archlinux
