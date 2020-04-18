@@ -51,6 +51,7 @@ dependence=(
     "alterlinux-keyring"
 #   "archiso"
     "arch-install-scripts"
+    "curl"
     "dosfstools"
     "git"
     "libburn"
