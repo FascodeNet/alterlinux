@@ -373,14 +373,15 @@ prepare_build() {
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
-
-        # Unmount
-        local mount
-        for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
-            _msg_info "Unmounting ${mount}"
-            umount "${mount}"
-        done
     fi
+
+
+    # Unmount
+    local mount
+    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+        _msg_info "Unmounting ${mount}"
+        umount "${mount}"
+    done
 
 
     # Generate iso file name.
