@@ -300,8 +300,9 @@ prepare_build() {
     else
         # Load rebuild file
         source "${work_dir}/build_options"
+
         # Delete the lock file.
-        remove "$(ls ${work_dir}/* | grep "build.make")"
+        # remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
 
 
