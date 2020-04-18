@@ -79,11 +79,70 @@ build_pacman_conf=${script_path}/system/pacman.conf
 umask 0022
 
 
+# Color echo
+# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
+#
+# Text Color
+# 30 => Black
+# 31 => Red
+# 32 => Green
+# 33 => Yellow
+# 34 => Blue
+# 35 => Magenta
+# 36 => Cyan
+# 37 => White
+#
+# Background color
+# 40 => Black
+# 41 => Red
+# 42 => Green
+# 43 => Yellow
+# 44 => Blue
+# 45 => Magenta
+# 46 => Cyan
+# 47 => White
+#
+# Text decoration
+# You can specify multiple decorations with ;.
+# 0 => All attributs off (ノーマル)
+# 1 => Bold on (太字)
+# 4 => Underscore (下線)
+# 5 => Blink on (点滅)
+# 7 => Reverse video on (色反転)
+# 8 => Concealed on
+
+echo_color() {
+    local backcolor
+    local textcolor
+    local decotypes
+    local echo_opts
+    local OPTIND_bak="${OPTIND}"
+    unset OPTIND
+
+    echo_opts="-e"
+
+    while getopts 'b:t:d:n' arg; do
+        case "${arg}" in
+            b) backcolor="${OPTARG}" ;;
+            t) textcolor="${OPTARG}" ;;
+            d) decotypes="${OPTARG}" ;;
+            n) echo_opts="-n -e"     ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    OPTIND=${OPTIND_bak}
+}
+
+
 # Show an INFO message
 # $1: message string
 _msg_info() {
     local _msg="${1}"
-    echo "[build.sh] Info: ${_msg}"
+    # echo "[build.sh] Info: ${_msg}"
+    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '32' '   Info') ${_msg}"
 }
 
 
@@ -91,7 +150,8 @@ _msg_info() {
 # $1: message string
 _msg_warn() {
     local _msg="${1}"
-    echo "[build.sh] Warning: ${_msg}" >&2
+    # echo "[build.sh] Warning: ${_msg}" >&2
+    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${_msg}" >&2
 }
 
 
@@ -100,7 +160,8 @@ _msg_warn() {
 _msg_debug() {
     local _msg="${1}"
     if [[ ${debug} = true ]]; then
-        echo "[build.sh] Debug: ${_msg}"
+        #echo "[build.sh] Debug: ${_msg}"
+        echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '35' '  Debug') ${_msg}"
     fi
 }
 
@@ -110,11 +171,17 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local _msg="${1}"
-    local _error=${2}
+    local _error
+
+    if [[ -v 2 ]]; then
+        _error="${2}"
+    fi
+
     echo
-    echo "[build.sh] Error: ${_msg}" >&2
+    #echo "[build.sh] Error: ${_msg}" >&2
+    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '31' '  Error') ${_msg}" >&2
     echo
-    if [[ ${_error} -gt 0 ]]; then
+    if [[ -v _error ]]; then
         exit ${_error}
     fi
 }
@@ -348,6 +415,7 @@ prepare_build() {
                     echo -n "old"
                     return 0
                 fi
+                _msg_debug "Installed $(pacman -Q ${1})"
             fi
         done
         echo -n "not"
