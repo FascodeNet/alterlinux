@@ -415,7 +415,6 @@ prepare_build() {
                     echo -n "old"
                     return 0
                 fi
-                _msg_debug "Installed $(pacman -Q ${1})"
             fi
         done
         echo -n "not"
@@ -433,6 +432,7 @@ prepare_build() {
                 exit 1
                 ;;
         esac
+        _msg_debug "Installed $(pacman -Q ${pkg})"
     done
 }
 
@@ -1109,6 +1109,7 @@ fi
 
 set -eu
 
+debug=true
 
 prepare_build
 show_settings
