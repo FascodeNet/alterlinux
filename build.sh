@@ -306,7 +306,7 @@ prepare_build() {
 
         # Unmount
         local mount
-        for mount in $(sudo mount | grep $(realpath ${work_dir}) | awk '{print $3}'); do
+        for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
             _msg_info "Unmounting ${mount}"
             umount "${mount}"
         done
