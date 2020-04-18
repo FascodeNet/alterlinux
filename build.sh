@@ -142,7 +142,7 @@ echo_color() {
 _msg_info() {
     local _msg="${1}"
     # echo "[build.sh] Info: ${_msg}"
-    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '32' '   Info') ${_msg}"
+    echo "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${_msg}"
 }
 
 
@@ -161,7 +161,7 @@ _msg_debug() {
     local _msg="${1}"
     if [[ ${debug} = true ]]; then
         #echo "[build.sh] Debug: ${_msg}"
-        echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '35' '  Debug') ${_msg}"
+        echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${_msg}"
     fi
 }
 
@@ -179,7 +179,7 @@ _msg_error() {
 
     echo
     #echo "[build.sh] Error: ${_msg}" >&2
-    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '31' '  Error') ${_msg}" >&2
+    echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${_msg}" >&2
     echo
     if [[ -v _error ]]; then
         exit ${_error}
