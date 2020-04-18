@@ -377,7 +377,7 @@ show_settings() {
     else
         _msg_info "Use the ${channel_name} channel."
     fi
-    [[ "${japanese}" = true ]] && echo " [Info] Japanese mode has been activated."
+    [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
     echo
     echo "Press Enter to continue or Ctrl + C to cancel."
     read
