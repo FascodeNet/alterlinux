@@ -40,6 +40,7 @@ theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
 sfs_comp_opt=""
+bash_debug=false
 debug=false
 rebuild=false
 japanese=false
@@ -274,6 +275,7 @@ check_bool() {
 
 check_bool boot_splash
 check_bool debug
+check_bool bash_debug
 check_bool rebuild
 check_bool japanese
 check_bool cleaning
@@ -646,16 +648,17 @@ make_customize_airootfs() {
 
 
     # customize_airootfs.sh options
-    # -p <password> : Set password.
     # -b            : Enable boot splash.
-    # -t            : Set plymouth theme.
+    # -d            : Enable debug mode.
     # -i <inst_dir> : Set install dir
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
+    # -p <password> : Set password.
     # -s <shell>    : Set user shell.
+    # -t            : Set plymouth theme.
     # -u <username> : Set live user name.
-    # -x            : Enable debug mode.
+    # -x            : Enable bash debug mode.
     # -r            : Enable rebuild.
 
 
@@ -671,6 +674,9 @@ make_customize_airootfs() {
         fi
     fi
     if [[ ${debug} = true ]]; then
+        addition_options="${addition_options} -d"
+    fi
+    if [[ ${bash_debug} = true ]]; then
         addition_options="${addition_options} -x"
     fi
     if [[ ${japanese} = true ]]; then
@@ -999,9 +1005,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
             ;;
         x) 
             debug=true
-            set -x
-            set -v
-            mkalteriso_option="${mkalteriso_option} -x"
+            bash_debug=true
             ;;
         d) debug=true;;
         j) japanese=true ;;
@@ -1030,6 +1034,14 @@ fi
 
 # Show config message
 [[ -f "${script_path}"/config ]] && _msg_info "The settings have been overwritten by the "${script_path}"/config."
+
+
+# Debug mode
+if [[ "${bash_debug}" = true ]]; then
+    set -x
+    set -v
+    mkalteriso_option="${mkalteriso_option} -x"
+fi
 
 
 # Parse options

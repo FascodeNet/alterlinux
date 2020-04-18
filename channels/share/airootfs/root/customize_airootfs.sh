@@ -22,10 +22,11 @@ username='alter'
 os_name="Alter Linux"
 install_dir="alter"
 usershell="/bin/bash"
+debug=true
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:i:s:' arg; do
+while getopts 'p:bt:k:rxju:o:i:s:d' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -37,7 +38,8 @@ while getopts 'p:bt:k:rxju:o:i:s:' arg; do
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
         s) usershell="${OPTARG}" ;;
-        x) set -xv ;;
+        d) debug=true ;;
+        x) debug=true; set -xv ;;
     esac
 done
 
