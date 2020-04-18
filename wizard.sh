@@ -4,6 +4,27 @@ set -e
 
 nobuild=false
 
+dependence=(
+    "alterlinux-keyring"
+#   "archiso"
+    "arch-install-scripts"
+    "curl"
+    "dosfstools"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
+    "squashfs-tools"
+    "libisoburn"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
+)
+
+
 while getopts 'xn' arg; do
     case "${arg}" in
         n)
@@ -35,13 +56,11 @@ function check_files () {
 
 function install_dependencies () {
     local checkpkg
-    local dependence
     local pkg
     local installed_pkg
     local installed_ver
     local check_pkg
 
-    dependence=("archiso" "git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx")
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
