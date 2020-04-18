@@ -8,11 +8,7 @@ gpm
 gptfdisk
 grml-zsh-config
 hdparm
-linux-atm
-linux-firmware
 lvm2
-man-db
-man-pages
 mdadm
 nano
 partclone
@@ -20,7 +16,6 @@ parted
 partimage
 sdparm
 smartmontools
-sudo
 testdisk
 vi
 vim-minimal
