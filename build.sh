@@ -977,7 +977,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                _msg_error "[Error] Invalid compressors ${arg}" 1
+                _msg_error "Invalid compressors ${arg}" 1
             fi
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
@@ -986,14 +986,14 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                _msg_error "[Error] Invalid kernel ${OPTARG}" 1
+                _msg_error "Invalid kernel ${OPTARG}" 1
             fi
             ;;
         s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                _msg_error "[Error] Invalid configuration file ${OPTARG}." 1
+                _msg_error "Invalid configuration file ${OPTARG}." 1
             fi
             ;;
         x) debug=true;;
@@ -1002,7 +1002,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
         *)
-           _msg_error "[Error] Invalid argument '${arg}'"
+           _msg_error "Invalid argument '${arg}'"
            _usage 1
            ;;
     esac
@@ -1083,7 +1083,7 @@ if [[ -n "${1}" ]]; then
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        _msg_error "[Error] Invalid channel ${channel_name}" 1
+        _msg_error "Invalid channel ${channel_name}" 1
     fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
