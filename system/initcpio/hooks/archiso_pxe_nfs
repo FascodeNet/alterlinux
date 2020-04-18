@@ -1,0 +1,30 @@
+# vim: set ft=sh:
+
+run_hook() {
+    if [[ -n "${ip}" && -n "${archiso_nfs_srv}" ]]; then
+
+        archiso_nfs_srv=$(eval echo ${archiso_nfs_srv})
+        [[ -n "${archiso_nfs_opt}" ]] && archiso_nfs_opt="-o ${archiso_nfs_opt}"
+
+        mount_handler="archiso_nfs_mount_handler"
+    fi
+}
+
+archiso_nfs_mount_handler() {
+    newroot="${1}"
+    mkdir -p "/run/archiso/bootmnt"
+    msg ":: Mounting '${archiso_nfs_srv}'"
+    # Do not put "${archiso_nfs_opt}" nfsmount fails!
+    if ! nfsmount ${archiso_nfs_opt} "${archiso_nfs_srv}" "/run/archiso/bootmnt"; then
+        echo "ERROR: Mounting '${archiso_nfs_srv}'"
+        echo "   Falling back to interactive prompt"
+        echo "   You can try to fix the problem manually, log out when you are finished"
+        launch_interactive_shell
+    fi
+
+    if [[ "${copytoram}" != "n" ]]; then
+        copytoram="y"
+    fi
+
+    archiso_mount_handler ${newroot}
+}

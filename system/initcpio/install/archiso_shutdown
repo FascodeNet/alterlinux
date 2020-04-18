@@ -1,0 +1,20 @@
+#!/bin/bash
+
+build() {
+    add_binary cp
+
+    add_runscript
+
+    add_file /usr/lib/initcpio/archiso_shutdown /shutdown
+}
+
+help() {
+    cat <<HELPEOF
+This hook will create a shutdown initramfs in /run/initramfs
+that we can pivot to on shutdown in order to unmount / and
+and others mount points, dm-snapshot devices and loopback devices.
+Mostly usefull for dm-snapshot persistent.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

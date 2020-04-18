@@ -1,0 +1,17 @@
+#!/bin/bash
+
+build() {
+    add_module "nfs"
+
+    add_runscript
+
+    add_binary /usr/lib/initcpio/nfsmount /bin/nfsmount
+}
+
+help() {
+    cat <<HELPEOF
+  This hook loads the necessary modules for boot via PXE and NFS.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

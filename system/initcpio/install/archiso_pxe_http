@@ -1,0 +1,17 @@
+#!/bin/bash
+
+build() {
+    add_runscript
+
+    add_binary curl
+
+    add_file $(readlink -f /etc/ssl/certs/ca-certificates.crt) /etc/ssl/certs/ca-certificates.crt
+}
+
+help() {
+cat<<HELPEOF
+  This hook loads the necessary modules for boot via PXE and HTTP.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

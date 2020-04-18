@@ -1,0 +1,35 @@
+# vim: set ft=sh:
+
+run_hook () {
+    [[ -n "${img_label}" ]] && img_dev="/dev/disk/by-label/${img_label}"
+    [[ -z "${img_flags}" ]] && img_flags="defaults"
+    if [[ -n "${img_dev}" && -n "${img_loop}" ]]; then
+        mount_handler="archiso_loop_mount_handler"
+    fi
+}
+
+archiso_loop_mount_handler () {
+    newroot="${1}"
+
+    local _dev_loop
+
+    msg ":: Setup a loop device from ${img_loop} located at device ${img_dev}"
+    _mnt_dev "${img_dev}" "/run/archiso/img_dev" "-r" "${img_flags}"
+    if [[ "${copytoram}" != "y" ]]; then
+        echo $(readlink -f ${img_dev}) >> /run/archiso/used_block_devices
+    fi
+
+    if _dev_loop=$(losetup --find --show --read-only "/run/archiso/img_dev/${img_loop}"); then
+        archisodevice="${_dev_loop}"
+    else
+        echo "ERROR: Setting loopback device for file '/run/archiso/img_dev/${img_loop}'"
+        launch_interactive_shell
+    fi
+
+    archiso_mount_handler ${newroot}
+
+    if [[ "${copytoram}" == "y" ]]; then
+        losetup -d ${_dev_loop} 2>/dev/null
+        umount /run/archiso/img_dev
+    fi
+}

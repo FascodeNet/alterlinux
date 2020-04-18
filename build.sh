@@ -11,7 +11,8 @@
 # The main script that runs the build
 #
 
-set -e -u
+set -e
+# set -u
 script_path="$(readlink -f ${0%/*})"
 
 # alteriso settings
@@ -39,6 +40,7 @@ theme_name="alter-logo"
 theme_pkg="plymouth-theme-alter-logo-git"
 sfs_comp="zstd"
 sfs_comp_opt=""
+bash_debug=false
 debug=false
 rebuild=false
 japanese=false
@@ -47,6 +49,25 @@ cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
+dependence=(
+    "alterlinux-keyring"
+#   "archiso"
+    "arch-install-scripts"
+    "curl"
+    "dosfstools"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
+    "squashfs-tools"
+    "libisoburn"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
+)
 
 
 # Pacman configuration file used only when building
@@ -58,6 +79,115 @@ build_pacman_conf=${script_path}/system/pacman.conf
 
 
 umask 0022
+
+
+# Color echo
+# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
+#
+# Text Color
+# 30 => Black
+# 31 => Red
+# 32 => Green
+# 33 => Yellow
+# 34 => Blue
+# 35 => Magenta
+# 36 => Cyan
+# 37 => White
+#
+# Background color
+# 40 => Black
+# 41 => Red
+# 42 => Green
+# 43 => Yellow
+# 44 => Blue
+# 45 => Magenta
+# 46 => Cyan
+# 47 => White
+#
+# Text decoration
+# You can specify multiple decorations with ;.
+# 0 => All attributs off (ノーマル)
+# 1 => Bold on (太字)
+# 4 => Underscore (下線)
+# 5 => Blink on (点滅)
+# 7 => Reverse video on (色反転)
+# 8 => Concealed on
+
+echo_color() {
+    local backcolor
+    local textcolor
+    local decotypes
+    local echo_opts
+    local OPTIND_bak="${OPTIND}"
+    unset OPTIND
+
+    echo_opts="-e"
+
+    while getopts 'b:t:d:n' arg; do
+        case "${arg}" in
+            b) backcolor="${OPTARG}" ;;
+            t) textcolor="${OPTARG}" ;;
+            d) decotypes="${OPTARG}" ;;
+            n) echo_opts="-n -e"     ;;
+        esac
+    done
+
+    shift $((OPTIND - 1))
+
+    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    OPTIND=${OPTIND_bak}
+}
+
+
+# Show an INFO message
+# $1: message string
+_msg_info() {
+    local _msg="${1}"
+    # echo "[build.sh] Info: ${_msg}"
+    echo "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${_msg}"
+}
+
+
+# Show an Warning message
+# $1: message string
+_msg_warn() {
+    local _msg="${1}"
+    # echo "[build.sh] Warning: ${_msg}" >&2
+    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${_msg}" >&2
+}
+
+
+# Show an debug message
+# $1: message string
+_msg_debug() {
+    local _msg="${1}"
+    if [[ ${debug} = true ]]; then
+        #echo "[build.sh] Debug: ${_msg}"
+        echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${_msg}"
+    fi
+}
+
+
+# Show an ERROR message then exit with status
+# $1: message string
+# $2: exit code number (with 0 does not exit)
+_msg_error() {
+    local _msg="${1}"
+    local _error
+
+    if [[ -n "${2}" ]]; then
+        _error="${2}"
+    fi
+
+    echo
+    #echo "[build.sh] Error: ${_msg}" >&2
+    echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${_msg}" >&2
+    echo
+    if [[ -n "${_error}" ]]; then
+        exit ${_error}
+    fi
+}
+
 
 _usage () {
     echo "usage ${0} [options] [channel]"
@@ -90,22 +220,28 @@ _usage () {
     echo "                        Default: disable"
     echo "    -h                 This help message and exit."
     echo
-
-    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-            if [[ ! ${i} = "share" ]]; then
-                    channel_list="${channel_list[@]} ${i}"
-            fi
-        fi
-    done
-
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
     echo " Channel:"
-
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+            if [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        channel_list="${channel_list[@]} ${i}"
+                    fi
+                else
+                    channel_list="${channel_list[@]} ${i}"
+                fi
+            fi
+        fi
+    done
+    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
+        elif [[ "${_channel}" = "rebuild" ]]; then
+            description="Rebuild using the settings of the previous build."
         else
             description="This channel does not have a description.txt."
         fi
@@ -133,12 +269,13 @@ check_bool() {
     local 
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                   *) echo "The value ${boot_splash} set is invalid" >&2 ; exit 1;;
+                   *) _msg_error "The value ${boot_splash} set is invalid" 1 ;;
     esac
 }
 
 check_bool boot_splash
 check_bool debug
+check_bool bash_debug
 check_bool rebuild
 check_bool japanese
 check_bool cleaning
@@ -150,7 +287,7 @@ run_once() {
         "$1"
         touch "${work_dir}/build.${1}"
     else
-        echo "Skipped because ${1} has already been executed."
+        _msg_info "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -173,52 +310,78 @@ remove() {
     done
 }
 
-# Show settings.
-# $1 = Time to show
-show_settings() {
-    echo
-    if [[ "${boot_splash}" = true ]]; then
-        echo "Boot splash is enabled."
-        echo "Theme is used ${theme_name}."
-    fi
-    echo "Use the ${kernel} kernel."
-    echo "Live username is ${username}."
-    echo "Live user password is ${password}."
-    echo "The compression method of squashfs is ${sfs_comp}."
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        echo "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
-    else
-        echo "Use the ${channel_name} channel."
-    fi
-    [[ "${japanese}" = true ]] && echo "Japanese mode has been activated."
-    echo
-    echo "Press Enter to continue or Ctrl + C to cancel."
-    read
-}
-
-# Preparation for rebuild
-prepare_rebuild() {
-    if [[ "${rebuild}" = true ]]; then
-        # Delete the lock file.
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-    fi
-}
 
 # Preparation for build
 prepare_build() {
-    # If there is pacman.conf for each channel, use that for building
-    [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
 
-    # If there is config for each channel. load that.
-    if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
-        source "${script_path}/channels/${channel_name}/config"
-        echo "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+    # Save build options
+    local save_var
+    save_var() {
+        local out_file="${work_dir}/build_options"
+        local i
+        echo "#!/usr/bin/env bash" > "${out_file}"
+        echo "# Build options are stored here." >> "${out_file}"
+        for i in ${@}; do
+            echo -n "${i}=" >> "${out_file}"
+            echo -n '"' >> "${out_file}"
+            eval echo -n '$'{${i}} >> "${out_file}"
+            echo '"' >> "${out_file}"
+        done
+    }
+    if [[ ${rebuild} = false ]]; then
+        # If there is pacman.conf for each channel, use that for building
+        [[ -f "${script_path}/channels/${channel_name}/pacman.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+
+
+        # If there is config for each channel. load that.
+        if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
+            source "${script_path}/channels/${channel_name}/config"
+            _msg_info "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+        fi
+        save_var \
+            os_name \
+            iso_name \
+            iso_label \
+            iso_publisher \
+            iso_application \
+            iso_version \
+            install_dir \
+            work_dir \
+            out_dir \
+            gpg_key \
+            mkalteriso_option \
+            password \
+            boot_splash \
+            kernel \
+            theme_name \
+            theme_pkg \
+            sfs_comp \
+            sfs_comp_opt \
+            debug \
+            japanese \
+            channel_name \
+            cleaning \
+            username mkalteriso \
+            usershell \
+            build_pacman_conf
+    else
+        # Load rebuild file
+        source "${work_dir}/build_options"
+
+        # Delete the lock file.
+        # remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
 
 
-    # Create a working directory.
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+    # Unmount
+    local mount
+    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+        _msg_info "Unmounting ${mount}"
+        umount "${mount}"
+    done
 
 
     # Generate iso file name.
@@ -235,7 +398,66 @@ prepare_build() {
             iso_filename="${iso_name}-${channel_name}-${iso_version}-x86_64.iso"
         fi
     fi
+
+
+    # Check packages
+    local installed_pkg
+    local installed_ver
+    local check_pkg
+
+    installed_pkg=($(pacman -Q | awk '{print $1}'))
+    installed_ver=($(pacman -Q | awk '{print $2}'))
+
+    check_pkg() {
+        local i
+        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+            if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                    echo -n "installed"
+                    return 0
+                else
+                    echo -n "old"
+                    return 0
+                fi
+            fi
+        done
+        echo -n "not"
+        return 0
+    }
+    echo
+    for pkg in ${dependence[@]}; do
+        _msg_info "Checking ${pkg} ..."
+        case $(check_pkg ${pkg}) in
+            "old") _msg_warn "${pkg} is not the latest package." ;;
+            "not") _msg_error "${pkg} is not installed." 1       ;;
+        esac
+        _msg_debug "Installed $(pacman -Q ${pkg})"
+    done
 }
+
+
+# Show settings.
+show_settings() {
+    echo
+    if [[ "${boot_splash}" = true ]]; then
+        _msg_info "Boot splash is enabled."
+        _msg_info "Theme is used ${theme_name}."
+    fi
+    _msg_info "Use the ${kernel} kernel."
+    _msg_info "Live username is ${username}."
+    _msg_info "Live user password is ${password}."
+    _msg_info "The compression method of squashfs is ${sfs_comp}."
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+    else
+        _msg_info "Use the ${channel_name} channel."
+    fi
+    [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
+    echo
+    echo "Press Enter to continue or Ctrl + C to cancel."
+    read
+}
+
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
@@ -316,7 +538,7 @@ make_packages() {
         #-- Read package list --#
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
-            echo "Loaded package file ${_file}."
+            _msg_info "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
         if [[ ${debug} = true ]]; then
@@ -367,7 +589,7 @@ make_packages() {
         )
 
 
-        #-- Drbug code --#
+        #-- Debug code --#
         #for _pkg in ${pkglist[@]}; do
         #    echo -n "${_pkg} "
         #done
@@ -422,16 +644,17 @@ make_customize_airootfs() {
 
 
     # customize_airootfs.sh options
-    # -p <password> : Set password.
     # -b            : Enable boot splash.
-    # -t            : Set plymouth theme.
+    # -d            : Enable debug mode.
     # -i <inst_dir> : Set install dir
     # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
+    # -p <password> : Set password.
     # -s <shell>    : Set user shell.
+    # -t            : Set plymouth theme.
     # -u <username> : Set live user name.
-    # -x            : Enable debug mode.
+    # -x            : Enable bash debug mode.
     # -r            : Enable rebuild.
 
 
@@ -447,6 +670,9 @@ make_customize_airootfs() {
         fi
     fi
     if [[ ${debug} = true ]]; then
+        addition_options="${addition_options} -d"
+    fi
+    if [[ ${bash_debug} = true ]]; then
         addition_options="${addition_options} -x"
     fi
     if [[ ${japanese} = true ]]; then
@@ -530,12 +756,12 @@ make_setup_mkinitcpio() {
     mkdir -p "${work_dir}/x86_64/airootfs/etc/initcpio/hooks"
     mkdir -p "${work_dir}/x86_64/airootfs/etc/initcpio/install"
     for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        cp "/usr/lib/initcpio/hooks/${_hook}" "${work_dir}/x86_64/airootfs/etc/initcpio/hooks"
-        cp "/usr/lib/initcpio/install/${_hook}" "${work_dir}/x86_64/airootfs/etc/initcpio/install"
+        cp "${script_path}/system/initcpio/hooks/${_hook}" "${work_dir}/x86_64/airootfs/etc/initcpio/hooks"
+        cp "${script_path}/system/initcpio/install/${_hook}" "${work_dir}/x86_64/airootfs/etc/initcpio/install"
     done
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${work_dir}/x86_64/airootfs/etc/initcpio/install/archiso_shutdown"
-    cp "/usr/lib/initcpio/install/archiso_kms" "${work_dir}/x86_64/airootfs/etc/initcpio/install"
-    cp "/usr/lib/initcpio/archiso_shutdown" "${work_dir}/x86_64/airootfs/etc/initcpio"
+    cp "${script_path}/system/initcpio/install/archiso_kms" "${work_dir}/x86_64/airootfs/etc/initcpio/install"
+    cp "${script_path}/system/initcpio/archiso_shutdown" "${work_dir}/x86_64/airootfs/etc/initcpio"
     if [[ "${boot_splash}" = true ]]; then
         cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio-archiso.conf"
     else
@@ -737,13 +963,17 @@ make_iso() {
         remove "${work_dir}/x86_64"
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
+        remove "${work_dir}/build_options"
+        if [[ -z $(ls $(realpath "${work_dir}")/* ) ]]; then
+            remove ${work_dir}/*
+        fi
     fi
-    echo "The password for the live user and root is ${password}."
+    _msg_info "The password for the live user and root is ${password}."
 }
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -754,8 +984,7 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                echo "Invalid compressors ${arg}"
-                _usage 1
+                _msg_error "Invalid compressors ${arg}" 1
             fi
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
@@ -764,42 +993,36 @@ while getopts 'w:o:g:p:c:t:hbk:rxs:jlu:' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                echo "Invalid kernel ${OPTARG}" >&2
-                _usage 1
+                _msg_error "Invalid kernel ${OPTARG}" 1
             fi
             ;;
         s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                echo "Invalid configuration file ${OPTARG}." >&2
+                _msg_error "Invalid configuration file ${OPTARG}." 1
             fi
             ;;
-        x) debug=true;;
-        r) rebuild=true ;;
+        x) 
+            debug=true
+            bash_debug=true
+            ;;
+        d) debug=true;;
         j) japanese=true ;;
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
         *)
-           echo "Invalid argument '${arg}'" >&2
+           _msg_error "Invalid argument '${arg}'"
            _usage 1
            ;;
     esac
 done
 
 
-# Debug mode
-if [[ "${debug}" = true ]]; then
-    set -x
-    set -v
-    mkalteriso_option="${mkalteriso_option} -x"
-fi
-
-
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
-    echo "This script must be run as root." >&2
+    _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
     set +u
@@ -810,7 +1033,15 @@ fi
 
 
 # Show config message
-[[ -f "${script_path}"/config ]] && echo "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${script_path}"/config ]] && _msg_info "The settings have been overwritten by the "${script_path}"/config."
+
+
+# Debug mode
+if [[ "${bash_debug}" = true ]]; then
+    set -x
+    set -v
+    mkalteriso_option="${mkalteriso_option} -x"
+fi
 
 
 # Parse options
@@ -830,7 +1061,13 @@ if [[ -n "${1}" ]]; then
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
             if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
                 if [[ ! ${i} = "share" ]]; then
-                    channel_list="${channel_list[@]} ${i}"
+                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                            channel_list="${channel_list[@]} ${i}"
+                        fi
+                    else
+                        channel_list="${channel_list[@]} ${i}"
+                    fi
                 fi
             fi
         done
@@ -847,26 +1084,45 @@ if [[ -n "${1}" ]]; then
                 fi
             fi
         done
-        echo -n "false"
-        return 1
+        if [[ "${channel_name}" = "rebuild" ]]; then
+            echo -n "true"
+            return 0
+        else
+            echo -n "false"
+            return 1
+        fi
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        echo "Invalid channel "${channel_name}"" >&2
-        _usage 1
+        _msg_error "Invalid channel ${channel_name}" 1
     fi
 
-    if [[ -d "${script_path}"/channels/${channel_name}.add ]] && [[ ! -d "${script_path}"/channels/${channel_name} ]]; then
+    if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
+    elif [[ ${channel_name} = rebuild ]]; then
+        if [[ -f "${work_dir}/build_options" ]]; then
+            if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
+                if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
+                    rebuild=true
+                else
+                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." 1
+                fi
+            else
+                rebuild=true
+            fi
+        else
+            _msg_error "The previous build information is not in the working directory." 1
+        fi
     fi
+
+    _msg_debug "channel_name is ${channel_name}"
 fi
 
 set -eu
 
 
-show_settings
-prepare_rebuild
 prepare_build
+show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages

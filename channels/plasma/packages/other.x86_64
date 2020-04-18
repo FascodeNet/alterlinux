@@ -20,11 +20,6 @@ man-db
 man-pages
 
 
-#-- linux --#
-linux-atm
-linux-firmware
-
-
 #-- system monitor --#
 ksysguard
 cpu-x

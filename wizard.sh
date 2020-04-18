@@ -4,6 +4,27 @@ set -e
 
 nobuild=false
 
+dependence=(
+    "alterlinux-keyring"
+#   "archiso"
+    "arch-install-scripts"
+    "curl"
+    "dosfstools"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
+    "squashfs-tools"
+    "libisoburn"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
+)
+
+
 while getopts 'xn' arg; do
     case "${arg}" in
         n)
@@ -35,19 +56,17 @@ function check_files () {
 
 function install_dependencies () {
     local checkpkg
-    local dependence
     local pkg
     local installed_pkg
     local installed_ver
     local check_pkg
 
-    dependence=("git" "make" "arch-install-scripts" "squashfs-tools" "libisoburn" "dosfstools" "lynx" "archiso" "bash" "base")
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
     check_pkg() {
         local i
-        for i in $(seq 1 ${#installed_pkg[@]}); do
+        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
                 if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
                     echo -n "true"
@@ -62,8 +81,8 @@ function install_dependencies () {
         return 0
     }
 
-    echo "依存関係を確認しています..."
     for pkg in ${dependence[@]}; do
+        echo "依存パッケージ ${pkg} を確認しています..."
         if [[ $(check_pkg ${pkg}) = false ]]; then
             install=(${install[@]} ${pkg})
         fi

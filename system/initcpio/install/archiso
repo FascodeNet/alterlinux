@@ -1,0 +1,30 @@
+#!/bin/bash
+
+build() {
+    add_module "cdrom"
+    add_module "loop"
+    add_module "dm-snapshot"
+    add_module "overlay"
+
+    add_runscript
+
+    add_binary /usr/lib/udev/cdrom_id
+    add_binary blockdev
+    add_binary dmsetup
+    add_binary losetup
+    add_binary mountpoint
+    add_binary truncate
+    add_binary gpg
+    add_binary grep
+
+    add_file /usr/lib/udev/rules.d/60-cdrom_id.rules
+    add_file /usr/lib/udev/rules.d/10-dm.rules
+    add_file /usr/lib/udev/rules.d/95-dm-notify.rules
+    add_file /usr/lib/initcpio/udev/11-dm-initramfs.rules /usr/lib/udev/rules.d/11-dm-initramfs.rules
+    if [[ $ARCHISO_GNUPG_FD ]]; then
+        mkdir -p "$BUILDROOT$dest"/gpg
+        gpg --homedir "$BUILDROOT$dest"/gpg --import <&$ARCHISO_GNUPG_FD
+    fi
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

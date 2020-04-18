@@ -33,11 +33,6 @@ man-pages
 jstest-gtk-git
 
 
-#-- linux --#
-linux-atm
-linux-firmware
-
-
 #-- system monitor --#
 gnome-system-monitor
 cpu-x

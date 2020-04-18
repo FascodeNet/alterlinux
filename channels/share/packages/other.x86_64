@@ -18,5 +18,16 @@ mc
 
 
 #-- utility --#
+sudo
 tlp
 xdg-user-dirs
+
+
+#-- linux --#
+linux-atm
+linux-firmware
+
+
+#-- man --#
+man-db
+man-pages
