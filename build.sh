@@ -428,13 +428,8 @@ prepare_build() {
     for pkg in ${dependence[@]}; do
         _msg_info "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
-            "old") 
-                echo "[Warning] ${pkg} is not the latest package." >&2
-                ;;
-            "not")
-                echo "[Error] ${pkg} is not installed." >&2
-                exit 1
-                ;;
+            "old") _msg_warn "${pkg} is not the latest package." ;;
+            "not") _msg_error "${pkg} is not installed." 1       ;;
         esac
         _msg_debug "Installed $(pacman -Q ${pkg})"
     done
