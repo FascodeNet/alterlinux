@@ -966,7 +966,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -996,7 +996,13 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
                 _msg_error "Invalid configuration file ${OPTARG}." 1
             fi
             ;;
-        x) debug=true;;
+        x) 
+            debug=true
+            set -x
+            set -v
+            mkalteriso_option="${mkalteriso_option} -x"
+            ;;
+        d) debug=true;;
         j) japanese=true ;;
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
@@ -1007,14 +1013,6 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:' arg; do
            ;;
     esac
 done
-
-
-# Debug mode
-if [[ "${debug}" = true ]]; then
-    set -x
-    set -v
-    mkalteriso_option="${mkalteriso_option} -x"
-fi
 
 
 # Check root.
