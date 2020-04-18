@@ -11,7 +11,8 @@
 # The main script that runs the build
 #
 
-set -e -u
+set -e
+# set -u
 script_path="$(readlink -f ${0%/*})"
 
 # alteriso settings
@@ -173,7 +174,7 @@ _msg_error() {
     local _msg="${1}"
     local _error
 
-    if [[ -v 2 ]]; then
+    if [[ -n "${2}" ]]; then
         _error="${2}"
     fi
 
@@ -181,7 +182,7 @@ _msg_error() {
     #echo "[build.sh] Error: ${_msg}" >&2
     echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${_msg}" >&2
     echo
-    if [[ -v _error ]]; then
+    if [[ -n "${_error}" ]]; then
         exit ${_error}
     fi
 }
