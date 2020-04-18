@@ -303,6 +303,13 @@ prepare_build() {
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
+
+        # Unmount
+        local mount
+        for mount in $(sudo mount | grep $(realpath ${work_dir}) | awk '{print $3}'); do
+            _msg_info "Unmounting ${mount}"
+            umount "${mount}"
+        done
     fi
 
 
