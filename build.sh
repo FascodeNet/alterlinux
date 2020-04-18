@@ -433,6 +433,12 @@ prepare_build() {
         esac
         _msg_debug "Installed $(pacman -Q ${pkg})"
     done
+
+
+    # Load kernel module
+    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
+        sudo modprobe loop
+    fi
 }
 
 
