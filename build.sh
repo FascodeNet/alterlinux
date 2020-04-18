@@ -1109,7 +1109,6 @@ fi
 
 set -eu
 
-debug=true
 
 prepare_build
 show_settings
