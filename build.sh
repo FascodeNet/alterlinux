@@ -964,7 +964,7 @@ make_iso() {
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
         remove "${work_dir}/build_options"
-        if [[ -z $(ls $(realpath "${work_dir}")/* )]]; then
+        if [[ -z $(ls $(realpath "${work_dir}")/* ) ]]; then
             remove ${work_dir}/*
         fi
     fi
