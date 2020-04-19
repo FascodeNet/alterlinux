@@ -431,14 +431,17 @@ prepare_build() {
         return 0
     }
     echo
+    if [[ ${debug} = false ]]; then
+        _msg_info "Checking dependencies ..."
+    fi
     for pkg in ${dependence[@]}; do
-        _msg_info "Checking ${pkg} ..."
+        _msg_debug "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
-            "old") _msg_warn "${pkg} is not the latest package." ;;
-            "not") _msg_error "${pkg} is not installed." 1       ;;
-            "norepo") _msg_warn "${pkg} is not a repository package."
+            "old") _msg_warn "${pkg} is not the latest package."      ;;
+            "not") _msg_error "${pkg} is not installed." 1            ;;
+            "norepo") _msg_warn "${pkg} is not a repository package." ;;
+            "installed") _msg_debug "Installed $(pacman -Q ${pkg})"   ;;
         esac
-        _msg_debug "Installed $(pacman -Q ${pkg})"
     done
 
 
