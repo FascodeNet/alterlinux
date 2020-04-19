@@ -81,3 +81,8 @@ cleaning=false
 
 # Set the user's default shell.
 usershell="/bin/bash"
+
+
+# Set whether to check the build.
+# If true, do not check. If false, confirm.
+noconfirm=false

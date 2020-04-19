@@ -49,6 +49,7 @@ cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
+noconfirm=false
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -279,6 +280,7 @@ check_bool bash_debug
 check_bool rebuild
 check_bool japanese
 check_bool cleaning
+check_bool noconfirm
 
 
 # Helper function to run make_*() only one time.
@@ -460,8 +462,12 @@ show_settings() {
     fi
     [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
     echo
-    echo "Press Enter to continue or Ctrl + C to cancel."
-    read
+    if [[ ${noconfirm} = false ]]; then
+        echo "Press Enter to continue or Ctrl + C to cancel."
+        read
+    else
+        sleep 3
+    fi
 }
 
 
@@ -979,7 +985,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -1018,6 +1024,16 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
+        -)
+            case "${OPTARG}" in
+                help)_usage 0 ;;
+                noconfirm) noconfirm=true ;;
+                *)
+                    _msg_error "Invalid argument '${OPTARG}'"
+                    _usage 1
+                    ;;
+            esac
+            ;;
         *)
            _msg_error "Invalid argument '${arg}'"
            _usage 1
