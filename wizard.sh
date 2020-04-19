@@ -38,21 +38,21 @@ dependence=(
 # メッセージを表示する
 # msg [日本語] [英語]
 function msg() {
-    if [[ ${lang} = "ja" ]]; then
+    if [[ ${lang} = "jp" ]]; then
         echo "${1}"
     else
         echo "${2}"
     fi
 }
 function msg_error() {
-    if [[ ${lang} = "ja" ]]; then
+    if [[ ${lang} = "jp" ]]; then
         echo "${1}" >&2
     else
         echo "${1}" >&2
     fi
 }
 function msg_n() {
-    if [[ ${lang} = "ja" ]]; then
+    if [[ ${lang} = "jp" ]]; then
         echo -n "${1}"
     else
         echo -n "${2}"
@@ -82,6 +82,29 @@ while getopts 'xnje' arg; do
     esac
 done
 
+function set_language () {
+    echo "このウィザードでどちらの言語を使用しますか？"
+    echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
+    echo
+    echo "Which language would you like to use for this wizard?"
+    echo "This question is a wizard-only setting and does not affect the build."
+    echo
+    echo "1: 英語 English"
+    echo "2: 日本語 Japanese"
+    echo
+    echo -n ": "
+    read lang
+
+    case ${lang} in
+        1 ) lang=en ;;
+        2 ) lang=jp ;;
+        "英語" ) lang=en ;;
+        "日本語" ) lang=jp ;;
+        "English" ) lang=en ;;
+        "Japanese" ) lang=jp ;;
+        * ) set_language ;;
+    esac
+}
 
 function check_files () {
     if [[ ! -f "${script_path}/build.sh" ]]; then
@@ -748,6 +771,7 @@ change_iso_permission() {
 }
 
 # 関数を実行
+set_language
 check_files
 install_dependencies
 run_add_key_script
