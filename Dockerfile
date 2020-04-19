@@ -6,4 +6,4 @@ RUN git clone https://github.com/SereneTeam/alterlinux.git alterlinux/
 WORKDIR /alterlinux
 RUN git checkout dev-stable
 RUN ./keyring.sh -ca
-CMD ["./build.sh", "-b" , "--noconfirm"]
+CMD ["./build.sh", "-b"]

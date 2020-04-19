@@ -412,11 +412,15 @@ prepare_build() {
 
     check_pkg() {
         local i
+        local ver
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
                     echo -n "installed"
                     return 0
+                elif [[ -z ${ver} ]]; then
+                    echo "norepo"
                 else
                     echo -n "old"
                     return 0
@@ -432,6 +436,7 @@ prepare_build() {
         case $(check_pkg ${pkg}) in
             "old") _msg_warn "${pkg} is not the latest package." ;;
             "not") _msg_error "${pkg} is not installed." 1       ;;
+            "norepo") _msg_warn "${pkg} is not a repository package."
         esac
         _msg_debug "Installed $(pacman -Q ${pkg})"
     done
