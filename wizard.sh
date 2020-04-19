@@ -516,7 +516,7 @@ function select_channel () {
                 fi
             fi
         done
-        echo "チャンネルを以下の番号から選択してください "
+        msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
         count=1
         for _channel in ${channel_list[@]}; do
             if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
@@ -589,7 +589,7 @@ function set_iso_owner () {
     fi
     }
 
-    echo -n "イメージファイルの所有者を入力してください。: "
+    msg_n "イメージファイルの所有者を入力してください。: " "Enter the owner of the image file.: "
     read owner
     if [[ $(user_check ${owner}) = false ]]; then
         echo "ユーザーが存在しません。"
@@ -608,23 +608,29 @@ function set_iso_owner () {
 
 # イメージファイルの作成先
 function set_out_dir () {
-    echo "イメージファイルの作成先を入力して下さい。"
-    echo "デフォルトは ${script_path}/out です。"
+    msg "イメージファイルの作成先を入力して下さい。" "Enter the destination to create the image file."
+    msg "デフォルトは ${script_path}/out です。" "The default is ${script_path}/out."
     echo -n ": "
     read out_dir
     if [[ -z "${out_dir}" ]]; then
         out_dir=out
     else
         if [[ ! -d "${out_dir}" ]]; then
-            echo "存在しているディレクトリを指定して下さい"
+            msg_error \
+                "存在しているディレクトリを指定して下さい。" \
+                "Please specify the existing directory."
             set_out_dir
             return 0
         elif [[ "${out_dir}" = / ]] || [[ "${out_dir}" = /home ]]; then
-            echo "そのディレクトリは使用できません。"
+            msg_error \
+                "そのディレクトリは使用できません。" \
+                "The directory is unavailable."
             set_out_dir
             return 0
         elif [[ -n "$(ls ${out_dir})" ]]; then
-            echo "ディレクトリは空ではありません。"
+            msg_error \
+                "ディレクトリは空ではありません。" \
+                "The directory is not empty."
             set_out_dir
             return 0
         fi
@@ -675,7 +681,7 @@ function ask () {
 
 # ビルド設定の確認
 function lastcheck () {
-    echo "以下の設定でビルドを開始します。"
+    msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
@@ -686,7 +692,9 @@ function lastcheck () {
     [[ -n "${password}"    ]] && echo "           Password : ${password}"
     [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
     echo
-    echo -n "この設定で続行します。よろしいですか？ (y/N) : "
+    msg_n \
+        "この設定で続行します。よろしいですか？ (y/N) : " \
+        "Continue with this setting. Is it OK? (y/N) : "
     local yn
     read yn
     case ${yn} in
