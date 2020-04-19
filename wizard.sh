@@ -330,7 +330,9 @@ function set_comp_option () {
     if [[ ! ${comp_type} = "lzma" ]]; then
         local yn
         local details
-        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
+        msg_n \
+            "圧縮の詳細を設定しますか？ （y/N） : " \
+            "Do you want to set the compression details? （y/N） : "
         read yn
         case ${yn} in
             y | Y | yes | Yes | YES ) details=true              ;;
@@ -350,7 +352,9 @@ function set_comp_option () {
 function set_username () {
     local details
     local ask_comp_type
-    echo -n "デフォルトではないユーザー名を設定しますか？ （y/N） : "
+    msg_n \
+        "デフォルトではないユーザー名を設定しますか？ （y/N） : " \
+        "Would you like to set a non-default username? （y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true           ;;
@@ -359,7 +363,7 @@ function set_username () {
     esac
 
     function ask_username () {
-        echo -n "ユーザー名を入力してください : "
+        msg_n "ユーザー名を入力してください : " "Please enter your username : "
         read username
         if [[ -z ${username} ]]; then
             ask_username
@@ -377,7 +381,9 @@ function set_username () {
 function set_password () {
     local details
     local ask_comp_type
-    echo -n "デフォルトではないパスワードを設定しますか？ （y/N） : "
+    msg_n \
+        "デフォルトではないパスワードを設定しますか？ （y/N） : " \
+        "Do you want to set a non-default password? （y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true           ;;
@@ -386,18 +392,18 @@ function set_password () {
     esac
 
     function ask_password () {
-        echo -n "パスワードを入力してください : "
+        msg_n "パスワードを入力してください。" "Please enter your password."
         read -s password
         echo
-        echo -n "もう一度入力してください : "
+        msg_n "Type it again : "
         read -s confirm
         if [[ ! $password = $confirm ]]; then
             echo
-            echo "同じパスワードが入力されませんでした。"
+            msg_error "同じパスワードが入力されませんでした。" "You did not enter the same password."
             ask_password
         elif [[ -z $password || -z $confirm ]]; then
             echo
-            echo "パスワードを入力してください。"
+            msg_error "パスワードを入力してください。" "Please enter your password."
             ask_password
         fi
         echo
@@ -419,7 +425,9 @@ function select_kernel () {
     function do_you_want_to_select_kernel () {
         set +e
         local yn
-        echo -n "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : "
+        msg_n \
+            "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : " \
+            "Do you want to use a kernel other than the default (zen)? (y/N) : "
         read yn
         case ${yn} in
             y | Y | yes | Yes | YES ) return 0                               ;;
@@ -432,7 +440,9 @@ function select_kernel () {
     local what_kernel
 
     function what_kernel () {
-        echo "使用するカーネルを以下の番号から選択してください "
+        msg \
+            "使用するカーネルを以下の番号から選択してください" \
+            "Please select the kernel to use from the following numbers"
         echo
         echo "1: linux"
         echo "2: linux-lts"
@@ -493,7 +503,10 @@ function select_kernel () {
 function select_channel () {
     local ask_channel
 
-    echo -n "デフォルト（xfce）以外のチャンネルを使用しますか？ （y/N） : "
+    msg_n \
+        "デフォルト（xfce）以外のチャンネルを使用しますか？ （y/N） : " \
+        "Do you want to use a channel other than the default (xfce)? (y/N) : "
+
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true             ;;
@@ -522,7 +535,11 @@ function select_channel () {
             if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
                 description=$(cat "${script_path}/channels/${_channel}/description.txt")
             else
-                description="This channel does not have a description.txt."
+                if [[ "${lang}"  = "jp" ]]; then
+                    description="このチャンネルにはdescription.txtがありません。"
+                else
+                    description="This channel does not have a description.txt."
+                fi
             fi
             if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 echo -ne "${count}    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
