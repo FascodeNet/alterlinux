@@ -4,6 +4,11 @@ set -e
 
 nobuild=false
 
+script_path="$(readlink -f ${0%/*})"
+
+# Pacman configuration file used only when building
+build_pacman_conf=${script_path}/system/pacman.conf
+
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -39,9 +44,6 @@ while getopts 'xn' arg; do
 done
 
 
-script_path="$(readlink -f ${0%/*})"
-
-
 function check_files () {
     if [[ ! -f "${script_path}/build.sh" ]]; then
         echo "${script_path}/build.shが見つかりませんでした。" >&2
@@ -68,7 +70,7 @@ function install_dependencies () {
         local i
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -90,7 +92,7 @@ function install_dependencies () {
 
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Sy
-        sudo pacman -S --needed ${install[@]}
+        sudo pacman -S --needed --config ${build_pacman_conf} ${install[@]}
     fi
             
 }
@@ -114,7 +116,7 @@ function run_add_key_script () {
 
 function remove_dependencies () {
     if [[ -n "${install[@]}" ]]; then
-        sudo pacman -Rsn ${install[@]}
+        sudo pacman -Rsn --config ${build_pacman_conf} ${install[@]}
     fi
 }
 
