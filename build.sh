@@ -286,10 +286,11 @@ check_bool noconfirm
 # Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e "${work_dir}/build.${1}" ]]; then
+        _msg_debug "Running $1 ..."
         "$1"
         touch "${work_dir}/build.${1}"
     else
-        _msg_info "Skipped because ${1} has already been executed."
+        _msg_debug "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -304,6 +305,7 @@ remove() {
     local _file
     _list=($(echo "$@"))
     for _file in "${_list[@]}"; do
+        _msg_debug "Removeing ${_file}"
         if [[ -f ${_file} ]]; then
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
@@ -1145,7 +1147,7 @@ if [[ -n "${1}" ]]; then
         fi
     fi
 
-    _msg_debug "channel_name is ${channel_name}"
+    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
 set -eu
