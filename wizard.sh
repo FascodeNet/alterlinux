@@ -12,6 +12,7 @@ build_pacman_conf=${script_path}/system/pacman.conf
 # 言語（en or jp)
 #lang="jp"
 lang="en"
+skip_set_lang=false
 
 
 dependence=(
@@ -73,37 +74,41 @@ while getopts 'xnje' arg; do
         e)
             lang="en"
             echo "English is set"
+            skip_set_lang=true
             ;;
         j)
             lang="jp"
             echo "日本語が設定されました"
+            skip_set_lang=true
             ;;
         
     esac
 done
 
 function set_language () {
-    echo "このウィザードでどちらの言語を使用しますか？"
-    echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
-    echo
-    echo "Which language would you like to use for this wizard?"
-    echo "This question is a wizard-only setting and does not affect the build."
-    echo
-    echo "1: 英語 English"
-    echo "2: 日本語 Japanese"
-    echo
-    echo -n ": "
-    read lang
+    if [[ ${skip_set_lang} = false ]]; then
+        echo "このウィザードでどちらの言語を使用しますか？"
+        echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
+        echo
+        echo "Which language would you like to use for this wizard?"
+        echo "This question is a wizard-only setting and does not affect the build."
+        echo
+        echo "1: 英語 English"
+        echo "2: 日本語 Japanese"
+        echo
+        echo -n ": "
+        read lang
 
-    case ${lang} in
-        1 ) lang=en ;;
-        2 ) lang=jp ;;
-        "英語" ) lang=en ;;
-        "日本語" ) lang=jp ;;
-        "English" ) lang=en ;;
-        "Japanese" ) lang=jp ;;
-        * ) set_language ;;
-    esac
+        case ${lang} in
+            1 ) lang=en ;;
+            2 ) lang=jp ;;
+            "英語" ) lang=en ;;
+            "日本語" ) lang=jp ;;
+            "English" ) lang=en ;;
+            "Japanese" ) lang=jp ;;
+            * ) set_language ;;
+        esac
+    fi
 }
 
 function check_files () {
