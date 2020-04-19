@@ -9,6 +9,11 @@ script_path="$(readlink -f ${0%/*})"
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman.conf
 
+# 言語（en or jp)
+#lang="jp"
+lang="en"
+
+
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -30,27 +35,61 @@ dependence=(
 )
 
 
-while getopts 'xn' arg; do
+# メッセージを表示する
+# msg [日本語] [英語]
+function msg() {
+    if [[ ${lang} = "ja" ]]; then
+        echo "${1}"
+    else
+        echo "${2}"
+    fi
+}
+function msg_error() {
+    if [[ ${lang} = "ja" ]]; then
+        echo "${1}" >&2
+    else
+        echo "${1}" >&2
+    fi
+}
+function msg_n() {
+    if [[ ${lang} = "ja" ]]; then
+        echo -n "${1}"
+    else
+        echo -n "${2}"
+    fi
+}
+
+while getopts 'xnje' arg; do
     case "${arg}" in
         n)
             nobuild=true
-            echo "シミュレーションモードを有効化しました"
+            msg \
+                "シミュレーションモードを有効化しました" "Enabled simulation mode"
             ;;
         x)
             set -x 
-            echo "デバッグモードを有効化しました"
+            msg "デバッグモードを有効化しました" "Debug mode enabled"
             ;;
+        e)
+            lang="en"
+            echo "English is set"
+            ;;
+        j)
+            lang="jp"
+            echo "日本語が設定されました"
+            ;;
+        
     esac
 done
 
 
 function check_files () {
     if [[ ! -f "${script_path}/build.sh" ]]; then
-        echo "${script_path}/build.shが見つかりませんでした。" >&2
+        msg_error "${script_path}/build.shが見つかりませんでした。" "${script_path}/build.sh was not found."
         exit 1
     fi
     if [[ ! -f "${script_path}/keyring.sh" ]]; then
-        echo "${script_path}/keyring.shが見つかりませんでした。" >&2
+        echo "${script_path}/keyring.shが見つかりませんでした。" "${script_path}/keyring.sh was not found."
         exit 1
     fi
 }
@@ -84,26 +123,27 @@ function install_dependencies () {
     }
 
     for pkg in ${dependence[@]}; do
-        echo "依存パッケージ ${pkg} を確認しています..."
+        msg "依存パッケージ ${pkg} を確認しています..." "Checking dependency package ${pkg} ..."
         if [[ $(check_pkg ${pkg}) = false ]]; then
             install=(${install[@]} ${pkg})
         fi
     done
-
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Sy
         sudo pacman -S --needed --config ${build_pacman_conf} ${install[@]}
     fi
-            
+    echo
 }
 
 
 function run_add_key_script () {
     local yn
-    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
+    msg_n "AlterLinuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the AlterLinux key? (y/N):"
     read yn
     if ${nobuild}; then
-        echo "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。"
+        msg \
+            "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
+            "You have entered ${yn}. Simulation mode is enabled and will be skipped."
     else
         case ${yn} in
             y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
@@ -123,7 +163,7 @@ function remove_dependencies () {
 
 function enable_plymouth () {
     local yn
-    echo -n "Plymouthを有効化しますか？[no]（y/N） : "
+    msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
@@ -135,7 +175,7 @@ function enable_plymouth () {
 
 function enable_japanese () {
     local yn
-    echo -n "日本語を有効化しますか？[no]（y/N） : "
+    msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
@@ -149,7 +189,7 @@ function select_comp_type () {
     local yn
     local details
     local ask_comp_type
-    echo -n "圧縮方式を設定しますか？[zstd]（y/N） : "
+    msg_n "圧縮方式を設定しますか？[zstd]（y/N） : " "Do you want to set the compression method?[zstd](y/N)"
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true               ;;
@@ -158,7 +198,9 @@ function select_comp_type () {
     esac
 
     function ask_comp_type () {
-        echo "圧縮方式を以下の番号から選択してください "
+        msg \
+            "圧縮方式を以下の番号から選択してください " \
+            "Please select the compression method from the following numbers"
         echo
         echo "1: gzip"
         echo "2: lzma"
@@ -211,7 +253,7 @@ function set_comp_option () {
             local comp_level
             function comp_level () {
                 local level
-                echo -n "gzipの圧縮レベルを入力してください。 (1~22) : "
+                msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
                 read level
                 if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
                     comp_option="-Xcompression-level ${level}"
@@ -222,7 +264,10 @@ function set_comp_option () {
             local window_size
             function window_size () {
                 local window
-                echo -n "gzipのウィンドウサイズを入力してください。 (1~15) : "
+                msg_n \
+                    "gzipのウィンドウサイズを入力してください。 (1~15) : " \
+                    "Please enter the gzip window size. (1~15) : "
+
                 read window
                 if [[ ${window} -lt 16 && ${window} -ge 4 ]]; then
                     comp_option="${comp_option} -Xwindow-size ${window}"
@@ -235,7 +280,9 @@ function set_comp_option () {
 
         function lz4 () {
             local yn
-            echo -n "高圧縮モードを有効化しますか？ （y/N） : "
+            msg_n \
+                "高圧縮モードを有効化しますか？ （y/N） : " \
+                "Do you want to enable high compression mode? （y/N） : "
             read yn
             case ${yn} in
                 y | Y | yes | Yes | YES ) comp_option="-Xhc" ;;
@@ -246,7 +293,9 @@ function set_comp_option () {
 
         function zstd () {
             local level
-            echo -n "zstdの圧縮レベルを入力してください。 (1~22) : "
+            msg_n \
+                "zstdの圧縮レベルを入力してください。 (1~22) : " \
+                "Enter the zstd compression level. (1~22) : "
             read level
             if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
                 comp_option="-Xcompression-level ${level}"
@@ -256,11 +305,15 @@ function set_comp_option () {
         }
 
         function lzo () {
-            echo "現在lzoは詳細プションのウィザードがサポートされていません。" >&2
+            msg_error \
+                "現在lzoの詳細設定ウィザードがサポートされていません。" \
+                "The lzo Advanced Wizard is not currently supported."
         }
 
         function xz () {
-            echo "現在xzは詳細プションのウィザードがサポートされていません。" >&2
+            msg_error \
+            "現在xzの詳細設定のウィザードがサポートされていません。" \
+            "The xz Advanced Wizard is not currently supported."
         }
 
         case ${comp_type} in
