@@ -52,7 +52,7 @@ usershell="/bin/bash"
 noconfirm=false
 dependence=(
     "alterlinux-keyring"
-    "archiso"
+#   "archiso"
     "arch-install-scripts"
     "curl"
     "dosfstools"
