@@ -52,7 +52,7 @@ usershell="/bin/bash"
 noconfirm=false
 dependence=(
     "alterlinux-keyring"
-#   "archiso"
+    "archiso"
     "arch-install-scripts"
     "curl"
     "dosfstools"
@@ -455,6 +455,7 @@ prepare_build() {
                     return 0
                 elif [[ -z ${ver} ]]; then
                     echo "norepo"
+                    return 0
                 else
                     echo -n "old"
                     return 0
@@ -471,7 +472,12 @@ prepare_build() {
     for pkg in ${dependence[@]}; do
         _msg_debug -n "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
-            "old") _msg_warn "${pkg} is not the latest package."      ;;
+            "old") 
+                [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                _msg_warn "${pkg} is not the latest package."
+                _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                echo
+                ;;
             "not") _msg_error -n '1' "${pkg} is not installed."       ;;
             "norepo") _msg_warn "${pkg} is not a repository package." ;;
             "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
