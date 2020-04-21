@@ -49,6 +49,7 @@ cleaning=false
 username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
+noconfirm=false
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -119,6 +120,10 @@ echo_color() {
     local decotypes
     local echo_opts
     local OPTIND_bak="${OPTIND}"
+    local arg
+    local arg
+    local OPTIND
+    local OPT
     unset OPTIND
 
     echo_opts="-e"
@@ -142,28 +147,52 @@ echo_color() {
 # Show an INFO message
 # $1: message string
 _msg_info() {
-    local _msg="${1}"
-    # echo "[build.sh] Info: ${_msg}"
-    echo "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${_msg}"
+    local echo_opts="-e"
+    local arg
+    local OPTIND
+    local OPT
+    while getopts 'n' arg; do
+        case "${arg}" in
+            n) echo_opts="${echo_opts} -n" ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${@}"
 }
 
 
 # Show an Warning message
 # $1: message string
 _msg_warn() {
-    local _msg="${1}"
-    # echo "[build.sh] Warning: ${_msg}" >&2
-    echo "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${_msg}" >&2
+    local echo_opts="-e"
+    local arg
+    local OPTIND
+    local OPT
+    while getopts 'n' arg; do
+        case "${arg}" in
+            n) echo_opts="${echo_opts} -n" ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
 }
 
 
 # Show an debug message
 # $1: message string
 _msg_debug() {
-    local _msg="${1}"
+    local echo_opts="-e"
+    local arg
+    local OPTIND
+    local OPT
+    while getopts 'n' arg; do
+        case "${arg}" in
+            n) echo_opts="${echo_opts} -n" ;;
+        esac
+    done
+    shift $((OPTIND - 1))
     if [[ ${debug} = true ]]; then
-        #echo "[build.sh] Debug: ${_msg}"
-        echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${_msg}"
+        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
     fi
 }
 
@@ -172,16 +201,20 @@ _msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
-    local _msg="${1}"
+    local echo_opts="-e"
     local _error
-
-    if [[ -n "${2}" ]]; then
-        _error="${2}"
-    fi
-
-    echo
-    #echo "[build.sh] Error: ${_msg}" >&2
-    echo "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${_msg}" >&2
+    local arg
+    local OPTIND
+    local OPT
+    local OPTARG
+    while getopts 'ne' arg; do
+        case "${arg}" in
+            n) echo_opts="${echo_opts} -n" ;;
+            e) _error="${OPTARG}" ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${@}" >&2
     echo
     if [[ -n "${_error}" ]]; then
         exit ${_error}
@@ -269,7 +302,7 @@ check_bool() {
     local 
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                   *) _msg_error "The value ${boot_splash} set is invalid" 1 ;;
+                   *) _msg_error -n '1' "The value ${boot_splash} set is invalid" ;;
     esac
 }
 
@@ -279,15 +312,17 @@ check_bool bash_debug
 check_bool rebuild
 check_bool japanese
 check_bool cleaning
+check_bool noconfirm
 
 
 # Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e "${work_dir}/build.${1}" ]]; then
+        _msg_debug "Running $1 ..."
         "$1"
         touch "${work_dir}/build.${1}"
     else
-        _msg_info "Skipped because ${1} has already been executed."
+        _msg_debug "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -302,6 +337,7 @@ remove() {
     local _file
     _list=($(echo "$@"))
     for _file in "${_list[@]}"; do
+        _msg_debug "Removeing ${_file}"
         if [[ -f ${_file} ]]; then
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
@@ -410,10 +446,15 @@ prepare_build() {
 
     check_pkg() {
         local i
+        local ver
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
                     echo -n "installed"
+                    return 0
+                elif [[ -z ${ver} ]]; then
+                    echo "norepo"
                     return 0
                 else
                     echo -n "old"
@@ -425,14 +466,29 @@ prepare_build() {
         return 0
     }
     echo
+    if [[ ${debug} = false ]]; then
+        _msg_info "Checking dependencies ..."
+    fi
     for pkg in ${dependence[@]}; do
-        _msg_info "Checking ${pkg} ..."
+        _msg_debug -n "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
-            "old") _msg_warn "${pkg} is not the latest package." ;;
-            "not") _msg_error "${pkg} is not installed." 1       ;;
+            "old") 
+                [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                _msg_warn "${pkg} is not the latest package."
+                _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                echo
+                ;;
+            "not") _msg_error -n '1' "${pkg} is not installed."       ;;
+            "norepo") _msg_warn "${pkg} is not a repository package." ;;
+            "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
         esac
-        _msg_debug "Installed $(pacman -Q ${pkg})"
     done
+
+
+    # Load kernel module
+    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
+        sudo modprobe loop
+    fi
 }
 
 
@@ -454,8 +510,12 @@ show_settings() {
     fi
     [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
     echo
-    echo "Press Enter to continue or Ctrl + C to cancel."
-    read
+    if [[ ${noconfirm} = false ]]; then
+        echo "Press Enter to continue or Ctrl + C to cancel."
+        read
+    else
+        sleep 3
+    fi
 }
 
 
@@ -973,7 +1033,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -984,7 +1044,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                _msg_error "Invalid compressors ${arg}" 1
+                _msg_error -n '1' "Invalid compressors ${arg}"
             fi
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
@@ -993,14 +1053,14 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                _msg_error "Invalid kernel ${OPTARG}" 1
+                _msg_error -n '1' "Invalid kernel ${OPTARG}"
             fi
             ;;
         s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                _msg_error "Invalid configuration file ${OPTARG}." 1
+                _msg_error -n '1' "Invalid configuration file ${OPTARG}."
             fi
             ;;
         x) 
@@ -1012,6 +1072,16 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d' arg; do
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
+        -)
+            case "${OPTARG}" in
+                help)_usage 0 ;;
+                noconfirm) noconfirm=true ;;
+                *)
+                    _msg_error "Invalid argument '${OPTARG}'"
+                    _usage 1
+                    ;;
+            esac
+            ;;
         *)
            _msg_error "Invalid argument '${arg}'"
            _usage 1
@@ -1094,7 +1164,7 @@ if [[ -n "${1}" ]]; then
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        _msg_error "Invalid channel ${channel_name}" 1
+        _msg_error -n '1' "Invalid channel ${channel_name}"
     fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
@@ -1105,17 +1175,17 @@ if [[ -n "${1}" ]]; then
                 if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
                     rebuild=true
                 else
-                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." 1
+                    _msg_error -n '1' "Options cannot be specified for the rebuild channel.All options will use the previous settings."
                 fi
             else
                 rebuild=true
             fi
         else
-            _msg_error "The previous build information is not in the working directory." 1
+            _msg_error -n '1' "The previous build information is not in the working directory."
         fi
     fi
 
-    _msg_debug "channel_name is ${channel_name}"
+    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
 set -eu

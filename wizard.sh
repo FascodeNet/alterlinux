@@ -4,6 +4,17 @@ set -e
 
 nobuild=false
 
+script_path="$(readlink -f ${0%/*})"
+
+# Pacman configuration file used only when building
+build_pacman_conf=${script_path}/system/pacman.conf
+
+# 言語（en or jp)
+#lang="jp"
+lang="en"
+skip_set_lang=false
+
+
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -25,30 +36,88 @@ dependence=(
 )
 
 
-while getopts 'xn' arg; do
+# メッセージを表示する
+# msg [日本語] [英語]
+function msg() {
+    if [[ ${lang} = "jp" ]]; then
+        echo "${1}"
+    else
+        echo "${2}"
+    fi
+}
+function msg_error() {
+    if [[ ${lang} = "jp" ]]; then
+        echo "${1}" >&2
+    else
+        echo "${1}" >&2
+    fi
+}
+function msg_n() {
+    if [[ ${lang} = "jp" ]]; then
+        echo -n "${1}"
+    else
+        echo -n "${2}"
+    fi
+}
+
+while getopts 'xnje' arg; do
     case "${arg}" in
         n)
             nobuild=true
-            echo "シミュレーションモードを有効化しました"
+            msg \
+                "シミュレーションモードを有効化しました" "Enabled simulation mode"
             ;;
         x)
             set -x 
-            echo "デバッグモードを有効化しました"
+            msg "デバッグモードを有効化しました" "Debug mode enabled"
             ;;
+        e)
+            lang="en"
+            echo "English is set"
+            skip_set_lang=true
+            ;;
+        j)
+            lang="jp"
+            echo "日本語が設定されました"
+            skip_set_lang=true
+            ;;
+        
     esac
 done
 
+function set_language () {
+    if [[ ${skip_set_lang} = false ]]; then
+        echo "このウィザードでどちらの言語を使用しますか？"
+        echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
+        echo
+        echo "Which language would you like to use for this wizard?"
+        echo "This question is a wizard-only setting and does not affect the build."
+        echo
+        echo "1: 英語 English"
+        echo "2: 日本語 Japanese"
+        echo
+        echo -n ": "
+        read lang
 
-script_path="$(readlink -f ${0%/*})"
-
+        case ${lang} in
+            1 ) lang=en ;;
+            2 ) lang=jp ;;
+            "英語" ) lang=en ;;
+            "日本語" ) lang=jp ;;
+            "English" ) lang=en ;;
+            "Japanese" ) lang=jp ;;
+            * ) set_language ;;
+        esac
+    fi
+}
 
 function check_files () {
     if [[ ! -f "${script_path}/build.sh" ]]; then
-        echo "${script_path}/build.shが見つかりませんでした。" >&2
+        msg_error "${script_path}/build.shが見つかりませんでした。" "${script_path}/build.sh was not found."
         exit 1
     fi
     if [[ ! -f "${script_path}/keyring.sh" ]]; then
-        echo "${script_path}/keyring.shが見つかりませんでした。" >&2
+        echo "${script_path}/keyring.shが見つかりませんでした。" "${script_path}/keyring.sh was not found."
         exit 1
     fi
 }
@@ -68,7 +137,7 @@ function install_dependencies () {
         local i
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' ${1}) ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -82,26 +151,27 @@ function install_dependencies () {
     }
 
     for pkg in ${dependence[@]}; do
-        echo "依存パッケージ ${pkg} を確認しています..."
+        msg "依存パッケージ ${pkg} を確認しています..." "Checking dependency package ${pkg} ..."
         if [[ $(check_pkg ${pkg}) = false ]]; then
             install=(${install[@]} ${pkg})
         fi
     done
-
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Sy
-        sudo pacman -S --needed ${install[@]}
+        sudo pacman -S --needed --config ${build_pacman_conf} ${install[@]}
     fi
-            
+    echo
 }
 
 
 function run_add_key_script () {
     local yn
-    echo -n "AlterLinuxの鍵を追加しますか？ （y/N） : "
+    msg_n "AlterLinuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the AlterLinux key? (y/N):"
     read yn
     if ${nobuild}; then
-        echo "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。"
+        msg \
+            "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
+            "You have entered ${yn}. Simulation mode is enabled and will be skipped."
     else
         case ${yn} in
             y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
@@ -114,14 +184,14 @@ function run_add_key_script () {
 
 function remove_dependencies () {
     if [[ -n "${install[@]}" ]]; then
-        sudo pacman -Rsn ${install[@]}
+        sudo pacman -Rsn --config ${build_pacman_conf} ${install[@]}
     fi
 }
 
 
 function enable_plymouth () {
     local yn
-    echo -n "Plymouthを有効化しますか？[no]（y/N） : "
+    msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
@@ -133,7 +203,7 @@ function enable_plymouth () {
 
 function enable_japanese () {
     local yn
-    echo -n "日本語を有効化しますか？[no]（y/N） : "
+    msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
@@ -147,7 +217,7 @@ function select_comp_type () {
     local yn
     local details
     local ask_comp_type
-    echo -n "圧縮方式を設定しますか？[zstd]（y/N） : "
+    msg_n "圧縮方式を設定しますか？[zstd]（y/N） : " "Do you want to set the compression method?[zstd](y/N)"
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true               ;;
@@ -156,7 +226,9 @@ function select_comp_type () {
     esac
 
     function ask_comp_type () {
-        echo "圧縮方式を以下の番号から選択してください "
+        msg \
+            "圧縮方式を以下の番号から選択してください " \
+            "Please select the compression method from the following numbers"
         echo
         echo "1: gzip"
         echo "2: lzma"
@@ -209,7 +281,7 @@ function set_comp_option () {
             local comp_level
             function comp_level () {
                 local level
-                echo -n "gzipの圧縮レベルを入力してください。 (1~22) : "
+                msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
                 read level
                 if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
                     comp_option="-Xcompression-level ${level}"
@@ -220,7 +292,10 @@ function set_comp_option () {
             local window_size
             function window_size () {
                 local window
-                echo -n "gzipのウィンドウサイズを入力してください。 (1~15) : "
+                msg_n \
+                    "gzipのウィンドウサイズを入力してください。 (1~15) : " \
+                    "Please enter the gzip window size. (1~15) : "
+
                 read window
                 if [[ ${window} -lt 16 && ${window} -ge 4 ]]; then
                     comp_option="${comp_option} -Xwindow-size ${window}"
@@ -233,7 +308,9 @@ function set_comp_option () {
 
         function lz4 () {
             local yn
-            echo -n "高圧縮モードを有効化しますか？ （y/N） : "
+            msg_n \
+                "高圧縮モードを有効化しますか？ （y/N） : " \
+                "Do you want to enable high compression mode? （y/N） : "
             read yn
             case ${yn} in
                 y | Y | yes | Yes | YES ) comp_option="-Xhc" ;;
@@ -244,7 +321,9 @@ function set_comp_option () {
 
         function zstd () {
             local level
-            echo -n "zstdの圧縮レベルを入力してください。 (1~22) : "
+            msg_n \
+                "zstdの圧縮レベルを入力してください。 (1~22) : " \
+                "Enter the zstd compression level. (1~22) : "
             read level
             if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
                 comp_option="-Xcompression-level ${level}"
@@ -254,11 +333,15 @@ function set_comp_option () {
         }
 
         function lzo () {
-            echo "現在lzoは詳細プションのウィザードがサポートされていません。" >&2
+            msg_error \
+                "現在lzoの詳細設定ウィザードがサポートされていません。" \
+                "The lzo Advanced Wizard is not currently supported."
         }
 
         function xz () {
-            echo "現在xzは詳細プションのウィザードがサポートされていません。" >&2
+            msg_error \
+            "現在xzの詳細設定のウィザードがサポートされていません。" \
+            "The xz Advanced Wizard is not currently supported."
         }
 
         case ${comp_type} in
@@ -275,7 +358,9 @@ function set_comp_option () {
     if [[ ! ${comp_type} = "lzma" ]]; then
         local yn
         local details
-        echo -n "圧縮の詳細を設定しますか？ （y/N） : "
+        msg_n \
+            "圧縮の詳細を設定しますか？ （y/N） : " \
+            "Do you want to set the compression details? （y/N） : "
         read yn
         case ${yn} in
             y | Y | yes | Yes | YES ) details=true              ;;
@@ -295,7 +380,9 @@ function set_comp_option () {
 function set_username () {
     local details
     local ask_comp_type
-    echo -n "デフォルトではないユーザー名を設定しますか？ （y/N） : "
+    msg_n \
+        "デフォルトではないユーザー名を設定しますか？ （y/N） : " \
+        "Would you like to set a non-default username? （y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true           ;;
@@ -304,7 +391,7 @@ function set_username () {
     esac
 
     function ask_username () {
-        echo -n "ユーザー名を入力してください : "
+        msg_n "ユーザー名を入力してください : " "Please enter your username : "
         read username
         if [[ -z ${username} ]]; then
             ask_username
@@ -322,7 +409,9 @@ function set_username () {
 function set_password () {
     local details
     local ask_comp_type
-    echo -n "デフォルトではないパスワードを設定しますか？ （y/N） : "
+    msg_n \
+        "デフォルトではないパスワードを設定しますか？ （y/N） : " \
+        "Do you want to set a non-default password? （y/N） : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true           ;;
@@ -331,18 +420,18 @@ function set_password () {
     esac
 
     function ask_password () {
-        echo -n "パスワードを入力してください : "
+        msg_n "パスワードを入力してください。" "Please enter your password."
         read -s password
         echo
-        echo -n "もう一度入力してください : "
+        msg_n "Type it again : "
         read -s confirm
         if [[ ! $password = $confirm ]]; then
             echo
-            echo "同じパスワードが入力されませんでした。"
+            msg_error "同じパスワードが入力されませんでした。" "You did not enter the same password."
             ask_password
         elif [[ -z $password || -z $confirm ]]; then
             echo
-            echo "パスワードを入力してください。"
+            msg_error "パスワードを入力してください。" "Please enter your password."
             ask_password
         fi
         echo
@@ -364,7 +453,9 @@ function select_kernel () {
     function do_you_want_to_select_kernel () {
         set +e
         local yn
-        echo -n "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : "
+        msg_n \
+            "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : " \
+            "Do you want to use a kernel other than the default (zen)? (y/N) : "
         read yn
         case ${yn} in
             y | Y | yes | Yes | YES ) return 0                               ;;
@@ -377,7 +468,9 @@ function select_kernel () {
     local what_kernel
 
     function what_kernel () {
-        echo "使用するカーネルを以下の番号から選択してください "
+        msg \
+            "使用するカーネルを以下の番号から選択してください" \
+            "Please select the kernel to use from the following numbers"
         echo
         echo "1: linux"
         echo "2: linux-lts"
@@ -438,7 +531,10 @@ function select_kernel () {
 function select_channel () {
     local ask_channel
 
-    echo -n "デフォルト（xfce）以外のチャンネルを使用しますか？ （y/N） : "
+    msg_n \
+        "デフォルト（xfce）以外のチャンネルを使用しますか？ （y/N） : " \
+        "Do you want to use a channel other than the default (xfce)? (y/N) : "
+
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true             ;;
@@ -461,13 +557,17 @@ function select_channel () {
                 fi
             fi
         done
-        echo "チャンネルを以下の番号から選択してください "
+        msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
         count=1
         for _channel in ${channel_list[@]}; do
             if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
                 description=$(cat "${script_path}/channels/${_channel}/description.txt")
             else
-                description="This channel does not have a description.txt."
+                if [[ "${lang}"  = "jp" ]]; then
+                    description="このチャンネルにはdescription.txtがありません。"
+                else
+                    description="This channel does not have a description.txt."
+                fi
             fi
             if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 echo -ne "${count}    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
@@ -534,7 +634,7 @@ function set_iso_owner () {
     fi
     }
 
-    echo -n "イメージファイルの所有者を入力してください。: "
+    msg_n "イメージファイルの所有者を入力してください。: " "Enter the owner of the image file.: "
     read owner
     if [[ $(user_check ${owner}) = false ]]; then
         echo "ユーザーが存在しません。"
@@ -553,23 +653,29 @@ function set_iso_owner () {
 
 # イメージファイルの作成先
 function set_out_dir () {
-    echo "イメージファイルの作成先を入力して下さい。"
-    echo "デフォルトは ${script_path}/out です。"
+    msg "イメージファイルの作成先を入力して下さい。" "Enter the destination to create the image file."
+    msg "デフォルトは ${script_path}/out です。" "The default is ${script_path}/out."
     echo -n ": "
     read out_dir
     if [[ -z "${out_dir}" ]]; then
         out_dir=out
     else
         if [[ ! -d "${out_dir}" ]]; then
-            echo "存在しているディレクトリを指定して下さい"
+            msg_error \
+                "存在しているディレクトリを指定して下さい。" \
+                "Please specify the existing directory."
             set_out_dir
             return 0
         elif [[ "${out_dir}" = / ]] || [[ "${out_dir}" = /home ]]; then
-            echo "そのディレクトリは使用できません。"
+            msg_error \
+                "そのディレクトリは使用できません。" \
+                "The directory is unavailable."
             set_out_dir
             return 0
         elif [[ -n "$(ls ${out_dir})" ]]; then
-            echo "ディレクトリは空ではありません。"
+            msg_error \
+                "ディレクトリは空ではありません。" \
+                "The directory is not empty."
             set_out_dir
             return 0
         fi
@@ -620,7 +726,7 @@ function ask () {
 
 # ビルド設定の確認
 function lastcheck () {
-    echo "以下の設定でビルドを開始します。"
+    msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
@@ -631,7 +737,9 @@ function lastcheck () {
     [[ -n "${password}"    ]] && echo "           Password : ${password}"
     [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
     echo
-    echo -n "この設定で続行します。よろしいですか？ (y/N) : "
+    msg_n \
+        "この設定で続行します。よろしいですか？ (y/N) : " \
+        "Continue with this setting. Is it OK? (y/N) : "
     local yn
     read yn
     case ${yn} in
@@ -668,6 +776,7 @@ change_iso_permission() {
 }
 
 # 関数を実行
+set_language
 check_files
 install_dependencies
 run_add_key_script

@@ -274,14 +274,14 @@ _mkisochecksum() {
     cd "${out_dir}"
     md5sum "${img_name}" > "${img_name}.md5"
     cdback
-    _msg_info "Done!"
+    # _msg_info "Done!"
 
 
     _msg_info "Creating sha256 checksum ..."
     cd "${out_dir}"
     sha256sum "${img_name}" > "${img_name}.sha256"
     cdback
-    _msg_info "Done!"
+    # _msg_info "Done!"
 }
 
 _mksignature () {
