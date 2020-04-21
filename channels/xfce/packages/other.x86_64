@@ -34,8 +34,9 @@ jstest-gtk-git
 
 
 #-- system monitor --#
-gnome-system-monitor
 cpu-x
+gnome-system-monitor
+htop
 
 
 #-- pacman --#
