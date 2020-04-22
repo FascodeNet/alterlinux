@@ -22,7 +22,7 @@ lxinput
 lxlauncher
 lxmusic
 lxpanel
-lxrandr
+# lxrandr  arandrで代用 仮想マシンで使えないため arandrはother.x86_64に記述
 lxsession
 lxtask
 lxterminal
