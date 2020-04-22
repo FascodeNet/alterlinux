@@ -35,6 +35,10 @@ adapta-gtk-theme
 papirus-icon-theme
 
 
+#-- wallpaper --#
+alterlinux-wallpapers
+
+
 #-- xorg --#
 gpm
 xorg-server
