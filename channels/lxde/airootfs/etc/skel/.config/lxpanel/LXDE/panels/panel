@@ -7,7 +7,7 @@ Global {
   margin=0
   widthtype=percent
   width=100
-  height=32
+  height=34
   transparent=0
   tintcolor=#000000
   alpha=0
@@ -19,7 +19,13 @@ Global {
   fontcolor=#ffffff
   background=0
   backgroundfile=/usr/share/lxpanel/images/background.png
-  iconsize=24
+  iconsize=27
+}
+Plugin {
+  type=space
+  Config {
+    Size=5
+  }
 }
 Plugin {
   type=menu
