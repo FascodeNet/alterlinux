@@ -109,9 +109,10 @@ Plugin {
     LayoutsList=us
     VariantsList=,
     ToggleOpt=grp:shift_caps_toggle
-    DisplayType=1
+    DisplayType=0
     KeepSysLayouts=0
     NoResetOpt=0
+    FlagSize=1
   }
 }
 Plugin {
