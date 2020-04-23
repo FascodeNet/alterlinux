@@ -68,7 +68,7 @@ Plugin {
       id=lxtask.desktop
     }
     Button {
-      id=org.gnome.Screenshot.desktop 
+      id=org.gnome.Screenshot.desktop
     }
   }
 }
@@ -108,11 +108,6 @@ Plugin {
     VolumeMuteKey=XF86AudioMute
     VolumeDownKey=XF86AudioLowerVolume
     VolumeUpKey=XF86AudioRaiseVolume
-  }
-}
-Plugin {
-  type=tray
-  Config {
   }
 }
 Plugin {
