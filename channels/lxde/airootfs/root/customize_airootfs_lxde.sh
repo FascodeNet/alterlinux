@@ -68,8 +68,11 @@ systemctl enable bluetooth
 
 # Replace panel config
 if [[ "${japanese}" = true ]]; then
-    remove /etc/skel/.config/lxpanel/LXDE/panels/panel
-    mv /etc/skel/.config/lxpanel/LXDE/panels/panel-jp /etc/skel/.config/lxpanel/LXDE/panels/panel
+    remove "/etc/skel/.config/lxpanel/LXDE/panels/panel"
+    mv "/etc/skel/.config/lxpanel/LXDE/panels/panel-jp" "/etc/skel/.config/lxpanel/LXDE/panels/panel"
+
+    remove "/home/${username}/.config/lxpanel/LXDE/panels/panel"
+    mv "/home/${username}/.config/lxpanel/LXDE/panels/panel-jp" "/home/${username}/.config/lxpanel/LXDE/panels/panel"
 else
     remove /etc/skel/.config/lxpanel/LXDE/panels/panel-jp
 fi
