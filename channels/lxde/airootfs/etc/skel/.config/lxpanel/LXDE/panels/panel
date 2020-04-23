@@ -68,7 +68,7 @@ Plugin {
       id=lxtask.desktop
     }
     Button {
-      id=firefox.desktop
+      id=org.gnome.Screenshot.desktop
     }
   }
 }
