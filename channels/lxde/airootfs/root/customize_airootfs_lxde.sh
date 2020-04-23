@@ -74,7 +74,8 @@ if [[ "${japanese}" = true ]]; then
     remove "/home/${username}/.config/lxpanel/LXDE/panels/panel"
     mv "/home/${username}/.config/lxpanel/LXDE/panels/panel-jp" "/home/${username}/.config/lxpanel/LXDE/panels/panel"
 else
-    remove /etc/skel/.config/lxpanel/LXDE/panels/panel-jp
+    remove "/etc/skel/.config/lxpanel/LXDE/panels/panel-jp"
+    remove "/home/${username}/.config/lxpanel/LXDE/panels/panel-jp"
 fi
 
 
