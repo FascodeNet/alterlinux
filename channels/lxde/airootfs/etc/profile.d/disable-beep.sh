@@ -1,5 +1,4 @@
-#
-# Alter Linux package list
+#!/usr/bin/env bash
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
@@ -7,9 +6,10 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Grub
+# disable-beep.sh
+#
+# Script to disable PC beep sound 
 #
 
-grub
-os-prober
-refind
+setterm -blength 0
+

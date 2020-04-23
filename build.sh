@@ -489,6 +489,13 @@ prepare_build() {
     if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
         sudo modprobe loop
     fi
+
+    # Check work dir
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+        _msg_info "Deleting the contents of ${work_dir}..."
+        remove "${work_dir%/}"/*
+    fi
+
 }
 
 

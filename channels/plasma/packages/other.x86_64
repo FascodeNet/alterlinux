@@ -12,7 +12,7 @@
 grub
 grub-customizer
 os-prober
-refind-efi
+refind
 
 
 #-- documents --#
