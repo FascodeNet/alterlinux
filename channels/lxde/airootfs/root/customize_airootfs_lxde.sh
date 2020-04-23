@@ -61,17 +61,18 @@ function remove () {
 }
 
 
-# Replace wallpaper.
-if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
-    remove /usr/share/backgrounds/xfce/xfce-stripes.png
-    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-fi
-[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
-
-
 # Bluetooth
 rfkill unblock all
 systemctl enable bluetooth
+
+
+# Replace panel config
+if [[ "${japanese}" = true ]]; then
+    remove /etc/skel/.config/lxpanel/LXDE/panels/panel
+    mv /etc/skel/.config/lxpanel/LXDE/panels/panel-jp /etc/skel/.config/lxpanel/LXDE/panels/panel
+else
+    remove /etc/skel/.config/lxpanel/LXDE/panels/panel-jp
+fi
 
 
 # Update system datebase
