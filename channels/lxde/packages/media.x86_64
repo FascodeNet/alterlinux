@@ -26,3 +26,7 @@ pulseaudio-modules-bt
 #-- media player --#
 viewnior
 vlc
+
+
+#-- screen shot --#
+gnome-screenshot
