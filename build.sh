@@ -375,7 +375,7 @@ prepare_build() {
         # If there is config for each channel. load that.
         if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
             source "${script_path}/channels/${channel_name}/config"
-            _msg_info "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
         fi
         save_var \
             os_name \
@@ -605,7 +605,7 @@ make_packages() {
         #-- Read package list --#
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
-            _msg_info "Loaded package file ${_file}."
+            _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
         if [[ ${debug} = true ]]; then
@@ -626,6 +626,11 @@ make_packages() {
                     pkglist=(${pkglist[@]} "${_pkg}")
                 fi
             done
+        fi
+
+        if [[ -n "${excludelist[@]}" ]]; then
+            _msg_debug "The following packages have been removed from the installation list."
+            _msg_debug "Excluded packages: ${excludelist[@]}"
         fi
 
         # Exclude packages from the exclusion list for each channel
@@ -1110,7 +1115,7 @@ fi
 
 
 # Show config message
-[[ -f "${script_path}"/config ]] && _msg_info "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${script_path}"/config ]] && _msg_debug "The settings have been overwritten by the "${script_path}"/config."
 
 
 # Debug mode
