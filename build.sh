@@ -690,7 +690,9 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/share/airootfs" ]]; then
+        cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    fi
     if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
         cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
     fi
@@ -761,7 +763,9 @@ make_customize_airootfs() {
     if [[ -f ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh ]]; then
     	chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
     fi
-    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
     if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
     elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
