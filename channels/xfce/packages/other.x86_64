@@ -19,10 +19,9 @@ gvfs-smb
 
 
 #-- boot manager --#
-grub
+# grub-theme-vimix-alter
+grub-theme-vimix
 grub-customizer
-os-prober
-refind-efi
 
 
 #-- documents --#
@@ -34,14 +33,10 @@ man-pages
 jstest-gtk-git
 
 
-#-- linux --#
-linux-atm
-linux-firmware
-
-
 #-- system monitor --#
-gnome-system-monitor
 cpu-x
+gnome-system-monitor
+htop
 
 
 #-- pacman --#

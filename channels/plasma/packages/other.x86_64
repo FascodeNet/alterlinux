@@ -12,17 +12,12 @@
 grub
 grub-customizer
 os-prober
-refind-efi
+refind
 
 
 #-- documents --#
 man-db
 man-pages
-
-
-#-- linux --#
-linux-atm
-linux-firmware
 
 
 #-- system monitor --#

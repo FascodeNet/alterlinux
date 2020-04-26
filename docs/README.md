@@ -1,245 +1,158 @@
 
-## Alter Linux - A Japanese-made Arch Linux-derived OS that aims to be usable by anyone
+<h2>Alter Linux - Arch Linux-derived OS made in Japan aimed at anyone to use</h2>
 
-![AlterLogo](../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png)
+<p align="center">
+	<img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="AlterLinux logo">
+</p>
+<p align="center">
+	<a href="../LICENSE">
+		<img src="https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu" alt="License: GPLv3.0">
+	</a>
+	<a href="https://www.archlinux.org/">
+		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
+	</a>
+	<a href="https://git.archlinux.org/archiso.git/tag/?h=v43">
+		<img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+	</a>
+</p>
+<p align="center">
+	<a href="https://github.com/FascodeNet/alterlinux/issues">
+		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
+		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/releases">
+		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
+	</a>
+</p>
 
-[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu)](../LICENSE)
-[![Base](https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux)](https://www.archlinux.org/)
-[![archiso](https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=appveyor)](https://git.archlinux.org/archiso.git/tag/?h=v43)
-[![Release](https://img.shields.io/github/v/release/SereneTeam/alterlinux?color=blue&include_prereleases&style=for-the-badge)](https://github.com/SereneTeam/alterlinux/releases)
+<table>
+	<thead>
+		<tr>
+			<th style="text-align:center">
+				<a href="README_jp.md">日本語</a>
+			</th>
+			<th style="text-align:center">
+				<a href="README.md">English</a>
+			</th>
+		</tr>
+	</thead>
+</table>
 
-**日本人の方へ**：こちらに日本語版があります。
+<b>
+	日本語版は<a href="README_jp.md">こちら</a>にあります
+</b>
 
-| [日本語](README_jp.md) | [English](README.md) |
-|:-----:|:-----:|
+<h2>〈Overview〉</h2>
 
-## Overview
+Alter Linux is a new OS developed based on Arch Linux.<br>
+Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of AlterLinux.<br>
+Please see the <a href="https://fascode.net/projects/linux/alter/">official website</a> for information on announcements and bugs for users.
 
-Alter Linux is a new OS developed based on Arch Linux.
-Combining a sophisticated UI with Xfce4 and a package management tool complete with a GUI, anyone can easily use the latest OS at high speed.
-Check the [project board](https://github.com/orgs/SereneTeam/projects/2) for the latest status of AlterLinux.
+<img src="../images/screenshot/desktop.png" alt="screenshot">
 
-## Branch
-The main branches are: Other branches are temporary or used for specific purposes.
-The previously used Japanese branch has been removed.
 
-| [master](https://github.com/SereneTeam/alterlinux/tree/master) | [dev-stable](https://github.com/SereneTeam/alterlinux/tree/dev-stable) | [dev](https://github.com/SereneTeam/alterlinux/tree/dev) |
-|:-----:|:-----:|:-----:|
-| Most stable. Bug fixes may be delayed. | It is updated regularly. Relatively stable, with the latest features and fixes. | Always updated. There may be many issues left. |
+<h2>〈Feature〉</h2>
+<ul>
+	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>Adopt ZEN kernel by default</li>
+	<li>Equipped with sophisticated UI, themes and icons</li>
+	<li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
+	<li>Easy development of derived OS by framework based on archiso</li>
+</ul>
 
-## If you want to give an opinion or impression
-If AlterLinux doesn't start, is hard to use, or has any software you want to install by default, feel free to post it to [issues](https://github.com/SereneTeam/alterlinux/issues).
+<h2>〈Download〉</h2>
+The image file can be downloaded from the official <a href="https://fascode.net/projects/linux/alter/#downloads">website</a>.
+<br>
+<b>We are looking for a mirror server provider for repositories and image file distribution.</b>
+<br>
+If you would like us to provide a mirror please contact the developer's Twitter.
+
+
+<h2>〈Branch〉</h2>
+These are a list of major branches. Other branches are temporary or used for specific purposes.
+
+<table>
+	<thead>
+		<tr>
+			<th>
+				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
+			</th>
+			<th>
+				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
+			</th>
+			<th>
+				<a href="https://github.com/SereneTeam/alterlinux/tree/dev">dev</a>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				Most stable. Bug fixes may be delayed.
+			</td>
+			<td>
+			    It is updated regularly. Relatively stable, with the latest features and fixes.	
+			</td>
+			<td>
+				Always updated. There may be many issues left.
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+
+<h2>〈About opinion and impression〉</h2>
+If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>.<br>
 We are soliciting opinions from various users to make AlterLinux better.
 
-##Twitter account
-The latest status of Alter Linux is posted on Twitter from time to time. From time to time, we also conduct surveys on future policies.
-
-### Official
-The following accounts are official.
-- [Alter Linux](https://twitter.com/AlterLinux)
-- [SereneLinux Global](https://twitter.com/SereneLinux)
-- [SereneLinux JP](https://twitter.com/SereneDevJP)
-
-### Developer
-Link to Twitter of main development members.
-All comments made on this account are not official SereneTeam statements and are solely for the developer.
-
-<h5 align="center">Development</h5>
-<p align="center">
-<b><a><a href="https://twitter.com/Hayao0819"><img src="https://avatars1.githubusercontent.com/u/32128205" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/Pixel_3a"><img src="https://avatars0.githubusercontent.com/u/48173871" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/yangniao23"><img src="https://avatars0.githubusercontent.com/u/47053316" width="100px" /></a></b>
-<b><a><a href="https://twitter.com/yamad_linuxer"><img src="https://avatars1.githubusercontent.com/u/45691925" width="100px" /></a></b>
-</p>
+<h2>〈Documents〉</h2>
+Some documents may have outdated information or only some languages.<br>
+<ul>
+	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
+	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
+	<li><a href="en/CHANNEL.md">Channel specifications</a></li>
+	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
+	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
+	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+</ul>
 
 
-<h5 align="center">Design</h5>
-<p align="center">
-<b><a><a href="https://twitter.com/tukutuN_27"><img src="https://0e0.pw/5yuH" width="100px" /></a></b>
-</p>
-
-## Repositories and software
-If you use the AlterLinux repository, you need to add a key. See Preparing for a build.
-
-### Repositories
-GitHub repositories that were used before are no longer used. Currently [this server](https://xn--d-8o2b.com/repo/) is the latest repository.
+<h2>〈If you cannot start〉</h2>
+You can disable the boot animation and boot to see the logs.<br>
+Boot from the disk and select <code>Boot Alter Linux without boot splash (x86_64)</code>.<br>
+In addition, please write down the situation and model name <a href="https://github.com/FascodeNet/alterlinux/issues">here</a>, and report it to the developer.
 
 
-### Software
-Most packages are official packages or published on the AUR, but some are not in either. The source code of such packages and links to PKGBUILD are listed below.
-If you need a binary file, access [the AlterLinux repository](https://xn--d-8o2b.com/repo/alter-stable/x86_64/).
+<h2>〈About FascodeNetwork and developers〉</h2>
+<a href="https://fascode.net/">Fascode Network</a>is a creative team mainly composed of students.<br>
+We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
 
-Source code | PKGBUILD
---- | ---
- [alterlinux-calamares](https://github.com/SereneTeam/alterlinux-calamares) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/unstable/calamares)
-[alterlinux-fcitx-conf](https://github.com/SereneTeam/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-fcitx-conf)
-[alterlinux-keyring](https://github.com/SereneTeam/alterlinux-keyring) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-keyring)
-[alterlinux-mirrorlist](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-mirrorlist)
-[alterlinux-wallpapers](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-wallpapers)
-[alterlinux-xfce-conf](https://github.com/SereneTeam/alterlinux-xfce-conf) | [PKGBUILD](https://github.com/SereneTeam/alterlinux-pkgbuilds/tree/master/stable/alterlinux-xfce-conf)
+<h3>Official Twitter account</h3>
+<a href="https://twitter.com/FascodeNetwork">
+	<img src="https://pbs.twimg.com/profile_images/1245716817831530497/JEkKX1XN_400x400.jpg" width="100px">
+</a>
+<a href="https://twitter.com/Fascode_JP">
+	<img src="https://pbs.twimg.com/profile_images/1245682659231068160/Nn5tPUvB_400x400.jpg" width="100px">
+</a>
 
-## build
-
-The following procedure is for building with the actual machine ArchLinux.
-
-### Preparation
-
-There are two ways to build, using Arch Linux on the actual machine and building on Docker.
-The options of `build.sh` are common.
-
-```bash
-git clone https://github.com/SereneTeam/alterlinux.git alterlinux
-cd ./alterlinux/
-```
-AlterLinux includes a script to easily add keys.
-
-```bash
-sudo ./add-key.sh --alter
-```
-
-#### Build on real machine
-When building with an actual machine, it is necessary to build in an ArchLinux environment.  
-Install the necessary packages for the build.
-
-```bash
-sudo pacman -S --needed git arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
-```
-Then download the source code.
-
-```bash
-git clone https://github.com/SereneTeam/alterlinux.git
-cd alterlinux
-./build.sh
-```
-
-
-#### Build on container
-If you build on Docker, please refer to [this procedure](en/DOCKER.md).
-
-### build.sh options
-
-#### Basic
-Please execute as it is.
-The default password is `alter`.
-Plymouth has been disabled.
-Default compression type is `zstd`.
-
-
-#### Options
- Purpose | Usage
---- | ---
- Enable boot splash | -b
- Change kernel | -k [kernel]
- Change the username | -u [username]
- Change the password | -p [password]
- Japanese | -j
- Change compression method | -c [comp type]
- Set compression options | -t [comp option]
- Specify output destination directory | -o [dir]
- Specify working directory | -w [dir]
-
-
-##### Example
-
-To build under the following conditions:
-
-- Enable Plymouth
-- The compression method is `gzip`
-- The kernel is `linux-lqx`
-- The password is `ilovearch`
-
-```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
-```
-
-
-#### Channel
-Channels switch between packages to install and files to include.
-This mechanism allows you to build various versions of AlterLinux.
-The supported channels as of March 21, 2020 are:
-
-Name | Purpose
---- | ---
-xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
-plasma | This is an edition with Plasma and Qt apps. Currently in development and not stable.
-arch | It has only a minimal GUI and installer, and after installation it has a minimal ArchLinux. This is an ArchLinux installer.
-
-
-#### About the kernel
-The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
-Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
-  
-Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.org/index.php/Kernel).
-
-Name | Feature
---- | ---
-ck | linux-ck contains patches to improve system response.
-lts |Long term support (LTS) Linux kernel and modules from the core repository.
-lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
-rt | With this patch, almost all of the kernel can be run in real time.
-zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
-
-
-##### About compression type
-See the `mksquashfs` help for compression options and more options.
-As of February 12, 2019, `mksquashfs` supports the following methods and options.
-
-```
-gzip
-    -Xcompression-level <compression-level>
-    <compression-level> should be 1 .. 9 (default 9)
-    -Xwindow-size <window-size>
-    <window-size> should be 8 .. 15 (default 15)
-    -Xstrategy strategy1,strategy2,...,strategyN
-    Compress using strategy1,strategy2,...,strategyN in turn
-    and choose the best compression.
-    Available strategies: default, filtered, huffman_only,
-    run_length_encoded and fixed
-lzma (no options)
-lzo
-    -Xalgorithm <algorithm>
-    Where <algorithm> is one of:
-        lzo1x_1
-        lzo1x_1_11
-        lzo1x_1_12
-        lzo1x_1_15
-        lzo1x_999 (default)
-    -Xcompression-level <compression-level>
-    <compression-level> should be 1 .. 9 (default 8)
-    Only applies to lzo1x_999 algorithm
-lz4
-    -Xhc
-    Compress using LZ4 High Compression
-xz
-    -Xbcj filter1,filter2,...,filterN
-    Compress using filter1,filter2,...,filterN in turn
-    (in addition to no filter), and choose the best compression.
-    Available filters: x86, arm, armthumb, powerpc, sparc, ia64
-    -Xdict-size <dict-size>
-    Use <dict-size> as the XZ dictionary size.  The dictionary size
-    can be specified as a percentage of the block size, or as an
-    absolute value.  The dictionary size must be less than or equal
-    to the block size and 8192 bytes or larger.  It must also be
-    storable in the xz header as either 2^n or as 2^n+2^(n+1).
-    Example dict-sizes are 75%, 50%, 37.5%, 25%, or 32K, 16K, 8K
-    etc.
-zstd
-    -Xcompression-level <compression-level>
-    <compression-level> should be 1 .. 22 (default 15)
-```
-
-## Documents
-- [Channel specifications](jp/CHANNEL.md)
-- [About packages](jp/PACKAGE.md)
-- [How to build on docker](en/DOCKER.md)
-- [How to add supporting a new kernel.](jp/KERNEL.md)
-
-## If you cannot start
-You can disable the boot animation and boot to see the logs.
-Boot from the disk and select `Boot Alter Linux without boot splash (x86_64)`.
-
-
-## About SereneTeam and developers
-SereneTeam is a development team for a Linux distribution composed primarily of junior and senior high school students. Almost all are Japanese and there are a total of 24 members.
-[SereneLinux](https://serenelinux.com) based on Ubuntu has been developed and released.
-Utilizing our know-how, we are working on the development of Alter Linux, which is the first OS in Arch Linux to be developed in Japan.
+<h3>Developer Twitter account</h3>
+<a href="https://twitter.com/Hayao0819">
+	<img src="https://avatars1.githubusercontent.com/u/32128205" width="100px">
+</a>
+<a href="https://twitter.com/Pixel_3a">
+	<img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
+</a>
+<a href="https://twitter.com/YangDevJP">
+	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
+</a>
+<a href="https://twitter.com/yamad_linuxer">
+	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
+</a>
+<a href="https://twitter.com/tukutuN_27">
+	<img src="https://0e0.pw/5yuH" width="100px">
+</a>
+<a href="https://twitter.com/naoko1010hh">
+	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
+</a>

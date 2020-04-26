@@ -51,5 +51,5 @@ echo "fooo" >> ./system/kernel_list
 18行目のパスを変更してください。
 
 ### 4.プルリクエストを送る
-[ここ](https://github.com/SereneTeam/alterlinux/pulls)へプルリクエストを投稿してください。  
+[ここ](https://github.com/FascodeNet/alterlinux/pulls)へプルリクエストを投稿してください。  
 

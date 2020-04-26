@@ -10,21 +10,24 @@
 # Other
 
 
-#-- archiver --#
-unrar
-unzip-iconv
-zip
-
-
 #-- commandline tools --#
 arch-install-scripts
 bash-completion
 dialog
-diffutils
 mc
-sudo
 
 
 #-- utility --#
+sudo
 tlp
 xdg-user-dirs
+
+
+#-- linux --#
+linux-atm
+linux-firmware
+
+
+#-- man --#
+man-db
+man-pages

@@ -51,6 +51,10 @@ _msg_error() {
     fi
 }
 
+cdback() {
+    cd - > /dev/null
+}
+
 _chroot_init() {
     mkdir -p ${work_dir}/airootfs
     _pacman "base base-devel syslinux"
@@ -261,17 +265,23 @@ _mkchecksum () {
     _msg_info "Creating checksum file for self-test..."
     cd "${work_dir}/iso/${install_dir}/${arch}"
     sha512sum airootfs.sfs > airootfs.sha512
-    cd "${OLDPWD}"
+    cdback
     _msg_info "Done!"
 }
 
 _mkisochecksum() {
     _msg_info "Creating md5 checksum ..."
-    md5sum ${out_dir}/${img_name} > ${out_dir}/${img_name}.md5
-    _msg_info "Done! | $(ls -sh ${out_dir}/${img_name}.md5)"
+    cd "${out_dir}"
+    md5sum "${img_name}" > "${img_name}.md5"
+    cdback
+    # _msg_info "Done!"
+
+
     _msg_info "Creating sha256 checksum ..."
-    sha256sum ${out_dir}/${img_name} > ${out_dir}/${img_name}.sha256
-     _msg_info "Done! | $(ls -sh ${out_dir}/${img_name}.sha256)"
+    cd "${out_dir}"
+    sha256sum "${img_name}" > "${img_name}.sha256"
+    cdback
+    # _msg_info "Done!"
 }
 
 _mksignature () {

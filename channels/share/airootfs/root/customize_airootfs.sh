@@ -14,15 +14,19 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel=core
+kernel='zen'
 theme_name=alter-logo
 rebuild=false
 japanese=false
 username='alter'
+os_name="Alter Linux"
+install_dir="alter"
+usershell="/bin/bash"
+debug=true
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:' arg; do
+while getopts 'p:bt:k:rxju:o:i:s:d' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -31,14 +35,18 @@ while getopts 'p:bt:k:rxju:' arg; do
         r) rebuild=true ;;
         j) japanese=true;;
         u) username="${OPTARG}" ;;
-        x) set -xv ;;
+        o) os_name="${OPTARG}" ;;
+        i) install_dir="${OPTARG}" ;;
+        s) usershell="${OPTARG}" ;;
+        d) debug=true ;;
+        x) debug=true; set -xv ;;
     esac
 done
 
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
-    local 
+    local
     case $(eval echo '$'${1}) in
         true | false) : ;;
                    *) echo "The value ${boot_splash} set is invalid" >&2 ;;
@@ -83,54 +91,67 @@ else
 fi
 
 
-# If rebuild is enabled, do not create users.
-# This is described in detail on ArchWiki.
-if [[ ${rebuild} = false ]]; then
-    # Creating a root user.
-    # usermod -s /usr/bin/zsh root
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 
-    usermod -s /bin/bash root
+
+# Creating a root user.
+# usermod -s /usr/bin/zsh root
+function user_check () {
+if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
+    if [[ -z $1 ]]; then
+        echo -n "false"
+    fi
+    echo -n "true"
+else
+    echo -n "false"
+fi
+}
+
+if [[ $(user_check root) = false ]]; then
+    usermod -s "${usershell}" root
     cp -aT /etc/skel/ /root/
     chmod 700 /root
-    LC_ALL=C xdg-user-dirs-update
-    LANG=C xdg-user-dirs-update
-    echo -e "${password}\n${password}" | passwd root
+    LC_ALL=C LANG=C xdg-user-dirs-update
+fi
+echo -e "${password}\n${password}" | passwd root
 
-    # Allow sudo group to run sudo
-    sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
+# Allow sudo group to run sudo
+sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
-    # Create alter user.
-    # create_user <username> <password>
-    function create_user () {
-        local _password
-        local _username
+# Create a user.
+# create_user <username> <password>
+function create_user () {
+    local _password
+    local _username
 
-        _username=${1}
-        _password=${2}
+    _username=${1}
+    _password=${2}
 
-        set +u
-        if [[ -z "${_username}" ]]; then
-            echo "User name is not specified." >&2
-            return 1
-        fi
-        if [[ -z "${_password}" ]]; then
-            echo "No password has been specified." >&2
-            return 1
-        fi
-        set -u
+    set +u
+    if [[ -z "${_username}" ]]; then
+        echo "User name is not specified." >&2
+        return 1
+    fi
+    if [[ -z "${_password}" ]]; then
+        echo "No password has been specified." >&2
+        return 1
+    fi
+    set -u
 
-        useradd -m -s /bin/bash ${_username}
+    if [[ $(user_check ${_username}) = false ]]; then
+        useradd -m -s ${usershell} ${_username}
         groupadd sudo
         usermod -U -g ${_username} -G sudo ${_username}
         cp -aT /etc/skel/ /home/${_username}/
-        chmod 700 -R /home/${_username}
-        chown ${_username}:${_username} -R /home/${_username}
-        echo -e "${_password}\n${_password}" | passwd ${_username}
-        set -u
-    }
+    fi
+    chmod 700 -R /home/${_username}
+    chown ${_username}:${_username} -R /home/${_username}
+    echo -e "${_password}\n${_password}" | passwd ${_username}
+    set -u
+}
 
-    create_user "${username}" "${password}"
-fi
+create_user "${username}" "${password}"
 
 
 # Set up auto login
@@ -194,7 +215,13 @@ fi
 remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
 # Set up calamares removeuser
-sed -i s/%USERNAME%/${username}/ /usr/share/calamares/modules/removeuser.conf
+sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+# Set INSTALL_DIR
+sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
+
+
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
 
 
 # Enable root login with SSH.

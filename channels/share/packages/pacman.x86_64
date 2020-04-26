@@ -21,7 +21,6 @@ eg-installer
 
 #-- keyring --#
 alterlinux-keyring
-archlinux-keyring
 
 
 #-- mirrorlist --#
