@@ -375,7 +375,7 @@ prepare_build() {
         # If there is config for each channel. load that.
         if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
             source "${script_path}/channels/${channel_name}/config"
-            _msg_info "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
         fi
         save_var \
             os_name \
@@ -605,7 +605,7 @@ make_packages() {
         #-- Read package list --#
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
-            _msg_info "Loaded package file ${_file}."
+            _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
         if [[ ${debug} = true ]]; then
@@ -626,6 +626,11 @@ make_packages() {
                     pkglist=(${pkglist[@]} "${_pkg}")
                 fi
             done
+        fi
+
+        if [[ -n "${excludelist[@]}" ]]; then
+            _msg_debug "The following packages have been removed from the installation list."
+            _msg_debug "Excluded packages: ${excludelist[@]}"
         fi
 
         # Exclude packages from the exclusion list for each channel
@@ -685,7 +690,9 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/share/airootfs" ]]; then
+        cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    fi
     if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
         cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
     fi
@@ -756,7 +763,9 @@ make_customize_airootfs() {
     if [[ -f ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh ]]; then
     	chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
     fi
-    chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
     if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
     elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
@@ -1110,7 +1119,7 @@ fi
 
 
 # Show config message
-[[ -f "${script_path}"/config ]] && _msg_info "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${script_path}"/config ]] && _msg_debug "The settings have been overwritten by the "${script_path}"/config."
 
 
 # Debug mode
