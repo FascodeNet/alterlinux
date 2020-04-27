@@ -50,8 +50,11 @@ Alter Linux is a new OS developed based on Arch Linux.<br>
 Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of AlterLinux.<br>
 Please see the <a href="https://fascode.net/projects/linux/alter/">official website</a> for information on announcements and bugs for users.
 
-<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%"><img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
+<h3>Xfce</h3>
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
 
+<h3>Lxde</h3>
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
 
 <h2>〈Feature〉</h2>

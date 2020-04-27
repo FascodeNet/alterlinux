@@ -46,7 +46,11 @@ Alter LinuxはArch Linuxをベースに開発されている新しいOSです。
 AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
 ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
 
-<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%"><img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
+<h3>Xfce</h3>
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
+
+<h3>Lxde</h3>
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
 
 <h2>〈特徴〉</h2>
@@ -129,28 +133,28 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 <h3>公式Twitterアカウント</h3>
 <a href="https://twitter.com/FascodeNetwork">
-	<img src="https://pbs.twimg.com/profile_images/1245716817831530497/JEkKX1XN_400x400.jpg" width="100px">
+	<img src="https://pbs.twimg.com/profile_images/1245716817831530497/JEkKX1XN_400x400.jpg"x">
 </a>
 <a href="https://twitter.com/Fascode_JP">
-	<img src="https://pbs.twimg.com/profile_images/1245682659231068160/Nn5tPUvB_400x400.jpg" width="100px">
+	<img src="https://pbs.twimg.com/profile_images/1245682659231068160/Nn5tPUvB_400x400.jpg"x">
 </a>
 
 <h3>開発者Twitterアカウント</h3>
 <a href="https://twitter.com/Hayao0819">
-	<img src="https://avatars1.githubusercontent.com/u/32128205" width="100px">
+	<img src="https://avatars1.githubusercontent.com/u/32128205"x">
 </a>
 <a href="https://twitter.com/Pixel_3a">
-	<img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
+	<img src="https://avatars0.githubusercontent.com/u/48173871"x">
 </a>
 <a href="https://twitter.com/YangDevJP">
-	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
+	<img src="https://avatars0.githubusercontent.com/u/47053316"x">
 </a>
 <a href="https://twitter.com/yamad_linuxer">
-	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
+	<img src="https://avatars1.githubusercontent.com/u/45691925"x">
 </a>
 <a href="https://twitter.com/tukutuN_27">
-	<img src="https://0e0.pw/5yuH" width="100px">
+	<img src="https://0e0.pw/5yuH"x">
 </a>
 <a href="https://twitter.com/naoko1010hh">
-	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
+	<img src="https://avatars1.githubusercontent.com/u/50263013"x">
 </a>
