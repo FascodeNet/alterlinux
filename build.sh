@@ -119,12 +119,9 @@ echo_color() {
     local textcolor
     local decotypes
     local echo_opts
-    local OPTIND_bak="${OPTIND}"
-    local arg
     local arg
     local OPTIND
     local OPT
-    unset OPTIND
 
     echo_opts="-e"
 
@@ -140,7 +137,6 @@ echo_color() {
     shift $((OPTIND - 1))
 
     echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
-    OPTIND=${OPTIND_bak}
 }
 
 
