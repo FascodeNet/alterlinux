@@ -517,7 +517,8 @@ show_settings() {
         echo "Press Enter to continue or Ctrl + C to cancel."
         read
     else
-        sleep 3
+        :
+        #sleep 3
     fi
 }
 
