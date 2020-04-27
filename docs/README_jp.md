@@ -46,7 +46,7 @@ Alter LinuxはArch Linuxをベースに開発されている新しいOSです。
 AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
 ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
 
-<img src="../images/screenshot/desktop.png" alt="スクリーンショット">
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%"><img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
 
 
 <h2>〈特徴〉</h2>
