@@ -143,6 +143,7 @@ function create_user () {
         useradd -m -s ${usershell} ${_username}
         groupadd sudo
         usermod -U -g ${_username} -G sudo ${_username}
+        usermod -aG storage ${_username}
         cp -aT /etc/skel/ /home/${_username}/
     fi
     chmod 700 -R /home/${_username}
