@@ -119,12 +119,9 @@ echo_color() {
     local textcolor
     local decotypes
     local echo_opts
-    local OPTIND_bak="${OPTIND}"
-    local arg
     local arg
     local OPTIND
     local OPT
-    unset OPTIND
 
     echo_opts="-e"
 
@@ -140,7 +137,6 @@ echo_color() {
     shift $((OPTIND - 1))
 
     echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
-    OPTIND=${OPTIND_bak}
 }
 
 
@@ -191,9 +187,7 @@ _msg_debug() {
         esac
     done
     shift $((OPTIND - 1))
-    if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
-    fi
+    [[ ${debug} = true ]] && echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
 }
 
 
@@ -216,9 +210,7 @@ _msg_error() {
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${@}" >&2
     echo
-    if [[ -n "${_error}" ]]; then
-        exit ${_error}
-    fi
+    [[ -n "${_error}" ]] && exit ${_error}
 }
 
 
@@ -260,9 +252,7 @@ _usage () {
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
                 if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                        channel_list="${channel_list[@]} ${i}"
-                    fi
+                    [[ ! -d "${script_path}/channels/${i}.add" ]] && channel_list="${channel_list[@]} ${i}"
                 else
                     channel_list="${channel_list[@]} ${i}"
                 fi
@@ -466,9 +456,7 @@ prepare_build() {
         return 0
     }
     echo
-    if [[ ${debug} = false ]]; then
-        _msg_info "Checking dependencies ..."
-    fi
+    [[ ${debug} = false ]] && _msg_info "Checking dependencies ..."
     for pkg in ${dependence[@]}; do
         _msg_debug -n "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
@@ -486,9 +474,7 @@ prepare_build() {
 
 
     # Load kernel module
-    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
-        sudo modprobe loop
-    fi
+    [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]] && modprobe loop
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
@@ -521,7 +507,8 @@ show_settings() {
         echo "Press Enter to continue or Ctrl + C to cancel."
         read
     else
-        sleep 3
+        :
+        #sleep 3
     fi
 }
 
@@ -608,9 +595,7 @@ make_packages() {
             _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
-        if [[ ${debug} = true ]]; then
-            sleep 3
-        fi
+        [[ ${debug} = true ]] && sleep 3
 
         # Exclude packages from the share exclusion list
         excludefile="${script_path}/channels/share/packages/exclude"
@@ -690,17 +675,11 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    if [[ -d "${script_path}/channels/share/airootfs" ]]; then
-        cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
-    fi
-    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
-        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
-    fi
+    [[ -d "${script_path}/channels/share/airootfs"           ]] && cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    [[ -d "${script_path}/channels/${channel_name}/airootfs" ]] && cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
-    if [[ "${boot_splash}" = true ]]; then
-        cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf"
-    fi
+    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf"
 
     # Code to use common pacman.conf in archiso.
     # cp "${script_path}/pacman.conf" "${work_dir}/x86_64/airootfs/etc"
@@ -743,29 +722,16 @@ make_customize_airootfs() {
             addition_options="${addition_options} -b -t ${theme_name}"
         fi
     fi
-    if [[ ${debug} = true ]]; then
-        addition_options="${addition_options} -d"
-    fi
-    if [[ ${bash_debug} = true ]]; then
-        addition_options="${addition_options} -x"
-    fi
-    if [[ ${japanese} = true ]]; then
-        addition_options="${addition_options} -j"
-    fi
-    if [[ ${rebuild} = true ]]; then
-        addition_options="${addition_options} -r"
-    fi
+    [[ ${debug}      = true ]] && addition_options="${addition_options} -d"
+    [[ ${bash_debug} = true ]] && addition_options="${addition_options} -x"
+    [[ ${japanese}   = true ]] && addition_options="${addition_options} -j"
+    [[ ${rebuild}    = true ]] && addition_options="${addition_options} -r"
 
     share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}'"
 
 
     # X permission
-    if [[ -f ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh ]]; then
-    	chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
-    fi
-    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]]; then
-        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
-    fi
+    [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]] && chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
     if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
     elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
@@ -1022,9 +988,7 @@ make_prepare() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
 
-    if [[ "${cleaning}" = true ]]; then
-        remove "${work_dir}/x86_64/airootfs"
-    fi
+    [[ "${cleaning}" = true ]] && remove "${work_dir}/x86_64/airootfs"
 }
 
 # Build ISO
@@ -1179,9 +1143,7 @@ if [[ -n "${1}" ]]; then
         fi
     }
 
-    if [[ $(check_channel "${channel_name}") = false ]]; then
-        _msg_error -n '1' "Invalid channel ${channel_name}"
-    fi
+    [[ $(check_channel "${channel_name}") = false ]] && _msg_error -n '1' "Invalid channel ${channel_name}"
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
