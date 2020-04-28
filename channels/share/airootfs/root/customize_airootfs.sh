@@ -202,6 +202,8 @@ if [[ ${japanese} = true ]]; then
 fi
 
 
+# Calamares configs
+
 # If the specified kernel is different from calamares configuration, replace the configuration file.
 if [[ ! ${kernel} = "zen" ]]; then
     # initcpio
@@ -212,11 +214,17 @@ if [[ ! ${kernel} = "zen" ]]; then
     remove /usr/share/calamares/modules/unpackfs.conf
     mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
+
 # Remove configuration files for other kernels.
 remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
+
 # Set up calamares removeuser
 sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+
+# Set user shell
+sed -i s|%USERSHELL%|"${usershell}"|g /usr/share/calamares/modules/users.conf
+
 # Set INSTALL_DIR
 sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
 
