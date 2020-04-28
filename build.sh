@@ -187,7 +187,9 @@ _msg_debug() {
         esac
     done
     shift $((OPTIND - 1))
-    [[ ${debug} = true ]] && echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+    if [[ ${debug} = true ]]; then
+        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+    fi
 }
 
 
@@ -210,7 +212,9 @@ _msg_error() {
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${@}" >&2
     echo
-    [[ -n "${_error}" ]] && exit ${_error}
+    if [[ -n "${_error}" ]]; then
+        exit ${_error}
+    fi
 }
 
 
@@ -252,7 +256,9 @@ _usage () {
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
                 if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    [[ ! -d "${script_path}/channels/${i}.add" ]] && channel_list="${channel_list[@]} ${i}"
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        channel_list="${channel_list[@]} ${i}"
+                    fi
                 else
                     channel_list="${channel_list[@]} ${i}"
                 fi
@@ -456,7 +462,9 @@ prepare_build() {
         return 0
     }
     echo
-    [[ ${debug} = false ]] && _msg_info "Checking dependencies ..."
+    if [[ ${debug} = false ]]; then
+        _msg_info "Checking dependencies ..."
+    fi
     for pkg in ${dependence[@]}; do
         _msg_debug -n "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
@@ -474,7 +482,9 @@ prepare_build() {
 
 
     # Load kernel module
-    [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]] && modprobe loop
+    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
+        sudo modprobe loop
+    fi
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
@@ -595,7 +605,9 @@ make_packages() {
             _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
-        [[ ${debug} = true ]] && sleep 3
+        if [[ ${debug} = true ]]; then
+            sleep 3
+        fi
 
         # Exclude packages from the share exclusion list
         excludefile="${script_path}/channels/share/packages/exclude"
@@ -675,11 +687,17 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    [[ -d "${script_path}/channels/share/airootfs"           ]] && cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
-    [[ -d "${script_path}/channels/${channel_name}/airootfs" ]] && cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/share/airootfs" ]]; then
+        cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    fi
+    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
+        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    fi
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
-    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf"
+    if [[ "${boot_splash}" = true ]]; then
+        cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf"
+    fi
 
     # Code to use common pacman.conf in archiso.
     # cp "${script_path}/pacman.conf" "${work_dir}/x86_64/airootfs/etc"
@@ -722,16 +740,29 @@ make_customize_airootfs() {
             addition_options="${addition_options} -b -t ${theme_name}"
         fi
     fi
-    [[ ${debug}      = true ]] && addition_options="${addition_options} -d"
-    [[ ${bash_debug} = true ]] && addition_options="${addition_options} -x"
-    [[ ${japanese}   = true ]] && addition_options="${addition_options} -j"
-    [[ ${rebuild}    = true ]] && addition_options="${addition_options} -r"
+    if [[ ${debug} = true ]]; then
+        addition_options="${addition_options} -d"
+    fi
+    if [[ ${bash_debug} = true ]]; then
+        addition_options="${addition_options} -x"
+    fi
+    if [[ ${japanese} = true ]]; then
+        addition_options="${addition_options} -j"
+    fi
+    if [[ ${rebuild} = true ]]; then
+        addition_options="${addition_options} -r"
+    fi
 
     share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}'"
 
 
     # X permission
-    [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]] && chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    if [[ -f ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh ]]; then
+    	chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
     if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
     elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
@@ -988,7 +1019,9 @@ make_prepare() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
 
-    [[ "${cleaning}" = true ]] && remove "${work_dir}/x86_64/airootfs"
+    if [[ "${cleaning}" = true ]]; then
+        remove "${work_dir}/x86_64/airootfs"
+    fi
 }
 
 # Build ISO
@@ -1143,7 +1176,9 @@ if [[ -n "${1}" ]]; then
         fi
     }
 
-    [[ $(check_channel "${channel_name}") = false ]] && _msg_error -n '1' "Invalid channel ${channel_name}"
+    if [[ $(check_channel "${channel_name}") = false ]]; then
+        _msg_error -n '1' "Invalid channel ${channel_name}"
+    fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
