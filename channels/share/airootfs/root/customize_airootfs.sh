@@ -142,7 +142,9 @@ function create_user () {
     if [[ $(user_check ${_username}) = false ]]; then
         useradd -m -s ${usershell} ${_username}
         groupadd sudo
-        usermod -U -g ${_username} -G sudo ${_username}
+        usermod -U -g ${_username} ${_username}
+        usermod -aG sudo ${_username}
+        usermod -aG storage ${_username}
         cp -aT /etc/skel/ /home/${_username}/
     fi
     chmod 700 -R /home/${_username}
@@ -161,10 +163,9 @@ fi
 
 
 # Set to execute calamares without password as alter user.
-cat >> /etc/sudoers << 'EOF'
-alter ALL=NOPASSWD: /usr/bin/calamares
-alter ALL=NOPASSWD: /usr/bin/calamares_polkit
+cat >> /etc/sudoers << "EOF"
 Defaults pwfeedback
+${username} ALL=NOPASSWD: ALL
 EOF
 
 
@@ -201,6 +202,8 @@ if [[ ${japanese} = true ]]; then
 fi
 
 
+# Calamares configs
+
 # If the specified kernel is different from calamares configuration, replace the configuration file.
 if [[ ! ${kernel} = "zen" ]]; then
     # initcpio
@@ -211,13 +214,22 @@ if [[ ! ${kernel} = "zen" ]]; then
     remove /usr/share/calamares/modules/unpackfs.conf
     mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 fi
+
 # Remove configuration files for other kernels.
 remove /usr/share/calamares/modules/initcpio/
 remove /usr/share/calamares/modules/unpackfs/
+
 # Set up calamares removeuser
 sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+
+# Set user shell
+sed -i s|%USERSHELL%|"${usershell}"|g /usr/share/calamares/modules/users.conf
+
 # Set INSTALL_DIR
 sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
+
+# Add disabling of sudo setting
+echo "sed -i \"s|${username} ALL=NOPASSWD: ALL||g\" /etc/sudoers" >> /usr/share/calamares/final-process
 
 
 # Set os name
