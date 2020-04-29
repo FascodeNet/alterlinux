@@ -1111,6 +1111,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
+    _msg_warn "Re-run 'sudo ${0} ${@}'"
     sudo ${0} ${@}
     exit 1
 fi
