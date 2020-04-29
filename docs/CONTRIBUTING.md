@@ -27,7 +27,6 @@
 ### if、for、test、case、while
 - `test`コマンドは必ず`[[`を使用する
 - `do`や`then`などは`while`、`for`、`if`と同じ行に書く
-- テストコマンド内にコマンドが1つしか無い場合、コンパクトなテスト構文を使用して下さい。
 ```bash
 # Bad
 if [[ "${var}" = "hoge" ]]; then
