@@ -37,9 +37,3 @@ papirus-icon-theme
 
 #-- wallpaper --#
 alterlinux-wallpapers
-
-
-#-- xorg --#
-gpm
-xorg-server
-xorg-xinit

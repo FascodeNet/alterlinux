@@ -44,9 +44,3 @@ xfce4-clipman-plugin
 xfce4-docklike-plugin-git
 xfce4-pulseaudio-plugin
 xfce4-whiskermenu-plugin
-
-
-#-- xorg --#
-gpm
-xorg-server
-xorg-xinit
