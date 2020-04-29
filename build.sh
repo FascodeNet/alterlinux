@@ -198,19 +198,18 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local echo_opts="-e"
-    local _error=""
+    local _error="$2"
     local arg
     local OPTIND
     local OPT
     local OPTARG
-    while getopts 'ne' arg; do
+    while getopts 'n' arg; do
         case "${arg}" in
             n) echo_opts="${echo_opts} -n" ;;
-            e) _error="${OPTARG}" ;;
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${@}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
     echo
     if [[ -n "${_error}" ]]; then
         exit ${_error}
@@ -298,7 +297,7 @@ check_bool() {
     local 
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                   *) _msg_error -n '1' "The value ${boot_splash} set is invalid" ;;
+                   *) _msg_error "The value ${boot_splash} set is invalid" "1";;
     esac
 }
 
@@ -474,7 +473,7 @@ prepare_build() {
                 _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
                 echo
                 ;;
-            "not") _msg_error -e '1' "${pkg} is not installed."       ;;
+            "not") _msg_error "${pkg} is not installed." "1" ;;
             "norepo") _msg_warn "${pkg} is not a repository package." ;;
             "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
         esac
@@ -1057,7 +1056,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                _msg_error -n '1' "Invalid compressors ${arg}"
+                _msg_error "Invalid compressors ${arg}" "1"
             fi
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
@@ -1066,14 +1065,14 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                _msg_error -n '1' "Invalid kernel ${OPTARG}"
+                _msg_error "Invalid kernel ${OPTARG}" "1"
             fi
             ;;
         s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                _msg_error -n '1' "Invalid configuration file ${OPTARG}."
+                _msg_error "Invalid configuration file ${OPTARG}." "1"
             fi
             ;;
         x) 
@@ -1175,7 +1174,7 @@ if [[ -n "${1}" ]]; then
     }
 
     if [[ $(check_channel "${channel_name}") = false ]]; then
-        _msg_error -n '1' "Invalid channel ${channel_name}"
+        _msg_error "Invalid channel ${channel_name}" "1"
     fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
@@ -1186,13 +1185,13 @@ if [[ -n "${1}" ]]; then
                 if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
                     rebuild=true
                 else
-                    _msg_error -n '1' "Options cannot be specified for the rebuild channel.All options will use the previous settings."
+                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
                 fi
             else
                 rebuild=true
             fi
         else
-            _msg_error -n '1' "The previous build information is not in the working directory."
+            _msg_error "The previous build information is not in the working directory." "1"
         fi
     fi
 
