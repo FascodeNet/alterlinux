@@ -210,7 +210,6 @@ _msg_error() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
-    echo
     if [[ -n "${_error}" ]]; then
         exit ${_error}
     fi
@@ -435,6 +434,7 @@ prepare_build() {
     local installed_pkg
     local installed_ver
     local check_pkg
+    local check_failed=false
 
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
@@ -473,11 +473,15 @@ prepare_build() {
                 _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
                 echo
                 ;;
-            "not") _msg_error "${pkg} is not installed." "1" ;;
+            "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
             "norepo") _msg_warn "${pkg} is not a repository package." ;;
             "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
         esac
     done
+
+    if [[ "${check_failed}" = true ]]; then
+        exit 1
+    fi
 
 
     # Load kernel module
