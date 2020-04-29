@@ -575,32 +575,32 @@ make_packages() {
         # Append the file in the share directory to the file to be read.
 
         # Package list for Japanese
-        jplist="${script_path}/channels/share/packages/jp.${arch}"
+        jplist="${script_path}/channels/share/packages.${arch}/jp.${arch}"
 
         # Package list for non-Japanese
-        nojplist="${script_path}/channels/share/packages/non-jp.${arch}"
+        nojplist="${script_path}/channels/share/packages.${arch}/non-jp.${arch}"
 
         if [[ "${japanese}" = true ]]; then
-            _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.${arch} | grep -xv "${nojplist}"))
+            _loadfilelist=($(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} | grep -xv "${nojplist}"))
         else
-            _loadfilelist=($(ls "${script_path}"/channels/share/packages/*.${arch} | grep -xv "${jplist}"))
+            _loadfilelist=($(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} | grep -xv "${jplist}"))
         fi
 
 
         # Add the files for each channel to the list of files to read.
 
         # Package list for Japanese
-        jplist="${script_path}/channels/${channel_name}/packages/jp.${arch}"
+        jplist="${script_path}/channels/${channel_name}/packages.${arch}/jp.${arch}"
 
         # Package list for non-Japanese
-        nojplist="${script_path}/channels/${channel_name}/packages/non-jp.${arch}"
+        nojplist="${script_path}/channels/${channel_name}/packages.${arch}/non-jp.${arch}"
 
         if [[ "${japanese}" = true ]]; then
             # If Japanese is enabled, add it to the list of files to read other than non-jp.
-            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.${arch} | grep -xv "${nojplist}"))
+            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} | grep -xv "${nojplist}"))
         else
             # If Japanese is disabled, add it to the list of files to read other than jp.
-            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages/*.${arch} | grep -xv ${jplist}))
+            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} | grep -xv ${jplist}))
         fi
 
 
@@ -615,7 +615,7 @@ make_packages() {
         fi
 
         # Exclude packages from the share exclusion list
-        excludefile="${script_path}/channels/share/packages/exclude"
+        excludefile="${script_path}/channels/share/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
             excludelist=( $(grep -h -v ^'#' "${excludefile}") )
 
@@ -636,7 +636,7 @@ make_packages() {
         fi
 
         # Exclude packages from the exclusion list for each channel
-        excludefile="${script_path}/channels/${channel_name}/packages/exclude"
+        excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
             excludelist=( $(grep -h -v ^'#' "${excludefile}") )
         
@@ -692,11 +692,11 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    if [[ -d "${script_path}/channels/share/airootfs" ]]; then
-        cp -af "${script_path}/channels/share/airootfs" "${work_dir}/${arch}"
+    if [[ -d "${script_path}/channels/share/airootfs.${arch}" ]]; then
+        cp -af "${script_path}/channels/share/airootfs.${arch}" "${work_dir}/${arch}"
     fi
-    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
-        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/${arch}"
+    if [[ -d "${script_path}/channels/${channel_name}/airootfs.${arch}" ]]; then
+        cp -af "${script_path}/channels/${channel_name}/airootfs.${arch}" "${work_dir}/${arch}"
     fi
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
