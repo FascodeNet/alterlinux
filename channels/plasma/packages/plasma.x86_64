@@ -23,9 +23,3 @@ ark
 
 #-- KDE Plasma 5 Extensions --#
 kdeplasma-addons
-
-
-#-- xorg --#
-gpm
-xorg-server
-xorg-xinit

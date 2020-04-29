@@ -187,7 +187,9 @@ _msg_debug() {
         esac
     done
     shift $((OPTIND - 1))
-    [[ ${debug} = true ]] && echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+    if [[ ${debug} = true ]]; then
+        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+    fi
 }
 
 
@@ -196,21 +198,21 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local echo_opts="-e"
-    local _error
+    local _error="$2"
     local arg
     local OPTIND
     local OPT
     local OPTARG
-    while getopts 'ne' arg; do
+    while getopts 'n' arg; do
         case "${arg}" in
             n) echo_opts="${echo_opts} -n" ;;
-            e) _error="${OPTARG}" ;;
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${@}" >&2
-    echo
-    [[ -n "${_error}" ]] && exit ${_error}
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
+    if [[ -n "${_error}" ]]; then
+        exit ${_error}
+    fi
 }
 
 
@@ -252,7 +254,9 @@ _usage () {
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
                 if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    [[ ! -d "${script_path}/channels/${i}.add" ]] && channel_list="${channel_list[@]} ${i}"
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        channel_list="${channel_list[@]} ${i}"
+                    fi
                 else
                     channel_list="${channel_list[@]} ${i}"
                 fi
@@ -292,7 +296,7 @@ check_bool() {
     local 
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                   *) _msg_error -n '1' "The value ${boot_splash} set is invalid" ;;
+                   *) _msg_error "The value ${boot_splash} set is invalid" "1";;
     esac
 }
 
@@ -341,6 +345,13 @@ remove() {
 prepare_build() {
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+
+    # Check work dir
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+        _msg_info "Deleting the contents of ${work_dir}..."
+        remove "${work_dir%/}"/*
+    fi
 
 
     # Save build options
@@ -430,6 +441,7 @@ prepare_build() {
     local installed_pkg
     local installed_ver
     local check_pkg
+    local check_failed=false
 
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
@@ -456,7 +468,9 @@ prepare_build() {
         return 0
     }
     echo
-    [[ ${debug} = false ]] && _msg_info "Checking dependencies ..."
+    if [[ ${debug} = false ]]; then
+        _msg_info "Checking dependencies ..."
+    fi
     for pkg in ${dependence[@]}; do
         _msg_debug -n "Checking ${pkg} ..."
         case $(check_pkg ${pkg}) in
@@ -466,22 +480,21 @@ prepare_build() {
                 _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
                 echo
                 ;;
-            "not") _msg_error -n '1' "${pkg} is not installed."       ;;
+            "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
             "norepo") _msg_warn "${pkg} is not a repository package." ;;
             "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
         esac
     done
 
-
-    # Load kernel module
-    [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]] && modprobe loop
-
-    # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
-        _msg_info "Deleting the contents of ${work_dir}..."
-        remove "${work_dir%/}"/*
+    if [[ "${check_failed}" = true ]]; then
+        exit 1
     fi
 
+
+    # Load kernel module
+    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
+        sudo modprobe loop
+    fi
 }
 
 
@@ -547,7 +560,7 @@ make_basefs() {
 make_packages() {
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     installpkglist() {
-        set +eu
+        set +e
         local _loadfilelist
         local _pkg
         local _file
@@ -595,7 +608,9 @@ make_packages() {
             _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
-        [[ ${debug} = true ]] && sleep 3
+        if [[ ${debug} = true ]]; then
+            sleep 3
+        fi
 
         # Exclude packages from the share exclusion list
         excludefile="${script_path}/channels/share/packages/exclude"
@@ -653,7 +668,7 @@ make_packages() {
         # echo "${pkglist[@]}"
 
 
-        set -eu
+        set -e
     }
 
     installpkglist    
@@ -675,11 +690,17 @@ make_packages() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    [[ -d "${script_path}/channels/share/airootfs"           ]] && cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
-    [[ -d "${script_path}/channels/${channel_name}/airootfs" ]] && cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    if [[ -d "${script_path}/channels/share/airootfs" ]]; then
+        cp -af "${script_path}/channels/share/airootfs" "${work_dir}/x86_64"
+    fi
+    if [[ -d "${script_path}/channels/${channel_name}/airootfs" ]]; then
+        cp -af "${script_path}/channels/${channel_name}/airootfs" "${work_dir}/x86_64"
+    fi
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
-    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf"
+    if [[ "${boot_splash}" = true ]]; then
+        cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/x86_64/airootfs/etc/mkinitcpio.conf"
+    fi
 
     # Code to use common pacman.conf in archiso.
     # cp "${script_path}/pacman.conf" "${work_dir}/x86_64/airootfs/etc"
@@ -722,16 +743,29 @@ make_customize_airootfs() {
             addition_options="${addition_options} -b -t ${theme_name}"
         fi
     fi
-    [[ ${debug}      = true ]] && addition_options="${addition_options} -d"
-    [[ ${bash_debug} = true ]] && addition_options="${addition_options} -x"
-    [[ ${japanese}   = true ]] && addition_options="${addition_options} -j"
-    [[ ${rebuild}    = true ]] && addition_options="${addition_options} -r"
+    if [[ ${debug} = true ]]; then
+        addition_options="${addition_options} -d"
+    fi
+    if [[ ${bash_debug} = true ]]; then
+        addition_options="${addition_options} -x"
+    fi
+    if [[ ${japanese} = true ]]; then
+        addition_options="${addition_options} -j"
+    fi
+    if [[ ${rebuild} = true ]]; then
+        addition_options="${addition_options} -r"
+    fi
 
     share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}'"
 
 
     # X permission
-    [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]] && chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    if [[ -f ${work_dir}/x86_64/airootfs/root/customize_airootfs.sh ]]; then
+    	chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
+    if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]]; then
+        chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
+    fi
     if [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
         chmod 755 "${work_dir}/x86_64/airootfs/root/customize_airootfs_${channel_name}.sh"
     elif [[ -f "${work_dir}/x86_64/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
@@ -988,7 +1022,9 @@ make_prepare() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
 
-    [[ "${cleaning}" = true ]] && remove "${work_dir}/x86_64/airootfs"
+    if [[ "${cleaning}" = true ]]; then
+        remove "${work_dir}/x86_64/airootfs"
+    fi
 }
 
 # Build ISO
@@ -1024,7 +1060,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
             if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
                 sfs_comp="${OPTARG}"
             else
-                _msg_error -n '1' "Invalid compressors ${arg}"
+                _msg_error "Invalid compressors ${arg}" "1"
             fi
             ;;
         t) sfs_comp_opt=${OPTARG} ;;
@@ -1033,14 +1069,14 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
             if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
-                _msg_error -n '1' "Invalid kernel ${OPTARG}"
+                _msg_error "Invalid kernel ${OPTARG}" "1"
             fi
             ;;
         s)
             if [[ -f "${OPTARG}" ]]; then
                 source "${OPTARG}"
             else
-                _msg_error -n '1' "Invalid configuration file ${OPTARG}."
+                _msg_error "Invalid configuration file ${OPTARG}." "1"
             fi
             ;;
         x) 
@@ -1075,9 +1111,8 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    set +u
+    _msg_warn "Re-run 'sudo ${0} ${@}'"
     sudo ${0} ${@}
-    set -u
     exit 1
 fi
 
@@ -1095,7 +1130,7 @@ fi
 
 
 # Parse options
-set +eu
+set +e
 
 shift $((OPTIND - 1))
 
@@ -1143,7 +1178,9 @@ if [[ -n "${1}" ]]; then
         fi
     }
 
-    [[ $(check_channel "${channel_name}") = false ]] && _msg_error -n '1' "Invalid channel ${channel_name}"
+    if [[ $(check_channel "${channel_name}") = false ]]; then
+        _msg_error "Invalid channel ${channel_name}" "1"
+    fi
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
@@ -1153,20 +1190,20 @@ if [[ -n "${1}" ]]; then
                 if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
                     rebuild=true
                 else
-                    _msg_error -n '1' "Options cannot be specified for the rebuild channel.All options will use the previous settings."
+                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
                 fi
             else
                 rebuild=true
             fi
         else
-            _msg_error -n '1' "The previous build information is not in the working directory."
+            _msg_error "The previous build information is not in the working directory." "1"
         fi
     fi
 
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-set -eu
+set -e
 
 
 prepare_build

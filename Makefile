@@ -1,5 +1,6 @@
 BUILD_SCRIPT = build.sh
-SHARE_OPTION = -b -c "zstd" -u "alter" -p "alter"
+KERNEL       = zen
+SHARE_OPTION = -b -c "zstd" -u "alter" -p "alter" -k "${KERNEL}"
 DEBUG_OPTION = -t '-Xcompression-level 1' -x
 
 
@@ -11,12 +12,8 @@ plasma:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} plasma
 	@make cleanup
 
-xfce-test:
-	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${DEBUG_OPTION} xfce
-	@make cleanup
-
-plasma-test:
-	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${DEBUG_OPTION} plasma
+releng:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} plasma
 	@make cleanup
 
 cleanup:
