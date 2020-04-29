@@ -198,7 +198,7 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local echo_opts="-e"
-    local _error
+    local _error=""
     local arg
     local OPTIND
     local OPT
@@ -474,7 +474,7 @@ prepare_build() {
                 _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
                 echo
                 ;;
-            "not") _msg_error -n '1' "${pkg} is not installed."       ;;
+            "not") _msg_error -e '1' "${pkg} is not installed."       ;;
             "norepo") _msg_warn "${pkg} is not a repository package." ;;
             "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
         esac
@@ -557,7 +557,7 @@ make_basefs() {
 make_packages() {
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     installpkglist() {
-        set +eu
+        set +e
         local _loadfilelist
         local _pkg
         local _file
@@ -665,7 +665,7 @@ make_packages() {
         # echo "${pkglist[@]}"
 
 
-        set -eu
+        set -e
     }
 
     installpkglist    
@@ -1108,9 +1108,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    set +u
     sudo ${0} ${@}
-    set -u
     exit 1
 fi
 
@@ -1128,7 +1126,7 @@ fi
 
 
 # Parse options
-set +eu
+set +e
 
 shift $((OPTIND - 1))
 
@@ -1201,7 +1199,7 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-set -eu
+set -e
 
 
 prepare_build
