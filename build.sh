@@ -74,7 +74,7 @@ dependence=(
 
 
 # Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman.conf
+build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
 # Load config file
