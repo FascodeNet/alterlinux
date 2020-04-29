@@ -223,7 +223,7 @@ remove /usr/share/calamares/modules/unpackfs/
 sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
 
 # Set user shell
-sed -i s|%USERSHELL%|"${usershell}"|g /usr/share/calamares/modules/users.conf
+sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
 
 # Set INSTALL_DIR
 sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
