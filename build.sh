@@ -772,7 +772,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}'"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}'"
 
 
     # X permission

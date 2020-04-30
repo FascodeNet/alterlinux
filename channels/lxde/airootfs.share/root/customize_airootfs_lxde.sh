@@ -26,7 +26,7 @@ debug=true
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:i:s:d' arg; do
+while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -40,6 +40,7 @@ while getopts 'p:bt:k:rxju:o:i:s:d' arg; do
         s) usershell="${OPTARG}" ;;
         d) debug=true ;;
         x) debug=true; set -xv ;;
+        a) arch="${OPTARG}"
     esac
 done
 
