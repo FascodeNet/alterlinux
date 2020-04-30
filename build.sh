@@ -518,8 +518,8 @@ show_settings() {
         _msg_info "Use the ${channel_name} channel."
     fi
     [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
-    echo
     _msg_info "Build with architecture ${arch}."
+    echo
     if [[ ${noconfirm} = false ]]; then
         echo "Press Enter to continue or Ctrl + C to cancel."
         read
