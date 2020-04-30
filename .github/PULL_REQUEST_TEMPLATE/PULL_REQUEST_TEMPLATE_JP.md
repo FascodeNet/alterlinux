@@ -14,5 +14,5 @@
 
 # 関連するIssue (任意)
 
-- GithubのissueやJIRAチケットのリンク
+- Githubのissueのリンク
 - (複数の場合書き足してください)
