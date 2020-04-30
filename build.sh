@@ -372,7 +372,8 @@ prepare_build() {
     }
     if [[ ${rebuild} = false ]]; then
         # If there is pacman.conf for each channel, use that for building
-        [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]] && build_pacman_conf="${script_path}/channels/${channel_name}/pacman.conf"
+        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
+            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
 
 
         # If there is config for each channel. load that.
