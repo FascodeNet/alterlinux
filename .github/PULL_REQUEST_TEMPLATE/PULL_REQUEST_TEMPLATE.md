@@ -14,5 +14,5 @@
 
 # Relevant Issue (optional)
 
-- Links to issues and JIRA tickets on Github
+- Links to issues
 - (If more than one, please add them.)
