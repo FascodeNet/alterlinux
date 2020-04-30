@@ -518,6 +518,7 @@ show_settings() {
     fi
     [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
     echo
+    _msg_info "Build with architecture ${arch}."
     if [[ ${noconfirm} = false ]]; then
         echo "Press Enter to continue or Ctrl + C to cancel."
         read
