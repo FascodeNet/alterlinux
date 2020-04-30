@@ -381,6 +381,7 @@ prepare_build() {
             _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
         fi
         save_var \
+            arch \
             os_name \
             iso_name \
             iso_label \
