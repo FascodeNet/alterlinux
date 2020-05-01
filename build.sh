@@ -1051,7 +1051,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xjlu:d-:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -1072,13 +1072,6 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
                 kernel="${OPTARG}"
             else
                 _msg_error "Invalid kernel ${OPTARG}" "1"
-            fi
-            ;;
-        s)
-            if [[ -f "${OPTARG}" ]]; then
-                source "${OPTARG}"
-            else
-                _msg_error "Invalid configuration file ${OPTARG}." "1"
             fi
             ;;
         x) 
