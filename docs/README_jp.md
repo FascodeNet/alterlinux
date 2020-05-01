@@ -133,10 +133,10 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 <h3>公式Twitterアカウント</h3>
 <a href="https://twitter.com/FascodeNetwork">
-	<img src="https://pbs.twimg.com/profile_images/1245716817831530497/JEkKX1XN_400x400.jpg"x">
+	<img src="https://pbs.twimg.com/profile_images/1245716817831530497/JEkKX1XN_400x400.jpg" width="100px">
 </a>
 <a href="https://twitter.com/Fascode_JP">
-	<img src="https://pbs.twimg.com/profile_images/1245682659231068160/Nn5tPUvB_400x400.jpg"x">
+	<img src="https://pbs.twimg.com/profile_images/1245682659231068160/Nn5tPUvB_400x400.jpg" width="100px">
 </a>
 
 <h3>開発者Twitterアカウント</h3>
