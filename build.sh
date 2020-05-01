@@ -221,19 +221,26 @@ _usage () {
     echo "usage ${0} [options] [channel]"
     echo
     echo " General options:"
+    echo
     echo "    -b                 Enable boot splash"
     echo "                        Default: disable"
+    echo "    -j                 Enable Japanese mode."
+    echo "                        Default: disable"
+    echo "    -l                 Enable post-build cleaning."
+    echo "                        Default: disable"
+    echo "    -d                 Enable debug messages."
+    echo "                        Default: disable"
+    echo "    -x                 Enable bash debug mode.(set -xv)"
+    echo "                        Default: disable"
+    echo "    -h                 This help message and exit."
+    echo
     echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                        Default: ${sfs_comp}"
     echo "    -g <gpg_key>       Set gpg key"
     echo "                        Default: ${gpg_key}"
-    echo "    -j                 Enable Japanese mode."
-    echo "                        Default: disable"
     echo "    -k <kernel>        Set special kernel type."
     echo "                       core means normal linux kernel"
     echo "                        Default: ${kernel}"
-    echo "    -l                 Enable post-build cleaning."
-    echo "                        Default: disable"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -244,9 +251,9 @@ _usage () {
     echo "                        Default: ${username}"
     echo "    -w <work_dir>      Set the working directory"
     echo "                        Default: ${work_dir}"
-    echo "    -x                 Enable debug mode."
-    echo "                        Default: disable"
-    echo "    -h                 This help message and exit."
+    echo
+    echo "    --noconfirm        Does not check the settings before building."
+    echo "    --nodepend         Do not check package dependencies before building."
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
