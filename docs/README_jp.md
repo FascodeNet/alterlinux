@@ -141,20 +141,20 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 <h3>開発者Twitterアカウント</h3>
 <a href="https://twitter.com/Hayao0819">
-	<img src="https://avatars1.githubusercontent.com/u/32128205"x">
+	<img src="https://avatars1.githubusercontent.com/u/32128205" width="100px">
 </a>
 <a href="https://twitter.com/Pixel_3a">
-	<img src="https://avatars0.githubusercontent.com/u/48173871"x">
+	<img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
 </a>
 <a href="https://twitter.com/YangDevJP">
-	<img src="https://avatars0.githubusercontent.com/u/47053316"x">
+	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
 <a href="https://twitter.com/yamad_linuxer">
-	<img src="https://avatars1.githubusercontent.com/u/45691925"x">
+	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
 <a href="https://twitter.com/tukutuN_27">
-	<img src="https://0e0.pw/5yuH"x">
+	<img src="https://0e0.pw/5yuH" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
-	<img src="https://avatars1.githubusercontent.com/u/50263013"x">
+	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
 </a>
