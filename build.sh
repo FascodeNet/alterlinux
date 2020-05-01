@@ -1091,7 +1091,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
         t) sfs_comp_opt=${OPTARG} ;;
         b) boot_splash=true ;;
         k)
-            if [[ -n $(cat ${script_path}/system/kernel_list | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
                 kernel="${OPTARG}"
             else
                 _msg_error "Invalid kernel ${OPTARG}" "1"
