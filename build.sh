@@ -1026,8 +1026,8 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-${arch}.conf" "${work_dir}/efiboot/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-${arch}.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
 
     #${script_path}/efiboot/loader/entries/archiso-${arch}-cd.conf
 
