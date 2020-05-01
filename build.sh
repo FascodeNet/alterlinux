@@ -347,8 +347,10 @@ remove() {
 # Preparation for build
 prepare_build() {
     # Check architecture for each channel
-    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    if [[ ! "${channel_name}" = "rebuild" ]]; then
+        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+        fi
     fi
 
 
