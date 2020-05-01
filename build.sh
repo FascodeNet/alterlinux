@@ -50,6 +50,7 @@ username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
 noconfirm=false
+nodepend=false
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -445,49 +446,50 @@ prepare_build() {
 
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
-
-    check_pkg() {
-        local i
-        local ver
-        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-            if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
-                if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
-                    echo -n "installed"
-                    return 0
-                elif [[ -z ${ver} ]]; then
-                    echo "norepo"
-                    return 0
-                else
-                    echo -n "old"
-                    return 0
+    if [[ "${nodepend}" = false ]]; then
+        check_pkg() {
+            local i
+            local ver
+            for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+                if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
+                    ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                    if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
+                        echo -n "installed"
+                        return 0
+                    elif [[ -z ${ver} ]]; then
+                        echo "norepo"
+                        return 0
+                    else
+                        echo -n "old"
+                        return 0
+                    fi
                 fi
-            fi
+            done
+            echo -n "not"
+            return 0
+        }
+        echo
+        if [[ ${debug} = false ]]; then
+            _msg_info "Checking dependencies ..."
+        fi
+        for pkg in ${dependence[@]}; do
+            _msg_debug -n "Checking ${pkg} ..."
+            case $(check_pkg ${pkg}) in
+                "old") 
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                    _msg_warn "${pkg} is not the latest package."
+                    _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                    echo
+                    ;;
+                "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
+                "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
+            esac
         done
-        echo -n "not"
-        return 0
-    }
-    echo
-    if [[ ${debug} = false ]]; then
-        _msg_info "Checking dependencies ..."
-    fi
-    for pkg in ${dependence[@]}; do
-        _msg_debug -n "Checking ${pkg} ..."
-        case $(check_pkg ${pkg}) in
-            "old") 
-                [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
-                _msg_warn "${pkg} is not the latest package."
-                _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
-                echo
-                ;;
-            "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
-            "norepo") _msg_warn "${pkg} is not a repository package." ;;
-            "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
-        esac
-    done
 
-    if [[ "${check_failed}" = true ]]; then
-        exit 1
+        if [[ "${check_failed}" = true ]]; then
+            exit 1
+        fi
     fi
 
 
@@ -1092,6 +1094,7 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
             case "${OPTARG}" in
                 help)_usage 0 ;;
                 noconfirm) noconfirm=true ;;
+                nodepend) nodepend=true ;;
                 *)
                     _msg_error "Invalid argument '${OPTARG}'"
                     _usage 1
