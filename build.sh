@@ -52,6 +52,7 @@ username='alter'
 mkalteriso="${script_path}/system/mkalteriso"
 usershell="/bin/bash"
 noconfirm=false
+rebuildfile="${work_dir}/build_options"
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -365,7 +366,7 @@ prepare_build() {
     # Save build options
     local save_var
     save_var() {
-        local out_file="${work_dir}/build_options"
+        local out_file="${rebuildfile}"
         local i
         echo "#!/usr/bin/env bash" > "${out_file}"
         echo "# Build options are stored here." >> "${out_file}"
@@ -1064,7 +1065,7 @@ make_iso() {
         remove "${work_dir}/${arch}"
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
-        remove "${work_dir}/build_options"
+        remove "${rebuildfile}"
         if [[ -z $(ls $(realpath "${work_dir}")/* ) ]]; then
             remove ${work_dir}/*
         fi
@@ -1210,7 +1211,7 @@ if [[ -n "${1}" ]]; then
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
     elif [[ ${channel_name} = rebuild ]]; then
-        if [[ -f "${work_dir}/build_options" ]]; then
+        if [[ -f "${rebuildfile}" ]]; then
             if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
                 if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
                     rebuild=true
