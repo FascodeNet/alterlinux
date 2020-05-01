@@ -65,7 +65,7 @@ function remove () {
 remove /etc/skel/Desktop
 remove /root/Desktop
 
-if [[ ${arch} = "i686" ]; then
+if [[ ${arch} = "i686" ]]; then
     ln -s /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist32
 fi
 
