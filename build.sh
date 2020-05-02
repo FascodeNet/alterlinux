@@ -725,9 +725,9 @@ make_customize_airootfs() {
         done
     }
 
-    copy_airootfs "${script_path}/channels/share/airootfs.share"
+    copy_airootfs "${script_path}/channels/share/airootfs.any"
     copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
-    copy_airootfs "${script_path}/channels/${channel_name}/airootfs.share"
+    copy_airootfs "${script_path}/channels/${channel_name}/airootfs.any"
     copy_airootfs "${script_path}/channels/${channel_name}/airootfs.${arch}"
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
