@@ -1107,7 +1107,7 @@ make_iso() {
 
 
 # Parse options
-while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
+while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
@@ -1146,6 +1146,12 @@ while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
         l) cleaning=true ;;
         u) username="${OPTARG}" ;;
         h) _usage 0 ;;
+        a) 
+            case "${OPTARG}" in
+                "i686" | "x86_64" ) arch="${OPTARG}" ;;
+                +) _msg_error "Invaild architecture '${OPTARG}'" '1' ;;
+            esac
+            ;;
         -)
             case "${OPTARG}" in
                 help)_usage 0 ;;
