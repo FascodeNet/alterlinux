@@ -387,9 +387,9 @@ prepare_build() {
 
 
         # If there is config for each channel. load that.
-        if [[ -f "${script_path}/channels/${channel_name}/config.share" ]]; then
-            source "${script_path}/channels/${channel_name}/config.share"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.share"
+        if [[ -f "${script_path}/channels/${channel_name}/config.any" ]]; then
+            source "${script_path}/channels/${channel_name}/config.any"
+            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.any"
         fi
 
         if [[ -f "${script_path}/channels/${channel_name}/config.${arch}" ]]; then
