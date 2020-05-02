@@ -490,6 +490,8 @@ prepare_build() {
         return 0
     }
     echo
+    _msg_info "Updating datebase..."
+    pacman -Syy --config ${build_pacman_conf} > /devnull 2>&1
     if [[ ${debug} = false ]]; then
         _msg_info "Checking dependencies ..."
     fi
