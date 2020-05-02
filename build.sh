@@ -314,6 +314,14 @@ check_bool japanese
 check_bool cleaning
 check_bool noconfirm
 
+# Unmount chroot dir
+umount_chroot () {
+    local mount
+    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+        _msg_info "Unmounting ${mount}"
+        umount "${mount}"
+    done
+}
 
 # Helper function to run make_*() only one time.
 run_once() {
@@ -321,6 +329,7 @@ run_once() {
         _msg_debug "Running $1 ..."
         "$1"
         touch "${work_dir}/build.${1}_${arch}"
+        umount_chroot
     else
         _msg_debug "Skipped because ${1} has already been executed."
     fi
