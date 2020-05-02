@@ -229,6 +229,9 @@ sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
 # Set INSTALL_DIR
 sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
 
+# Set ARCH
+sed -i s/%ARCH%/"${arch}"/g /usr/share/calamares/modules/unpackfs.conf
+
 # Add disabling of sudo setting
 echo "sed -i \"s|${username} ALL=NOPASSWD: ALL||g\" /etc/sudoers" >> /usr/share/calamares/final-process
 
