@@ -205,16 +205,14 @@ fi
 
 # Calamares configs
 
-# If the specified kernel is different from calamares configuration, replace the configuration file.
-if [[ ! ${kernel} = "zen" ]]; then
-    # initcpio
-    remove /usr/share/calamares/modules/initcpio.conf
-    mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
+# Replace the configuration file.
+# initcpio
+remove /usr/share/calamares/modules/initcpio.conf
+mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
 
-    # unpackfs
-    remove /usr/share/calamares/modules/unpackfs.conf
-    mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
-fi
+# unpackfs
+remove /usr/share/calamares/modules/unpackfs.conf
+mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
 
 # Remove configuration files for other kernels.
 remove /usr/share/calamares/modules/initcpio/
