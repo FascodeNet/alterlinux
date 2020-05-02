@@ -20,8 +20,7 @@ script_path="$(readlink -f ${0%/*})"
 # Do not change this variable.
 # To change the settings permanently, edit the config file.
 
-#arch=$(uname -m)
-arch=i686
+arch=$(uname -m)
 
 os_name="Alter Linux"
 iso_name=alterlinux
