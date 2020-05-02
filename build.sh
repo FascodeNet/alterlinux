@@ -387,10 +387,18 @@ prepare_build() {
 
 
         # If there is config for each channel. load that.
-        if [[ -f "${script_path}/channels/${channel_name}/config" ]]; then
-            source "${script_path}/channels/${channel_name}/config"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config."
+        if [[ -f "${script_path}/channels/${channel_name}/config.share" ]]; then
+            source "${script_path}/channels/${channel_name}/config.share"
+            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.share"
         fi
+
+        if [[ -f "${script_path}/channels/${channel_name}/config.${arch}" ]]; then
+            source "${script_path}/channels/${channel_name}/config.${arch}"
+            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.${arch}"
+        fi
+
+
+        # Save the value of the variable for use in rebuild.
         save_var \
             arch \
             os_name \
