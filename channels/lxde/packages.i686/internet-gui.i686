@@ -15,5 +15,5 @@ network-manager-applet
 
 
 #-- web browser --#
-chromium
+firefox
 # elinks
