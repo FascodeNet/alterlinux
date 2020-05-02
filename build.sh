@@ -460,58 +460,62 @@ prepare_build() {
 
 
     # Check packages
-    local installed_pkg
-    local installed_ver
-    local check_pkg
-    local check_failed=false
+    if [[ ${arch} = $(uname -m) ]]; then
+        local installed_pkg
+        local installed_ver
+        local check_pkg
+        local check_failed=false
 
-    installed_pkg=($(pacman -Q | awk '{print $1}'))
-    installed_ver=($(pacman -Q | awk '{print $2}'))
+        installed_pkg=($(pacman -Q | awk '{print $1}'))
+        installed_ver=($(pacman -Q | awk '{print $2}'))
 
-    check_pkg() {
-        local i
-        local ver
-        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-            if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
-                if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
-                    echo -n "installed"
-                    return 0
-                elif [[ -z ${ver} ]]; then
-                    echo "norepo"
-                    return 0
-                else
-                    echo -n "old"
-                    return 0
+        check_pkg() {
+            local i
+            local ver
+            for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+                if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
+                    ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                    if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
+                        echo -n "installed"
+                        return 0
+                    elif [[ -z ${ver} ]]; then
+                        echo "norepo"
+                        return 0
+                    else
+                        echo -n "old"
+                        return 0
+                    fi
                 fi
-            fi
-        done
-        echo -n "not"
-        return 0
-    }
-    echo
-    _msg_info "Updating datebase..."
-    pacman -Syy --config ${build_pacman_conf} > /devnull 2>&1
-    if [[ ${debug} = false ]]; then
-        _msg_info "Checking dependencies ..."
-    fi
-    for pkg in ${dependence[@]}; do
-        _msg_debug -n "Checking ${pkg} ..."
-        case $(check_pkg ${pkg}) in
+            done
+            echo -n "not"
+            return 0
+        }
+        echo
+        _msg_info "Updating datebase..."
+        pacman -Syy --config ${build_pacman_conf} > /devnull 2>&1
+        if [[ ${debug} = false ]]; then
+            _msg_info "Checking dependencies ..."
+        fi
+        for pkg in ${dependence[@]}; do
+            _msg_debug -n "Checking ${pkg} ..."
+            case $(check_pkg ${pkg}) in
+                "old") 
             "old") 
-                [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
-                _msg_warn "${pkg} is not the latest package."
-                _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
-                echo
-                ;;
-            "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
-            "norepo") _msg_warn "${pkg} is not a repository package." ;;
-            "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
-        esac
-    done
+                "old") 
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                    _msg_warn "${pkg} is not the latest package."
+                    _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                    echo
+                    ;;
+                "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
+                "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
+            esac
+        done
 
-    if [[ "${check_failed}" = true ]]; then
-        exit 1
+        if [[ "${check_failed}" = true ]]; then
+            exit 1
+        fi
     fi
 
 
