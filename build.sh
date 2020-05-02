@@ -560,6 +560,7 @@ show_settings() {
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
+    _msg_debug "Use ${build_pacman_conf}"
     local _cache_dirs
     _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
     sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
