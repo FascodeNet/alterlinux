@@ -32,7 +32,6 @@ install_dir=alter
 work_dir=work
 out_dir=out
 gpg_key=
-mkalteriso_option="-a ${arch} -v"
 
 # AlterLinux additional settings
 password='alter'
@@ -1190,6 +1189,7 @@ fi
 
 
 # Debug mode
+mkalteriso_option="-a ${arch} -v"
 if [[ "${bash_debug}" = true ]]; then
     set -x
     set -v
