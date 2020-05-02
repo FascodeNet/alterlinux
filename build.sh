@@ -494,7 +494,6 @@ prepare_build() {
         if [[ "${check_failed}" = true ]]; then
             exit 1
         fi
-    fi
 
 
     # Load kernel module
