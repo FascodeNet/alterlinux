@@ -15,10 +15,11 @@
 set -e
 
 script_path="$(readlink -f ${0%/*})"
+arch=$(uname -m)
 
 
 # Set pacman.conf when build alterlinux
-alter_pacman_conf="${script_path}/system/pacman.conf"
+alter_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 
 # Color echo
