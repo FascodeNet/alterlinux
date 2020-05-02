@@ -20,7 +20,8 @@ script_path="$(readlink -f ${0%/*})"
 # Do not change this variable.
 # To change the settings permanently, edit the config file.
 
-arch=$(uname -m)
+#arch=$(uname -m)
+arch=i686
 
 os_name="Alter Linux"
 iso_name=alterlinux
@@ -746,10 +747,6 @@ make_customize_airootfs() {
     local mirrorlisturl_all
     local mirrorlisturl_jp
 
-    if [[ "${arch}" = "x86_64" ]]; then
-        mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
-        mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
-    else
 
     case "${arch}" in
         "x86_64")
