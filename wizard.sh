@@ -471,51 +471,50 @@ function select_kernel () {
         msg \
             "使用するカーネルを以下の番号から選択してください" \
             "Please select the kernel to use from the following numbers"
+
+
+        #カーネルの一覧を取得
+        kernel_list=($(cat ${script_path}/system/kernel_list | grep -h -v ^'#'))
+
+        #選択肢の生成
+        local count=1
+        local i
         echo
-        echo "1: linux"
-        echo "2: linux-lts"
-        echo "3: linux-zen"
-        echo "4: linux-ck"
-        echo "5: linux-rt"
-        echo "6: linux-rt-lts"
-        echo "7: linux-lqx"
-        echo "8: linux-xanmod"
-        echo "9: linux-xanmod-lts"
+        for i in ${kernel_list[@]}; do
+            echo "${count}: linux-${i}"
+            count=$(( count + 1 ))
+        done
+
+        # 質問する
         echo -n ": "
+        local answer
+        read answer
 
-        read yn
-
-        case ${yn} in
-            1                ) kernel="core"       ;;
-            2                ) kernel="lts"        ;;
-            3                ) kernel="zen"        ;;
-            4                ) kernel="ck"         ;;
-            5                ) kernel="rt"         ;;
-            6                ) kernel="rt-lts"     ;;
-            7                ) kernel="lqx"        ;;
-            8                ) kernel="xanmod"     ;;
-            9                ) kernel="xanmod-lts" ;;
-            linux            ) kernel="kernel"     ;;
-            linux-lts        ) kernel="lts"        ;;
-            linux-zen        ) kernel="zen"        ;;
-            linux-ck         ) kernel="ck"         ;;
-            linux-rt         ) kernel="rt"         ;;
-            linux-rt-lts     ) kernel="rt-lts"     ;;
-            linux-lqx        ) kernel="lqx"        ;;
-            linux-xanmod     ) kernel="xanmod"     ;;
-            linux-xanmod-lts ) kernel="xanmod-lts" ;;
-
-            core             ) kernel="core"       ;;
-            lts              ) kernel="lts"        ;;
-            zen              ) kernel="zen"        ;;
-            ck               ) kernel="ck"         ;;
-            rt               ) kernel="rt"         ;;
-            rt-lts           ) kernel="rt-lts"     ;;
-            lqx              ) kernel="lqx"        ;;
-            xanmod           ) kernel="xanmod"     ;;
-            xanmod-lts       ) kernel="xanmod-lts" ;;
-            *                ) what_kernel         ;;
-        esac
+        # 回答を解析する
+        # 数字かどうか判定する
+        set +e
+        expr "${answer}" + 1 >/dev/null 2>&1
+        if [[ ${?} -lt 2 ]]; then
+            set -e
+            # 数字である
+            answer=$(( answer - 1 ))
+            if [[ -z "${kernel_list[${answer}]}" ]]; then
+                what_kernel
+                return 0
+            else
+                kernel="${kernel_list[${answer}]}"
+            fi
+        else
+            set -e
+            # 数字ではない
+            # 配列に含まれるかどうか判定
+            if [[ ! $(printf '%s\n' "${kernel_list[@]}" | grep -qx "${answer#linux-}"; echo -n ${?} ) -eq 0 ]]; then
+                ask_channel
+                return 0
+            else
+                kernel="${answer#linux-}"
+            fi
+        fi
     }
 
     do_you_want_to_select_kernel
