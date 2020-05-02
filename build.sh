@@ -742,12 +742,32 @@ make_customize_airootfs() {
     # cp "${build_pacman_conf}" "${work_dir}/${arch}/airootfs/etc"
 
     # Get the optimal mirror list.
-    if [[ "${japanese}" = true ]]; then
-        # Use Japanese optimized mirror list when Japanese is enabled.
-        curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" 'https://www.archlinux.org/mirrorlist/?country=JP&protocol=http&use_mirror_status=on'
+    local mirrorlisturl
+    local mirrorlisturl_all
+    local mirrorlisturl_jp
+
+    if [[ "${arch}" = "x86_64" ]]; then
+        mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
+        mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
     else
-        curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
+
+    case "${arch}" in
+        "x86_64")
+            mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
+            mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
+            ;;
+        "i686")
+            mirrorlisturl_jp='https://archlinux32.org/mirrorlist/?country=jp'
+            mirrorlisturl_all='https://archlinux32.org/mirrorlist/?country=all'
+            ;;
+    esac
+
+    if [[ "${japanese}" = true ]]; then
+        mirrorlisturl="${mirrorlisturl_jp}"
+    else
+        mirrorlisturl="${mirrorlisturl_all}"
     fi
+    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${mirrorlisturl}"
 
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
 
