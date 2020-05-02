@@ -1110,7 +1110,8 @@ make_iso() {
 
 
 # Parse options
-while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
+#while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
+while getopts 'w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         w) work_dir="${OPTARG}" ;;
