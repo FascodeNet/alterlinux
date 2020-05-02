@@ -73,10 +73,6 @@ dependence=(
 )
 
 
-# Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman-${arch}.conf
-
-
 # Load config file
 [[ -f "${script_path}"/config ]] && source "${script_path}"/config
 
@@ -1196,6 +1192,10 @@ if [[ "${bash_debug}" = true ]]; then
     set -v
     mkalteriso_option="${mkalteriso_option} -x"
 fi
+
+
+# Pacman configuration file used only when building
+build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
 # Parse options
