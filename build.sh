@@ -469,32 +469,33 @@ prepare_build() {
         local check_pkg
         local check_failed=false
 
-    installed_pkg=($(pacman -Q | awk '{print $1}'))
-    installed_ver=($(pacman -Q | awk '{print $2}'))
+        installed_pkg=($(pacman -Q | awk '{print $1}'))
+        installed_ver=($(pacman -Q | awk '{print $2}'))
 
-    check_pkg() {
-        local i
-        local ver
-        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-            if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
-                if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
-                    echo -n "installed"
-                    return 0
-                elif [[ -z ${ver} ]]; then
-                    echo "norepo"
-                    return 0
-                else
-                    echo -n "old"
-                    return 0
+        check_pkg() {
+            local i
+            local ver
+            for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+                if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
+                    ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                    if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
+                        echo -n "installed"
+                        return 0
+                    elif [[ -z ${ver} ]]; then
+                        echo "norepo"
+                        return 0
+                    else
+                        echo -n "old"
+                        return 0
+                    fi
                 fi
+            done
+
+            if [[ "${check_failed}" = true ]]; then
+                exit 1
             fi
-        done
-
-        if [[ "${check_failed}" = true ]]; then
-            exit 1
-        fi
-
+        }
+    fi
 
     # Load kernel module
     if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
