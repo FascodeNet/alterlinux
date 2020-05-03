@@ -1,7 +1,9 @@
 [Desktop Entry]
 Version=1.0
-Type=Link
+Type=Application
 Name=Welcome to Alter Linux
+Exec=/usr/lib/firefox/firefox https://fascode.net/projects/linux/alter/welcome.php
+Terminal=false
 Comment=This page is useful for using AlterLinux.
 Icon=/usr/share/icons/hicolor/scalable/alter.svg
 URL=https://fascode.net/projects/linux/alter/welcome.php
