@@ -111,6 +111,11 @@ Plugin {
   }
 }
 Plugin {
+  type=tray
+  Config {
+  }
+}
+Plugin {
   type=dclock
   Config {
     ClockFmt=%R
