@@ -14,18 +14,16 @@ function remove () {
 }
 
 
-mkdir -p ${HOME}/.config/gtk-3.0/
-touch ${HOME}/.config/gtk-3.0/bookmarks
+touch ${HOME}/.gtk-bookmarks
 
 source ${HOME}/.config/user-dirs.dirs
 
 cat > "${HOME}/.config/gtk-3.0/bookmarks" << EOF
-file://${XDG_DOCUMENTS_DIR}/
-file://${XDG_DOWNLOAD_DIR}/
-file://${XDG_MUSIC_DIR}/
-file://${XDG_PICTURES_DIR}
-file://${XDG_TEMPLATES_DIR}
-file://${XDG_VIDEOS_DIR}
+file://${XDG_DOCUMENTS_DIR} Documents
+file://${XDG_DOWNLOAD_DIR} Downloads
+file://${XDG_MUSIC_DIR} Music
+file://${XDG_PICTURES_DIR} Pictures
+file://${XDG_VIDEOS_DIR} Videos
 EOF
 
 remove ~/.config/autostart/gensidebar.desktop
