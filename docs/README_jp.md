@@ -80,6 +80,9 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
 			</th>
+			<th>	
+				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+			</th>
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
@@ -94,7 +97,10 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 				最も安定しています。バグの修正などは遅れる場合があります。
 			</td>
 			<td>
-				定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。
+				リリース候補です。ほとんどのバグが修正されています。
+			</td>
+			<td>
+				定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。*
 			</td>
 			<td>
 				常に更新されます。問題が多数残っている場合があります。
