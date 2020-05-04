@@ -20,7 +20,7 @@ lxdm
 lxhotkey
 lxinput
 lxlauncher
-lxmusic
+# lxmusic  VLCがインストールされているため（Issues #51）
 lxpanel
 # lxrandr  arandrで代用 仮想マシンで使えないため arandrはother.x86_64に記述
 lxsession
