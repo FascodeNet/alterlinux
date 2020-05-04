@@ -86,6 +86,7 @@ _usage ()
 {
     echo "usage ${app_name} [options] command <command options>"
     echo " general options:"
+    echo "    -a Architecture  Set architecture."
     echo "    -p PACKAGE(S)    Package(s) to install, can be used multiple times"
     echo "    -r <command>     Run <command> inside airootfs"
     echo "    -C <file>        Config file for pacman."
@@ -399,8 +400,9 @@ fi
 
 umask 0022
 
-while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
+while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
     case "${arg}" in
+        a) arch="${OPTARG}" ;;
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
