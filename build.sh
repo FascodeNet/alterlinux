@@ -252,7 +252,6 @@ _usage () {
     echo
     echo "    --noconfirm        Does not check the settings before building."
     echo "    --nodepend         Do not check package dependencies before building."
-    echo "    --kernellist       Display a list of kernels available for the current architecture."
     echo
     echo "A list of kernels available for each architecture."
     echo
