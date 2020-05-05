@@ -18,8 +18,7 @@ sudo ./keyring.sh -a
 ```
 
 ### 実機でビルドする
-実機でビルドする場合はArchLinux環境でビルドする必要があります。　　
-ソースコードをダウンロードしてください。
+実機でビルドする場合はArchLinux環境でビルドする必要があります。ソースコードをダウンロードしてください。
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
