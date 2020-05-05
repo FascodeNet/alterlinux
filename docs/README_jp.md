@@ -56,6 +56,8 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 <h2>〈特徴〉</h2>
 <ul>
 	<li>既に構築されたArchLinux環境をGUIでインストールできます</li>
+	<li>64bitだけでなく、32bit(i686)もリリースしています</li>
+	<li>32bit版はPAE（物理アドレス拡張）を必要としません。</li>
 	<li>既に完全に日本語化されており、インストールしてすぐに日本語入力を使用できます</li>
 	<li>デフォルトでZENカーネルを採用</li>
 	<li>洗練されたUIやテーマ、アイコンを搭載しています</li>
