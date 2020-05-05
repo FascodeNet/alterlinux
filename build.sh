@@ -506,7 +506,7 @@ prepare_build() {
         }
     fi
 
-    # Load kernel module
+    # Load loop kernel module
     if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
         sudo modprobe loop
     fi
@@ -688,9 +688,9 @@ make_packages() {
         set -e
     }
 
-    installpkglist    
+    installpkglist
 
-    # echo ${pkglist[@]}
+    # _msg_debug "${pkglist[@]}"
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
@@ -757,6 +757,7 @@ make_customize_airootfs() {
     fi
     curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${mirrorlisturl}"
 
+    # Add install guide to /root (disabled)
     # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
 
 

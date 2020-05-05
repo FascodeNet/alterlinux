@@ -83,6 +83,9 @@ These are a list of major branches. Other branches are temporary or used for spe
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
 			</th>
+			<th>	
+				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+			</th>
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
@@ -97,7 +100,10 @@ These are a list of major branches. Other branches are temporary or used for spe
 				Most stable. Bug fixes may be delayed.
 			</td>
 			<td>
-			    It is updated regularly. Relatively stable, with the latest features and fixes.	
+				Release candidate. Most bugs have been fixed.
+			</td>
+			<td>
+			    It is updated regularly. Relatively stable, with the latest features and fixes. *
 			</td>
 			<td>
 				Always updated. There may be many issues left.

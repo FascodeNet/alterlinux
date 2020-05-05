@@ -16,7 +16,7 @@ lxappearance
 lxappearance-obconf
 lxde-common
 lxde-icon-theme
-lxdm
+# lxdm     LightDMで代用
 lxhotkey
 lxinput
 lxlauncher
