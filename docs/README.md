@@ -121,6 +121,7 @@ We are soliciting opinions from various users to make AlterLinux better.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
+If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
 	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>

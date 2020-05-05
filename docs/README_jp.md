@@ -119,6 +119,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 <h2>〈ドキュメント〉</h2>
 一部のドキュメントは情報が古かったり、一部の言語しかない場合が有ります。<br>
+もし誤字脱字や実際と異なる表記を見つけた場合はIssuesで報告して下さい。<br>
 <ul>
 	<li><a href="jp/BUILD.md">AlterLinuxをビルドする</a></li>
 	<li><a href="jp/SOFTWARE.md">独自のパッケージのソースコードについて</a></li>
