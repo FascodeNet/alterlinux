@@ -87,9 +87,9 @@
 
 
 ### 特殊なパッケージリスト
-特殊なパッケージリストとして、`jp.x86_64`と`non-jp.x86_64`があります。  
-`-j`オプションによって日本語が有効化されている時、スクリプトは`jp.x86_64`を読み込みます。  
-反対に日本語が有効化されていない場合、スクリプトは`non-jp.x86_64`を使用します。  
+特殊なパッケージリストとして、`jp.<architecture>`と`non-jp.<architecture>`があります。  
+`-j`オプションによって日本語が有効化されている時、スクリプトは`jp.<architecture>`を読み込みます。  
+反対に日本語が有効化されていない場合、スクリプトは`non-jp.<architecture>`を使用します。  
 
 
 ### 除外リスト
@@ -113,7 +113,7 @@
 
 
 ## pacman.conf
-`channels/<channel_name>/pacman.conf`を配置すると、ビルド時にそのファイルを使用します。ただし、インストール後の設定ファイルは置き換えないので`airootfs`で`/etc/pacman.conf`を配置して下さい。
+`channels/<channel_name>/pacman-<architecture>.conf`を配置すると、ビルド時にそのファイルを使用します。ただし、インストール後の設定ファイルは置き換えないので`airootfs`で`/etc/pacman.conf`を配置して下さい。
 
 
 ## splash.png
