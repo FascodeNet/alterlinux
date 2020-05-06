@@ -128,3 +128,7 @@ PNG形式の画像で640x480の画像を配置してください。
 
 ### アーキテクチャごとの設定と優先順位
 `channels/<channel_name>/config.any`が読み込まれた後`channels/<channel_name>/config.<architecture>`が読み込まれます。
+
+
+## architecture
+そのチャンネルで利用可能なアーキテクチャの一覧です。`#`はコメントとして扱われます。
