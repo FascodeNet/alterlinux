@@ -120,10 +120,12 @@ _usage () {
     echo "usage ${0} [options]"
     echo
     echo " General options:"
-    echo "    -a | --alter-add     Add alterlinux-keyring."
-    echo "    -r | --alter-remove  Remove alterlinux-keyring."
-    echo "    -c | --arch-add      Add archlinux-keyring."
-    echo "    -h | --help          Show this help and exit."
+    echo "    -a | --alter-add       Add alterlinux-keyring."
+    echo "    -r | --alter-remove    Remove alterlinux-keyring."
+    echo "    -c | --arch-add        Add archlinux-keyring."
+    echo "    -h | --help            Show this help and exit."
+    echo "    -l | --arch32-add      Add archlinux32-keyring."
+    echo "    -i | --arch32-remove   Remove archlinux32-keyring."
     exit "${1}"
 }
 
@@ -207,9 +209,22 @@ remove_alter_key() {
     pacman -Sy
 }
 
+update_arch32_key() {
+    pacman -Syy --config ${script_path}/system/pacman-i686.conf
+    pacman -Sw --noconfirm --config ./system/pacman-i686.conf archlinux32-keyring
+    pacman -U --noconfirm $(ls /var/cache/pacman/pkg | grep archlinux32-keyring | tail -n 1)
+    pacman-key --init
+    pacman-key --populate archlinux32
+    #pacman-key --refresh-keys
+}
+
+remove_arch32_key() {
+    pacman -Rsnc archlinux32-keyring
+}
+
 
 # 引数解析
-while getopts 'arch-:' arg; do
+while getopts 'archli-:' arg; do
     case "${arg}" in
         # alter-add
         a)
@@ -230,6 +245,16 @@ while getopts 'arch-:' arg; do
         h) 
             _usage 0
             ;;
+        # arch32-add
+        l)
+            run prepare
+            run update_arch32_key
+            ;;
+        # arch32-remove
+        i)
+            run prepare
+            run remove_arch32_key
+            ;;
         -)
             case "${OPTARG}" in
                 alter-add)
@@ -247,6 +272,14 @@ while getopts 'arch-:' arg; do
                 help)
                     _usage 0
                     ;;
+                arch32-add)
+                    run prepare
+                    run update_arch32_key
+                    ;;
+                arch32-remove)
+                    run prepare
+                    run remove_arch32_key
+                    ;;
                 *)
                     _usage 1
                     ;;
@@ -262,4 +295,5 @@ if [[ ${#} = 0 ]]; then
     run prepare
     # run update_arch_key
     run update_alter_key
+    # run update_arch32_key
 fi
