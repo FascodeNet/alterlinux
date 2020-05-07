@@ -4,6 +4,8 @@
 以下のパッケージはパッケージリストに追加する必要はありません。
 
 - bash
+- base
+- base-devel
 - haveged
 - intel-ucode
 - amd-ucode

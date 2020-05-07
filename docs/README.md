@@ -60,6 +60,8 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 <h2>〈Feature〉</h2>
 <ul>
 	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>We release not only 64bit but also 32bit version.</li>
+	<li>The 32-bit version does not require PAE (Physical Address Extension).</li>
 	<li>Adopt ZEN kernel by default</li>
 	<li>Equipped with sophisticated UI, themes and icons</li>
 	<li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
@@ -119,6 +121,7 @@ We are soliciting opinions from various users to make AlterLinux better.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
+If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
 	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
