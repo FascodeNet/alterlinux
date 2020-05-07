@@ -19,7 +19,8 @@ arch=$(uname -m)
 
 
 # Set pacman.conf when build alterlinux
-alter_pacman_conf="${script_path}/system/pacman-${arch}.conf"
+alter_pacman_conf_x86_64="${script_path}/system/pacman-x86_64.conf"
+alter_pacman_conf_i686="${script_path}/system/pacman-i686.conf"
 
 
 # Color echo
@@ -169,10 +170,16 @@ prepare() {
         exit 1
     fi
 
-    if [[ ! -f "${alter_pacman_conf}" ]]; then
-        msg_error "${alter_pacman_conf} does not exist."
+    if [[ ! -f "${alter_pacman_conf_x86_64}" ]]; then
+        msg_error "${alter_pacman_conf_x86_64} does not exist."
         exit 1
     fi
+
+    if [[ ! -f "${alter_pacman_conf_i686}" ]]; then
+        msg_error "${alter_pacman_conf_i686} does not exist."
+        exit 1
+    fi
+
     #pacman -Sy
 }
 
@@ -192,8 +199,8 @@ update_alter_key() {
     rm -f "/tmp/fascode.pub"
     pacman-key --lsign-key development@fascode.net
 
-    pacman --config "${alter_pacman_conf}" -Sy --noconfirm
-    pacman --config "${alter_pacman_conf}" -S --noconfirm alter-stable/alterlinux-keyring
+    pacman --config "${alter_pacman_conf_x86_64}" -Sy --noconfirm
+    pacman --config "${alter_pacman_conf_x86_64}" -S --noconfirm alter-stable/alterlinux-keyring
 
     pacman-key --init
     pacman-key --populate alterlinux
@@ -210,8 +217,8 @@ remove_alter_key() {
 }
 
 update_arch32_key() {
-    pacman -Syy --config ${script_path}/system/pacman-i686.conf
-    pacman -Sw --noconfirm --config ./system/pacman-i686.conf archlinux32-keyring
+    pacman -Syy --config "${alter_pacman_conf_i686}"
+    pacman -Sw --noconfirm --config "${alter_pacman_conf_i686}" archlinux32-keyring
     pacman -U --noconfirm $(ls /var/cache/pacman/pkg | grep archlinux32-keyring | tail -n 1)
     pacman-key --init
     pacman-key --populate archlinux32
