@@ -1266,7 +1266,7 @@ if [[ -n "${1}" ]]; then
         fi
     elif [[ "${channel_name}" = "clean" ]]; then
         if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
-            if [[ ! $(( OPTIND - 1 )) = 1 ]] && [[ ! ${debug} = true ]]; then
+            if [[ ! $(( OPTIND - 1 )) = 1 ]] && [[ ! ${debug} = true ]] || [[ ! "${noconfirm}" = true ]]; then
                 _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
             fi
         else
