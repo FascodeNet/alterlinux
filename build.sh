@@ -385,6 +385,7 @@ prepare_build() {
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+        umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
     fi
