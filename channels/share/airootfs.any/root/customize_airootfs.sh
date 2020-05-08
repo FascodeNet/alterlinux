@@ -171,7 +171,7 @@ EOF
 cat >> /etc/sudoers.d/alterlive << "EOF"
 ${username} ALL=NOPASSWD: ALL
 EOF
-c
+
 
 # Chnage sudoers permission
 chmod 750 -R /etc/sudoers.d/
