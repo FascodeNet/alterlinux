@@ -114,12 +114,30 @@ function set_language () {
 }
 
 function check_files () {
-    if [[ ! -f "${script_path}/build.sh" ]]; then
-        msg_error "${script_path}/build.shが見つかりませんでした。" "${script_path}/build.sh was not found."
-        exit 1
-    fi
-    if [[ ! -f "${script_path}/keyring.sh" ]]; then
-        echo "${script_path}/keyring.shが見つかりませんでした。" "${script_path}/keyring.sh was not found."
+    local file
+    local _chkfile
+    local i
+    local error
+
+    error=false
+    _chkfile() {
+        if [[ ! -f "${1}" ]]; then
+            msg_error "${1}が見つかりませんでした。" "${1} was not found."
+            error=true
+        fi
+    }
+
+    file=(
+        "build.sh"
+        "keyring.sh"
+        "system/pacman-i686.conf"
+        "system/pacman-x86_64.conf"
+    )
+
+    for i in ${file[@]}; do
+        _chkfile "${script_path}/${i}"
+    done
+    if [[ "${error}" = true ]]; then
         exit 1
     fi
 }
