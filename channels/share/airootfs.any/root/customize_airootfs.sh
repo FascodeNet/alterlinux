@@ -166,6 +166,9 @@ fi
 # Set to execute calamares without password as alter user.
 cat >> /etc/sudoers << "EOF"
 Defaults pwfeedback
+EOF
+
+cat >> /etc/sudoers.d/alterlive << "EOF"
 ${username} ALL=NOPASSWD: ALL
 EOF
 
@@ -235,7 +238,7 @@ sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.
 sed -i s/%ARCH%/"${arch}"/g /usr/share/calamares/modules/unpackfs.conf
 
 # Add disabling of sudo setting
-echo "sed -i \"s|${username} ALL=NOPASSWD: ALL||g\" /etc/sudoers" >> /usr/share/calamares/final-process
+echo "remove /etc/sudoers.d/alterlive " >> /usr/share/calamares/final-process
 
 
 # Set os name
