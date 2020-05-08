@@ -150,6 +150,7 @@ function install_dependencies () {
     local installed_ver
     local check_pkg
 
+    msg "データベースの更新をしています..." "Updating package datebase..."
     sudo pacman -Sy --config "${build_pacman_conf}"
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
