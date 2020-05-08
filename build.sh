@@ -1252,28 +1252,14 @@ if [[ -n "${1}" ]]; then
         channel_name="${channel_name}.add"
     elif [[ "${channel_name}" = "rebuild" ]]; then
         if [[ -f "${rebuildfile}" ]]; then
-            if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
-                if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
-                    rebuild=true
-                else
-                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
-                fi
-            else
                 rebuild=true
-            fi
         else
             _msg_error "The previous build information is not in the working directory." "1"
         fi
     elif [[ "${channel_name}" = "clean" ]]; then
-        if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
-            if [[ ! $(( OPTIND - 1 )) = 1 ]] && [[ ! ${debug} = true ]] || [[ ! "${noconfirm}" = true ]]; then
-                _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
-            fi
-        else
             umount_chroot
             rm -rf "${work_dir}"
             exit 
-        fi
     fi
 
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
