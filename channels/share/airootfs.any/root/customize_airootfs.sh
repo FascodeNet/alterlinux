@@ -186,11 +186,15 @@ if [[ $boot_splash = true ]]; then
     echo '---' > /usr/share/calamares/modules/plymouthcfg.conf
     echo "plymouth_theme: ${theme_name}" >> /usr/share/calamares/modules/plymouthcfg.conf
 
+    # Override plymouth settings.
+    sed -i s/%PLYMOUTH_THEME%/"${theme_name}"/g /etc/plymouth/plymouthd.conf
+
     # Apply plymouth theme settings.
     plymouth-set-default-theme ${theme_name}
 else
     # Delete the configuration file for plymouth.
     remove /usr/share/calamares/modules/services-plymouth.conf
+    remove /etc/plymouth
 fi
 
 
