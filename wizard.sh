@@ -6,6 +6,8 @@ nobuild=false
 
 script_path="$(readlink -f ${0%/*})"
 
+arch=$(uname -m)
+
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
