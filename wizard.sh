@@ -6,10 +6,12 @@ nobuild=false
 
 script_path="$(readlink -f ${0%/*})"
 
-arch=$(uname -m)
+build_arch=$(uname -m)
 
-# Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+machine_arch=$(uname -m)
+
+# Pacman configuration file used only when checking packages.
+pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
 
 # 言語（en or jp)
 #lang="jp"
@@ -151,7 +153,7 @@ function install_dependencies () {
     local check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
-    sudo pacman -Sy --config "${build_pacman_conf}"
+    sudo pacman -Sy --config "${pacman_conf}"
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
@@ -159,7 +161,7 @@ function install_dependencies () {
         local i
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1}) ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${pacman_conf} ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -180,7 +182,7 @@ function install_dependencies () {
     done
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Sy
-        sudo pacman -S --needed --config ${build_pacman_conf} ${install[@]}
+        sudo pacman -S --needed --config ${pacman_conf} ${install[@]}
     fi
     echo
 }
@@ -206,7 +208,7 @@ function run_add_key_script () {
 
 function remove_dependencies () {
     if [[ -n "${install[@]}" ]]; then
-        sudo pacman -Rsn --config ${build_pacman_conf} ${install[@]}
+        sudo pacman -Rsn --config ${pacman_conf} ${install[@]}
     fi
 }
 
@@ -496,7 +498,7 @@ function select_kernel () {
 
 
         #カーネルの一覧を取得
-        kernel_list=($(cat ${script_path}/system/kernel_list | grep -h -v ^'#'))
+        kernel_list=($(cat ${script_path}/system/kernel_list-${build_arch} | grep -h -v ^'#'))
 
         #選択肢の生成
         local count=1
@@ -727,7 +729,7 @@ function generate_argument () {
     if [[ -n ${out_dir} ]]; then
         argument="${argument} -o '${out_dir}'"
     fi
-    argument="${argument} ${channel}"
+    argument="-a ${build_arch} ${argument} ${channel}"
 }
 
 #　上の質問の関数を実行
