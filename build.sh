@@ -1094,15 +1094,15 @@ make_iso() {
 
     if [[ ${cleaning} = true ]]; then
         remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}/pacman-${arch}.conf"
+        remove "${work_dir}"/pacman-*.conf
         remove "${work_dir}/efiboot"
         remove "${work_dir}/iso"
         remove "${work_dir}/${arch}"
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
         remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* ) ]]; then
-            remove ${work_dir}/*
+        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+            remove ${work_dir}
         fi
     fi
     _msg_info "The password for the live user and root is ${password}."
