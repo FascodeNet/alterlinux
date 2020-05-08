@@ -64,7 +64,7 @@ function msg_n() {
     fi
 }
 
-while getopts 'xnje' arg; do
+while getopts 'a:xnje' arg; do
     case "${arg}" in
         n)
             nobuild=true
@@ -85,7 +85,9 @@ while getopts 'xnje' arg; do
             echo "日本語が設定されました"
             skip_set_lang=true
             ;;
-        
+        a)
+            build_arch="${OPTARG}"
+            ;;
     esac
 done
 
