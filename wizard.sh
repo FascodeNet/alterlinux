@@ -574,9 +574,9 @@ function select_channel () {
 
         # チャンネルの一覧を生成
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-                if [[ ! ${i} = "share" ]]; then
-                        channel_list=(${channel_list[@]} ${i})
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+                if [[ -n $(cat ${script_path}/channels/${i}/architecture | grep -h -v ^'#' | grep -x "${build_arch}") ]]; then
+                    channel_list=(${channel_list[@]} ${i})
                 fi
             fi
         done
