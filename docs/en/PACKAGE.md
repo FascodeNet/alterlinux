@@ -3,6 +3,8 @@
 Some packages are added automatically and do not need to be written. The following is a list.
 
 - bash
+- base
+- base-devel
 - haveged
 - intel-ucode
 - amd-ucode
