@@ -38,4 +38,5 @@ grml-zsh-config
 
 
 #-- other --#
+snapd
 packagekit-qt5
