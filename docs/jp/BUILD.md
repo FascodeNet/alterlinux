@@ -1,58 +1,58 @@
 ## AlterLinuxをビルドする
+ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
+Dockerでビルドする方法は[この手順](jp/DOCKER.md)を参照してください。  
+  
+実機でビルドする場合は、必ずOSがArchLinuxかAlterLinuxでなければなりません。  
+以下では実機でビルドする方法を解説します。  
+  
+ビルドは2つの方法で行うことができます。ウィザードを使用する方法と直接実行する方法です。  
 
-以下の手順は、実機のArchLinuxでビルドするためのものです。
-
-### 準備
-
-ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。
-`build.sh`のオプションは共通です。
-
-```bash
-git clone https://github.com/SereneTeam/alterlinux.git alterlinux
-cd ./alterlinux/
-```
-AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
-
-```bash
-sudo ./keyring.sh -a
-```
-
-### 実機でビルドする
-実機でビルドする場合はArchLinux環境でビルドする必要があります。ソースコードをダウンロードしてください。  
-また、実機のアーキテクチャでしかビルドできません。例えばビルドするマシンが`x86_64`の場合、`i686`のビルドを行うことはできません。  
+### ソースコードを取得する
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
 ```
 
-#### ビルドウィザード
-実機で直接ビルドする場合、wizard.shを使用して簡単に思い通りの設定でビルドできます。bashで書かれていますのでターミナルから実行してください。
+### ビルドウィザードを使用する
+実機で直接ビルドする場合、wizard.shを使用して簡単に思い通りの設定でビルドできます。  
+下記の鍵の追加や依存関係のインストールなどを全て自動で行います。  
+bashで書かれていますのでターミナルから実行してください。  
 「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
-ウィザードの使い方の詳細は[公式ブログ](https://blog.fascode.net/2020/04/17/build-alterlinux/)で紹介しています。
+ウィザードの使い方の詳細は[公式ブログ](https://blog.fascode.net/2020/04/17/build-alterlinux/)で紹介しています。  
 
 ```bash
 ./wizard.sh
 ```
 
-#### 手動でオプションを指定してビルドする
+### 手動でオプションを指定してビルドする
+
+#### 鍵を追加する
+AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
+
+```bash
+sudo ./keyring.sh --alter-add --arch32-add
+```
+
+#### 依存関係をインストールする
 ビルドに必要なパッケージをインストールして下さい。  
 
 ```bash
 sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
-オプションは[こちら](#buildsh-options)を参照して下さい。
 
-### コンテナ上でビルドする
-Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照してください。
+#### ビルドを開始する
+`build.sh`を実行して下さい。  
 
-### build.shのオプション
+```bash
+sudo ./build.sh
+```
+
+`build.sh`の使い方は以下をご覧ください。
+
+### build.sh
 
 #### 基本
-通常はウィザードを使用してください。
-デフォルトパスワードは`alter`です。
-lymouthは無効化されています。
-デフォルトの圧縮方式は`zstd`です。
 
 ```bash
 ./build.sh <options> <channel>
@@ -101,6 +101,7 @@ xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェ�
 plasma | PlasmaとQtアプリを搭載したエディションです。 現在開発中で、安定していません。
 lxde | LXDEと最小限のアプリケーションのみが入っています。(relengを除き)最も軽量です。
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドすることができます。
+rebuild | 作業ディレクトリにある設定を利用して再ビルドを行います。
 
 
 #### カーネルについて
@@ -114,13 +115,13 @@ ck | linux-ck にはシステムのレスポンスを良くするためのパッ
 lts | coreリポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
 lqx | デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
 rt | このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
-zen-letsnote | Let's Noteでサスペンドの問題が発生しないようにパッチを当てた`linux-zen`カーネル
+zen-letsnote | Let's Noteでサスペンドの問題が発生しないようにパッチを当てた`linux-zen`カーネル（AlterLinux独自）
 
 ##### 注意
 `-k`のオプションは必ず`linux-foo`の`foo`の部分のみを入れてください。例えば`linux-lts`の場合は`lts`が入ります。
 
 
-##### 圧縮方式について
+#### 圧縮方式について
 圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
 2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
