@@ -32,6 +32,8 @@ vim
 
 
 #-- shells --#
+lsd
+lsd-control
 powerline
 zsh
 zsh-completions
