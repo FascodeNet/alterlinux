@@ -8,5 +8,6 @@ Target = usr/share/backgrounds/xfce/xfce-teal.png
 [Action]
 Description = Optimizing wallpaper...
 When = PostTransaction
+Depends=alterlinux-wallpapers
 Exec = /usr/share/libalpm/scripts/alterlinux-wallpapers-xfce teal alter-old
 NeedsTargets
