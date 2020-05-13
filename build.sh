@@ -237,8 +237,8 @@ _usage () {
     echo "    -g <gpg_key>       Set gpg key"
     echo "                        Default: ${gpg_key}"
     echo "    -k <kernel>        Set special kernel type."
-    echo "                       core means normal linux kernel"
-    echo "                        Default: ${kernel}"
+    echo "                       See below for available kernels."
+    echo "                        Default: zen"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
     echo "    -p <password>      Set a live user password"
@@ -252,6 +252,19 @@ _usage () {
     echo
     echo "    --noconfirm        Does not check the settings before building."
     echo "    --nodepend         Do not check package dependencies before building."
+    echo
+    echo "A list of kernels available for each architecture."
+    echo
+    local kernel
+    local list
+    for list in $(ls ${script_path}/system/kernel_list-*); do
+        echo " ${list#${script_path}/system/kernel_list-}:"
+        echo -n "    "
+        for kernel in $(grep -h -v ^'#' ${list}); do
+            echo -n "${kernel} "
+        done
+        echo
+    done
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
