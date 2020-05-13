@@ -19,7 +19,6 @@ sudo ./keyring.sh -a
 
 ### 実機でビルドする
 実機でビルドする場合はArchLinux環境でビルドする必要があります。ソースコードをダウンロードしてください。  
-また、実機のアーキテクチャでしかビルドできません。例えばビルドするマシンが`x86_64`の場合、`i686`のビルドを行うことはできません。  
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
@@ -37,11 +36,12 @@ cd alterlinux
 
 #### 手動でオプションを指定してビルドする
 ビルドに必要なパッケージをインストールして下さい。  
+必要なパッケージがインストールされていないとビルドスクリプトでエラーが発生します。  
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools
 ```
-オプションは[こちら](#buildsh-options)を参照して下さい。
+オプションは以下を参照して下さい。
 
 ### コンテナ上でビルドする
 Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照してください。
@@ -51,7 +51,7 @@ Dockerでビルドする場合は、[この手順](jp/DOCKER.md)を参照して�
 #### 基本
 通常はウィザードを使用してください。
 デフォルトパスワードは`alter`です。
-lymouthは無効化されています。
+plymouthは無効化されています。
 デフォルトの圧縮方式は`zstd`です。
 
 ```bash
