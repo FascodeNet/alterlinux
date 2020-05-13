@@ -167,10 +167,7 @@ fi
 cat >> /etc/sudoers << "EOF"
 Defaults pwfeedback
 EOF
-
-cat >> /etc/sudoers.d/alterlive << "EOF"
-${username} ALL=NOPASSWD: ALL
-EOF
+echo "${username} ALL=NOPASSWD: ALL" >> /etc/sudoers.d/alterlive
 
 
 # Chnage sudoers permission
