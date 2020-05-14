@@ -23,32 +23,20 @@ echo "fooo" >> ./system/kernel_list
 「既存のファイルを名前を変えてコピーし、カーネルへのパスを修正する」という方法が最も簡単です。  
 ファイル名は`fooo`に置き換えてあります。  
 
-1. syslinux/pxe/archiso_pxe-fooo.cfg
-2. syslinux/pxe-plymouth/archiso-fooo.cfg
-3. syslinux/sys/archiso_sys-fooo.cfg
-4. syslinux/sys-plymouth/archiso_sys-fooo.cfg
-5. efiboot/loader/entries/cd/archiso-x86_64-cd-fooo.conf
-6. efiboot/loader/entries/usb/archiso-x86_64-usb-fooo.conf
-7. airootfs/usr/share/calamares/modules/unpackfs/unpackfs-fooo.conf
-8. airootfs/usr/share/calamares/modules/initcpio/initcpio-fooo.conf
+1. syslinux/x86_64/pxe/archiso_pxe-fooo.cfg
+2. syslinux/i686/pxe/archiso_pxe-fooo.cfg
+3. syslinux/x86_64/pxe-plymouth/archiso-fooo.cfg
+4. syslinux/i686/pxe-plymouth/archiso-fooo.cfg
+5. syslinux/x86_64/sys/archiso_sys-fooo.cfg
+6. syslinux/i686/sys/archiso_sys-fooo.cfg
+7. syslinux/x86_64/sys-plymouth/archiso_sys-fooo.cfg
+8. syslinux/i686/sys-plymouth/archiso_sys-fooo.cfg
+9. efiboot/loader/entries/cd/archiso-x86_64-cd-fooo.conf
+10. efiboot/loader/entries/usb/archiso-x86_64-usb-fooo.conf
+11. channels/share/airootfs.any/usr/share/calamares/modules/unpackfs/unpackfs-fooo.conf
+12. channels/share/airootfs.any/usr/share/calamares/modules/initcpio/initcpio-fooo.conf
 
-#### 1と2のファイル
-
-7行目、18行目、29行目のパスを変更してください。
-
-#### 3と4のファイル
-
-7行目のパスを変更してください。
-
-#### 5と6のファイル
-
-2行目のパスを変更してください。
-
-#### 7のファイル
-95行目、97行目のパスを変更してください。
-
-#### 8のファイル
-18行目のパスを変更してください。
+これらのファイルはインストーラやブートローダのファイルです。各カーネル用にパスを修正して下さい。  
 
 ### 4.プルリクエストを送る
 [ここ](https://github.com/FascodeNet/alterlinux/pulls)へプルリクエストを投稿してください。  

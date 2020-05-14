@@ -38,4 +38,5 @@ grml-zsh-config
 
 
 #-- other --#
+htop
 packagekit-qt5

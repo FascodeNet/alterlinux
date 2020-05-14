@@ -330,7 +330,7 @@ check_bool noconfirm
 # Unmount chroot dir
 umount_chroot () {
     local mount
-    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
         _msg_info "Unmounting ${mount}"
         umount "${mount}"
     done
@@ -385,6 +385,7 @@ prepare_build() {
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+        umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
     fi
@@ -1093,15 +1094,15 @@ make_iso() {
 
     if [[ ${cleaning} = true ]]; then
         remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}/pacman-${arch}.conf"
+        remove "${work_dir}"/pacman-*.conf
         remove "${work_dir}/efiboot"
         remove "${work_dir}/iso"
         remove "${work_dir}/${arch}"
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
         remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* ) ]]; then
-            remove ${work_dir}/*
+        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+            remove ${work_dir}
         fi
     fi
     _msg_info "The password for the live user and root is ${password}."
@@ -1234,7 +1235,7 @@ if [[ -n "${1}" ]]; then
                 fi
             fi
         done
-        if [[ "${channel_name}" = "rebuild" ]]; then
+        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
             echo -n "true"
             return 0
         else
@@ -1249,20 +1250,16 @@ if [[ -n "${1}" ]]; then
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
-    elif [[ ${channel_name} = rebuild ]]; then
+    elif [[ "${channel_name}" = "rebuild" ]]; then
         if [[ -f "${rebuildfile}" ]]; then
-            if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
-                if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
-                    rebuild=true
-                else
-                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
-                fi
-            else
                 rebuild=true
-            fi
         else
             _msg_error "The previous build information is not in the working directory." "1"
         fi
+    elif [[ "${channel_name}" = "clean" ]]; then
+            umount_chroot
+            rm -rf "${work_dir}"
+            exit 
     fi
 
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
