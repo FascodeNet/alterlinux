@@ -27,11 +27,11 @@ If the directory name ends in `.add`, the channel name will be the string before
 This is to exclude it from Git management and add your own customized channel.  
 Finally, run `./build -h` to check the channel name that can be used as an argument.  
 
-## チャンネル名の重複について
-**チャンネル名が`.add`がついているものといないもので重複しないようにして下さい！**  
-`.add`がついているものとついていないものが重複した場合、**`.add`が付いている方が優先**されます。  
-`.add`がついていないチャンネルは一切使用不可能になりますのでご注意下さい。  
-また、以下の特殊なチャンネルの名前も使用することができません。  
+## About duplicate channel names
+**Please be careful not to duplicate the channel names with and without `.add`!**  
+When the one with .add is duplicated with the one without .add, **the one with .add has priority**.  
+Please note that channels without `.add` will be unavailable at all.  
+Also, the following special channel names cannot be used.  
 
 
 # 特殊なチャンネル
