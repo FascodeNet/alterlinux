@@ -12,6 +12,17 @@
 # Write the alias here.
 #
 
+# lsd-control
+[[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
+
+# aptpac
+alias apt='aptpac'
+alias apt-get='aptpac'
+
+# no-beep less
+alias less='less -Q'
+
+
 alias ls='ls --color=auto'
 alias la='ls -a --color=auto'
 alias ll='ls -la --color=auto'
