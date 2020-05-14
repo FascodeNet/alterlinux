@@ -37,7 +37,7 @@ lsd-control
 powerline
 zsh
 zsh-completions
-grml-zsh-config
+# grml-zsh-config
 
 
 #-- other --#
