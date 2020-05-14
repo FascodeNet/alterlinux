@@ -18,14 +18,14 @@ You can check with `./build.sh -h` to see if the script recognized the channel.
 Channels that are not displayed in the Help channel list cannot be used.  
 
 
-# チャンネル名について
-チャンネル名は基本的には`channels`内のディレクトリ名です。  
-ディレクトリ名に使用できる全ての文字はチャンネル名に利用することができますが、空白文字や全角文字を入れた場合、一部の環境で正常に動作しない可能性が有ります。  
-また、チャンネル名はスクリプト内で扱う関係上、18文字以内にすることが望ましいです。（それ以上の文字数ではヘルプでチャンネル名が正常に表示されません。）   
+# About channel name
+The channel name is basically a directory name in `channels`.  
+All the characters that can be used in the directory name can be used in the channel name, but if you use blank characters or double-byte characters, it may not work properly in some environments.  
+In addition, it is desirable to keep the channel name within 18 characters because it is handled in the script. (If the number of characters is longer than this, the channel name will not be displayed correctly in the help.)  
   
-もしディレクトリ名が`.add`で終了する場合、チャンネル名は`.add`の前の文字列になります。  
-これは、Gitの管理から除外し、カスタマイズした独自のチャンネルを追加するためのものです。  
-最終的に引数として使用できるチャンネル名は`./build -h`を実行して確認して下さい。
+If the directory name ends in `.add`, the channel name will be the string before` .add`.  
+This is to exclude it from Git management and add your own customized channel.  
+Finally, run `./build -h` to check the channel name that can be used as an argument.  
 
 ## チャンネル名の重複について
 **チャンネル名が`.add`がついているものといないもので重複しないようにして下さい！**  
