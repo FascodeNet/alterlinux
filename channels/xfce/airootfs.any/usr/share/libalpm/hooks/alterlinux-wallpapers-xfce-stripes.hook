@@ -9,5 +9,5 @@ Target = usr/share/backgrounds/xfce/xfce-stripes.png
 Description = Optimizing wallpaper...
 When = PostTransaction
 Depends=alterlinux-wallpapers
-Exec = /usr/share/libalpm/scripts/alterlinux-wallpapers-xfce-stripes stripes alter
+Exec = /usr/share/libalpm/scripts/alterlinux-wallpapers-xfce stripes alter
 NeedsTargets
