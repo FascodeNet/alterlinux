@@ -34,24 +34,24 @@ Please note that channels without `.add` will be unavailable at all.
 Also, the following special channel names cannot be used.  
 
 
-# 特殊なチャンネル
-いくつかの特殊なチャンネルがあります。これらのチャンネルはスクリプトに組み込まれているため、追加や削除は行なえません。
+# Special channel
+There are some special channels. These channels are built into the script and cannot be added or removed.
 
 ## share
-`share`チャンネルは指定されたチャンネルに関わらず使用される共有チャンネルです。  
-`share`はその他のチャンネルと同じ構造をしていますが、`share`単体をチャンネルとして指定してビルドすることはできません。  
-全てのチャンネルでインストールされる基本パッケージや共通のファイルなどをここに追加します。  
+The `share` channel is a shared channel used regardless of the specified channel.  
+`share` has the same structure as other channels, but you cannot specify` share` alone as a channel and build it.  
+Add here basic packages and common files that will be installed on all channels.  
   
 ## rebuild
-このチャンネルはヘルプには表示されていますがディレクトリの実体はありません。このチャンネルはスクリプトに組み込まれています。  
-このチャンネルは作業ディレクトリに生成されたビルドオプションを保存したファイルを読み込み、再ビルドを行うチャンネルです。  
-そのため作業ディレクトリが存在しない場合はエラーを出力し正常に機能しません。  
+This channel is visible in the help, but it is not a directory entity.This channel is embedded in the script.  
+This channel is a channel to read the file which saved the build option generated in the working directory and rebuild.  
+This channel is embedded in the script.  
 
-# それぞれのチャンネルの仕様
-チャンネルを構成する主要なディレクトリは`airootfs`と`packages`です。  
-`airootfs`ディレクトリはパッケージをインストールし`mksquashfs`を実行する直前に`/`を上書きします。  
-`packages`ディレクトリはインストールするパッケージのリストを記述したテキストファイルを格納します。  
-それ以外にも場合によって使用できるファイルがいくつか有ります。  
+# Specifications of each channel
+The main directories that make up a channel are `airootfs` and` packages`.  
+The `airootfs` directory installs the package and overwrites` / `just before running` mksquashfs`.  
+The `packages` directory contains a text file that describes the list of packages to install.  
+There are several other files that can be used in some cases.  
 
 
 ## airootfsから始まるディレクトリ
