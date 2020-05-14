@@ -42,4 +42,5 @@ zsh-completions
 
 #-- other --#
 htop
+snapd
 packagekit-qt5
