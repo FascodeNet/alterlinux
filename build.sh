@@ -1150,6 +1150,10 @@ while :; do
         -g | --gpgkey)
             gpg_key="$2"
             shift 2
+        -h | --help)
+            _usage
+            exit 0
+            ;;
         --)
             shift
             break
