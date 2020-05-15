@@ -1111,7 +1111,7 @@ make_iso() {
 
 # Parse options
 _opt_short="a:bc:dg:hjk:lo:p:s:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,noconfirm,nodepend"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,noconfirm,nodepend"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1165,6 +1165,10 @@ while :; do
                 _msg_error "Invalid kernel ${2}" "1"
             fi
             shift 2
+            ;;
+        -l | --cleaning)
+            cleaning=true
+            shift 1
             ;;
         --)
             shift
