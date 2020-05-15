@@ -1110,7 +1110,7 @@ make_iso() {
 
 
 # Parse options
-_opt_short="a:bc:dg:hjk:lo:p:s:t:u:w:x"
+_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
 _opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,noconfirm,nodepend"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
@@ -1136,7 +1136,7 @@ while :; do
             boot_splash=true
             shift 1
             ;;
-        -c | --conp-type)
+        -c | --comp-type)
             case "${2}" in
                 "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
                 *) _msg_error "Invaild compressors '${2}'" '1' ;;
@@ -1178,6 +1178,7 @@ while :; do
             password="${2}"
             shift 2
             ;;
+        -t | 
         --)
             shift
             break
