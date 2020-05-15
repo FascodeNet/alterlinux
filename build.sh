@@ -1246,10 +1246,6 @@ build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 # Parse channels
 set +e
-
-# shift $((OPTIND - 1))
-echo $1
-exit
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
