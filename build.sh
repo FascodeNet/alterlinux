@@ -480,6 +480,7 @@ prepare_build() {
         _channel_name="${_channel_name}-jp"
     fi
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    _msg_debug "Iso filename is ${iso_filename}"
 
 
     # Check packages
