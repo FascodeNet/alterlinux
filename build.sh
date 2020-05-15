@@ -1150,6 +1150,7 @@ while :; do
         -g | --gpgkey)
             gpg_key="$2"
             shift 2
+            ;;
         -h | --help)
             _usage
             exit 0
@@ -1247,7 +1248,8 @@ build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 set +e
 
 # shift $((OPTIND - 1))
-
+echo $1
+exit
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
