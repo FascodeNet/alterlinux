@@ -1126,15 +1126,10 @@ unset _opt_long
 while :; do
     case ${1} in
         -a | --arch)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the architecture."
-                exit 1
-            else
-                case "${OPTARG}" in
-                    "i686" | "x86_64" ) arch="${OPTARG}" ;;
-                    +) _msg_error "Invaild architecture '${OPTARG}'" '1' ;;
-                esac
-            fi
+            case "${2}" in
+                "i686" | "x86_64" ) arch="${2}" ;;
+                *) _msg_error "Invaild architecture ${2}" '1' ;;
+            esac
             shift 2
             ;;
         -b | --boot-splash)
@@ -1181,10 +1176,10 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
-# Parse options
+# Parse channels
 set +e
 
-shift $((OPTIND - 1))
+# shift $((OPTIND - 1))
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
