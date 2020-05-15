@@ -2,7 +2,7 @@
 # Alter Linux package list
 # lap1sid
 # Twitter: @Pixel_3a
-# Email  : lap1sid@fascone.net
+# Email  : lap1sid@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -32,10 +32,15 @@ vim
 
 
 #-- shells --#
+lsd
+lsd-control
+powerline
 zsh
 zsh-completions
-grml-zsh-config
+# grml-zsh-config
 
 
 #-- other --#
+htop
+snapd
 packagekit-qt5

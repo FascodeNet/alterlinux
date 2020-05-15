@@ -1,7 +1,7 @@
 # Maintainer
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # Tweaked by lap1sid
 # Twitter: @lap1sid
@@ -11,6 +11,17 @@
 #
 # Write the alias here.
 #
+
+# lsd-control
+[[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
+
+# aptpac
+alias apt='aptpac'
+alias apt-get='aptpac'
+
+# no-beep less
+alias less='less -Q'
+
 
 alias ls='ls --color=auto'
 alias la='ls -a --color=auto'

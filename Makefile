@@ -6,15 +6,15 @@ DEBUG_OPTION = -t '-Xcompression-level 1' -x
 
 xfce:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} xfce
-	@make cleanup
+	@make clean
 
 plasma:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} plasma
-	@make cleanup
+	@make clean
 
 releng:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} plasma
-	@make cleanup
+	@make clean
 
-cleanup:
-	@[[ -d ./work ]] && sudo rm -rf ./work
+clean:
+	@sudo ./${BUILD_SCRIPT} clean

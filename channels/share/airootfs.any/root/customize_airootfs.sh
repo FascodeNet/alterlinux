@@ -2,7 +2,7 @@
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -166,8 +166,13 @@ fi
 # Set to execute calamares without password as alter user.
 cat >> /etc/sudoers << "EOF"
 Defaults pwfeedback
-${username} ALL=NOPASSWD: ALL
 EOF
+echo "${username} ALL=NOPASSWD: ALL" >> /etc/sudoers.d/alterlive
+
+
+# Chnage sudoers permission
+chmod 750 -R /etc/sudoers.d/
+chown root:root -R /etc/sudoers.d/
 
 
 # Configure Plymouth settings
@@ -186,11 +191,15 @@ if [[ $boot_splash = true ]]; then
     echo '---' > /usr/share/calamares/modules/plymouthcfg.conf
     echo "plymouth_theme: ${theme_name}" >> /usr/share/calamares/modules/plymouthcfg.conf
 
+    # Override plymouth settings.
+    sed -i s/%PLYMOUTH_THEME%/"${theme_name}"/g /etc/plymouth/plymouthd.conf
+
     # Apply plymouth theme settings.
     plymouth-set-default-theme ${theme_name}
 else
     # Delete the configuration file for plymouth.
     remove /usr/share/calamares/modules/services-plymouth.conf
+    remove /etc/plymouth
 fi
 
 
@@ -231,7 +240,7 @@ sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.
 sed -i s/%ARCH%/"${arch}"/g /usr/share/calamares/modules/unpackfs.conf
 
 # Add disabling of sudo setting
-echo "sed -i \"s|${username} ALL=NOPASSWD: ALL||g\" /etc/sudoers" >> /usr/share/calamares/final-process
+echo "remove /etc/sudoers.d/alterlive " >> /usr/share/calamares/final-process
 
 
 # Set os name

@@ -2,7 +2,7 @@
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -330,7 +330,7 @@ check_bool noconfirm
 # Unmount chroot dir
 umount_chroot () {
     local mount
-    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
         _msg_info "Unmounting ${mount}"
         umount "${mount}"
     done
@@ -385,6 +385,7 @@ prepare_build() {
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+        umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
     fi
@@ -469,19 +470,17 @@ prepare_build() {
 
 
     # Generate iso file name.
-    if [[ "${japanese}" = true  ]]; then
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-${arch}.iso"
-        fi
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
     else
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-${iso_version}-${arch}.iso"
-        fi
+        _channel_name="${channel_name}"
     fi
+    if [[ "${japanese}" = true ]]; then
+        _channel_name="${_channel_name}-jp"
+    fi
+    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    _msg_debug "Iso filename is ${iso_filename}"
 
 
     # Check packages
@@ -1093,15 +1092,15 @@ make_iso() {
 
     if [[ ${cleaning} = true ]]; then
         remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}/pacman-${arch}.conf"
+        remove "${work_dir}"/pacman-*.conf
         remove "${work_dir}/efiboot"
         remove "${work_dir}/iso"
         remove "${work_dir}/${arch}"
         remove "${work_dir}/packages.list"
         remove "${work_dir}/packages-full.list"
         remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* ) ]]; then
-            remove ${work_dir}/*
+        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+            remove ${work_dir}
         fi
     fi
     _msg_info "The password for the live user and root is ${password}."
@@ -1109,59 +1108,117 @@ make_iso() {
 
 
 # Parse options
-while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
-    case "${arg}" in
-        p) password="${OPTARG}" ;;
-        w) work_dir="${OPTARG}" ;;
-        o) out_dir="${OPTARG}" ;;
-        g) gpg_key="${OPTARG}" ;;
-        c)
-            # compression format check.
-            if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
-                sfs_comp="${OPTARG}"
-            else
-                _msg_error "Invalid compressors ${arg}" "1"
-            fi
+options="${@}"
+_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+unset OPT
+unset _opt_short
+unset _opt_long
+
+
+while :; do
+    case ${1} in
+        -a | --arch)
+            case "${2}" in
+                "i686" | "x86_64" ) arch="${2}" ;;
+                *) _msg_error "Invaild architecture ${2}" '1' ;;
+            esac
+            shift 2
             ;;
-        t) sfs_comp_opt=${OPTARG} ;;
-        b) boot_splash=true ;;
-        k)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
-                kernel="${OPTARG}"
-            else
-                _msg_error "Invalid kernel ${OPTARG}" "1"
-            fi
+        -b | --boot-splash)
+            boot_splash=true
+            shift 1
             ;;
-        x) 
+        -c | --comp-type)
+            case "${2}" in
+                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
+                *) _msg_error "Invaild compressors '${2}'" '1' ;;
+            esac
+            shift 2
+            ;;
+        -d | --debug) 
+            debug=true
+            shift 1
+            ;;
+        -g | --gpgkey)
+            gpg_key="$2"
+            shift 2
+            ;;
+        -h | --help)
+            _usage
+            exit 0
+            ;;
+        -j | --japanese)
+            japanese=true
+            shift 1
+            ;;
+        -k | --kernel)
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
+                kernel="${2}"
+            else
+                _msg_error "Invalid kernel ${2}" "1"
+            fi
+            shift 2
+            ;;
+        -l | --cleaning)
+            cleaning=true
+            shift 1
+            ;;
+        -o | --out)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -p | --password)
+            password="${2}"
+            shift 2
+            ;;
+        -t | --comp-opts)
+            sfs_comp_opt="${2}"
+            shift 2
+            ;;
+        -u | --user)
+            username="${2}"
+            shift 2
+            ;;
+        -w | --work)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -x | --bash-debug)
             debug=true
             bash_debug=true
+            shift 1
             ;;
-        d) debug=true;;
-        j) japanese=true ;;
-        l) cleaning=true ;;
-        u) username="${OPTARG}" ;;
-        h) _usage 0 ;;
-        a) 
-            case "${OPTARG}" in
-                "i686" | "x86_64" ) arch="${OPTARG}" ;;
-                +) _msg_error "Invaild architecture '${OPTARG}'" '1' ;;
-            esac
+        --noconfirm)
+            noconfirm=true
+            shift 1
             ;;
-        -)
-            case "${OPTARG}" in
-                help)_usage 0 ;;
-                noconfirm) noconfirm=true ;;
-                nodepend) nodepend=true ;;
-                *)
-                    _msg_error "Invalid argument '${OPTARG}'"
-                    _usage 1
-                    ;;
-            esac
+        --nodepend)
+            nodepend=true
+            shift 1
+            ;;
+        --gitversion)
+            if [[ -d "${script_path}/.git" ]]; then
+                iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+            else
+                _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+            fi
+            shift 1
+            ;;
+        --)
+            shift
+            break
             ;;
         *)
-           _msg_error "Invalid argument '${arg}'"
-           _usage 1
-           ;;
+            _msg_error "Invalid argument '${1}'"
+            _usage 1
+            ;;
     esac
 done
 
@@ -1171,8 +1228,8 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    _msg_warn "Re-run 'sudo ${0} ${@}'"
-    sudo ${0} ${@}
+    _msg_warn "Re-run 'sudo ${0} ${options}'"
+    sudo ${0} ${options}
     exit 1
 fi
 
@@ -1194,11 +1251,8 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
-# Parse options
+# Parse channels
 set +e
-
-shift $((OPTIND - 1))
-
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
@@ -1234,7 +1288,7 @@ if [[ -n "${1}" ]]; then
                 fi
             fi
         done
-        if [[ "${channel_name}" = "rebuild" ]]; then
+        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
             echo -n "true"
             return 0
         else
@@ -1249,20 +1303,16 @@ if [[ -n "${1}" ]]; then
 
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
-    elif [[ ${channel_name} = rebuild ]]; then
+    elif [[ "${channel_name}" = "rebuild" ]]; then
         if [[ -f "${rebuildfile}" ]]; then
-            if [[ ! $(( OPTIND - 1 )) = 0 ]]; then
-                if [[ $(( OPTIND - 1 )) = 1 ]] && [[ ${debug} = true ]]; then
-                    rebuild=true
-                else
-                    _msg_error "Options cannot be specified for the rebuild channel.All options will use the previous settings." "1"
-                fi
-            else
                 rebuild=true
-            fi
         else
             _msg_error "The previous build information is not in the working directory." "1"
         fi
+    elif [[ "${channel_name}" = "clean" ]]; then
+            umount_chroot
+            rm -rf "${work_dir}"
+            exit 
     fi
 
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
