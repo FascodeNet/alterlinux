@@ -1147,6 +1147,9 @@ while :; do
             debug=true
             shift 1
             ;;
+        -g | --gpgkey)
+            gpg_key="$2"
+            shift 2
         --)
             shift
             break
