@@ -1171,7 +1171,7 @@ while :; do
             shift 1
             ;;
         -o | --out)
-            out_dir="${OPTARG}"
+            out_dir="${2}"
             shift 2
             ;;
         -p | --password)
