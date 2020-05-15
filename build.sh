@@ -1143,6 +1143,10 @@ while :; do
             esac
             shift 2
             ;;
+        -d | --debug) 
+            debug=true
+            shift 1
+            ;;
         --)
             shift
             break
