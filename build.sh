@@ -1111,7 +1111,7 @@ make_iso() {
 
 # Parse options
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,noconfirm,nodepend"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1189,6 +1189,10 @@ while :; do
         -w | --work)
             out_dir="${2}"
             shift 2
+            ;;
+        -x | --bash-debug)
+            debug=true
+            bash_debug=true
             ;;
         --)
             shift
