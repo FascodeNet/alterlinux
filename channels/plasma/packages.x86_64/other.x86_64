@@ -31,15 +31,6 @@ nano
 vim
 
 
-#-- shells --#
-lsd
-lsd-control
-powerline
-zsh
-zsh-completions
-# grml-zsh-config
-
-
 #-- other --#
 htop
 snapd

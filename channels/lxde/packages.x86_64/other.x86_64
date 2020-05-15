@@ -42,14 +42,6 @@ pamac-gtk
 system-config-printer
 
 
-#-- shell --#
-lsd
-lsd-control
-powerline
-zsh
-zsh-completions
-
-
 #-- text editor --#
 medit
 nano
