@@ -12,7 +12,7 @@
 #
 
 set -e
-# set -u
+set -u
 script_path="$(readlink -f ${0%/*})"
 
 # alteriso settings
@@ -197,7 +197,6 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local echo_opts="-e"
-    local _error="$2"
     local arg
     local OPTIND
     local OPT
@@ -209,8 +208,8 @@ _msg_error() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
-    if [[ -n "${_error}" ]]; then
-        exit ${_error}
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
     fi
 }
 
@@ -307,7 +306,7 @@ _usage () {
         echo -ne "${description}\n"
     done
 
-    if [[ -n ${1} ]]; then
+    if [[ -n "${1:-}" ]]; then
         exit "${1}"
     fi
 }
