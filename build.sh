@@ -1111,7 +1111,7 @@ make_iso() {
 
 # Parse options
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,noconfirm,nodepend"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,noconfirm,nodepend"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1180,6 +1180,10 @@ while :; do
             ;;
         -t | --comp-opts)
             sfs_comp_opt="${2}"
+            shift 2
+            ;;
+        -u | --user)
+            username="${2}"
             shift 2
             ;;
         --)
