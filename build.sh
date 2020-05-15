@@ -1154,6 +1154,10 @@ while :; do
             _usage
             exit 0
             ;;
+        -j | --japanese)
+            japanese=true
+            shift 1
+            ;;
         --)
             shift
             break
