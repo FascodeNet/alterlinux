@@ -220,38 +220,40 @@ _usage () {
     echo
     echo " General options:"
     echo
-    echo "    -b                 Enable boot splash"
-    echo "                        Default: disable"
-    echo "    -j                 Enable Japanese mode."
-    echo "                        Default: disable"
-    echo "    -l                 Enable post-build cleaning."
-    echo "                        Default: disable"
-    echo "    -d                 Enable debug messages."
-    echo "                        Default: disable"
-    echo "    -x                 Enable bash debug mode.(set -xv)"
-    echo "                        Default: disable"
-    echo "    -h                 This help message and exit."
+    echo "    -b | --boot-splash           Enable boot splash"
+    echo "                                  Default: disable"
+    echo "    -j | --japanese              Enable Japanese mode."
+    echo "                                  Default: disable"
+    echo "    -l | --cleanup               Enable post-build cleaning."
+    echo "                                  Default: disable"
+    echo "    -d | --debug                 Enable debug messages."
+    echo "                                  Default: disable"
+    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
+    echo "                                  Default: disable"
+    echo "    -h | --help                  This help message and exit."
     echo
-    echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                        Default: ${sfs_comp}"
-    echo "    -g <gpg_key>       Set gpg key"
-    echo "                        Default: ${gpg_key}"
-    echo "    -k <kernel>        Set special kernel type."
-    echo "                       See below for available kernels."
-    echo "                        Default: zen"
-    echo "    -o <out_dir>       Set the output directory"
-    echo "                        Default: ${out_dir}"
-    echo "    -p <password>      Set a live user password"
-    echo "                        Default: ${password}"
-    echo "    -t <options>       Set compressor-specific options."
-    echo "                        Default: empty"
-    echo "    -u <username>      Set user name."
-    echo "                        Default: ${username}"
-    echo "    -w <work_dir>      Set the working directory"
-    echo "                        Default: ${work_dir}"
+    echo "    -a | --arch <arch>           Set iso architecture."
+    echo "                                  Default: ${arch}"
+    echo "    -c | <comp_type>             Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "                                  Default: ${sfs_comp}"
+    echo "    -g | --gpgkey <key>          Set gpg key"
+    echo "                                  Default: ${gpg_key}"
+    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
+    echo "                                  Default: ${kernel}"
+    echo "    -o | --out <out_dir>         Set the output directory"
+    echo "                                  Default: ${out_dir}"
+    echo "    -p | --password <password>   Set a live user password"
+    echo "                                  Default: ${password}"
+    echo "    -t | --comp-opts <options>   Set compressor-specific options."
+    echo "                                  Default: empty"
+    echo "    -u | --use <username>        Set user name."
+    echo "                                  Default: ${username}"
+    echo "    -w | --work <work_dir>       Set the working directory"
+    echo "                                  Default: ${work_dir}"
     echo
-    echo "    --noconfirm        Does not check the settings before building."
-    echo "    --nodepend         Do not check package dependencies before building."
+    echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --noconfirm                  Does not check the settings before building."
+    echo "    --nodepend                   Do not check package dependencies before building."
     echo
     echo "A list of kernels available for each architecture."
     echo
@@ -293,20 +295,21 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 32 - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 29 - ${#_channel} )) ); do
                 echo -ne " "
             done
         fi
         echo -ne "${description}\n"
     done
 
-
-    exit "${1}"
+    if [[ -n ${1} ]]; then
+        exit "${1}"
+    fi
 }
 
 
