@@ -1170,6 +1170,10 @@ while :; do
             cleaning=true
             shift 1
             ;;
+        -o | --out)
+            out_dir="${OPTARG}"
+            shift 2
+            ;;
         --)
             shift
             break
