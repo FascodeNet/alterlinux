@@ -470,19 +470,16 @@ prepare_build() {
 
 
     # Generate iso file name.
-    if [[ "${japanese}" = true  ]]; then
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-${arch}.iso"
-        fi
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
     else
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-${iso_version}-${arch}.iso"
-        fi
+        _channel_name="${channel_name}"
     fi
+    if [[ "${japanese}" = true ]]; then
+        _channel_name="${_channel_name}-jp"
+    fi
+    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
 
 
     # Check packages
@@ -1110,8 +1107,9 @@ make_iso() {
 
 
 # Parse options
+options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1204,6 +1202,14 @@ while :; do
             nodepend=true
             shift 1
             ;;
+        --gitversion)
+            if [[ -d "${script_path}/.git" ]]; then
+                iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+            else
+                _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+            fi
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1221,8 +1227,8 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    _msg_warn "Re-run 'sudo ${0} ${@}'"
-    sudo ${0} ${@}
+    _msg_warn "Re-run 'sudo ${0} ${options}'"
+    sudo ${0} ${options}
     exit 1
 fi
 
