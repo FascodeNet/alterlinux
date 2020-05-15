@@ -1193,6 +1193,11 @@ while :; do
         -x | --bash-debug)
             debug=true
             bash_debug=true
+            shift 1
+            ;;
+        --noconfirm)
+            noconfirm=true
+            shift 2
             ;;
         --)
             shift
