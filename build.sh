@@ -1110,59 +1110,107 @@ make_iso() {
 
 
 # Parse options
-while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
-    case "${arg}" in
-        p) password="${OPTARG}" ;;
-        w) work_dir="${OPTARG}" ;;
-        o) out_dir="${OPTARG}" ;;
-        g) gpg_key="${OPTARG}" ;;
-        c)
-            # compression format check.
-            if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
-                sfs_comp="${OPTARG}"
-            else
-                _msg_error "Invalid compressors ${arg}" "1"
-            fi
+_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+unset OPT
+unset _opt_short
+unset _opt_long
+
+
+while :; do
+    case ${1} in
+        -a | --arch)
+            case "${2}" in
+                "i686" | "x86_64" ) arch="${2}" ;;
+                *) _msg_error "Invaild architecture ${2}" '1' ;;
+            esac
+            shift 2
             ;;
-        t) sfs_comp_opt=${OPTARG} ;;
-        b) boot_splash=true ;;
-        k)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
-                kernel="${OPTARG}"
-            else
-                _msg_error "Invalid kernel ${OPTARG}" "1"
-            fi
+        -b | --boot-splash)
+            boot_splash=true
+            shift 1
             ;;
-        x) 
+        -c | --comp-type)
+            case "${2}" in
+                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
+                *) _msg_error "Invaild compressors '${2}'" '1' ;;
+            esac
+            shift 2
+            ;;
+        -d | --debug) 
+            debug=true
+            shift 1
+            ;;
+        -g | --gpgkey)
+            gpg_key="$2"
+            shift 2
+        -h | --help)
+            _usage
+            exit 0
+            ;;
+        -j | --japanese)
+            japanese=true
+            shift 1
+            ;;
+        -k | --kernel)
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
+                kernel="${2}"
+            else
+                _msg_error "Invalid kernel ${2}" "1"
+            fi
+            shift 2
+            ;;
+        -l | --cleaning)
+            cleaning=true
+            shift 1
+            ;;
+        -o | --out)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -p | --password)
+            password="${2}"
+            shift 2
+            ;;
+        -t | --comp-opts)
+            sfs_comp_opt="${2}"
+            shift 2
+            ;;
+        -u | --user)
+            username="${2}"
+            shift 2
+            ;;
+        -w | --work)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -x | --bash-debug)
             debug=true
             bash_debug=true
+            shift 1
             ;;
-        d) debug=true;;
-        j) japanese=true ;;
-        l) cleaning=true ;;
-        u) username="${OPTARG}" ;;
-        h) _usage 0 ;;
-        a) 
-            case "${OPTARG}" in
-                "i686" | "x86_64" ) arch="${OPTARG}" ;;
-                +) _msg_error "Invaild architecture '${OPTARG}'" '1' ;;
-            esac
+        --noconfirm)
+            noconfirm=true
+            shift 1
             ;;
-        -)
-            case "${OPTARG}" in
-                help)_usage 0 ;;
-                noconfirm) noconfirm=true ;;
-                nodepend) nodepend=true ;;
-                *)
-                    _msg_error "Invalid argument '${OPTARG}'"
-                    _usage 1
-                    ;;
-            esac
+        --nodepend)
+            nodepend=true
+            shift 1
+            ;;
+        --)
+            shift
+            break
             ;;
         *)
-           _msg_error "Invalid argument '${arg}'"
-           _usage 1
-           ;;
+            _msg_error "Invalid argument '${1}'"
+            _usage 1
+            ;;
     esac
 done
 
@@ -1195,10 +1243,10 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
-# Parse options
+# Parse channels
 set +e
 
-shift $((OPTIND - 1))
+# shift $((OPTIND - 1))
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
