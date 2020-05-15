@@ -1197,7 +1197,11 @@ while :; do
             ;;
         --noconfirm)
             noconfirm=true
-            shift 2
+            shift 1
+            ;;
+        --nodepend)
+            nodepend=true
+            shift 1
             ;;
         --)
             shift
