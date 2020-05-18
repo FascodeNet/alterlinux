@@ -78,44 +78,43 @@ If the file `/root/customize_airootfs_ <channel_name>.sh` is placed in the `airo
 If you want to change the rootfs settings, create this file.  
  
 
-## packagesから始まるディレクトリ
-このディレクトリ内に配置された、ファイル名が`.<architecture>`で終わるがパッケージリストとして読み込まれます。  
-1行で1つのパッケージとして扱い、`#`から始まる行はコメントとして扱われます。  
-
-パッケージ名やパッケージリストのファイル名に空白文字や全角文字を含めると正常に動作しない可能性があります。
-
-
-### ディレクトリの種類
-各アーキテクチャごとにパッケージリストを入れるディレクトリがあります。`airootfs`と違ってアーキテクチャの共有はありません。
-例えば`x86_64`アーキテクチャならば`packages.x86_64`が読み込まれます。
+## Directories whose names start with packages
+Placed in this directory, the file name ending in `. <Architecture>` will be loaded as a package list.  
+Each line is treated as one package, and lines starting with `#` are treated as comments.  
+  
+If the package name or the file name of the package list includes white space characters or double-byte characters, it may not operate properly.  
 
 
-### 特殊なパッケージ
-一部、パッケージリストに記述してはいけないパッケージが有ります。  
-詳細は[こちら](PACKAGE.md)を参照して下さい。  
+### Directory type
+There is a directory that contains a package list for each architecture. Unlike `airootfs`, there is no shared architecture.  
+For example, if the architecture is `x86_64`,` packages.x86_64` will be loaded.
 
 
-### 特殊なパッケージリスト
-特殊なパッケージリストとして、`jp.<architecture>`と`non-jp.<architecture>`があります。  
-`-j`オプションによって日本語が有効化されている時、スクリプトは`jp.<architecture>`を読み込みます。  
-反対に日本語が有効化されていない場合、スクリプトは`non-jp.<architecture>`を使用します。  
+### Special package
+There are some packages that should not be described in the package list.See [here](PACKAGE.md) for details.
+
+
+### Special package list
+Special package lists are `jp. <Architecture>` and `non-jp. <Architecture>`.  
+When Japanese is enabled by the `-j` option, the script will read` jp. <architecture> `.  
+On the contrary, if Japanese is not enabled, the script will use `non-jp. <Architecture>`.  
 
 
 ### 除外リスト
-もしあなたが`share`チャンネルのパッケージでどうしてもインストールしたくないパッケージがある場合、各チャンネルの`packages`ディレクトリ内に`exclude`というファイルを作成し、その中にパッケージを記述することでパッケージを除外することができます。  
-例えば`share`で必ずインストールされる`alterlinux-calamares`をインストールしたくない場合、そのチャンネルの`exclude`にパッケージ名を追加することでインストールされなくなります。  
-（その場合は各チャンネルのcustomize_airootfsで不要なファイルを削除して下さい。）  
-パッケージの記述方法はパッケージリストと同様で、1行で1つのパッケージとして扱い、`#`から始まる行はコメントとして扱われます。  
+If you have a package in the `share` channel that you really don't want to install, create a file called` exclude` in each channel's `packages` directory and exclude the package by listing the package in it. can.  
+For example, if you don't want to install `alterlinux-calamares` that is always installed by` share`, you can add it by adding the package name to `exclude` of that channel and it will not be installed.  
+(In that case, delete unnecessary files with customize_airootfs of each channel.)  
+The package description method is the same as the package list, one line is treated as one package, and lines beginning with `#` are treated as comments.  
   
-除外できないパッケージも存在します。  
-スクリプトによって強制的にインストールされるパッケージ（`efitools`など）は除外リストに関係なくインストールされます。  
-例えば`exclude`に`plymouth`を記述しても`-b`オプションが有効化された場合は強制的にインストールされます。  
-Plymouthを強制的に無効化したい場合は`exclude`ではなく各チャンネルの`config`より`boot_splash`を`false`に固定して下さい。  
+Some packages cannot be excluded.  
+Packages that are forced to be installed by the script (`efitools` etc.) will be installed regardless of the exclusion list.  
+For example, even if you write `plymouth` in` exclude`, it will be forcibly installed if the `-b` option is enabled.  
+If you want to forcefully disable Plymouth, fix `boot_splash` to` false` from `config` of each channel instead of` exclude`.  
   
-`channels/share/packages/exclude`は、スクリプトによって強制的にインストールされるパッケージの一覧が記述されています。  
-これは作業ディレクトリに正確にログを記録し、チャンネルによって使用不可能なパッケージがインストールされるのを防ぐためです。  
+`channels / share / packages / exclude` contains a list of packages that the script will force to install.  
+This is to log correctly in the working directory and prevent the channel from installing an unusable package.  
   
-また、`exclude`はパッケージを削除するわけではないため依存関係によってインストールされるパッケージを除外することはできません。  
+Also, `exclude` does not remove packages, so you cannot exclude packages that are installed by dependencies.  
 
 
 ### excludeの適用されるタイミング
@@ -157,4 +156,4 @@ PNG形式の画像で640x480の画像を配置してください。
 
 
 ## architecture
-そのチャンネルで利用可能なアーキテクチャの一覧です。`#`はコメントとして扱われます。
+A list of architectures available on that channel. `#` Is treated as a comment.
