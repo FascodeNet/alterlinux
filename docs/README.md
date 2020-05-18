@@ -164,7 +164,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
 <a href="https://twitter.com/tukutuN_27">
-	<img src="https://0e0.pw/5yuH" width="100px">
+	<img src="https://pbs.twimg.com/profile_images/1252216597164376064/_L3qgpkr_400x400.jpg" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">

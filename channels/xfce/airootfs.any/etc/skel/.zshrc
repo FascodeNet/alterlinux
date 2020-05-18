@@ -4,7 +4,7 @@
 #
 # Yamada Hayao 
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -96,3 +96,7 @@ else
     powerline-daemon -q
     source /usr/share/powerline/bindings/zsh/powerline.zsh
 fi
+
+#-- Like fish prompt --#
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

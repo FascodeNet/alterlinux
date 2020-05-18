@@ -2,7 +2,7 @@
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -12,7 +12,7 @@
 #
 
 set -e
-# set -u
+set -u
 script_path="$(readlink -f ${0%/*})"
 
 # alteriso settings
@@ -197,7 +197,6 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local echo_opts="-e"
-    local _error="$2"
     local arg
     local OPTIND
     local OPT
@@ -209,8 +208,8 @@ _msg_error() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
-    if [[ -n "${_error}" ]]; then
-        exit ${_error}
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
     fi
 }
 
@@ -220,38 +219,40 @@ _usage () {
     echo
     echo " General options:"
     echo
-    echo "    -b                 Enable boot splash"
-    echo "                        Default: disable"
-    echo "    -j                 Enable Japanese mode."
-    echo "                        Default: disable"
-    echo "    -l                 Enable post-build cleaning."
-    echo "                        Default: disable"
-    echo "    -d                 Enable debug messages."
-    echo "                        Default: disable"
-    echo "    -x                 Enable bash debug mode.(set -xv)"
-    echo "                        Default: disable"
-    echo "    -h                 This help message and exit."
+    echo "    -b | --boot-splash           Enable boot splash"
+    echo "                                  Default: disable"
+    echo "    -j | --japanese              Enable Japanese mode."
+    echo "                                  Default: disable"
+    echo "    -l | --cleanup               Enable post-build cleaning."
+    echo "                                  Default: disable"
+    echo "    -d | --debug                 Enable debug messages."
+    echo "                                  Default: disable"
+    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
+    echo "                                  Default: disable"
+    echo "    -h | --help                  This help message and exit."
     echo
-    echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                        Default: ${sfs_comp}"
-    echo "    -g <gpg_key>       Set gpg key"
-    echo "                        Default: ${gpg_key}"
-    echo "    -k <kernel>        Set special kernel type."
-    echo "                       See below for available kernels."
-    echo "                        Default: zen"
-    echo "    -o <out_dir>       Set the output directory"
-    echo "                        Default: ${out_dir}"
-    echo "    -p <password>      Set a live user password"
-    echo "                        Default: ${password}"
-    echo "    -t <options>       Set compressor-specific options."
-    echo "                        Default: empty"
-    echo "    -u <username>      Set user name."
-    echo "                        Default: ${username}"
-    echo "    -w <work_dir>      Set the working directory"
-    echo "                        Default: ${work_dir}"
+    echo "    -a | --arch <arch>           Set iso architecture."
+    echo "                                  Default: ${arch}"
+    echo "    -c | <comp_type>             Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "                                  Default: ${sfs_comp}"
+    echo "    -g | --gpgkey <key>          Set gpg key"
+    echo "                                  Default: ${gpg_key}"
+    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
+    echo "                                  Default: ${kernel}"
+    echo "    -o | --out <out_dir>         Set the output directory"
+    echo "                                  Default: ${out_dir}"
+    echo "    -p | --password <password>   Set a live user password"
+    echo "                                  Default: ${password}"
+    echo "    -t | --comp-opts <options>   Set compressor-specific options."
+    echo "                                  Default: empty"
+    echo "    -u | --use <username>        Set user name."
+    echo "                                  Default: ${username}"
+    echo "    -w | --work <work_dir>       Set the working directory"
+    echo "                                  Default: ${work_dir}"
     echo
-    echo "    --noconfirm        Does not check the settings before building."
-    echo "    --nodepend         Do not check package dependencies before building."
+    echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --noconfirm                  Does not check the settings before building."
+    echo "    --nodepend                   Do not check package dependencies before building."
     echo
     echo "A list of kernels available for each architecture."
     echo
@@ -293,20 +294,21 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 32 - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 29 - ${#_channel} )) ); do
                 echo -ne " "
             done
         fi
         echo -ne "${description}\n"
     done
 
-
-    exit "${1}"
+    if [[ -n "${1:-}" ]]; then
+        exit "${1}"
+    fi
 }
 
 
@@ -470,19 +472,17 @@ prepare_build() {
 
 
     # Generate iso file name.
-    if [[ "${japanese}" = true  ]]; then
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-${arch}.iso"
-        fi
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
     else
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-${iso_version}-${arch}.iso"
-        fi
+        _channel_name="${channel_name}"
     fi
+    if [[ "${japanese}" = true ]]; then
+        _channel_name="${_channel_name}-jp"
+    fi
+    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    _msg_debug "Iso filename is ${iso_filename}"
 
 
     # Check packages
@@ -1110,59 +1110,117 @@ make_iso() {
 
 
 # Parse options
-while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
-    case "${arg}" in
-        p) password="${OPTARG}" ;;
-        w) work_dir="${OPTARG}" ;;
-        o) out_dir="${OPTARG}" ;;
-        g) gpg_key="${OPTARG}" ;;
-        c)
-            # compression format check.
-            if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
-                sfs_comp="${OPTARG}"
-            else
-                _msg_error "Invalid compressors ${arg}" "1"
-            fi
+options="${@}"
+_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+unset OPT
+unset _opt_short
+unset _opt_long
+
+
+while :; do
+    case ${1} in
+        -a | --arch)
+            case "${2}" in
+                "i686" | "x86_64" ) arch="${2}" ;;
+                *) _msg_error "Invaild architecture ${2}" '1' ;;
+            esac
+            shift 2
             ;;
-        t) sfs_comp_opt=${OPTARG} ;;
-        b) boot_splash=true ;;
-        k)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
-                kernel="${OPTARG}"
-            else
-                _msg_error "Invalid kernel ${OPTARG}" "1"
-            fi
+        -b | --boot-splash)
+            boot_splash=true
+            shift 1
             ;;
-        x) 
+        -c | --comp-type)
+            case "${2}" in
+                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
+                *) _msg_error "Invaild compressors '${2}'" '1' ;;
+            esac
+            shift 2
+            ;;
+        -d | --debug) 
+            debug=true
+            shift 1
+            ;;
+        -g | --gpgkey)
+            gpg_key="$2"
+            shift 2
+            ;;
+        -h | --help)
+            _usage
+            exit 0
+            ;;
+        -j | --japanese)
+            japanese=true
+            shift 1
+            ;;
+        -k | --kernel)
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
+                kernel="${2}"
+            else
+                _msg_error "Invalid kernel ${2}" "1"
+            fi
+            shift 2
+            ;;
+        -l | --cleaning)
+            cleaning=true
+            shift 1
+            ;;
+        -o | --out)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -p | --password)
+            password="${2}"
+            shift 2
+            ;;
+        -t | --comp-opts)
+            sfs_comp_opt="${2}"
+            shift 2
+            ;;
+        -u | --user)
+            username="${2}"
+            shift 2
+            ;;
+        -w | --work)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -x | --bash-debug)
             debug=true
             bash_debug=true
+            shift 1
             ;;
-        d) debug=true;;
-        j) japanese=true ;;
-        l) cleaning=true ;;
-        u) username="${OPTARG}" ;;
-        h) _usage 0 ;;
-        a) 
-            case "${OPTARG}" in
-                "i686" | "x86_64" ) arch="${OPTARG}" ;;
-                +) _msg_error "Invaild architecture '${OPTARG}'" '1' ;;
-            esac
+        --noconfirm)
+            noconfirm=true
+            shift 1
             ;;
-        -)
-            case "${OPTARG}" in
-                help)_usage 0 ;;
-                noconfirm) noconfirm=true ;;
-                nodepend) nodepend=true ;;
-                *)
-                    _msg_error "Invalid argument '${OPTARG}'"
-                    _usage 1
-                    ;;
-            esac
+        --nodepend)
+            nodepend=true
+            shift 1
+            ;;
+        --gitversion)
+            if [[ -d "${script_path}/.git" ]]; then
+                iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+            else
+                _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+            fi
+            shift 1
+            ;;
+        --)
+            shift
+            break
             ;;
         *)
-           _msg_error "Invalid argument '${arg}'"
-           _usage 1
-           ;;
+            _msg_error "Invalid argument '${1}'"
+            _usage 1
+            ;;
     esac
 done
 
@@ -1172,8 +1230,8 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    _msg_warn "Re-run 'sudo ${0} ${@}'"
-    sudo ${0} ${@}
+    _msg_warn "Re-run 'sudo ${0} ${options}'"
+    sudo ${0} ${options}
     exit 1
 fi
 
@@ -1195,11 +1253,8 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
-# Parse options
+# Parse channels
 set +e
-
-shift $((OPTIND - 1))
-
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
