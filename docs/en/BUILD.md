@@ -24,65 +24,65 @@ Answer "yes" or "no" questions with `y` or` n`. If you enter a numerical value, 
 ./wizard.sh
 ```
 
-### 手動でオプションを指定してビルドする
+### Build with options manually
 
-#### 鍵を追加する
-AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
+#### Add key
+AlterLinux includes a script to easily add keys.  
 
 ```bash
 sudo ./keyring.sh --alter-add --arch32-add
 ```
 
-#### 依存関係をインストールする
-ビルドに必要なパッケージをインストールして下さい。  
+#### Install the dependencies
+Install the packages required for building.  
 
 ```bash
 sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 
-#### ビルドを開始する
-`build.sh`を実行して下さい。  
+#### Start the build
+Run `build.sh`.  
 
 ```bash
 sudo ./build.sh
 ```
 
-`build.sh`の使い方は以下をご覧ください。
+See below for how to use `build.sh`.  
 
 ### build.sh
 
-#### 基本
+#### Basic
 
 ```bash
 ./build.sh <options> <channel>
 ```
 
-##### 注意
-チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
+##### Note
+All options described after the channel name are ignored. Be sure to put the option before the channel name.  
 
-#### オプション
-完全なオプションと使い方は`./build -h`を実行して下さい。
+#### option
+Run `./build -h` for full options and usage.  
 
-用途 | 使い方
+ Purpose | Usage
 --- | ---
-ブートスプラッシュを有効化 | -b
-カーネルを変える | -k [kernel]
-ユーザ名を変える | -u [username]
-パスワードを変更する | -p [password]
-日本語にする | -j
-圧縮方式を変更する | -c [comp type]
-圧縮のオプションを設定する | -t [comp option]
-出力先ディレクトリを指定する| -o [dir]
-作業ディレクトリを指定する | -w [dir]
+ Enable boot splash | -b
+ Change kernel | -k [kernel]
+ Change the username | -u [username]
+ Change the password | -p [password]
+ Japanese | -j
+ Change compression method | -c [comp type]
+ Set compression options | -t [comp option]
+ Specify output destination directory | -o [dir]
+ Specify working directory | -w [dir]
 
 
-#### 例
+#### An example
 以下の条件でビルドするにはこのようにします。
 
-- Plymouthを有効化
-- 圧縮方式は`gzip`
-- カーネルは`linux-lqx`
-- パスワードは`ilovearch`
+- Enable Plymouth
+- The compression method is `gzip`
+- The kernel is `linux-lqx`
+- The password is `ilovearch`
 
 ```bash
 ./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
