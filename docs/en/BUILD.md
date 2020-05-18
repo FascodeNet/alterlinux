@@ -77,7 +77,7 @@ Run `./build -h` for full options and usage.
 
 
 #### An example
-以下の条件でビルドするにはこのようにします。
+Do this to build under the following conditions.
 
 - Enable Plymouth
 - The compression method is `gzip`
@@ -89,24 +89,24 @@ Run `./build -h` for full options and usage.
 ```
 
 
-#### チャンネルについて
-チャンネルは、インストールするパッケージと含めるファイルを切り替えます。
-この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。
-2020年5月5日現在でサポートされているチャンネルは以下のとおりです。
+#### About channel
+Channels switch between packages to install and files to include.  
+This mechanism makes it possible to build various versions of AlterLinux.  
+The following channels are supported as of May 5, 2020:  
 
-名前 | 目的
+Name | Purpose
 --- | ---
-xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネルです。
-plasma | PlasmaとQtアプリを搭載したエディションです。 現在開発中で、安定していません。
-lxde | LXDEと最小限のアプリケーションのみが入っています。(relengを除き)最も軽量です。
-releng | 純粋なArchLinuxのライブ起動ディスクをビルドすることができます。
-rebuild | 作業ディレクトリにある設定を利用して再ビルドを行います。
+xfce | Default channel with Xfce4 for desktop environment and various software added
+plasma | Currently developing channel with Plasma and Qt apps
+lxde | The lightest channel except releng, which contains only LXDE and minimal applications
+releng | A channel where you can build a pure Arch Linux live boot disk
+rebuild | A special channel that rebuilds using the settings in the working directory
 
 
-#### カーネルについて
-`i686`アーキテクチャと`x86_64`アーキテクチャでは共にArchLinuxの公式カーネルである`linux`や`linux-lts`、`linux-zen`をサポートしています。  
-また`x86_64`では公式カーネルに加えて以下のカーネルをサポートしています。
-カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
+#### About the kernel
+Both the `i686` architecture and the` x86_64` architecture support the official ArchLinux kernels `linux`,` linux-lts`, and `linux-zen`.  
+In addition to the official kernel, `x86_64` also supports the following kernels.  
+The description of the kernel is taken from the [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
 
 Name | Characteristic
 --- | ---
@@ -116,13 +116,13 @@ lqx | Distro kernel replacement built with Debian settings and ZEN kernel source
 rt | This patch will allow you to run almost all of your kernel in real time
 zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (AlterLinux specific)
 
-##### 注意
-`-k`のオプションは必ず`linux-foo`の`foo`の部分のみを入れてください。例えば`linux-lts`の場合は`lts`が入ります。
+##### Note
+Be sure to put only the `foo` part of` linux-foo` in the `-k` option. For example, in the case of `linux-lts`,` lts` will be entered.　　
 
 
-#### 圧縮方式について
-圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
-2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
+#### About compression method
+See the `mksquashfs` help for compression methods and more options.  
+As of February 12, 2019, the methods and options supported by `mksquashfs` are as follows.  
 
 ```
 gzip
