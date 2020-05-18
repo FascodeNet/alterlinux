@@ -54,14 +54,15 @@ The `packages` directory contains a text file that describes the list of package
 There are several other files that can be used in some cases.  
 
 
-## airootfsから始まるディレクトリ
-それぞれのディレクトリ内を`/`としてファイルを配置して下さい。全てのファイルの権限はなるべく引き継がれるようになっています。  
+## Directories whose names start with airootfs
+Please place the file as `/` in each directory. The permissions of all files are inherited as much as possible.  
 
 ### airootfs.any
-アーキテクチャに関わらず最初にライブ環境を上書きします。
+First overwrite the live environment, regardless of architecture.  
 
 ### airootfs.i686 airootfs.x86_64
-`x86_64`アーキテクチャなら`airootfs.x86_64`が、`i686`なら`airootfs.i686`が使用されます。  
+Airootfs for each architecture.  
+`airootfs.x86_64` is used for the` x86_64` architecture, and `airootfs.i686` is used for the` i686`.  
 
 ### ファイルの重複の優先順位
 各チャンネルと`share`チャンネルのファイルでは各チャンネルのファイルが優先されます。  
