@@ -294,7 +294,7 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 32 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 33 - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
