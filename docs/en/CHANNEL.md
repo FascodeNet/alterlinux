@@ -49,7 +49,7 @@ This channel is embedded in the script.
 
 # Specifications of each channel
 The main directories that make up a channel are `airootfs` and` packages`.  
-The `airootfs` directory installs the package and overwrites` / `just before running` mksquashfs`.  
+The `airootfs` directory installs the package and overwrites`/`just before running` mksquashfs`.  
 The `packages` directory contains a text file that describes the list of packages to install.  
 There are several other files that can be used in some cases.  
 
@@ -100,7 +100,7 @@ When Japanese is enabled by the `-j` option, the script will read` jp. <architec
 On the contrary, if Japanese is not enabled, the script will use `non-jp. <Architecture>`.  
 
 
-### 除外リスト
+### Exclusion list
 If you have a package in the `share` channel that you really don't want to install, create a file called` exclude` in each channel's `packages` directory and exclude the package by listing the package in it. can.  
 For example, if you don't want to install `alterlinux-calamares` that is always installed by` share`, you can add it by adding the package name to `exclude` of that channel and it will not be installed.  
 (In that case, delete unnecessary files with customize_airootfs of each channel.)  
@@ -111,48 +111,48 @@ Packages that are forced to be installed by the script (`efitools` etc.) will be
 For example, even if you write `plymouth` in` exclude`, it will be forcibly installed if the `-b` option is enabled.  
 If you want to forcefully disable Plymouth, fix `boot_splash` to` false` from `config` of each channel instead of` exclude`.  
   
-`channels / share / packages / exclude` contains a list of packages that the script will force to install.  
+`channels/share/packages/exclude` contains a list of packages that the script will force to install.  
 This is to log correctly in the working directory and prevent the channel from installing an unusable package.  
   
 Also, `exclude` does not remove packages, so you cannot exclude packages that are installed by dependencies.  
 
 
-### excludeの適用されるタイミング
-`exclude`はパッケージが全て読み込まれた後に適用されます。  
+### When exclude is applied
+`exclude` is applied after all packages have been loaded.  
   
-パッケージが読み込まれる順番は以下のとおりです、
+The order in which the packages are loaded is as follows:  
 `share/packages.<architecture>` -> `<channel_name>/packages.<architecture>`  
   
-その後に以下の順番でexcludeが読み込まれ、パッケージが除外されます。  
+After that, exclude is loaded in the following order and the packages are excluded.  
 `share/packages.<architecture>/exclude` -> `<channel_name>/packages.<architecture>`
 
 
 ## description.txt
-これはチャンネルの説明を記述したテキストファイルです。`channels/<channel_name>/description.txt`に配置されます。  
-このファイルは必須ではありません。このファイルが無い場合、ヘルプには`This channel does not have a description.txt.`と表示されます。  
-
-このファイルは1行で記述することが推奨されています。複数行を記述する必要がある場合、テキストのレイアウトを考えて2行目以降は先頭に19個の半角空白文字を入れたほうが良いでしょう。  
+This is a text file that describes the channel. It is located in `channels/<channel_name>/description.txt`.  
+This file is not mandatory. If this file does not exist, the help will say `This channel does not have a description.txt.`.  
+  
+It is recommended to write this file on one line. If you need to write multiple lines, it is better to put 19 single-byte space characters at the beginning of the second and subsequent lines, considering the layout of the text.  
   
 
 ## pacman.conf
-`channels/<channel_name>/pacman-<architecture>.conf`を配置すると、ビルド時にそのファイルを使用します。ただし、インストール後の設定ファイルは置き換えないので`airootfs`で`/etc/pacman.conf`を配置して下さい。
+Place `channels/<channel_name>/pacman-<architecture>.conf` and use that file at build time. However, since the configuration file after installation will not be replaced, place `/etc/pacman.conf` with` airootfs`.  
 
 
 ## splash.png
-`channels/<channel_name>/splash.png`を配置すると、SYSLINUXのブートローダの背景を変更することができます。  
-PNG形式の画像で640x480の画像を配置してください。
+By placing `channels/<channel_name>/splash.png`, you can change the background of the SYSLINUX boot loader.
+Place a 640x480 image in PNG format.
 
 
 ## config
-既存のビルド設定を上書きするスクリプトです。かならずシェルスクリプトの構文で記述して下さい。  
-雛形が`build.sh`と同じ階層に設置してあります。  
-この設定ファイルは**引数による設定さえ**上書きしてしまうため、最小限の必須項目のみを記述するようしてください。（例えばPlymouthのテーマ名やパッケージ名など）  
+A script that overwrites existing build settings. Be sure to write it in the shell script syntax.  
+The template is placed in the same hierarchy as `build.sh`.  
+This configuration file will be overwritten **even by the parameter**, so please describe only the minimum required items. (Eg Plymouth theme name, package name, etc.)  
   
-## 警告
-スクリプト内ではローカル変数の定義以外を絶対に行わないで下さい。グローバル変数の定義やその他のコマンドの実効は思わぬ動作につながる危険性が有ります。
+## warning
+Please do not define any local variables in the script. The definition of global variables and the execution of other commands can lead to unexpected behavior.
 
-### アーキテクチャごとの設定と優先順位
-`channels/<channel_name>/config.any`が読み込まれた後`channels/<channel_name>/config.<architecture>`が読み込まれます。
+### Architecture settings and priorities
+`channels/<channel_name>/config.any` is loaded, then` channels/<channel_name>/config. <architecture> `is loaded.  
 
 
 ## architecture
