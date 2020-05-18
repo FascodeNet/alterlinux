@@ -64,18 +64,18 @@ First overwrite the live environment, regardless of architecture.
 Airootfs for each architecture.  
 `airootfs.x86_64` is used for the` x86_64` architecture, and `airootfs.i686` is used for the` i686`.  
 
-### ファイルの重複の優先順位
-各チャンネルと`share`チャンネルのファイルでは各チャンネルのファイルが優先されます。  
-また、`airootfs.any`と各アーキテクチャ用のディレクトリでは各アーキテクチャ用のものが優先されます。  
-以下は`airootfs`のコピーされる順番を示しています。要約すると左が一番優先されず、右が優先されます。  
+### File duplication priority
+For each channel and the file of the `share` channel, the file of each channel has priority.  
+Also, in the `airootfs.any` and directories for each architecture, the one for each architecture takes precedence.  
+The following shows the order in which the `airootfs` are copied. In summary, the left has the least priority and the right has the priority.  
   
 `share/airootfs.any` -> `share/airootfs.<architecture>` -> `<channel_name>/airootfs.any` -> `<channel_name>/airootfs.<architecture>`
 
 
 ## customize_airootfs.sh
-各チャンネルの`airootfs`で、`/root/customize_airootfs_<channel_name>.sh`というファイルが配置された場合、ビルドスクリプトは、`customize_airootfs.sh`が実行された後にそのスクリプトを実行します。  
-（`customize_airootfs.sh`は`share`チャンネルの`airootfs.any`によって配置されるため、各チャンネルで自由に上書きすることができます。）
-もしrootfsの設定を変更したい場合、このファイルを作成して下さい。
+If the file `/root/customize_airootfs_ <channel_name>.sh` is placed in the `airootfs` of each channel, the build script will execute the script after `customize_airootfs.sh` is executed.  
+（Since `customize_airootfs.sh` is placed by` airootfs.any` of the `share` channel, you can freely overwrite it on each channel.）  
+If you want to change the rootfs settings, create this file.  
  
 
 ## packagesから始まるディレクトリ
