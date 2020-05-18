@@ -1,107 +1,128 @@
-## Build
+## Build AlterLinux
+There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
+Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
+  
+When building on a real machine, the OS must be ArchLinux or AlterLinux.
+The following explains how to build on a real machine.  
+  
+The build can be done in two ways. You can either use the wizard or run it directly.  
 
-The following procedure is for building with the actual machine ArchLinux.
-
-### Preparation
-
-There are two ways to build, using Arch Linux on the actual machine and building on Docker.
-The options of `build.sh` are common.
-
-```bash
-git clone https://github.com/SereneTeam/alterlinux.git alterlinux
-cd ./alterlinux/
-```
-AlterLinux includes a script to easily add keys.
-
-```bash
-sudo ./keyring.sh -a
-```
-
-#### Build on real machine
-When building with an actual machine, it is necessary to build in an ArchLinux environment.  
-Install the necessary packages for the build.
-
-```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
-```
-Then download the source code.
+### Get the source code
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
-./build.sh
 ```
 
-
-#### Build on container
-If you build on Docker, please refer to [this procedure](en/DOCKER.md).
-
-### build.sh options
-
-#### Basic
-Please execute as it is.
-The default password is `alter`.
-Plymouth has been disabled.
-Default compression type is `zstd`.
-
-
-#### Options
- Purpose | Usage
---- | ---
- Enable boot splash | -b
- Change kernel | -k [kernel]
- Change the username | -u [username]
- Change the password | -p [password]
- Japanese | -j
- Change compression method | -c [comp type]
- Set compression options | -t [comp option]
- Specify output destination directory | -o [dir]
- Specify working directory | -w [dir]
-
-
-##### Example
-
-To build under the following conditions:
-
-- Enable Plymouth
-- The compression method is `gzip`
-- The kernel is `linux-lqx`
-- The password is `ilovearch`
+### Use the build wizard
+When you build directly on the actual machine, you can easily build with your desired settings using wizard.sh.  
+The following keys are added and dependencies are automatically installed.  
+It is written in bash, so please execute it from the terminal.  
+Answer "yes" or "no" questions with `y` or` n`. If you enter a numerical value, enter it in half-width characters.  
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
+./wizard.sh
+```
+
+### 手動でオプションを指定してビルドする
+
+#### 鍵を追加する
+AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
+
+```bash
+sudo ./keyring.sh --alter-add --arch32-add
+```
+
+#### 依存関係をインストールする
+ビルドに必要なパッケージをインストールして下さい。  
+
+```bash
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+```
+
+#### ビルドを開始する
+`build.sh`を実行して下さい。  
+
+```bash
+sudo ./build.sh
+```
+
+`build.sh`の使い方は以下をご覧ください。
+
+### build.sh
+
+#### 基本
+
+```bash
+./build.sh <options> <channel>
+```
+
+##### 注意
+チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
+
+#### オプション
+完全なオプションと使い方は`./build -h`を実行して下さい。
+
+用途 | 使い方
+--- | ---
+ブートスプラッシュを有効化 | -b
+カーネルを変える | -k [kernel]
+ユーザ名を変える | -u [username]
+パスワードを変更する | -p [password]
+日本語にする | -j
+圧縮方式を変更する | -c [comp type]
+圧縮のオプションを設定する | -t [comp option]
+出力先ディレクトリを指定する| -o [dir]
+作業ディレクトリを指定する | -w [dir]
+
+
+#### 例
+以下の条件でビルドするにはこのようにします。
+
+- Plymouthを有効化
+- 圧縮方式は`gzip`
+- カーネルは`linux-lqx`
+- パスワードは`ilovearch`
+
+```bash
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
 ```
 
 
-#### Channel
-Channels switch between packages to install and files to include.
-This mechanism allows you to build various versions of AlterLinux.
-The supported channels as of March 21, 2020 are:
+#### チャンネルについて
+チャンネルは、インストールするパッケージと含めるファイルを切り替えます。
+この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。
+2020年5月5日現在でサポートされているチャンネルは以下のとおりです。
 
-Name | Purpose
+名前 | 目的
 --- | ---
-xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
-plasma | This is an edition with Plasma and Qt apps. Currently in development and not stable.
+xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネルです。
+plasma | PlasmaとQtアプリを搭載したエディションです。 現在開発中で、安定していません。
+lxde | LXDEと最小限のアプリケーションのみが入っています。(relengを除き)最も軽量です。
+releng | 純粋なArchLinuxのライブ起動ディスクをビルドすることができます。
+rebuild | 作業ディレクトリにある設定を利用して再ビルドを行います。
 
 
-#### About the kernel
-The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
-Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
-  
-Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.org/index.php/Kernel).
+#### カーネルについて
+`i686`アーキテクチャと`x86_64`アーキテクチャでは共にArchLinuxの公式カーネルである`linux`や`linux-lts`、`linux-zen`をサポートしています。  
+また`x86_64`では公式カーネルに加えて以下のカーネルをサポートしています。
+カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
 
-Name | Feature
+Name | Characteristic
 --- | ---
-ck | linux-ck contains patches to improve system response.
-lts |Long term support (LTS) Linux kernel and modules from the core repository.
-lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
-rt | With this patch, almost all of the kernel can be run in real time.
-zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
+ck | linux-ck contains patches to improve system responsiveness
+lts | Long term support (LTS) Linux kernel and modules in the core repository
+lqx | Distro kernel replacement built with Debian settings and ZEN kernel source for desktop multimedia games
+rt | This patch will allow you to run almost all of your kernel in real time
+zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (AlterLinux specific)
+
+##### 注意
+`-k`のオプションは必ず`linux-foo`の`foo`の部分のみを入れてください。例えば`linux-lts`の場合は`lts`が入ります。
 
 
-##### About compression type
-See the `mksquashfs` help for compression options and more options.
-As of February 12, 2019, `mksquashfs` supports the following methods and options.
+#### 圧縮方式について
+圧縮方式と詳細のオプションは`mksquashfs`のヘルプを参照してください。
+2019年2月12日現在で、`mksquashfs`が対応している方式とオプションは以下の通りです。
 
 ```
 gzip
