@@ -1254,7 +1254,7 @@ build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
 # Parse channels
-set +e
+set +eu
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
@@ -1320,7 +1320,7 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-set -e
+set -eu
 
 
 prepare_build
