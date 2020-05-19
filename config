@@ -83,7 +83,7 @@ cleaning=false
 username="alter"
 
 # Set the live environment user password
-passwork="alter"
+password="alter"
 
 # Set the user's default shell.
 usershell="/bin/bash"
