@@ -1,0 +1,37 @@
+#
+# Alter Linux package list
+# lap1sid
+# Twitter: @Pixel_3a
+# Email  : lap1sid@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+
+
+#-- boot manager --#
+grub
+grub-customizer
+os-prober
+refind
+
+
+#-- documents --#
+man-db
+man-pages
+
+
+#-- system monitor --#
+ksysguard
+cpu-x
+
+
+#-- text editor --#
+kate
+nano
+vim
+
+
+#-- other --#
+htop
+snapd
+packagekit-qt5

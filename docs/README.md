@@ -60,6 +60,8 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 <h2>〈Feature〉</h2>
 <ul>
 	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>We release not only 64bit but also 32bit version.</li>
+	<li>The 32-bit version does not require PAE (Physical Address Extension).</li>
 	<li>Adopt ZEN kernel by default</li>
 	<li>Equipped with sophisticated UI, themes and icons</li>
 	<li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
@@ -83,6 +85,9 @@ These are a list of major branches. Other branches are temporary or used for spe
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
 			</th>
+			<th>	
+				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+			</th>
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
@@ -97,7 +102,10 @@ These are a list of major branches. Other branches are temporary or used for spe
 				Most stable. Bug fixes may be delayed.
 			</td>
 			<td>
-			    It is updated regularly. Relatively stable, with the latest features and fixes.	
+				Release candidate. Most bugs have been fixed.
+			</td>
+			<td>
+			    It is updated regularly. Relatively stable, with the latest features and fixes. *
 			</td>
 			<td>
 				Always updated. There may be many issues left.
@@ -113,6 +121,7 @@ We are soliciting opinions from various users to make AlterLinux better.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
+If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
 	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
@@ -155,7 +164,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
 <a href="https://twitter.com/tukutuN_27">
-	<img src="https://0e0.pw/5yuH" width="100px">
+	<img src="https://pbs.twimg.com/profile_images/1252216597164376064/_L3qgpkr_400x400.jpg" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">

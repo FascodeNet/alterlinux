@@ -2,7 +2,7 @@
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -15,10 +15,12 @@
 set -e
 
 script_path="$(readlink -f ${0%/*})"
+arch=$(uname -m)
 
 
 # Set pacman.conf when build alterlinux
-alter_pacman_conf="${script_path}/system/pacman.conf"
+alter_pacman_conf_x86_64="${script_path}/system/pacman-x86_64.conf"
+alter_pacman_conf_i686="${script_path}/system/pacman-i686.conf"
 
 
 # Color echo
@@ -119,10 +121,12 @@ _usage () {
     echo "usage ${0} [options]"
     echo
     echo " General options:"
-    echo "    -a | --alter-add     Add alterlinux-keyring."
-    echo "    -r | --alter-remove  Remove alterlinux-keyring."
-    echo "    -c | --arch-add      Add archlinux-keyring."
-    echo "    -h | --help          Show this help and exit."
+    echo "    -a | --alter-add       Add alterlinux-keyring."
+    echo "    -r | --alter-remove    Remove alterlinux-keyring."
+    echo "    -c | --arch-add        Add archlinux-keyring."
+    echo "    -h | --help            Show this help and exit."
+    echo "    -l | --arch32-add      Add archlinux32-keyring."
+    echo "    -i | --arch32-remove   Remove archlinux32-keyring."
     exit "${1}"
 }
 
@@ -166,10 +170,16 @@ prepare() {
         exit 1
     fi
 
-    if [[ ! -f "${alter_pacman_conf}" ]]; then
-        msg_error "${alter_pacman_conf} does not exist."
+    if [[ ! -f "${alter_pacman_conf_x86_64}" ]]; then
+        msg_error "${alter_pacman_conf_x86_64} does not exist."
         exit 1
     fi
+
+    if [[ ! -f "${alter_pacman_conf_i686}" ]]; then
+        msg_error "${alter_pacman_conf_i686} does not exist."
+        exit 1
+    fi
+
     #pacman -Sy
 }
 
@@ -189,8 +199,8 @@ update_alter_key() {
     rm -f "/tmp/fascode.pub"
     pacman-key --lsign-key development@fascode.net
 
-    pacman --config "${alter_pacman_conf}" -Sy --noconfirm
-    pacman --config "${alter_pacman_conf}" -S --noconfirm alter-stable/alterlinux-keyring
+    pacman --config "${alter_pacman_conf_x86_64}" -Sy --noconfirm
+    pacman --config "${alter_pacman_conf_x86_64}" -S --noconfirm alter-stable/alterlinux-keyring
 
     pacman-key --init
     pacman-key --populate alterlinux
@@ -206,9 +216,22 @@ remove_alter_key() {
     pacman -Sy
 }
 
+update_arch32_key() {
+    pacman -Syy --config "${alter_pacman_conf_i686}"
+    pacman -Sw --noconfirm --config "${alter_pacman_conf_i686}" archlinux32-keyring
+    pacman -U --noconfirm $(ls /var/cache/pacman/pkg/* | grep archlinux32-keyring | tail -n 1)
+    pacman-key --init
+    pacman-key --populate archlinux32
+    #pacman-key --refresh-keys
+}
+
+remove_arch32_key() {
+    pacman -Rsnc archlinux32-keyring
+}
+
 
 # 引数解析
-while getopts 'arch-:' arg; do
+while getopts 'archli-:' arg; do
     case "${arg}" in
         # alter-add
         a)
@@ -229,6 +252,16 @@ while getopts 'arch-:' arg; do
         h) 
             _usage 0
             ;;
+        # arch32-add
+        l)
+            run prepare
+            run update_arch32_key
+            ;;
+        # arch32-remove
+        i)
+            run prepare
+            run remove_arch32_key
+            ;;
         -)
             case "${OPTARG}" in
                 alter-add)
@@ -246,6 +279,14 @@ while getopts 'arch-:' arg; do
                 help)
                     _usage 0
                     ;;
+                arch32-add)
+                    run prepare
+                    run update_arch32_key
+                    ;;
+                arch32-remove)
+                    run prepare
+                    run remove_arch32_key
+                    ;;
                 *)
                     _usage 1
                     ;;
@@ -261,4 +302,5 @@ if [[ ${#} = 0 ]]; then
     run prepare
     # run update_arch_key
     run update_alter_key
+    # run update_arch32_key
 fi

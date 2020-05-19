@@ -1,0 +1,28 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Hardware
+#
+
+
+#-- drivers --#
+b43-fwcutter
+ipw2100-fw
+ipw2200-fw
+
+
+#-- interface support --#
+lsscsi
+sg3_utils
+usb_modeswitch
+usbutils
+
+#-- printers --#
+cups
+cups-pdf
