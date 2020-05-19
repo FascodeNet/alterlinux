@@ -294,7 +294,7 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 32 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 33 - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
@@ -334,7 +334,7 @@ umount_chroot () {
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
         _msg_info "Unmounting ${mount}"
-        umount "${mount}"
+        umount -lf "${mount}"
     done
 }
 
@@ -1254,7 +1254,7 @@ build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
 # Parse channels
-set +e
+set +eu
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
@@ -1320,7 +1320,7 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-set -e
+set -eu
 
 
 prepare_build

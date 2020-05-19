@@ -61,6 +61,17 @@ if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
 fi
 
 
+# Snap
+systemctl enable snapd.apparmor.service
+systemctl enable apparmor.service
+systemctl enable snapd.socket
+systemctl enable snapd.service
+
+
+# firewalld
+systemctl enable firewalld.service
+
+
 # Disable services.
 # To disable start up of sddm.
 # If it is enable, Users have to enter password.
@@ -68,3 +79,16 @@ fi
 #if [[ ${boot_splash} = true ]]; then
 #    systemctl disable sddm-plymouth.service
 #fi
+
+
+# Replace link
+if [[ "${japanese}" = true ]]; then
+    remove /etc/skel/Desktop/welcome-to-alter.desktop
+    remove /home/${username}/Desktop/welcome-to-alter.desktop
+
+    mv /etc/skel/Desktop/welcome-to-alter-jp.desktop /etc/skel/Desktop/welcome-to-alter.desktop
+    mv /home/${username}/Desktop/welcome-to-alter-jp.desktop /home/${username}/Desktop/welcome-to-alter.desktop
+else
+    remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
+    remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
+fi

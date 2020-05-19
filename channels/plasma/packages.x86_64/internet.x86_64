@@ -24,3 +24,8 @@ chromium
 
 #-- other tools --#
 kdenetwork-filesharing
+
+
+#-- security --#
+firewalld
+ufw

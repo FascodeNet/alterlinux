@@ -79,6 +79,12 @@ japanese=false
 # When enabled, airootfs in the working directory is deleted after squashfs is created.
 cleaning=false
 
+# Set the live environment user name
+username="alter"
+
+# Set the live environment user password
+password="alter"
+
 # Set the user's default shell.
 usershell="/bin/bash"
 
