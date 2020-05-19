@@ -68,3 +68,16 @@ fi
 #if [[ ${boot_splash} = true ]]; then
 #    systemctl disable sddm-plymouth.service
 #fi
+
+
+# Replace link
+if [[ "${japanese}" = true ]]; then
+    remove /etc/skel/Desktop/welcome-to-alter.desktop
+    remove /home/${username}/Desktop/welcome-to-alter.desktop
+
+    mv /etc/skel/Desktop/welcome-to-alter-jp.desktop /etc/skel/Desktop/welcome-to-alter.desktop
+    mv /home/${username}/Desktop/welcome-to-alter-jp.desktop /home/${username}/Desktop/welcome-to-alter.desktop
+else
+    remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
+    remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
+fi
