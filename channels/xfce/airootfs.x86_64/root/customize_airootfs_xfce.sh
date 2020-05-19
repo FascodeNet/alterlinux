@@ -81,6 +81,9 @@ systemctl enable snapd.socket
 systemctl enable snapd.service
 
 
-
 # Update system datebase
 dconf update
+
+
+# firewalld
+systemctl enable firewalld.service

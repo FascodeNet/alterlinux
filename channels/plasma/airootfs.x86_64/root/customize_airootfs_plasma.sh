@@ -60,11 +60,17 @@ if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
     rm /home/${username}/.cache/icon-cache.kcache
 fi
 
+
 # Snap
 systemctl enable snapd.apparmor.service
 systemctl enable apparmor.service
 systemctl enable snapd.socket
 systemctl enable snapd.service
+
+
+# firewalld
+systemctl enable firewalld.service
+
 
 # Disable services.
 # To disable start up of sddm.

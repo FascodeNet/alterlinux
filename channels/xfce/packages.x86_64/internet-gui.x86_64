@@ -22,3 +22,8 @@ thunderbird
 #-- web browser --#
 chromium
 # elinks
+
+
+#-- security --#
+firewalld
+ufw

@@ -17,3 +17,8 @@ network-manager-applet
 #-- web browser --#
 firefox
 # elinks
+
+
+#-- security --#
+firewalld
+ufw
