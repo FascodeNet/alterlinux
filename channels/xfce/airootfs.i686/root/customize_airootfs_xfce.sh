@@ -77,3 +77,7 @@ systemctl enable bluetooth
 
 # Update system datebase
 dconf update
+
+
+# firewalld
+systemctl enable firewalld.service

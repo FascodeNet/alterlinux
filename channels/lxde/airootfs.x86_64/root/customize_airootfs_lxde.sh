@@ -89,3 +89,7 @@ systemctl enable snapd.apparmor.service
 systemctl enable apparmor.service
 systemctl enable snapd.socket
 systemctl enable snapd.service
+
+
+# firewalld
+systemctl enable firewalld.service
