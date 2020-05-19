@@ -334,7 +334,7 @@ umount_chroot () {
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
         _msg_info "Unmounting ${mount}"
-        umount "${mount}"
+        umount -lf "${mount}"
     done
 }
 
