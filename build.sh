@@ -486,11 +486,12 @@ prepare_build() {
 
 
      # Check packages
-    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -r) ]] ; then
+    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
         local installed_pkg
         local installed_ver
         local check_pkg
         local check_failed=false
+        local pkg
 
         installed_pkg=($(pacman -Q | awk '{print $1}'))
         installed_ver=($(pacman -Q | awk '{print $2}'))
