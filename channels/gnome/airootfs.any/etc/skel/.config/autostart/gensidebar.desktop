@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Sidebar generator
+Comment=Generates sidebar items.
+Icon=utilities-terminal
+Exec=~/.setup.sh
+Terminal=false
+Type=Application
+Hidden=true
