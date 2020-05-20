@@ -1132,9 +1132,9 @@ while :; do
             for _arch in ${_selected_arch[@]}; do
                 if [[ "${_arch}" = "x86_64" ]] || [[ "${_arch}" = "i686" ]]; then
                     if [[ -v arch ]]; then
-                        arch="${arch[@]} ${_arch}"
+                        archlist="${arch[@]} ${_arch}"
                     else
-                        arch="${_arch}"
+                        archlist="${_arch}"
                     fi
                 else
                     _msg_error "Invaild architecture ${2}" '1'
@@ -1143,6 +1143,7 @@ while :; do
             done
             unset _selected_arch
             unset _arch
+            unset archlist
             ;;
         -b | --boot-splash)
             boot_splash=true
@@ -1336,16 +1337,18 @@ set -eu
 
 prepare_build
 show_settings
-run_once make_pacman_conf
-run_once make_basefs
-run_once make_packages
-run_once make_customize_airootfs
-run_once make_setup_mkinitcpio
-run_once make_boot
-run_once make_boot_extra
-run_once make_syslinux
-run_once make_isolinux
-run_once make_efi
-run_once make_efiboot
-run_once make_prepare
+for arch in ${archlist[@]}; do
+    run_once make_pacman_conf
+    run_once make_basefs
+    run_once make_packages
+    run_once make_customize_airootfs
+    run_once make_setup_mkinitcpio
+    run_once make_boot
+    run_once make_boot_extra
+    run_once make_syslinux
+    run_once make_isolinux
+    run_once make_efi
+    run_once make_efiboot
+    run_once make_prepare
+done
 run_once make_iso
