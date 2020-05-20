@@ -1127,11 +1127,22 @@ unset _opt_long
 while :; do
     case ${1} in
         -a | --arch)
-            case "${2}" in
-                "i686" | "x86_64" ) arch="${2}" ;;
-                *) _msg_error "Invaild architecture ${2}" '1' ;;
-            esac
-            shift 2
+            _selected_arch=(${2})
+            unset arch
+            for _arch in ${_selected_arch[@]}; do
+                if [[ "${_arch}" = "x86_64" ]] || [[ "${_arch}" = "i686" ]]; then
+                    if [[ -v arch ]]; then
+                        arch="${arch[@]} ${_arch}"
+                    else
+                        arch="${_arch}"
+                    fi
+                else
+                    _msg_error "Invaild architecture ${2}" '1'
+                fi
+                shift 1
+            done
+            unset _selected_arch
+            unset _arch
             ;;
         -b | --boot-splash)
             boot_splash=true
