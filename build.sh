@@ -372,15 +372,7 @@ remove() {
 
 
 # Preparation for build
-prepare_build() {
-    # Check architecture for each channel
-    if [[ ! "${channel_name}" = "rebuild" ]]; then
-        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-        fi
-    fi
-
-
+prepare_once() {
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -408,23 +400,11 @@ prepare_build() {
         done
     }
     if [[ ${rebuild} = false ]]; then
-        # If there is pacman.conf for each channel, use that for building
-        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
-            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
-        fi
-
-
         # If there is config for each channel. load that.
         if [[ -f "${script_path}/channels/${channel_name}/config.any" ]]; then
             source "${script_path}/channels/${channel_name}/config.any"
             _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.any"
         fi
-
-        if [[ -f "${script_path}/channels/${channel_name}/config.${arch}" ]]; then
-            source "${script_path}/channels/${channel_name}/config.${arch}"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.${arch}"
-        fi
-
 
         # Save the value of the variable for use in rebuild.
         save_var \
@@ -451,9 +431,9 @@ prepare_build() {
             japanese \
             channel_name \
             cleaning \
-            username mkalteriso \
-            usershell \
-            build_pacman_conf
+            username \
+            mkalteriso \
+            usershell
     else
         # Load rebuild file
         source "${work_dir}/build_options"
@@ -526,6 +506,39 @@ prepare_build() {
     fi
 }
 
+
+prepare_arch() {
+    # Debug mode
+    mkalteriso_option="-a ${arch} -v"
+    if [[ "${bash_debug}" = true ]]; then
+        set -x
+        set -v
+        mkalteriso_option="${mkalteriso_option} -x"
+    fi
+
+    # If there is pacman.conf for each channel, use that for building
+    if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
+    fi
+
+
+    # Pacman configuration file used only when building
+    build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+
+
+    # Check architecture for each channel
+    if [[ ! "${channel_name}" = "rebuild" ]]; then
+        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+        fi
+    fi
+
+    if [[ -f "${script_path}/channels/${channel_name}/config.${arch}" ]]; then
+        source "${script_path}/channels/${channel_name}/config.${arch}"
+        _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.${arch}"
+    fi
+
+}
 
 # Show settings.
 show_settings() {
@@ -1252,19 +1265,6 @@ fi
 [[ -f "${script_path}"/config ]] && _msg_debug "The settings have been overwritten by the "${script_path}"/config."
 
 
-# Debug mode
-mkalteriso_option="-a ${arch} -v"
-if [[ "${bash_debug}" = true ]]; then
-    set -x
-    set -v
-    mkalteriso_option="${mkalteriso_option} -x"
-fi
-
-
-# Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman-${arch}.conf
-
-
 # Parse channels
 set +eu
 if [[ -n "${1}" ]]; then
@@ -1335,9 +1335,10 @@ fi
 set -eu
 
 
-prepare_build
+prepare_once
 show_settings
 for arch in ${archlist[@]}; do
+    prepare_arch
     run_once make_pacman_conf
     run_once make_basefs
     run_once make_packages
