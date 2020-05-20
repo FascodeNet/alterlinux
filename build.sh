@@ -460,7 +460,11 @@ prepare_once() {
     if [[ "${japanese}" = true ]]; then
         _channel_name="${_channel_name}-jp"
     fi
-    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    if [[ "${#archlist}" = 1 ]]; then
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${archlist}.iso"
+    else
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-multiple.iso"
+    fi
     _msg_debug "Iso filename is ${iso_filename}"
 
 
