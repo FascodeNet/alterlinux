@@ -582,7 +582,7 @@ show_settings() {
         _msg_info "Use the ${channel_name} channel."
     fi
     [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
-    _msg_info "Build with architecture ${arch}."
+    _msg_info "Build with architecture ${archlist[@]}."
     echo
     if [[ ${noconfirm} = false ]]; then
         echo "Press Enter to continue or Ctrl + C to cancel."
@@ -1167,20 +1167,24 @@ while :; do
         -a | --arch)
             _selected_arch=(${2})
             unset arch
+            unset archlist
+            set +u
             for _arch in ${_selected_arch[@]}; do
                 if [[ "${_arch}" = "x86_64" ]] || [[ "${_arch}" = "i686" ]]; then
-                    if [[ -v arch ]]; then
-                        archlist="${arch[@]} ${_arch}"
+                    if [[ "${#archlist[@]}" = 0 ]]; then
+                        archlist=(${_arch})
                     else
-                        archlist="${_arch}"
+                        archlist=(${archlist[@]} ${_arch})
                     fi
                 else
                     _msg_error "Invaild architecture ${2}" '1'
                 fi
+                echo ${archlist[@]}
                 shift 1
             done
             unset _selected_arch
             unset _arch
+            set -u
             ;;
         -b | --boot-splash)
             boot_splash=true
