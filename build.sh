@@ -468,39 +468,64 @@ prepare_once() {
     _msg_debug "Iso filename is ${iso_filename}"
 
 
-    # Check packages
-    if [[ ${arch} = $(uname -m) ]]; then
-        local installed_pkg
-        local installed_ver
-        local check_pkg
-        local check_failed=false
+     # Check packages
+    if [[ ! -f "${script_path}/system/pacman-$(uname -m).conf" ]]; then
+        _msg_warn "I could not check the dependency because there is no pacman-$(uname -m).conf."
+    else 
+        if [[ "${nodepend}" = false ]]; then
+            local installed_pkg
+            local installed_ver
+            local check_pkg
+            local check_failed=false
+            local pkg
 
-        installed_pkg=($(pacman -Q | awk '{print $1}'))
-        installed_ver=($(pacman -Q | awk '{print $2}'))
+            installed_pkg=($(pacman -Q | awk '{print $1}'))
+            installed_ver=($(pacman -Q | awk '{print $2}'))
 
-        check_pkg() {
-            local i
-            local ver
-            for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-                if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                    ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
-                    if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
-                        echo -n "installed"
-                        return 0
-                    elif [[ -z ${ver} ]]; then
-                        echo "norepo"
-                        return 0
-                    else
-                        echo -n "old"
-                        return 0
+            check_pkg() {
+                local i
+                local ver
+                for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+                    if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
+                        ver=$(pacman -Sp --print-format '%v' --config "${script_path}/system/pacman-$(uname -m).conf" ${1} 2> /dev/null)
+                        if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
+                            echo -n "installed"
+                            return 0
+                        elif [[ -z ${ver} ]]; then
+                            echo "norepo"
+                            return 0
+                        else
+                            echo -n "old"
+                            return 0
+                        fi
                     fi
-                fi
+                done
+                echo -n "not"
+                return 0
+            }
+            echo
+            if [[ ${debug} = false ]]; then
+                _msg_info "Checking dependencies ..."
+            fi
+            for pkg in ${dependence[@]}; do
+                _msg_debug -n "Checking ${pkg} ..."
+                case $(check_pkg ${pkg}) in
+                    "old") 
+                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                        _msg_warn "${pkg} is not the latest package."
+                        _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                        echo
+                        ;;
+                    "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
+                    "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                    "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
+                esac
             done
 
             if [[ "${check_failed}" = true ]]; then
                 exit 1
             fi
-        }
+        fi
     fi
 
     # Load loop kernel module
@@ -519,15 +544,13 @@ prepare_arch() {
         mkalteriso_option="${mkalteriso_option} -x"
     fi
 
+    # Pacman configuration file used only when building
+    build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+
     # If there is pacman.conf for each channel, use that for building
     if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
         build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
     fi
-
-
-    # Pacman configuration file used only when building
-    build_pacman_conf=${script_path}/system/pacman-${arch}.conf
-
 
     # Check architecture for each channel
     if [[ ! "${channel_name}" = "rebuild" ]]; then
