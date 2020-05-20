@@ -408,7 +408,7 @@ prepare_once() {
 
         # Save the value of the variable for use in rebuild.
         save_var \
-            arch \
+            archlist \
             os_name \
             iso_name \
             iso_label \
