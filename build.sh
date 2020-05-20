@@ -419,7 +419,6 @@ prepare_once() {
             work_dir \
             out_dir \
             gpg_key \
-            mkalteriso_option \
             password \
             boot_splash \
             kernel \
@@ -1156,7 +1155,6 @@ while :; do
             done
             unset _selected_arch
             unset _arch
-            unset archlist
             ;;
         -b | --boot-splash)
             boot_splash=true
