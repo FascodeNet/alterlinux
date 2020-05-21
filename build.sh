@@ -519,6 +519,8 @@ prepare_build() {
         }
         if [[ ${debug} = false ]]; then
             _msg_info "Checking dependencies ..."
+        else
+            echo
         fi
         for pkg in ${dependence[@]}; do
             _msg_debug -n "Checking ${pkg} ..."
