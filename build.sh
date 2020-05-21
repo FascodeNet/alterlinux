@@ -1228,7 +1228,9 @@ while :; do
             ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
+                cd ${script_path}
                 iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+                cd - > /dev/null 2>&1
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
