@@ -1246,6 +1246,14 @@ while :; do
 done
 
 
+# Show alteriso version
+if [[ -d "${script_path}/.git" ]]; then
+    cd  "${script_path}"
+    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+    cd - > /dev/null 2>&1
+fi
+
+
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
