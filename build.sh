@@ -517,7 +517,6 @@ prepare_build() {
             echo -n "not"
             return 0
         }
-        echo
         if [[ ${debug} = false ]]; then
             _msg_info "Checking dependencies ..."
         fi
