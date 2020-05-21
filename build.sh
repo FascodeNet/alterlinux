@@ -371,6 +371,16 @@ remove() {
 }
 
 
+# 強制終了時にアンマウント
+umount_trap() {
+    local status=${?}
+    umount_chroot
+    _msg_error "It was killed by the user."
+    _msg_error "The process may not have completed successfully."
+    exit ${status}
+}
+
+
 # Preparation for build
 prepare_build() {
     # Check architecture for each channel
@@ -392,6 +402,25 @@ prepare_build() {
         remove "${work_dir%/}"/*
     fi
 
+
+    # 強制終了時に作業ディレクトリを削除する
+    local trap_remove_work
+    trap_remove_work() {
+        local status=${?}
+        remove "$(ls ${work_dir}/* | grep "build.make")"
+        remove "${work_dir}"/pacman-*.conf
+        remove "${work_dir}/efiboot"
+        remove "${work_dir}/iso"
+        remove "${work_dir}/${arch}"
+        remove "${work_dir}/packages.list"
+        remove "${work_dir}/packages-full.list"
+        remove "${rebuildfile}"
+        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+            remove ${work_dir}
+        fi
+        exit ${status}
+    }
+    trap 'trap_remove_work' 1 2 3 15
 
     # Save build options
     local save_var
@@ -575,6 +604,8 @@ show_settings() {
         :
         #sleep 3
     fi
+    trap 1 2 3 15
+    trap 'umount_trap' 1 2 3 15
 }
 
 
