@@ -381,6 +381,22 @@ umount_trap() {
 }
 
 
+# 作業ディレクトリを削除
+remove_work() {
+    remove "$(ls ${work_dir}/* | grep "build.make")"
+    remove "${work_dir}"/pacman-*.conf
+    remove "${work_dir}/efiboot"
+    remove "${work_dir}/iso"
+    remove "${work_dir}/${arch}"
+    remove "${work_dir}/packages.list"
+    remove "${work_dir}/packages-full.list"
+    remove "${rebuildfile}"
+    if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+        remove ${work_dir}
+    fi
+}
+
+
 # Preparation for build
 prepare_build() {
     # Check architecture for each channel
@@ -407,17 +423,7 @@ prepare_build() {
     local trap_remove_work
     trap_remove_work() {
         local status=${?}
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
+        remove_work
         exit ${status}
     }
     trap 'trap_remove_work' 1 2 3 15
@@ -1144,20 +1150,6 @@ make_prepare() {
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
-
-    if [[ ${cleaning} = true ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
     _msg_info "The password for the live user and root is ${password}."
 }
 
@@ -1401,3 +1393,7 @@ run_once make_efi
 run_once make_efiboot
 run_once make_prepare
 run_once make_iso
+
+if [[ ${cleaning} = true ]]; then
+    remove_work
+fi
