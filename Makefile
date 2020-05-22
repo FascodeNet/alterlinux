@@ -6,6 +6,10 @@ ARCH_x86_64  = -a x86_64
 ARCH_i686    = -a i686
 
 
+full:
+	@sudo ./fullbuild.sh
+	@make clean
+
 xfce-64:
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} xfce
 	@make clean
