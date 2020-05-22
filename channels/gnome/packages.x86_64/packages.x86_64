@@ -17,7 +17,7 @@ atk
 atkmm
 autoconf-archive
 avahi
-b43-firmware
+# b43-firmware
 babl
 bind-tools
 blas
@@ -40,12 +40,11 @@ celt
 cheese
 chromaprint
 chromium
-chromium-widevine
+# chromium-widevine
 cifs-utils
 clutter
 clutter-gst
 clutter-gtk
-cnchi
 cogl
 colord
 colord-gtk
@@ -54,7 +53,7 @@ dbus-glib
 dconf
 dconf-editor
 desktop-file-utils
-divehi-fonts
+# divehi-fonts
 djvulibre
 dleyna-connector-dbus
 dleyna-core
@@ -105,7 +104,7 @@ ghostscript
 giflib
 git
 gjs
-gksu
+# gksu
 glib-networking
 glib2-docs
 glibmm
@@ -134,10 +133,10 @@ gnome-screenshot
 gnome-session
 gnome-settings-daemon
 gnome-shell
-gnome-shell-extension-dash-to-dock
-gnome-shell-extension-panel-osd
-gnome-shell-extension-status-menu-buttons
-gnome-shell-extension-topicons
+# gnome-shell-extension-dash-to-dock
+# gnome-shell-extension-panel-osd
+# gnome-shell-extension-status-menu-buttons
+# gnome-shell-extension-topicons
 gnome-shell-extensions
 gnome-sound-recorder
 gnome-system-monitor
@@ -193,7 +192,7 @@ hwdetect
 hwinfo
 hyphen
 ijs
-ilmbase
+# ilmbase
 imlib2
 inetutils
 intel-tbb
@@ -217,8 +216,8 @@ lcms2
 ldb
 ldns
 lensfun
-light-locker
-light-locker-settings
+# light-locker
+# light-locker-settings
 lightdm
 lightdm-webkit2-greeter
 llvm-libs
@@ -260,9 +259,9 @@ nm-connection-editor
 nspr
 nss
 nss-mdns
-numix-frost-themes
-numix-icon-theme
-numix-icon-theme-square
+# numix-frost-themes
+# numix-icon-theme
+# numix-icon-theme-square
 openal
 opencore-amr
 opendesktop-fonts
@@ -305,13 +304,13 @@ pipewire
 pixman
 pkcs11-helper
 pkgfile
-pm2ml
+# pm2ml
 polari
 polkit
 poppler
 poppler-glib
 portaudio
-powerpill
+# powerpill
 protobuf
 protobuf-c
 pulseaudio
@@ -324,7 +323,7 @@ python-anytree
 python-appdirs
 python-atspi
 python-beaker
-python-bugsnag
+# python-bugsnag
 python-cairo
 python-chardet
 python-dbus
@@ -338,10 +337,10 @@ python-lxml
 python-mako
 python-markupsafe
 python-maxminddb
-python-memoizedb
+# python-memoizedb
 python-mock
 python-packaging
-python-parted
+# python-parted
 python-pbr
 python-psutil
 python-pygments
@@ -352,8 +351,8 @@ python-sgmllib
 python-six
 python-termcolor
 python-urllib3
-python-xcgf
-python-xcpf
+# python-xcgf
+# python-xcpf
 python-xdg
 python2
 re2
@@ -378,8 +377,8 @@ spandsp
 speech-dispatcher
 speex
 speexdsp
-spl
-spl-utils
+# spl
+# spl-utils
 squashfs-tools
 srt
 startup-notification
@@ -402,7 +401,7 @@ totem-plparser
 tracker
 tracker-miners
 transmission-gtk
-ttf-aboriginal-sans
+# ttf-aboriginal-sans
 ttf-arphic-uming
 ttf-baekmuk
 ttf-bitstream-vera
@@ -419,8 +418,6 @@ usbmuxd
 v4l-utils
 vi
 vid.stab
-virtualbox-guest-modules-arch
-virtualbox-guest-utils
 volume_key
 vte-common
 vte3
@@ -433,7 +430,7 @@ webrtc-audio-processing
 whois
 wildmidi
 woff2
-wpa_actiond
+# wpa_actiond
 wpa_supplicant
 x264
 x265
@@ -475,8 +472,6 @@ yelp-tools
 yelp-xsl
 zenity
 zeromq
-zfs
-zfs-utils
 zita-alsa-pcmi
 zita-resampler
 zvbi
