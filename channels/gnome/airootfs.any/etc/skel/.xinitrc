@@ -29,5 +29,5 @@ export UNZIPOPT=-OCP932
 # No beep
 xset -b
 
-# Start xfce4
+# Start Gnome
 exec gnome-session
