@@ -19,6 +19,7 @@ xorg-server-common
 xorg-server-xwayland
 xorg-setxkbmap
 xorg-xauth
+xorg-xinit
 xorg-xkbcomp
 xorg-xmodmap
 xorg-xrandr
