@@ -1,0 +1,34 @@
+gnome-autoar
+gnome-backgrounds
+gnome-bluetooth
+gnome-calculator
+gnome-color-manager
+gnome-common
+gnome-contacts
+gnome-control-center
+gnome-desktop
+gnome-disk-utility
+gnome-documents
+gnome-epub-thumbnailer
+gnome-keyring
+gnome-logs
+gnome-maps
+gnome-music
+gnome-online-accounts
+gnome-online-miners
+gnome-photos
+gnome-screenshot
+gnome-session
+gnome-settings-daemon
+gnome-shell
+# gnome-shell-extension-dash-to-dock
+# gnome-shell-extension-panel-osd
+# gnome-shell-extension-status-menu-buttons
+# gnome-shell-extension-topicons
+gnome-shell-extensions
+gnome-sound-recorder
+gnome-system-monitor
+gnome-terminal
+gnome-themes-extra
+gnome-tweaks
+gnome-weather
