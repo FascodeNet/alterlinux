@@ -1,3 +1,4 @@
+chrome-gnome-shell
 gnome-autoar
 gnome-backgrounds
 gnome-bluetooth
@@ -21,10 +22,12 @@ gnome-screenshot
 gnome-session
 gnome-settings-daemon
 gnome-shell
-# gnome-shell-extension-dash-to-dock
+gnome-shell-extensions
+gnome-shell-extension-extensions-git
+gnome-shell-extension-dash-to-dock
 # gnome-shell-extension-panel-osd
 # gnome-shell-extension-status-menu-buttons
-# gnome-shell-extension-topicons
+gnome-shell-extension-topicons-redux
 gnome-shell-extensions
 gnome-sound-recorder
 gnome-system-monitor
