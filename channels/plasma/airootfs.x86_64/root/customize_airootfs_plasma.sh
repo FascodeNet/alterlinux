@@ -72,6 +72,10 @@ systemctl enable snapd.service
 systemctl enable firewalld.service
 
 
+# Replace nodm config
+sed -i s/%USERNAME%/${username}/g /etc/nodm.conf
+
+
 # Disable services.
 # To disable start up of sddm.
 # If it is enable, Users have to enter password.

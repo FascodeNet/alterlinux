@@ -84,6 +84,10 @@ fi
 dconf update
 
 
+# Replace nodm config
+sed -i s/%USERNAME%/${username}/g /etc/nodm.conf
+
+
 # Snap
 systemctl enable snapd.apparmor.service
 systemctl enable apparmor.service

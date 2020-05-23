@@ -81,6 +81,10 @@ systemctl enable snapd.socket
 systemctl enable snapd.service
 
 
+# Replace nodm config
+sed -i s/%USERNAME%/${username}/g /etc/nodm.conf
+
+
 # Update system datebase
 dconf update
 

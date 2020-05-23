@@ -83,6 +83,10 @@ else
 fi
 
 
+# Replace nodm config
+sed -i s/%USERNAME%/${username}/g /etc/nodm.conf
+
+
 # Bluetooth
 rfkill unblock all
 systemctl enable bluetooth

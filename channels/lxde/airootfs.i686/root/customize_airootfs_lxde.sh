@@ -88,6 +88,10 @@ dconf update
 systemctl enable firewalld.service
 
 
+# Replace nodm config
+sed -i s/%USERNAME%/${username}/g /etc/nodm.conf
+
+
 # Replace link
 if [[ "${japanese}" = true ]]; then
     remove /etc/skel/Desktop/welcome-to-alter.desktop
