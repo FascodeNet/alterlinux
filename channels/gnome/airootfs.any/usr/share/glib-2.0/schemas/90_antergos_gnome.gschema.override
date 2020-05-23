@@ -16,8 +16,8 @@ picture-uri='file:///usr/share/antergos/wallpapers/antergos-wallpaper.png'
 clock-format='24h'
 clock-show-date=true
 clock-show-seconds=false
-gtk-theme='Numix-Frost-Light'
-icon-theme='Numix-Square'
+gtk-theme='Adapta-Nokto-Eta'
+icon-theme='Papirus-Dark'
 
 [org.gnome.desktop.peripherals.touchpad]
 natural-scroll=true
@@ -37,7 +37,7 @@ sources=[('xkb','us')]
 
 [org.gnome.desktop.wm.preferences]
 button-layout='appmenu:minimize,maximize,close'
-theme='Numix-Frost-Light'
+theme='Adapta-Nokto-Eta'
 
 [org.gnome.shell.extensions.user-theme]
 name='Numix-Frost'

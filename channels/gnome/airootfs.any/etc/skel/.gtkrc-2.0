@@ -1,6 +1,6 @@
 gtk-error-bell=0
-gtk-theme-name="Numix-Frost-Light"
-gtk-icon-theme-name="Numix-Square"
+gtk-theme-name="Adapta-Nokto-Eta"
+gtk-icon-theme-name="Papirus-Dark"
 gtk-cursor-theme-name="Adwaita"
 gtk-cursor-theme-size=24
 gtk-toolbar-style=GTK_TOOLBAR_BOTH_HORIZ
