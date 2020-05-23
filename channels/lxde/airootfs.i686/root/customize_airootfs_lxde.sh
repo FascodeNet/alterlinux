@@ -99,3 +99,7 @@ else
     remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
     remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
 fi
+
+
+# Nodn
+systemctl enable nodm.service

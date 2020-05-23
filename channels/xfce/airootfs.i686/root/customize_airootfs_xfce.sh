@@ -94,3 +94,7 @@ dconf update
 
 # firewalld
 systemctl enable firewalld.service
+
+
+# Nodn
+systemctl enable nodm.service
