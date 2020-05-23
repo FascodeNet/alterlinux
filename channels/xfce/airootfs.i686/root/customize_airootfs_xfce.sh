@@ -94,3 +94,11 @@ dconf update
 
 # firewalld
 systemctl enable firewalld.service
+
+
+# Enable LightDM to auto login
+if [[ "${boot_splash}" =  true ]]; then
+    systemctl enable lightdm.service
+else
+    systemctl enable lightdm-plymouth.service
+fi

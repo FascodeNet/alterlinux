@@ -106,3 +106,11 @@ else
     remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
     remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
 fi
+
+
+# Enable LightDM to auto login
+if [[ "${boot_splash}" =  true ]]; then
+    systemctl enable lightdm.service
+else
+    systemctl enable lightdm-plymouth.service
+fi
