@@ -1,0 +1,9 @@
+[org.gnome.mutter:GNOME-Classic]
+dynamic-workspaces=false
+
+[org.gnome.desktop.wm.preferences:GNOME-Classic]
+button-layout='appmenu:minimize,maximize,close'
+
+[org.gnome.desktop.wm.keybindings:GNOME-Classic]
+switch-applications=[]
+switch-windows=['<Super>Tab','<Alt>Tab']
