@@ -101,9 +101,14 @@ else
     remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
 fi
 
+
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
     systemctl enable lightdm.service
 else
     systemctl enable lightdm-plymouth.service
 fi
+
+
+# Replace auto login user
+sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf.d/50-auto-login.conf
