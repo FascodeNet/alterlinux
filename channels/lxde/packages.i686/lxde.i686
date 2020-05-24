@@ -1,0 +1,39 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Lxde Desktop Environment
+
+
+#-- lxde base --#
+# gpicview
+lxappearance
+lxappearance-obconf
+lxde-common
+lxde-icon-theme
+# lxdm     LightDMで代用
+lxhotkey
+lxinput
+lxlauncher
+# lxmusic  VLCがインストールされているため（Issues #51）
+lxpanel
+# lxrandr  arandrで代用 仮想マシンで使えないため arandrはother.x86_64に記述
+lxsession
+lxtask
+lxterminal
+openbox
+pcmanfm
+
+
+#-- themes --#
+adapta-gtk-theme
+papirus-icon-theme
+
+
+#-- wallpaper --#
+alterlinux-wallpapers

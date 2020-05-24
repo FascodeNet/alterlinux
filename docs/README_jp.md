@@ -46,12 +46,18 @@ Alter LinuxはArch Linuxをベースに開発されている新しいOSです。
 AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
 ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
 
-<img src="../images/screenshot/desktop.png" alt="スクリーンショット">
+<h3>Xfce</h3>
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
+
+<h3>Lxde</h3>
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
 
 <h2>〈特徴〉</h2>
 <ul>
 	<li>既に構築されたArchLinux環境をGUIでインストールできます</li>
+	<li>64bitだけでなく、32bit(i686)もリリースしています</li>
+	<li>32bit版はPAE（物理アドレス拡張）を必要としません。</li>
 	<li>既に完全に日本語化されており、インストールしてすぐに日本語入力を使用できます</li>
 	<li>デフォルトでZENカーネルを採用</li>
 	<li>洗練されたUIやテーマ、アイコンを搭載しています</li>
@@ -76,6 +82,9 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
 			</th>
+			<th>	
+				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+			</th>
 			<th>
 				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
@@ -90,7 +99,10 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 				最も安定しています。バグの修正などは遅れる場合があります。
 			</td>
 			<td>
-				定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。
+				リリース候補です。ほとんどのバグが修正されています。
+			</td>
+			<td>
+				定期的に更新されます。比較的安定していて、最新の機能や修正を利用できます。*
 			</td>
 			<td>
 				常に更新されます。問題が多数残っている場合があります。
@@ -107,6 +119,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 <h2>〈ドキュメント〉</h2>
 一部のドキュメントは情報が古かったり、一部の言語しかない場合が有ります。<br>
+もし誤字脱字や実際と異なる表記を見つけた場合はIssuesで報告して下さい。<br>
 <ul>
 	<li><a href="jp/BUILD.md">AlterLinuxをビルドする</a></li>
 	<li><a href="jp/SOFTWARE.md">独自のパッケージのソースコードについて</a></li>
@@ -149,7 +162,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
 <a href="https://twitter.com/tukutuN_27">
-	<img src="https://0e0.pw/5yuH" width="100px">
+	<img src="https://pbs.twimg.com/profile_images/1252216597164376064/_L3qgpkr_400x400.jpg" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">

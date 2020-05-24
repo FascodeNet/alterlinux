@@ -1,0 +1,31 @@
+#
+# Alter Linux package list
+#
+# lap1sid
+# Twitter: @Pixel_3a
+# Email  : lap1sid@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Internet
+
+#-- connection Tools--#
+plasma-nm
+
+
+#-- mail client --#
+#thunderbird
+#mailspring
+
+
+#-- web browser --#
+chromium
+
+
+#-- other tools --#
+kdenetwork-filesharing
+
+
+#-- security --#
+firewalld
+ufw

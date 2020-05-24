@@ -1,51 +1,68 @@
-## Build
+## Build AlterLinux
+There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
+Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
+  
+When building on a real machine, the OS must be ArchLinux or AlterLinux.
+The following explains how to build on a real machine.  
+  
+The build can be done in two ways. You can either use the wizard or run it directly.  
 
-The following procedure is for building with the actual machine ArchLinux.
-
-### Preparation
-
-There are two ways to build, using Arch Linux on the actual machine and building on Docker.
-The options of `build.sh` are common.
-
-```bash
-git clone https://github.com/SereneTeam/alterlinux.git alterlinux
-cd ./alterlinux/
-```
-AlterLinux includes a script to easily add keys.
-
-```bash
-sudo ./keyring.sh -a
-```
-
-#### Build on real machine
-When building with an actual machine, it is necessary to build in an ArchLinux environment.  
-Install the necessary packages for the build.
-
-```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
-```
-Then download the source code.
+### Get the source code
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
-./build.sh
 ```
 
+### Use the build wizard
+When you build directly on the actual machine, you can easily build with your desired settings using wizard.sh.  
+The following keys are added and dependencies are automatically installed.  
+It is written in bash, so please execute it from the terminal.  
+Answer "yes" or "no" questions with `y` or` n`. If you enter a numerical value, enter it in half-width characters.  
 
-#### Build on container
-If you build on Docker, please refer to [this procedure](en/DOCKER.md).
+```bash
+./wizard.sh
+```
 
-### build.sh options
+### Build with options manually
+
+#### Add key
+AlterLinux includes a script to easily add keys.  
+
+```bash
+sudo ./keyring.sh --alter-add --arch32-add
+```
+
+#### Install the dependencies
+Install the packages required for building.  
+
+```bash
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+```
+
+#### Start the build
+Run `build.sh`.  
+
+```bash
+sudo ./build.sh
+```
+
+See below for how to use `build.sh`.  
+
+### build.sh
 
 #### Basic
-Please execute as it is.
-The default password is `alter`.
-Plymouth has been disabled.
-Default compression type is `zstd`.
 
+```bash
+./build.sh <options> <channel>
+```
 
-#### Options
+##### Note
+All options described after the channel name are ignored. Be sure to put the option before the channel name.  
+
+#### option
+Run `./build -h` for full options and usage.  
+
  Purpose | Usage
 --- | ---
  Enable boot splash | -b
@@ -59,9 +76,8 @@ Default compression type is `zstd`.
  Specify working directory | -w [dir]
 
 
-##### Example
-
-To build under the following conditions:
+#### An example
+Do this to build under the following conditions.
 
 - Enable Plymouth
 - The compression method is `gzip`
@@ -69,39 +85,44 @@ To build under the following conditions:
 - The password is `ilovearch`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' stable
+./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
 ```
 
 
-#### Channel
-Channels switch between packages to install and files to include.
-This mechanism allows you to build various versions of AlterLinux.
-The supported channels as of March 21, 2020 are:
+#### About channel
+Channels switch between packages to install and files to include.  
+This mechanism makes it possible to build various versions of AlterLinux.  
+The following channels are supported as of May 5, 2020:  
 
 Name | Purpose
 --- | ---
-xfce | This is the default channel that uses Xfce4 for the desktop environment and adds various software.
-plasma | This is an edition with Plasma and Qt apps. Currently in development and not stable.
+xfce | Default channel with Xfce4 for desktop environment and various software added
+plasma | Currently developing channel with Plasma and Qt apps
+lxde | The lightest channel except releng, which contains only LXDE and minimal applications
+releng | A channel where you can build a pure Arch Linux live boot disk
+rebuild | A special channel that rebuilds using the settings in the working directory
 
 
 #### About the kernel
-The following types of kernels are currently supported: If unspecified, the normal `linux` kernel will be used.
-Make sure to include the `foo` part of` linux-foo` in the `-k` option. For example, `linux-lts` contains` lts`.
-  
-Below are the supported values and kernels.The description of the kernel is from [ArchWiki](https://wiki.archlinux.org/index.php/Kernel).
+Both the `i686` architecture and the` x86_64` architecture support the official ArchLinux kernels `linux`,` linux-lts`, and `linux-zen`.  
+In addition to the official kernel, `x86_64` also supports the following kernels.  
+The description of the kernel is taken from the [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
 
-Name | Feature
+Name | Characteristic
 --- | ---
-ck | linux-ck contains patches to improve system response.
-lts |Long term support (LTS) Linux kernel and modules from the core repository.
-lqx | Distro kernel alternative built using Debian configuration and ZEN kernel source for desktop multimedia games.
-rt | With this patch, almost all of the kernel can be run in real time.
-zen | linux-zen is the wisdom of kernel hackers. It is the best Linux kernel for everyday use.
+ck | linux-ck contains patches to improve system responsiveness
+lts | Long term support (LTS) Linux kernel and modules in the core repository
+lqx | Distro kernel replacement built with Debian settings and ZEN kernel source for desktop multimedia games
+rt | This patch will allow you to run almost all of your kernel in real time
+zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (AlterLinux specific)
+
+##### Note
+Be sure to put only the `foo` part of` linux-foo` in the `-k` option. For example, in the case of `linux-lts`,` lts` will be entered.　　
 
 
-##### About compression type
-See the `mksquashfs` help for compression options and more options.
-As of February 12, 2019, `mksquashfs` supports the following methods and options.
+#### About compression method
+See the `mksquashfs` help for compression methods and more options.  
+As of February 12, 2019, the methods and options supported by `mksquashfs` are as follows.  
 
 ```
 gzip

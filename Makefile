@@ -1,23 +1,46 @@
 BUILD_SCRIPT = build.sh
-SHARE_OPTION = -b -c "zstd" -u "alter" -p "alter"
-DEBUG_OPTION = -t '-Xcompression-level 1' -x
+KERNEL       = zen
+SHARE_OPTION = -b -c "zstd" -u "alter" -p "alter" -k "${KERNEL}"
+DEBUG_OPTION = -t '-Xcompression-level 1' -x -d
+ARCH_x86_64  = -a x86_64
+ARCH_i686    = -a i686
 
 
-xfce:
-	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} xfce
-	@make cleanup
+full:
+	@sudo ./fullbuild.sh
+	@make clean
 
-plasma:
-	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} plasma
-	@make cleanup
+xfce-64:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} xfce
+	@make clean
 
-xfce-test:
-	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${DEBUG_OPTION} xfce
-	@make cleanup
+plasma-64:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} plasma
+	@make clean
 
-plasma-test:
-	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${DEBUG_OPTION} plasma
-	@make cleanup
+releng-64:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} releng
+	@make clean
 
-cleanup:
-	@[[ -d ./work ]] && sudo rm -rf ./work
+lxde-64:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} lxde
+	@make clean
+
+xfce-32:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} xfce
+	@make clean
+
+plasma-32:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} plasma
+	@make clean
+
+releng-32:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} releng
+	@make clean
+
+lxde-32:
+	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} lxde
+	@make clean
+
+clean:
+	@sudo ./${BUILD_SCRIPT} clean

@@ -1,0 +1,3 @@
+[Daemon]
+Autolock=false
+LockOnResume=false

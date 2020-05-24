@@ -1,0 +1,36 @@
+#
+# Alter Linux package list
+#
+# lap1sid
+# Twitter: @Pixel_3a
+# Email  : lap1sid@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# look and feel
+
+
+# font
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+
+
+# Wallpaper
+alterlinux-wallpapers
+
+
+# icon
+#paper-icon-theme
+papirus-icon-theme
+
+
+# Advanced Theme Manager
+kvantum-qt5
+
+
+# theme
+materia-gtk-theme
+materia-kde
+kvantum-theme-materia
+#arc-gtk-theme

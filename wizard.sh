@@ -6,8 +6,12 @@ nobuild=false
 
 script_path="$(readlink -f ${0%/*})"
 
-# Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman.conf
+build_arch=$(uname -m)
+
+machine_arch=$(uname -m)
+
+# Pacman configuration file used only when checking packages.
+pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
 
 # 言語（en or jp)
 #lang="jp"
@@ -60,7 +64,7 @@ function msg_n() {
     fi
 }
 
-while getopts 'xnje' arg; do
+while getopts 'a:xnje' arg; do
     case "${arg}" in
         n)
             nobuild=true
@@ -81,7 +85,9 @@ while getopts 'xnje' arg; do
             echo "日本語が設定されました"
             skip_set_lang=true
             ;;
-        
+        a)
+            build_arch="${OPTARG}"
+            ;;
     esac
 done
 
@@ -112,12 +118,30 @@ function set_language () {
 }
 
 function check_files () {
-    if [[ ! -f "${script_path}/build.sh" ]]; then
-        msg_error "${script_path}/build.shが見つかりませんでした。" "${script_path}/build.sh was not found."
-        exit 1
-    fi
-    if [[ ! -f "${script_path}/keyring.sh" ]]; then
-        echo "${script_path}/keyring.shが見つかりませんでした。" "${script_path}/keyring.sh was not found."
+    local file
+    local _chkfile
+    local i
+    local error
+
+    error=false
+    _chkfile() {
+        if [[ ! -f "${1}" ]]; then
+            msg_error "${1}が見つかりませんでした。" "${1} was not found."
+            error=true
+        fi
+    }
+
+    file=(
+        "build.sh"
+        "keyring.sh"
+        "system/pacman-i686.conf"
+        "system/pacman-x86_64.conf"
+    )
+
+    for i in ${file[@]}; do
+        _chkfile "${script_path}/${i}"
+    done
+    if [[ "${error}" = true ]]; then
         exit 1
     fi
 }
@@ -130,6 +154,8 @@ function install_dependencies () {
     local installed_ver
     local check_pkg
 
+    msg "データベースの更新をしています..." "Updating package datebase..."
+    sudo pacman -Sy --config "${pacman_conf}"
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
@@ -137,7 +163,7 @@ function install_dependencies () {
         local i
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1}) ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${pacman_conf} ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -158,7 +184,7 @@ function install_dependencies () {
     done
     if [[ -n "${install[@]}" ]]; then
         sudo pacman -Sy
-        sudo pacman -S --needed --config ${build_pacman_conf} ${install[@]}
+        sudo pacman -S --needed --config ${pacman_conf} ${install[@]}
     fi
     echo
 }
@@ -184,7 +210,7 @@ function run_add_key_script () {
 
 function remove_dependencies () {
     if [[ -n "${install[@]}" ]]; then
-        sudo pacman -Rsn --config ${build_pacman_conf} ${install[@]}
+        sudo pacman -Rsn --config ${pacman_conf} ${install[@]}
     fi
 }
 
@@ -471,51 +497,50 @@ function select_kernel () {
         msg \
             "使用するカーネルを以下の番号から選択してください" \
             "Please select the kernel to use from the following numbers"
+
+
+        #カーネルの一覧を取得
+        kernel_list=($(cat ${script_path}/system/kernel_list-${build_arch} | grep -h -v ^'#'))
+
+        #選択肢の生成
+        local count=1
+        local i
         echo
-        echo "1: linux"
-        echo "2: linux-lts"
-        echo "3: linux-zen"
-        echo "4: linux-ck"
-        echo "5: linux-rt"
-        echo "6: linux-rt-lts"
-        echo "7: linux-lqx"
-        echo "8: linux-xanmod"
-        echo "9: linux-xanmod-lts"
+        for i in ${kernel_list[@]}; do
+            echo "${count}: linux-${i}"
+            count=$(( count + 1 ))
+        done
+
+        # 質問する
         echo -n ": "
+        local answer
+        read answer
 
-        read yn
-
-        case ${yn} in
-            1                ) kernel="core"       ;;
-            2                ) kernel="lts"        ;;
-            3                ) kernel="zen"        ;;
-            4                ) kernel="ck"         ;;
-            5                ) kernel="rt"         ;;
-            6                ) kernel="rt-lts"     ;;
-            7                ) kernel="lqx"        ;;
-            8                ) kernel="xanmod"     ;;
-            9                ) kernel="xanmod-lts" ;;
-            linux            ) kernel="kernel"     ;;
-            linux-lts        ) kernel="lts"        ;;
-            linux-zen        ) kernel="zen"        ;;
-            linux-ck         ) kernel="ck"         ;;
-            linux-rt         ) kernel="rt"         ;;
-            linux-rt-lts     ) kernel="rt-lts"     ;;
-            linux-lqx        ) kernel="lqx"        ;;
-            linux-xanmod     ) kernel="xanmod"     ;;
-            linux-xanmod-lts ) kernel="xanmod-lts" ;;
-
-            core             ) kernel="core"       ;;
-            lts              ) kernel="lts"        ;;
-            zen              ) kernel="zen"        ;;
-            ck               ) kernel="ck"         ;;
-            rt               ) kernel="rt"         ;;
-            rt-lts           ) kernel="rt-lts"     ;;
-            lqx              ) kernel="lqx"        ;;
-            xanmod           ) kernel="xanmod"     ;;
-            xanmod-lts       ) kernel="xanmod-lts" ;;
-            *                ) what_kernel         ;;
-        esac
+        # 回答を解析する
+        # 数字かどうか判定する
+        set +e
+        expr "${answer}" + 1 >/dev/null 2>&1
+        if [[ ${?} -lt 2 ]]; then
+            set -e
+            # 数字である
+            answer=$(( answer - 1 ))
+            if [[ -z "${kernel_list[${answer}]}" ]]; then
+                what_kernel
+                return 0
+            else
+                kernel="${kernel_list[${answer}]}"
+            fi
+        else
+            set -e
+            # 数字ではない
+            # 配列に含まれるかどうか判定
+            if [[ ! $(printf '%s\n' "${kernel_list[@]}" | grep -qx "${answer#linux-}"; echo -n ${?} ) -eq 0 ]]; then
+                ask_channel
+                return 0
+            else
+                kernel="${answer#linux-}"
+            fi
+        fi
     }
 
     do_you_want_to_select_kernel
@@ -551,9 +576,9 @@ function select_channel () {
 
         # チャンネルの一覧を生成
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-                if [[ ! ${i} = "share" ]]; then
-                        channel_list=(${channel_list[@]} ${i})
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+                if [[ -n $(cat ${script_path}/channels/${i}/architecture | grep -h -v ^'#' | grep -x "${build_arch}") ]]; then
+                    channel_list=(${channel_list[@]} ${i})
                 fi
             fi
         done
@@ -706,7 +731,7 @@ function generate_argument () {
     if [[ -n ${out_dir} ]]; then
         argument="${argument} -o '${out_dir}'"
     fi
-    argument="${argument} ${channel}"
+    argument="-a --noconfirm ${build_arch} ${argument} ${channel}"
 }
 
 #　上の質問の関数を実行
