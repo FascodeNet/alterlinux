@@ -371,6 +371,32 @@ remove() {
 }
 
 
+# 強制終了時にアンマウント
+umount_trap() {
+    local status=${?}
+    umount_chroot
+    _msg_error "It was killed by the user."
+    _msg_error "The process may not have completed successfully."
+    exit ${status}
+}
+
+
+# 作業ディレクトリを削除
+remove_work() {
+    remove "$(ls ${work_dir}/* | grep "build.make")"
+    remove "${work_dir}"/pacman-*.conf
+    remove "${work_dir}/efiboot"
+    remove "${work_dir}/iso"
+    remove "${work_dir}/${arch}"
+    remove "${work_dir}/packages.list"
+    remove "${work_dir}/packages-full.list"
+    remove "${rebuildfile}"
+    if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+        remove ${work_dir}
+    fi
+}
+
+
 # Preparation for build
 prepare_build() {
     # Check architecture for each channel
@@ -392,6 +418,15 @@ prepare_build() {
         remove "${work_dir%/}"/*
     fi
 
+
+    # 強制終了時に作業ディレクトリを削除する
+    local trap_remove_work
+    trap_remove_work() {
+        local status=${?}
+        remove_work
+        exit ${status}
+    }
+    trap 'trap_remove_work' 1 2 3 15
 
     # Save build options
     local save_var
@@ -485,12 +520,13 @@ prepare_build() {
     _msg_debug "Iso filename is ${iso_filename}"
 
 
-    # Check packages
-    if [[ ${arch} = $(uname -m) ]]; then
+     # Check packages
+    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
         local installed_pkg
         local installed_ver
         local check_pkg
         local check_failed=false
+        local pkg
 
         installed_pkg=($(pacman -Q | awk '{print $1}'))
         installed_ver=($(pacman -Q | awk '{print $2}'))
@@ -513,11 +549,32 @@ prepare_build() {
                     fi
                 fi
             done
-
-            if [[ "${check_failed}" = true ]]; then
-                exit 1
-            fi
+            echo -n "not"
+            return 0
         }
+        if [[ ${debug} = false ]]; then
+            _msg_info "Checking dependencies ..."
+        else
+            echo
+        fi
+        for pkg in ${dependence[@]}; do
+            _msg_debug -n "Checking ${pkg} ..."
+            case $(check_pkg ${pkg}) in
+                "old") 
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                    _msg_warn "${pkg} is not the latest package."
+                    _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                    echo
+                    ;;
+                "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
+                "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
+            esac
+        done
+
+        if [[ "${check_failed}" = true ]]; then
+            exit 1
+        fi
     fi
 
     # Load loop kernel module
@@ -553,6 +610,8 @@ show_settings() {
         :
         #sleep 3
     fi
+    trap 1 2 3 15
+    trap 'umount_trap' 1 2 3 15
 }
 
 
@@ -1091,20 +1150,6 @@ make_prepare() {
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
-
-    if [[ ${cleaning} = true ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
     _msg_info "The password for the live user and root is ${password}."
 }
 
@@ -1207,7 +1252,9 @@ while :; do
             ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
+                cd ${script_path}
                 iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+                cd - > /dev/null 2>&1
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
@@ -1223,6 +1270,14 @@ while :; do
             ;;
     esac
 done
+
+
+# Show alteriso version
+if [[ -d "${script_path}/.git" ]]; then
+    cd  "${script_path}"
+    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+    cd - > /dev/null 2>&1
+fi
 
 
 # Check root.
@@ -1338,3 +1393,7 @@ run_once make_efi
 run_once make_efiboot
 run_once make_prepare
 run_once make_iso
+
+if [[ ${cleaning} = true ]]; then
+    remove_work
+fi
