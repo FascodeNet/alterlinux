@@ -111,4 +111,4 @@ fi
 
 
 # Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf.d/50-auto-login.conf
+sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
