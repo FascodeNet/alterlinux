@@ -180,6 +180,8 @@ update_arch_key() {
     pacman-key --init
     pacman-key --populate archlinux
     pacman -S --noconfirm  core/archlinux-keyring
+    pacman-key --init
+    pacman-key --populate archlinux
     pacman -Sy
 }
 
