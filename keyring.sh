@@ -217,9 +217,8 @@ remove_alter_key() {
 }
 
 update_arch32_key() {
-    pacman -Syy --config "${alter_pacman_conf_i686}"
-    pacman -Sw --noconfirm --config "${alter_pacman_conf_i686}" archlinux32-keyring
-    pacman -U --noconfirm $(ls /var/cache/pacman/pkg/* | grep archlinux32-keyring | tail -n 1)
+    pacman -Sy --config "${alter_pacman_conf_i686}"
+    pacman --noconfirm -S alter-stable/archlinux32-keyring
     pacman-key --init
     pacman-key --populate archlinux32
     #pacman-key --refresh-keys
