@@ -99,3 +99,20 @@ else
     remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
     remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
 fi
+
+
+# Added autologin group to auto login
+groupadd autologin
+usermod -aG autologin ${username}
+
+
+# Enable LightDM to auto login
+if [[ "${boot_splash}" =  true ]]; then
+    systemctl enable lightdm.service
+else
+    systemctl enable lightdm-plymouth.service
+fi
+
+
+# Replace auto login user
+sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
