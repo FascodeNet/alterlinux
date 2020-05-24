@@ -148,15 +148,6 @@ checkpkg() {
 }
 
 
-_pacman_install() {
-    for i in ${@}; do
-        if [[ $(checkpkg "${i}") = false ]]; then
-            pacman -S --noconfirm "${i}"
-        fi
-    done
-}
-
-
 run() {
     msg_info "Running ${@}"
     ${@}
@@ -185,10 +176,10 @@ prepare() {
 
 
 update_arch_key() {
+    pacman-key --refresh-keys
     pacman-key --init
     pacman-key --populate archlinux
-    _pacman_install core/archlinux-keyring
-    pacman-key --refresh-keys
+    pacman -S --noconfirm  core/archlinux-keyring
     pacman -Sy
 }
 
