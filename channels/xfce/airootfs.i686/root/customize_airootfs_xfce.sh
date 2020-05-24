@@ -96,6 +96,11 @@ dconf update
 systemctl enable firewalld.service
 
 
+# Added autologin group to auto login
+groupadd autologin
+usermod -aG autologin ${username}
+
+
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
     systemctl enable lightdm.service
