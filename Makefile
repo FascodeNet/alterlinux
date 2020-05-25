@@ -65,13 +65,13 @@ build_option:
 	fi
 	./menuconf-to-alterconf.sh ./.build_option
 clean:
-	@sudo ./build.sh clean
+	@sudo ./${BUILD_SCRIPT} clean
 	@rm -rf menuconfig/build
 	@rm -f menuconfig-script/kernel_choice
 	@rm -f .config
 	@rm -f .build_option 
 build:build_option
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
-	sudo ./build.sh ${BUILD_OPTION}
+	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}
 keyring::
 	sudo ./keyring.sh --alter-add --arch-add 
