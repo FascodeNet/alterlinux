@@ -8,7 +8,9 @@
 *.log
 *.log.*
 *.sig
-
+.build_option
+.config
+.config.old
 pkg/
 src/
 out/

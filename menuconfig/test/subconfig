@@ -1,0 +1,9 @@
+comment "This file can contain arbitrary nesting and dependencies and is always included"
+
+# This option is only configured if GEN_CHOICE2 is set
+if GEN_CHOICE2
+	config OPTIONAL_PARAM
+		string
+		default "opt"
+endif
+
