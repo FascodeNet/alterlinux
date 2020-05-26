@@ -1019,16 +1019,6 @@ make_syslinux() {
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%INSTALL_DIR%|${install_dir}|g" \
-             "${script_path}/syslinux/${arch}/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
-
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" \
-             "${script_path}/syslinux/${arch}/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
-    else
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" \
              "${script_path}/syslinux/${arch}/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
 
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
