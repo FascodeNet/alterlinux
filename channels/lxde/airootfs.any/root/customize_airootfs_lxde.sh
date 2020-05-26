@@ -85,10 +85,12 @@ dconf update
 
 
 # Snap
-systemctl enable snapd.apparmor.service
-systemctl enable apparmor.service
-systemctl enable snapd.socket
-systemctl enable snapd.service
+if [[ "${arch}" = "x86_64" ]]; then
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
+fi
 
 
 # firewalld
@@ -114,11 +116,11 @@ usermod -aG autologin ${username}
 
 
 # Enable LightDM to auto login
-if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable lightdm.service
-else
-    systemctl enable lightdm-plymouth.service
-fi
+# Enable LightDM to auto login
+systemctl disable lightdm.service
+systemctl disable lightdm-plymouth.service
+systemctl enable live-lightdm.service
+systemctl enable live-lightdm-plymouth.service
 
 
 # Replace auto login user
