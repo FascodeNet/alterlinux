@@ -111,10 +111,14 @@ usermod -aG autologin ${username}
 
 # Enable LightDM to auto login
 systemctl disable lightdm.service
-systemctl disable lightdm-plymouth.service
-systemctl enable live-lightdm.service
-systemctl enable live-lightdm-plymouth.service
-
+if [[ "${boot_splash}" = true ]]; then
+    systemctl disable lightdm-plymouth.service
+    systemctl enable live-lightdm.service
+    systemctl enable live-lightdm-plymouth.service
+else
+    remove "/usr/lib/systemd/system/live-lightdm.service"
+    remove "/usr/lib/systemd/system/live-lightdm-plymouth.service"
+fi
 
 
 # Replace auto login user
