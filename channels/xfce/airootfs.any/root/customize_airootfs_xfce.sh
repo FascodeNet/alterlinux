@@ -70,6 +70,27 @@ fi
 [[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 
+# Bluetooth
+rfkill unblock all
+systemctl enable bluetooth
+
+# Snap
+if [[ "${arch}" = "x86_64" ]]; then
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
+fi
+
+
+# Update system datebase
+dconf update
+
+
+# firewalld
+systemctl enable firewalld.service
+
+
 # Replace link
 if [[ "${japanese}" = true ]]; then
     remove /etc/skel/Desktop/welcome-to-alter.desktop
@@ -83,32 +104,18 @@ else
 fi
 
 
-# Bluetooth
-rfkill unblock all
-systemctl enable bluetooth
-
-
-# Update system datebase
-dconf update
-
-
-# firewalld
-systemctl enable firewalld.service
-
-
 # Added autologin group to auto login
 groupadd autologin
 usermod -aG autologin ${username}
 
 
 # Enable LightDM to auto login
-if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable lightdm.service
-else
-    systemctl enable lightdm-plymouth.service
-fi
+systemctl disable lightdm.service
+systemctl disable lightdm-plymouth.service
+systemctl enable live-lightdm.service
+systemctl enable live-lightdm-plymouth.service
+
 
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
-
