@@ -103,9 +103,9 @@ usermod -aG autologin ${username}
 
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable lightdm.service
-else
     systemctl enable lightdm-plymouth.service
+else
+    systemctl enable lightdm.service
 fi
 
 
