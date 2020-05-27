@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 script_path=`dirname $0`
 
-build_arch=$(uname -m)
+build_arch=x86_64
 
 machine_arch=$(uname -m)
 cd ${script_path} 
@@ -11,6 +11,11 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 #build.shのオプションに使う変数を設定
+buf=`grep CONFIG_I686_BUILD .config`
+eval "$buf"
+if [[ $CONFIG_I686_BUILD = "y" ]]; then
+    build_arch=i686
+fi
 buf=`grep CONFIG_KERNEL_N_A_M_E_ .config | sed -e 's/=y//g' | sed -e 's/CONFIG_KERNEL_N_A_M_E_/kernel=/g'`
 eval "$buf"
 buf=`grep CONFIG_ENABLE_PLYMOUTH .config | sed -e 's/y/true/g' | sed -e 's/CONFIG_ENABLE_PLYMOUTH/plymouth/g'`
