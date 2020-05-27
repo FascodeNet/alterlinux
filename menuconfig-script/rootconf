@@ -1,5 +1,12 @@
 mainmenu "AlterLinuxのビルド設定"
-
+choice
+	prompt "アーキテクチャ"
+	default X64_BUILD
+	config X64_BUILD
+		bool "x86_64"
+	config I686_BUILD
+		bool "i686"
+endchoice
 
 menu "起動設定"
 	config ENABLE_PLYMOUTH
@@ -7,10 +14,18 @@ menu "起動設定"
 	config USE_OTHER_KERNEL
 		bool "zenカーネル以外を使用"
 	if USE_OTHER_KERNEL
-		choice
-			prompt "使用するカーネル"
-			source kernel_choice
-		endchoice
+		if I686_BUILD
+			choice
+				prompt "使用するカーネル"
+				source kernel_choice_i686
+			endchoice
+		endif
+		if X64_BUILD
+			choice
+				prompt "使用するカーネル"
+				source kernel_choice_x86_64
+			endchoice
+		endif
 	endif
 	choice
 		prompt "Squashfsの圧縮形式"
