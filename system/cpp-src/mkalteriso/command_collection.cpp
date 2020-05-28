@@ -9,6 +9,7 @@ void command_collection::set_build_setting(build_setting* bss){
 }
 int command_collection::command_init(){
     _show_config(INIT);
+    _chroot_init();
     return 0;
 }
 int command_collection::command_install(){
@@ -24,7 +25,7 @@ int command_collection::command_install(){
         _msg_err("Packages must be specified");
         return 2;
     }
-    _chroot_init();
+    _pacman(pkgls);
     return 0;
 
 }
