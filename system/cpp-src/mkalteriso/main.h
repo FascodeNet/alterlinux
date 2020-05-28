@@ -21,12 +21,13 @@ class AppMain : public QObject
 public:
   AppMain(QObject *parent, QCoreApplication* coreApp);
   build_setting build_setting_obj;
+
+  command_collection cmd_collect;
 public slots:
   void run();
 
 private:
   QCoreApplication* app;
-  command_collection cmd_collect;
   struct utsname uname_strkun;
 };
 

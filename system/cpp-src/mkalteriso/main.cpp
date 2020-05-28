@@ -5,7 +5,9 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     AppMain m(0,&a);
     QTimer::singleShot(0,&m,SLOT(run()));
-    return a.exec();
+    int retkun= a.exec();
+    m.cmd_collect.force_umount();
+    return retkun;
 }
 bool isroot(){
     uid_t uid  = {0};
@@ -46,7 +48,7 @@ void AppMain::run()
     build_setting_obj.set_pkg_list("");
     build_setting_obj.set_run_cmd("");
     build_setting_obj.set_iso_application("Alter Linux Live/Rescue CD");
-    build_setting_obj.set_quiet(false);
+    build_setting_obj.set_quiet(true);
     build_setting_obj.set_use_gpg_key(false);
     time_t     now;
     struct tm  *ts;
