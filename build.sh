@@ -1295,7 +1295,7 @@ fi
 if [[ "${shmkalteriso}" = false ]]; then
     mkalteriso="${script_path}/system/mkalteriso"
     cd "${script_path}"
-    make system/mkalteriso
+    make mkalteriso
     cd - > /dev/null 2>&1
 else
     mkalteriso="${script_path}/system/mkalteriso.sh"
