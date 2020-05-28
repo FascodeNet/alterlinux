@@ -45,6 +45,7 @@ int command_collection::_pacman(QString packages){
     QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M \"" +safe_workdir + "/airootfs\" " + packages;
     std::wcout << "Running pacstrap......\n" << command_strkun.toStdWString() << std::endl;
     system(command_strkun.toUtf8().data());
+    std::wcout << "Packages installed successfully!" << std::endl;
     return 0;
 }
 void command_collection::_show_config(show_config_type typekun){
