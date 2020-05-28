@@ -14,5 +14,8 @@ find_package(Qt5Core)
 
 add_executable(mkalteriso
   main.cpp
+  main.h
+  build_setting.cpp
+  build_setting.h
 )
 target_link_libraries(mkalteriso Qt5::Core)
