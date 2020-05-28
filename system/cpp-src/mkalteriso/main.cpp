@@ -33,7 +33,7 @@ void AppMain::run()
         app->exit(809);
         return;
     }
-    umask(0077); //permission
+    umask(0000); //permission
     // commandline_parse
     build_setting_obj.set_architecture(uname_strkun.machine);
     build_setting_obj.set_pacman_conf("/etc/pacman.conf");
