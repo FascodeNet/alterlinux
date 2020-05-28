@@ -95,7 +95,7 @@ int command_collection::_cleanup(){
     QString cmdkun_buf="work_dir=\"" + bskun->get_work_dir() + "\"\nfind \"${work_dir}\" \\( -name \"*.pacnew\" -o -name \"*.pacsave\" -o -name \"*.pacorig\" \\) -delete";
     _msg_info(cmdkun_buf);
     system(cmdkun_buf.toUtf8().data());
-    _msg_info("Done!");
+    _msg_success("Done!");
     return 0;
 }
 int command_collection::_mkairootfs_sfs(){
@@ -111,7 +111,7 @@ int command_collection::_mkairootfs_sfs(){
             + bskun->get_sfs_comp() + "\" " + bskun->get_sfs_comp_opt();
     _msg_info(mksquashfs_cmd);
     system(mksquashfs_cmd.toUtf8().data());
-    _msg_info("Done!");
+    _msg_success("Done!");
     return 0;
 }
 int command_collection::command_prepare(){
@@ -129,7 +129,7 @@ void command_collection::_mksignature(){
             + "\"\ngpg --detach-sign --default-key " + bskun->get_gpg_key() + "airootfs.sfs";
     _msg_info(gpg_cmdkun);
     system(gpg_cmdkun.toUtf8().data());
-    _msg_info("Done!");
+    _msg_success("Done!");
 }
 void command_collection::_mkchecksum(){
     _msg_info("Creating checksum file for self-test...");
@@ -140,7 +140,7 @@ void command_collection::_mkchecksum(){
     if(bskun->get_use_gpg_key()){
         _mksignature();
     }
-    _msg_info("Done!");
+    _msg_success("Done!");
 }
 int command_collection::command_pkglist(){
     _msg_info("Creating a list of installed packages on live-enviroment...");
@@ -148,7 +148,7 @@ int command_collection::command_pkglist(){
             +bskun->get_architecture() + "\"\npacman -Q --sysroot \"${work_dir}/airootfs\" > \"${work_dir}/iso/${install_dir}/pkglist.${arch}.txt\"";
     _msg_info(pacman_cmdkun);
     system(pacman_cmdkun.toUtf8().data());
-    _msg_info("Done!");
+    _msg_success("Done!");
     return 0;
 }
 int command_collection::_chroot_run(){
@@ -169,7 +169,7 @@ int command_collection::_pacman(QString packages){
     QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M \"" +safe_workdir + "/airootfs\" " + packages;
     std::wcout << "Running pacstrap......\n" << command_strkun.toStdWString() << std::endl;
     system(command_strkun.toUtf8().data());
-    std::wcout << "Packages installed successfully!" << std::endl;
+    _msg_success("Packages installed successfully!");
     return 0;
 }
 void command_collection::_show_config(show_config_type typekun){
@@ -237,7 +237,7 @@ int command_collection::command_iso(QString iso_name){
     _msg_info(xorriso_cmdkun);
     system(xorriso_cmdkun.toUtf8().data());
     _mkisochecksum();
-    _msg_info("Done! " + bskun->get_out_dir() + "/" + img_name);
+    _msg_success("Done! " + bskun->get_out_dir() + "/" + img_name);
     return 0;
 }
 void command_collection::_mkisochecksum(){
@@ -253,6 +253,9 @@ void command_collection::_mkisochecksum(){
 }
 void command_collection::_msg_info(QString s){
     std::wcout << "[mkalteriso] INFO: " << s.toStdWString() << std::endl;
+}
+void command_collection::_msg_success(QString s){
+    std::wcout << "\e[32m[mkalteriso] INFO: " << s.toStdWString() << "\e[0m" << std::endl;
 }
 void command_collection::_msg_err(QString s){
     std::wcerr << "\e[31m[mkalteriso] ERROR: " << s.toStdWString() << "\e[0m" << std::endl;

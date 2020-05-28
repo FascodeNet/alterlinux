@@ -31,6 +31,7 @@ private:
     void _show_config(show_config_type typekun);
     void _msg_info(QString s);
     void _msg_err(QString s);
+    void _msg_success(QString s);
     int _chroot_init();
     int _chroot_run();
     int _pacman(QString );
