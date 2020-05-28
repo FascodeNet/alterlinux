@@ -111,7 +111,10 @@ int command_collection::_mkairootfs_sfs(){
             + "/" + bskun->get_architecture() + "/airootfs.sfs\" -noappend -comp \""
             + bskun->get_sfs_comp() + "\" " + bskun->get_sfs_comp_opt();
     _msg_infodbg(mksquashfs_cmd);
-    system(mksquashfs_cmd.toUtf8().data());
+    if(system(mksquashfs_cmd.toUtf8().data()) != 0){
+        _msg_err("Error mksquashfs !");
+        return 2;
+    }
     _msg_success("Done!");
     return 0;
 }
@@ -187,9 +190,13 @@ int command_collection::command_prepare(){
     _show_config(PREPARE);
     _cleanup();
     if(bskun->get_sfs_mode() == "sfs"){
-        _mkairootfs_sfs();
+        if(_mkairootfs_sfs()!=0){
+            return 2;
+        }
     }else{
-        _mkairootfs_img();
+        if(_mkairootfs_img()!=0){
+            return 3;
+        }
     }
     _mkchecksum();
     return 0;
@@ -306,7 +313,11 @@ int command_collection::command_iso(QString iso_name){
             + "-eltorito-boot isolinux/isolinux.bin -eltorito-catalog isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin "
             + "${_iso_efi_boot_args} -output \"${out_dir}/${img_name}\" \"${work_dir}/iso/\"";
     _msg_infodbg(xorriso_cmdkun);
-    system(xorriso_cmdkun.toUtf8().data());
+    int ret=system(xorriso_cmdkun.toUtf8().data());
+    if(ret != 0){
+        _msg_err(QString("ERROR xorriso! \n") + QString("Error code : ") + QString::number(ret));
+        return 2;
+    }
     _mkisochecksum();
     _msg_success("Done! " + bskun->get_out_dir() + "/" + img_name);
     return 0;
