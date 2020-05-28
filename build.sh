@@ -399,14 +399,6 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
-    # Check architecture for each channel
-    if [[ ! "${channel_name}" = "rebuild" ]]; then
-        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-        fi
-    fi
-
-
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -1172,10 +1164,7 @@ unset _opt_long
 while :; do
     case ${1} in
         -a | --arch)
-            case "${2}" in
-                "i686" | "x86_64" ) arch="${2}" ;;
-                *) _msg_error "Invaild architecture ${2}" '1' ;;
-            esac
+            arch="${2}"
             shift 2
             ;;
         -b | --boot-splash)
@@ -1373,6 +1362,13 @@ if [[ -n "${1}" ]]; then
     fi
 
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+fi
+
+# Check architecture for each channel
+if [[ ! "${channel_name}" = "rebuild" ]]; then
+    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
 fi
 
 set -eu
