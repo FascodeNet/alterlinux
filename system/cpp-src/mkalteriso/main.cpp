@@ -73,16 +73,17 @@ void AppMain::run()
     QCommandLineOption option_iso_publisher("P","publisher\nDefault : " + build_setting_obj.get_iso_publisher(),"iso publisher",build_setting_obj.get_iso_publisher());
     QCommandLineOption option_iso_application("A","iso application\nDefault : " + build_setting_obj.get_iso_application(),"iso application",build_setting_obj.get_iso_application());
     QCommandLineOption option_install_dir("D","install dir\nDefault : " + build_setting_obj.get_install_dir(),"install dir",build_setting_obj.get_install_dir());
-    QCommandLineOption option_verbose("verbose","verbose");
+    QCommandLineOption option_verbose("v","verbose");
+    QCommandLineOption option_x("x","x");
     QCommandLineOption option_gpg_key("g","gpg key","gpg key");
     parser.addOptions({option_Architecture,option_PACKAGE,option_command,option_file_pacman,option_work_dir
                       ,option_out_dir,option_sfs_mode,option_sfs_comp,option_sfs_special_option,option_iso_label,option_iso_publisher,option_iso_application,option_install_dir
                       ,option_gpg_key});
     parser.addOption(option_verbose);
+    parser.addOption(option_x);
     parser.addOption(option_commands);
 
     parser.addHelpOption();
-    parser.addVersionOption();
     QCommandLineParser commandkun_parser;
     commandkun_parser.setApplicationDescription("command");
     parser.addPositionalArgument("command","command");
@@ -125,11 +126,35 @@ void AppMain::run()
     build_setting_obj.set_command_args(parser.positionalArguments());
     cmd_collect.set_build_setting(&build_setting_obj);
     if(parser.positionalArguments().at(0)=="init"){
+
         app->exit(cmd_collect.command_init());
         return;
     }
     if(parser.positionalArguments().at(0) == "install"){
         app->exit(cmd_collect.command_install());
+        return;
+    }
+    if(parser.positionalArguments().at(0) == "run"){
+        app->exit(cmd_collect.command_run());
+        return;
+    }
+    if(parser.positionalArguments().at(0) == "prepare"){
+        app->exit(cmd_collect.command_prepare());
+        return;
+    }
+    if(parser.positionalArguments().at(0) == "pkglist"){
+        app->exit(cmd_collect.command_pkglist());
+        return;
+    }
+    if(parser.positionalArguments().at(0)=="iso"){
+        if(parser.positionalArguments().count() == 1){
+            std::wcerr << "No image specified" << std::endl;
+            std::wcerr << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir" << std::endl;
+
+            app->exit(1);
+            return;
+        }
+        app->exit(cmd_collect.command_iso(parser.positionalArguments().at(1)));
         return;
     }
     app->exit();

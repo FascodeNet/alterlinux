@@ -14,6 +14,10 @@ public:
     void set_build_setting(build_setting* bskun);
     int command_init();
     int command_install();
+    int command_run();
+    int command_prepare();
+    int command_pkglist();
+    int command_iso(QString);
 private:
     build_setting* bskun;
 
@@ -28,7 +32,14 @@ private:
     void _msg_info(QString s);
     void _msg_err(QString s);
     int _chroot_init();
+    int _chroot_run();
     int _pacman(QString );
+    int _cleanup();
+    int _mkairootfs_sfs();
+    void _mkchecksum();
+    void _mksignature();
+    void _mkisochecksum() ;
+    QString img_name;
 signals:
 
 };
