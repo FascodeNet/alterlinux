@@ -77,3 +77,33 @@ QString build_setting::get_iso_publisher(){
 void build_setting::set_iso_publisher(QString s){
     iso_publisher=s;
 }
+QString build_setting::get_iso_application(){
+    return iso_application;
+}
+void build_setting::set_iso_application(QString s){
+    iso_application=s;
+}
+bool build_setting::get_quiet(){
+    return quiet;
+}
+void build_setting::set_quiet(bool b){
+    quiet=b;
+}
+QString build_setting::get_gpg_key(){
+    return gpg_key;
+}
+void build_setting::set_gpg_key(QString s){
+    gpg_key=s;
+}
+bool build_setting::get_use_gpg_key(){
+    return use_gpg_key;
+}
+void build_setting::set_use_gpg_key(bool b){
+    use_gpg_key=b;
+}
+QStringList build_setting::get_command_args(){
+    return command_args;
+}
+void build_setting::set_command_args(QStringList sl){
+    command_args=sl;
+}

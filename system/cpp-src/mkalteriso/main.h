@@ -11,6 +11,7 @@
 #include <sys/utsname.h>
 #include <QCommandLineParser>
 #include "build_setting.h"
+#include "command_collection.h"
 int main(int argc,char* argv[]);
 bool isroot();
 class AppMain : public QObject
@@ -25,7 +26,7 @@ public slots:
 
 private:
   QCoreApplication* app;
-
+  command_collection cmd_collect;
   struct utsname uname_strkun;
 };
 

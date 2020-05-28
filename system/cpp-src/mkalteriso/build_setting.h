@@ -32,8 +32,19 @@ public:
     void set_iso_label(QString);
     QString get_iso_publisher();
     void set_iso_publisher(QString);
-private:
 
+    QString get_iso_application();
+    void set_iso_application(QString);
+    bool get_quiet();
+    void set_quiet(bool);
+    QString get_gpg_key();
+    void set_gpg_key(QString);
+    bool get_use_gpg_key();
+    void set_use_gpg_key(bool);
+    QStringList get_command_args();
+    void set_command_args(QStringList);
+private:
+    bool quiet;
     QString architecture;
     QString pacman_conf;
     QString install_dir;
@@ -47,6 +58,10 @@ private:
     QString run_cmd;
     QString iso_label;
     QString iso_publisher;
+    QString iso_application;
+    QString gpg_key;
+    bool use_gpg_key;
+    QStringList command_args;
 signals:
 
 };

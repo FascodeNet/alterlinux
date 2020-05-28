@@ -17,5 +17,7 @@ add_executable(mkalteriso
   main.h
   build_setting.cpp
   build_setting.h
+  command_collection.cpp
+  command_collection.h
 )
 target_link_libraries(mkalteriso Qt5::Core)
