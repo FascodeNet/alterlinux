@@ -41,6 +41,7 @@ private:
     void _mkchecksum();
     void _mksignature();
     void _mkisochecksum() ;
+    void _msg_infodbg(QString);
     int _mkairootfs_img();
     void _mount_airootfs();
 

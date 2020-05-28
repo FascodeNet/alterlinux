@@ -94,7 +94,7 @@ int command_collection::_cleanup(){
         }
     }
     QString cmdkun_buf="work_dir=\"" + bskun->get_work_dir() + "\"\nfind \"${work_dir}\" \\( -name \"*.pacnew\" -o -name \"*.pacsave\" -o -name \"*.pacorig\" \\) -delete";
-    _msg_info(cmdkun_buf);
+    _msg_infodbg(cmdkun_buf);
     system(cmdkun_buf.toUtf8().data());
     _msg_success("Done!");
     return 0;
@@ -110,7 +110,7 @@ int command_collection::_mkairootfs_sfs(){
     QString mksquashfs_cmd="mksquashfs \"" +  bskun->get_work_dir() + "/airootfs\" \"" + bskun->get_work_dir() + "/iso/" + bskun->get_install_dir()
             + "/" + bskun->get_architecture() + "/airootfs.sfs\" -noappend -comp \""
             + bskun->get_sfs_comp() + "\" " + bskun->get_sfs_comp_opt();
-    _msg_info(mksquashfs_cmd);
+    _msg_infodbg(mksquashfs_cmd);
     system(mksquashfs_cmd.toUtf8().data());
     _msg_success("Done!");
     return 0;
@@ -198,7 +198,7 @@ void command_collection::_mksignature(){
     _msg_info("Creating signature file...");
     QString gpg_cmdkun="cd \"" + bskun->get_work_dir() + "/iso/" + bskun->get_install_dir() + "/" + bskun->get_architecture()
             + "\"\ngpg --detach-sign --default-key " + bskun->get_gpg_key() + "airootfs.sfs";
-    _msg_info(gpg_cmdkun);
+    _msg_infodbg(gpg_cmdkun);
     system(gpg_cmdkun.toUtf8().data());
     _msg_success("Done!");
 }
@@ -206,7 +206,7 @@ void command_collection::_mkchecksum(){
     _msg_info("Creating checksum file for self-test...");
     QString sha512sum_cmdkun="cd \"" + bskun->get_work_dir() + "/iso/" + bskun->get_install_dir() + "/" + bskun->get_architecture()
             + "\"\nsha512sum airootfs.sfs > airootfs.sha512";
-    _msg_info(sha512sum_cmdkun);
+    _msg_infodbg(sha512sum_cmdkun);
     system(sha512sum_cmdkun.toUtf8().data());
     if(bskun->get_use_gpg_key()){
         _mksignature();
@@ -217,7 +217,7 @@ int command_collection::command_pkglist(){
     _msg_info("Creating a list of installed packages on live-enviroment...");
     QString pacman_cmdkun="work_dir=\"" + bskun->get_work_dir() + "\"\ninstall_dir=\"" + bskun->get_install_dir() + "\"\narch=\""
             +bskun->get_architecture() + "\"\npacman -Q --sysroot \"${work_dir}/airootfs\" > \"${work_dir}/iso/${install_dir}/pkglist.${arch}.txt\"";
-    _msg_info(pacman_cmdkun);
+    _msg_infodbg(pacman_cmdkun);
     system(pacman_cmdkun.toUtf8().data());
     _msg_success("Done!");
     return 0;
@@ -226,7 +226,7 @@ int command_collection::_chroot_run(){
     QString workdir_safe=bskun->get_work_dir();
     workdir_safe=workdir_safe.replace(";","");
     QString command_strkun="arch-chroot " + workdir_safe + "/airootfs " + bskun->get_run_cmd() ;
-    _msg_info(command_strkun);
+    _msg_infodbg(command_strkun);
     system(command_strkun.toUtf8().data());
     return 0;
 }
@@ -305,7 +305,7 @@ int command_collection::command_iso(QString iso_name){
             "\"\nxorriso -as mkisofs -iso-level 3 -full-iso9660-filenames -volid \"${iso_label}\" -appid \"${iso_application}\" -publisher \"${iso_publisher}\" -preparer \"prepared by mkalteriso\" "
             + "-eltorito-boot isolinux/isolinux.bin -eltorito-catalog isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin "
             + "${_iso_efi_boot_args} -output \"${out_dir}/${img_name}\" \"${work_dir}/iso/\"";
-    _msg_info(xorriso_cmdkun);
+    _msg_infodbg(xorriso_cmdkun);
     system(xorriso_cmdkun.toUtf8().data());
     _mkisochecksum();
     _msg_success("Done! " + bskun->get_out_dir() + "/" + img_name);
@@ -314,16 +314,21 @@ int command_collection::command_iso(QString iso_name){
 void command_collection::_mkisochecksum(){
     _msg_info("Creating md5 checksum ...");
     QString md5_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + img_name + "\"\ncd \"${out_dir}\"\nmd5sum \"${img_name}\" > \"${img_name}.md5\"";
-    _msg_info(md5_cmdkun);
+    _msg_infodbg(md5_cmdkun);
     system(md5_cmdkun.toUtf8().data());
     _msg_info("Creating sha256 checksum ...");
     QString sha256_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + img_name + "\"\ncd \"${out_dir}\"\nsha256sum \"${img_name}\" > \"${img_name}.sha256\"";
-    _msg_info(sha256_cmdkun);
+    _msg_infodbg(sha256_cmdkun);
     system(sha256_cmdkun.toUtf8().data());
 
 }
 void command_collection::_msg_info(QString s){
     std::wcout << "[mkalteriso] INFO: " << s.toStdWString() << std::endl;
+}
+void command_collection::_msg_infodbg(QString s){
+    if(!bskun->get_quiet()){
+        std::wcout << "\e[35m[mkalteriso] DEBUG: " << s.toStdWString() << "\e[0m" << std::endl;
+    }
 }
 void command_collection::_msg_success(QString s){
     std::wcout << "\e[32m[mkalteriso] INFO: " << s.toStdWString() << "\e[0m" << std::endl;
