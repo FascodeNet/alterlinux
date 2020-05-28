@@ -255,5 +255,5 @@ void command_collection::_msg_info(QString s){
     std::wcout << "[mkalteriso] INFO: " << s.toStdWString() << std::endl;
 }
 void command_collection::_msg_err(QString s){
-    std::wcerr << "[mkalteriso] ERROR: " << s.toStdWString() << std::endl;
+    std::wcerr << "\e[31m[mkalteriso] ERROR: " << s.toStdWString() << "\e[0m" << std::endl;
 }
