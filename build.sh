@@ -1287,7 +1287,7 @@ fi
 
 
 # Build mkalteriso
-if [[ "${shmkalteriso}" = false ]]; 
+if [[ "${shmkalteriso}" = false ]]; then
     mkalteriso="${script_path}/system/mkalteriso"
     cd "${script_path}"
     make system/mkalteriso
