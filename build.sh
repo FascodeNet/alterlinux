@@ -572,7 +572,7 @@ prepare_build() {
     fi
 
     # Load loop kernel module
-    if [[ ! -d "/usr/share/modules/$(uname -r)" ]]; then
+    if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
         _msg_error "The currently running kernel module could not be found."
         _msg_error "Probably the system kernel has been updated."
         _msg_error "Reboot your system to run the latest kernel." "1"
