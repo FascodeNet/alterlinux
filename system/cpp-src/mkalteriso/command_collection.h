@@ -18,9 +18,10 @@ public:
     int command_prepare();
     int command_pkglist();
     int command_iso(QString);
+    void force_umount();
 private:
     build_setting* bskun;
-
+    bool umount_kun;
     enum show_config_type{
         INIT=0,
         INSTALL=1,
@@ -40,6 +41,10 @@ private:
     void _mkchecksum();
     void _mksignature();
     void _mkisochecksum() ;
+    int _mkairootfs_img();
+    void _mount_airootfs();
+
+    void _umount_airootfs();
     QString img_name;
 signals:
 

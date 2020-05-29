@@ -2,10 +2,11 @@
 
 command_collection::command_collection(QObject *parent) : QObject(parent)
 {
-
+umount_kun=false;
 }
 void command_collection::set_build_setting(build_setting* bss){
     bskun=bss;
+
 }
 int command_collection::command_init(){
     _show_config(INIT);
@@ -114,11 +115,81 @@ int command_collection::_mkairootfs_sfs(){
     _msg_success("Done!");
     return 0;
 }
+void command_collection::_mount_airootfs(){
+    umount_kun=true;
+    QDir workkun(bskun->get_work_dir());
+    if(!workkun.exists("mnt/airootfs")){
+        workkun.mkpath("mnt/airootfs");
+    }
+    _msg_info("Mounting '" + bskun->get_work_dir() + "/airootfs.img' on '" + bskun->get_work_dir() + "/mnt/airootfs'");
+    QString mount_cmd="mount \"" + bskun->get_work_dir() + "/airootfs.img\" \"" + bskun->get_work_dir() + "/mnt/airootfs\"";
+    _msg_info(mount_cmd);
+    system(mount_cmd.toUtf8().data());
+    _msg_success("Done!");
+
+}
+void command_collection::_umount_airootfs(){
+    _msg_info("Unmounting '" + bskun->get_work_dir() + "/mnt/airootfs'");
+    QString umount_cmdrun="umount -d \"" + bskun->get_work_dir() + "/mnt/airootfs\"";
+    _msg_info(umount_cmdrun);
+    system(umount_cmdrun.toUtf8().data());
+    _msg_success("Done!");
+    QString rmdirkun="rmdir \"" + bskun->get_work_dir() + "/mnt/airootfs\"";
+    _msg_info(rmdirkun);
+    system(rmdirkun.toUtf8().data());
+
+}
+void command_collection::force_umount(){
+    if(umount_kun){
+        _umount_airootfs();
+    }
+}
+int command_collection::_mkairootfs_img(){
+    QDir workdirkun(bskun->get_work_dir());
+    if(!workdirkun.exists("airootfs")){
+        _msg_err("The path '" + bskun->get_work_dir() + "/airootfs' does not exist");
+        return 1;
+    }
+    _msg_info("Creating ext4 image of 32GiB...");
+    QString truncate_cmdstr="truncate -s 32GB \"" + bskun->get_work_dir() + "/airootfs.img\"";
+    _msg_info(truncate_cmdstr);
+    system(truncate_cmdstr.toUtf8().data());
+    QString mkfs_ext4_cmdstr="mkfs.ext4 -O ^has_journal,^resize_inode -E lazy_itable_init=0 -m 0 -F \"" + bskun->get_work_dir() + "/airootfs.img\"";
+    _msg_info(mkfs_ext4_cmdstr);
+    system(mkfs_ext4_cmdstr.toUtf8().data());
+    QString tune2fs_cmdstr="tune2fs -c 0 -i 0 \"" + bskun->get_work_dir() + "/airootfs.img\"";
+    _msg_info(tune2fs_cmdstr);
+    system(tune2fs_cmdstr.toUtf8().data());
+    _msg_success("Done!");
+    _mount_airootfs();
+    QString workdirstr=bskun->get_work_dir();
+    _msg_info("Copying '" + workdirstr + "/airootfs/' to '" + workdirstr + "/mnt/airootfs/'...");
+    QString cp_kun="cp -aT \"" + workdirstr + "/airootfs/\" \"" + workdirstr + "/mnt/airootfs/\"";
+    _msg_info(cp_kun);
+    system(cp_kun.toUtf8().data());
+    QString chownkun="chown root:root \"" + workdirstr + "/mnt/airootfs/\"";
+    _msg_info(chownkun);
+    system(chownkun.toUtf8().data());
+    _msg_success("Done!");
+    _umount_airootfs();
+    workdirkun.mkpath("iso/" + bskun->get_install_dir() + "/" + bskun->get_architecture());
+    _msg_info("Creating SquashFS image, this may take some time...");
+    QString mksquashfskun="mksquashfs \"" + workdirstr + "/airootfs.img\" \"" + workdirstr + "/iso/" + bskun->get_install_dir() + "/" + bskun->get_architecture()
+            + "/airootfs.sfs\" -noappend -comp \"" + bskun->get_sfs_comp() + "\" " + bskun->get_sfs_comp_opt();
+    _msg_info(mksquashfskun);
+    system(mksquashfskun.toUtf8().data());
+    _msg_success("Done!");
+    workdirkun.remove("airootfs.img");
+    return 0;
+
+}
 int command_collection::command_prepare(){
     _show_config(PREPARE);
     _cleanup();
     if(bskun->get_sfs_mode() == "sfs"){
         _mkairootfs_sfs();
+    }else{
+        _mkairootfs_img();
     }
     _mkchecksum();
     return 0;

@@ -5,7 +5,9 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     AppMain m(0,&a);
     QTimer::singleShot(0,&m,SLOT(run()));
-    return a.exec();
+    int retkun= a.exec();
+    m.cmd_collect.force_umount();
+    return retkun;
 }
 bool isroot(){
     uid_t uid  = {0};
