@@ -40,7 +40,12 @@ else
     # Colored
     # PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ ']
 
-    # PowerLine
-    powerline-daemon -q
-    source /usr/share/powerline/bindings/bash/powerline.sh
+    # PowerLine-shell
+    function _update_ps1() {
+        PS1="$(powerline-go -error $?)"
+    }
+
+    if [ "$TERM" != "linux" ] && [ -f "$GOPATH/bin/powerline-go" ]; then
+        PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+    fi
 fi
