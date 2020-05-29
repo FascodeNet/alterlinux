@@ -14,16 +14,16 @@ menu "起動設定"
 	config USE_OTHER_KERNEL
 		bool "zenカーネル以外を使用"
 	if USE_OTHER_KERNEL
-		if I686_BUILD
-			choice
-				prompt "使用するカーネル"
-				source kernel_choice_i686
-			endchoice
-		endif
 		if X64_BUILD
 			choice
 				prompt "使用するカーネル"
 				source kernel_choice_x86_64
+			endchoice
+		endif
+		if I686_BUILD
+			choice
+				prompt "使用するカーネル"
+				source kernel_choice_i686
 			endchoice
 		endif
 	endif

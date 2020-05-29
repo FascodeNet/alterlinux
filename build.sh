@@ -48,7 +48,7 @@ japanese=false
 channel_name='xfce'
 cleaning=false
 username='alter'
-mkalteriso="${script_path}/system/mkalteriso"
+shmkalteriso="false"
 usershell="/bin/bash"
 noconfirm=false
 nodepend=false
@@ -253,6 +253,7 @@ _usage () {
     echo "    --gitversion                 Add Git commit hash to image file version"
     echo "    --noconfirm                  Does not check the settings before building."
     echo "    --nodepend                   Do not check package dependencies before building."
+    echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
     echo
@@ -480,6 +481,7 @@ prepare_build() {
             cleaning \
             username mkalteriso \
             usershell \
+            shmkalteriso \
             build_pacman_conf
     else
         # Load rebuild file
@@ -1149,7 +1151,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion,shmkalteriso"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1249,6 +1251,10 @@ while :; do
             fi
             shift 1
             ;;
+        --shmkalteriso)
+            shmkalteriso=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1277,6 +1283,17 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "Re-run 'sudo ${0} ${options}'"
     sudo ${0} ${options}
     exit 1
+fi
+
+
+# Build mkalteriso
+if [[ "${shmkalteriso}" = false ]]; 
+    mkalteriso="${script_path}/system/mkalteriso"
+    cd "${script_path}"
+    make system/mkalteriso
+    cd - > /dev/null 2>&1
+else
+    mkalteriso="${script_path}/system/mkalteriso.sh"
 fi
 
 

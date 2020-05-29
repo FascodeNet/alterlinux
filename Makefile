@@ -7,39 +7,39 @@ ARCH_x86_64  = -a x86_64
 ARCH_i686    = -a i686
 
 
-full:
+full:system/mkalteriso
 	@sudo ./fullbuild.sh
 	@make clean
 
-xfce-64:
+xfce-64:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} xfce
 	@make clean
 
-plasma-64:
+plasma-64:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} plasma
 	@make clean
 
-releng-64:
+releng-64:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} releng
 	@make clean
 
-lxde-64:
+lxde-64:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} lxde
 	@make clean
 
-xfce-32:
+xfce-32:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} xfce
 	@make clean
 
-plasma-32:
+plasma-32:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} plasma
 	@make clean
 
-releng-32:
+releng-32:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} releng
 	@make clean
 
-lxde-32:
+lxde-32:system/mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} lxde
 	@make clean
 
@@ -51,7 +51,15 @@ menuconfig/build/mconf::
 		mkdir menuconfig/build ;\
 	fi
 	(cd menuconfig/build ; cmake -GNinja .. ; ninja -j4 )
-
+system/mkalteriso:
+	@if [ -d system/cpp-src/mkalteriso/build ];\
+	then \
+		:;\
+	else \
+		mkdir system/cpp-src/mkalteriso/build ;\
+	fi
+	(cd system/cpp-src/mkalteriso/build ; cmake -GNinja .. ; ninja -j4 ; cp -f mkalteriso ../../../)
+	
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
 menuconfig-script/kernel_choice:system/kernel_list-x86_64 system/kernel_list-i686
@@ -67,10 +75,11 @@ build_option:
 clean:
 	@sudo ./${BUILD_SCRIPT} clean
 	@rm -rf menuconfig/build
+	@rm -rf system/mkalteriso/cpp-src/build
 	@rm -f menuconfig-script/kernel_choice
 	@rm -f .config
 	@rm -f .build_option 
-build:build_option
+build:build_option system/mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
 	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}
 keyring::
