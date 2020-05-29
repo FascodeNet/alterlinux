@@ -1,4 +1,6 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # args: source, newroot, mountpoint
 _mnt_dmsnapshot() {
