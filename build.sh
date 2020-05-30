@@ -49,6 +49,7 @@ channel_name='xfce'
 cleaning=false
 username='alter'
 shmkalteriso="false"
+nocolor=false
 usershell="/bin/bash"
 noconfirm=false
 nodepend=false
@@ -135,7 +136,11 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    if [[ "${nocolor}" = false ]]; then
+        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    else
+        echo ${echo_opts} "${@}"
+    fi
 }
 
 
@@ -251,6 +256,7 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
     echo "    --nodepend                   Do not check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
@@ -482,6 +488,7 @@ prepare_build() {
             username mkalteriso \
             usershell \
             shmkalteriso \
+            nocolor \
             build_pacman_conf
     else
         # Load rebuild file
@@ -1156,7 +1163,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion,shmkalteriso"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1244,6 +1251,10 @@ while :; do
             ;;
         --nodepend)
             nodepend=true
+            shift 1
+            ;;
+        --nocolor)
+            nocolor=true
             shift 1
             ;;
         --gitversion)
