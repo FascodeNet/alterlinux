@@ -288,34 +288,34 @@ int command_collection::_pacman(QString packages){
 }
 void command_collection::_show_config(show_config_type typekun){
     _msg_info("Configuration settings");
-    _msg_info("                   Command:\t" + bskun->get_command_args().at(0));
-    _msg_info("              Architecture:\t" + bskun->get_architecture());
-    _msg_info("         Working directory:\t" + bskun->get_work_dir());
-    _msg_info("    Installation directory:\t" + bskun->get_install_dir());
+    _msg_info("                  Command:\t" + bskun->get_command_args().at(0));
+    _msg_info("             Architecture:\t" + bskun->get_architecture());
+    _msg_info("        Working directory:\t" + bskun->get_work_dir());
+    _msg_info("   Installation directory:\t" + bskun->get_install_dir());
     switch(typekun){
     case INIT:
-        _msg_info("        Pacman config file:\t" + bskun->get_pacman_conf());
+        _msg_info("       Pacman config file:\t" + bskun->get_pacman_conf());
         break;
     case INSTALL:
-        _msg_info("        Pacman config file:\t" + bskun->get_pacman_conf());
-        _msg_info("                  Packages:\t" + bskun->get_pkg_list());
+        _msg_info("       Pacman config file:\t" + bskun->get_pacman_conf());
+        _msg_info("                 Packages:\t" + bskun->get_pkg_list());
         break;
     case RUN:
-        _msg_info("               Run command:\t" + bskun->get_run_cmd());
+        _msg_info("              Run command:\t" + bskun->get_run_cmd());
 
         break;
     case PREPARE:
-        _msg_info(" SquashFS compression type:\t" + bskun->get_sfs_comp());
+        _msg_info("SquashFS compression type:\t" + bskun->get_sfs_comp());
         if(bskun->get_sfs_comp_opt() != ""){
-            _msg_info(" Squashfs compression opts:\t" + bskun->get_sfs_comp_opt());
+            _msg_info("Squashfs compression opts:\t" + bskun->get_sfs_comp_opt());
 
         }
         break;
     case ISO:
-        _msg_info("                Image name:\t" + img_name);
-        _msg_info("                Disk label:\t" + bskun->get_iso_label());
-        _msg_info("            Disk publisher:\t" + bskun->get_iso_publisher());
-        _msg_info("          Disk application:\t" + bskun->get_iso_application());
+        _msg_info("               Image name:\t" + img_name);
+        _msg_info("               Disk label:\t" + bskun->get_iso_label());
+        _msg_info("           Disk publisher:\t" + bskun->get_iso_publisher());
+        _msg_info("         Disk application:\t" + bskun->get_iso_application());
         break;
     }
 }
