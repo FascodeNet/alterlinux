@@ -75,7 +75,7 @@ build_option:
 clean:
 	@sudo ./${BUILD_SCRIPT} clean
 	@rm -rf menuconfig/build
-	@rm -rf system/mkalteriso/cpp-src/build
+	@rm -rf system/cpp-src/mkalteriso/build
 	@rm -f menuconfig-script/kernel_choice
 	@rm -f .config
 	@rm -f .build_option 
