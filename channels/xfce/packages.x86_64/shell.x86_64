@@ -16,7 +16,7 @@ lsd-control
 
 
 #-- Prompt --#
-powerline
+powerline-go
 
 
 #-- zsh --#

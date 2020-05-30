@@ -48,7 +48,8 @@ japanese=false
 channel_name='xfce'
 cleaning=false
 username='alter'
-mkalteriso="${script_path}/system/mkalteriso"
+shmkalteriso="false"
+nocolor=false
 usershell="/bin/bash"
 noconfirm=false
 nodepend=false
@@ -135,7 +136,11 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    if [[ "${nocolor}" = false ]]; then
+        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    else
+        echo ${echo_opts} "${@}"
+    fi
 }
 
 
@@ -251,8 +256,10 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
     echo "    --nodepend                   Do not check package dependencies before building."
+    echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
     echo
@@ -399,14 +406,6 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
-    # Check architecture for each channel
-    if [[ ! "${channel_name}" = "rebuild" ]]; then
-        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-        fi
-    fi
-
-
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -488,6 +487,8 @@ prepare_build() {
             cleaning \
             username mkalteriso \
             usershell \
+            shmkalteriso \
+            nocolor \
             build_pacman_conf
     else
         # Load rebuild file
@@ -578,6 +579,11 @@ prepare_build() {
     fi
 
     # Load loop kernel module
+    if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+        _msg_error "The currently running kernel module could not be found."
+        _msg_error "Probably the system kernel has been updated."
+        _msg_error "Reboot your system to run the latest kernel." "1"
+    fi
     if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
         sudo modprobe loop
     fi
@@ -1157,7 +1163,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1172,10 +1178,7 @@ unset _opt_long
 while :; do
     case ${1} in
         -a | --arch)
-            case "${2}" in
-                "i686" | "x86_64" ) arch="${2}" ;;
-                *) _msg_error "Invaild architecture ${2}" '1' ;;
-            esac
+            arch="${2}"
             shift 2
             ;;
         -b | --boot-splash)
@@ -1250,6 +1253,10 @@ while :; do
             nodepend=true
             shift 1
             ;;
+        --nocolor)
+            nocolor=true
+            shift 1
+            ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
                 cd ${script_path}
@@ -1258,6 +1265,10 @@ while :; do
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
+            shift 1
+            ;;
+        --shmkalteriso)
+            shmkalteriso=true
             shift 1
             ;;
         --)
@@ -1288,6 +1299,17 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "Re-run 'sudo ${0} ${options}'"
     sudo ${0} ${options}
     exit 1
+fi
+
+
+# Build mkalteriso
+if [[ "${shmkalteriso}" = false ]]; then
+    mkalteriso="${script_path}/system/mkalteriso"
+    cd "${script_path}"
+    make mkalteriso
+    cd - > /dev/null 2>&1
+else
+    mkalteriso="${script_path}/system/mkalteriso.sh"
 fi
 
 
@@ -1373,6 +1395,13 @@ if [[ -n "${1}" ]]; then
     fi
 
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+fi
+
+# Check architecture for each channel
+if [[ ! "${channel_name}" = "rebuild" ]]; then
+    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
 fi
 
 set -eu
