@@ -1,0 +1,11 @@
+[Match]
+Name=en*
+Name=eth*
+
+[Network]
+DHCP=ipv4
+IPv6PrivacyExtensions=yes
+IPv6AcceptRA=false
+
+[DHCP]
+RouteMetric=512

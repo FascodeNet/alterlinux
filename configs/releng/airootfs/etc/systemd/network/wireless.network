@@ -1,0 +1,11 @@
+[Match]
+Name=wlp*
+Name=wlan*
+
+[Network]
+DHCP=ipv4
+IPv6PrivacyExtensions=yes
+IPv6AcceptRA=false
+
+[DHCP]
+RouteMetric=1024
