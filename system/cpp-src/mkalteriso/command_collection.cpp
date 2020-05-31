@@ -294,36 +294,125 @@ int command_collection::_pacman(QString packages){
     _msg_success("Packages installed successfully!");
     return 0;
 }
+template<class... SHOWVALKUN> void command_collection::show_conf_l(int maxkun,void (*do_msgshow)(QString),SHOWVALKUN... txtargkun){
+    QString bfkun="";
+    for(show_valkun i:std::initializer_list<show_valkun>{txtargkun...}){
+        bfkun="";
+        bfkun=i.first.rightJustified(maxkun,' ');
+        do_msgshow(bfkun + QString("\t") + i.second);
+    }
+}
+
+template<class... SHOWVALKUN> void command_collection::show_conf_l(void (*do_msgshow)(QString),SHOWVALKUN... txtargkun){
+    QString bfkun="";
+    int maxkun=0;
+    maxkun=max_lenkun_QString(txtargkun...);
+    for(show_valkun i:std::initializer_list<show_valkun>{txtargkun...}){
+        bfkun="";
+        bfkun=i.first.rightJustified(maxkun,' ');
+        do_msgshow(bfkun + QString("\t") + i.second);
+    }
+}
+template<class... LNKUN> int command_collection::max_lenkun(LNKUN... args){
+    int dest=0;
+    for(int i:std::initializer_list<int>{args...}){
+        if(dest < i) dest=i;
+    }
+    return dest;
+}
+template<class... LNKUNS> int command_collection::max_lenkun_QString(LNKUNS... args){
+    int dest=0;
+    for(show_valkun sk:std::initializer_list<show_valkun>{args...}){
+        if(dest < sk.first.length()) dest=sk.first.length();
+    }
+    return dest;
+}
+template<class... SHOWVALKUN> void command_collection::show_conf_dkun(void (*do_msgshow)(QString),SHOWVALKUN... argkun){
+
+    QString command_h="Command:";
+    QString Archi_h="Architecture:";
+    QString WD_H="Working directory:";
+    QString Installe_h="Installation directory:";
+    show_valkun command_hkun,arch_hlkun,wd_hkun,inst_hkun;
+    command_hkun.first=command_h;
+    command_hkun.second=bskun->get_command_args().at(0);
+    arch_hlkun.first=Archi_h;
+    arch_hlkun.second=bskun->get_architecture();
+    wd_hkun.first=WD_H;
+    wd_hkun.second=bskun->get_work_dir();
+    inst_hkun.first=Installe_h;
+    inst_hkun.second=bskun->get_install_dir();
+    show_conf_l(do_msgshow,command_hkun,arch_hlkun,wd_hkun,inst_hkun,argkun...);
+}
 void command_collection::_show_config(show_config_type typekun){
     _msg_info("Configuration settings");
-    _msg_info("                  Command:\t" + bskun->get_command_args().at(0));
+    /*_msg_info("                  Command:\t" + bskun->get_command_args().at(0));
     _msg_info("             Architecture:\t" + bskun->get_architecture());
     _msg_info("        Working directory:\t" + bskun->get_work_dir());
     _msg_info("   Installation directory:\t" + bskun->get_install_dir());
+    */
+
+    show_valkun packun_v;
+    show_valkun pkg_cfkun;
+    show_valkun pkg_cfkun1;
+    show_valkun pkg_cfkun2;
+
     switch(typekun){
     case INIT:
-        _msg_info("       Pacman config file:\t" + bskun->get_pacman_conf());
+        //_msg_info("       Pacman config file:\t" + bskun->get_pacman_conf());
+
+        packun_v.first="Pacman config file:";
+        packun_v.second=bskun->get_pacman_conf();
+        show_conf_dkun(_msg_info,packun_v);
         break;
     case INSTALL:
-        _msg_info("       Pacman config file:\t" + bskun->get_pacman_conf());
-        _msg_info("                 Packages:\t" + bskun->get_pkg_list());
+        //_msg_info("       Pacman config file:\t" + bskun->get_pacman_conf());
+
+        packun_v.first="Pacman config file:";
+        packun_v.second=bskun->get_pacman_conf();
+        pkg_cfkun.first="Packages:";
+        pkg_cfkun.second=bskun->get_pkg_list();
+        //_msg_info("                 Packages:\t" + bskun->get_pkg_list());
+        show_conf_dkun(_msg_info,packun_v,pkg_cfkun);
         break;
     case RUN:
-        _msg_info("              Run command:\t" + bskun->get_run_cmd());
-
+        //_msg_info("              Run command:\t" + bskun->get_run_cmd());
+        packun_v.first="Run command:";
+        packun_v.second= bskun->get_run_cmd();
+        show_conf_dkun(_msg_info,packun_v);
         break;
     case PREPARE:
-        _msg_info("SquashFS compression type:\t" + bskun->get_sfs_comp());
+        //_msg_info("SquashFS compression type:\t" + bskun->get_sfs_comp());
+        packun_v.first="SquashFS compression type:";
+        packun_v.second=bskun->get_sfs_comp();
         if(bskun->get_sfs_comp_opt() != ""){
-            _msg_info("Squashfs compression opts:\t" + bskun->get_sfs_comp_opt());
-
+            //_msg_info("Squashfs compression opts:\t" + bskun->get_sfs_comp_opt());
+            pkg_cfkun.first="Squashfs compression opts:";
+            pkg_cfkun.second=bskun->get_sfs_comp_opt();
+            show_conf_dkun(_msg_info,packun_v,pkg_cfkun);
+        }else{
+            show_conf_dkun(_msg_info,packun_v);
         }
         break;
     case ISO:
-        _msg_info("               Image name:\t" + img_name);
-        _msg_info("               Disk label:\t" + bskun->get_iso_label());
-        _msg_info("           Disk publisher:\t" + bskun->get_iso_publisher());
-        _msg_info("         Disk application:\t" + bskun->get_iso_application());
+        //_msg_info("               Image name:\t" + img_name);
+        packun_v.first="Image name:";
+        packun_v.second=img_name;
+        //_msg_info("               Disk label:\t" + bskun->get_iso_label());
+        pkg_cfkun.first="Disk label:";
+        pkg_cfkun.second=bskun->get_iso_label();
+        //_msg_info("           Disk publisher:\t" + bskun->get_iso_publisher());
+        pkg_cfkun1.first="Disk publisher:";
+        pkg_cfkun1.second=bskun->get_iso_publisher();
+        pkg_cfkun2.first="Disk application:";
+        pkg_cfkun2.second=bskun->get_iso_application();
+        //_msg_info("         Disk application:\t" + bskun->get_iso_application());
+        show_conf_dkun(_msg_info,packun_v,pkg_cfkun,pkg_cfkun1,pkg_cfkun2);
+        break;
+    default:
+        packun_v.first="";
+        packun_v.second="";
+        show_conf_dkun(_msg_info,packun_v,packun_v);
         break;
     }
 }

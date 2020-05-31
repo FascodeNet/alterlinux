@@ -6,6 +6,7 @@
 #include <QDir>
 #include <stdio.h>
 #include "build_setting.h"
+
 class command_collection : public QObject
 {
     Q_OBJECT
@@ -30,9 +31,9 @@ private:
         ISO=4
     };
     void _show_config(show_config_type typekun);
-    void _msg_info(QString s);
-    void _msg_err(QString s);
-    void _msg_success(QString s);
+    static void _msg_info(QString s);
+    static void _msg_err(QString s);
+    static void _msg_success(QString s);
     int _chroot_init();
     int _chroot_run();
     int _pacman(QString );
@@ -44,9 +45,18 @@ private:
     void _msg_infodbg(QString);
     int _mkairootfs_img();
     int _mount_airootfs();
-
+    template<class... LNKUN> int max_lenkun(LNKUN... args);
+    template<class... LNKUNS> int max_lenkun_QString(LNKUNS... args);
+    template<class... SHOWVALKUN> void show_conf_l(int maxkun,void (*do_msgshow)(QString),SHOWVALKUN... txtargkun);
+    template<class... SHOWVALKUN> void show_conf_l(void (*do_msgshow)(QString),SHOWVALKUN... txtargkun);
     void _umount_airootfs();
+    template<class... SHOWVALKUN> void show_conf_dkun(void (*do_msgshow)(QString),SHOWVALKUN... argkun);
     QString img_name;
+    static void stubkun(QString);
+    struct show_valkun{
+        QString first;
+        QString second;
+    };
 signals:
 
 };
