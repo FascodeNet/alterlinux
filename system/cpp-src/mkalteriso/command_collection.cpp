@@ -9,11 +9,13 @@ void command_collection::set_build_setting(build_setting* bss){
 
 }
 int command_collection::command_init(){
+    if(bskun == nullptr) return 569;//NULL POINTER
     _show_config(INIT);
     _chroot_init();
     return 0;
 }
 int command_collection::command_install(){
+    if(bskun == nullptr ) return 444;   //null pointer
     QFileInfo finfo(bskun->get_pacman_conf());
     if(!finfo.exists()){
         _msg_err("Pacman config file '" + bskun->get_pacman_conf() + "' does not exist");
@@ -31,6 +33,7 @@ int command_collection::command_install(){
 
 }
 int command_collection::_chroot_init(){
+    if(bskun==nullptr)return 777;   // nullptr
     QDir dir(bskun->get_work_dir());
     if(!dir.exists("airootfs")){
         dir.mkpath("airootfs");
@@ -39,6 +42,7 @@ int command_collection::_chroot_init(){
     return 0;
 }
 int command_collection::command_run(){
+    if(bskun == nullptr) return 456;//nullptr
     if(bskun->get_run_cmd() == ""){
         _msg_err("Not found command....\nYou must set command!");
         return 3;
@@ -48,6 +52,7 @@ int command_collection::command_run(){
 
 }
 int command_collection::_cleanup(){
+    if(bskun == nullptr) return 456;//nullptr
     QDir bootkun(bskun->get_work_dir() + "/airootfs/boot");
     if(bootkun.exists()){   //Delete initcpio image(s) and kernel(s)
         QStringList nameFilters;
@@ -100,6 +105,7 @@ int command_collection::_cleanup(){
     return 0;
 }
 int command_collection::_mkairootfs_sfs(){
+    if(bskun == nullptr) return 456;//nullptr
     QDir workdirkun(bskun->get_work_dir());
     if(!workdirkun.exists("airootfs")){
         _msg_err("The path '" + bskun->get_work_dir() + "/airootfs' does not exist");
@@ -223,6 +229,7 @@ int command_collection::_mkairootfs_img(){
 
 }
 int command_collection::command_prepare(){
+    if(bskun == nullptr) return 456;//nullptr
     _show_config(PREPARE);
     _cleanup();
     if(bskun->get_sfs_mode() == "sfs"){
@@ -257,6 +264,7 @@ void command_collection::_mkchecksum(){
     _msg_success("Done!");
 }
 int command_collection::command_pkglist(){
+    if(bskun == nullptr) return 456;//nullptr
     _msg_info("Creating a list of installed packages on live-enviroment...");
     QString pacman_cmdkun="work_dir=\"" + bskun->get_work_dir() + "\"\ninstall_dir=\"" + bskun->get_install_dir() + "\"\narch=\""
             +bskun->get_architecture() + "\"\npacman -Q --sysroot \"${work_dir}/airootfs\" > \"${work_dir}/iso/${install_dir}/pkglist.${arch}.txt\"";
@@ -320,6 +328,7 @@ void command_collection::_show_config(show_config_type typekun){
     }
 }
 int command_collection::command_iso(QString iso_name){
+    if(bskun == nullptr) return 456;//nullptr
     img_name=iso_name;
     QString _iso_efi_boot_args="";
     QDir workd(bskun->get_work_dir());

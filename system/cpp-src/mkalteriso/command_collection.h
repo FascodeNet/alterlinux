@@ -20,7 +20,7 @@ public:
     int command_iso(QString);
     void force_umount();
 private:
-    build_setting* bskun;
+    build_setting* bskun=nullptr;
     bool umount_kun;
     enum show_config_type{
         INIT=0,
