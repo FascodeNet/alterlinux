@@ -1,5 +1,3 @@
-V=43
-
 INSTALL_FILES=$(wildcard archiso/initcpio/install/*)
 HOOKS_FILES=$(wildcard archiso/initcpio/hooks/*)
 SCRIPT_FILES=$(wildcard archiso/initcpio/script/*)
@@ -34,8 +32,4 @@ install-doc:
 	install -d $(DOC_DIR)
 	install -m 644 -t $(DOC_DIR) $(DOC_FILES)
 
-dist:
-	git archive --format=tar --prefix=archiso-$(V)/ v$(V) | gzip -9 > archiso-$(V).tar.gz
-	gpg --detach-sign --use-agent archiso-$(V).tar.gz
-
-.PHONY: install install-program install-initcpio install-examples install-doc dist
+.PHONY: install install-program install-initcpio install-examples install-doc
