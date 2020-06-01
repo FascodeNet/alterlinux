@@ -320,26 +320,6 @@ _usage () {
 }
 
 
-# Check the value of a variable that can only be set to true or false.
-check_bool() {
-    local 
-    case $(eval echo '$'${1}) in
-        true | false) : ;;
-                   *) _msg_error "The value ${boot_splash} set is invalid" "1";;
-    esac
-}
-
-check_bool boot_splash
-check_bool debug
-check_bool bash_debug
-check_bool rebuild
-check_bool japanese
-check_bool cleaning
-check_bool noconfirm
-check_bool nodepend
-check_bool nocolor
-check_bool shmkalteriso
-
 # Unmount chroot dir
 umount_chroot () {
     local mount
@@ -426,6 +406,7 @@ prepare_build() {
     local trap_remove_work
     trap_remove_work() {
         local status=${?}
+        echo
         remove_work
         exit ${status}
     }
@@ -1407,6 +1388,36 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 fi
+
+
+# Check the value of a variable that can only be set to true or false.
+check_bool() {
+    _msg_debug -n "Checking ${1}..."
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                *) _msg_error "The variable name ${1} is not of bool type." "1";;
+    esac
+    echo -e " ok"
+}
+
+if [[ "${debug}" =  true ]]; then
+    echo
+fi
+check_bool boot_splash
+check_bool debug
+check_bool bash_debug
+check_bool rebuild
+check_bool japanese
+check_bool cleaning
+check_bool noconfirm
+check_bool nodepend
+check_bool nocolor
+check_bool shmkalteriso
+if [[ "${debug}" =  true ]]; then
+    echo
+fi
+
+
 
 set -eu
 
