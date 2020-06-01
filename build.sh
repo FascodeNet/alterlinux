@@ -54,6 +54,7 @@ usershell="/bin/bash"
 noconfirm=false
 nodepend=false
 rebuildfile="${work_dir}/build_options"
+defaultconfig="${script_path}/default.conf"
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
@@ -76,7 +77,7 @@ dependence=(
 
 
 # Load config file
-[[ -f "${script_path}"/config ]] && source "${script_path}"/config
+[[ -f "${defaultconfig}" ]] && source "${defaultconfig}"
 
 
 umask 0022
@@ -1314,7 +1315,7 @@ fi
 
 
 # Show config message
-[[ -f "${script_path}"/config ]] && _msg_debug "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
 
 
 # Debug mode
