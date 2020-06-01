@@ -12,7 +12,7 @@ architectures=(
     "i686"
 )
 
-work_dir=fullbuild.ignore.work
+work_dir=temp
 
 retry=5
 
