@@ -336,6 +336,9 @@ check_bool rebuild
 check_bool japanese
 check_bool cleaning
 check_bool noconfirm
+check_bool nodepend
+check_bool nocolor
+check_bool shmkalteriso
 
 # Unmount chroot dir
 umount_chroot () {
