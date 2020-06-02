@@ -11,5 +11,5 @@
 
 
 #-- mtp --#
-gvfs-mtp
-mtpfs
+#gvfs-mtp
+#mtpfs

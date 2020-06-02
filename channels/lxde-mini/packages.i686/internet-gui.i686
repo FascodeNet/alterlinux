@@ -20,5 +20,5 @@ firefox
 
 
 #-- security --#
-firewalld
-ufw
+# firewalld
+# ufw

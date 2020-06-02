@@ -10,20 +10,20 @@
 # Disk management
 
 
-baobab
+#baobab
 clonezilla
 ddrescue
-dmraid
-fsarchiver
+#dmraid
+#fsarchiver
 gnome-disk-utility
 gparted
 gptfdisk
-hdparm
-lvm2
-mdadm
-partclone
+#hdparm
+#lvm2
+#mdadm
+#partclone
 parted
-partimage
-sdparm
-smartmontools
+#partimage
+#sdparm
+#smartmontools
 testdisk
