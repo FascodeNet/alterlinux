@@ -1,1 +1,1 @@
-Composed of Lxde and a little software
+The lightest version with the package removed from lxde
