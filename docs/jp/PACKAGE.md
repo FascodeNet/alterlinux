@@ -5,7 +5,6 @@
 
 - bash
 - base
-- base-devel
 - haveged
 - intel-ucode
 - amd-ucode
@@ -21,3 +20,6 @@
 - linux headers
 - broadcom-wl
 - broadcom-wl-dkms
+  
+2020年5月28日より、base-develはデフォルトでインストールされなくなりました。  
+各チャンネルのパッケージとしてインストールする必要があります。  

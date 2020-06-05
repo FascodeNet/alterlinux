@@ -4,7 +4,7 @@
 #
 # Yamada Hayao 
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -93,6 +93,22 @@ colors
 if [[ ${TERM} = linux ]]; then
     PROMPT='%B%F{red}%(?..%? )%f%b%B%F{red}%n%f%b@%m %B%40<..<%~%<< %b%# '
 else
-    powerline-daemon -q
-    source /usr/share/powerline/bindings/zsh/powerline.zsh
+    function powerline_precmd() {
+        PS1="$(powerline-go -error $? -shell zsh)"
+    }
+
+    function install_powerline_precmd() {
+        for s in "${precmd_functions[@]}"; do
+            if [ "$s" = "powerline_precmd" ]; then
+                return
+            fi
+        done
+        precmd_functions+=(powerline_precmd)
+    }
+
+    install_powerline_precmd
 fi
+
+#-- Like fish prompt --#
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

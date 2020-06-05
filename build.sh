@@ -2,7 +2,7 @@
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascone.net
+# Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -12,7 +12,7 @@
 #
 
 set -e
-# set -u
+set -u
 script_path="$(readlink -f ${0%/*})"
 
 # alteriso settings
@@ -48,17 +48,20 @@ japanese=false
 channel_name='xfce'
 cleaning=false
 username='alter'
-mkalteriso="${script_path}/system/mkalteriso"
+shmkalteriso="false"
+nocolor=false
 usershell="/bin/bash"
 noconfirm=false
 nodepend=false
 rebuildfile="${work_dir}/build_options"
+defaultconfig="${script_path}/default.conf"
 dependence=(
     "alterlinux-keyring"
 #   "archiso"
     "arch-install-scripts"
     "curl"
     "dosfstools"
+    "edk2-shell"
     "git"
     "libburn"
     "libisofs"
@@ -75,7 +78,7 @@ dependence=(
 
 
 # Load config file
-[[ -f "${script_path}"/config ]] && source "${script_path}"/config
+[[ -f "${defaultconfig}" ]] && source "${defaultconfig}"
 
 
 umask 0022
@@ -135,7 +138,11 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    if [[ "${nocolor}" = false ]]; then
+        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    else
+        echo ${echo_opts} "${@}"
+    fi
 }
 
 
@@ -197,7 +204,6 @@ _msg_debug() {
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
     local echo_opts="-e"
-    local _error="$2"
     local arg
     local OPTIND
     local OPT
@@ -209,8 +215,8 @@ _msg_error() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
-    if [[ -n "${_error}" ]]; then
-        exit ${_error}
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
     fi
 }
 
@@ -220,38 +226,42 @@ _usage () {
     echo
     echo " General options:"
     echo
-    echo "    -b                 Enable boot splash"
-    echo "                        Default: disable"
-    echo "    -j                 Enable Japanese mode."
-    echo "                        Default: disable"
-    echo "    -l                 Enable post-build cleaning."
-    echo "                        Default: disable"
-    echo "    -d                 Enable debug messages."
-    echo "                        Default: disable"
-    echo "    -x                 Enable bash debug mode.(set -xv)"
-    echo "                        Default: disable"
-    echo "    -h                 This help message and exit."
+    echo "    -b | --boot-splash           Enable boot splash"
+    echo "                                  Default: disable"
+    echo "    -j | --japanese              Enable Japanese mode."
+    echo "                                  Default: disable"
+    echo "    -l | --cleanup               Enable post-build cleaning."
+    echo "                                  Default: disable"
+    echo "    -d | --debug                 Enable debug messages."
+    echo "                                  Default: disable"
+    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
+    echo "                                  Default: disable"
+    echo "    -h | --help                  This help message and exit."
     echo
-    echo "    -c <comp_type>     Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                        Default: ${sfs_comp}"
-    echo "    -g <gpg_key>       Set gpg key"
-    echo "                        Default: ${gpg_key}"
-    echo "    -k <kernel>        Set special kernel type."
-    echo "                       See below for available kernels."
-    echo "                        Default: zen"
-    echo "    -o <out_dir>       Set the output directory"
-    echo "                        Default: ${out_dir}"
-    echo "    -p <password>      Set a live user password"
-    echo "                        Default: ${password}"
-    echo "    -t <options>       Set compressor-specific options."
-    echo "                        Default: empty"
-    echo "    -u <username>      Set user name."
-    echo "                        Default: ${username}"
-    echo "    -w <work_dir>      Set the working directory"
-    echo "                        Default: ${work_dir}"
+    echo "    -a | --arch <arch>           Set iso architecture."
+    echo "                                  Default: ${arch}"
+    echo "    -c | <comp_type>             Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "                                  Default: ${sfs_comp}"
+    echo "    -g | --gpgkey <key>          Set gpg key"
+    echo "                                  Default: ${gpg_key}"
+    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
+    echo "                                  Default: ${kernel}"
+    echo "    -o | --out <out_dir>         Set the output directory"
+    echo "                                  Default: ${out_dir}"
+    echo "    -p | --password <password>   Set a live user password"
+    echo "                                  Default: ${password}"
+    echo "    -t | --comp-opts <options>   Set compressor-specific options."
+    echo "                                  Default: empty"
+    echo "    -u | --use <username>        Set user name."
+    echo "                                  Default: ${username}"
+    echo "    -w | --work <work_dir>       Set the working directory"
+    echo "                                  Default: ${work_dir}"
     echo
-    echo "    --noconfirm        Does not check the settings before building."
-    echo "    --nodepend         Do not check package dependencies before building."
+    echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --nocolor                    Does not output colored output."
+    echo "    --noconfirm                  Does not check the settings before building."
+    echo "    --nodepend                   Do not check package dependencies before building."
+    echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
     echo
@@ -293,46 +303,30 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 33 - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( 29 - ${#_channel} )) ); do
                 echo -ne " "
             done
         fi
         echo -ne "${description}\n"
     done
 
-
-    exit "${1}"
+    if [[ -n "${1:-}" ]]; then
+        exit "${1}"
+    fi
 }
 
-
-# Check the value of a variable that can only be set to true or false.
-check_bool() {
-    local 
-    case $(eval echo '$'${1}) in
-        true | false) : ;;
-                   *) _msg_error "The value ${boot_splash} set is invalid" "1";;
-    esac
-}
-
-check_bool boot_splash
-check_bool debug
-check_bool bash_debug
-check_bool rebuild
-check_bool japanese
-check_bool cleaning
-check_bool noconfirm
 
 # Unmount chroot dir
 umount_chroot () {
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
         _msg_info "Unmounting ${mount}"
-        umount "${mount}"
+        umount -lf "${mount}"
     done
 }
 
@@ -369,16 +363,34 @@ remove() {
 }
 
 
+# 強制終了時にアンマウント
+umount_trap() {
+    local status=${?}
+    umount_chroot
+    _msg_error "It was killed by the user."
+    _msg_error "The process may not have completed successfully."
+    exit ${status}
+}
+
+
+# 作業ディレクトリを削除
+remove_work() {
+    remove "$(ls ${work_dir}/* | grep "build.make")"
+    remove "${work_dir}"/pacman-*.conf
+    remove "${work_dir}/efiboot"
+    remove "${work_dir}/iso"
+    remove "${work_dir}/${arch}"
+    remove "${work_dir}/packages.list"
+    remove "${work_dir}/packages-full.list"
+    remove "${rebuildfile}"
+    if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+        remove ${work_dir}
+    fi
+}
+
+
 # Preparation for build
 prepare_build() {
-    # Check architecture for each channel
-    if [[ ! "${channel_name}" = "rebuild" ]]; then
-        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-        fi
-    fi
-
-
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -390,6 +402,16 @@ prepare_build() {
         remove "${work_dir%/}"/*
     fi
 
+
+    # 強制終了時に作業ディレクトリを削除する
+    local trap_remove_work
+    trap_remove_work() {
+        local status=${?}
+        echo
+        remove_work
+        exit ${status}
+    }
+    trap 'trap_remove_work' 1 2 3 15
 
     # Save build options
     local save_var
@@ -451,6 +473,8 @@ prepare_build() {
             cleaning \
             username mkalteriso \
             usershell \
+            shmkalteriso \
+            nocolor \
             build_pacman_conf
     else
         # Load rebuild file
@@ -470,27 +494,26 @@ prepare_build() {
 
 
     # Generate iso file name.
-    if [[ "${japanese}" = true  ]]; then
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-jp-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-jp-${iso_version}-${arch}.iso"
-        fi
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
     else
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            iso_filename="${iso_name}-$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${channel_name}-${iso_version}-${arch}.iso"
-        fi
+        _channel_name="${channel_name}"
     fi
+    if [[ "${japanese}" = true ]]; then
+        _channel_name="${_channel_name}-jp"
+    fi
+    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    _msg_debug "Iso filename is ${iso_filename}"
 
 
-    # Check packages
-    if [[ ${arch} = $(uname -m) ]]; then
+     # Check packages
+    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
         local installed_pkg
         local installed_ver
         local check_pkg
         local check_failed=false
+        local pkg
 
         installed_pkg=($(pacman -Q | awk '{print $1}'))
         installed_ver=($(pacman -Q | awk '{print $2}'))
@@ -513,14 +536,40 @@ prepare_build() {
                     fi
                 fi
             done
-
-            if [[ "${check_failed}" = true ]]; then
-                exit 1
-            fi
+            echo -n "not"
+            return 0
         }
+        if [[ ${debug} = false ]]; then
+            _msg_info "Checking dependencies ..."
+        else
+            echo
+        fi
+        for pkg in ${dependence[@]}; do
+            _msg_debug -n "Checking ${pkg} ..."
+            case $(check_pkg ${pkg}) in
+                "old") 
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
+                    _msg_warn "${pkg} is not the latest package."
+                    _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                    echo
+                    ;;
+                "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
+                "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
+            esac
+        done
+
+        if [[ "${check_failed}" = true ]]; then
+            exit 1
+        fi
     fi
 
     # Load loop kernel module
+    if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+        _msg_error "The currently running kernel module could not be found."
+        _msg_error "Probably the system kernel has been updated."
+        _msg_error "Reboot your system to run the latest kernel." "1"
+    fi
     if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
         sudo modprobe loop
     fi
@@ -553,6 +602,8 @@ show_settings() {
         :
         #sleep 3
     fi
+    trap 1 2 3 15
+    trap 'umount_trap' 1 2 3 15
 }
 
 
@@ -1013,18 +1064,17 @@ make_efi() {
 
     mkdir -p "${work_dir}/iso/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/iso/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/iso/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/iso/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/iso/loader/entries/"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
-    # EFI Shell 2.0 for UEFI 2.3+
-    curl -o "${work_dir}/iso/EFI/shellx64_v2.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/ShellBinPkg/UefiShell/X64/Shell.efi"
-    # EFI Shell 1.0 for non UEFI 2.3+
-    curl -o "${work_dir}/iso/EFI/shellx64_v1.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/EdkShellBinPkg/FullShell/X64/Shell_Full.efi"
+    # edk2-shell based UEFI shell
+    cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
+    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/EFI/Shell_Full_x64.efi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1059,18 +1109,17 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
 
-    #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
-    cp "${work_dir}/iso/EFI/shellx64_v2.efi" "${work_dir}/efiboot/EFI/"
-    cp "${work_dir}/iso/EFI/shellx64_v1.efi" "${work_dir}/efiboot/EFI/"
+    cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
+    cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
 
     umount -d "${work_dir}/efiboot"
 }
@@ -1091,80 +1140,139 @@ make_prepare() {
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
-
-    if [[ ${cleaning} = true ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
     _msg_info "The password for the live user and root is ${password}."
 }
 
 
 # Parse options
-while getopts 'a:w:o:g:p:c:t:hbk:xs:jlu:d-:' arg; do
-    case "${arg}" in
-        p) password="${OPTARG}" ;;
-        w) work_dir="${OPTARG}" ;;
-        o) out_dir="${OPTARG}" ;;
-        g) gpg_key="${OPTARG}" ;;
-        c)
-            # compression format check.
-            if [[ ${OPTARG} = "gzip" ||  ${OPTARG} = "lzma" ||  ${OPTARG} = "lzo" ||  ${OPTARG} = "lz4" ||  ${OPTARG} = "xz" ||  ${OPTARG} = "zstd" ]]; then
-                sfs_comp="${OPTARG}"
-            else
-                _msg_error "Invalid compressors ${arg}" "1"
-            fi
+options="${@}"
+_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+unset OPT
+unset _opt_short
+unset _opt_long
+
+
+while :; do
+    case ${1} in
+        -a | --arch)
+            arch="${2}"
+            shift 2
             ;;
-        t) sfs_comp_opt=${OPTARG} ;;
-        b) boot_splash=true ;;
-        k)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${OPTARG}") ]]; then
-                kernel="${OPTARG}"
-            else
-                _msg_error "Invalid kernel ${OPTARG}" "1"
-            fi
+        -b | --boot-splash)
+            boot_splash=true
+            shift 1
             ;;
-        x) 
+        -c | --comp-type)
+            case "${2}" in
+                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
+                *) _msg_error "Invaild compressors '${2}'" '1' ;;
+            esac
+            shift 2
+            ;;
+        -d | --debug) 
+            debug=true
+            shift 1
+            ;;
+        -g | --gpgkey)
+            gpg_key="$2"
+            shift 2
+            ;;
+        -h | --help)
+            _usage
+            exit 0
+            ;;
+        -j | --japanese)
+            japanese=true
+            shift 1
+            ;;
+        -k | --kernel)
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
+                kernel="${2}"
+            else
+                _msg_error "Invalid kernel ${2}" "1"
+            fi
+            shift 2
+            ;;
+        -l | --cleaning)
+            cleaning=true
+            shift 1
+            ;;
+        -o | --out)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -p | --password)
+            password="${2}"
+            shift 2
+            ;;
+        -t | --comp-opts)
+            sfs_comp_opt="${2}"
+            shift 2
+            ;;
+        -u | --user)
+            username="${2}"
+            shift 2
+            ;;
+        -w | --work)
+            out_dir="${2}"
+            shift 2
+            ;;
+        -x | --bash-debug)
             debug=true
             bash_debug=true
+            shift 1
             ;;
-        d) debug=true;;
-        j) japanese=true ;;
-        l) cleaning=true ;;
-        u) username="${OPTARG}" ;;
-        h) _usage 0 ;;
-        a) 
-            case "${OPTARG}" in
-                "i686" | "x86_64" ) arch="${OPTARG}" ;;
-                +) _msg_error "Invaild architecture '${OPTARG}'" '1' ;;
-            esac
+        --noconfirm)
+            noconfirm=true
+            shift 1
             ;;
-        -)
-            case "${OPTARG}" in
-                help)_usage 0 ;;
-                noconfirm) noconfirm=true ;;
-                nodepend) nodepend=true ;;
-                *)
-                    _msg_error "Invalid argument '${OPTARG}'"
-                    _usage 1
-                    ;;
-            esac
+        --nodepend)
+            nodepend=true
+            shift 1
+            ;;
+        --nocolor)
+            nocolor=true
+            shift 1
+            ;;
+        --gitversion)
+            if [[ -d "${script_path}/.git" ]]; then
+                cd ${script_path}
+                iso_version=${iso_version}-$(git rev-parse --short HEAD)
+                cd - > /dev/null 2>&1
+            else
+                _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+            fi
+            shift 1
+            ;;
+        --shmkalteriso)
+            shmkalteriso=true
+            shift 1
+            ;;
+        --)
+            shift
+            break
             ;;
         *)
-           _msg_error "Invalid argument '${arg}'"
-           _usage 1
-           ;;
+            _msg_error "Invalid argument '${1}'"
+            _usage 1
+            ;;
     esac
 done
+
+
+# Show alteriso version
+if [[ -d "${script_path}/.git" ]]; then
+    cd  "${script_path}"
+    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+    cd - > /dev/null 2>&1
+fi
 
 
 # Check root.
@@ -1172,14 +1280,25 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    _msg_warn "Re-run 'sudo ${0} ${@}'"
-    sudo ${0} ${@}
+    _msg_warn "Re-run 'sudo ${0} ${options}'"
+    sudo ${0} ${options}
     exit 1
 fi
 
 
+# Build mkalteriso
+if [[ "${shmkalteriso}" = false ]]; then
+    mkalteriso="${script_path}/system/mkalteriso"
+    cd "${script_path}"
+    make mkalteriso
+    cd - > /dev/null 2>&1
+else
+    mkalteriso="${script_path}/system/mkalteriso.sh"
+fi
+
+
 # Show config message
-[[ -f "${script_path}"/config ]] && _msg_debug "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
 
 
 # Debug mode
@@ -1195,11 +1314,8 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 
-# Parse options
-set +e
-
-shift $((OPTIND - 1))
-
+# Parse channels
+set +eu
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
 
@@ -1265,7 +1381,44 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-set -e
+# Check architecture for each channel
+if [[ ! "${channel_name}" = "rebuild" ]]; then
+    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+fi
+
+
+# Check the value of a variable that can only be set to true or false.
+check_bool() {
+    _msg_debug -n "Checking ${1}..."
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                *) _msg_error "The variable name ${1} is not of bool type." "1";;
+    esac
+    echo -e " ok"
+}
+
+if [[ "${debug}" =  true ]]; then
+    echo
+fi
+check_bool boot_splash
+check_bool debug
+check_bool bash_debug
+check_bool rebuild
+check_bool japanese
+check_bool cleaning
+check_bool noconfirm
+check_bool nodepend
+check_bool nocolor
+check_bool shmkalteriso
+if [[ "${debug}" =  true ]]; then
+    echo
+fi
+
+
+
+set -eu
 
 
 prepare_build
@@ -1283,3 +1436,7 @@ run_once make_efi
 run_once make_efiboot
 run_once make_prepare
 run_once make_iso
+
+if [[ ${cleaning} = true ]]; then
+    remove_work
+fi

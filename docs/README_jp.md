@@ -11,8 +11,8 @@
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
 	</a>
-	<a href="https://git.archlinux.org/archiso.git/tag/?h=v43">
-		<img src="https://img.shields.io/badge/archiso--version-43--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v44">
+		<img src="https://img.shields.io/badge/archiso--version-44--2-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
 	</a>
 </p>
 <p align="center">
@@ -162,7 +162,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
 <a href="https://twitter.com/tukutuN_27">
-	<img src="https://0e0.pw/5yuH" width="100px">
+	<img src="https://pbs.twimg.com/profile_images/1252216597164376064/_L3qgpkr_400x400.jpg" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">

@@ -3,6 +3,7 @@
 Some packages are added automatically and do not need to be written. The following is a list.
 
 - bash
+- base
 - haveged
 - intel-ucode
 - amd-ucode
@@ -18,3 +19,6 @@ The following packages are installed depending on the situation, and should not 
 - linux headers
 - broadcom-wl
 - broadcom-wl-dkms
+  
+Starting May 28, 2020, base-devel is no longer installed by default.  
+You need to install it as a package for each channel.  
