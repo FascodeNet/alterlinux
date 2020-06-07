@@ -475,7 +475,8 @@ prepare_build() {
             usershell \
             shmkalteriso \
             nocolor \
-            build_pacman_conf
+            build_pacman_conf \
+            defaultconfig
     else
         # Load rebuild file
         source "${work_dir}/build_options"
