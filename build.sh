@@ -580,6 +580,8 @@ prepare_build() {
 # Show settings.
 show_settings() {
     echo
+    _msg_info "mkalteriso path is ${mkalteriso}"
+    echo
     if [[ "${boot_splash}" = true ]]; then
         _msg_info "Boot splash is enabled."
         _msg_info "Theme is used ${theme_name}."
