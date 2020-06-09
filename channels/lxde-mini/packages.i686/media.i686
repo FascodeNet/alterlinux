@@ -21,12 +21,3 @@ bluez
 bluez-utils
 # pulseaudio-bluetooth
 pulseaudio-modules-bt
-
-
-#-- media player --#
-viewnior
-vlc
-
-
-#-- screen shot --#
-gnome-screenshot
