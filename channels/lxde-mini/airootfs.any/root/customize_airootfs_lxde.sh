@@ -84,10 +84,6 @@ fi
 dconf update
 
 
-# firewalld
-systemctl enable firewalld.service
-
-
 # Replace link
 if [[ "${japanese}" = true ]]; then
     remove /etc/skel/Desktop/welcome-to-alter.desktop
