@@ -11,8 +11,5 @@
 
 
 lightdm
-# lightdm-webkit2-greeter
-# lightdm-webkit2-theme-alter
-# lightdm-gtk-greeter
-lightdm-slick-greeter
-lightdm-settings
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
