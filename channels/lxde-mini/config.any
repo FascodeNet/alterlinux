@@ -13,4 +13,4 @@
 #
 
 # Set the user's default shell.
-usershell="/bin/zsh"
+usershell="/bin/bash"
