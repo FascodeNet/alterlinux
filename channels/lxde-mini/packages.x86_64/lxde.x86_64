@@ -11,18 +11,14 @@
 
 
 #-- lxde base --#
-# gpicview
 lxappearance
 lxappearance-obconf
 lxde-common
 lxde-icon-theme
-# lxdm     LightDMで代用
 lxhotkey
 lxinput
 lxlauncher
-# lxmusic  VLCがインストールされているため（Issues #51）
 lxpanel
-# lxrandr  arandrで代用 仮想マシンで使えないため arandrはother.x86_64に記述
 lxsession
 lxtask
 lxterminal

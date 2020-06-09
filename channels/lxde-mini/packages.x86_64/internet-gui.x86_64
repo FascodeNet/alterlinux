@@ -16,9 +16,3 @@ network-manager-applet
 
 #-- web browser --#
 chromium
-# elinks
-
-
-#-- security --#
-firewalld
-ufw
