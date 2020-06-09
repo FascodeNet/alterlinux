@@ -12,5 +12,9 @@
 # This configuration file follows the bash syntax.
 #
 
+# Set to true to enable plymouth.(-b)
+boot_splash=false
+
+
 # Set the user's default shell.
 usershell="/bin/bash"
