@@ -14,10 +14,3 @@
 pavucontrol
 pulseaudio
 
-
-#-- bluetooth --#
-blueman
-bluez
-bluez-utils
-# pulseaudio-bluetooth
-pulseaudio-modules-bt
