@@ -53,6 +53,7 @@ nocolor=false
 usershell="/bin/bash"
 noconfirm=false
 nodepend=false
+msgdebug=false
 rebuildfile="${work_dir}/build_options"
 defaultconfig="${script_path}/default.conf"
 dependence=(
@@ -61,6 +62,7 @@ dependence=(
     "arch-install-scripts"
     "curl"
     "dosfstools"
+    "edk2-shell"
     "git"
     "libburn"
     "libisofs"
@@ -148,6 +150,11 @@ echo_color() {
 # Show an INFO message
 # $1: message string
 _msg_info() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -159,12 +166,22 @@ _msg_info() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
 # Show an Warning message
 # $1: message string
 _msg_warn() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -176,12 +193,22 @@ _msg_warn() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
 # Show an debug message
 # $1: message string
 _msg_debug() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -195,6 +222,11 @@ _msg_debug() {
     if [[ ${debug} = true ]]; then
         echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
     fi
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
@@ -202,6 +234,11 @@ _msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -216,6 +253,11 @@ _msg_error() {
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
     if [[ -n "${2:-}" ]]; then
         exit ${2}
+    fi
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
     fi
 }
 
@@ -259,6 +301,7 @@ _usage () {
     echo "    --gitversion                 Add Git commit hash to image file version"
     echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
+    echo "    --msgdebug                   Enables output debugging."
     echo "    --nodepend                   Do not check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
@@ -474,7 +517,9 @@ prepare_build() {
             usershell \
             shmkalteriso \
             nocolor \
-            build_pacman_conf
+            build_pacman_conf \
+            defaultconfig \
+            msgdebug
     else
         # Load rebuild file
         source "${work_dir}/build_options"
@@ -577,6 +622,8 @@ prepare_build() {
 
 # Show settings.
 show_settings() {
+    echo
+    _msg_info "mkalteriso path is ${mkalteriso}"
     echo
     if [[ "${boot_splash}" = true ]]; then
         _msg_info "Boot splash is enabled."
@@ -1063,18 +1110,17 @@ make_efi() {
 
     mkdir -p "${work_dir}/iso/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/iso/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/iso/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/iso/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/iso/loader/entries/"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
-    # EFI Shell 2.0 for UEFI 2.3+
-    curl -o "${work_dir}/iso/EFI/shellx64_v2.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/ShellBinPkg/UefiShell/X64/Shell.efi"
-    # EFI Shell 1.0 for non UEFI 2.3+
-    curl -o "${work_dir}/iso/EFI/shellx64_v1.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/EdkShellBinPkg/FullShell/X64/Shell_Full.efi"
+    # edk2-shell based UEFI shell
+    cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
+    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/EFI/Shell_Full_x64.efi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1109,18 +1155,17 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
 
-    #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
-    cp "${work_dir}/iso/EFI/shellx64_v2.efi" "${work_dir}/efiboot/EFI/"
-    cp "${work_dir}/iso/EFI/shellx64_v1.efi" "${work_dir}/efiboot/EFI/"
+    cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
+    cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
 
     umount -d "${work_dir}/efiboot"
 }
@@ -1148,7 +1193,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1218,7 +1263,7 @@ while :; do
             shift 2
             ;;
         -u | --user)
-            username="${2}"
+            username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]')"
             shift 2
             ;;
         -w | --work)
@@ -1245,7 +1290,7 @@ while :; do
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
                 cd ${script_path}
-                iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+                iso_version=${iso_version}-$(git rev-parse --short HEAD)
                 cd - > /dev/null 2>&1
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
@@ -1254,6 +1299,10 @@ while :; do
             ;;
         --shmkalteriso)
             shmkalteriso=true
+            shift 1
+            ;;
+        --msgdebug)
+            msgdebug=true;
             shift 1
             ;;
         --)
@@ -1413,6 +1462,8 @@ check_bool noconfirm
 check_bool nodepend
 check_bool nocolor
 check_bool shmkalteriso
+check_bool msgdebug
+
 if [[ "${debug}" =  true ]]; then
     echo
 fi

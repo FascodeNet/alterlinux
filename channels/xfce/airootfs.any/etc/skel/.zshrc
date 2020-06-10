@@ -90,7 +90,7 @@ colors
 
 
 #-- PROMPT --#
-if [[ ${TERM} = linux ]]; then
+if [[ ${TERM} = "linux" ]]; then
     PROMPT='%B%F{red}%(?..%? )%f%b%B%F{red}%n%f%b@%m %B%40<..<%~%<< %b%# '
 else
     function powerline_precmd() {
