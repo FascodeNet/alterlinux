@@ -1263,7 +1263,7 @@ while :; do
             shift 2
             ;;
         -u | --user)
-            username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]') "
+            username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]')"
             shift 2
             ;;
         -w | --work)
