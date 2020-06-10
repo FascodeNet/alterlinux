@@ -53,6 +53,7 @@ nocolor=false
 usershell="/bin/bash"
 noconfirm=false
 nodepend=false
+msgdebug=false
 rebuildfile="${work_dir}/build_options"
 defaultconfig="${script_path}/default.conf"
 dependence=(
@@ -149,6 +150,11 @@ echo_color() {
 # Show an INFO message
 # $1: message string
 _msg_info() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -160,12 +166,22 @@ _msg_info() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    if [[ "${debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
 # Show an Warning message
 # $1: message string
 _msg_warn() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -177,12 +193,22 @@ _msg_warn() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    if [[ "${debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
 # Show an debug message
 # $1: message string
 _msg_debug() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -196,6 +222,11 @@ _msg_debug() {
     if [[ ${debug} = true ]]; then
         echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
     fi
+    if [[ "${debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
@@ -203,6 +234,11 @@ _msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -217,6 +253,11 @@ _msg_error() {
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
     if [[ -n "${2:-}" ]]; then
         exit ${2}
+    fi
+    if [[ "${debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
     fi
 }
 
@@ -260,6 +301,7 @@ _usage () {
     echo "    --gitversion                 Add Git commit hash to image file version"
     echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
+    echo "    --msgdebug                   Enables output debugging."
     echo "    --nodepend                   Do not check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
@@ -476,7 +518,8 @@ prepare_build() {
             shmkalteriso \
             nocolor \
             build_pacman_conf \
-            defaultconfig
+            defaultconfig \
+            msgdebug
     else
         # Load rebuild file
         source "${work_dir}/build_options"
@@ -1150,7 +1193,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1256,6 +1299,10 @@ while :; do
             ;;
         --shmkalteriso)
             shmkalteriso=true
+            shift 1
+            ;;
+        --msgdebug)
+            msgdebug=true;
             shift 1
             ;;
         --)
