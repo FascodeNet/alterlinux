@@ -1462,6 +1462,8 @@ check_bool noconfirm
 check_bool nodepend
 check_bool nocolor
 check_bool shmkalteriso
+check_bool msgdebug
+
 if [[ "${debug}" =  true ]]; then
     echo
 fi
