@@ -299,9 +299,9 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --msgdebug                   Enables output debugging."
     echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
-    echo "    --msgdebug                   Enables output debugging."
     echo "    --nodepend                   Do not check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
@@ -435,6 +435,16 @@ remove_work() {
 prepare_build() {
     # Run anything when building on docker(please replace ':')
     [[ "${_DOCKER}" == true ]] && :
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        make mkalteriso
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -1335,17 +1345,6 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "Re-run 'sudo ${0} ${options}'"
     sudo ${0} ${options}
     exit 1
-fi
-
-
-# Build mkalteriso
-if [[ "${shmkalteriso}" = false ]]; then
-    mkalteriso="${script_path}/system/mkalteriso"
-    cd "${script_path}"
-    make mkalteriso
-    cd - > /dev/null 2>&1
-else
-    mkalteriso="${script_path}/system/mkalteriso.sh"
 fi
 
 
