@@ -299,9 +299,9 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --msgdebug                   Enables output debugging."
     echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
-    echo "    --msgdebug                   Enables output debugging."
     echo "    --nodepend                   Do not check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
