@@ -9,8 +9,6 @@
 *.log.*
 *.sig
 .build_option
-.config
-.config.old
 system/mkalteriso
 system/cpp-src/mkalteriso/build/
 pkg/
