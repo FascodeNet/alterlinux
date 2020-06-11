@@ -2,30 +2,30 @@
 <actions>
 <action>
 	<icon>utilities-terminal</icon>
-	<name>ここでターミナルを開く</name>
+	<name>Open Terminal here</name>
 	<unique-id>1570369277037732-1</unique-id>
 	<command>exo-open --working-directory %f --launch TerminalEmulator</command>
-	<description>このディレクトリでターミナルエミュレータを起動します</description>
+	<description>Start a terminal emulator in this directory</description>
 	<patterns>*</patterns>
 	<startup-notify/>
 	<directories/>
 </action>
 <action>
 	<icon>system-file-manager</icon>
-	<name>Root権限でこのディレクトリを開く</name>
+	<name>Open this directory as root</name>
 	<unique-id>1570748564949968-1</unique-id>
 	<command>pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY thunar %f</command>
-	<description>Root権限でThunarを起動します</description>
+	<description>Start Thunar as Root in this directory</description>
 	<patterns>*</patterns>
 	<startup-notify/>
 	<directories/>
 </action>
 <action>
 	<icon>drive-multidisk</icon>
-	<name>ファイル使用量を調べる</name>
+	<name>Check disk usage of files</name>
 	<unique-id>1591871849032215-3</unique-id>
 	<command>if [[ -r %f ]] &amp;&amp; [[ -w %f ]]; then baobab %f; else pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY baobab %f; fi</command>
-	<description>Baobabを使用してディスクの使用量を調べます</description>
+	<description>Use Baobab to find out the disk usage of the current directory</description>
 	<patterns>*</patterns>
 	<startup-notify/>
 	<directories/>

@@ -22,10 +22,10 @@
 </action>
 <action>
 	<icon>drive-multidisk</icon>
-	<name>ファイル使用量を調べる</name>
+	<name>ディスク使用量を調べる</name>
 	<unique-id>1591871849032215-3</unique-id>
 	<command>if [[ -r %f ]] &amp;&amp; [[ -w %f ]]; then baobab %f; else pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY baobab %f; fi</command>
-	<description>Baobabを使用してディスクの使用量を調べます</description>
+	<description>Baobabを使用して現在のディレクトリディスクの使用量を調べます</description>
 	<patterns>*</patterns>
 	<startup-notify/>
 	<directories/>
