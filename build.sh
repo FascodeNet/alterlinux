@@ -434,7 +434,7 @@ remove_work() {
 # Preparation for build
 prepare_build() {
     # Run 'git pull' when building on docker.
-    [[ "${_DOCKER}" == true ]] && git pull origin && _msg_info "pulling AlterLinux repository..."
+    [[ "${_DOCKER}" == true ]] && git pull -f origin && _msg_info "pulling AlterLinux repository..."
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
