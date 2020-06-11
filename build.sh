@@ -433,6 +433,17 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        make mkalteriso
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
+
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -1333,17 +1344,6 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "Re-run 'sudo ${0} ${options}'"
     sudo ${0} ${options}
     exit 1
-fi
-
-
-# Build mkalteriso
-if [[ "${shmkalteriso}" = false ]]; then
-    mkalteriso="${script_path}/system/mkalteriso"
-    cd "${script_path}"
-    make mkalteriso
-    cd - > /dev/null 2>&1
-else
-    mkalteriso="${script_path}/system/mkalteriso.sh"
 fi
 
 
