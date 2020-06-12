@@ -433,8 +433,6 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
-    # Run anything when building on docker(please replace ':')
-    [[ "${_DOCKER}" == true ]] && :
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
