@@ -241,7 +241,7 @@ _usage () {
     echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
     echo "                                  Default: empty"
-    echo "    -u | --use <username>        Set user name."
+    echo "    -u | --user <username>        Set user name."
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
