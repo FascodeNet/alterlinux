@@ -13,75 +13,21 @@
 
 set -e
 set -u
+
+# Internal config
+# Do not change these values.
 script_path="$(readlink -f ${0%/*})"
-
-# alteriso settings
-#
-# Do not change this variable.
-# To change the settings permanently, edit the config file.
-
-arch=$(uname -m)
-
-os_name="Alter Linux"
-iso_name=alterlinux
-iso_label="ALTER_$(date +%Y%m)"
-iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="${os_name} Live/Rescue CD"
-iso_version=$(date +%Y.%m.%d)
-install_dir=alter
-work_dir=work
-out_dir=out
-gpg_key=
-
-# AlterLinux additional settings
-password='alter'
-boot_splash=false
-kernel='zen'
-theme_name="alter-logo"
-theme_pkg="plymouth-theme-alter-logo-git"
-sfs_comp="zstd"
-sfs_comp_opt=""
-bash_debug=false
-debug=false
-rebuild=false
-japanese=false
-channel_name='xfce'
-cleaning=false
-defaultusername='alter'
-customized_username=false
-username='alter'
-shmkalteriso="false"
-nocolor=false
-usershell="/bin/bash"
-noconfirm=false
-nodepend=false
-msgdebug=false
-rebuildfile="${work_dir}/build_options"
 defaultconfig="${script_path}/default.conf"
-dependence=(
-    "alterlinux-keyring"
-#   "archiso"
-    "arch-install-scripts"
-    "curl"
-    "dosfstools"
-    "edk2-shell"
-    "git"
-    "libburn"
-    "libisofs"
-    "lz4"
-    "lzo"
-    "make"
-    "squashfs-tools"
-    "libisoburn"
- #  "lynx"
-    "xz"
-    "zlib"
-    "zstd"
-)
+rebuild=false
 
 
 # Load config file
-[[ -f "${defaultconfig}" ]] && source "${defaultconfig}"
+if [[ -f "${defaultconfig}" ]]; then
+    source "${defaultconfig}"
+else
+    echo "${defaultconfig} was not found."
+    exit 1
+fi
 
 
 umask 0022
@@ -1372,6 +1318,9 @@ fi
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
+# Set rebuild config file
+rebuildfile="${work_dir}/build_options"
+
 
 # Parse channels
 set +eu
@@ -1453,7 +1402,7 @@ check_bool() {
     _msg_debug -n "Checking ${1}..."
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                *) _msg_error "The variable name ${1} is not of bool type." "1";;
+                *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
     esac
     echo -e " ok"
 }
