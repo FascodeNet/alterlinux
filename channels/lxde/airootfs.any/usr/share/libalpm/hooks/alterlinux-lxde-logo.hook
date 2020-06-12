@@ -1,0 +1,13 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/share/lxde/images/logout-banner.png
+
+[Action]
+Description = Optimizing LXDE logo ...
+When = PostTransaction
+Depends=lxde-common
+Exec = bash /usr/share/libalpm/scripts/alterlinux-lxde-logo
+NeedsTargets
