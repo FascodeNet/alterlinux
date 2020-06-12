@@ -18,6 +18,7 @@ set -u
 # Do not change these values.
 script_path="$(readlink -f ${0%/*})"
 defaultconfig="${script_path}/default.conf"
+rebuild=false
 
 
 # Load config file
