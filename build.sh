@@ -47,6 +47,8 @@ rebuild=false
 japanese=false
 channel_name='xfce'
 cleaning=false
+defaultusername='alter'
+customized_username=false
 username='alter'
 shmkalteriso="false"
 nocolor=false
@@ -500,6 +502,11 @@ prepare_build() {
         fi
 
 
+        # Set username
+        if [[ "${customized_username}" = false ]]; then
+            username="${defaultusername}"
+        fi
+
         # Save the value of the variable for use in rebuild.
         save_var \
             arch \
@@ -531,7 +538,9 @@ prepare_build() {
             nocolor \
             build_pacman_conf \
             defaultconfig \
-            msgdebug
+            msgdebug \
+            defaultusername \
+            customized_username
     else
         # Load rebuild file
         source "${work_dir}/build_options"
@@ -1275,6 +1284,7 @@ while :; do
             shift 2
             ;;
         -u | --user)
+            customized_username=true
             username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]')"
             shift 2
             ;;
@@ -1464,6 +1474,7 @@ check_bool nodepend
 check_bool nocolor
 check_bool shmkalteriso
 check_bool msgdebug
+check_bool customized_username
 
 if [[ "${debug}" =  true ]]; then
     echo
