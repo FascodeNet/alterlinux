@@ -70,22 +70,17 @@ fi
 [[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 
-# Replace link
-if [[ "${japanese}" = true ]]; then
-    remove /etc/skel/Desktop/welcome-to-alter.desktop
-    remove /home/${username}/Desktop/welcome-to-alter.desktop
-
-    mv /etc/skel/Desktop/welcome-to-alter-jp.desktop /etc/skel/Desktop/welcome-to-alter.desktop
-    mv /home/${username}/Desktop/welcome-to-alter-jp.desktop /home/${username}/Desktop/welcome-to-alter.desktop
-else
-    remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
-    remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
-fi
-
-
 # Bluetooth
 rfkill unblock all
 systemctl enable bluetooth
+
+# Snap
+if [[ "${arch}" = "x86_64" ]]; then
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
+fi
 
 
 # Update system datebase
@@ -95,6 +90,31 @@ dconf update
 # firewalld
 systemctl enable firewalld.service
 
+
+# Replace link
+if [[ "${japanese}" = true ]]; then
+    remove "/etc/skel/Desktop/welcome-to-alter.desktop"
+    remove "/home/${username}/Desktop/welcome-to-alter.desktop"
+
+    mv "/etc/skel/Desktop/welcome-to-alter-jp.desktop" "/etc/skel/Desktop/welcome-to-alter.desktop"
+    mv "/home/${username}/Desktop/welcome-to-alter-jp.desktop" "/home/${username}/Desktop/welcome-to-alter.desktop"
+else
+    remove "/etc/skel/Desktop/welcome-to-alter-jp.desktop"
+    remove "/home/${username}/Desktop/welcome-to-alter-jp.desktop"
+fi
+
+
+# Replace right menu
+if [[ "${japanese}" = true ]]; then
+    remove "/etc/skel/.config/Thunar/uca.xml"
+    rmeove "/home/${username}/.config/Thunar/uca.xml"
+
+    mv "/etc/skel/.config/Thunar/uca.xml.jp" "/etc/skel/.config/Thunar/uca.xml"
+    mv "/home/${username}/.config/Thunar/uca.xml.jp" "/home/${username}/.config/Thunar/uca.xml"
+else
+    remove "/etc/skel/.config/Thunar/uca.xml.jp"
+    rmeove "/home/${username}/.config/Thunar/uca.xml.jp"
+fi
 
 # Added autologin group to auto login
 groupadd autologin
@@ -111,4 +131,3 @@ fi
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
-

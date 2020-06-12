@@ -27,7 +27,7 @@ public slots:
   void run();
 
 private:
-  QCoreApplication* app;
+  QCoreApplication* app=nullptr;
   struct utsname uname_strkun;
 };
 
