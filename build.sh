@@ -1401,7 +1401,7 @@ check_bool() {
     _msg_debug -n "Checking ${1}..."
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                *) _msg_error "The variable name ${1} is not of bool type." "1";;
+                *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
     esac
     echo -e " ok"
 }
