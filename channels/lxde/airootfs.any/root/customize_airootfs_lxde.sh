@@ -84,6 +84,15 @@ fi
 dconf update
 
 
+# Snap
+if [[ "${arch}" = "x86_64" ]]; then
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
+fi
+
+
 # firewalld
 systemctl enable firewalld.service
 
@@ -112,6 +121,12 @@ if [[ "${boot_splash}" =  true ]]; then
 else
     systemctl enable lightdm.service
 fi
+
+
+# Replace wallpaper
+remove "/usr/share/lxde/images/logout-banner.png"
+ln -s "/usr/share/lxde/images/alterlinux.png" "/usr/share/lxde/images/logout-banner.png"
+chmod 644 "/usr/share/lxde/images/logout-banner.png"
 
 
 # Replace auto login user

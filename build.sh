@@ -13,73 +13,22 @@
 
 set -e
 set -u
+
+# Internal config
+# Do not change these values.
 script_path="$(readlink -f ${0%/*})"
-
-# alteriso settings
-#
-# Do not change this variable.
-# To change the settings permanently, edit the config file.
-
-arch=$(uname -m)
-
-os_name="Alter Linux"
-iso_name=alterlinux
-iso_label="ALTER_$(date +%Y%m)"
-iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="${os_name} Live/Rescue CD"
-iso_version=$(date +%Y.%m.%d)
-install_dir=alter
-work_dir=work
-out_dir=out
-gpg_key=
-
-# AlterLinux additional settings
-password='alter'
-boot_splash=false
-kernel='zen'
-theme_name="alter-logo"
-theme_pkg="plymouth-theme-alter-logo-git"
-sfs_comp="zstd"
-sfs_comp_opt=""
-bash_debug=false
-debug=false
-rebuild=false
-japanese=false
-channel_name='xfce'
-cleaning=false
-username='alter'
-shmkalteriso="false"
-nocolor=false
-usershell="/bin/bash"
-noconfirm=false
-nodepend=false
-msgdebug=false
-rebuildfile="${work_dir}/build_options"
 defaultconfig="${script_path}/default.conf"
-dependence=(
-    "alterlinux-keyring"
-#   "archiso"
-    "arch-install-scripts"
-    "curl"
-    "dosfstools"
-    "edk2-shell"
-    "git"
-    "libburn"
-    "libisofs"
-    "lz4"
-    "lzo"
-    "make"
-    "squashfs-tools"
-    "libisoburn"
- #  "lynx"
-    "xz"
-    "zlib"
-    "zstd"
-)
+rebuild=false
+customized_username=false
 
 
 # Load config file
-[[ -f "${defaultconfig}" ]] && source "${defaultconfig}"
+if [[ -f "${defaultconfig}" ]]; then
+    source "${defaultconfig}"
+else
+    echo "${defaultconfig} was not found."
+    exit 1
+fi
 
 
 umask 0022
@@ -293,7 +242,7 @@ _usage () {
     echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
     echo "                                  Default: empty"
-    echo "    -u | --use <username>        Set user name."
+    echo "    -u | --user <username>        Set user name."
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
@@ -335,6 +284,8 @@ _usage () {
         fi
     done
     channel_list="${channel_list[@]} rebuild"
+    local blank="33"
+
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
@@ -345,12 +296,12 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 33 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( 29 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do
                 echo -ne " "
             done
         fi
@@ -437,7 +388,13 @@ prepare_build() {
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
         cd "${script_path}"
-        make mkalteriso
+        _msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
+        fi
         cd - > /dev/null 2>&1
     else
         mkalteriso="${script_path}/system/mkalteriso.sh"
@@ -498,6 +455,11 @@ prepare_build() {
         fi
 
 
+        # Set username
+        if [[ "${customized_username}" = false ]]; then
+            username="${defaultusername}"
+        fi
+
         # Save the value of the variable for use in rebuild.
         save_var \
             arch \
@@ -529,7 +491,9 @@ prepare_build() {
             nocolor \
             build_pacman_conf \
             defaultconfig \
-            msgdebug
+            msgdebug \
+            defaultusername \
+            customized_username
     else
         # Load rebuild file
         source "${work_dir}/build_options"
@@ -632,7 +596,6 @@ prepare_build() {
 
 # Show settings.
 show_settings() {
-    echo
     _msg_info "mkalteriso path is ${mkalteriso}"
     echo
     if [[ "${boot_splash}" = true ]]; then
@@ -1273,6 +1236,7 @@ while :; do
             shift 2
             ;;
         -u | --user)
+            customized_username=true
             username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]')"
             shift 2
             ;;
@@ -1327,14 +1291,6 @@ while :; do
 done
 
 
-# Show alteriso version
-if [[ -d "${script_path}/.git" ]]; then
-    cd  "${script_path}"
-    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-    cd - > /dev/null 2>&1
-fi
-
-
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
@@ -1343,6 +1299,14 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "Re-run 'sudo ${0} ${options}'"
     sudo ${0} ${options}
     exit 1
+fi
+
+
+# Show alteriso version
+if [[ -d "${script_path}/.git" ]]; then
+    cd  "${script_path}"
+    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+    cd - > /dev/null 2>&1
 fi
 
 
@@ -1361,6 +1325,9 @@ fi
 
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+
+# Set rebuild config file
+rebuildfile="${work_dir}/build_options"
 
 
 # Parse channels
@@ -1443,9 +1410,11 @@ check_bool() {
     _msg_debug -n "Checking ${1}..."
     case $(eval echo '$'${1}) in
         true | false) : ;;
-                *) _msg_error "The variable name ${1} is not of bool type." "1";;
+                *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
     esac
-    echo -e " ok"
+    if [[ "${debug}" = true ]]; then
+        echo -e " ok"
+    fi
 }
 
 if [[ "${debug}" =  true ]]; then
@@ -1462,15 +1431,13 @@ check_bool nodepend
 check_bool nocolor
 check_bool shmkalteriso
 check_bool msgdebug
+check_bool customized_username
 
 if [[ "${debug}" =  true ]]; then
     echo
 fi
 
-
-
 set -eu
-
 
 prepare_build
 show_settings
