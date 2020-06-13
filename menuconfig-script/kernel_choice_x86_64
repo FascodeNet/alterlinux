@@ -1,0 +1,20 @@
+config KERNEL_N_A_M_E_core
+	bool core
+config KERNEL_N_A_M_E_lts
+	bool lts
+config KERNEL_N_A_M_E_lqx
+	bool lqx
+config KERNEL_N_A_M_E_zen
+	bool zen
+config KERNEL_N_A_M_E_ck
+	bool ck
+config KERNEL_N_A_M_E_rt
+	bool rt
+config KERNEL_N_A_M_E_rt-lts
+	bool rt-lts
+config KERNEL_N_A_M_E_xanmod
+	bool xanmod
+config KERNEL_N_A_M_E_xanmod-lts
+	bool xanmod-lts
+config KERNEL_N_A_M_E_zen-letsnote
+	bool zen-letsnote

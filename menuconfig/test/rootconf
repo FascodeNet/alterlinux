@@ -1,0 +1,95 @@
+mainmenu "Main Menu"
+
+comment "This is a comment to help to structure menu"
+
+choice
+	prompt "Generic Choice"
+	default GEN_CHOICE1
+	help
+		This is a help text that can expand over multiple lines and give some information about
+		the configuration parameter.
+
+	config GEN_CHOICE1
+		bool "Choice 1"
+
+	config GEN_CHOICE2
+		bool "Choice 2"
+		select SHOW_MORE
+
+	config GEN_CHOICE3
+		bool "Choice 3"
+		select SHOW_MORE
+		select SHOW_EVEN_MORE
+		help
+			Even subitem can contain help text.
+endchoice
+
+config SHOW_MORE
+	bool
+
+config SHOW_EVEN_MORE
+	bool
+
+
+comment "This item is visible if the second or third option is selected"
+menu "Hidden 1"
+	visible if SHOW_MORE
+	menu "Nested 1"
+		menu "Nested 2"
+			comment "we can nest as deep as we want"
+		endmenu
+	endmenu
+endmenu
+
+
+
+comment "This item is visible only if the third option is selected"
+
+config MENUDEPENDENCY
+	bool "menu dependancy"
+	default n
+
+menu "Hidden 2"
+	visible if SHOW_EVEN_MORE
+	depends on MENUDEPENDENCY
+
+	config ITEM1
+		bool "Item 1 - enables additional options"
+		default n
+
+	config ITEM2
+		depends on ITEM1
+		bool "Item 2 - depends on item 1"
+		default n
+
+	config ITEM3
+		bool "Item 3 - is set automatically"
+		default n
+
+	config ITEM4
+		bool "Item 4 - reverse dependancy"
+		select ITEM3
+		default n
+endmenu
+
+comment "Some different config types"
+config STRING_PARAM
+	string "String Parameter"
+
+config NUM_PARAM
+	int "Integer parameter between 0 an 100"
+	range 0 100
+
+config NUM_PARAM2
+	int "HEX parameter"
+
+config TRISTATE_PARAM
+	tristate "Three states"
+
+menu "Subconfmenu"
+	source ../test/subconfig
+endmenu
+
+menu "Subconfmenu2"
+	source ../test/subconfig2
+endmenu
