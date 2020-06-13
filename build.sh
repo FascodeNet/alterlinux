@@ -388,7 +388,13 @@ prepare_build() {
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
         cd "${script_path}"
-        make mkalteriso
+        _msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
+        fi
         cd - > /dev/null 2>&1
     else
         mkalteriso="${script_path}/system/mkalteriso.sh"
@@ -590,7 +596,6 @@ prepare_build() {
 
 # Show settings.
 show_settings() {
-    echo
     _msg_info "mkalteriso path is ${mkalteriso}"
     echo
     if [[ "${boot_splash}" = true ]]; then
@@ -1286,14 +1291,6 @@ while :; do
 done
 
 
-# Show alteriso version
-if [[ -d "${script_path}/.git" ]]; then
-    cd  "${script_path}"
-    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-    cd - > /dev/null 2>&1
-fi
-
-
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
@@ -1302,6 +1299,14 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "Re-run 'sudo ${0} ${options}'"
     sudo ${0} ${options}
     exit 1
+fi
+
+
+# Show alteriso version
+if [[ -d "${script_path}/.git" ]]; then
+    cd  "${script_path}"
+    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+    cd - > /dev/null 2>&1
 fi
 
 
@@ -1407,7 +1412,9 @@ check_bool() {
         true | false) : ;;
                 *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
     esac
-    echo -e " ok"
+    if [[ "${debug}" = true ]]; then
+        echo -e " ok"
+    fi
 }
 
 if [[ "${debug}" =  true ]]; then
@@ -1430,10 +1437,7 @@ if [[ "${debug}" =  true ]]; then
     echo
 fi
 
-
-
 set -eu
-
 
 prepare_build
 show_settings
