@@ -284,6 +284,8 @@ _usage () {
         fi
     done
     channel_list="${channel_list[@]} rebuild"
+    local blank="33"
+
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
@@ -294,12 +296,12 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 33 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( 29 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do
                 echo -ne " "
             done
         fi
