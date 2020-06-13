@@ -19,6 +19,7 @@ set -u
 script_path="$(readlink -f ${0%/*})"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
+customized_username=false
 
 
 # Load config file
