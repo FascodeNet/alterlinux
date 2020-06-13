@@ -13,69 +13,22 @@
 
 set -e
 set -u
+
+# Internal config
+# Do not change these values.
 script_path="$(readlink -f ${0%/*})"
-
-# alteriso settings
-#
-# Do not change this variable.
-# To change the settings permanently, edit the config file.
-
-arch=$(uname -m)
-
-os_name="Alter Linux"
-iso_name=alterlinux
-iso_label="ALTER_$(date +%Y%m)"
-iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="${os_name} Live/Rescue CD"
-iso_version=$(date +%Y.%m.%d)
-install_dir=alter
-work_dir=work
-out_dir=out
-gpg_key=
-
-# AlterLinux additional settings
-password='alter'
-boot_splash=false
-kernel='zen'
-theme_name="alter-logo"
-theme_pkg="plymouth-theme-alter-logo-git"
-sfs_comp="zstd"
-sfs_comp_opt=""
-bash_debug=false
-debug=false
+defaultconfig="${script_path}/default.conf"
 rebuild=false
-japanese=false
-channel_name='xfce'
-cleaning=false
-username='alter'
-mkalteriso="${script_path}/system/mkalteriso"
-usershell="/bin/bash"
-noconfirm=false
-nodepend=false
-rebuildfile="${work_dir}/build_options"
-dependence=(
-    "alterlinux-keyring"
-#   "archiso"
-    "arch-install-scripts"
-    "curl"
-    "dosfstools"
-    "git"
-    "libburn"
-    "libisofs"
-    "lz4"
-    "lzo"
-    "make"
-    "squashfs-tools"
-    "libisoburn"
- #  "lynx"
-    "xz"
-    "zlib"
-    "zstd"
-)
+customized_username=false
 
 
 # Load config file
-[[ -f "${script_path}"/config ]] && source "${script_path}"/config
+if [[ -f "${defaultconfig}" ]]; then
+    source "${defaultconfig}"
+else
+    echo "${defaultconfig} was not found."
+    exit 1
+fi
 
 
 umask 0022
@@ -135,13 +88,22 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    if [[ "${nocolor}" = false ]]; then
+        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    else
+        echo ${echo_opts} "${@}"
+    fi
 }
 
 
 # Show an INFO message
 # $1: message string
 _msg_info() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -153,12 +115,22 @@ _msg_info() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
 # Show an Warning message
 # $1: message string
 _msg_warn() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -170,12 +142,22 @@ _msg_warn() {
     done
     shift $((OPTIND - 1))
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
 # Show an debug message
 # $1: message string
 _msg_debug() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -189,6 +171,11 @@ _msg_debug() {
     if [[ ${debug} = true ]]; then
         echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
     fi
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
+    fi
 }
 
 
@@ -196,6 +183,11 @@ _msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
+    if [[ "${msgdebug}" = false ]]; then
+        set +xv
+    else
+        set -xv
+    fi
     local echo_opts="-e"
     local arg
     local OPTIND
@@ -210,6 +202,11 @@ _msg_error() {
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
     if [[ -n "${2:-}" ]]; then
         exit ${2}
+    fi
+    if [[ "${bash_debug}" = true ]]; then
+        set -xv
+    else
+        set +xv
     fi
 }
 
@@ -245,14 +242,17 @@ _usage () {
     echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
     echo "                                  Default: empty"
-    echo "    -u | --use <username>        Set user name."
+    echo "    -u | --user <username>        Set user name."
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
+    echo "    --msgdebug                   Enables output debugging."
+    echo "    --nocolor                    Does not output colored output."
     echo "    --noconfirm                  Does not check the settings before building."
     echo "    --nodepend                   Do not check package dependencies before building."
+    echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
     echo
@@ -284,6 +284,8 @@ _usage () {
         fi
     done
     channel_list="${channel_list[@]} rebuild"
+    local blank="33"
+
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
@@ -294,12 +296,12 @@ _usage () {
         fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( 33 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do
                 echo -ne " "
             done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( 29 - ${#_channel} )) ); do
+            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do
                 echo -ne " "
             done
         fi
@@ -311,23 +313,6 @@ _usage () {
     fi
 }
 
-
-# Check the value of a variable that can only be set to true or false.
-check_bool() {
-    local 
-    case $(eval echo '$'${1}) in
-        true | false) : ;;
-                   *) _msg_error "The value ${boot_splash} set is invalid" "1";;
-    esac
-}
-
-check_bool boot_splash
-check_bool debug
-check_bool bash_debug
-check_bool rebuild
-check_bool japanese
-check_bool cleaning
-check_bool noconfirm
 
 # Unmount chroot dir
 umount_chroot () {
@@ -381,15 +366,39 @@ umount_trap() {
 }
 
 
+# 作業ディレクトリを削除
+remove_work() {
+    remove "$(ls ${work_dir}/* | grep "build.make")"
+    remove "${work_dir}"/pacman-*.conf
+    remove "${work_dir}/efiboot"
+    remove "${work_dir}/iso"
+    remove "${work_dir}/${arch}"
+    remove "${work_dir}/packages.list"
+    remove "${work_dir}/packages-full.list"
+    remove "${rebuildfile}"
+    if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+        remove ${work_dir}
+    fi
+}
+
+
 # Preparation for build
 prepare_build() {
-    # Check architecture for each channel
-    if [[ ! "${channel_name}" = "rebuild" ]]; then
-        if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        _msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
         fi
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
-
 
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
@@ -407,17 +416,8 @@ prepare_build() {
     local trap_remove_work
     trap_remove_work() {
         local status=${?}
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
+        echo
+        remove_work
         exit ${status}
     }
     trap 'trap_remove_work' 1 2 3 15
@@ -455,6 +455,11 @@ prepare_build() {
         fi
 
 
+        # Set username
+        if [[ "${customized_username}" = false ]]; then
+            username="${defaultusername}"
+        fi
+
         # Save the value of the variable for use in rebuild.
         save_var \
             arch \
@@ -482,7 +487,13 @@ prepare_build() {
             cleaning \
             username mkalteriso \
             usershell \
-            build_pacman_conf
+            shmkalteriso \
+            nocolor \
+            build_pacman_conf \
+            defaultconfig \
+            msgdebug \
+            defaultusername \
+            customized_username
     else
         # Load rebuild file
         source "${work_dir}/build_options"
@@ -572,6 +583,11 @@ prepare_build() {
     fi
 
     # Load loop kernel module
+    if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+        _msg_error "The currently running kernel module could not be found."
+        _msg_error "Probably the system kernel has been updated."
+        _msg_error "Reboot your system to run the latest kernel." "1"
+    fi
     if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
         sudo modprobe loop
     fi
@@ -580,6 +596,7 @@ prepare_build() {
 
 # Show settings.
 show_settings() {
+    _msg_info "mkalteriso path is ${mkalteriso}"
     echo
     if [[ "${boot_splash}" = true ]]; then
         _msg_info "Boot splash is enabled."
@@ -1066,18 +1083,17 @@ make_efi() {
 
     mkdir -p "${work_dir}/iso/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/iso/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/iso/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/iso/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/iso/loader/entries/"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
-    # EFI Shell 2.0 for UEFI 2.3+
-    curl -o "${work_dir}/iso/EFI/shellx64_v2.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/ShellBinPkg/UefiShell/X64/Shell.efi"
-    # EFI Shell 1.0 for non UEFI 2.3+
-    curl -o "${work_dir}/iso/EFI/shellx64_v1.efi" "https://raw.githubusercontent.com/tianocore/edk2/UDK2018/EdkShellBinPkg/FullShell/X64/Shell_Full.efi"
+    # edk2-shell based UEFI shell
+    cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
+    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/EFI/Shell_Full_x64.efi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1112,18 +1128,17 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v2-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-v1-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
+    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
 
-    #${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
-    cp "${work_dir}/iso/EFI/shellx64_v2.efi" "${work_dir}/efiboot/EFI/"
-    cp "${work_dir}/iso/EFI/shellx64_v1.efi" "${work_dir}/efiboot/EFI/"
+    cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
+    cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
 
     umount -d "${work_dir}/efiboot"
 }
@@ -1144,20 +1159,6 @@ make_prepare() {
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
-
-    if [[ ${cleaning} = true ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
     _msg_info "The password for the live user and root is ${password}."
 }
 
@@ -1165,7 +1166,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,noconfirm,nodepend,gitversion"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1180,10 +1181,7 @@ unset _opt_long
 while :; do
     case ${1} in
         -a | --arch)
-            case "${2}" in
-                "i686" | "x86_64" ) arch="${2}" ;;
-                *) _msg_error "Invaild architecture ${2}" '1' ;;
-            esac
+            arch="${2}"
             shift 2
             ;;
         -b | --boot-splash)
@@ -1238,7 +1236,8 @@ while :; do
             shift 2
             ;;
         -u | --user)
-            username="${2}"
+            customized_username=true
+            username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]')"
             shift 2
             ;;
         -w | --work)
@@ -1258,14 +1257,26 @@ while :; do
             nodepend=true
             shift 1
             ;;
+        --nocolor)
+            nocolor=true
+            shift 1
+            ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
                 cd ${script_path}
-                iso_version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)
+                iso_version=${iso_version}-$(git rev-parse --short HEAD)
                 cd - > /dev/null 2>&1
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
+            shift 1
+            ;;
+        --shmkalteriso)
+            shmkalteriso=true
+            shift 1
+            ;;
+        --msgdebug)
+            msgdebug=true;
             shift 1
             ;;
         --)
@@ -1280,14 +1291,6 @@ while :; do
 done
 
 
-# Show alteriso version
-if [[ -d "${script_path}/.git" ]]; then
-    cd  "${script_path}"
-    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-    cd - > /dev/null 2>&1
-fi
-
-
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
@@ -1299,8 +1302,16 @@ if [[ ${EUID} -ne 0 ]]; then
 fi
 
 
+# Show alteriso version
+if [[ -d "${script_path}/.git" ]]; then
+    cd  "${script_path}"
+    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+    cd - > /dev/null 2>&1
+fi
+
+
 # Show config message
-[[ -f "${script_path}"/config ]] && _msg_debug "The settings have been overwritten by the "${script_path}"/config."
+[[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
 
 
 # Debug mode
@@ -1314,6 +1325,9 @@ fi
 
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+
+# Set rebuild config file
+rebuildfile="${work_dir}/build_options"
 
 
 # Parse channels
@@ -1383,8 +1397,47 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-set -eu
+# Check architecture for each channel
+if [[ ! "${channel_name}" = "rebuild" ]]; then
+    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+fi
 
+
+# Check the value of a variable that can only be set to true or false.
+check_bool() {
+    _msg_debug -n "Checking ${1}..."
+    case $(eval echo '$'${1}) in
+        true | false) : ;;
+                *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
+    esac
+    if [[ "${debug}" = true ]]; then
+        echo -e " ok"
+    fi
+}
+
+if [[ "${debug}" =  true ]]; then
+    echo
+fi
+check_bool boot_splash
+check_bool debug
+check_bool bash_debug
+check_bool rebuild
+check_bool japanese
+check_bool cleaning
+check_bool noconfirm
+check_bool nodepend
+check_bool nocolor
+check_bool shmkalteriso
+check_bool msgdebug
+check_bool customized_username
+
+if [[ "${debug}" =  true ]]; then
+    echo
+fi
+
+set -eu
 
 prepare_build
 show_settings
@@ -1401,3 +1454,7 @@ run_once make_efi
 run_once make_efiboot
 run_once make_prepare
 run_once make_iso
+
+if [[ ${cleaning} = true ]]; then
+    remove_work
+fi

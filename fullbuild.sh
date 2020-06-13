@@ -12,7 +12,7 @@ architectures=(
     "i686"
 )
 
-work_dir=fullbuild.ignore.work
+work_dir=temp
 
 retry=5
 
@@ -150,9 +150,6 @@ _msg_error() {
 }
 
 
-if [[ ! -d "${work_dir}" ]]; then
-    mkdir -p "${work_dir}"
-fi
 
 trap_exit() {
     local status=${?}
@@ -161,10 +158,9 @@ trap_exit() {
     exit ${status}
 }
 
-trap 'trap_exit' 1 2 3 15
 
 build() {
-    options="-b --gitversion --noconfirm -l -a ${arch} ${cha}"
+    options="${share_options} -a ${arch} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}" ]]; then
         _msg_info "Build ${cha} with ${arch} architecture."
@@ -181,11 +177,54 @@ build() {
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
 
+_help() {
+    echo "usage ${0} [options]"
+    echo
+    echo " General options:"
+    echo "    -a <options>       Set other options in build.sh"
+    echo "    -d                 Use the default build.sh arguments. (${default_options})"
+    echo "    -g                 Use gitversion."
+    echo "    -h                 This help message."
+    echo
+    echo "!! WARNING !!"
+    echo "Do not set channel or architecture with -a."
+    echo "Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
+    echo "Example: ${0} -a '-b -k zen'"
+}
+
+
+share_options=""
+default_options="-b --noconfirm -l"
+
+while getopts 'a:dgh' arg; do
+    case "${arg}" in
+        a) share_options="${share_options} ${OPTARG}" ;;
+        d) share_options="${share_options} ${default_options}" ;;
+        g) 
+            if [[ ! -d "${script_path}/.git" ]]; then
+                _msg_error "There is no git directory. You need to use git clone to use this feature."
+                exit 1
+            else
+                share_options="${share_options} --gitversion"
+            fi
+            ;;
+        h) _help ; exit 0 ;;
+        *) _help ; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+trap 'trap_exit' 1 2 3 15
+
+if [[ ! -d "${work_dir}" ]]; then
+    mkdir -p "${work_dir}"
+fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
         for i in $(seq 1 ${retry}); do
-            build
+            #build
+            echo "build.sh ${share_options} -a ${arch} ${cha}"
         done
     done
 done
