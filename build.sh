@@ -587,10 +587,15 @@ prepare_build() {
                     [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
                     _msg_warn "${pkg} is not the latest package."
                     _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
-                    echo
                     ;;
-                "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
-                "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                "not")
+                    [[ "${debug}" = true ]] && echo
+                    _msg_error "${pkg} is not installed." ; check_failed=true
+                    ;;
+                "norepo") 
+                    [[ "${debug}" = true ]] && echo
+                    _msg_warn "${pkg} is not a repository package."
+                    ;;
                 "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
             esac
         done
