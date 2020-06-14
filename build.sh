@@ -469,6 +469,13 @@ prepare_build() {
             username="${defaultusername}"
         fi
 
+        # gitversion
+        if [[ "${gitversion}" = true ]]; then
+            cd ${script_path}
+            iso_version=${iso_version}-$(git rev-parse --short HEAD)
+            cd - > /dev/null 2>&1
+        fi
+
         # Save the value of the variable for use in rebuild.
         save_var \
             arch \
@@ -494,7 +501,8 @@ prepare_build() {
             japanese \
             channel_name \
             cleaning \
-            username mkalteriso \
+            username \
+            mkalteriso \
             usershell \
             shmkalteriso \
             nocolor \
@@ -502,7 +510,8 @@ prepare_build() {
             defaultconfig \
             msgdebug \
             defaultusername \
-            customized_username
+            customized_username \
+            gitversion
     else
         # Load rebuild file
         load_config "${work_dir}/"
@@ -1272,9 +1281,7 @@ while :; do
             ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
-                cd ${script_path}
-                iso_version=${iso_version}-$(git rev-parse --short HEAD)
-                cd - > /dev/null 2>&1
+                gitversion=true
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
