@@ -505,7 +505,7 @@ prepare_build() {
             customized_username
     else
         # Load rebuild file
-        load_config "${work_dir}/build_options"
+        load_config "${work_dir}/"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
