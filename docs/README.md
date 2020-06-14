@@ -117,7 +117,10 @@ These are a list of major branches. Other branches are temporary or used for spe
 
 <h2>〈About opinion and impression〉</h2>
 If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>.<br>
-We are soliciting opinions from various users to make AlterLinux better.
+We are soliciting opinions from various users to make AlterLinux better.<br>
+
+<h2>〈When submitting a bug report or pull request〉</h2>
+Be sure to read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>

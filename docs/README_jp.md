@@ -116,7 +116,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
 私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。<br>
 
-<h2>バグやプルリクエストを送る際は</h2>
+<h2>〈バグ報告やプルリクエストを送る際は〉</h2>
 必ず<a href="CONTRIBUTING.md">CONTRIBUTING.md</a>を読んでください。
 
 
