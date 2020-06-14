@@ -365,6 +365,18 @@ umount_trap() {
     exit ${status}
 }
 
+# 設定ファイルを読み込む
+# load_config [file1] [file2] ...
+load_config() {
+    local file
+    for file in ${@}; do
+        if [[ -f "${file}" ]]; then
+            source "${file}"
+            _msg_debug "The settings have been overwritten by the ${file}"
+        fi
+    done
+}
+
 
 # 作業ディレクトリを削除
 remove_work() {
@@ -442,17 +454,14 @@ prepare_build() {
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
         fi
 
+        # If there is config for share channel. load that.
+        load_config "${script_path}/channels/share/config.any"
+        load_config ${script_path}/channels/share/config.${arch}
+
 
         # If there is config for each channel. load that.
-        if [[ -f "${script_path}/channels/${channel_name}/config.any" ]]; then
-            source "${script_path}/channels/${channel_name}/config.any"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.any"
-        fi
-
-        if [[ -f "${script_path}/channels/${channel_name}/config.${arch}" ]]; then
-            source "${script_path}/channels/${channel_name}/config.${arch}"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.${arch}"
-        fi
+        load_config "${script_path}/channels/${channel_name}/config.any"
+        load_config "${script_path}/channels/${channel_name}/config.${arch}"
 
 
         # Set username
@@ -496,7 +505,7 @@ prepare_build() {
             customized_username
     else
         # Load rebuild file
-        source "${work_dir}/build_options"
+        load_config "${work_dir}/build_options"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
