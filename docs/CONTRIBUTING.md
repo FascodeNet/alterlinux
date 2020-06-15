@@ -123,7 +123,7 @@ When you send the issue, please include the following information.
 - The environment in which the problem occurred
 - What did we do
 - Screenshots, logs, etc.
-- If a problem happen when you building, `build_options` in the working directory
+- If a problem happen when you building, Please attach the file `build_options` in the working directory
 
 ## Pull Request
 Please write content in either Japanese or English. Specifically, the content refers to the following
