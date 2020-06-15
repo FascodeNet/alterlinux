@@ -114,11 +114,15 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 <h2>〈意見や感想について〉</h2>
 もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
-私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
+私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。<br>
+
+<h2>〈バグ報告やプルリクエストを送る際は〉</h2>
+必ず<a href="CONTRIBUTING.md">CONTRIBUTING.md</a>を読んでください。
 
 
 <h2>〈ドキュメント〉</h2>
 一部のドキュメントは情報が古かったり、一部の言語しかない場合が有ります。<br>
+また、全てのドキュメントは<code>docs</code>ディレクトリにあります。<br>
 もし誤字脱字や実際と異なる表記を見つけた場合はIssuesで報告して下さい。<br>
 <ul>
 	<li><a href="jp/BUILD.md">AlterLinuxをビルドする</a></li>
@@ -127,6 +131,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<li><a href="jp/PACKAGE.md">パッケージリストについての注意</a></li>
 	<li><a href="jp/DOCKER.md">Docker上でビルドする方法</a></li>
 	<li><a href="jp/KERNEL.md">新しいカーネルを追加する方法</a></li>
+	<li><a href="en/CONFIG.md">ビルドの設定ファイルについて</a></li>
 </ul>
 
 

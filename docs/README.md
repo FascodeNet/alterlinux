@@ -117,10 +117,14 @@ These are a list of major branches. Other branches are temporary or used for spe
 
 <h2>〈About opinion and impression〉</h2>
 If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>.<br>
-We are soliciting opinions from various users to make AlterLinux better.
+We are soliciting opinions from various users to make AlterLinux better.<br>
+
+<h2>〈When submitting a bug report or pull request〉</h2>
+Be sure to read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
+All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
@@ -129,6 +133,7 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+	<li><a href="en/CONFIG.md">About build configuration file</a></li>
 </ul>
 
 
@@ -139,7 +144,7 @@ In addition, please write down the situation and model name <a href="https://git
 
 
 <h2>〈About FascodeNetwork and developers〉</h2>
-<a href="https://fascode.net/">Fascode Network</a>is a creative team mainly composed of students.<br>
+<a href="https://fascode.net/">Fascode Network</a> is a creative team mainly composed of students.<br>
 We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
 
 <h3>Official Twitter account</h3>
