@@ -124,6 +124,7 @@ Be sure to read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
+All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
@@ -132,6 +133,7 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+	<li><a href="en/CONFIG.md">About build configuration file</a></li>
 </ul>
 
 
