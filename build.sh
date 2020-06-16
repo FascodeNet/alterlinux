@@ -249,9 +249,10 @@ _usage () {
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
     echo "    --msgdebug                   Enables output debugging."
-    echo "    --nocolor                    Does not output colored output."
-    echo "    --noconfirm                  Does not check the settings before building."
-    echo "    --nodepend                   Do not check package dependencies before building."
+    echo "    --nocolor                    No output colored output."
+    echo "    --noconfirm                  No check the settings before building."
+    echo "    --noloopmod                  No check and load kernel module automatically."
+    echo "    --nodepend                   No check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
@@ -511,7 +512,8 @@ prepare_build() {
             msgdebug \
             defaultusername \
             customized_username \
-            gitversion
+            gitversion \
+            noloopmod
     else
         # Load rebuild file
         load_config "${work_dir}/"
@@ -606,13 +608,15 @@ prepare_build() {
     fi
 
     # Load loop kernel module
-    if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-        _msg_error "The currently running kernel module could not be found."
-        _msg_error "Probably the system kernel has been updated."
-        _msg_error "Reboot your system to run the latest kernel." "1"
-    fi
-    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
-        sudo modprobe loop
+    if [[ "${noloopmod}" = false ]]; then
+        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+            _msg_error "The currently running kernel module could not be found."
+            _msg_error "Probably the system kernel has been updated."
+            _msg_error "Reboot your system to run the latest kernel." "1"
+        fi
+        if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
+            sudo modprobe loop
+        fi
     fi
 }
 
@@ -1189,7 +1193,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1298,6 +1302,10 @@ while :; do
             ;;
         --msgdebug)
             msgdebug=true;
+            shift 1
+            ;;
+        --noloopmod)
+            noloopmod=true
             shift 1
             ;;
         --)
@@ -1453,6 +1461,7 @@ check_bool nocolor
 check_bool shmkalteriso
 check_bool msgdebug
 check_bool customized_username
+check_bool noloopmod
 
 if [[ "${debug}" =  true ]]; then
     echo
