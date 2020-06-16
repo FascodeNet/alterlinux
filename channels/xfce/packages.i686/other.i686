@@ -40,7 +40,7 @@ htop
 
 
 #-- pacman --#
-pamac-gtk
+pamac-aur
 
 
 #-- printer --#
