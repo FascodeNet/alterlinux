@@ -5,8 +5,11 @@
 	<img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="AlterLinux logo">
 </p>
 <p align="center">
+	<a href="https://fascode.net/en/projects/linux/alter/">
+		<img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+	</a>
 	<a href="../LICENSE">
-		<img src="https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu" alt="License: GPLv3.0">
+		<img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=for-the-badge" alt="License: GPLv3.0">
 	</a>
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
@@ -22,8 +25,19 @@
 	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
 		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
 	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/network/members">
+		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
+</p>
+<p align="center">
 	<a href="https://github.com/FascodeNet/alterlinux/releases">
 		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
+	</a>
+	<a href="https://fascode.net/en/projects/linux/alter/downloads/">
+		<img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
+	</a>
+	<a href="">
+		<img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
 	</a>
 </p>
 
