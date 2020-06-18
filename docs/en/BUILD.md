@@ -5,32 +5,27 @@ Please refer to [This procedure] (DOCKER.md) for how to build with Docker.
 When building on a real machine, the OS must be ArchLinux or AlterLinux.
 The following explains how to build on a real machine.  
   
-The build can be done in two ways. You can either use the wizard or run it directly.  
+TWhen building directly on Arch or Alter, there are several ways to build.  
 
-### Get the source code
+### Preparation
+
+Get the source code.
 
 ```bash
 git clone https://github.com/SereneTeam/alterlinux.git
 cd alterlinux
 ```
 
-### Use the build wizard
-When you build directly on the actual machine, you can easily build with your desired settings using wizard.sh.  
-The following keys are added and dependencies are automatically installed.  
-It is written in bash, so please execute it from the terminal.  
-Answer "yes" or "no" questions with `y` or` n`. If you enter a numerical value, enter it in half-width characters.  
-
-```bash
-./wizard.sh
-```
-
-### Build with options manually
-
-#### Add key
-AlterLinux includes a script to easily add keys.  
+Add a key to use AlterLinux repository.
 
 ```bash
 sudo ./keyring.sh --alter-add --arch32-add
+```
+
+Install the packages required for build.
+
+```bash
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 
 #### Install the dependencies
@@ -40,28 +35,28 @@ Install the packages required for building.
 sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 
-#### Start the build
-Run `build.sh`.  
+### TUIを使用する
+You can configure and build using `menuconfig`.  
 
 ```bash
-sudo ./build.sh
+make menuconfig
 ```
 
-See below for how to use `build.sh`.  
+### GUIを使用する
+GUIで設定を行ってビルドできます。
 
-### build.sh
+```bash
+python ./build-wizard.py
+```
 
-#### Basic
+### Build with options manually
 
 ```bash
 ./build.sh <options> <channel>
-```
-
-##### Note
-All options described after the channel name are ignored. Be sure to put the option before the channel name.  
+``` 
 
 #### option
-Run `./build -h` for full options and usage.  
+Run `./build.sh -h` for full options and usage.  
 
  Purpose | Usage
 --- | ---
@@ -75,6 +70,8 @@ Run `./build -h` for full options and usage.
  Specify output destination directory | -o [dir]
  Specify working directory | -w [dir]
 
+##### Note
+All options described after the channel name are ignored. Be sure to put the option before the channel name. 
 
 #### An example
 Do this to build under the following conditions.
@@ -88,11 +85,13 @@ Do this to build under the following conditions.
 ./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
 ```
 
+### Notes
 
 #### About channel
 Channels switch between packages to install and files to include.  
 This mechanism makes it possible to build various versions of AlterLinux.  
-The following channels are supported as of May 5, 2020:  
+The following channels are supported as of May 5, 2020.  
+See `./build.sh -h` for a complete list of channels.
 
 Name | Purpose
 --- | ---
