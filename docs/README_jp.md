@@ -29,6 +29,7 @@
 		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
 	</a>
 </p>
+<p align="center">
 	<a href="https://github.com/FascodeNet/alterlinux/releases">
 		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
 	</a>
