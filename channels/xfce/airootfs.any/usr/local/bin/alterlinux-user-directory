@@ -29,4 +29,3 @@ file://${XDG_VIDEOS_DIR}
 EOF
 
 remove ~/.config/autostart/gensidebar.desktop
-remove ~/.setup.sh

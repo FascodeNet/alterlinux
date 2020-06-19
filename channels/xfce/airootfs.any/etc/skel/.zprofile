@@ -2,7 +2,7 @@
 # ~/.zsh_profile
 #
 
-[[ -f ~/.setup.sh ]] && ~/.setup.sh
+[[ -f /usr/local/bin/alterlinux-user-directory ]] && /usr/local/bin/alterlinux-user-directory
 if [[ $(systemctl is-active graphical.target) = "active" ]] && [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
   exec startx
 fi
