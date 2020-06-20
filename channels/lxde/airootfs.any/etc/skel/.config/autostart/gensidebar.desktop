@@ -1,4 +1,5 @@
 [Desktop Entry]
+Encoding=UTF-8
 Version=1.0
 Name=AlterLinux Sidebar
 Comment=Generates sidebar items.
@@ -10,4 +11,3 @@ RunHook=0
 StartupNotify=false
 Terminal=false
 Hidden=false
-
