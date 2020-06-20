@@ -97,16 +97,16 @@ These are a list of major branches. Other branches are temporary or used for spe
 	<thead>
 		<tr>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/master">master</a>
 			</th>
 			<th>	
-				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/stable">stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev">dev</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
 			</th>
 		</tr>
 	</thead>
@@ -130,7 +130,7 @@ These are a list of major branches. Other branches are temporary or used for spe
 
 
 <h2>〈About opinion and impression〉</h2>
-If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>.<br>
+If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/FascodeNet/alterlinux/issues">Issues</a>.<br>
 We are soliciting opinions from various users to make AlterLinux better.<br>
 
 <h2>〈When submitting a bug report or pull request〉</h2>

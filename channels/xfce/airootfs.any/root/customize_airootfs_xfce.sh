@@ -129,5 +129,8 @@ else
 fi
 
 
+# Set script permission
+chmod 755 /usr/local/bin/alterlinux-user-directory
+
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf

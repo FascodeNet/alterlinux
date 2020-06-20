@@ -1,9 +1,13 @@
 [Desktop Entry]
+Encoding=UTF-8
 Version=1.0
-Name=Sidebar generator
+Name=AlterLinux Sidebar
 Comment=Generates sidebar items.
 Icon=utilities-terminal
-Exec=~/.setup.sh
-Terminal=false
+Exec=/usr/local/bin/alterlinux-user-directory
+X-GNOME-Autostart-enabled=true
 Type=Application
-Hidden=true
+RunHook=0
+StartupNotify=false
+Terminal=false
+Hidden=false

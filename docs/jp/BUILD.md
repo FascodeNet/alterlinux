@@ -12,7 +12,7 @@ ArchやAlter上で直接ビルドする場合、ビルドはいくつかの方�
 ソースコードを取得します。  
 
 ```bash
-git clone https://github.com/SereneTeam/alterlinux.git
+git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
 ```
 

@@ -94,16 +94,16 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<thead>
 		<tr>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/master">master</a>
 			</th>
 			<th>	
-				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/stable">stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev">dev</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
 			</th>
 		</tr>
 	</thead>
@@ -127,7 +127,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 
 
 <h2>〈意見や感想について〉</h2>
-もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
+もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/FascodeNet/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
 私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。<br>
 
 <h2>〈バグ報告やプルリクエストを送る際は〉</h2>

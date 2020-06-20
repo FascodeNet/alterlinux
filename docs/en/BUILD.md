@@ -12,7 +12,7 @@ TWhen building directly on Arch or Alter, there are several ways to build.
 Get the source code.
 
 ```bash
-git clone https://github.com/SereneTeam/alterlinux.git
+git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
 ```
 
