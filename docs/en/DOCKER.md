@@ -2,7 +2,7 @@
 Please go in the Linux environment where docker is installed.  
 
 ```bash
-git clone https://github.com/SereneTeam/alterlinux.git
+git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
 sudo ./docker-build.sh
 ```
