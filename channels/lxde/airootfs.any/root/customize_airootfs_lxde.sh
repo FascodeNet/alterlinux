@@ -131,3 +131,6 @@ chmod 644 "/usr/share/lxde/images/logout-banner.png"
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+
+# Set script permission
+chmod 755 /usr/local/bin/alterlinux-user-directory
