@@ -40,7 +40,7 @@ htop
 
 
 #-- pacman --#
-pamac-gtk
+pamac-aur
 
 
 #-- printer --#
@@ -55,5 +55,6 @@ vim
 
 #-- other --#
 # etcher-bin
+ipad_charge
 libreoffice-still
 tlpui

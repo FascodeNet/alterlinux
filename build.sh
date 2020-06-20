@@ -249,9 +249,10 @@ _usage () {
     echo
     echo "    --gitversion                 Add Git commit hash to image file version"
     echo "    --msgdebug                   Enables output debugging."
-    echo "    --nocolor                    Does not output colored output."
-    echo "    --noconfirm                  Does not check the settings before building."
-    echo "    --nodepend                   Do not check package dependencies before building."
+    echo "    --nocolor                    No output colored output."
+    echo "    --noconfirm                  No check the settings before building."
+    echo "    --noloopmod                  No check and load kernel module automatically."
+    echo "    --nodepend                   No check package dependencies before building."
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
@@ -365,6 +366,18 @@ umount_trap() {
     exit ${status}
 }
 
+# 設定ファイルを読み込む
+# load_config [file1] [file2] ...
+load_config() {
+    local file
+    for file in ${@}; do
+        if [[ -f "${file}" ]]; then
+            source "${file}"
+            _msg_debug "The settings have been overwritten by the ${file}"
+        fi
+    done
+}
+
 
 # 作業ディレクトリを削除
 remove_work() {
@@ -442,22 +455,26 @@ prepare_build() {
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
         fi
 
+        # If there is config for share channel. load that.
+        load_config "${script_path}/channels/share/config.any"
+        load_config ${script_path}/channels/share/config.${arch}
+
 
         # If there is config for each channel. load that.
-        if [[ -f "${script_path}/channels/${channel_name}/config.any" ]]; then
-            source "${script_path}/channels/${channel_name}/config.any"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.any"
-        fi
-
-        if [[ -f "${script_path}/channels/${channel_name}/config.${arch}" ]]; then
-            source "${script_path}/channels/${channel_name}/config.${arch}"
-            _msg_debug "The settings have been overwritten by the ${script_path}/channels/${channel_name}/config.${arch}"
-        fi
+        load_config "${script_path}/channels/${channel_name}/config.any"
+        load_config "${script_path}/channels/${channel_name}/config.${arch}"
 
 
         # Set username
         if [[ "${customized_username}" = false ]]; then
             username="${defaultusername}"
+        fi
+
+        # gitversion
+        if [[ "${gitversion}" = true ]]; then
+            cd ${script_path}
+            iso_version=${iso_version}-$(git rev-parse --short HEAD)
+            cd - > /dev/null 2>&1
         fi
 
         # Save the value of the variable for use in rebuild.
@@ -485,7 +502,8 @@ prepare_build() {
             japanese \
             channel_name \
             cleaning \
-            username mkalteriso \
+            username \
+            mkalteriso \
             usershell \
             shmkalteriso \
             nocolor \
@@ -493,10 +511,12 @@ prepare_build() {
             defaultconfig \
             msgdebug \
             defaultusername \
-            customized_username
+            customized_username \
+            gitversion \
+            noloopmod
     else
         # Load rebuild file
-        source "${work_dir}/build_options"
+        load_config "${work_dir}/"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -569,10 +589,15 @@ prepare_build() {
                     [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
                     _msg_warn "${pkg} is not the latest package."
                     _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
-                    echo
                     ;;
-                "not") _msg_error "${pkg} is not installed." ; check_failed=true ;;
-                "norepo") _msg_warn "${pkg} is not a repository package." ;;
+                "not")
+                    [[ "${debug}" = true ]] && echo
+                    _msg_error "${pkg} is not installed." ; check_failed=true
+                    ;;
+                "norepo") 
+                    [[ "${debug}" = true ]] && echo
+                    _msg_warn "${pkg} is not a repository package."
+                    ;;
                 "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
             esac
         done
@@ -583,13 +608,15 @@ prepare_build() {
     fi
 
     # Load loop kernel module
-    if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-        _msg_error "The currently running kernel module could not be found."
-        _msg_error "Probably the system kernel has been updated."
-        _msg_error "Reboot your system to run the latest kernel." "1"
-    fi
-    if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
-        sudo modprobe loop
+    if [[ "${noloopmod}" = false ]]; then
+        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+            _msg_error "The currently running kernel module could not be found."
+            _msg_error "Probably the system kernel has been updated."
+            _msg_error "Reboot your system to run the latest kernel." "1"
+        fi
+        if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
+            sudo modprobe loop
+        fi
     fi
 }
 
@@ -1166,7 +1193,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1263,9 +1290,7 @@ while :; do
             ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
-                cd ${script_path}
-                iso_version=${iso_version}-$(git rev-parse --short HEAD)
-                cd - > /dev/null 2>&1
+                gitversion=true
             else
                 _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
@@ -1277,6 +1302,10 @@ while :; do
             ;;
         --msgdebug)
             msgdebug=true;
+            shift 1
+            ;;
+        --noloopmod)
+            noloopmod=true
             shift 1
             ;;
         --)
@@ -1432,6 +1461,7 @@ check_bool nocolor
 check_bool shmkalteriso
 check_bool msgdebug
 check_bool customized_username
+check_bool noloopmod
 
 if [[ "${debug}" =  true ]]; then
     echo

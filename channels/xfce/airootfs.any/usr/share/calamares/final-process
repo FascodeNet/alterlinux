@@ -22,6 +22,7 @@ done
 remove /etc/skel/Desktop
 remove /etc/skel/.config/gtk-3.0/bookmarks
 remove /home/${user}/Desktop/calamares.desktop
+remove /root/Desktop/calamares.desktop
 remove /home/${user}/.config/gtk-3.0/bookmarks
 remove /usr/share/calamares/
 

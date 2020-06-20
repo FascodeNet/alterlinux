@@ -13,7 +13,7 @@ architectures=(
 )
 
 work_dir=temp
-
+simulation=false
 retry=5
 
 
@@ -185,6 +185,9 @@ _help() {
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion."
     echo "    -h                 This help message."
+    echo "    -r                 Set the number of retries."
+    echo "                       Defalut: ${retry}"
+    echo "    -s                 Enable simulation mode."
     echo
     echo "!! WARNING !!"
     echo "Do not set channel or architecture with -a."
@@ -196,7 +199,7 @@ _help() {
 share_options=""
 default_options="-b --noconfirm -l"
 
-while getopts 'a:dgh' arg; do
+while getopts 'a:dghrs' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         d) share_options="${share_options} ${default_options}" ;;
@@ -208,6 +211,8 @@ while getopts 'a:dgh' arg; do
                 share_options="${share_options} --gitversion"
             fi
             ;;
+        s) simulation=true;;
+        r) retry="${OPTARG}" ;;
         h) _help ; exit 0 ;;
         *) _help ; exit 1 ;;
     esac
@@ -223,8 +228,11 @@ fi
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
         for i in $(seq 1 ${retry}); do
-            #build
-            echo "build.sh ${share_options} -a ${arch} ${cha}"
+            if [[ "${simulation}" = true ]]; then
+                echo "build.sh ${share_options} -a ${arch} ${cha}"
+            else
+                build
+            fi
         done
     done
 done
