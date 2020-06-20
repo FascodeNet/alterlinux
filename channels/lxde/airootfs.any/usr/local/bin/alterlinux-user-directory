@@ -26,4 +26,4 @@ file://${XDG_PICTURES_DIR} Pictures
 file://${XDG_VIDEOS_DIR} Videos
 EOF
 
-remove ~/.config/autostart/gensidebar.desktop
+remove ${HOME}/.config/autostart/gensidebar.desktop
