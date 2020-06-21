@@ -541,7 +541,11 @@ prepare_build() {
     if [[ "${japanese}" = true ]]; then
         _channel_name="${_channel_name}-jp"
     fi
-    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    if [[ "${nochname}" = true ]]; then
+        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+    else
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    fi
     _msg_debug "Iso filename is ${iso_filename}"
 
 
@@ -1436,13 +1440,16 @@ fi
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
+    local _value
+    _value="$(eval echo '$'${1})"
     _msg_debug -n "Checking ${1}..."
-    case $(eval echo '$'${1}) in
-        true | false) : ;;
-                *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
-    esac
     if [[ "${debug}" = true ]]; then
-        echo -e " ok"
+        echo -e " ${_value}"
+    fi
+    if [[ ! -v "${1}" ]]; then
+        echo; _msg_error "The variable name ${1} is empty." "1"
+    elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+        echo; _msg_error "The variable name ${1} is not of bool type." "1"
     fi
 }
 
@@ -1462,6 +1469,7 @@ check_bool shmkalteriso
 check_bool msgdebug
 check_bool customized_username
 check_bool noloopmod
+check_bool nochname
 
 if [[ "${debug}" =  true ]]; then
     echo
