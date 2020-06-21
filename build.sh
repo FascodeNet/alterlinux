@@ -541,7 +541,11 @@ prepare_build() {
     if [[ "${japanese}" = true ]]; then
         _channel_name="${_channel_name}-jp"
     fi
-    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    if [[ "${nochname}" = true ]]; then
+        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+    else
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    fi
     _msg_debug "Iso filename is ${iso_filename}"
 
 
@@ -1462,6 +1466,7 @@ check_bool shmkalteriso
 check_bool msgdebug
 check_bool customized_username
 check_bool noloopmod
+check_bool nochname
 
 if [[ "${debug}" =  true ]]; then
     echo
