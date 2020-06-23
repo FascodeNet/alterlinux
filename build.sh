@@ -347,10 +347,11 @@ remove() {
     local _file
     _list=($(echo "$@"))
     for _file in "${_list[@]}"; do
-        _msg_debug "Removeing ${_file}"
         if [[ -f ${_file} ]]; then
+            _msg_debug "Removeing ${_file}"
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
+            _msg_debug "Removeing ${_file}"
             rm -rf "${_file}"
         fi
     done
