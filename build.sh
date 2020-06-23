@@ -389,7 +389,7 @@ remove_work() {
     remove "${work_dir}/${arch}"
     remove "${work_dir}/packages.list"
     remove "${work_dir}/packages-full.list"
-    remove "${rebuildfile}"
+    #remove "${rebuildfile}"
     if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
         remove ${work_dir}
     fi
