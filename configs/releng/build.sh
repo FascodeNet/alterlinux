@@ -157,16 +157,14 @@ make_efi() {
 
     mkdir -p ${work_dir}/iso/loader/entries
     cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/iso/loader/
-    cp ${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf ${work_dir}/iso/loader/entries/
-    cp ${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf ${work_dir}/iso/loader/entries/
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         ${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf > ${work_dir}/iso/loader/entries/archiso-x86_64.conf
 
     # edk2-shell based UEFI shell
-    cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
-    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/EFI/Shell_Full_x64.efi
+    # shellx64.efi is picked up automatically when on /
+    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/shellx64.efi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -190,15 +188,13 @@ make_efiboot() {
 
     mkdir -p ${work_dir}/efiboot/loader/entries
     cp ${script_path}/efiboot/loader/loader.conf ${work_dir}/efiboot/loader/
-    cp ${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf ${work_dir}/efiboot/loader/entries/
-    cp ${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf ${work_dir}/efiboot/loader/entries/
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
         ${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf > ${work_dir}/efiboot/loader/entries/archiso-x86_64.conf
 
-    cp ${work_dir}/iso/EFI/Shell_x64.efi ${work_dir}/efiboot/EFI/
-    cp ${work_dir}/iso/EFI/Shell_Full_x64.efi ${work_dir}/efiboot/EFI/
+    # shellx64.efi is picked up automatically when on /
+    cp ${work_dir}/iso/shellx64.efi ${work_dir}/efiboot/
 
     umount -d ${work_dir}/efiboot
 }
