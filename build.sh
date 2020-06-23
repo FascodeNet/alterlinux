@@ -476,6 +476,23 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
+    
+        # Generate iso file name.
+        local _channel_name
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
+        else
+            _channel_name="${channel_name}"
+        fi
+        if [[ "${japanese}" = true ]]; then
+            _channel_name="${_channel_name}-jp"
+        fi
+        if [[ "${nochname}" = true ]]; then
+            iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+        else
+            iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+        fi
+        _msg_debug "Iso filename is ${iso_filename}"
 
         # Save the value of the variable for use in rebuild.
         save_var \
@@ -486,6 +503,7 @@ prepare_build() {
             iso_publisher \
             iso_application \
             iso_version \
+            iso_filename \
             install_dir \
             work_dir \
             out_dir \
@@ -516,7 +534,7 @@ prepare_build() {
             noloopmod
     else
         # Load rebuild file
-        load_config "${work_dir}/"
+        load_config "${rebuildfile}"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -529,24 +547,6 @@ prepare_build() {
         _msg_info "Unmounting ${mount}"
         umount "${mount}"
     done
-
-
-    # Generate iso file name.
-    local _channel_name
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
-    else
-        _channel_name="${channel_name}"
-    fi
-    if [[ "${japanese}" = true ]]; then
-        _channel_name="${_channel_name}-jp"
-    fi
-    if [[ "${nochname}" = true ]]; then
-        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-    else
-        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    fi
-    _msg_debug "Iso filename is ${iso_filename}"
 
 
      # Check packages
