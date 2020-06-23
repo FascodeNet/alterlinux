@@ -1432,10 +1432,18 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-# Check architecture for each channel
+# Check architecture and kernel for each channel
 if [[ ! "${channel_name}" = "rebuild" ]]; then
-    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+    # architecture
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+    # kernel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
+            _msg_error "This kernel is currently not supported on this channel." "1"
+        fi
     fi
 fi
 
