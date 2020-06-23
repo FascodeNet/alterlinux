@@ -16,7 +16,7 @@ automated_script ()
     script="$(script_cmdline)"
     if [[ -n "${script}" && ! -x /tmp/startup_script ]]; then
         if [[ "${script}" =~ ^((http|https|ftp)://) ]]; then
-            wget "${script}" --retry-connrefused -q -O /tmp/startup_script >/dev/null
+            curl "${script}" --retry-connrefused -s -o /tmp/startup_script >/dev/null
             rt=$?
         else
             cp "${script}" /tmp/startup_script

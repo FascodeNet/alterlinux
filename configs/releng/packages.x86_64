@@ -71,7 +71,6 @@ usbutils
 vi
 vim-minimal
 vpnc
-wget
 wireless-regdb
 wireless_tools
 wpa_supplicant
