@@ -535,6 +535,7 @@ prepare_build() {
     else
         # Load rebuild file
         load_config "${rebuildfile}"
+        _msg_debug "Iso filename is ${iso_filename}"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
