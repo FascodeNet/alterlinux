@@ -48,6 +48,7 @@ nilfs-utils
 nmap
 ntfs-3g
 ntp
+nvme-cli
 openconnect
 openssh
 openvpn
