@@ -60,6 +60,7 @@ sdparm
 sg3_utils
 smartmontools
 sudo
+systemd-resolvconf
 tcpdump
 testdisk
 usb_modeswitch
