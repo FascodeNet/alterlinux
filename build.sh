@@ -1274,7 +1274,7 @@ while :; do
             shift 2
             ;;
         -w | --work)
-            out_dir="${2}"
+            work_dir="${2}"
             shift 2
             ;;
         -x | --bash-debug)
