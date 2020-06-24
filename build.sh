@@ -224,6 +224,9 @@ _usage () {
     echo "                                  Default: disable"
     echo "    -d | --debug                 Enable debug messages."
     echo "                                  Default: disable"
+    echo "    -g | --language              Specifies the default language for the live environment."
+    echo "                                  Default: ${language}"
+
     echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
     echo "                                  Default: disable"
     echo "    -h | --help                  This help message and exit."
@@ -441,8 +444,6 @@ prepare_build() {
     save_var() {
         local out_file="${rebuildfile}"
         local i
-        echo "#!/usr/bin/env bash" > "${out_file}"
-        echo "# Build options are stored here." >> "${out_file}"
         for i in ${@}; do
             echo -n "${i}=" >> "${out_file}"
             echo -n '"' >> "${out_file}"
@@ -496,6 +497,9 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
 
         # Save the value of the variable for use in rebuild.
+        echo "#!/usr/bin/env bash" > "${out_file}"
+        echo "# Build options are stored here." >> "${out_file}"
+
         save_var \
             arch \
             os_name \
@@ -518,7 +522,7 @@ prepare_build() {
             sfs_comp \
             sfs_comp_opt \
             debug \
-            japanese \
+            language \
             channel_name \
             cleaning \
             username \
@@ -533,6 +537,11 @@ prepare_build() {
             customized_username \
             gitversion \
             noloopmod
+
+        if [[ -v japanese ]]; then
+            save_var japanese
+        fi
+
     else
         # Load rebuild file
         load_config "${rebuildfile}"
@@ -542,6 +551,10 @@ prepare_build() {
         # remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
 
+    # Japanese var
+    if [[ -v japanese ]]; then
+        language="ja_JP.UTF-8"
+    fi
 
     # Unmount
     local mount
