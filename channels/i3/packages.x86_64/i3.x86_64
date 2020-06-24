@@ -1,0 +1,13 @@
+#
+# Alter Linux i3wm edition package list
+#
+# Watasuke
+# Twitter: @Watasuke102
+# Email  : Watasuke102@gmail.com
+#
+# (c) 2020 Fascode Network.
+#
+# Base packages
+
+i3wm-gaps
+dmenu
