@@ -538,10 +538,6 @@ prepare_build() {
             gitversion \
             noloopmod
 
-        if [[ -v japanese ]]; then
-            save_var japanese
-        fi
-
     else
         # Load rebuild file
         load_config "${rebuildfile}"
@@ -551,10 +547,6 @@ prepare_build() {
         # remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
 
-    # Japanese var
-    if [[ -v japanese ]]; then
-        language="ja_JP.UTF-8"
-    fi
 
     # Unmount
     local mount
