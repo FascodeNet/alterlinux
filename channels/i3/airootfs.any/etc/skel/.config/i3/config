@@ -10,7 +10,7 @@
 # ---------------------------------------------
 
 # wallpaper
-exec --no-startup-id "feh --bg-scale /usr/share/bg-i3.png"
+exec --no-startup-id "feh --bg-scale /usr/share/backgrounds/bg-i3.png"
 
 # translucent
 exec --no-startup-id compton -cbm 0.6

@@ -36,6 +36,7 @@ xf86-input-elographics
 
 # i3wm
 i3-gaps
+# i3-sensible-terminal
 feh
 picom
 
