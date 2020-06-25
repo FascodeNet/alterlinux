@@ -9,8 +9,13 @@
 #  (c) 2020 Fascode Network.
 # ---------------------------------------------
 
+# font
+font pango:SauceCodePro Nerd Font Regular 11
+
+
 # wallpaper
 exec --no-startup-id "feh --bg-scale /usr/share/backgrounds/bg-i3.png"
+
 
 # translucent
 exec --no-startup-id compton -cbm 0.6
