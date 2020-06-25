@@ -1,0 +1,15 @@
+---
+
+default:
+  image: archlinux/base
+  before_script:
+    - pacman --noconfirm -Syy
+    - pacman --noconfirm -S base-devel shellcheck
+
+lint:
+  stage: build
+  script:
+    - shellcheck -s bash
+        archiso/mkarchiso
+        configs/{baseline,releng}/build.sh
+        configs/releng/airootfs/root/.automated_script.sh
