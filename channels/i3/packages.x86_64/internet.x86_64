@@ -7,12 +7,17 @@
 #
 # (c) 2020 Fascode Network.
 #
-# Base packages
+# Internet
 
-# i3wm
-i3wm-gaps
-feh
-picom
 
-# launcher
-dmenu
+# network manager
+network-manager-applet
+
+
+# browser
+chromium
+
+
+# security
+firewalld
+ufw

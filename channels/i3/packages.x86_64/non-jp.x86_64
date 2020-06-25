@@ -7,12 +7,4 @@
 #
 # (c) 2020 Fascode Network.
 #
-# Base packages
-
-# i3wm
-i3wm-gaps
-feh
-picom
-
-# launcher
-dmenu
+# This package list will only be installed if the Japanese option is disabled.
