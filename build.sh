@@ -347,10 +347,11 @@ remove() {
     local _file
     _list=($(echo "$@"))
     for _file in "${_list[@]}"; do
-        _msg_debug "Removeing ${_file}"
         if [[ -f ${_file} ]]; then
+            _msg_debug "Removeing ${_file}"
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
+            _msg_debug "Removeing ${_file}"
             rm -rf "${_file}"
         fi
     done
@@ -388,7 +389,7 @@ remove_work() {
     remove "${work_dir}/${arch}"
     remove "${work_dir}/packages.list"
     remove "${work_dir}/packages-full.list"
-    remove "${rebuildfile}"
+    #remove "${rebuildfile}"
     if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
         remove ${work_dir}
     fi
@@ -476,6 +477,23 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
+    
+        # Generate iso file name.
+        local _channel_name
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
+        else
+            _channel_name="${channel_name}"
+        fi
+        if [[ "${japanese}" = true ]]; then
+            _channel_name="${_channel_name}-jp"
+        fi
+        if [[ "${nochname}" = true ]]; then
+            iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+        else
+            iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+        fi
+        _msg_debug "Iso filename is ${iso_filename}"
 
         # Save the value of the variable for use in rebuild.
         save_var \
@@ -486,6 +504,7 @@ prepare_build() {
             iso_publisher \
             iso_application \
             iso_version \
+            iso_filename \
             install_dir \
             work_dir \
             out_dir \
@@ -516,7 +535,8 @@ prepare_build() {
             noloopmod
     else
         # Load rebuild file
-        load_config "${work_dir}/"
+        load_config "${rebuildfile}"
+        _msg_debug "Iso filename is ${iso_filename}"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -529,24 +549,6 @@ prepare_build() {
         _msg_info "Unmounting ${mount}"
         umount "${mount}"
     done
-
-
-    # Generate iso file name.
-    local _channel_name
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
-    else
-        _channel_name="${channel_name}"
-    fi
-    if [[ "${japanese}" = true ]]; then
-        _channel_name="${_channel_name}-jp"
-    fi
-    if [[ "${nochname}" = true ]]; then
-        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-    else
-        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    fi
-    _msg_debug "Iso filename is ${iso_filename}"
 
 
      # Check packages
@@ -1272,7 +1274,7 @@ while :; do
             shift 2
             ;;
         -w | --work)
-            out_dir="${2}"
+            work_dir="${2}"
             shift 2
             ;;
         -x | --bash-debug)
@@ -1430,10 +1432,18 @@ if [[ -n "${1}" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
 fi
 
-# Check architecture for each channel
+# Check architecture and kernel for each channel
 if [[ ! "${channel_name}" = "rebuild" ]]; then
-    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+    # architecture
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+    # kernel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
+            _msg_error "This kernel is currently not supported on this channel." "1"
+        fi
     fi
 fi
 

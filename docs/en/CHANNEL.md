@@ -143,7 +143,7 @@ By placing `channels/<channel_name>/splash.png`, you can change the background o
 Place a 640x480 image in PNG format.
 
 
-## config
+## config.<architecture>
 A script that overwrites existing build settings. Be sure to write it in the shell script syntax.  
 The template is placed in the same hierarchy as `build.sh`.  
 This configuration file will be overwritten **even by the parameter**, so please describe only the minimum required items. (Eg Plymouth theme name, package name, etc.)  
