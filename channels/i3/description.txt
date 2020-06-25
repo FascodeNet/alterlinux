@@ -1,1 +1,1 @@
-Build ArchLinux as is. Boot splash etc. cannot be used.
+using i3, a dynamic tiling window manager inspired by wmii.
