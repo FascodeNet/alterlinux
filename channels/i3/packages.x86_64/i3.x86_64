@@ -40,6 +40,7 @@ i3-gaps
 i3lock-color
 feh
 picom
+polybar
 
 # launcher
 dmenu
