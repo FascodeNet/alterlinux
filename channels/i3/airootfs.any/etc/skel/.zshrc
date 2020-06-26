@@ -1,31 +1,30 @@
+# Alter Linux i3wm edition
 #
 # ~/.zshrc
 #
+# Watasuke
+# Twitter: @Watasuke102
+# Email  : Watasuke102@gmail.com
 #
-# Yamada Hayao 
-# Twitter: @Hayao0819
-# Email  : hayao@fascode.net
-#
-# (c) 2019-2020 Fascode Network.
-#
+# (c) 2020 Fascode Network.
 
 
-#-- Alias --#
+# Alias
 [[ -f .aliases ]] && source .aliases
 
 
-#-- Completion --#
+# Completion
 [ -e /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -U compinit
 compinit -u
 
 
-#-- Archive settings --#
+# Archive settings
 export ZIPINFOOPT=-OCP932
 export UNZIPOPT=-OCP932
 
 
-#-- Key --#
+# Key
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
 typeset -A key
@@ -68,28 +67,28 @@ if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
 fi
 
 
-#-- Do not sound --#
+# Do not sound
 setopt nolistbeep
 setopt nolistbeep
 
 
-#-- Save history. --#
+# Save history.
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
 setopt share_history
 
 
-#-- Make colors available --#
+# Make colors available
 autoload -Uz colors
 colors
 
 
-#-- Pass to the path --#
+# Pass to the path
 [[ -d ~/.bin ]] && export PATH="~/.bin:${PATH}"
 
 
-#-- PROMPT --#
+# PROMPT
 if [[ ${TERM} = "linux" ]]; then
     PROMPT='%B%F{red}%(?..%? )%f%b%B%F{red}%n%f%b@%m %B%40<..<%~%<< %b%# '
 else
@@ -109,6 +108,10 @@ else
     install_powerline_precmd
 fi
 
-#-- Like fish prompt --#
+# Like fish prompt
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+
+# Set Default Terminal
+export TERMINAL=kitty

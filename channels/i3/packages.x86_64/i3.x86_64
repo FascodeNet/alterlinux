@@ -43,3 +43,6 @@ picom
 
 # launcher
 dmenu
+
+# terminal emulator
+kitty
