@@ -1,0 +1,15 @@
+; ---------------------------------------------
+;  Alter Linux i3wm edition
+;  polybar config file
+;
+;  Watasuke
+;  Twitter: @Watasuke102
+;  Email  : Watasuke102@gmail.com
+;
+;  (c) 2020 Fascode Network.
+; ---------------------------------------------
+
+[section/base]
+width  = 100%
+height = 30
+background = #eee
