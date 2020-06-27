@@ -856,12 +856,11 @@ make_customize_airootfs() {
 
     curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/${mirror_country}"
 
-    # customize_airootfs.sh options
+    # customize_airootfs options
     # -b            : Enable boot splash.
     # -d            : Enable debug mode.
     # -g <lang>     : Set language.
     # -i <inst_dir> : Set install dir
-    # -j            : It is now obsolete. Previously used to enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
     # -p <password> : Set password.
@@ -870,6 +869,8 @@ make_customize_airootfs() {
     # -u <username> : Set live user name.
     # -x            : Enable bash debug mode.
     # -r            : Enable rebuild.
+    #
+    # -j is obsolete in AlterISO3 and cannot be used.
 
 
     # Generate options of customize_airootfs.sh.

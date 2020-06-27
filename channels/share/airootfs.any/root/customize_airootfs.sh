@@ -17,30 +17,29 @@ boot_splash=false
 kernel='zen'
 theme_name=alter-logo
 rebuild=false
-japanese=false
 username='alter'
 os_name="Alter Linux"
 install_dir="alter"
 usershell="/bin/bash"
-debug=true
+debug=false
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel="${OPTARG}" ;;
         r) rebuild=true ;;
-        j) japanese=true;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
         s) usershell="${OPTARG}" ;;
         d) debug=true ;;
         x) debug=true; set -xv ;;
-        a) arch="${OPTARG}"
+        a) arch="${OPTARG}" ;;
+        g) language="${OPTARG}" ;;
     esac
 done
 
