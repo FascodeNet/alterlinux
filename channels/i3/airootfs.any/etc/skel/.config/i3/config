@@ -208,7 +208,7 @@ bindsym $mod+r mode "resize"
 mode "power"{
         mode "$power_menu"
 }
-set $power_menu (S) Shutdown, (R) Reboot, (O) logOut, (L) Lock
+set $power_menu (S): Shutdown (R): Reboot (O): logOut (L): Lock
 mode "$power_menu" {
         # s: Shutdown, r: Reboot, o: logOut, l: Lock
         bindsym s exec --no-startup-id systemctl poweroff, mode "default"
