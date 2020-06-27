@@ -171,7 +171,7 @@ build() {
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_jp" ]]; then
         _msg_info "Build the Japanese version of ${cha} on the ${arch} architecture."
-        sudo bash ${script_path}/build.sh -j ${options}
+        sudo bash ${script_path}/build.sh -g 'ja' ${options}
         touch "${work_dir}/fullbuild.${cha}_${arch}_jp"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1

@@ -17,30 +17,34 @@ boot_splash=false
 kernel='zen'
 theme_name=alter-logo
 rebuild=false
-japanese=false
 username='alter'
 os_name="Alter Linux"
 install_dir="alter"
 usershell="/bin/bash"
-debug=true
+debug=false
+timezone="UTC"
+localegen="en_US\\.UTF-8\\"
+language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel="${OPTARG}" ;;
         r) rebuild=true ;;
-        j) japanese=true;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
         s) usershell="${OPTARG}" ;;
         d) debug=true ;;
         x) debug=true; set -xv ;;
-        a) arch="${OPTARG}"
+        a) arch="${OPTARG}" ;;
+        g) localegen="${OPTARG/./\\.}\\" ;;
+        z) timezone="${OPTARG}" ;;
+        l) language="${OPTARG}" ;;
     esac
 done
 
@@ -92,7 +96,7 @@ systemctl enable firewalld.service
 
 
 # Replace link
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/Desktop/welcome-to-alter.desktop"
     remove "/home/${username}/Desktop/welcome-to-alter.desktop"
 
@@ -105,7 +109,7 @@ fi
 
 
 # Replace right menu
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/Thunar/uca.xml"
     remove "/home/${username}/.config/Thunar/uca.xml"
 

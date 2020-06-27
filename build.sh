@@ -218,12 +218,12 @@ _usage () {
     echo
     echo "    -b | --boot-splash           Enable boot splash"
     echo "                                  Default: disable"
-    echo "    -j | --japanese              Enable Japanese mode."
-    echo "                                  Default: disable"
     echo "    -l | --cleanup               Enable post-build cleaning."
     echo "                                  Default: disable"
     echo "    -d | --debug                 Enable debug messages."
     echo "                                  Default: disable"
+    echo "    -g | --lang                  Specifies the default language for the live environment."
+    echo "                                  Default: ${language}"
     echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
     echo "                                  Default: disable"
     echo "    -h | --help                  This help message and exit."
@@ -441,8 +441,6 @@ prepare_build() {
     save_var() {
         local out_file="${rebuildfile}"
         local i
-        echo "#!/usr/bin/env bash" > "${out_file}"
-        echo "# Build options are stored here." >> "${out_file}"
         for i in ${@}; do
             echo -n "${i}=" >> "${out_file}"
             echo -n '"' >> "${out_file}"
@@ -481,12 +479,9 @@ prepare_build() {
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_name}"
         else
-            _channel_name="${channel_name}"
-        fi
-        if [[ "${japanese}" = true ]]; then
-            _channel_name="${_channel_name}-jp"
+            _channel_name="${channel_name}-${locale_name}"
         fi
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
@@ -496,6 +491,9 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
 
         # Save the value of the variable for use in rebuild.
+        echo "#!/usr/bin/env bash" > "${rebuildfile}"
+        echo "# Build options are stored here." >> "${rebuildfile}"
+
         save_var \
             arch \
             os_name \
@@ -518,7 +516,7 @@ prepare_build() {
             sfs_comp \
             sfs_comp_opt \
             debug \
-            japanese \
+            language \
             channel_name \
             cleaning \
             username \
@@ -533,6 +531,7 @@ prepare_build() {
             customized_username \
             gitversion \
             noloopmod
+
     else
         # Load rebuild file
         load_config "${rebuildfile}"
@@ -644,7 +643,6 @@ show_settings() {
     else
         _msg_info "Use the ${channel_name} channel."
     fi
-    [[ "${japanese}" = true ]] && _msg_info "Japanese mode has been activated."
     _msg_info "Build with architecture ${arch}."
     echo
     if [[ ${noconfirm} = false ]]; then
@@ -693,119 +691,84 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages() {
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
-    installpkglist() {
-        set +e
-        local _loadfilelist
-        local _pkg
-        local _file
-        local jplist
-        local excludefile
-        local excludelist
-        local _pkglist
+    set +e
+    local _loadfilelist
+    local _pkg
+    local _file
+    local excludefile
+    local excludelist
+    local _pkglist
 
-        #-- Detect package list to load --#
-        # Append the file in the share directory to the file to be read.
-
-        # Package list for Japanese
-        jplist="${script_path}/channels/share/packages.${arch}/jp.${arch}"
-
-        # Package list for non-Japanese
-        nojplist="${script_path}/channels/share/packages.${arch}/non-jp.${arch}"
-
-        if [[ "${japanese}" = true ]]; then
-            _loadfilelist=($(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} | grep -xv "${nojplist}"))
-        else
-            _loadfilelist=($(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} | grep -xv "${jplist}"))
-        fi
+    #-- Detect package list to load --#
+    # Add the files for each channel to the list of files to read.
+    _loadfilelist=(
+        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch}) 
+        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${language}.${arch}
+        $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch})
+        "${script_path}"/channels/share/packages.${arch}/lang/${language}.${arch}
+    )
 
 
-        # Add the files for each channel to the list of files to read.
-
-        # Package list for Japanese
-        jplist="${script_path}/channels/${channel_name}/packages.${arch}/jp.${arch}"
-
-        # Package list for non-Japanese
-        nojplist="${script_path}/channels/${channel_name}/packages.${arch}/non-jp.${arch}"
-
-        if [[ "${japanese}" = true ]]; then
-            # If Japanese is enabled, add it to the list of files to read other than non-jp.
-            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} | grep -xv "${nojplist}"))
-        else
-            # If Japanese is disabled, add it to the list of files to read other than jp.
-            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} | grep -xv ${jplist}))
-        fi
-
-
-        #-- Read package list --#
-        # Read the file and remove comments starting with # and add it to the list of packages to install.
-        for _file in ${_loadfilelist[@]}; do
+    #-- Read package list --#
+    # Read the file and remove comments starting with # and add it to the list of packages to install.
+    for _file in ${_loadfilelist[@]}; do
+        if [[ -f "${_file}" ]]; then
             _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        fi
+    done
+    if [[ ${debug} = true ]]; then
+        sleep 1
+    fi
+
+    # Exclude packages from the share exclusion list
+    excludefile="${script_path}/channels/share/packages.${arch}/exclude"
+    if [[ -f "${excludefile}" ]]; then
+        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+
+        # 現在のpkglistをコピーする
+        _pkglist=(${pkglist[@]})
+        unset pkglist
+        for _pkg in ${_pkglist[@]}; do
+            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+                pkglist=(${pkglist[@]} "${_pkg}")
+            fi
         done
-        if [[ ${debug} = true ]]; then
-            sleep 3
-        fi
+    fi
 
-        # Exclude packages from the share exclusion list
-        excludefile="${script_path}/channels/share/packages.${arch}/exclude"
-        if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+    if [[ -n "${excludelist[@]}" ]]; then
+        _msg_debug "The following packages have been removed from the installation list."
+        _msg_debug "Excluded packages: ${excludelist[@]}"
+    fi
 
-            # 現在のpkglistをコピーする
-            _pkglist=(${pkglist[@]})
-            unset pkglist
-            for _pkg in ${_pkglist[@]}; do
-                # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-                if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                    pkglist=(${pkglist[@]} "${_pkg}")
-                fi
-            done
-        fi
-
-        if [[ -n "${excludelist[@]}" ]]; then
-            _msg_debug "The following packages have been removed from the installation list."
-            _msg_debug "Excluded packages: ${excludelist[@]}"
-        fi
-
-        # Exclude packages from the exclusion list for each channel
-        excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
-        if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+    # Exclude packages from the exclusion list for each channel
+    excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
+    if [[ -f "${excludefile}" ]]; then
+        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+    
+        # 現在のpkglistをコピーする
+        _pkglist=(${pkglist[@]})
+        unset pkglist
+        for _pkg in ${_pkglist[@]}; do
+            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+                pkglist=(${pkglist[@]} "${_pkg}")
+            fi
+        done
+    fi
         
-            # 現在のpkglistをコピーする
-            _pkglist=(${pkglist[@]})
-            unset pkglist
-            for _pkg in ${_pkglist[@]}; do
-                # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-                if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                    pkglist=(${pkglist[@]} "${_pkg}")
-                fi
-            done
-        fi
-            
-        
-        # Sort the list of packages in abc order.
-        pkglist=(
-            "$(
-                for _pkg in ${pkglist[@]}; do
-                    echo "${_pkg}"
-                done \
-                | sort
-            )"
-        )
-
-
-        #-- Debug code --#
-        #for _pkg in ${pkglist[@]}; do
-        #    echo -n "${_pkg} "
-        #done
-        # echo "${pkglist[@]}"
-
-
-        set -e
-    }
-
-    installpkglist
+    
+    # Sort the list of packages in abc order.
+    pkglist=(
+        "$(
+            for _pkg in ${pkglist[@]}; do
+                echo "${_pkg}"
+            done \
+            | sort
+        )"
+    )
+    set -e
 
     # _msg_debug "${pkglist[@]}"
 
@@ -851,38 +814,18 @@ make_customize_airootfs() {
     # cp "${build_pacman_conf}" "${work_dir}/${arch}/airootfs/etc"
 
     # Get the optimal mirror list.
-    local mirrorlisturl
-    local mirrorlisturl_all
-    local mirrorlisturl_jp
-
-
     case "${arch}" in
-        "x86_64")
-            mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
-            mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
-            ;;
-        "i686")
-            mirrorlisturl_jp='https://archlinux32.org/mirrorlist/?country=jp'
-            mirrorlisturl_all='https://archlinux32.org/mirrorlist/?country=all'
-            ;;
+        "x86_64") arch_domain="https://www.archlinux.org/mirrorlist/" ;;
+        "i686"  ) arch_domain="https://archlinux32.org/mirrorlist/"   ;;
     esac
 
-    if [[ "${japanese}" = true ]]; then
-        mirrorlisturl="${mirrorlisturl_jp}"
-    else
-        mirrorlisturl="${mirrorlisturl_all}"
-    fi
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${mirrorlisturl}"
+    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${mirror_country}"
 
-    # Add install guide to /root (disabled)
-    # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
-
-
-    # customize_airootfs.sh options
+    # customize_airootfs options
     # -b            : Enable boot splash.
     # -d            : Enable debug mode.
+    # -g <localegen>: Set locale-gen.
     # -i <inst_dir> : Set install dir
-    # -j            : Enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
     # -p <password> : Set password.
@@ -891,6 +834,10 @@ make_customize_airootfs() {
     # -u <username> : Set live user name.
     # -x            : Enable bash debug mode.
     # -r            : Enable rebuild.
+    # -z <timezone> : Set the time zone.
+    # -l <language> : Set language.
+    #
+    # -j is obsolete in AlterISO3 and cannot be used.
 
 
     # Generate options of customize_airootfs.sh.
@@ -910,14 +857,11 @@ make_customize_airootfs() {
     if [[ ${bash_debug} = true ]]; then
         addition_options="${addition_options} -x"
     fi
-    if [[ ${japanese} = true ]]; then
-        addition_options="${addition_options} -j"
-    fi
     if [[ ${rebuild} = true ]]; then
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}'"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'" 
 
 
     # X permission
@@ -1199,7 +1143,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1232,8 +1176,8 @@ while :; do
             debug=true
             shift 1
             ;;
-        -g | --gpgkey)
-            gpg_key="$2"
+        -g | --lang)
+            language="${2}"
             shift 2
             ;;
         -h | --help)
@@ -1241,8 +1185,8 @@ while :; do
             exit 0
             ;;
         -j | --japanese)
-            japanese=true
-            shift 1
+            _msg_error "This option is obsolete in AlterISO 3."
+            _msg_error "To use Japanese, use \"-g ja_JP.UTF-8\"." '1'
             ;;
         -k | --kernel)
             if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
@@ -1448,6 +1392,37 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
 fi
 
 
+# Parse languages
+locale_list="${script_path}/system/locale-${arch}"
+alteriso_lang_list=($(cat "${locale_list}" | grep -h -v ^'#' | awk '{print $1}'))
+check_lang() {
+    local _lang
+    local count
+    count=0
+    for _lang in ${alteriso_lang_list[@]}; do
+        count=$(( count + 1 ))
+        if [[ "${_lang}" == "${language}" ]]; then
+            echo "${count}"
+            return 0
+        fi
+    done
+    echo -n "failed"
+    return 0
+}
+
+locale_line="$(check_lang)"
+if [[ "${locale_line}" == "failed" ]]; then
+    _msg_error "${language} is not a valid language." "1"
+fi
+
+locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
+
+localegen=$(echo ${locale_config_full} | awk '{print $2}')
+mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
+locale_name=$(echo ${locale_config_full} | awk '{print $4}')
+timezone=$(echo ${locale_config_full} | awk '{print $5}')
+
+
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value
@@ -1470,7 +1445,6 @@ check_bool boot_splash
 check_bool debug
 check_bool bash_debug
 check_bool rebuild
-check_bool japanese
 check_bool cleaning
 check_bool noconfirm
 check_bool nodepend
