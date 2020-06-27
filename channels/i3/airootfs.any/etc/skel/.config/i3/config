@@ -43,6 +43,10 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # ---------------------
 # KeyBind
 
+# mod key
+set $mod Mod4
+
+
 # start a terminal
 bindsym $mod+Return exec kitty
 
@@ -51,8 +55,8 @@ bindsym $mod+Return exec kitty
 bindsym $mod+Shift+q kill
 
 
-# mod key
-set $mod Mod4
+# lock screen
+bindsym Mod4+Escape exec --no-startup-id i3lock -k
 
 
 # change focus
@@ -66,6 +70,7 @@ bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
+
 # move focused window
 bindsym $mod+Shift+j move left
 bindsym $mod+Shift+k move down
@@ -76,6 +81,7 @@ bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
+
 
 # split
 bindsym $mod+h split h
@@ -91,8 +97,8 @@ bindsym $mod+Shift+r restart
 
 
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec --no-startup-id \
-        "i3-nagbar -t warning -m 'Do you really want to exit i3?' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Logout' 'i3-msg exit'"
+# bindsym $mod+Shift+e exec --no-startup-id \
+#         "i3-nagbar -t warning -m 'Do you really want to exit i3?' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Logout' 'i3-msg exit'"
 
 
 # Use pactl to adjust volume in PulseAudio.
@@ -168,6 +174,9 @@ bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
 
+# ---------------------
+# mode
+
 # resize window (you can also use the mouse for that)
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode
@@ -193,3 +202,21 @@ mode "resize" {
         bindsym $mod+r mode "default"
 }
 bindsym $mod+r mode "resize"
+
+
+# power menu
+set $power_menu (S) Shutdown, (R) Reboot, (O) logOut, (l) Lock
+mode "$power_menu" {
+        # s: Shutdown, r: Reboot, o: logOut, l: Lock
+        bindsym s exec --no-startup-id systemctl poweroff, mode "default"
+        bindsym r exec --no-startup-id systemctl reboot,   mode "default"
+        bindsym o exec --no-startup-id i3-msg exit,        mode "default"
+        bindsym l exec --no-startup-id i3lock -k,          mode "default"
+
+        # mode exit (q, Esc, Enter, Space)
+        bindsym q      mode "default"
+        bindsym Escape mode "default"
+        bindsym Return mode "default"
+        bindsym Space  mode "default"
+}
+bindsym $mod+Shift+e mode "$power_menu"
