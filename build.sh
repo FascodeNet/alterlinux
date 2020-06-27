@@ -819,7 +819,7 @@ make_customize_airootfs() {
         "i686"  ) arch_domain="https://archlinux32.org/mirrorlist/"   ;;
     esac
 
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/${mirror_country}"
+    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${mirror_country}"
 
     # customize_airootfs options
     # -b            : Enable boot splash.
