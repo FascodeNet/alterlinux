@@ -479,9 +479,9 @@ prepare_build() {
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${language}"
         else
-            _channel_name="${channel_name}"
+            _channel_name="${channel_name}-${language}"
         fi
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
@@ -1415,6 +1415,7 @@ locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head
 
 localegen=$(echo ${locale_config_full} | awk '{print $2}')
 mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
+timezone=$(echo ${locale_config_full} | awk '{print $5}')
 
 
 # Check the value of a variable that can only be set to true or false.
