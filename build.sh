@@ -703,17 +703,19 @@ make_packages() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch}) 
-        "${script_path}"/channels/${channel_name}/packages.${arch}/${language}.${arch}
+        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${language}.${arch}
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch})
-        "${script_path}"/channels/share/packages.${arch}/${language}.${arch}
+        "${script_path}"/channels/share/packages.${arch}/lang/${language}.${arch}
     )
 
 
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
-        _msg_debug "Loaded package file ${_file}."
-        pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        if [[ -f "${file}" ]]; then
+            _msg_debug "Loaded package file ${_file}."
+            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        fi
     done
     if [[ ${debug} = true ]]; then
         sleep 1
