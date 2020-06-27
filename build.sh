@@ -909,14 +909,11 @@ make_customize_airootfs() {
     if [[ ${bash_debug} = true ]]; then
         addition_options="${addition_options} -x"
     fi
-    if [[ ${japanese} = true ]]; then
-        addition_options="${addition_options} -j"
-    fi
     if [[ ${rebuild} = true ]]; then
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}'"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${language}'"
 
 
     # X permission
