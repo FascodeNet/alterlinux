@@ -24,10 +24,11 @@ usershell="/bin/bash"
 debug=false
 timezone="UTC"
 localegen="en_US\\.UTF-8\\"
+language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -43,6 +44,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:' arg; do
         a) arch="${OPTARG}" ;;
         g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
+        l) language="${OPTARG}" ;;
     esac
 done
 
