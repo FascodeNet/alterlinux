@@ -1444,6 +1444,35 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
 fi
 
 
+# Parse languages
+locale_list="${script_path}/system/locale-${arch}"
+alteriso_lang_list=($(cat "${locale_list}" | grep -h -v ^'#' | awk '{print $1}'))
+check_lang() {
+    local _lang
+    local count
+    count=0
+    for _lang in ${alteriso_lang_list[@]}; do
+        count=$(( count + 1 ))
+        if [[ "${_lang}" == "${language}" ]]; then
+            echo "${count}"
+            return 0
+        fi
+    done
+    echo -n "failed"
+    return 0
+}
+
+locale_line="$(check_lang)"
+if [[ "${locale_line}" == "failed" ]]; then
+    _msg_error "${language} is not a valid language." "1"
+fi
+
+locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
+
+localegen=$(echo ${locale_config_full} | awk '{print $2}')
+mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
+
+
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value
