@@ -13,6 +13,7 @@
 gpm
 xorg-server
 xorg-xinit
+xorg-xrandr
 xterm
 
 # xorg-drivers
