@@ -483,9 +483,6 @@ prepare_build() {
         else
             _channel_name="${channel_name}"
         fi
-        if [[ "${japanese}" = true ]]; then
-            _channel_name="${_channel_name}-jp"
-        fi
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
         else
