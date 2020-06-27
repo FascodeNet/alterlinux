@@ -218,15 +218,12 @@ _usage () {
     echo
     echo "    -b | --boot-splash           Enable boot splash"
     echo "                                  Default: disable"
-    echo "    -j | --japanese              Enable Japanese mode."
-    echo "                                  Default: disable"
     echo "    -l | --cleanup               Enable post-build cleaning."
     echo "                                  Default: disable"
     echo "    -d | --debug                 Enable debug messages."
     echo "                                  Default: disable"
     echo "    -g | --language              Specifies the default language for the live environment."
     echo "                                  Default: ${language}"
-
     echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
     echo "                                  Default: disable"
     echo "    -h | --help                  This help message and exit."
