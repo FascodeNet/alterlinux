@@ -879,8 +879,9 @@ make_customize_airootfs() {
     # customize_airootfs.sh options
     # -b            : Enable boot splash.
     # -d            : Enable debug mode.
+    # -g <lang>     : Set language.
     # -i <inst_dir> : Set install dir
-    # -j            : Enable Japanese.
+    # -j            : It is now obsolete. Previously used to enable Japanese.
     # -k <kernel>   : Set kernel name.
     # -o <os name>  : Set os name.
     # -p <password> : Set password.
