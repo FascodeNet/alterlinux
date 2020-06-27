@@ -83,7 +83,7 @@ fi
 
 
 # Replace link
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove /etc/skel/Desktop/welcome-to-alter.desktop
     remove /home/${username}/Desktop/welcome-to-alter.desktop
 

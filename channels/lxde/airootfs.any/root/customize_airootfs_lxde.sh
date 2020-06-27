@@ -67,7 +67,7 @@ systemctl enable bluetooth
 
 
 # Replace panel config
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/lxpanel/LXDE/panels/panel"
     mv "/etc/skel/.config/lxpanel/LXDE/panels/panel-jp" "/etc/skel/.config/lxpanel/LXDE/panels/panel"
 
@@ -97,7 +97,7 @@ systemctl enable firewalld.service
 
 
 # Replace link
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove /etc/skel/Desktop/welcome-to-alter.desktop
     remove /home/${username}/Desktop/welcome-to-alter.desktop
 

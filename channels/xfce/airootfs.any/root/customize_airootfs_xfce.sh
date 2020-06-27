@@ -91,7 +91,7 @@ systemctl enable firewalld.service
 
 
 # Replace link
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/Desktop/welcome-to-alter.desktop"
     remove "/home/${username}/Desktop/welcome-to-alter.desktop"
 
@@ -104,7 +104,7 @@ fi
 
 
 # Replace right menu
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/Thunar/uca.xml"
     remove "/home/${username}/.config/Thunar/uca.xml"
 
