@@ -832,6 +832,7 @@ make_customize_airootfs() {
     # -u <username> : Set live user name.
     # -x            : Enable bash debug mode.
     # -r            : Enable rebuild.
+    # -z <timezone> : Set the time zone.
     #
     # -j is obsolete in AlterISO3 and cannot be used.
 
@@ -857,7 +858,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
 
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${language}'"
+    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${language}' -z '${timezone}'"
 
 
     # X permission
