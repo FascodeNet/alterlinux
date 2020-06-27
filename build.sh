@@ -691,119 +691,82 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages() {
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
-    installpkglist() {
-        set +e
-        local _loadfilelist
-        local _pkg
-        local _file
-        local jplist
-        local excludefile
-        local excludelist
-        local _pkglist
+    set +e
+    local _loadfilelist
+    local _pkg
+    local _file
+    local excludefile
+    local excludelist
+    local _pkglist
 
-        #-- Detect package list to load --#
-        # Append the file in the share directory to the file to be read.
-
-        # Package list for Japanese
-        jplist="${script_path}/channels/share/packages.${arch}/jp.${arch}"
-
-        # Package list for non-Japanese
-        nojplist="${script_path}/channels/share/packages.${arch}/non-jp.${arch}"
-
-        if [[ "${japanese}" = true ]]; then
-            _loadfilelist=($(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} | grep -xv "${nojplist}"))
-        else
-            _loadfilelist=($(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} | grep -xv "${jplist}"))
-        fi
+    #-- Detect package list to load --#
+    # Add the files for each channel to the list of files to read.
+    _loadfilelist=(
+        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch}) 
+        "${script_path}"/channels/${channel_name}/packages.${arch}/${language}.${arch}
+        $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch})
+        "${script_path}"/channels/share/packages.${arch}/${language}.${arch}
+    )
 
 
-        # Add the files for each channel to the list of files to read.
+    #-- Read package list --#
+    # Read the file and remove comments starting with # and add it to the list of packages to install.
+    for _file in ${_loadfilelist[@]}; do
+        _msg_debug "Loaded package file ${_file}."
+        pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+    done
+    if [[ ${debug} = true ]]; then
+        sleep 1
+    fi
 
-        # Package list for Japanese
-        jplist="${script_path}/channels/${channel_name}/packages.${arch}/jp.${arch}"
+    # Exclude packages from the share exclusion list
+    excludefile="${script_path}/channels/share/packages.${arch}/exclude"
+    if [[ -f "${excludefile}" ]]; then
+        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
 
-        # Package list for non-Japanese
-        nojplist="${script_path}/channels/${channel_name}/packages.${arch}/non-jp.${arch}"
-
-        if [[ "${japanese}" = true ]]; then
-            # If Japanese is enabled, add it to the list of files to read other than non-jp.
-            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} | grep -xv "${nojplist}"))
-        else
-            # If Japanese is disabled, add it to the list of files to read other than jp.
-            _loadfilelist=(${_loadfilelist[@]} $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} | grep -xv ${jplist}))
-        fi
-
-
-        #-- Read package list --#
-        # Read the file and remove comments starting with # and add it to the list of packages to install.
-        for _file in ${_loadfilelist[@]}; do
-            _msg_debug "Loaded package file ${_file}."
-            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        # 現在のpkglistをコピーする
+        _pkglist=(${pkglist[@]})
+        unset pkglist
+        for _pkg in ${_pkglist[@]}; do
+            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+                pkglist=(${pkglist[@]} "${_pkg}")
+            fi
         done
-        if [[ ${debug} = true ]]; then
-            sleep 3
-        fi
+    fi
 
-        # Exclude packages from the share exclusion list
-        excludefile="${script_path}/channels/share/packages.${arch}/exclude"
-        if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+    if [[ -n "${excludelist[@]}" ]]; then
+        _msg_debug "The following packages have been removed from the installation list."
+        _msg_debug "Excluded packages: ${excludelist[@]}"
+    fi
 
-            # 現在のpkglistをコピーする
-            _pkglist=(${pkglist[@]})
-            unset pkglist
-            for _pkg in ${_pkglist[@]}; do
-                # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-                if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                    pkglist=(${pkglist[@]} "${_pkg}")
-                fi
-            done
-        fi
-
-        if [[ -n "${excludelist[@]}" ]]; then
-            _msg_debug "The following packages have been removed from the installation list."
-            _msg_debug "Excluded packages: ${excludelist[@]}"
-        fi
-
-        # Exclude packages from the exclusion list for each channel
-        excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
-        if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+    # Exclude packages from the exclusion list for each channel
+    excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
+    if [[ -f "${excludefile}" ]]; then
+        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+    
+        # 現在のpkglistをコピーする
+        _pkglist=(${pkglist[@]})
+        unset pkglist
+        for _pkg in ${_pkglist[@]}; do
+            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+                pkglist=(${pkglist[@]} "${_pkg}")
+            fi
+        done
+    fi
         
-            # 現在のpkglistをコピーする
-            _pkglist=(${pkglist[@]})
-            unset pkglist
-            for _pkg in ${_pkglist[@]}; do
-                # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-                if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                    pkglist=(${pkglist[@]} "${_pkg}")
-                fi
-            done
-        fi
-            
-        
-        # Sort the list of packages in abc order.
-        pkglist=(
-            "$(
-                for _pkg in ${pkglist[@]}; do
-                    echo "${_pkg}"
-                done \
-                | sort
-            )"
-        )
-
-
-        #-- Debug code --#
-        #for _pkg in ${pkglist[@]}; do
-        #    echo -n "${_pkg} "
-        #done
-        # echo "${pkglist[@]}"
-
-
-        set -e
-    }
-
-    installpkglist
+    
+    # Sort the list of packages in abc order.
+    pkglist=(
+        "$(
+            for _pkg in ${pkglist[@]}; do
+                echo "${_pkg}"
+            done \
+            | sort
+        )"
+    )
+    set -e
 
     # _msg_debug "${pkglist[@]}"
 
