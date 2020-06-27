@@ -712,7 +712,7 @@ make_packages() {
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
-        if [[ -f "${file}" ]]; then
+        if [[ -f "${_file}" ]]; then
             _msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         fi
