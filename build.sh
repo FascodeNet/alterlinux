@@ -849,32 +849,12 @@ make_customize_airootfs() {
     # cp "${build_pacman_conf}" "${work_dir}/${arch}/airootfs/etc"
 
     # Get the optimal mirror list.
-    local mirrorlisturl
-    local mirrorlisturl_all
-    local mirrorlisturl_jp
-
-
     case "${arch}" in
-        "x86_64")
-            mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
-            mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
-            ;;
-        "i686")
-            mirrorlisturl_jp='https://archlinux32.org/mirrorlist/?country=jp'
-            mirrorlisturl_all='https://archlinux32.org/mirrorlist/?country=all'
-            ;;
+        "x86_64") arch_domain="https://www.archlinux.org/mirrorlist/" ;;
+        "i686"  ) arch_domain="https://archlinux32.org/mirrorlist/"   ;;
     esac
 
-    if [[ "${japanese}" = true ]]; then
-        mirrorlisturl="${mirrorlisturl_jp}"
-    else
-        mirrorlisturl="${mirrorlisturl_all}"
-    fi
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${mirrorlisturl}"
-
-    # Add install guide to /root (disabled)
-    # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
-
+    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/${mirror_country}"
 
     # customize_airootfs.sh options
     # -b            : Enable boot splash.
