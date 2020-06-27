@@ -491,8 +491,8 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
 
         # Save the value of the variable for use in rebuild.
-        echo "#!/usr/bin/env bash" > "${out_file}"
-        echo "# Build options are stored here." >> "${out_file}"
+        echo "#!/usr/bin/env bash" > "${rebuildfile}"
+        echo "# Build options are stored here." >> "${rebuildfile}"
 
         save_var \
             arch \
