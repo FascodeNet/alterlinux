@@ -22,10 +22,11 @@ os_name="Alter Linux"
 install_dir="alter"
 usershell="/bin/bash"
 debug=false
+timezone="UTC"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:z:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -40,6 +41,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:' arg; do
         x) debug=true; set -xv ;;
         a) arch="${OPTARG}" ;;
         g) language="${OPTARG}" ;;
+        z) timezone="${OPTARG}" ;;
     esac
 done
 
@@ -55,7 +57,6 @@ function check_bool() {
 
 check_bool boot_splash
 check_bool rebuild
-check_bool japanese
 
 
 # Delete file only if file exists
@@ -77,18 +78,14 @@ function remove () {
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if [[ ${japanese} = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     sed -i 's/#\(ja_JP\.UTF-8\)/\1/' /etc/locale.gen
 fi
 locale-gen
 
 
 # Setting the time zone.
-if [[ ${japanese} = true ]]; then
-    ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
-else
-    ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-fi
+ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 
 
 # Set os name
@@ -203,7 +200,7 @@ fi
 
 
 # Japanese
-if [[ ${japanese} = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     # Change the language to Japanese.
 
     remove /etc/locale.conf

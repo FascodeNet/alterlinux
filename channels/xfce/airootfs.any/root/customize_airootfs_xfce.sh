@@ -22,10 +22,11 @@ os_name="Alter Linux"
 install_dir="alter"
 usershell="/bin/bash"
 debug=false
+timezone="UTC"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:z:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
@@ -40,6 +41,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:' arg; do
         x) debug=true; set -xv ;;
         a) arch="${OPTARG}" ;;
         g) language="${OPTARG}" ;;
+        z) timezone="${OPTARG}" ;;
     esac
 done
 
