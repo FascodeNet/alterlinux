@@ -479,9 +479,9 @@ prepare_build() {
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${language}"
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_name}"
         else
-            _channel_name="${channel_name}-${language}"
+            _channel_name="${channel_name}-${locale_name}"
         fi
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
@@ -1416,6 +1416,7 @@ locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head
 
 localegen=$(echo ${locale_config_full} | awk '{print $2}')
 mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
+locale_name=$(echo ${locale_config_full} | awk '{print $4}')
 timezone=$(echo ${locale_config_full} | awk '{print $5}')
 
 
