@@ -222,7 +222,7 @@ _usage () {
     echo "                                  Default: disable"
     echo "    -d | --debug                 Enable debug messages."
     echo "                                  Default: disable"
-    echo "    -g | --language              Specifies the default language for the live environment."
+    echo "    -g | --lang                  Specifies the default language for the live environment."
     echo "                                  Default: ${language}"
     echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
     echo "                                  Default: disable"
@@ -1195,7 +1195,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1228,8 +1228,8 @@ while :; do
             debug=true
             shift 1
             ;;
-        -g | --gpgkey)
-            gpg_key="$2"
+        -g | --lang)
+            language="${2}"
             shift 2
             ;;
         -h | --help)
