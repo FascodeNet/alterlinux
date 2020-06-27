@@ -46,9 +46,11 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # mod key
 set $mod Mod4
 
+# launch installer
+bindsym $mod+i exec --no-startup-id sudo calamares
 
 # start a terminal
-bindsym $mod+Return exec kitty
+bindsym $mod+Return exec --no-startup-id kitty
 
 
 # kill focused window
