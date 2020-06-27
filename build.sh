@@ -1466,7 +1466,6 @@ check_bool boot_splash
 check_bool debug
 check_bool bash_debug
 check_bool rebuild
-check_bool japanese
 check_bool cleaning
 check_bool noconfirm
 check_bool nodepend
