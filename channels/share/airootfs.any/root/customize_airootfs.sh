@@ -23,6 +23,7 @@ install_dir="alter"
 usershell="/bin/bash"
 debug=false
 timezone="UTC"
+localegen="en_US\\.UTF-8\\"
 
 
 # Parse arguments
@@ -40,7 +41,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:' arg; do
         d) debug=true ;;
         x) debug=true; set -xv ;;
         a) arch="${OPTARG}" ;;
-        g) language="${OPTARG}" ;;
+        g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
     esac
 done
@@ -78,8 +79,8 @@ function remove () {
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if [[ "${language}" = "ja" ]]; then
-    sed -i 's/#\(ja_JP\.UTF-8\)/\1/' /etc/locale.gen
+if [[ ! "${localegen}" == "en_US\\.UTF-8\\" ]]; then
+    sed -i "s/#\(${localegen})/\1/" /etc/locale.gen
 fi
 locale-gen
 
