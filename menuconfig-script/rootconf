@@ -99,7 +99,7 @@ menu "Live環境の設定"
 		bool "英語以外の言語にする"
 	if USE_CUSTOM_LANG
 		config CUSTOM_LANGUAGE
-			string "ロケール名(ja_JP.UTF-8)など"
+			string "ロケール名(ja)など"
 	endif
 	config USE_CUSTOM_USERNAME
 		bool "デフォルトではないユーザー名を使用(デフォルトはalter)"
