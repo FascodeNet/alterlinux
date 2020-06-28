@@ -1,0 +1,40 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# AlterLinuxのビルド設定
+#
+CONFIG_X64_BUILD=y
+# CONFIG_I686_BUILD is not set
+
+#
+# 起動設定
+#
+# CONFIG_ENABLE_PLYMOUTH is not set
+CONFIG_USE_OTHER_KERNEL=y
+CONFIG_KERNEL_N_A_M_E_core=y
+# CONFIG_KERNEL_N_A_M_E_lts is not set
+# CONFIG_KERNEL_N_A_M_E_lqx is not set
+# CONFIG_KERNEL_N_A_M_E_zen is not set
+# CONFIG_KERNEL_N_A_M_E_ck is not set
+# CONFIG_KERNEL_N_A_M_E_rt is not set
+# CONFIG_KERNEL_N_A_M_E_rt-lts is not set
+# CONFIG_KERNEL_N_A_M_E_xanmod is not set
+# CONFIG_KERNEL_N_A_M_E_xanmod-lts is not set
+# CONFIG_KERNEL_N_A_M_E_zen-letsnote is not set
+CONFIG_SFS_CMP_ZSTD=y
+# CONFIG_SFS_CMP_GZIP is not set
+# CONFIG_SFS_CMP_LZMA is not set
+# CONFIG_SFS_CMP_LZO is not set
+# CONFIG_SFS_CMP_LZ4 is not set
+# CONFIG_SFS_CMP_XZ is not set
+# CONFIG_USE_SFS_OPTION is not set
+
+#
+# Live環境の設定
+#
+CONFIG_ENABLE_JAPANESE=y
+# CONFIG_USE_CUSTOM_USERNAME is not set
+# CONFIG_USE_CUSTOM_PASSWD is not set
+# CONFIG_CHANNEL_XFCE is not set
+CONFIG_CHANNEL_PLASMA=y
+# CONFIG_CHANNEL_LXDE is not set
+CONFIG_IMAGE_OWNER="kokkiemouse"
