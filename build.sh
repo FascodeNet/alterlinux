@@ -880,12 +880,15 @@ make_packages_aur() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "useradd -d /ippan_temp ippan" run
     echo "ippan ALL=(ALL) NOPASSWD:ALL" > ${work_dir}/${arch}/airootfs/etc/sudoers.d/ippan
     for _pkg2 in ${pkglist_aur[@]}; do
-        echo  "cd ~ ; git clone https://aur.archlinux.org/${_pkg2}.git ; cd ${_pkg2} ; makepkg -csi --noconfirm " > ${work_dir}/${arch}/airootfs/ippan_temp/test.sh
+        echo  "cd ~ ; git clone https://aur.archlinux.org/${_pkg2}.git ; cd ${_pkg2} ; makepkg -cs " > ${work_dir}/${arch}/airootfs/ippan_temp/test.sh
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "chmod 777 /ippan_temp/test.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u ippan /ippan_temp/test.sh" run
+        pkgf=`ls ${work_dir}/${arch}/airootfs/ippan_temp/${_pkg2}/*.pkg.tar.*`
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p $pkgf install_file 
 
     done
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel -r ippan" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel ippan" run
+    rm -rf ${work_dir}/${arch}/airootfs/ippan_temp
     rm -f ${work_dir}/${arch}/airootfs/etc/sudoers.d/ippan
 
 
