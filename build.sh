@@ -885,7 +885,8 @@ make_packages_aur() {
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u ippan /ippan_temp/test.sh" run
 
     done
-
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel -r ippan" run
+    rm -f ${work_dir}/${arch}/airootfs/etc/sudoers.d/ippan
 
 
 }
