@@ -44,7 +44,7 @@ picom
 polybar
 
 # launcher
-dmenu
+rofi
 
 # terminal emulator
 kitty

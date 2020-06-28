@@ -98,11 +98,6 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 
 
-# exit i3 (logs you out of your X session)
-# bindsym $mod+Shift+e exec --no-startup-id \
-#         "i3-nagbar -t warning -m 'Do you really want to exit i3?' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Logout' 'i3-msg exit'"
-
-
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
@@ -112,7 +107,7 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run
+bindsym $mod+d exec --no-startup-id rofi -show run
 
 
 # Use Mouse+$mod to drag floating windows to their wanted position
