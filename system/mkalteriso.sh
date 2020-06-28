@@ -124,6 +124,8 @@ _usage ()
     echo "      make a pkglist.txt of packages installed on airootfs"
     echo "   iso <image name>"
     echo "      build an iso image from the working dir"
+    echo "   tarball <file name>"
+    echo "      Build a tarball from the working dir."
     exit ${1}
 }
 
@@ -351,6 +353,18 @@ command_iso () {
     _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
 }
 
+# # Compress tarball from "iso" directory.
+command_tarball () {
+    mkdir -p "${out_dir}"
+    _msg_info "Creating tarball..."
+    local _vflag=""
+    if [[ ${quiet} == "n" ]]; then
+        _vflag="-v"
+    fi
+    tar -zc ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/airootfs"
+    _msg_info "Done! | $(ls -sh ${out_dir}/${tarball_name})"
+}
+
 # create airootfs.sfs filesystem, and push it in "iso" directory.
 command_prepare () {
     _show_config prepare
@@ -460,6 +474,14 @@ case "${command_name}" in
         fi
         img_name="${2}"
         command_iso
+        ;;
+    tarball)
+        if [[ $# -lt 2 ]]; then
+            _msg_error "No name specified" 0
+            _usage 1
+        fi
+        tarball_name="${2}"
+        command_tarball
         ;;
     *)
         _msg_error "Invalid command name '${command_name}'" 0
