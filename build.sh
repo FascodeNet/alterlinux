@@ -889,8 +889,8 @@ make_packages_aur() {
 
     done
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel aurbuild" run
-    rm -rf ${work_dir}/${arch}/airootfs/aurbuild_temp
-    rm -f ${work_dir}/${arch}/airootfs/etc/sudoers.d/aurbuild
+    remove ${work_dir}/${arch}/airootfs/aurbuild_temp
+    remove ${work_dir}/${arch}/airootfs/etc/sudoers.d/aurbuild
 
 
 }
