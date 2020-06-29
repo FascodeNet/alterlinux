@@ -3,9 +3,8 @@ Name=en*
 Name=eth*
 
 [Network]
-DHCP=ipv4
+DHCP=yes
 IPv6PrivacyExtensions=yes
-IPv6AcceptRA=false
 
 [DHCP]
 RouteMetric=512

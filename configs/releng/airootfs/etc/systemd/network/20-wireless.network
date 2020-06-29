@@ -3,9 +3,8 @@ Name=wlp*
 Name=wlan*
 
 [Network]
-DHCP=ipv4
+DHCP=yes
 IPv6PrivacyExtensions=yes
-IPv6AcceptRA=false
 
 [DHCP]
 RouteMetric=1024
