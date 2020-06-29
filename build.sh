@@ -867,8 +867,7 @@ make_packages_aur() {
     # _msg_debug "${pkglist[@]}"
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
-    echo "#" >> ${work_dir}/packages.list
+    echo -e "\n\n# AUR packages.\n#" >> ${work_dir}/packages.list
     echo >> ${work_dir}/packages.list
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> ${work_dir}/packages.list
@@ -886,7 +885,6 @@ make_packages_aur() {
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u aurbuild /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" \
             -p $("ls ${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}"/*.pkg.tar.*) install_file
-
     done
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel aurbuild" run
     remove ${work_dir}/${arch}/airootfs/aurbuild_temp
