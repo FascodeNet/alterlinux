@@ -33,6 +33,7 @@ lftp
 linux-atm
 linux-firmware
 lvm2
+lsscsi
 man-db
 man-pages
 mc
