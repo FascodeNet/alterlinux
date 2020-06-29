@@ -20,3 +20,4 @@ work/
 *.add*
 temp/
 .config
+.config.old
