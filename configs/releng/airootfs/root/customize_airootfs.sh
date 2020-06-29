@@ -15,6 +15,3 @@ passwd -d root
 
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
-
-systemctl enable pacman-init.service choose-mirror.service systemd-networkd.service systemd-resolved.service
-systemctl set-default multi-user.target
