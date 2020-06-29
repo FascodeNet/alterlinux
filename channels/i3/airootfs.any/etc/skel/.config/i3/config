@@ -52,14 +52,14 @@ bindsym $mod+i exec --no-startup-id sudo calamares
 # start a terminal
 bindsym $mod+Return exec --no-startup-id kitty
 
-
 # kill focused window
 bindsym $mod+Shift+q kill
-
 
 # lock screen
 bindsym Mod4+Escape exec --no-startup-id i3lock -k
 
+# setting manager
+bindsym $Mod+Shift+s exec --no-startup-id ~/.config/alterlinux-i3-theme-settingmanager/alterlinux-i3-theme-settingmanager
 
 # change focus
 bindsym $mod+j focus left
@@ -106,7 +106,7 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 
-# start dmenu (a program launcher)
+# start rofi (launcher)
 bindsym $mod+d exec --no-startup-id rofi -show run
 
 
