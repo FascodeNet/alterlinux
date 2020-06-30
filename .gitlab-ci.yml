@@ -13,3 +13,4 @@ lint:
         archiso/mkarchiso
         configs/{baseline,releng}/build.sh
         configs/releng/airootfs/root/.automated_script.sh
+        configs/releng/airootfs/usr/local/bin/choose-mirror
