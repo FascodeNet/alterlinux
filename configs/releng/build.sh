@@ -76,10 +76,10 @@ make_basefs() {
 make_packages() {
     if [ -n "${verbose}" ]; then
         mkarchiso -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
-            -p "$(grep -h -v '^#' "${script_path}/packages.x86_64")" install
+            -p "$(grep -h -v '^#' "${script_path}/packages.x86_64"| sed ':a;N;$!ba;s/\n/ /g')" install
     else
         mkarchiso -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
-            -p "$(grep -h -v '^#' "${script_path}/packages.x86_64")" install
+            -p "$(grep -h -v '^#' "${script_path}/packages.x86_64"| sed ':a;N;$!ba;s/\n/ /g')" install
     fi
 }
 
