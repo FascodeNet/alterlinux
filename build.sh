@@ -880,7 +880,7 @@ make_packages_aur() {
     echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "${work_dir}/${arch}/airootfs/etc/sudoers.d/aurbuild"
     local _aur_pkg
     for _aur_pkg in ${pkglist_aur[@]}; do
-        echo  "cd ~ ; git clone https://aur.archlinux.org/${_aur_pkg}.git ; cd ${_aur_pkg} ; makepkg -cs " >> "${work_dir}/${arch}/airootfs/aurbuild_temp/aur_build.sh"
+        echo  "cd ~ ; git clone https://aur.archlinux.org/${_aur_pkg}.git ; cd ${_aur_pkg} ; makepkg -cs " > "${work_dir}/${arch}/airootfs/aurbuild_temp/aur_build.sh"
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "chmod 777 /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u aurbuild /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" \
