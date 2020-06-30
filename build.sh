@@ -403,7 +403,6 @@ prepare_build() {
         mkalteriso="${script_path}/system/mkalteriso"
         cd "${script_path}"
         _msg_info "Building mkalteriso..."
-        git submodule update --init --recursive
         if [[ "${debug}" = true ]]; then
             make mkalteriso
             echo

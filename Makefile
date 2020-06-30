@@ -52,7 +52,6 @@ menuconfig/build/mconf::
 	fi
 	(cd menuconfig/build ; cmake -GNinja .. ; ninja -j4 )
 mkalteriso:
-	git submodule update --init --recursive
 	@if [ -d system/cpp-src/mkalteriso/build ];\
 	then \
 		:;\
