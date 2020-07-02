@@ -14,3 +14,4 @@ lint:
         configs/{baseline,releng}/build.sh
         configs/releng/airootfs/root/.automated_script.sh
         configs/releng/airootfs/usr/local/bin/choose-mirror
+        scripts/run_archiso.sh
