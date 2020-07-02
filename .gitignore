@@ -20,3 +20,6 @@ work/
 *.ig*
 *.add*
 temp/
+.config
+.config.old
+system/cpp-src/mkalteriso/CMakeLists.txt.user

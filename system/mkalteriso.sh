@@ -116,6 +116,8 @@ _usage ()
     echo "      Make base layout and install base group"
     echo "   install"
     echo "      Install all specified packages (-p)"
+    echo "   install_file"
+    echo "      Install all specified packages from a package file (-p)"
     echo "   run"
     echo "      run command specified by -r"
     echo "   prepare"
@@ -177,6 +179,20 @@ _pacman ()
         pacstrap -C "${pacman_conf}" -c -G -M "${work_dir}/airootfs" $* &> /dev/null
     else
         pacstrap -C "${pacman_conf}" -c -G -M "${work_dir}/airootfs" $*
+    fi
+
+    _msg_info "Packages installed successfully!"
+}
+
+# Install desired packages to airootfs from pkg file
+_pacman_file ()
+{
+    _msg_info "Installing packages to '${work_dir}/airootfs/'..."
+
+    if [[ "${quiet}" = "y" ]]; then
+        pacstrap -C "${pacman_conf}" -c -G -M -U "${work_dir}/airootfs" $* &> /dev/null
+    else
+        pacstrap -C "${pacman_conf}" -c -G -M -U "${work_dir}/airootfs" $*
     fi
 
     _msg_info "Packages installed successfully!"
@@ -399,6 +415,26 @@ command_install () {
     _show_config install
 
     _pacman "${pkg_list}"
+}
+
+# Install packages on airootfs from pkg file
+# A basic check to avoid double execution/reinstallation is done via hashing package names.
+command_install () {
+    if [[ ! -f "${pacman_conf}" ]]; then
+        _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
+    fi
+
+    #trim spaces
+    pkg_list="$(echo ${pkg_list})"
+
+    if [[ -z ${pkg_list} ]]; then
+        _msg_error "Packages must be specified" 0
+        _usage 1
+    fi
+
+    _show_config install
+
+    _pacman_file "${pkg_list}"
 }
 
 command_init() {
