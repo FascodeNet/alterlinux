@@ -739,9 +739,9 @@ make_packages() {
         done
     fi
     
-    if [[ -n "${excludelist[@]}" ]]; then
+    if [[ -n "${excludelist}" ]]; then
         _msg_debug "The following packages have been removed from the installation list."
-        _msg_debug "Excluded packages: ${excludelist[@]}"
+        _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
     
     # Exclude packages from the exclusion list for each channel
@@ -833,9 +833,9 @@ make_packages_aur() {
         done
     fi
     
-    if [[ -n "${excludelist[@]}" ]]; then
+    if [[ -n "${excludelist}" ]]; then
         _msg_debug "The following packages have been removed from the installation list."
-        _msg_debug "Excluded packages: ${excludelist[@]}"
+        _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
     
     # Exclude packages from the exclusion list for each channel
