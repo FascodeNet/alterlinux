@@ -382,16 +382,18 @@ load_config() {
 
 # 作業ディレクトリを削除
 remove_work() {
-    remove "$(ls ${work_dir}/* | grep "build.make")"
-    remove "${work_dir}"/pacman-*.conf
-    remove "${work_dir}/efiboot"
-    remove "${work_dir}/iso"
-    remove "${work_dir}/${arch}"
-    remove "${work_dir}/packages.list"
-    remove "${work_dir}/packages-full.list"
-    #remove "${rebuildfile}"
-    if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-        remove ${work_dir}
+    if [[ -d "${work_dir}" ]]; then
+        remove "$(ls ${work_dir}/* | grep "build.make")"
+        remove "${work_dir}"/pacman-*.conf
+        remove "${work_dir}/efiboot"
+        remove "${work_dir}/iso"
+        remove "${work_dir}/${arch}"
+        remove "${work_dir}/packages.list"
+        remove "${work_dir}/packages-full.list"
+        #remove "${rebuildfile}"
+        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+            remove ${work_dir}
+        fi
     fi
 }
 
@@ -1423,17 +1425,15 @@ if [[ -n "${1}" ]]; then
         else
             _msg_error "The previous build information is not in the working directory." "1"
         fi
-    elif [[ "${channel_name}" = "clean" ]]; then
-            umount_chroot
-            rm -rf "${work_dir}"
-            exit 
     fi
 
-    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    if [[ ! "${channel_name}" == "rebuild" ]]; then
+        _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    fi
 fi
 
 # Check architecture and kernel for each channel
-if [[ ! "${channel_name}" = "rebuild" ]]; then
+if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
     # architecture
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
@@ -1447,6 +1447,16 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
     fi
 fi
 
+# Run clean
+if [[ "${channel_name}" = "clean" ]]; then
+    umount_chroot
+    remove "${script_path}/menuconfig/build"
+	remove "${script_path}/system/cpp-src/mkalteriso/build"
+	remove "${script_path}/menuconfig-script/kernel_choice"
+    remove_work
+    remove "${rebuildfile}"
+    exit 0
+fi
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
