@@ -12,6 +12,7 @@
 system/mkalteriso
 system/cpp-src/mkalteriso
 system/cpp-src/mkalteriso/build/
+system/cpp-src/mkalteriso
 pkg/
 src/
 out/

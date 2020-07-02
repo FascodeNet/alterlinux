@@ -19,6 +19,9 @@
 	</a>
 </p>
 <p align="center">
+	<a href="https://travis-ci.org/github/FascodeNet/alterlinux">
+		<img src="https://img.shields.io/travis/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/issues">
 		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
 	</a>
