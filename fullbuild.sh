@@ -223,7 +223,9 @@ while getopts 'a:dghrs' arg; do
 done
 shift $((OPTIND - 1))
 
-channnels=(${@})
+if [[ -z "${@}" ]]; then
+    channnels=(${@})
+fi
 
 trap 'trap_exit' 1 2 3 15
 
