@@ -67,7 +67,7 @@ bindsym Mod4+Escape exec --no-startup-id i3lock -k
 bindsym $mod+Shift+s exec --no-startup-id ~/.config/alterlinux-i3-theme-settingmanager/alterlinux-i3-theme-settingmanager
 
 # bmenu (setting manager)
-bindsym $mod+b exec --no-startup-id bmenu
+bindsym $mod+b exec --no-startup-id sakura -e bmenu
 
 # change focus
 bindsym $mod+j focus left
