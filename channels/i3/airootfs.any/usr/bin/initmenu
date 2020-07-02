@@ -1,0 +1,258 @@
+#!/bin/bash
+
+RED='\e[41m'
+BLUE='\e[44m'
+ORANGE='\e[46m'
+NC='\e[0m'
+STATUSVAR=1
+TEXTEDITOR=$EDITOR
+
+# Service messages section
+CONTINMSG="$BLUE Press any key to continue$NC"
+ERRORMSG="$RED Wrong.$NC"
+TRYAGAINMSG="$RED Press any key and try again$NC"
+SELECTFILEMSG="Select file to configure and press Enter: "
+SELECTTARGETMSG="Select target and press Enter to change to: "
+SERVICEPREFIXMSG="Service "
+SERVICESTARTEDMSG=" was started successfully"
+SERVICEENABLEDMSG=" was enabled successfully"
+SERVICESTOPPEDMSG=" was stopped successfully"
+SERVICEDISABLEDMSG=" was disabled successfully"
+
+function pressanykeyrequest {
+	echo -e "$CONTINMSG"
+	read -s -n1
+	STATUSVAR=1
+}
+
+function config_editor {
+PS3="$SELECTFILEMSG"
+configs=("journald.conf" "system.conf" "logind.conf" "user.conf" "cancel")
+
+select pick in "${configs[@]}"
+do
+	case $pick in
+		logind.conf)
+			[ -e /etc/systemd/logind.conf.d/10-logind.conf ] || \
+			sudo mkdir -p /etc/systemd/logind.conf.d/ && \
+			sudo cp /etc/systemd/logind.conf /etc/systemd/logind.conf.d/10-logind.conf && \
+			sudo $TEXTEDITOR /etc/systemd/logind.conf.d/10-logind.conf 
+			break
+			;;		
+		system.conf)
+			[ -e /etc/systemd/system.conf.d/10-system.conf ] || \
+			sudo mkdir -p /etc/systemd/system.conf.d/ && \
+			sudo cp /etc/systemd/system.conf /etc/systemd/system.conf.d/10-system.conf && \
+			sudo $TEXTEDITOR /etc/systemd/system.conf.d/10-system.conf
+			break
+			;;		
+		journald.conf)
+			[ -e /etc/systemd/journald.conf.d/10-journald.conf ] || \
+			sudo mkdir -p /etc/systemd/journald.conf.d/ && \
+			sudo cp /etc/systemd/journald.conf /etc/systemd/journald.conf.d/10-journald.conf && \
+			sudo $TEXTEDITOR /etc/systemd/journald.conf.d/10-journald.conf
+			break
+			;;		
+		user.conf)
+			[ -e /etc/systemd/user.conf.d/10-user.conf ] || \
+			sudo mkdir -p /etc/systemd/user.conf.d/ && \
+			sudo cp /etc/systemd/user.conf /etc/systemd/user.conf.d/10-user.conf && \
+			sudo $TEXTEDITOR /etc/systemd/user.conf.d/10-user.conf
+			break
+			;;		
+		cancel)
+			break
+	esac
+done
+	
+}
+
+function change_runlevel {
+PS3="$SELECTTARGETMSG"
+targets=("poweroff" "rescue" "multi-user" "graphical" "reboot" "cancel")
+
+select pick in "${targets[@]}"
+do
+	case $pick in
+		poweroff)
+			sudo systemctl isolate poweroff.target
+			break
+			;;		
+		reboot)
+			sudo systemctl isolate reboot.target
+			break
+			;;		
+		rescue)
+			sudo systemctl isolate rescue.target
+			break
+			;;		
+		multi-user)
+			sudo systemctl isolate multi-user.target
+			break
+			;;		
+		graphical)
+			sudo systemctl isolate graphical.target
+			break
+			;;		
+		cancel)
+			break
+	esac
+done
+	
+	
+}
+
+function enable_services {
+	OUTPUTITEM=""
+	OUTPUTITEM=$(systemctl list-unit-files | awk '/disabled/ {print $1}' | fzf -m -e --reverse)
+	if [ "$OUTPUTITEM" != "" ]
+	then
+		sudo systemctl enable $OUTPUTITEM
+		STATUSVAR=$?
+	else
+		STATUSVAR=1
+	fi
+return $STATUSVAR
+}
+
+function start_services {
+	OUTPUTITEM=""
+	OUTPUTITEM=$(systemctl list-unit-files | awk '/disabled/ {print $1}' | fzf -m -e --reverse)
+	if [ "$OUTPUTITEM" != "" ]
+	then
+		sudo systemctl start $OUTPUTITEM
+		STATUSVAR=$?
+	else
+		STATUSVAR=1
+	fi
+return $STATUSVAR
+}
+
+function stop_services {
+	OUTPUTITEM=""
+	OUTPUTITEM=$(systemctl list-unit-files | awk '/enabled/ {print $1}' | fzf -m -e --reverse)
+	if [ "$OUTPUTITEM" != "" ]
+	then
+		sudo systemctl stop $OUTPUTITEM
+		STATUSVAR=$?
+	else
+		STATUSVAR=1
+	fi
+return $STATUSVAR
+}
+
+function disable_services {
+	OUTPUTITEM=""
+	OUTPUTITEM=$(systemctl list-unit-files | awk '/enabled/ {print $1}' | fzf -m -e --reverse)
+	if [ "$OUTPUTITEM" != "" ]
+	then
+		sudo systemctl disable $OUTPUTITEM
+		STATUSVAR=$?
+	else
+		STATUSVAR=1
+	fi
+return $STATUSVAR
+}
+
+function main {
+    while true; do
+    clear
+    echo ""
+    echo -e "                          ::Init menu:: "
+    echo -e " ┌─────────────────────────────────────────────────────────────┐"
+    echo -e " │    1   Enable services              2   Disable services    │"
+    echo -e " │    3   Start services               4   Stop Services       │"
+    echo -e " │    5   List active services         6   Show boot messages  │"    
+    echo -e " │    7   Edit configuration files     8   Change runlevel     │"
+    echo -e " │    9   Analyze boot                                         │"
+    echo -e " └─────────────────────────────────────────────────────────────┘"
+    echo -e "          Select an item       -       0   Exit "
+    echo ""
+    read -s -n1 choix
+    case $choix in
+        1)
+            echo
+            enable_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$OUTPUTITEM$SERVICEENABLEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo ""
+	    	fi
+            ;;
+        2)
+            echo
+            disable_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$OUTPUTITEM$SERVICEDISABLEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo ""
+	    	fi
+            ;;
+        3)
+            echo
+            start_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$OUTPUTITEM$SERVICESTARTEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo""
+	    	fi
+            ;;
+        4)
+            echo
+            stop_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$OUTPUTITEM$SERVICESTOPPEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo ""
+	    	fi
+	    	;;
+        5)
+            echo
+            systemctl
+            echo ""
+            pressanykeyrequest
+            ;;
+        6)
+            echo
+            dmesg
+            echo ""
+            pressanykeyrequest
+            ;;
+        7)
+            echo
+            config_editor
+            echo ""
+            ;;
+        8)
+            echo
+            change_runlevel
+            echo ""
+            ;;
+        9)
+            echo
+	    	clear
+            systemd-analyze blame
+            echo ""
+            pressanykeyrequest
+            ;;
+        0)
+            clear && exit
+            ;;
+        *)
+            echo -e "$ERRORMSG$TRYAGAINMSG"
+            read -s -n1
+            clear
+            ;;
+    esac
+    done
+}
+
+main

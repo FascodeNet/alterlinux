@@ -63,8 +63,11 @@ bindsym $mod+Shift+q kill
 # lock screen
 bindsym Mod4+Escape exec --no-startup-id i3lock -k
 
-# setting manager
-bindsym $Mod+Shift+s exec --no-startup-id ~/.config/alterlinux-i3-theme-settingmanager/alterlinux-i3-theme-settingmanager
+# polybar theme setting manager
+bindsym $mod+Shift+s exec --no-startup-id ~/.config/alterlinux-i3-theme-settingmanager/alterlinux-i3-theme-settingmanager
+
+# bmenu (setting manager)
+bindsym $mod+b exec --no-startup-id bmenu
 
 # change focus
 bindsym $mod+j focus left
