@@ -200,8 +200,8 @@ _help() {
 }
 
 
-share_options=""
-default_options="-b --noconfirm -l"
+share_options="--noconfirm"
+default_options="-b -l"
 
 while getopts 'a:dghrs' arg; do
     case "${arg}" in
