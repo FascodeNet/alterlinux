@@ -1480,6 +1480,7 @@ if [[ "${channel_name}" = "clean" ]]; then
 	remove "${script_path}/menuconfig-script/kernel_choice"
     remove_work
     remove "${rebuildfile}"
+    remove "${script_path}/temp"
     exit 0
 fi
 
