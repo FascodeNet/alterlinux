@@ -65,7 +65,7 @@ if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
 fi
 
 
-if [[ "${arch}" = "x86_64" ]]; theh
+if [[ "${arch}" = "x86_64" ]]; then
     # Snap
     systemctl enable snapd.apparmor.service
     systemctl enable apparmor.service
