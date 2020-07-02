@@ -259,7 +259,7 @@ _usage () {
     echo
     local kernel
     local list
-    for list in $(ls ${script_path}/system/kernel_list-*); do
+    for list in ${script_path}/system/kernel_list-* ; do
         echo " ${list#${script_path}/system/kernel_list-}:"
         echo -n "    "
         for kernel in $(grep -h -v ^'#' ${list}); do
