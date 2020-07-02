@@ -227,6 +227,11 @@ if [[ -n "${*}" ]]; then
     channnels=(${@})
 fi
 
+_msg_info "Options: ${share_options}"
+_msg_info "Press Enter to continue or Ctrl + C to cancel."
+read
+
+
 trap 'trap_exit' 1 2 3 15
 
 if [[ ! -d "${work_dir}" ]]; then
