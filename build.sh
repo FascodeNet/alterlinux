@@ -89,7 +89,7 @@ echo_color() {
     shift $((OPTIND - 1))
 
     if [[ "${nocolor}" = false ]]; then
-        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
     else
         echo ${echo_opts} "${@}"
     fi
@@ -114,7 +114,7 @@ _msg_info() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${*}"
     if [[ "${bash_debug}" = true ]]; then
         set -xv
     else
@@ -141,7 +141,7 @@ _msg_warn() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
     if [[ "${bash_debug}" = true ]]; then
         set -xv
     else
@@ -169,7 +169,7 @@ _msg_debug() {
     done
     shift $((OPTIND - 1))
     if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${*}"
     fi
     if [[ "${bash_debug}" = true ]]; then
         set -xv
@@ -766,7 +766,7 @@ make_packages() {
 
         if [[ -n "${excludelist}" ]]; then
             _msg_debug "The following packages have been removed from the installation list."
-            _msg_debug "Excluded packages: ${excludelist[@]}"
+            _msg_debug "Excluded packages:" "${excludelist[@]}"
         fi
 
         # Exclude packages from the exclusion list for each channel
