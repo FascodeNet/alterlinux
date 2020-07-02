@@ -223,7 +223,7 @@ while getopts 'a:dghrs' arg; do
 done
 shift $((OPTIND - 1))
 
-if [[ -z "${*}" ]]; then
+if [[ -n "${*}" ]]; then
     channnels=(${@})
 fi
 
