@@ -19,3 +19,7 @@ fcitx
 fcitx-configtool
 fcitx-mozc
 fcitx-qt5
+
+# language pack
+thunderbird-i18n-ja
+libreoffice-still-ja

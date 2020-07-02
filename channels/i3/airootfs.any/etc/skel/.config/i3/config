@@ -35,9 +35,11 @@ for_window [class="^.*"] border pixel 2
 
 # automatic-startup
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
-exec --no-startup-id nm-applet
-exec --no-startup-id fcitx
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+exec --no-startup-id nm-applet
+exec --no-startup-id xfce4-clipman
+exec --no-startup-id dunst
+exec --no-startup-id fcitx
 
 
 # ---------------------
@@ -51,6 +53,9 @@ bindsym $mod+i exec --no-startup-id sudo calamares
 
 # start a terminal
 bindsym $mod+Return exec --no-startup-id sakura
+
+# take a screenshot
+bindsym $mod+Shift+Print exec --no-startup-id xfce4-screenshooter
 
 # kill focused window
 bindsym $mod+Shift+q kill
