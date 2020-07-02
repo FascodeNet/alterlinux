@@ -884,7 +884,7 @@ make_packages_aur() {
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "chmod 777 /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u aurbuild /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" \
-        -p $("ls ${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}"/*.pkg.tar.*) install_file
+        -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/*.pkg.tar.*" install_file
     done
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel aurbuild" run
     remove "${work_dir}/${arch}/airootfs/aurbuild_temp"
