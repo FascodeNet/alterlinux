@@ -764,7 +764,7 @@ make_packages() {
             done
         fi
 
-        if [[ -n "${excludelist[@]}" ]]; then
+        if [[ -n "${excludelist}" ]]; then
             _msg_debug "The following packages have been removed from the installation list."
             _msg_debug "Excluded packages: ${excludelist[@]}"
         fi
