@@ -183,7 +183,7 @@ function install_dependencies () {
             install=(${install[@]} ${pkg})
         fi
     done
-    if [[ -n "${install[@]}" ]]; then
+    if [[ -n "${install}" ]]; then
         sudo pacman -Sy
         sudo pacman -S --needed --config ${pacman_conf} ${install[@]}
     fi
@@ -210,7 +210,7 @@ function run_add_key_script () {
 
 
 function remove_dependencies () {
-    if [[ -n "${install[@]}" ]]; then
+    if [[ -n "${install}" ]]; then
         sudo pacman -Rsn --config ${pacman_conf} ${install[@]}
     fi
 }
