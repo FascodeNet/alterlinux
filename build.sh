@@ -484,12 +484,13 @@ prepare_build() {
         # Save build options
         local write_rebuild_file
         write_rebuild_file() {
+            local out_file="${rebuildfile}"
             echo -e "${@}" >> "${out_file}"
         }
 
         local save_var
         save_var() {
-            local out_file="${rebuildfile}"
+            
             local i
             for i in ${@}; do
                 echo -n "${i}=\"" 
