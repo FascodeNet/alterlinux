@@ -284,14 +284,16 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild"
+    channel_list="${channel_list[@]} rebuild retry"
     local blank="33"
     
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
-            elif [[ "${_channel}" = "rebuild" ]]; then
-            description="Rebuild using the settings of the previous build."
+        elif [[ "${_channel}" = "rebuild" ]]; then
+            description="Build from scratch using previous build settings."
+        elif [[ ${_channel} = "retry" ]]; then
+            description="Build from the point where it left off using the previous build settings."
         else
             description="This channel does not have a description.txt."
         fi
