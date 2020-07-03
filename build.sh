@@ -568,8 +568,13 @@ prepare_build() {
         load_config "${rebuildfile}"
         _msg_debug "Iso filename is ${iso_filename}"
         
-        # Delete the lock file.
-        # remove "$(ls ${work_dir}/* | grep "build.make")"
+        if [[ "${channel_name}" = "rebuild" ]]; then
+            # Delete the lock file.
+            remove "$(ls ${work_dir}/* | grep "build.make")"
+
+            # reset work
+            remove_work
+        fi
     fi
     
     
