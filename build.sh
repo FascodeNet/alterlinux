@@ -490,7 +490,7 @@ prepare_build() {
 
         local save_var
         save_var() {
-            
+            local out_file="${rebuildfile}"
             local i
             for i in ${@}; do
                 echo -n "${i}=\"" 
