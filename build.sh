@@ -499,7 +499,7 @@ prepare_build() {
                 #echo '"' >> "${out_file}"
                 echo -n "${i}=\"" >> "${out_file}"
                 eval echo -n "\"'$'{${i}}\"" >> "${out_file}"
-                echo "\"" >> "${out_file
+                echo "\"" >> "${out_file}"
             done
         }
 
