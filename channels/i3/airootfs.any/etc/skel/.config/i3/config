@@ -15,10 +15,6 @@
 # wallpaper
 exec --no-startup-id "feh --bg-fill /usr/share/backgrounds/alter-jiju.png"
 
-# translucent
-exec_always --no-startup-id compton -cbm 0.6
-
-
 # font
 font pango:Noto Sans 9
 
