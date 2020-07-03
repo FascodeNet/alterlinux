@@ -532,7 +532,11 @@ prepare_build() {
         defaultusername \
         customized_username \
         gitversion \
-        noloopmod
+        noloopmod \
+        localegen \
+        language \
+        timezone \
+        mirror_country
         
     else
         # Load rebuild file
