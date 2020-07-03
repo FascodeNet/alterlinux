@@ -1465,7 +1465,7 @@ if [[ -n "${1}" ]]; then
                 fi
             fi
         done
-        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
+        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
             echo -n "true"
             return 0
         else
@@ -1480,7 +1480,7 @@ if [[ -n "${1}" ]]; then
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
-        elif [[ "${channel_name}" = "rebuild" ]]; then
+    elif [[ "${channel_name}" = "rebuild" ]] && [[ "${channel_name}" = "retry" ]]; then
         if [[ -f "${rebuildfile}" ]]; then
             rebuild=true
         else
@@ -1488,13 +1488,13 @@ if [[ -n "${1}" ]]; then
         fi
     fi
 
-    if [[ ! "${channel_name}" == "rebuild" ]]; then
+    if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
         _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     fi
 fi
 
 # Check architecture and kernel for each channel
-if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
+if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
     # architecture
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
