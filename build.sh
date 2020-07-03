@@ -423,7 +423,7 @@ prepare_build() {
     
     
     # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]&& [[ ! "${rebuild}" = true ]]; then
         umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
@@ -1485,7 +1485,7 @@ if [[ -n "${1}" ]]; then
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
-    elif [[ "${channel_name}" = "rebuild" ]] && [[ "${channel_name}" = "retry" ]]; then
+    elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
         if [[ -f "${rebuildfile}" ]]; then
             rebuild=true
         else
