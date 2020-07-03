@@ -538,14 +538,14 @@ prepare_build() {
         save_var theme_pkg
 
         write_rebuild_file "\n# Language Info"
-        save_var localegen \
+        save_var localegen
         save_var language
         save_var timezone
         save_var mirror_country
 
         write_rebuild_file "\n# Squashfs Info"
-        sfs_comp \
-        sfs_comp_opt \
+        save_var sfs_comp
+        save_var sfs_comp_opt
 
         write_rebuild_file "\n# Debug Info"
         save_var debug
