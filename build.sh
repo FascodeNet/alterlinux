@@ -438,18 +438,6 @@ prepare_build() {
     }
     trap 'trap_remove_work' 1 2 3 15
     
-    # Save build options
-    local save_var
-    save_var() {
-        local out_file="${rebuildfile}"
-        local i
-        for i in ${@}; do
-            echo -n "${i}=" >> "${out_file}"
-            echo -n '"' >> "${out_file}"
-            eval echo -n '$'{${i}} >> "${out_file}"
-            echo '"' >> "${out_file}"
-        done
-    }
     if [[ ${rebuild} = false ]]; then
         # If there is pacman.conf for each channel, use that for building
         if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
@@ -491,53 +479,86 @@ prepare_build() {
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
         _msg_debug "Iso filename is ${iso_filename}"
-        
+    
+    
+        # Save build options
+        local write_rebuild_file
+        write_rebuild_file() {
+            echo -e "${@}" >> "${out_file}"
+        }
+
+        local save_var
+        save_var() {
+            local out_file="${rebuildfile}"
+            local i
+            for i in ${@}; do
+                echo -n "${i}=\"" 
+                eval echo -n "\"'$'{${i}}\"" >> "${out_file}"
+                echo "\"" >> "${out_file}"
+            done
+        }
+
         # Save the value of the variable for use in rebuild.
-        echo "#!/usr/bin/env bash" > "${rebuildfile}"
-        echo "# Build options are stored here." >> "${rebuildfile}"
+        remove "${rebuildfile}"
+        write_rebuild_file "#!/usr/bin/env bash"
+        write_rebuild_file "# Build options are stored here."
         
-        save_var \
-        arch \
-        os_name \
-        iso_name \
-        iso_label \
-        iso_publisher \
-        iso_application \
-        iso_version \
-        iso_filename \
-        install_dir \
-        work_dir \
-        out_dir \
-        gpg_key \
-        mkalteriso_option \
-        password \
-        boot_splash \
-        kernel \
-        theme_name \
-        theme_pkg \
+        write_rebuild_file "\n# OS Info"
+        save_var arch
+        save_var os_name
+        save_var iso_name
+        save_var iso_label
+        save_var iso_publisher
+        save_var iso_application
+        save_var iso_version
+        save_var iso_filename
+        save_var channel_name
+
+        write_rebuild_file "\n# Environment Info"
+        save_var install_dir
+        save_var work_dir
+        save_var out_dir
+        save_var gpg_key
+
+        write_rebuild_file "\n# mkalteriso Info"
+        save_var mkalteriso
+        save_var shmkalteriso
+        save_var mkalteriso_option
+
+        write_rebuild_file "\n# Live User Info"
+        save_var username
+        save_var password
+        save_var kernel
+        save_var usershell
+
+        write_rebuild_file "\n# Plymouth Info"
+        save_var boot_splash
+        save_var theme_name
+        save_var theme_pkg
+
+        write_rebuild_file "\n# Language Info"
+        save_var localegen \
+        save_var language
+        save_var timezone
+        save_var mirror_country
+
+        write_rebuild_file "\n# Squashfs Info"
         sfs_comp \
         sfs_comp_opt \
-        debug \
-        language \
-        channel_name \
-        cleaning \
-        username \
-        mkalteriso \
-        usershell \
-        shmkalteriso \
-        nocolor \
-        build_pacman_conf \
-        defaultconfig \
-        msgdebug \
-        defaultusername \
-        customized_username \
-        gitversion \
-        noloopmod \
-        localegen \
-        language \
-        timezone \
-        mirror_country
-        
+
+        write_rebuild_file "\n# Debug Info"
+        save_var debug
+        save_var bash_debug
+        save_var nocolor
+        save_var msgdebug
+        save_var gitversion
+        save_var noloopmod
+
+        write_rebuild_file "\n# Channel Info"
+        save_var build_pacman_conf
+        save_var defaultconfig
+        save_var defaultusername
+        save_var customized_username
     else
         # Load rebuild file
         load_config "${rebuildfile}"
