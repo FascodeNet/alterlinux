@@ -7,7 +7,6 @@ locale-gen
 
 usermod -s /usr/bin/zsh root
 cp -aT /etc/skel/ /root/
-chmod 700 /root
 # unset the root password
 passwd -d root
 
