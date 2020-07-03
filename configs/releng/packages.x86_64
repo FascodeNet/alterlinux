@@ -1,5 +1,6 @@
 arch-install-scripts
 b43-fwcutter
+bind-tools
 broadcom-wl
 btrfs-progs
 clonezilla
@@ -12,7 +13,6 @@ dialog
 diffutils
 dmraid
 dnsmasq
-dnsutils
 dosfstools
 efibootmgr
 elinks
@@ -34,8 +34,8 @@ kitty-terminfo
 lftp
 linux-atm
 linux-firmware
-lvm2
 lsscsi
+lvm2
 man-db
 man-pages
 mc
@@ -56,9 +56,9 @@ parted
 partimage
 ppp
 pptpclient
+reflector
 reiserfsprogs
 rp-pppoe
-reflector
 rsync
 rxvt-unicode-terminfo
 sdparm
@@ -72,7 +72,7 @@ termite-terminfo
 testdisk
 usb_modeswitch
 usbutils
-vim-minimal
+vim
 vpnc
 wireless-regdb
 wireless_tools
