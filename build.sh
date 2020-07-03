@@ -750,44 +750,35 @@ make_packages() {
         sleep 1
     fi
     
+    #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile="${script_path}/channels/share/packages.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist[@]})
-        unset pkglist
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist=(${pkglist[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
+    excludefile=(
+        "${script_path}/channels/share/packages.${arch}/exclude"
+        "${script_path}/channels/${channel_name}/packages.${arch}/exclude"
+    )
+
+    for _file in ${excludefile[@]}; do
+        if [[ -f "${_file}" ]]; then
+            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        fi
+    done
+
+    # 現在のpkglistをコピーする
+    _pkglist=(${pkglist[@]})
+    unset pkglist
+    for _pkg in ${_pkglist[@]}; do
+        # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+            pkglist=(${pkglist[@]} "${_pkg}")
+        fi
+    done
+
     if [[ -n "${excludelist}" ]]; then
         _msg_debug "The following packages have been removed from the installation list."
         _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
-    
-    # Exclude packages from the exclusion list for each channel
-    excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist[@]})
-        unset pkglist
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist=(${pkglist[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
-    
+
+
     # Sort the list of packages in abc order.
     pkglist=(
         "$(
@@ -830,8 +821,8 @@ make_packages_aur() {
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch})
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${language}.${arch}
     )
-    
-    
+
+
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
@@ -844,44 +835,35 @@ make_packages_aur() {
         sleep 1
     fi
     
+    #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile="${script_path}/channels/share/packages_aur.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist_aur[@]})
-        unset pkglist_aur
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist_aur=(${pkglist_aur[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
+    excludefile=(
+        "${script_path}/channels/share/packages_aur.${arch}/exclude"
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
+    )
+
+    for _file in ${excludefile[@]}; do
+        if [[ -f "${_file}" ]]; then
+            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        fi
+    done
+
+    # 現在のpkglistをコピーする
+    _pkglist=(${pkglist[@]})
+    unset pkglist
+    for _pkg in ${_pkglist[@]}; do
+        # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+            pkglist=(${pkglist[@]} "${_pkg}")
+        fi
+    done
+
     if [[ -n "${excludelist}" ]]; then
-        _msg_debug "The following packages have been removed from the installation list."
+        _msg_debug "The following packages have been removed from the aur list."
         _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
-    
-    # Exclude packages from the exclusion list for each channel
-    excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist_aur[@]})
-        unset pkglist_aur
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist_aur=(${pkglist_aur[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
-    
+
+
     # Sort the list of packages in abc order.
     pkglist_aur=(
         "$(
