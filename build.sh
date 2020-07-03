@@ -438,18 +438,6 @@ prepare_build() {
     }
     trap 'trap_remove_work' 1 2 3 15
     
-    # Save build options
-    local save_var
-    save_var() {
-        local out_file="${rebuildfile}"
-        local i
-        for i in ${@}; do
-            echo -n "${i}=" >> "${out_file}"
-            echo -n '"' >> "${out_file}"
-            eval echo -n '$'{${i}} >> "${out_file}"
-            echo '"' >> "${out_file}"
-        done
-    }
     if [[ ${rebuild} = false ]]; then
         # If there is pacman.conf for each channel, use that for building
         if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
@@ -491,49 +479,88 @@ prepare_build() {
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
         _msg_debug "Iso filename is ${iso_filename}"
-        
+    
+    
+        # Save build options
+        local write_rebuild_file
+        write_rebuild_file() {
+            local out_file="${rebuildfile}"
+            echo -e "${@}" >> "${out_file}"
+        }
+
+        local save_var
+        save_var() {
+            local out_file="${rebuildfile}"
+            local i
+            for i in ${@}; do
+                echo -n "${i}=" >> "${out_file}"
+                echo -n '"' >> "${out_file}"
+                eval echo -n '$'{${i}} >> "${out_file}"
+                echo '"' >> "${out_file}"
+            done
+        }
+
         # Save the value of the variable for use in rebuild.
-        echo "#!/usr/bin/env bash" > "${rebuildfile}"
-        echo "# Build options are stored here." >> "${rebuildfile}"
+        remove "${rebuildfile}"
+        write_rebuild_file "#!/usr/bin/env bash"
+        write_rebuild_file "# Build options are stored here."
         
-        save_var \
-        arch \
-        os_name \
-        iso_name \
-        iso_label \
-        iso_publisher \
-        iso_application \
-        iso_version \
-        iso_filename \
-        install_dir \
-        work_dir \
-        out_dir \
-        gpg_key \
-        mkalteriso_option \
-        password \
-        boot_splash \
-        kernel \
-        theme_name \
-        theme_pkg \
-        sfs_comp \
-        sfs_comp_opt \
-        debug \
-        language \
-        channel_name \
-        cleaning \
-        username \
-        mkalteriso \
-        usershell \
-        shmkalteriso \
-        nocolor \
-        build_pacman_conf \
-        defaultconfig \
-        msgdebug \
-        defaultusername \
-        customized_username \
-        gitversion \
-        noloopmod
-        
+        write_rebuild_file "\n# OS Info"
+        save_var arch
+        save_var os_name
+        save_var iso_name
+        save_var iso_label
+        save_var iso_publisher
+        save_var iso_application
+        save_var iso_version
+        save_var iso_filename
+        save_var channel_name
+
+        write_rebuild_file "\n# Environment Info"
+        save_var install_dir
+        save_var work_dir
+        save_var out_dir
+        save_var gpg_key
+
+        write_rebuild_file "\n# mkalteriso Info"
+        save_var mkalteriso
+        save_var shmkalteriso
+        save_var mkalteriso_option
+
+        write_rebuild_file "\n# Live User Info"
+        save_var username
+        save_var password
+        save_var kernel
+        save_var usershell
+
+        write_rebuild_file "\n# Plymouth Info"
+        save_var boot_splash
+        save_var theme_name
+        save_var theme_pkg
+
+        write_rebuild_file "\n# Language Info"
+        save_var localegen
+        save_var language
+        save_var timezone
+        save_var mirror_country
+
+        write_rebuild_file "\n# Squashfs Info"
+        save_var sfs_comp
+        save_var sfs_comp_opt
+
+        write_rebuild_file "\n# Debug Info"
+        save_var debug
+        save_var bash_debug
+        save_var nocolor
+        save_var msgdebug
+        save_var gitversion
+        save_var noloopmod
+
+        write_rebuild_file "\n# Channel Info"
+        save_var build_pacman_conf
+        save_var defaultconfig
+        save_var defaultusername
+        save_var customized_username
     else
         # Load rebuild file
         load_config "${rebuildfile}"
@@ -704,9 +731,9 @@ make_packages() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${language}.${arch}
-        $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages.${arch}/lang/${language}.${arch}
     )
     
@@ -723,44 +750,35 @@ make_packages() {
         sleep 1
     fi
     
+    #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile="${script_path}/channels/share/packages.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist[@]})
-        unset pkglist
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist=(${pkglist[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
-    if [[ -n "${excludelist[@]}" ]]; then
+    excludefile=(
+        "${script_path}/channels/share/packages.${arch}/exclude"
+        "${script_path}/channels/${channel_name}/packages.${arch}/exclude"
+    )
+
+    for _file in ${excludefile[@]}; do
+        if [[ -f "${_file}" ]]; then
+            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        fi
+    done
+
+    # 現在のpkglistをコピーする
+    _pkglist=(${pkglist[@]})
+    unset pkglist
+    for _pkg in ${_pkglist[@]}; do
+        # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+            pkglist=(${pkglist[@]} "${_pkg}")
+        fi
+    done
+
+    if [[ -n "${excludelist[*]}" ]]; then
         _msg_debug "The following packages have been removed from the installation list."
-        _msg_debug "Excluded packages: ${excludelist[@]}"
+        _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
-    
-    # Exclude packages from the exclusion list for each channel
-    excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist[@]})
-        unset pkglist
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist=(${pkglist[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
-    
+
+
     # Sort the list of packages in abc order.
     pkglist=(
         "$(
@@ -798,13 +816,13 @@ make_packages_aur() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${language}.${arch}
-        $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${language}.${arch}
     )
-    
-    
+
+
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
@@ -817,44 +835,35 @@ make_packages_aur() {
         sleep 1
     fi
     
+    #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile="${script_path}/channels/share/packages_aur.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist_aur[@]})
-        unset pkglist_aur
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist_aur=(${pkglist_aur[@]} "${_pkg}")
-            fi
-        done
+    excludefile=(
+        "${script_path}/channels/share/packages_aur.${arch}/exclude"
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
+    )
+
+    for _file in ${excludefile[@]}; do
+        if [[ -f "${_file}" ]]; then
+            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        fi
+    done
+
+    # 現在のpkglistをコピーする
+    _pkglist=(${pkglist[@]})
+    unset pkglist
+    for _pkg in ${_pkglist[@]}; do
+        # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+            pkglist=(${pkglist[@]} "${_pkg}")
+        fi
+    done
+
+    if [[ -n "${excludelist[*]}" ]]; then
+        _msg_debug "The following packages have been removed from the aur list."
+        _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
-    
-    if [[ -n "${excludelist[@]}" ]]; then
-        _msg_debug "The following packages have been removed from the installation list."
-        _msg_debug "Excluded packages: ${excludelist[@]}"
-    fi
-    
-    # Exclude packages from the exclusion list for each channel
-    excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
-    if [[ -f "${excludefile}" ]]; then
-        excludelist=( $(grep -h -v ^'#' "${excludefile}") )
-        
-        # 現在のpkglistをコピーする
-        _pkglist=(${pkglist_aur[@]})
-        unset pkglist_aur
-        for _pkg in ${_pkglist[@]}; do
-            # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-            if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-                pkglist_aur=(${pkglist_aur[@]} "${_pkg}")
-            fi
-        done
-    fi
-    
-    
+
+
     # Sort the list of packages in abc order.
     pkglist_aur=(
         "$(
@@ -886,7 +895,7 @@ make_packages_aur() {
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "chmod 777 /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u aurbuild /aurbuild_temp/aur_build.sh" run
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" \
-        -p $("ls ${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}"/*.pkg.tar.*) install_file
+        -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/*.pkg.tar.*" install_file
     done
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel aurbuild" run
     remove "${work_dir}/${arch}/airootfs/aurbuild_temp"
