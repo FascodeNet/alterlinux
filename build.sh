@@ -731,9 +731,9 @@ make_packages() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${language}.${arch}
-        $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages.${arch}/lang/${language}.${arch}
     )
     
@@ -773,7 +773,7 @@ make_packages() {
         fi
     done
 
-    if [[ -n "${excludelist}" ]]; then
+    if [[ -n "${excludelist[*]}" ]]; then
         _msg_debug "The following packages have been removed from the installation list."
         _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
@@ -816,9 +816,9 @@ make_packages_aur() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${language}.${arch}
-        $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch})
+        $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${language}.${arch}
     )
 
@@ -858,7 +858,7 @@ make_packages_aur() {
         fi
     done
 
-    if [[ -n "${excludelist}" ]]; then
+    if [[ -n "${excludelist[*]}" ]]; then
         _msg_debug "The following packages have been removed from the aur list."
         _msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
