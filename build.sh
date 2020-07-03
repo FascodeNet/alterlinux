@@ -493,9 +493,13 @@ prepare_build() {
             local out_file="${rebuildfile}"
             local i
             for i in ${@}; do
-                echo -n "${i}=\"" 
+                #echo -n "${i}=" >> "${out_file}"
+                #echo -n '"' >> "${out_file}"
+                #eval echo -n '$'{${i}} >> "${out_file}"
+                #echo '"' >> "${out_file}"
+                echo -n "${i}=\"" >> "${out_file}"
                 eval echo -n "\"'$'{${i}}\"" >> "${out_file}"
-                echo "\"" >> "${out_file}"
+                echo "\"" >> "${out_file
             done
         }
 
