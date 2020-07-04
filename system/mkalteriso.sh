@@ -419,7 +419,7 @@ command_install () {
 
 # Install packages on airootfs from pkg file
 # A basic check to avoid double execution/reinstallation is done via hashing package names.
-command_install () {
+command_install_file () {
     if [[ ! -f "${pacman_conf}" ]]; then
         _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
     fi
@@ -493,6 +493,9 @@ case "${command_name}" in
         ;;
     install)
         command_install
+        ;;
+    install_file)
+        command_install_file
         ;;
     run)
         command_run
