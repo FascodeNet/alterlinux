@@ -390,7 +390,7 @@ remove_work() {
         remove "${work_dir}/efiboot"
         remove "${work_dir}/iso"
         remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
+        remove ""${work_dir}/packages.list""
         remove "${work_dir}/packages-full.list"
         #remove "${rebuildfile}"
         if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
@@ -801,11 +801,11 @@ make_packages() {
     # _msg_debug "${pkglist[@]}"
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo "# The list of packages that is installed in live cd." > ${work_dir}/packages.list
-    echo "#" >> ${work_dir}/packages.list
-    echo >> ${work_dir}/packages.list
+    echo "# The list of packages that is installed in live cd." > "${work_dir}/packages.list"
+    echo "#" >> "${work_dir}/packages.list"
+    echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist[@]}; do
-        echo ${_pkg} >> ${work_dir}/packages.list
+        echo ${_pkg} >> "${work_dir}/packages.list"
     done
     
     # Install packages on airootfs
@@ -886,10 +886,10 @@ make_packages_aur() {
     # _msg_debug "${pkglist[@]}"
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#" >> ${work_dir}/packages.list
-    echo >> ${work_dir}/packages.list
+    echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
+    echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
-        echo ${_pkg} >> ${work_dir}/packages.list
+        echo ${_pkg} >> "${work_dir}/packages.list"
     done
     
     # Install packages on airootfs
