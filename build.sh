@@ -284,14 +284,16 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild"
+    channel_list="${channel_list[@]} rebuild retry"
     local blank="33"
     
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
-            elif [[ "${_channel}" = "rebuild" ]]; then
-            description="Rebuild using the settings of the previous build."
+        elif [[ "${_channel}" = "rebuild" ]]; then
+            description="Build from scratch using previous build settings."
+        elif [[ ${_channel} = "retry" ]]; then
+            description="Build from the point where it left off using the previous build settings."
         else
             description="This channel does not have a description.txt."
         fi
@@ -421,7 +423,7 @@ prepare_build() {
     
     
     # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]&& [[ ! "${rebuild}" = true ]]; then
         umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
@@ -562,12 +564,17 @@ prepare_build() {
         save_var defaultusername
         save_var customized_username
     else
+        if [[ "${channel_name}" = "rebuild" ]]; then
+            # Delete the lock file.
+            remove "$(ls ${work_dir}/* | grep "build.make")"
+
+            # reset work
+            remove_work
+        fi
+    
         # Load rebuild file
         load_config "${rebuildfile}"
         _msg_debug "Iso filename is ${iso_filename}"
-        
-        # Delete the lock file.
-        # remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
     
     
@@ -1463,7 +1470,7 @@ if [[ -n "${1}" ]]; then
                 fi
             fi
         done
-        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
+        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
             echo -n "true"
             return 0
         else
@@ -1478,7 +1485,7 @@ if [[ -n "${1}" ]]; then
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
-        elif [[ "${channel_name}" = "rebuild" ]]; then
+    elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
         if [[ -f "${rebuildfile}" ]]; then
             rebuild=true
         else
@@ -1486,13 +1493,13 @@ if [[ -n "${1}" ]]; then
         fi
     fi
 
-    if [[ ! "${channel_name}" == "rebuild" ]]; then
+    if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
         _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     fi
 fi
 
 # Check architecture and kernel for each channel
-if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
+if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
     # architecture
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
