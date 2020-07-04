@@ -52,10 +52,4 @@ for _aur_pkg in ${*}; do
     echo  "cd ~ ; git clone https://aur.archlinux.org/${_aur_pkg}.git ; cd ${_aur_pkg} ; makepkg -cfs " > "/aurbuild_temp/aur_build.sh"
     chmod 777 "/aurbuild_temp/aur_build.sh"
     sudo -u aurbuild "/aurbuild_temp/aur_build.sh"
-    pacman -U --noconfirm "/aurbuild_temp/${_aur_pkg}/"*.pkg.tar.*
 done
-
-# remove user and file
-userdel aurbuild
-remove /aurbuild_temp
-remove /etc/sudoers.d/aurbuild

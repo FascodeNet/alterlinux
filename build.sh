@@ -897,8 +897,13 @@ make_packages_aur() {
 
     cp -r "${script_path}/system/aur.sh" "${work_dir}/${arch}/airootfs/root/aur.sh"
     chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
+    cp -r "${script_path}/system/aur_remove.sh" "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
+    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
     
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[@]}" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkglist_aur[@]}" install_file
+
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
 
 # Customize installation (airootfs)
