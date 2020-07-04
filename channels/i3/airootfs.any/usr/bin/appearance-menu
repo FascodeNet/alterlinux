@@ -1,0 +1,537 @@
+#!/bin/bash
+
+RED='\e[41m'
+BLUE='\e[44m'
+ORANGE='\e[46m'
+NC='\e[0m'
+
+MINFONTSIZE=6
+MAXFONTSIZE=72
+STATUSVAR=1
+CANCELSTATUS=0
+SELECTEDITEM=""
+TEXTEDITOR=$EDITOR
+
+# Service messages section
+CONTINMSG="$BLUE Press any key to continue$NC"
+ERRORMSG="$RED Wrong.$NC"
+TRYAGAINMSG="$RED Press any key and try again$NC"
+CURRENTPREFIXMSG="(current: "
+CURRENTSUFFIXMSG="):"
+AVAILABLETHEMESMSG="Available themes "
+PS31MSG="Choose new gtk2 theme:"
+PS32MSG="Choose new gtk3 theme:"
+PS33MSG="Choose new icon theme:"
+PS34MSG="Choose new pointer theme:"
+SETTINGGTK2THEMEMSG='Setting theme to %s'
+SETTINGGTK3THEMEMSG='Setting theme to %s'
+SETTINGICONTHEMEMSG='Setting theme to %s'
+SETTINGPOINTERTHMSG='Setting theme to %s'
+GTK2THEMEPREFIXMSG="GTK2 theme "
+GTK3THEMEPREFIXMSG="GTK3 theme "
+ICONTHEMEPREFIXMSG="Icon theme "
+POINTERTHPREFIXMSG="Pointer theme "
+FONTSETPREFIXMSG="Font "
+FONTSIZESETMSG=" with size "
+FONTSIZEERRMSG="$RED Value is out of range$NC"
+SELECTEDFONTMSG="Selected font is: "
+INPUTFONTSIZEMSG="Input font size value in range from $MINFONTSIZE to $MAXFONTSIZE or just press Escape to discard changes"
+SELECTFONTSIZEMSG="Select font size value "
+CHOOSEFONTPROMPTMSG="Choose new font to use "
+SETSUFFIXMSG=" was set successfully"
+TOGGLEDARKTHEMEMSG="Done"
+
+if ! [ -f "$HOME/.gtkrc-2.0" ]; then
+	cat > $HOME/.gtkrc-2.0 <<EOL
+include "$HOME/.gtkrc-2.0.mine"
+gtk-theme-name="Adwaita"
+gtk-icon-theme-name="Adwaita"
+gtk-font-name="DejaVu Sans 12"
+gtk-cursor-theme-name="Adwaita"
+gtk-cursor-theme-size=18
+gtk-toolbar-style=GTK_TOOLBAR_ICONS
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+gtk-button-images=1
+gtk-menu-images=0
+gtk-enable-event-sounds=0
+gtk-enable-input-feedback-sounds=0
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle="hintmedium"
+gtk-xft-rgba="none"
+EOL
+fi
+
+if ! [ -f "$HOME/.config/gtk-3.0/settings.ini" ]; then
+	cat > $HOME/.config/gtk-3.0/settings.ini <<EOL
+[Settings]
+gtk-application-prefer-dark-theme=1
+gtk-theme-name=Adwaita
+gtk-icon-theme-name=Adwaita
+gtk-font-name=DejaVu Sans 12
+gtk-cursor-theme-name=Adwaita
+gtk-cursor-theme-size=18
+gtk-toolbar-style=GTK_TOOLBAR_ICONS
+gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+gtk-button-images=1
+gtk-menu-images=0
+gtk-enable-event-sounds=0
+gtk-enable-input-feedback-sounds=0
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle=hintmedium
+gtk-xft-rgba=none
+gtk-decoration-layout=:menu,appmenu,close
+EOL
+fi
+
+if ! [ -f "$HOME/.icons/default/index.theme" ]; then
+	mkdir -r $HOME/.icons/default/
+	cat > $HOME/.icons/default/index.theme <<EOL
+# This file is written by LXAppearance. Do not edit.
+[Icon Theme]
+Name=Default
+Comment=Default Cursor Theme
+Inherits=Adwaita
+EOL
+fi
+
+function pressanykeyrequest {
+	echo -e "$CONTINMSG"
+	read -s -n1
+	STATUSVAR=1
+}
+
+function current_item_get {
+ cig_input="$@"
+ CURRENTITEM=""
+ case $cig_input in
+ 	gtk2theme)
+ 		CURRENTITEM=$(cat $HOME/.gtkrc-2.0 | grep -Po 'gtk-theme-name="\K[^"]*')
+ 		echo "$CURRENTITEM"
+ 		;;
+ 	gtk3theme)
+ 		CURRENTITEM=$(cat $HOME/.config/gtk-3.0/settings.ini | grep -Po 'gtk-theme-name=\K.*')
+ 		echo "$CURRENTITEM"
+ 		;;
+ 	icontheme)
+ 		CURRENTITEM=$(cat $HOME/.config/gtk-3.0/settings.ini | grep -Po 'gtk-icon-theme-name=\K.*')
+ 		echo "$CURRENTITEM"
+ 		;;
+ 	pointertheme)
+ 		CURRENTITEM=$(cat $HOME/.config/gtk-3.0/settings.ini | grep -Po 'gtk-cursor-theme-name=\K.*')
+ 		echo "$CURRENTITEM"
+ 		;;
+ 	gtkfontsize)
+ 		CURRENTITEM=$(cat $HOME/.config/gtk-3.0/settings.ini | grep -Po 'gtk-font-name=\K.*' | grep -Po '\t*\s*\K[0-9]{1,2}')
+ 		echo "$CURRENTITEM"
+ 		;;
+ 	gtkfontname)
+ 		CURRENTITEM=$(cat $HOME/.config/gtk-3.0/settings.ini | grep -Po 'gtk-font-name=\K.*' | grep -Po '.*[^0-9]{1,2}' | sed 's/[[:blank:]]*$//')
+ 		echo "$CURRENTITEM"
+ esac
+ return 0
+}
+
+function set_gtk2_theme {
+	new_theme="$@"
+	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-theme-name" $HOME/.gtkrc-2.0)/gtk-theme-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0
+	STATUSVAR=$?
+	return $STATUSVAR
+}
+
+function choose_gtk2_theme {
+	CURRENTITEM=$(current_item_get "gtk2theme")
+	echo "$AVAILABLETHEMESMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG"
+	PS3="$PS31MSG"
+	CANCELSTATUS=0
+	SELECTEDITEM=""
+	# Gather the results in an array.
+	gtk2_themes=($(find /usr/share/themes -type d -name "gtk-2.0" | awk -F'/' '{print $5}') "cancel")
+
+	select pick in "${gtk2_themes[@]}"
+	do
+		case $pick in
+			cancel)
+				CANCELSTATUS=1
+				break
+				;;		
+			*)	
+				picks+=("$pick")
+				break
+				;;		
+		esac
+	done
+
+	if [ $CANCELSTATUS -eq 1 ]; then
+		echo ""
+	else 
+		if [[ $picks ]]; then
+    		printf "$SETTINGGTK2THEMEMSG" "${picks[*]}"
+   			SELECTEDITEM="${picks[@]}"
+    		set_gtk2_theme $SELECTEDITEM
+    		picks=()
+   	 	fi
+	fi
+	return $STATUSVAR
+}
+
+function set_gtk3_theme {
+	new_theme="$@"
+	cp $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini.bak && sed -i "s/$(grep "gtk-theme-name" $HOME/.config/gtk-3.0/settings.ini)/gtk-theme-name=$new_theme/g" $HOME/.config/gtk-3.0/settings.ini
+	STATUSVAR=$?
+	return $STATUSVAR
+}
+
+function choose_gtk3_theme {
+	CURRENTITEM=$(current_item_get "gtk3theme")
+	echo "$AVAILABLETHEMESMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG"
+	PS3="$PS32MSG"
+	CANCELSTATUS=0
+	SELECTEDITEM=""
+	# Gather the results in an array.
+	gtk3_themes=($(find /usr/share/themes -type d -name "gtk-3.0" | awk -F'/' '{print $5}') "cancel")
+
+	select pick in "${gtk3_themes[@]}"
+	do
+		case $pick in
+			cancel)
+				CANCELSTATUS=1
+				break
+				;;		
+			*)	
+				picks+=("$pick")
+				break
+				;;		
+		esac
+	done
+
+	if [ $CANCELSTATUS -eq 1 ]; then
+		echo ""
+	else 
+		if [[ $picks ]]; then
+    		printf "$SETTINGGTK3THEMEMSG" "${picks[*]}"
+    		SELECTEDITEM="${picks[@]}"
+    		set_gtk3_theme $SELECTEDITEM
+    		picks=()
+    		fi
+	fi
+	return $STATUSVAR
+}
+
+function set_icon_theme {
+	new_theme="$@"
+	cp $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini.bak && sed -i "s/$(grep "gtk-icon-theme-name" $HOME/.config/gtk-3.0/settings.ini)/gtk-icon-theme-name=$new_theme/g" $HOME/.config/gtk-3.0/settings.ini
+	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-icon-theme-name" $HOME/.gtkrc-2.0)/gtk-icon-theme-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0	
+	STATUSVAR=$?
+	return $STATUSVAR
+}
+
+function choose_icon_theme {
+	CURRENTITEM=$(current_item_get "icontheme")
+	echo "$AVAILABLETHEMESMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG"
+	PS3="$PS33MSG"
+	CANCELSTATUS=0
+	SELECTEDITEM=""
+	# Gather the results in an array.
+	icon_themes=($(find /usr/share/icons -type f -name "index.theme" | awk -F'/' '{print $5}') "cancel")
+
+	select pick in "${icon_themes[@]}"
+	do
+		case $pick in
+			cancel)
+				CANCELSTATUS=1
+				break
+				;;		
+			*)	
+				picks+=("$pick")
+				break
+				;;		
+		esac
+	done
+
+	if [ $CANCELSTATUS -eq 1 ]; then
+		echo ""
+	else
+		if [[ $picks ]]; then
+    		printf "$SETTINGICONTHEMEMSG" "${picks[*]}"
+    		SELECTEDITEM="${picks[@]}"
+    		set_icon_theme $SELECTEDITEM
+    		picks=()
+    		fi
+	fi
+	return $STATUSVAR
+}
+
+function set_pointer_theme {
+	new_theme="$@"
+	cp $HOME/.icons/default/index.theme $HOME/.icons/default/index.theme.bak && sed -i "s/$(grep "Inherits" $HOME/.icons/default/index.theme)/Inherits=$new_theme/g" $HOME/.icons/default/index.theme
+	cp $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini.bak && sed -i "s/$(grep "gtk-cursor-theme-name" $HOME/.config/gtk-3.0/settings.ini)/gtk-cursor-theme-name=$new_theme/g" $HOME/.config/gtk-3.0/settings.ini
+	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-cursor-theme-name" $HOME/.gtkrc-2.0)/gtk-cursor-theme-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0
+	STATUSVAR=$?
+	return $STATUSVAR
+}
+
+function choose_pointer_theme {
+	CURRENTITEM=$(current_item_get "pointertheme")
+	echo "$AVAILABLETHEMESMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG"
+	PS3="$PS34MSG"
+	CANCELSTATUS=0
+	SELECTEDITEM=""
+	# Gather the results in an array.
+	pointer_themes=($(find /usr/share/icons -type d -name "cursors" | awk -F'/' '{print $5}' | sed 's/-Cursor//g') "cancel")
+
+	select pick in "${pointer_themes[@]}"
+	do
+		case $pick in
+			cancel)
+				CANCELSTATUS=1
+				break
+				;;		
+			*)	
+				picks+=("$pick")
+				break
+				;;		
+		esac
+	done
+
+	if [ $CANCELSTATUS -eq 1 ]; then
+		echo ""
+	else
+		if [[ $picks ]]; then
+    		printf "$SETTINGPOINTERTHMSG" "${picks[*]}"
+    		SELECTEDITEM="${picks[@]}"
+    		set_pointer_theme $SELECTEDITEM
+    		picks=()
+    		fi
+	fi
+	return $STATUSVAR
+}
+
+function numberinputprocedure {
+	font_family="$SELECTEDITEM"
+	numberstring=""
+	number=0
+	schar=""
+	# This function checks font family and tries to find
+	# fonts with fixed pixel size value using fc-cat command.
+	# fc-cat output is huge and can be used in other procedures. 
+	# If we found nothing user should enter font size manually
+	# because selected font is a size scalable one.
+	# If we found pixelsize items for selected font 
+	# user selects size in range of these items.
+	CURRENTITEM=$(current_item_get "gtkfontsize")
+	fccatmsggrep=""
+	fccatmsggrep=$(fc-cat -r 2> /dev/null | grep "\"$font_family" | grep -o "pixelsize=[0-9][0-9]*" | grep -o "[0-9][0-9]*")
+	if [ "$fccatmsggrep" != "" ]; then
+		numberstring=$(echo "$fccatmsggrep" | sort -n | uniq | fzf -e --reverse --prompt="< $SELECTFONTSIZEMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG >")
+		if [ "$numberstring" == "" ]; then
+			number=0
+			return 1
+		else
+			number=`expr $numberstring + 0`
+			return 0
+		fi
+	else
+		echo -e "$INPUTFONTSIZEMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG"
+    	manualnumberinput
+    	checkfontsize $number
+    	STATUSVAR=$?
+    	if [ $STATUSVAR -eq 1 ]; then
+    		echo ""
+    		echo -e "$ERRORMSG$FONTSIZEERRMSG"
+    		pressanykeyrequest
+    		return 1
+    	fi
+    	return 0
+    fi
+}
+
+function manualnumberinput {
+	while true; do
+		read -s -n 1 schar
+		case $schar in
+		1|2|3|4|5|6|7|8|9|0)
+			numberstring+=$schar
+			echo -n "$schar"
+			;;
+		$'\000') #Enter
+			break
+			;;
+		$'\177') #Backspace
+			numberstring="${numberstring%?}"
+			echo -n -e "\b"
+			echo -n " "
+			echo -n -e "\b"
+			;;
+		$'\e')   #Escape
+			numberstring="0"
+			break
+			;;
+		esac
+	done
+	number=`expr $numberstring + 0`
+	return 0
+}
+
+function checkfontsize {
+	value="$@"
+	if [ $value -lt $MINFONTSIZE ] || [ $value -gt $MAXFONTSIZE ]; then
+		return 1
+	else
+		return 0
+	fi
+
+}
+
+function set_font {
+	new_theme="$@"
+	cp $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini.bak && sed -i "s/$(grep "gtk-font-name" $HOME/.config/gtk-3.0/settings.ini)/gtk-font-name=$new_theme/g" $HOME/.config/gtk-3.0/settings.ini
+	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-font-name" $HOME/.gtkrc-2.0)/gtk-font-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0	
+	STATUSVAR=$?
+	return $STATUSVAR
+}
+
+function choose_font {
+	new_font=""
+	font_size=0
+	CURRENTITEM=$(current_item_get "gtkfontname")
+	SELECTEDITEM=$(fc-list : family | tr , \\n | sort | uniq | fzf -e --reverse --prompt="< $CHOOSEFONTPROMPTMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG >")
+	if [ "$SELECTEDITEM" != "" ]; then
+		new_font="$SELECTEDITEM"
+		echo -e "$SELECTEDFONTMSG$SELECTEDITEM"
+		numberinputprocedure
+		STATUSVAR=$?
+		if [ $STATUSVAR -eq 1 ]; then
+			return $STATUSVAR
+		else
+			font_size=$number			
+			set_font $new_font $font_size
+			return $STATUSVAR
+		fi
+	fi
+	STATUSVAR=1
+	return $STATUSVAR
+}
+
+function toggle_dark_theme {
+	grep -q "gtk-application-prefer-dark-theme=" $HOME/.config/gtk-3.0/settings.ini || echo "gtk-application-prefer-dark-theme=1" >> $HOME/.config/gtk-3.0/settings.ini
+	STATUSVAR=$?
+	case $(awk -F= '/gtk-application-prefer-dark-theme/{print $2}' $HOME/.config/gtk-3.0/settings.ini) in
+		true) sed -i "s/gtk-application-prefer-dark-theme=true/gtk-application-prefer-dark-theme=false/g" $HOME/.config/gtk-3.0/settings.ini
+			;;
+		false) sed -i "s/gtk-application-prefer-dark-theme=false/gtk-application-prefer-dark-theme=true/g" $HOME/.config/gtk-3.0/settings.ini
+			;;
+		1) sed -i "s/gtk-application-prefer-dark-theme=1/gtk-application-prefer-dark-theme=0/g" $HOME/.config/gtk-3.0/settings.ini
+			;;
+		0) sed -i "s/gtk-application-prefer-dark-theme=0/gtk-application-prefer-dark-theme=1/g" $HOME/.config/gtk-3.0/settings.ini
+			;;
+	esac	
+	STATUSVAR+=$?
+	return $STATUSVAR
+}
+
+function main {
+    while true; do
+    clear
+    echo ""
+    echo -e "                           ::Appearance:: "
+    echo -e " ┌────────────────────────────────────────────────────────────────┐"
+    echo -e " │    1   Set gtk2 theme               2   Set gtk3 theme         │"
+    echo -e " │    3   Set font                     4   Set icon theme         │"
+    echo -e " │    5   Toggle dark theme            6   Set pointer theme      │"    
+    echo -e " │    7   Edit gtk2 settings           8   Edit gtk3 settings     │" 
+    echo -e " │    9   Edit Xresources                                         │"   
+    echo -e " └────────────────────────────────────────────────────────────────┘"
+    echo -e "          Select an item       -       0   Exit "
+    echo ""
+    read -s -n1 choix
+    case $choix in
+        1)
+            echo
+            choose_gtk2_theme
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$GTK2THEMEPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi            	
+            ;;
+        2)
+            echo
+            choose_gtk3_theme
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$GTK3THEMEPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            ;;
+        3)
+            echo
+            choose_font
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$FONTSETPREFIXMSG$SELECTEDITEM$FONTSIZESETMSG$font_size$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            ;;
+        4)
+            echo
+            choose_icon_theme
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$ICONTHEMEPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            ;;
+        5)
+            echo
+            toggle_dark_theme
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$TOGGLEDARKTHEMEMSG"
+            	pressanykeyrequest
+            fi
+            ;;
+        6)
+            echo
+            choose_pointer_theme
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$POINTERTHPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            ;;
+        7)
+            echo
+            $TEXTEDITOR $HOME/.gtkrc-2.0
+            echo ""
+            ;;
+        8)
+            echo
+            $TEXTEDITOR $HOME/.config/gtk-3.0/settings.ini
+            echo ""
+            ;;
+        9)
+            echo
+            $TEXTEDITOR $HOME/.Xresources
+            echo ""
+            ;;
+        0)
+            clear && exit
+            ;;
+        *)
+	    echo -e "$ERRORMSG$TRYAGAINMSG"
+	    read -s -n1
+	    clear
+	    ;;
+	esac
+	done
+}
+
+main
