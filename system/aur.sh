@@ -22,7 +22,7 @@ function user_check () {
 
 # Creating a aur user.
 if [[ $(user_check aurbuild) = false ]]; then
-    useradd -m -s -d "/aurbuild_temp" aurbuild
+    useradd -m -s -b '/' -d "aurbuild_temp" aurbuild
 fi
 mkdir -p "/aurbuild_temp"
 chmod 700 -R "/aurbuild_temp"
