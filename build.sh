@@ -892,23 +892,14 @@ make_packages_aur() {
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
     
-    # Install packages on airootfs
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "mkdir /aurbuild_temp" run
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "chmod 777 /aurbuild_temp" run
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "useradd -d /aurbuild_temp aurbuild" run
-    echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "${work_dir}/${arch}/airootfs/etc/sudoers.d/aurbuild"
+    # Build aur packages on airootfs
     local _aur_pkg
-    for _aur_pkg in ${pkglist_aur[@]}; do
-        echo  "cd ~ ; git clone https://aur.archlinux.org/${_aur_pkg}.git ; cd ${_aur_pkg} ; makepkg -cs " > "${work_dir}/${arch}/airootfs/aurbuild_temp/aur_build.sh"
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "chmod 777 /aurbuild_temp/aur_build.sh" run
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "sudo -u aurbuild /aurbuild_temp/aur_build.sh" run
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" \
-        -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/*.pkg.tar.*" install_file
-    done
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "userdel aurbuild" run
-    remove "${work_dir}/${arch}/airootfs/aurbuild_temp"
-    remove "${work_dir}/${arch}/airootfs/etc/sudoers.d/aurbuild"
+    if [[ -f "${work_dir}/${arch}/airootfs/root/aur.sh" ]]; then
+        chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
+    fi
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[@]}" run
 }
+
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
