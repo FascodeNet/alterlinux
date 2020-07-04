@@ -1257,6 +1257,12 @@ make_prepare() {
     fi
 }
 
+# Compress tarball
+make_tarball() {
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.gz"
+    _msg_info "The password for the live user and root is ${password}."
+}
+
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
@@ -1267,7 +1273,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1381,7 +1387,11 @@ while :; do
         --noloopmod)
             noloopmod=true
             shift 1
-        ;;
+            ;;
+        --tarball)
+            tarball=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1586,6 +1596,7 @@ check_bool msgdebug
 check_bool customized_username
 check_bool noloopmod
 check_bool nochname
+#check_bool tarball
 
 if [[ "${debug}" =  true ]]; then
     echo
@@ -1608,6 +1619,9 @@ run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
 run_once make_prepare
+#if [[ "${tarball}" = true ]]; then
+    run_once make_tarball
+#fi
 run_once make_iso
 
 if [[ ${cleaning} = true ]]; then
