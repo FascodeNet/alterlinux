@@ -528,6 +528,7 @@ prepare_build() {
         save_var mkalteriso
         save_var shmkalteriso
         save_var mkalteriso_option
+        save_var tarball
 
         write_rebuild_file "\n# Live User Info"
         save_var username
