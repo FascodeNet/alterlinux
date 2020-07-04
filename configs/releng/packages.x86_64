@@ -30,6 +30,7 @@ ipw2200-fw
 irssi
 iwd
 jfsutils
+kitty-terminfo
 lftp
 linux-atm
 linux-firmware
@@ -59,12 +60,14 @@ reiserfsprogs
 rp-pppoe
 reflector
 rsync
+rxvt-unicode-terminfo
 sdparm
 sg3_utils
 smartmontools
 sudo
 systemd-resolvconf
 tcpdump
+termite-terminfo
 testdisk
 usb_modeswitch
 usbutils
