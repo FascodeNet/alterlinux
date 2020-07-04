@@ -564,10 +564,6 @@ prepare_build() {
         save_var defaultusername
         save_var customized_username
     else
-        # Load rebuild file
-        load_config "${rebuildfile}"
-        _msg_debug "Iso filename is ${iso_filename}"
-        
         if [[ "${channel_name}" = "rebuild" ]]; then
             # Delete the lock file.
             remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -575,6 +571,10 @@ prepare_build() {
             # reset work
             remove_work
         fi
+    
+        # Load rebuild file
+        load_config "${rebuildfile}"
+        _msg_debug "Iso filename is ${iso_filename}"
     fi
     
     
