@@ -17,6 +17,9 @@ thunderbird
 thunar
 file-roller
 
+# software manager
+pamac
+
 # office
 libreoffice-still
 

@@ -61,7 +61,7 @@ bindsym $mod+Shift+q kill
 bindsym Mod4+Escape exec --no-startup-id i3lock -k
 
 # polybar theme setting manager
-bindsym $mod+Shift+s exec --no-startup-id ~/.config/alterlinux-i3-theme-settingmanager/alterlinux-i3-theme-settingmanager
+bindsym $mod+Shift+s exec --no-startup-id alterlinux-i3-manager
 
 # bmenu (system setting manager)
 bindsym $mod+b exec --no-startup-id sakura -e bmenu
