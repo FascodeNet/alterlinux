@@ -8,6 +8,22 @@
 #
 set -e -u
 
+# Delete file only if file exists
+# remove <file1> <file2> ...
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+        echo "${_file} was deleted."
+    done
+}
+
 # user_check <name>
 function user_check () {
     if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
