@@ -385,7 +385,7 @@ load_config() {
 # 作業ディレクトリを削除
 remove_work() {
     if [[ -d "${work_dir}" ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make")"
+        remove "$(ls ${work_dir}/* | grep "build.make" 2> /dev/null)"
         remove "${work_dir}"/pacman-*.conf
         remove "${work_dir}/efiboot"
         remove "${work_dir}/iso"
