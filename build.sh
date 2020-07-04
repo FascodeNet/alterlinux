@@ -917,7 +917,7 @@ make_customize_airootfs() {
     copy_airootfs() {
         local i
         for i in "${@}"; do
-            local _dir="${1%/}"
+            local _dir="${i%/}"
             if [[ -d "${_dir}" ]]; then
                 cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
             fi
