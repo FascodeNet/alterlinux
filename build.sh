@@ -1596,7 +1596,7 @@ check_bool msgdebug
 check_bool customized_username
 check_bool noloopmod
 check_bool nochname
-#check_bool tarball
+check_bool tarball
 
 if [[ "${debug}" =  true ]]; then
     echo
