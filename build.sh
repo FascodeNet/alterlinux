@@ -894,9 +894,10 @@ make_packages_aur() {
     
     # Build aur packages on airootfs
     local _aur_pkg
-    if [[ -f "${work_dir}/${arch}/airootfs/root/aur.sh" ]]; then
-        chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
-    fi
+
+    cp -r "${script_path}/system/aur.sh" "${work_dir}/${arch}/airootfs/root/aur.sh"
+    chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
+    
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[@]}" run
 }
 
