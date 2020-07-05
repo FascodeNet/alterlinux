@@ -390,7 +390,7 @@ command_tarball () {
 
     local tar_path="$(realpath ${out_dir})/${tarball_name}"
 
-    cd "${work_dir}/${arch}/airootfs"
+    cd "${work_dir}/${arch}/airootfs-tarball"
 
     # tar.xz
     tar -J -p -c ${_vflag} -f "${tar_path}" ./*

@@ -1150,7 +1150,17 @@ make_efiboot() {
 
 # Compress tarball
 make_tarball() {
+    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}/${arch}/airootfs-tarball"
+
+    if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
+        chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+    fi
+
+    arch-chroot "${work_dir}/${arch}/airootfs-tarball" "/root/optimize_for_tarball.sh -u ${username}"
+
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
+
+    remove "${work_dir}/${arch}/airootfs-tarball"
 }
 
 # Build airootfs filesystem image
