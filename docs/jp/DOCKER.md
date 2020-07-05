@@ -2,7 +2,7 @@
 dockerがインストール済みのLinux環境で行ってください。
 
 ```bash
-git clone https://github.com/SereneTeam/alterlinux.git
+git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
 sudo ./docker-build.sh
 ```

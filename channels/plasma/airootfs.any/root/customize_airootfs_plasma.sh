@@ -61,15 +61,17 @@ if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
 fi
 
 
-# Snap
-systemctl enable snapd.apparmor.service
-systemctl enable apparmor.service
-systemctl enable snapd.socket
-systemctl enable snapd.service
+if [[ "${arch}" = "x86_64" ]]; then
+    # Snap
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
 
 
-# firewalld
-systemctl enable firewalld.service
+    # firewalld
+    systemctl enable firewalld.service
+fi
 
 
 # Disable services.

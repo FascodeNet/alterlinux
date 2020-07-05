@@ -35,7 +35,7 @@ htop
 
 
 #-- pacman --#
-pamac-gtk
+pamac-aur
 
 
 #-- printer --#
@@ -50,5 +50,6 @@ vim
 
 #-- other --#
 arandr
+ipad_charge
 snapd
 tlpui
