@@ -1151,7 +1151,6 @@ make_efiboot() {
 # Compress tarball
 make_tarball() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
-    _msg_info "The password for the live user and root is ${password}."
 }
 
 # Build airootfs filesystem image
