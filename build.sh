@@ -253,6 +253,7 @@ _usage () {
     echo "    --noconfirm                  No check the settings before building."
     echo "    --noloopmod                  No check and load kernel module automatically."
     echo "    --nodepend                   No check package dependencies before building."
+    echo "    --noiso                      No build iso image. (Use with --tarball)"
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
     echo "A list of kernels available for each architecture."
@@ -1186,7 +1187,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1303,6 +1304,10 @@ while :; do
             ;;
         --tarball)
             tarball=true
+            shift 1
+            ;;
+        --noiso)
+            noiso=true
             shift 1
             ;;
         --)
@@ -1510,6 +1515,7 @@ check_bool customized_username
 check_bool noloopmod
 check_bool nochname
 check_bool tarball
+check_bool noiso
 
 if [[ "${debug}" =  true ]]; then
     echo
@@ -1533,9 +1539,10 @@ run_once make_efiboot
 if [[ "${tarball}" = true ]]; then
     run_once make_tarball
 fi
-run_once make_prepare
-run_once make_iso
-
+if [ "${noiso}" = false ]; then
+    run_once make_prepare
+    run_once make_iso
+fi
 if [[ ${cleaning} = true ]]; then
     remove_work
 fi
