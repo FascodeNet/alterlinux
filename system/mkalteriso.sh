@@ -379,21 +379,12 @@ command_tarball () {
         _vflag="-v"
     fi
 
-    local tar_options
-    tar_options="-p -c ${_vflag} -f '$(realpath ${out_dir})/${tarball_name}'"
-
-    cd "${work_dir}/${arch}/airootfs"
-
-
-    # tar.gz
-    #tar -z ${tar_options} *
+    #cd "${work_dir}/${arch}/airootfs"
 
     # tar.xz
-    tar -J ${tar_options} *
+    tar -J -p -c ${_vflag} -f "$(realpath ${out_dir})/${tarball_name}" "${work_dir}/${arch}/airootfs/"*
 
-
-    cdback
-
+    #cdback
     _msg_info "Done! | $(ls -sh $(realpath ${out_dir})/${tarball_name})"
 }
 
