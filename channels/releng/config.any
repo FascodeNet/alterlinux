@@ -52,3 +52,7 @@ japanese=false
 
 # Set the user's default shell.
 usershell="/bin/zsh"
+
+# Do not install the AUR package.
+# This setting cannot be changed by an argument.
+noaur=true
