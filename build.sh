@@ -883,7 +883,7 @@ make_packages_aur() {
     )
     set -e
     
-    # _msg_debug "${pkglist[@]}"
+    # _msg_debug "${pkglist_aur[@]}"
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
@@ -899,14 +899,10 @@ make_packages_aur() {
     chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
     cp -r "${script_path}/system/aur_remove.sh" "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
     chmod 755 "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
-    local _aur_packages_ls_str
-    _aur_packages_ls_str=""
-    for _pkg24 in ${pkglist_aur[@]}; do
-        _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg24}"
-    done
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${_aur_packages_ls_str}" run
+
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
   
-    for _pkg22 in ${pkglist_aur[@]}; do
+    for _pkg in ${pkglist_aur[@]}; do
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg22}/*.pkg.tar.*" install_file
     done
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
