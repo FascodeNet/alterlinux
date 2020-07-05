@@ -897,8 +897,19 @@ make_packages_aur() {
 
     cp -r "${script_path}/system/aur.sh" "${work_dir}/${arch}/airootfs/root/aur.sh"
     chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
-    
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[@]}" run
+    cp -r "${script_path}/system/aur_remove.sh" "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
+    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
+    local _aur_packages_ls_str
+    _aur_packages_ls_str=""
+    for _pkg24 in ${pkglist_aur[@]}; do
+        _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg24}"
+    done
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${_aur_packages_ls_str}" run
+  
+    for _pkg22 in ${pkglist_aur[@]}; do
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg22}/*.pkg.tar.*" install_file
+    done
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
 
 # Customize installation (airootfs)
