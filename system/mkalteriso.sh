@@ -379,13 +379,15 @@ command_tarball () {
         _vflag="-v"
     fi
 
-    #cd "${work_dir}/${arch}/airootfs"
+    local tar_path="$(realpath ${out_dir})/${tarball_name}"
+
+    cd "${work_dir}/${arch}/airootfs"
 
     # tar.xz
-    tar -J -p -c ${_vflag} -f "$(realpath ${out_dir})/${tarball_name}" "${work_dir}/${arch}/airootfs/"*
+    tar -J -p -c ${_vflag} -f "${tar_path}" "./*"
 
-    #cdback
-    _msg_info "Done! | $(ls -sh $(realpath ${out_dir})/${tarball_name})"
+    cdback
+    _msg_info "Done! | $(ls -sh ${tar_path})"
 }
 
 # create airootfs.sfs filesystem, and push it in "iso" directory.
