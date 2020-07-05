@@ -1522,9 +1522,9 @@ run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
 run_once make_prepare
-#if [[ "${tarball}" = true ]]; then
+if [[ "${tarball}" = true ]]; then
     run_once make_tarball
-#fi
+fi
 run_once make_iso
 
 if [[ ${cleaning} = true ]]; then
