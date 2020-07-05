@@ -7,8 +7,14 @@
 # 
 # locale list
 #
-# <locale name> <locale.gen> <archlinux mirror>
+# <locale name> <locale.gen> <archlinux mirror> <lang version name> <timezone>
 #
 
-ja      ja_JP.UTF-8      jp
-en      en_US.UTF-8      us
+# Global version
+gl      en_US.UTF-8      all    gl     UTC
+
+# Japanese
+ja      ja_JP.UTF-8      jp     ja     Asia/Tokyo
+
+# English
+en      en_US.UTF-8      us     en     UTC

@@ -1248,6 +1248,11 @@ make_efiboot() {
     umount -d "${work_dir}/efiboot"
 }
 
+# Compress tarball
+make_tarball() {
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
+}
+
 # Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
@@ -1259,12 +1264,6 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${work_dir}/${arch}/airootfs"
     fi
-}
-
-# Compress tarball
-make_tarball() {
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.gz"
-    _msg_info "The password for the live user and root is ${password}."
 }
 
 # Build ISO
@@ -1622,10 +1621,10 @@ run_once make_syslinux
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
-run_once make_prepare
 if [[ "${tarball}" = true ]]; then
     run_once make_tarball
 fi
+run_once make_prepare
 run_once make_iso
 
 if [[ ${cleaning} = true ]]; then
