@@ -256,10 +256,24 @@ _usage () {
     echo "    --noiso                      No build iso image. (Use with --tarball)"
     echo "    --shmkalteriso               Use the shell script version of mkalteriso."
     echo
-    echo "A list of kernels available for each architecture."
-    echo
-    local kernel
+    echo "A list of available languages"
+    local lang
     local list
+    local alteriso_lang_list
+    for list in ${script_path}/system/locale-* ; do
+        echo " ${list#${script_path}/system/locale-}:"
+        echo -n "    "
+        alteriso_lang_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
+        for lang in ${alteriso_lang_list[@]};do
+            echo -n "${lang} "
+        done
+        echo
+    done
+    echo
+    echo "A list of kernels available for each architecture"
+    #echo
+    local kernel
+
     for list in ${script_path}/system/kernel_list-* ; do
         echo " ${list#${script_path}/system/kernel_list-}:"
         echo -n "    "
@@ -270,7 +284,7 @@ _usage () {
     done
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
-    echo
+    #echo
     echo " Channel:"
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
