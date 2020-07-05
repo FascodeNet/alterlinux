@@ -1235,7 +1235,7 @@ while :; do
         ;;
         -j | --japanese)
             _msg_error "This option is obsolete in AlterISO 3."
-            _msg_error "To use Japanese, use \"-g ja_JP.UTF-8\"." '1'
+            _msg_error "To use Japanese, use \"-g ja\"." '1'
         ;;
         -k | --kernel)
             if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
