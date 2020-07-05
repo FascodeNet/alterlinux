@@ -291,19 +291,28 @@ _mkchecksum () {
     _msg_info "Done!"
 }
 
-_mkisochecksum() {
+_checksum_common() {
+    local name="${1}"
     _msg_info "Creating md5 checksum ..."
     cd "${out_dir}"
-    md5sum "${img_name}" > "${img_name}.md5"
+    md5sum "${name}" > "${name}.md5"
     cdback
     # _msg_info "Done!"
 
 
     _msg_info "Creating sha256 checksum ..."
     cd "${out_dir}"
-    sha256sum "${img_name}" > "${img_name}.sha256"
+    sha256sum "${name}" > "${name}.sha256"
     cdback
     # _msg_info "Done!"
+}
+
+_mkisochecksum() {
+    _checksum_common "${img_name}"
+}
+
+_mktarchecksum() {
+    _checksum_common "${tarball_name}"
 }
 
 _mksignature () {
@@ -387,6 +396,8 @@ command_tarball () {
     tar -J -p -c ${_vflag} -f "${tar_path}" ./*
 
     cdback
+
+    _mktarchecksum
     _msg_info "Done! | $(ls -sh ${tar_path})"
 }
 
