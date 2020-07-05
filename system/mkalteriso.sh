@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+ #!/usr/bin/env bash
 #
 # mkalteriso
 #
@@ -379,10 +379,10 @@ command_tarball () {
     fi
 
     # tar.gz
-    #tar -z -c ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/${arch}/airootfs"
+    #tar -z -C "${work_dir}/${arch}/airootfs/" -c ${_vflag} -f "${out_dir}/${tarball_name}" *
 
     # tar.xz
-    tar -J -c ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/${arch}/airootfs"
+    tar -J -C "${work_dir}/${arch}/airootfs/" -c ${_vflag} -f "${out_dir}/${tarball_name}" *
 
     _msg_info "Done! | $(ls -sh ${out_dir}/${tarball_name})"
 }
