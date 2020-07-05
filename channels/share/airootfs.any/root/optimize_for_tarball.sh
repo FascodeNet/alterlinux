@@ -37,8 +37,8 @@ remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
 
-if [[ -f /"etc/systemd/journald.conf" ]]; then
-    sed -i 's/Storage=volatile/#Storage=volatile/g' journald.conf
+if [[ -f "/etc/systemd/journald.conf" ]]; then
+    sed -i 's/Storage=volatile/#Storage=volatile/g' "/etc/systemd/journald.conf"
 fi
 
 remove /etc/udev/rules.d/81-dhcpcd.rules
