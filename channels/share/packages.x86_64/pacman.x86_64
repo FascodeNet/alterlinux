@@ -16,7 +16,7 @@ yay-bin
 
 
 #-- gui frontend--#
-eg-installer
+#eg-installer
 
 
 #-- keyring --#
