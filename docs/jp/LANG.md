@@ -26,16 +26,16 @@ en      en_US.UTF-8      US     en     UTC
 ## 基本構文とコメント
 `#`から始まる行はコメントとして扱われます。データは空白で区切られ、左からデータの内容が決められています。  
 
-## <locale name>
+## locale name
 `locale_name`は言語用パッケージの一覧やビルド時の指定で使用されます。基本的に制限はありませんが、わかりやすく短い名前がいいでしょう。  
 言語名が重複することはスクリプトで考慮されていないので重複は絶対に避けて下さい。  
 
-## <locale.gen>
+## locale.gen
 `/etc/locale.gen`でコメントアウトする値です。後半の部分（`ja_JP.UTF-8 UTF-8`の` UTF-8`の部分）は記述しないで下さい。  
   
-## <archlinux mirror>
+## archlinux mirror
 [Mirrorlist Generator](https://www.archlinux.org/mirrorlist/)のURLの`/?country=`の後の文字列です。  
 ArchLinux32とArchLinuxでは文字列が異なるので注意してください。  
 
-## <lang version name>
+## lang version name
 イメージファイルのファイル名に使用される言語の名前です。よほどの事情が無い限り`locale name`と同じで良いでしょう。  
