@@ -3,7 +3,7 @@
 初期ではパッケージの切り替えしかできませんでしたが、現在は大幅に仕様が変更され、様々な変更をチャンネルごとに行うことができます。
 
 
-以下は2020年4月14日現在でのチャンネルの仕様です。　　
+以下は2020年7月5日現在でのチャンネルの仕様です。  
 
 
 # スクリプトにチャンネルを認識させる
@@ -67,17 +67,17 @@
 また、`airootfs.any`と各アーキテクチャ用のディレクトリでは各アーキテクチャ用のものが優先されます。  
 以下は`airootfs`のコピーされる順番を示しています。要約すると左が一番優先されず、右が優先されます。  
   
-`share/airootfs.any` -> `share/airootfs.<architecture>` -> `<channel_name>/airootfs.any` -> `<channel_name>/airootfs.<architecture>`
+`share/airootfs.any` -> `share/airootfs.<arch>` -> `<ch_name>/airootfs.any` -> `<ch_name>/airootfs.<arch>`
 
 
 ## customize_airootfs.sh
-各チャンネルの`airootfs`で、`/root/customize_airootfs_<channel_name>.sh`というファイルが配置された場合、ビルドスクリプトは、`customize_airootfs.sh`が実行された後にそのスクリプトを実行します。  
+各チャンネルの`airootfs`で、`/root/customize_airootfs_<ch_name>.sh`というファイルが配置された場合、ビルドスクリプトは、`customize_airootfs.sh`が実行された後にそのスクリプトを実行します。  
 （`customize_airootfs.sh`は`share`チャンネルの`airootfs.any`によって配置されるため、各チャンネルで自由に上書きすることができます。）
 もしrootfsの設定を変更したい場合、このファイルを作成して下さい。
  
 
 ## packagesから始まるディレクトリ
-このディレクトリ内に配置された、ファイル名が`.<architecture>`で終わるがパッケージリストとして読み込まれます。  
+このディレクトリ内に配置された、ファイル名が`.<arch>`で終わるがパッケージリストとして読み込まれます。  
 1行で1つのパッケージとして扱い、`#`から始まる行はコメントとして扱われます。  
 
 パッケージ名やパッケージリストのファイル名に空白文字や全角文字を含めると正常に動作しない可能性があります。
@@ -94,9 +94,10 @@
 
 
 ### 特殊なパッケージリスト
-特殊なパッケージリストとして、`jp.<architecture>`と`non-jp.<architecture>`があります。  
-`-j`オプションによって日本語が有効化されている時、スクリプトは`jp.<architecture>`を読み込みます。  
-反対に日本語が有効化されていない場合、スクリプトは`non-jp.<architecture>`を使用します。  
+AlterISO 3になって、以前の`jp.<arch>`と`non-jp.<arch>`は廃止されました。  
+これからは`packages.<arch>/lang/<locale>.<arch>`が各言語用のパッケージファイルになります。  
+各言語用のパッケージファイルはその言語がビルド時に有効化された場合にのみインストールされるパッケージの一覧です。  
+言語名に関する詳細は[こちら](LANG.md)をご覧ください。  
 
 
 ### 除外リスト
@@ -120,29 +121,29 @@ Plymouthを強制的に無効化したい場合は`exclude`ではなく各チャ
 `exclude`はパッケージが全て読み込まれた後に適用されます。  
   
 パッケージが読み込まれる順番は以下のとおりです、
-`share/packages.<architecture>` -> `<channel_name>/packages.<architecture>`  
+`share/packages.<arch>` -> `<ch_name>/packages.<arch>`  
   
 その後に以下の順番でexcludeが読み込まれ、パッケージが除外されます。  
-`share/packages.<architecture>/exclude` -> `<channel_name>/packages.<architecture>`
+`share/packages.<arch>/exclude` -> `<ch_name>/packages.<arch>`
 
 
 ## description.txt
-これはチャンネルの説明を記述したテキストファイルです。`channels/<channel_name>/description.txt`に配置されます。  
+これはチャンネルの説明を記述したテキストファイルです。`channels/<ch_name>/description.txt`に配置されます。  
 このファイルは必須ではありません。このファイルが無い場合、ヘルプには`This channel does not have a description.txt.`と表示されます。  
 
 このファイルは1行で記述することが推奨されています。複数行を記述する必要がある場合、テキストのレイアウトを考えて2行目以降は先頭に19個の半角空白文字を入れたほうが良いでしょう。  
   
 
 ## pacman.conf
-`channels/<channel_name>/pacman-<architecture>.conf`を配置すると、ビルド時にそのファイルを使用します。ただし、インストール後の設定ファイルは置き換えないので`airootfs`で`/etc/pacman.conf`を配置して下さい。
+`channels/<ch_name>/pacman-<arch>.conf`を配置すると、ビルド時にそのファイルを使用します。ただし、インストール後の設定ファイルは置き換えないので`airootfs`で`/etc/pacman.conf`を配置して下さい。
 
 
 ## splash.png
-`channels/<channel_name>/splash.png`を配置すると、SYSLINUXのブートローダの背景を変更することができます。  
+`channels/<ch_name>/splash.png`を配置すると、SYSLINUXのブートローダの背景を変更することができます。  
 PNG形式の画像で640x480の画像を配置してください。
 
 
-## config.<architecture>
+## config.<arch>
 既存のビルド設定を上書きするスクリプトです。かならずシェルスクリプトの構文で記述して下さい。  
 雛形が`build.sh`と同じ階層に設置してあります。  
 この設定ファイルは**引数による設定さえ**上書きしてしまうため、最小限の必須項目のみを記述するようしてください。（例えばPlymouthのテーマ名やパッケージ名など）  
@@ -151,7 +152,7 @@ PNG形式の画像で640x480の画像を配置してください。
 スクリプト内ではローカル変数の定義以外を絶対に行わないで下さい。グローバル変数の定義やその他のコマンドの実効は思わぬ動作につながる危険性が有ります。
 
 ### アーキテクチャごとの設定と優先順位
-`channels/<channel_name>/config.any`が読み込まれた後`channels/<channel_name>/config.<architecture>`が読み込まれます。
+`channels/<ch_name>/config.any`が読み込まれた後`channels/<ch_name>/config.<arch>`が読み込まれます。
 
 
 ## architecture
