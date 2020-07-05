@@ -377,7 +377,13 @@ command_tarball () {
     if [[ ${quiet} == "n" ]]; then
         _vflag="-v"
     fi
-    tar -zc ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/${arch}/airootfs"
+
+    # tar.gz
+    #tar -z -c ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/${arch}/airootfs"
+
+    # tar.xz
+    tar -J -c ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/${arch}/airootfs"
+
     _msg_info "Done! | $(ls -sh ${out_dir}/${tarball_name})"
 }
 
