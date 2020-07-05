@@ -826,6 +826,106 @@ make_packages() {
     # Install packages on airootfs
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkglist[@]}" install
 }
+make_packages_aur() {
+    # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
+    set +e
+    local _loadfilelist
+    local _pkg
+    local _file
+    local excludefile
+    local excludelist
+    local _pkglist
+    
+    #-- Detect package list to load --#
+    # Add the files for each channel to the list of files to read.
+    _loadfilelist=(
+        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${language}.${arch}
+        $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${script_path}"/channels/share/packages_aur.${arch}/lang/${language}.${arch}
+    )
+
+
+    #-- Read package list --#
+    # Read the file and remove comments starting with # and add it to the list of packages to install.
+    for _file in ${_loadfilelist[@]}; do
+        if [[ -f "${_file}" ]]; then
+            _msg_debug "Loaded aur package file ${_file}."
+            pkglist_aur=( ${pkglist_aur[@]} "$(grep -h -v ^'#' ${_file})" )
+        fi
+    done
+    if [[ ${debug} = true ]]; then
+        sleep 1
+    fi
+    
+    #-- Read exclude list --#
+    # Exclude packages from the share exclusion list
+    excludefile=(
+        "${script_path}/channels/share/packages_aur.${arch}/exclude"
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
+    )
+
+    for _file in ${excludefile[@]}; do
+        if [[ -f "${_file}" ]]; then
+            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        fi
+    done
+
+    # 現在のpkglistをコピーする
+    _pkglist=(${pkglist[@]})
+    unset pkglist
+    for _pkg in ${_pkglist[@]}; do
+        # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
+        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+            pkglist=(${pkglist[@]} "${_pkg}")
+        fi
+    done
+
+    if [[ -n "${excludelist[*]}" ]]; then
+        _msg_debug "The following packages have been removed from the aur list."
+        _msg_debug "Excluded packages:" "${excludelist[@]}"
+    fi
+
+
+    # Sort the list of packages in abc order.
+    pkglist_aur=(
+        "$(
+            for _pkg in ${pkglist_aur[@]}; do
+                echo "${_pkg}"
+            done \
+            | sort
+        )"
+    )
+    set -e
+    
+    # _msg_debug "${pkglist[@]}"
+    
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
+    echo >> "${work_dir}/packages.list"
+    for _pkg in ${pkglist_aur[@]}; do
+        echo ${_pkg} >> "${work_dir}/packages.list"
+    done
+    
+    # Build aur packages on airootfs
+    local _aur_pkg
+
+    cp -r "${script_path}/system/aur.sh" "${work_dir}/${arch}/airootfs/root/aur.sh"
+    chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
+    cp -r "${script_path}/system/aur_remove.sh" "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
+    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
+    local _aur_packages_ls_str
+    _aur_packages_ls_str=""
+    for _pkg in ${pkglist_aur[@]}; do
+        _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg}"
+    done
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${_aur_packages_ls_str}" run
+  
+    for _pkg in ${pkglist_aur[@]}; do
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
+    done
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
+}
 
 # Customize installation (airootfs)
 make_customize_airootfs() {
@@ -1535,6 +1635,7 @@ check_bool noloopmod
 check_bool nochname
 check_bool tarball
 check_bool noiso
+check_bool noaur
 
 if [[ "${debug}" =  true ]]; then
     echo
@@ -1547,6 +1648,9 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
+if [[ "${noaur}" = false ]]; then
+    run_once make_packages_aur
+fi
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 run_once make_boot
