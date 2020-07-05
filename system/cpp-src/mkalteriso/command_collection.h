@@ -19,6 +19,7 @@ public:
     int command_run();
     int command_prepare();
     int command_pkglist();
+    int command_tarball(QString);
     int command_iso(QString);
     void force_umount();
 private:
@@ -43,7 +44,7 @@ private:
     int _mkairootfs_sfs();
     void _mkchecksum();
     void _mksignature();
-    void _mkisochecksum() ;
+    void _checksum_common(QString) ;
     void _msg_infodbg(QString);
     int _mkairootfs_img();
     int _mount_airootfs();

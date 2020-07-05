@@ -69,6 +69,25 @@ int command_collection::command_run(){
     return _chroot_run();
 
 }
+int command_collection::command_tarball(QString tarfile_name){
+
+    QDir Outdir(bskun->get_out_dir());
+    if(!Outdir.exists()){
+        Outdir.cdUp();
+        Outdir.mkdir(bskun->get_out_dir());
+    }
+    _msg_info("Creating tarball...");
+    QString _vflag="";
+    if(!bskun->get_quiet() || bskun->get_debug_mode()){
+        _vflag="v";
+    }
+    QString tar_filepath=Outdir.path() + "/" + tarfile_name;
+    QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/" + bskun->get_architecture() + "/airootfs-tarball/*";
+    system(tar_cmd.toUtf8().data());
+    _checksum_common(tar_filepath);
+    _msg_success("Done! " + tar_filepath);
+    return 0;
+}
 int command_collection::_cleanup(){
     if(bskun == nullptr) return 456;//nullptr
     QDir bootkun(bskun->get_work_dir() + "/airootfs/boot");
@@ -481,17 +500,17 @@ int command_collection::command_iso(QString iso_name){
         _msg_err(QString("xorriso! \n") + QString("Error code : ") + QString::number(ret));
         return 2;
     }
-    _mkisochecksum();
+    _checksum_common(img_name);
     _msg_success("Done! " + bskun->get_out_dir() + "/" + img_name);
     return 0;
 }
-void command_collection::_mkisochecksum(){
+void command_collection::_checksum_common(QString sum_file){
     _msg_info("Creating md5 checksum ...");
-    QString md5_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + img_name + "\"\ncd \"${out_dir}\"\nmd5sum \"${img_name}\" > \"${img_name}.md5\"";
+    QString md5_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + sum_file + "\"\ncd \"${out_dir}\"\nmd5sum \"${img_name}\" > \"${img_name}.md5\"";
     _msg_infodbg(md5_cmdkun);
     system(md5_cmdkun.toUtf8().data());
     _msg_info("Creating sha256 checksum ...");
-    QString sha256_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + img_name + "\"\ncd \"${out_dir}\"\nsha256sum \"${img_name}\" > \"${img_name}.sha256\"";
+    QString sha256_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + sum_file + "\"\ncd \"${out_dir}\"\nsha256sum \"${img_name}\" > \"${img_name}.sha256\"";
     _msg_infodbg(sha256_cmdkun);
     system(sha256_cmdkun.toUtf8().data());
 

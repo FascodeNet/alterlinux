@@ -95,14 +95,13 @@ void AppMain::run()
     parser.addPositionalArgument("command","command");
     parser.addPositionalArgument("<command options>","command option");
     if(app->arguments().count() == 1 ){
-        std::wcout << parser.helpText().toStdWString() << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir" << std::endl;
+        std::wcout << parser.helpText().toStdWString() << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir\n\ttarball <file name>\n\tBuild a tarball from the working dir." << std::endl;
         app->exit(1);
         return;
     }
-    
-    parser.process(app->arguments());build_setting_obj.set_pacman_conf(parser.value(option_file_pacman));
     if(parser.isSet(option_help1)){
-        std::wcout << parser.helpText().toStdWString() << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir" << std::endl;
+        parser.process(app->arguments());build_setting_obj.set_pacman_conf(parser.value(option_file_pacman));
+        std::wcout << parser.helpText().toStdWString() << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir\n\ttarball <file name>\n\tBuild a tarball from the working dir." << std::endl;
         app->exit(1);
         return;
     }
@@ -159,12 +158,23 @@ void AppMain::run()
     if(parser.positionalArguments().at(0)=="iso"){
         if(parser.positionalArguments().count() == 1){
             std::wcerr << "No image specified" << std::endl;
-            std::wcerr << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir" << std::endl;
+            std::wcerr << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir\n\ttarball <file name>\n\tBuild a tarball from the working dir." << std::endl;
 
             app->exit(1);
             return;
         }
         app->exit(cmd_collect.command_iso(parser.positionalArguments().at(1)));
+        return;
+    }
+    if(parser.positionalArguments().at(0) == "tarball"){
+        if(parser.positionalArguments().count() == 1){
+            std::wcerr << "No Tarball" << std::endl;
+            std::wcerr << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir\n\ttarball <file name>\n\tBuild a tarball from the working dir." << std::endl;
+
+            app->exit(1);
+            return;
+        }
+        app->exit(cmd_collect.command_tarball(parser.positionalArguments().at(1)));
         return;
     }
     app->exit();
