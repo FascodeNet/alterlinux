@@ -50,6 +50,7 @@ void AppMain::run()
     build_setting_obj.set_iso_application("Alter Linux Live/Rescue CD");
     build_setting_obj.set_quiet(true);
     build_setting_obj.set_use_gpg_key(false);
+    build_setting_obj.set_wsl(false);
     time_t     now;
     struct tm  *ts;
     char       buf[80];
@@ -78,6 +79,7 @@ void AppMain::run()
     QCommandLineOption option_verbose("v","verbose");
     QCommandLineOption option_debug("d","debug");
     QCommandLineOption option_x("x","x");
+    QCommandLineOption option_wsl(QStringList() << "wsl","for wsl");
     QCommandLineOption option_gpg_key("g","gpg key","gpg key");
     QCommandLineOption option_help1(QStringList() << "h" << "help" << "?","help");
     
@@ -89,6 +91,7 @@ void AppMain::run()
     parser.addOption(option_commands);
     parser.addOption(option_debug);
     parser.addOption(option_help1);
+    parser.addOption(option_wsl);
 
     QCommandLineParser commandkun_parser;
     commandkun_parser.setApplicationDescription("command");
@@ -99,8 +102,10 @@ void AppMain::run()
         app->exit(1);
         return;
     }
+
+    parser.process(app->arguments());
+    build_setting_obj.set_pacman_conf(parser.value(option_file_pacman));
     if(parser.isSet(option_help1)){
-        parser.process(app->arguments());build_setting_obj.set_pacman_conf(parser.value(option_file_pacman));
         std::wcout << parser.helpText().toStdWString() << "Commands:\n\tinit\n\t\tMake base layout and install base group\n\tinstall\n\t\tInstall all specified packages (-p)\n\tinstall_file\n\t\tInstall all specified file packages (-p)\n\trun\n\t\trun command specified by -r\n\tprepare\n\t\tbuild all images\n\tpkglist\n\t\tmake a pkglist.txt of packages installed on airootfs\n\tiso <image name>\n\t\tbuild an iso image from the working dir\n\ttarball <file name>\n\tBuild a tarball from the working dir." << std::endl;
         app->exit(1);
         return;
@@ -127,6 +132,9 @@ void AppMain::run()
     if(parser.isSet(option_gpg_key)){
         build_setting_obj.set_use_gpg_key(true);
         build_setting_obj.set_gpg_key(parser.value(option_gpg_key));
+    }
+    if(parser.isSet(option_wsl)){
+        build_setting_obj.set_wsl(true);
     }
     build_setting_obj.set_command_args(parser.positionalArguments());
     cmd_collect.set_build_setting(&build_setting_obj);

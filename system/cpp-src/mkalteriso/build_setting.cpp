@@ -113,3 +113,9 @@ bool build_setting::get_debug_mode(){
 void build_setting::set_debug_mode(bool b){
     debug_mode=b;
 }
+bool build_setting::get_wsl(){
+    return enable_wsl;
+}
+void build_setting::set_wsl(bool blkun){
+    enable_wsl=blkun;
+}
