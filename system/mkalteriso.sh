@@ -384,7 +384,7 @@ command_tarball () {
     cd "${work_dir}/${arch}/airootfs"
 
     # tar.xz
-    tar -J -p -c ${_vflag} -f "${tar_path}" "./*"
+    tar -J -p -c ${_vflag} -f "${tar_path}" ./*
 
     cdback
     _msg_info "Done! | $(ls -sh ${tar_path})"
