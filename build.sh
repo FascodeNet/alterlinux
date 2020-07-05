@@ -1600,6 +1600,7 @@ check_bool customized_username
 check_bool noloopmod
 check_bool nochname
 check_bool tarball
+check_bool noaur
 
 if [[ "${debug}" =  true ]]; then
     echo
@@ -1612,7 +1613,9 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-run_once make_packages_aur
+if [[ "${noaur}" = false ]]; then
+    run_once make_packages_aur
+fi
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 run_once make_boot
