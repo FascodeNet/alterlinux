@@ -47,9 +47,9 @@ echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 
 # Build and install
-remove "/aurbuild_temp/aur_build.sh"
+remove "/aurbuild_temp/aur_prepare.sh"
 for _aur_pkg in ${*}; do
-    echo  "cd ~ ; git clone https://aur.archlinux.org/${_aur_pkg}.git ; cd ${_aur_pkg} ; makepkg -cfs " > "/aurbuild_temp/aur_build.sh"
-    chmod 777 "/aurbuild_temp/aur_build.sh"
-    sudo -u aurbuild "/aurbuild_temp/aur_build.sh"
+    echo  "cd ~ ; git clone https://aur.archlinux.org/${_aur_pkg}.git" > "/aurbuild_temp/aur_prepare.sh"
+    chmod 777 "/aurbuild_temp/aur_prepare.sh"
+    sudo -u aurbuild "/aurbuild_temp/aur_prepare.sh"
 done
