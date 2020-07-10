@@ -21,3 +21,4 @@ work/
 *.ig*
 *.add*
 temp/
+.config
