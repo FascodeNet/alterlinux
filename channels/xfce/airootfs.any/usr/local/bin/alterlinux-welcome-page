@@ -12,6 +12,13 @@ checklive=false
 alterlive=false
 url="https://fascode.net/projects/linux/alter/welcome.php"
 browser="chromium --start-maximized %s"
+custombrowser=false
+
+defaultbrowserlist=(
+    "firefox %s"
+    "chromium %s"
+    "google-chrome %s"
+)
 
 remove () {
     local _list
@@ -64,6 +71,7 @@ while true; do
     case ${1} in
         -b | --browser)
             browser="${2}"
+            custombrowser=true
             shift 2
             ;;
         -l | --live)
@@ -71,13 +79,8 @@ while true; do
             shift 1
             ;;
         -u | --url)
-            if [[ -z $(echo "${2}" | grep -zoP -- 'http(s?)://[0-9a-zA-Z?=#+_&:/.%]+') ]]; then
-                _msg_error "Please enter the correct URL."
-                exit 1
-            else
-                url="${2}"
-                shift 2
-            fi
+            url="${2}"
+            shift 2
             ;;
         -h | --help)
             _help
@@ -104,6 +107,20 @@ if [[ "${checklive}" = true ]]; then
     if [[ -n $(pacman -Q alterlinux-calamares) ]]; then
         exit 0
     fi
+fi
+
+if [[ "${custombrowser}" = false ]]; then
+    defaultbrowserlist+=("END_OF_LIST")
+    for ((_browser_count = 0; _browser_count < ${#defaultbrowserlist[@]}; _browser_count++)); do
+        _browser="${defaultbrowserlist[${_browser_count}]}"
+        if [[ -f $(type -P "$(echo ${_browser} | awk '{print $1}')") ]]; then
+            browser="${_browser}"
+            break
+        elif [[ "${_browser}" == "END_OF_LIST" ]]; then
+            _msg_error "No available browser is installed."
+            exit 1
+        fi
+    done
 fi
 
 $(printf "${browser}" "${url}")
