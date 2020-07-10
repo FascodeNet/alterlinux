@@ -5,6 +5,9 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
+# Parses PKGBUILD and outputs the dependencies.
+#
+
 set -e -u 
 cd `dirname $0`
 if [ 1 -gt $# ];then

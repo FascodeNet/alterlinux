@@ -5,6 +5,9 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
+# Install the AUR package dependency.
+#
+
 set -e -u 
 cd $(dirname "${0}")
 script_path="$(readlink -f ${0%/*})"
