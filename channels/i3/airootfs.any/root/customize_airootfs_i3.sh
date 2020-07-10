@@ -74,6 +74,14 @@ fi
 #rfkill unblock all
 #systemctl enable bluetooth
 
+# Replace panel config
+if [[ "${japanese}" = true ]]; then
+    remove "/etc/skel/.config/conky/conky.conf"
+    mv "/etc/skel/.config/conky/conky-jp.conf" "/etc/skel/.config/conky/conky.conf"
+else
+    remove "/etc/skel/.config/conky/conky-jp.conf"
+fi
+
 # Snap
 #if [[ "${arch}" = "x86_64" ]]; then
 #    systemctl enable snapd.apparmor.service
