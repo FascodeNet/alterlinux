@@ -109,6 +109,5 @@ fi
 $(printf "${browser}" "${url}")
 
 if [[ "${alterlive}" = true ]]; then
-    #remove ~/.config/autostart/welcome_page.desktop
-    echo "remove autorun"
+    remove ~/.config/autostart/welcome_page.desktop
 fi
