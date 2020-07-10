@@ -16,8 +16,8 @@ custombrowser=false
 
 defaultbrowserlist=(
     "firefox %s"
-    "chromium %s"
-    "google-chrome %s"
+    "chromium --start-maximized %s"
+    "google-chrome  --start-maximized %s"
 )
 
 remove () {
