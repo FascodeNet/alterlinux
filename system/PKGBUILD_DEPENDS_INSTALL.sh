@@ -14,7 +14,7 @@ script_path="$(readlink -f ${0%/*})"
 if [ 3 -gt ${#} ];then
     echo "Error !"
     echo "You must set option."
-    echo "./PKGBUILD_DEPENDS_INSTALL.sh [pacman_conf] [airootfs] [packages.....]"
+    echo "PKGBUILD_DEPENDS_INSTALL.sh [pacman_conf] [airootfs] [packages.....]"
     exit 1
 fi
 pacman_conf_path="${1}"
