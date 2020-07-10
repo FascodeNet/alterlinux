@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+
+set -e
+
+checklive=false
+alterlive=false
+url="https://fascode.net/projects/linux/alter/welcome.php"
+browser="chromium %s"
+
+remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
+
+_help() {
+    echo "Displays the AlterLinux welcome page"
+    echo "usage alterlinux-welcome-page [options]"
+    echo
+    echo " General options:"
+    echo "    -b | --browser <cmd>  Specify the browser command."
+    echo "                          %s will be replaced with the URL"
+    echo "                          Default: chromium %s"
+    echo "    -u | --url <url>      Set the URL."
+    echo "                          Default: ${url}"
+    echo
+    echo "    -l | --live           Opens the page only in a live environment."
+    echo "    -h | --help           This help message and exit."
+}
+
+_msg_error() {
+    echo "${@}" >&2
+}
+
+
+# Argument analysis and processing
+options="${@}"
+_opt_short="b:u:lh"
+_opt_long="browser:,url:,live,help,alterlive"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+unset OPT
+unset _opt_short
+unset _opt_long
+
+while true; do
+    case ${1} in
+        -b | --browser)
+            browser="${2}"
+            shift 2
+            ;;
+        -l | --live)
+            checklive=true
+            shift 1
+            ;;
+        -u | --url)
+            if [[ -z $(echo "${2}" | grep -zoP -- 'http(s?)://[0-9a-zA-Z?=#+_&:/.%]+') ]]; then
+                _msg_error "Please enter the correct URL."
+                exit 1
+            else
+                url="${2}"
+                shift 2
+            fi
+            ;;
+        -h | --help)
+            _help
+            shift 1
+            exit 0
+            ;;
+        --alterlive)
+            alterlive=true
+            shift 1
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            _msg_error "Invalid argument '${1}'"
+            _help
+            exit 1
+            ;;
+    esac
+done
+
+if [[ "${checklive}" = true ]]; then
+    if [[ -n $(pacman -Q alterlinux-calamares) ]]; then
+        exit 0
+    fi
+fi
+
+$(printf "${browser}" "${url}")
+
+if [[ "${alterlive}" = true ]]; then
+    #remove ~/.config/autostart/welcome_page.desktop
+    echo "remove autorun"
+fi
