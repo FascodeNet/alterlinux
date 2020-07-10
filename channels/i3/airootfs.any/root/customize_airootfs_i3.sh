@@ -78,8 +78,12 @@ fi
 if [[ "${japanese}" = true ]]; then
     remove "/etc/skel/.config/conky/conky.conf"
     mv "/etc/skel/.config/conky/conky-jp.conf" "/etc/skel/.config/conky/conky.conf"
+
+    remove "/home/${username}/.config/conky/conky.conf"
+    mv "/home/${username}/.config/conky/conky-jp.conf" "/home/${username}/.config/conky/conky.conf"
 else
     remove "/etc/skel/.config/conky/conky-jp.conf"
+    remove "/home/${username}/.config/conky/conky-jp.conf"
 fi
 
 # Snap
