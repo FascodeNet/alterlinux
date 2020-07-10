@@ -11,7 +11,7 @@ set -e
 checklive=false
 alterlive=false
 url="https://fascode.net/projects/linux/alter/welcome.php"
-browser="chromium %s"
+browser="chromium --start-maximized %s"
 
 remove () {
     local _list
@@ -33,7 +33,7 @@ _help() {
     echo " General options:"
     echo "    -b | --browser <cmd>  Specify the browser command."
     echo "                          %s will be replaced with the URL"
-    echo "                          Default: chromium %s"
+    echo "                          Default: ${browser}"
     echo "    -u | --url <url>      Set the URL."
     echo "                          Default: ${url}"
     echo
