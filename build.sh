@@ -909,18 +909,21 @@ make_packages_aur() {
     
     # Build aur packages on airootfs
     local _aur_pkg
+    local _copy_aur_scripts
+    _copy_aur_scripts() {
+        cp -r "${script_path}/system/${1}.sh" "${work_dir}/${arch}/airootfs/root/${1}.sh"
+        chmod 755 "${work_dir}/${arch}/airootfs/root/${1}.sh"
+    }
 
-    cp -r "${script_path}/system/aur_install.sh" "${work_dir}/${arch}/airootfs/root/aur_install.sh"
-    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_install.sh"
-    cp -r "${script_path}/system/aur_prepare.sh" "${work_dir}/${arch}/airootfs/root/aur_prepare.sh"
-    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_prepare.sh"
-    cp -r "${script_path}/system/aur_remove.sh" "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
-    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
-    local _aur_packages_ls_str
-    _aur_packages_ls_str=""
+    _copy_aur_scripts aur_install
+    _copy_aur_scripts aur_prepare
+    _copy_aur_scripts aur_remove
+
+    local _aur_packages_ls_str=""
     for _pkg in ${pkglist_aur[@]}; do
         _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg}"
     done
+
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
     "${script_path}/system/PKGBUILD_DEPENDS_INSTALL.sh" "${work_dir}/pacman-${arch}.conf" "${work_dir}/${arch}/airootfs" ${_aur_packages_ls_str}
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
