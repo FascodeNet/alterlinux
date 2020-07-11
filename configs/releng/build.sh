@@ -120,9 +120,6 @@ make_customize_airootfs() {
 
     cp "${script_path}/pacman.conf" "${work_dir}/x86_64/airootfs/etc"
 
-    lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> \
-        "${work_dir}/x86_64/airootfs/root/install.txt"
-
     if [ -n "${verbose}" ]; then
         mkarchiso -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
             -r '/root/customize_airootfs.sh' run

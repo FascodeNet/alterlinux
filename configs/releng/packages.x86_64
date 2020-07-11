@@ -14,7 +14,6 @@ dmraid
 dnsmasq
 dosfstools
 efibootmgr
-elinks
 ethtool
 exfat-utils
 f2fs-tools
@@ -35,6 +34,7 @@ linux-atm
 linux-firmware
 lsscsi
 lvm2
+lynx
 man-db
 man-pages
 mc
