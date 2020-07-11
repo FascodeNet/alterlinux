@@ -213,27 +213,20 @@ _msg_error() {
 
 _usage () {
     echo "usage ${0} [options] [channel]"
-    echo
     echo " General options:"
     echo
     echo "    -b | --boot-splash           Enable boot splash"
     echo "                                  Default: disable"
     echo "    -l | --cleanup               Enable post-build cleaning."
     echo "                                  Default: disable"
-    echo "    -d | --debug                 Enable debug messages."
-    echo "                                  Default: disable"
-    echo "    -g | --lang                  Specifies the default language for the live environment."
-    echo "                                  Default: ${language}"
-    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
-    echo "                                  Default: disable"
     echo "    -h | --help                  This help message and exit."
     echo
     echo "    -a | --arch <arch>           Set iso architecture."
     echo "                                  Default: ${arch}"
-    echo "    -c | <comp_type>             Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
-    echo "    -g | --gpgkey <key>          Set gpg key"
-    echo "                                  Default: ${gpg_key}"
+    echo "    -g | --lang <lang>           Specifies the default language for the live environment."
+    echo "                                  Default: ${language}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
     echo "                                  Default: ${kernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
@@ -247,16 +240,7 @@ _usage () {
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
     echo
-    echo "    --gitversion                 Add Git commit hash to image file version"
-    echo "    --msgdebug                   Enables output debugging."
-    echo "    --nocolor                    No output colored output."
-    echo "    --noconfirm                  No check the settings before building."
-    echo "    --noloopmod                  No check and load kernel module automatically."
-    echo "    --nodepend                   No check package dependencies before building."
-    echo "    --noiso                      No build iso image. (Use with --tarball)"
-    echo "    --shmkalteriso               Use the shell script version of mkalteriso."
-    echo
-    echo "A list of available languages"
+    echo "A list of available languages:"
     local lang
     local list
     local alteriso_lang_list
@@ -270,7 +254,7 @@ _usage () {
         echo
     done
     echo
-    echo "A list of kernels available for each architecture"
+    echo "A list of kernels available for each architecture:"
     #echo
     local kernel
 
@@ -325,6 +309,20 @@ _usage () {
         fi
         echo -ne "${description}\n"
     done
+    echo
+    echo "Please use at your own risk."
+    echo " Debug options:"
+    echo "    -d | --debug                 Enable debug messages."
+    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
+    echo "         --gitversion            Add Git commit hash to image file version"
+    echo "         --msgdebug              Enables output debugging."
+    echo "         --noaur                 No build and install AUR packages."
+    echo "         --nocolor               No output colored output."
+    echo "         --noconfirm             No check the settings before building."
+    echo "         --noloopmod             No check and load kernel module automatically."
+    echo "         --nodepend              No check package dependencies before building."
+    echo "         --noiso                 No build iso image. (Use with --tarball)"
+    echo "         --shmkalteriso          Use the shell script version of mkalteriso."
     
     if [[ -n "${1:-}" ]]; then
         exit "${1}"
