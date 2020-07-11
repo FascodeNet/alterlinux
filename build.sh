@@ -911,7 +911,7 @@ make_packages_aur() {
     local _aur_pkg
     local _copy_aur_scripts
     _copy_aur_scripts() {
-        cp -r "${script_path}/system/${1}.sh" "${work_dir}/${arch}/airootfs/root/${1}.sh"
+        cp -r "${script_path}/system/aur_scripts/${1}.sh" "${work_dir}/${arch}/airootfs/root/${1}.sh"
         chmod 755 "${work_dir}/${arch}/airootfs/root/${1}.sh"
     }
 
