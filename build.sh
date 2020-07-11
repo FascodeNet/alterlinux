@@ -213,12 +213,13 @@ _msg_error() {
 
 _usage () {
     echo "usage ${0} [options] [channel]"
+    echo
+    echo "A channel is a profile of AlterISO settings."
+    echo
     echo " General options:"
     echo
     echo "    -b | --boot-splash           Enable boot splash"
-    echo "                                  Default: disable"
     echo "    -l | --cleanup               Enable post-build cleaning."
-    echo "                                  Default: disable"
     echo "    -h | --help                  This help message and exit."
     echo
     echo "    -a | --arch <arch>           Set iso architecture."
@@ -235,40 +236,48 @@ _usage () {
     echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
     echo "                                  Default: empty"
-    echo "    -u | --user <username>        Set user name."
+    echo "    -u | --user <username>       Set user name."
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
     echo
-    echo "A list of available languages:"
+
+    local blank="33"
+    local arch
     local lang
     local list
     local alteriso_lang_list
+    local kernel
+
+    echo " Language for each architecture:"
     for list in ${script_path}/system/locale-* ; do
-        echo " ${list#${script_path}/system/locale-}:"
-        echo -n "    "
+        arch="${list#${script_path}/system/locale-}"
+        echo -n "    ${arch}"
+        for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
+            echo -ne " "
+        done
         alteriso_lang_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
         for lang in ${alteriso_lang_list[@]};do
             echo -n "${lang} "
         done
         echo
     done
-    echo
-    echo "A list of kernels available for each architecture:"
-    #echo
-    local kernel
 
+    echo
+    echo " Kernel for each architecture:"
     for list in ${script_path}/system/kernel_list-* ; do
-        echo " ${list#${script_path}/system/kernel_list-}:"
-        echo -n "    "
+        arch="${list#${script_path}/system/kernel_list-}"
+        echo -n "    ${arch} "
+        for i in $( seq 1 $(( ${blank} - 5 - ${#arch} )) ); do
+            echo -ne " "
+        done
         for kernel in $(grep -h -v ^'#' ${list}); do
             echo -n "${kernel} "
         done
         echo
     done
+
     echo
-    echo "You can switch between installed packages, files included in images, etc. by channel."
-    #echo
     echo " Channel:"
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
@@ -284,8 +293,6 @@ _usage () {
         fi
     done
     channel_list="${channel_list[@]} rebuild retry"
-    local blank="33"
-    
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
@@ -309,9 +316,9 @@ _usage () {
         fi
         echo -ne "${description}\n"
     done
+
     echo
-    echo "Please use at your own risk."
-    echo " Debug options:"
+    echo " Debug options: Please use at your own risk."
     echo "    -d | --debug                 Enable debug messages."
     echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
     echo "         --gitversion            Add Git commit hash to image file version"
