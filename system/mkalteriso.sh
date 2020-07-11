@@ -380,6 +380,10 @@ command_iso () {
 
 # # Compress tarball from "iso" directory.
 command_tarball () {
+    if [[ ! -e "${work_dir}/airootfs" ]]; then
+        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    fi
+
     mkdir -p "${out_dir}"
     _msg_info "Creating tarball..."
 
@@ -390,9 +394,8 @@ command_tarball () {
 
     local tar_path="$(realpath ${out_dir})/${tarball_name}"
 
-    cd "${work_dir}/${arch}/airootfs-tarball"
+    cd "${work_dir}/airootfs"
 
-    # tar.xz
     tar -J -p -c ${_vflag} -f "${tar_path}" ./*
 
     cdback

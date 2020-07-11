@@ -1288,22 +1288,22 @@ make_efiboot() {
 
 # Compress tarball
 make_tarball() {
-    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}/${arch}/airootfs-tarball"
+    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
     fi
 
-    arch-chroot "${work_dir}/${arch}/airootfs-tarball" "/root/optimize_for_tarball.sh" -u ${username}
+    arch-chroot "${work_dir}/airootfs" "/root/optimize_for_tarball.sh" -u ${username}
     if [[ "${kernel}" = "core" ]]; then
-        arch-chroot "${work_dir}/${arch}/airootfs-tarball" mkinitcpio -p linux
+        arch-chroot "${work_dir}/airootfs" mkinitcpio -p linux
     else
-        arch-chroot "${work_dir}/${arch}/airootfs-tarball" mkinitcpio -p linux-${kernel}
+        arch-chroot "${work_dir}/airootfs" mkinitcpio -p linux-${kernel}
     fi
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
 
-    remove "${work_dir}/${arch}/airootfs-tarball"
+    remove "${work_dir}/airootfs"
 }
 
 # Build airootfs filesystem image
