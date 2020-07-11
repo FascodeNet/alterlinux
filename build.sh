@@ -918,6 +918,9 @@ make_packages_aur() {
     _copy_aur_scripts aur_install
     _copy_aur_scripts aur_prepare
     _copy_aur_scripts aur_remove
+    _copy_aur_scripts pacls_gen_new
+    _copy_aur_scripts pacls_gen_old
+
 
     local _aur_packages_ls_str=""
     for _pkg in ${pkglist_aur[@]}; do
@@ -926,10 +929,10 @@ make_packages_aur() {
 
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
-
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
     # Install dependent packages.
     "${script_path}/system/PKGBUILD_DEPENDS_INSTALL.sh" "${work_dir}/pacman-${arch}.conf" "${work_dir}/${arch}/airootfs" ${_aur_packages_ls_str}
-
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
     # Build the package using makepkg.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
   
@@ -937,8 +940,11 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
     done
-
-    Delete the user created for the build.
+    delete_pkg_list=(`comm -13 --nocheck-order "${work_dir}/${arch}/airootfs/paclist_old" "${work_dir}/${arch}/airootfs/paclist_new" |xargs`)
+    for _dlpkg in ${delete_pkg_list[@]}; do
+        unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
+    done
+    # Delete the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
 
