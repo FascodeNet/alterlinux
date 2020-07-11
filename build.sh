@@ -944,6 +944,8 @@ make_packages_aur() {
     for _dlpkg in ${delete_pkg_list[@]}; do
         unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
     done
+    rm -f "${work_dir}/${arch}/airootfs/paclist_old"
+    rm -f "${work_dir}/${arch}/airootfs/paclist_new"
     # Delete the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
