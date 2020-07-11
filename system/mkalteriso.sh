@@ -198,18 +198,8 @@ _pacman_file ()
     _msg_info "Packages installed successfully!"
 }
 
-# Cleanup airootfs
-_cleanup () {
-    _msg_info "Cleaning up what we can on airootfs..."
 
-    # Delete initcpio image(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
-    fi
-    # Delete kernel(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
-    fi
+_cleanup_common () {
     # Delete pacman database sync cache files (*.tar.gz)
     if [[ -d "${work_dir}/airootfs/var/lib/pacman" ]]; then
         find "${work_dir}/airootfs/var/lib/pacman" -maxdepth 1 -type f -delete
@@ -232,6 +222,30 @@ _cleanup () {
     fi
     # Delete package pacman related files.
     find "${work_dir}" \( -name "*.pacnew" -o -name "*.pacsave" -o -name "*.pacorig" \) -delete
+}
+
+# Cleanup airootfs
+_cleanup () {
+    _msg_info "Cleaning up what we can on airootfs..."
+
+    _cleanup_common
+
+    # Delete initcpio image(s)
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
+    fi
+    # Delete kernel(s)
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
+    fi
+
+    _msg_info "Done!"
+}
+
+# Cleanup airootfs
+_cleanup_tarball () {
+    _msg_info "Cleaning up what we can on airootfs for tarball..."
+    _cleanup_common
     _msg_info "Done!"
 }
 
@@ -383,6 +397,8 @@ command_tarball () {
     if [[ ! -e "${work_dir}/airootfs" ]]; then
         _msg_error "The path '${work_dir}/airootfs' does not exist" 1
     fi
+
+    _cleanup_tarball
 
     mkdir -p "${out_dir}"
     _msg_info "Creating tarball..."
