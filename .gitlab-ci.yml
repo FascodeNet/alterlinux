@@ -15,3 +15,7 @@ lint:
         configs/releng/airootfs/root/.automated_script.sh
         configs/releng/airootfs/usr/local/bin/choose-mirror
         scripts/run_archiso.sh
+        archiso/initcpio/install/*
+    - shellcheck -s dash
+        archiso/initcpio/hooks/*
+        archiso/initcpio/script/*
