@@ -580,6 +580,7 @@ prepare_build() {
         save_var debug
         save_var bash_debug
         save_var nocolor
+        save_var noaur
         save_var msgdebug
         save_var gitversion
         save_var noloopmod
