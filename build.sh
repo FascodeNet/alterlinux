@@ -279,15 +279,17 @@ _usage () {
 
     echo
     echo " Channel:"
-    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
             if [[ ! ${i} = "share" ]]; then
-                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                if [[ "$(cat "${script_path}/channels/${i}/alteriso")" = "alteriso=3" ]]; then
+                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                            channel_list="${channel_list[@]} ${i}"
+                        fi
+                    else
                         channel_list="${channel_list[@]} ${i}"
                     fi
-                else
-                    channel_list="${channel_list[@]} ${i}"
                 fi
             fi
         fi
@@ -1512,12 +1514,14 @@ if [[ -n "${1}" ]]; then
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
             if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
                 if [[ ! ${i} = "share" ]]; then
-                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                    if [[ "$(cat "${script_path}/channels/${i}/alteriso")" = "alteriso=3" ]]; then
+                        if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                            if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                                channel_list="${channel_list[@]} ${i}"
+                            fi
+                        else
                             channel_list="${channel_list[@]} ${i}"
                         fi
-                    else
-                        channel_list="${channel_list[@]} ${i}"
                     fi
                 fi
             fi
