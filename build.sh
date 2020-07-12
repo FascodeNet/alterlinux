@@ -995,22 +995,23 @@ make_customize_airootfs() {
     curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${mirror_country}"
     
     # customize_airootfs options
-    # -b            : Enable boot splash.
-    # -d            : Enable debug mode.
-    # -g <localegen>: Set locale-gen.
-    # -i <inst_dir> : Set install dir
-    # -k <kernel>   : Set kernel name.
-    # -o <os name>  : Set os name.
-    # -p <password> : Set password.
-    # -s <shell>    : Set user shell.
-    # -t            : Set plymouth theme.
-    # -u <username> : Set live user name.
-    # -x            : Enable bash debug mode.
-    # -r            : Enable rebuild.
-    # -z <timezone> : Set the time zone.
-    # -l <language> : Set language.
+    # -b                        : Enable boot splash.
+    # -d                        : Enable debug mode.
+    # -g <localegen>            : Set locale-gen.
+    # -i <inst_dir>             : Set install dir
+    # -k <kernel config line>   : Set kernel name.
+    # -o <os name>              : Set os name.
+    # -p <password>             : Set password.
+    # -s <shell>                : Set user shell.
+    # -t                        : Set plymouth theme.
+    # -u <username>             : Set live user name.
+    # -x                        : Enable bash debug mode.
+    # -r                        : Enable rebuild.
+    # -z <timezone>             : Set the time zone.
+    # -l <language>             : Set language.
     #
     # -j is obsolete in AlterISO3 and cannot be used.
+    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     
     
     # Generate options of customize_airootfs.sh.
@@ -1034,7 +1035,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
     
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'"
+    share_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'"
     
     
     # X permission
@@ -1631,6 +1632,8 @@ kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
 kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
 kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
 kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+
+kernel_config_line="${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}"
 
 
 # Check the value of a variable that can only be set to true or false.
