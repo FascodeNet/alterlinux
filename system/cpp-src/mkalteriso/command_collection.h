@@ -6,7 +6,7 @@
 #include <QDir>
 #include <stdio.h>
 #include "build_setting.h"
-
+#include "custom_system_exec.h"
 class command_collection : public QObject
 {
     Q_OBJECT
