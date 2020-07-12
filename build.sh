@@ -1127,7 +1127,7 @@ make_setup_mkinitcpio() {
         exec 17<>$"{work_dir}/gpgkey"
     fi
     
-    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k '${kernel_path}' -g /boot/archiso.img" run
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k '/boot/${kernel_filename}' -g /boot/archiso.img" run
     
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
@@ -1138,7 +1138,7 @@ make_setup_mkinitcpio() {
 make_boot() {
     mkdir -p "${work_dir}/iso/${install_dir}/boot/${arch}"
     cp "${work_dir}/${arch}/airootfs/boot/archiso.img" "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img"
-    cp "${work_dir}/${arch}/airootfs${kernel_path}" "${work_dir}/iso/${install_dir}/boot/${arch}/$(basename "${kernel_path}")"
+    cp "${work_dir}/${arch}/airootfs/boot/${kernel_filename}" "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename})"
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
@@ -1154,7 +1154,7 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    _uname_r="$(file -b ${work_dir}/${arch}/airootfs${kernel_path} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
+    _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
     
     for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
@@ -1244,7 +1244,7 @@ make_efiboot() {
     
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
     
-    cp "${work_dir}/iso/${install_dir}/boot/${arch}/$(basename "${kernel_path}")" "${work_dir}/efiboot/EFI/archiso/$(basename "${kernel_path}").efi"
+    cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename})" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}).efi"
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
     
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
@@ -1629,7 +1629,7 @@ kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$
 
 kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
 kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-kernel_path=$(echo ${kernel_config_line} | awk '{print $4}')
+kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
 kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
 
 
