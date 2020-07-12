@@ -553,8 +553,17 @@ prepare_build() {
         write_rebuild_file "\n# Live User Info"
         save_var username
         save_var password
-        save_var kernel
         save_var usershell
+
+        write_rebuild_file "\n# Kernel Info"
+        save_var kernel
+        save_var kernel_package
+        save_var kernel_headers_packages
+        save_var kernel_filename
+        save_var kernel_mkinitcpio_profile
+        save_var kernel_config_line
+        save_var kernel_config_file
+        save_var kernel_line
 
         write_rebuild_file "\n# Plymouth Info"
         save_var boot_splash
