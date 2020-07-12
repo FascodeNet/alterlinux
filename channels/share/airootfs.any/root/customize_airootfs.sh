@@ -60,6 +60,7 @@ function check_bool() {
 
 check_bool boot_splash
 check_bool rebuild
+check_bool debug
 
 
 # Delete file only if file exists
