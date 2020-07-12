@@ -1611,7 +1611,7 @@ get_kernel_line() {
     local _kernel
     local count
     count=0
-    for _kernel in ${locale_name_list[@]}; do
+    for _kernel in ${kernel_name_list[@]}; do
         count=$(( count + 1 ))
         if [[ "${_kernel}" == "${kernel}" ]]; then
             echo "${count}"
