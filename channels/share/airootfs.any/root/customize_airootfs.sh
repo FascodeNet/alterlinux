@@ -224,12 +224,10 @@ fi
 
 # Replace the configuration file.
 # initcpio
-remove /usr/share/calamares/modules/initcpio.conf
-mv /usr/share/calamares/modules/initcpio/initcpio-${kernel}.conf /usr/share/calamares/modules/initcpio.conf
+sed -i "s/%MKINITCPIO_PROFILE%/'${kernel_mkinitcpio_profile}'/g" /usr/share/calamares/modules/initcpio.conf
 
 # unpackfs
-remove /usr/share/calamares/modules/unpackfs.conf
-mv /usr/share/calamares/modules/unpackfs/unpackfs-${kernel}.conf /usr/share/calamares/modules/unpackfs.conf
+sed -i "s|%KERNEL_FILENAME%|${kernel_filename}|g" /usr/share/calamares/modules/unpackfs.conf
 
 # Remove configuration files for other kernels.
 remove /usr/share/calamares/modules/initcpio/
