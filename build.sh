@@ -1380,11 +1380,7 @@ while :; do
             _msg_error "To use Japanese, use \"-g ja\"." '1'
         ;;
         -k | --kernel)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
-                kernel="${2}"
-            else
-                _msg_error "Invalid kernel ${2}" "1"
-            fi
+            kernel="${2}"
             shift 2
         ;;
         -l | --cleaning)
@@ -1596,6 +1592,7 @@ if [[ "${channel_name}" = "clean" ]]; then
     exit 0
 fi
 
+
 # Parse languages
 locale_config_file="${script_path}/system/locale-${arch}"
 locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
@@ -1613,7 +1610,6 @@ get_locale_line() {
     echo -n "failed"
     return 0
 }
-
 locale_line="$(get_locale_line)"
 if [[ "${locale_line}" == "failed" ]]; then
     _msg_error "${language} is not a valid language." "1"
@@ -1625,6 +1621,36 @@ localegen=$(echo ${locale_config_line} | awk '{print $2}')
 mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
 locale_name=$(echo ${locale_config_line} | awk '{print $4}')
 timezone=$(echo ${locale_config_line} | awk '{print $5}')
+
+
+# Parse kernel
+kernel_config_file="${script_path}/system/kernel-${arch}"
+kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_kernel_line() {
+    local _kernel
+    local count
+    count=0
+    for _kernel in ${locale_name_list[@]}; do
+        count=$(( count + 1 ))
+        if [[ "${_kernel}" == "${kernel}" ]]; then
+            echo "${count}"
+            return 0
+        fi
+    done
+    echo -n "failed"
+    return 0
+}
+kernel_line="$(get_kernel_line)"
+if [[ "${kernel_line}" == "failed" ]]; then
+    _msg_error "Invalid kernel ${kernel}" "1"
+fi
+
+kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+
+kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+kernel_path=$(echo ${kernel_config_line} | awk '{print $4}')
+kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
 
 
 # Check the value of a variable that can only be set to true or false.
