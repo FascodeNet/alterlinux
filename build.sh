@@ -418,22 +418,6 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
-    # Build mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-        cd "${script_path}"
-        _msg_info "Building mkalteriso..."
-        if [[ "${debug}" = true ]]; then
-            make mkalteriso
-            echo
-        else
-            make mkalteriso > /dev/null 2>&1
-        fi
-        cd - > /dev/null 2>&1
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-    
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
     
@@ -604,7 +588,32 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
     fi
     
-    
+
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        _msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
+        fi
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
+
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
+
     # Unmount
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
@@ -1465,15 +1474,6 @@ if [[ ${EUID} -ne 0 ]]; then
     sudo ${0} ${options}
     exit 1
 fi
-
-
-# Show alteriso version
-if [[ -d "${script_path}/.git" ]]; then
-    cd  "${script_path}"
-    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-    cd - > /dev/null 2>&1
-fi
-
 
 # Show config message
 [[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
