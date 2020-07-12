@@ -1133,7 +1133,7 @@ make_setup_mkinitcpio() {
         exec 17<>$"{work_dir}/gpgkey"
     fi
     
-    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k '/boot/${kernel_filename}' -g /boot/archiso.img" run
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img" run
     
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
