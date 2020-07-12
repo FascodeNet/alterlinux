@@ -1597,8 +1597,8 @@ if [[ "${channel_name}" = "clean" ]]; then
 fi
 
 # Parse languages
-locale_list="${script_path}/system/locale-${arch}"
-alteriso_lang_list=($(cat "${locale_list}" | grep -h -v ^'#' | awk '{print $1}'))
+locale_config_file="${script_path}/system/locale-${arch}"
+alteriso_lang_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
 check_lang() {
     local _lang
     local count
@@ -1619,12 +1619,12 @@ if [[ "${locale_line}" == "failed" ]]; then
     _msg_error "${language} is not a valid language." "1"
 fi
 
-locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
+locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
 
-localegen=$(echo ${locale_config_full} | awk '{print $2}')
-mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
-locale_name=$(echo ${locale_config_full} | awk '{print $4}')
-timezone=$(echo ${locale_config_full} | awk '{print $5}')
+localegen=$(echo ${locale_config_line} | awk '{print $2}')
+mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
+locale_name=$(echo ${locale_config_line} | awk '{print $4}')
+timezone=$(echo ${locale_config_line} | awk '{print $5}')
 
 
 # Check the value of a variable that can only be set to true or false.
