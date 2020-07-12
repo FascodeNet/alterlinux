@@ -41,6 +41,8 @@ private:
     int _pacman(QString );
     int _pacman_file(QString );
     int _cleanup();
+    int _cleanup_tarball();
+    int _cleanup_common();
     int _mkairootfs_sfs();
     void _mkchecksum();
     void _mksignature();
