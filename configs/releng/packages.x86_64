@@ -1,3 +1,4 @@
+amd-ucode
 arch-install-scripts
 b43-fwcutter
 bind-tools
@@ -22,7 +23,9 @@ gnu-netcat
 gpm
 gptfdisk
 grml-zsh-config
+haveged
 hdparm
+intel-ucode
 ipw2100-fw
 ipw2200-fw
 irssi
@@ -39,8 +42,11 @@ man-db
 man-pages
 mc
 mdadm
+memtest86+
+mkinitcpio-nfs-utils
 mtools
 nano
+nbd
 ndisc6
 nfs-utils
 nilfs-utils
@@ -79,3 +85,4 @@ wpa_supplicant
 wvdial
 xfsprogs
 xl2tpd
+zsh
