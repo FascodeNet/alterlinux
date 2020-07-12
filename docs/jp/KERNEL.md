@@ -1,42 +1,42 @@
-## 新しいカーネルに対応させる
+## カーネルの設定ファイルについて
 
-Alter Linuxを新しいカーネルに対応させる手順です。ここでは`linux-fooo`を追加する手順を説明します。実際に行う場合はこの文字を置き換えてください。  
-リポジトリには2種類のパッケージを追加する必要があります。カーネル本体とheadersパッケージです。  
+AlterISOは様々なカーネルをサポートしています。カーネルは各アーキテクチャごとの設定ファイルで定義されます。
 
 
 ### 1.リポジトリを作成する
-
+リポジトリには2種類のパッケージを追加する必要があります。カーネル本体とheadersパッケージです。  
 `build.sh`はカーネルをpacmanを利用してインストールしようとします。もしあなたが公式リポジトリに無いカーネルを追加したい場合はまずはpacmanのリポジトリを作成してください。  
-リポジトリはGitHubを利用して簡単に作成できます。  
+カーネルのパッケージをAURからビルドすることはできません。（`pacstrap`で初期の段階でインストールされるため。）
 
-### 2.カーネル一覧に追加する
 
-`kernel_list`にカーネル名を追記してください。`build.sh`に渡された値が正しいかどうかはこの変数を利用して判定されます。  
-リストに追加する値は`linux-`の後の文字です。今回の場合は`fooo`になります。
+### 2.カーネル設定ファイルを構成する
+
+`kernel-<arch>`はカーネルの設定の一覧が書かれたファイルです。構文は以下の通りになっており、`build.sh`によって解析されます。  
+`#`から始まる行はコメントとして扱われます。1行で一つのカーネルの設定です。  
 
 ```bash
-echo "fooo" >> ./system/kernel_list
+#<kernel name>  <kernel package>         <headers package>              <kernel filename>              <mkinitcpio profile>
+
+core            linux                    linux-headers                  vmlinuz-linux                  linux
+lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
+zen             linux-zen                linux-zen-beaders              vmlinuz-linux-zen              linux-zen
 ```
 
-### 3.ファイルを作成する
-新しいカーネル用のファイルをいくつか作成する必要があります。以下は作成する必要のあるファイルの一覧です。  
-「既存のファイルを名前を変えてコピーし、カーネルへのパスを修正する」という方法が最も簡単です。  
-ファイル名は`fooo`に置き換えてあります。  
+#### kernel name
+`build.sh`の`-k`によって指定される文字列です。絶対に重複しないようにしてください。  
 
-1. syslinux/x86_64/pxe/archiso_pxe-fooo.cfg
-2. syslinux/i686/pxe/archiso_pxe-fooo.cfg
-3. syslinux/x86_64/pxe-plymouth/archiso-fooo.cfg
-4. syslinux/i686/pxe-plymouth/archiso-fooo.cfg
-5. syslinux/x86_64/sys/archiso_sys-fooo.cfg
-6. syslinux/i686/sys/archiso_sys-fooo.cfg
-7. syslinux/x86_64/sys-plymouth/archiso_sys-fooo.cfg
-8. syslinux/i686/sys-plymouth/archiso_sys-fooo.cfg
-9. efiboot/loader/entries/cd/archiso-x86_64-cd-fooo.conf
-10. efiboot/loader/entries/usb/archiso-x86_64-usb-fooo.conf
-11. channels/share/airootfs.any/usr/share/calamares/modules/unpackfs/unpackfs-fooo.conf
-12. channels/share/airootfs.any/usr/share/calamares/modules/initcpio/initcpio-fooo.conf
+#### kernel package
+`pacstrap`によってビルド時にインストールされるパッケージです。複数指定はできません。
 
-これらのファイルはインストーラやブートローダのファイルです。各カーネル用にパスを修正して下さい。  
+#### headers package
+`kernel package`と同時にインストールされるパッケージです。
+
+#### kernel filename
+`/boot`以下に作成されるバイナリのファイル名です。Calamaresの設定などのあらゆる場所で使用されます。
+
+#### mkinitcpio profile
+`mkinitcpio`の`-p`で指定するプロファイル名です。
+
 
 ### 4.プルリクエストを送る
 [ここ](https://github.com/FascodeNet/alterlinux/pulls)へプルリクエストを投稿してください。  
