@@ -5,17 +5,20 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# core stands for normal linux kernel.
-# List of supported kernels.
-#  "#" is treated as a comment.
+# 
+# kernel list
+#
+#<kernel name>  <package>                <kernel path>                        <mkinitcpio profile>
+#
 
-core
-lts
-lqx
-zen
-ck
-rt
-rt-lts
-xanmod
-xanmod-lts
-zen-letsnote
+core             linux                   /boot/vmlinuz-linux                  linux
+lts              linux-lts               /boot/vmlinuz-linux-lts              linux-lts
+zen              linux-zen               /boot/vmlinuz-linux-zen              linux-zen
+
+lqx              linux-lqx               /boot/vmlinuz-linux-lqx              linux-lqx
+ck               linux-ck                /boot/vmlinuz-linux-ck               linux-ck
+rt               linux-rt                /boot/vmlinuz-linux-rt               linux-rt
+rt-lts           linux-rt-lts            /boot/vmlinuz-linux-rt               linux-rt
+xanmod           linux-xanmod            /boot/vmlinuz-linux-xanmod           linux-xanmod
+xanmod-lts       linux-xanmod-lts        /boot/vmlinuz-linux-xanmod-lts       linux-xanmod-lts
+zen-letsnote     linux-zen-letsnote      /boot/vmlinuz-linux-zen-letsnote     linux-zen-letsnote
