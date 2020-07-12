@@ -8,9 +8,9 @@
 # 
 # kernel list
 #
-#<kernel name>  <package>                <kernel path>                        <mkinitcpio profile>
+#<kernel name>  <kernel package>         <headers package>              <kernel path>                        <mkinitcpio profile>
 #
 
-core             linux                   /boot/vmlinuz-linux                  linux
-lts              linux-lts               /boot/vmlinuz-linux-lts              linux-lts
-zen              linux-zen               /boot/vmlinuz-linux-zen              linux-zen
+core            linux                    linux-headers                  /boot/vmlinuz-linux                  linux
+lts             linux-lts                linux-lts-headers              /boot/vmlinuz-linux-lts              linux-lts
+zen             linux-zen                linux-zen-beaders              /boot/vmlinuz-linux-zen              linux-zen

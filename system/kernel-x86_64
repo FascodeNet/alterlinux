@@ -8,17 +8,17 @@
 # 
 # kernel list
 #
-#<kernel name>  <package>                <kernel path>                        <mkinitcpio profile>
+#<kernel name>  <kernel package>         <headers package>              <kernel path>                        <mkinitcpio profile>
 #
 
-core             linux                   /boot/vmlinuz-linux                  linux
-lts              linux-lts               /boot/vmlinuz-linux-lts              linux-lts
-zen              linux-zen               /boot/vmlinuz-linux-zen              linux-zen
+core            linux                    linux-headers                  /boot/vmlinuz-linux                  linux
+lts             linux-lts                linux-lts-headers              /boot/vmlinuz-linux-lts              linux-lts
+zen             linux-zen                linux-zen-beaders              /boot/vmlinuz-linux-zen              linux-zen
 
-lqx              linux-lqx               /boot/vmlinuz-linux-lqx              linux-lqx
-ck               linux-ck                /boot/vmlinuz-linux-ck               linux-ck
-rt               linux-rt                /boot/vmlinuz-linux-rt               linux-rt
-rt-lts           linux-rt-lts            /boot/vmlinuz-linux-rt               linux-rt
-xanmod           linux-xanmod            /boot/vmlinuz-linux-xanmod           linux-xanmod
-xanmod-lts       linux-xanmod-lts        /boot/vmlinuz-linux-xanmod-lts       linux-xanmod-lts
-zen-letsnote     linux-zen-letsnote      /boot/vmlinuz-linux-zen-letsnote     linux-zen-letsnote
+lqx             linux-lqx                linux-lqx-headers              /boot/vmlinuz-linux-lqx              linux-lqx
+ck              linux-ck                 linux-ck-headers               /boot/vmlinuz-linux-ck               linux-ck
+rt              linux-rt                 linux-rt-headers               /boot/vmlinuz-linux-rt               linux-rt
+rt-lts          linux-rt-lts             linux-rt-lts-headers           /boot/vmlinuz-linux-rt               linux-rt
+xanmod          linux-xanmod             linux-xanmod-headers           /boot/vmlinuz-linux-xanmod           linux-xanmod
+xanmod-lts      linux-xanmod-lts         linux-xanmod-lts-headers       /boot/vmlinuz-linux-xanmod-lts       linux-xanmod-lts
+zen-letsnote    linux-zen-letsnote       linux-zen-letsnote-headers     /boot/vmlinuz-linux-zen-letsnote     linux-zen-letsnote
