@@ -1127,11 +1127,7 @@ make_setup_mkinitcpio() {
         exec 17<>$"{work_dir}/gpgkey"
     fi
     
-    if [[ ! ${kernel} = "core" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
-    else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
-    fi
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k '${kernel_path}' -g /boot/archiso.img" run
     
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
@@ -1142,12 +1138,7 @@ make_setup_mkinitcpio() {
 make_boot() {
     mkdir -p "${work_dir}/iso/${install_dir}/boot/${arch}"
     cp "${work_dir}/${arch}/airootfs/boot/archiso.img" "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img"
-    
-    if [[ ! "${kernel}" = "core" ]]; then
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel}" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}"
-    else
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz"
-    fi
+    cp "${work_dir}/${arch}/airootfs${kernel_path}" "${work_dir}/iso/${install_dir}/boot/${arch}/$(basename "${kernel_path}")"
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
@@ -1163,11 +1154,7 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    if [[ ! ${kernel} = "core" ]]; then
-        _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    else
-        _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/vmlinuz-linux | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    fi
+    _uname_r="$(file -b ${work_dir}/${arch}/airootfs${kernel_path} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
     
     for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
@@ -1257,12 +1244,7 @@ make_efiboot() {
     
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
     
-    if [[ ! ${kernel} = "core" ]]; then
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}" "${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-${kernel}.efi"
-    else
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz" "${work_dir}/efiboot/EFI/archiso/vmlinuz.efi"
-    fi
-    
+    cp "${work_dir}/iso/${install_dir}/boot/${arch}/$(basename "${kernel_path}")" "${work_dir}/efiboot/EFI/archiso/$(basename "${kernel_path}").efi"
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
     
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
@@ -1302,11 +1284,7 @@ make_tarball() {
     fi
 
     arch-chroot "${work_dir}/airootfs" "/root/optimize_for_tarball.sh" -u ${username}
-    if [[ ! ${kernel} = "core" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p linux-${kernel}" run
-    else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p linux" run
-    fi
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
 
