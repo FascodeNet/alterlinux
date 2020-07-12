@@ -398,6 +398,27 @@ remove_work() {
 }
 
 
+# Display channel list
+show_channel_list() {
+    local i
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+            if [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        echo -n "${i} "
+                    fi
+                else
+                    echo -n "${i} "
+                fi
+            fi
+        fi
+    done
+    echo
+    exit 0
+}
+
+
 # Preparation for build
 prepare_build() {
     # Build mkalteriso
@@ -831,7 +852,7 @@ make_customize_airootfs() {
     copy_airootfs() {
         local i 
         for i in "${@}"; do
-            local _dir="${1%/}"
+            local _dir="${i%/}"
             if [[ -d "${_dir}" ]]; then
                 cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
             fi
@@ -1201,7 +1222,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1314,6 +1335,10 @@ while :; do
             ;;
         --noloopmod)
             noloopmod=true
+            shift 1
+            ;;
+        --channellist)
+            show_channel_list
             shift 1
             ;;
         --)
@@ -1455,6 +1480,7 @@ if [[ "${channel_name}" = "clean" ]]; then
 	remove "${script_path}/menuconfig-script/kernel_choice"
     remove_work
     remove "${rebuildfile}"
+    remove "${script_path}/temp"
     exit 0
 fi
 
