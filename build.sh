@@ -246,7 +246,7 @@ _usage () {
     local arch
     local lang
     local list
-    local alteriso_lang_list
+    local locale_name_list
     local kernel
 
     echo " Language for each architecture:"
@@ -256,8 +256,8 @@ _usage () {
         for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
             echo -ne " "
         done
-        alteriso_lang_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
-        for lang in ${alteriso_lang_list[@]};do
+        locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
+        for lang in ${locale_name_list[@]};do
             echo -n "${lang} "
         done
         echo
@@ -265,13 +265,13 @@ _usage () {
 
     echo
     echo " Kernel for each architecture:"
-    for list in ${script_path}/system/kernel_list-* ; do
-        arch="${list#${script_path}/system/kernel_list-}"
+    for list in ${script_path}/system/kernel-* ; do
+        arch="${list#${script_path}/system/kernel-}"
         echo -n "    ${arch} "
         for i in $( seq 1 $(( ${blank} - 5 - ${#arch} )) ); do
             echo -ne " "
         done
-        for kernel in $(grep -h -v ^'#' ${list}); do
+        for kernel in $(grep -h -v ^'#' ${list} | awk '{print $1}'); do
             echo -n "${kernel} "
         done
         echo
@@ -738,10 +738,12 @@ make_basefs() {
     fi
     
     # Install kernel.
-    if [[ ! "${kernel}" = "core" ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${kernel_package} ${kernel_headers_packages} broadcom-wl-dkms" install
+
+    if [[ "${kernel_package}" = "linux" ]]; then
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl" install
     else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl-dkms" install
     fi
 }
 
@@ -993,22 +995,23 @@ make_customize_airootfs() {
     curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${mirror_country}"
     
     # customize_airootfs options
-    # -b            : Enable boot splash.
-    # -d            : Enable debug mode.
-    # -g <localegen>: Set locale-gen.
-    # -i <inst_dir> : Set install dir
-    # -k <kernel>   : Set kernel name.
-    # -o <os name>  : Set os name.
-    # -p <password> : Set password.
-    # -s <shell>    : Set user shell.
-    # -t            : Set plymouth theme.
-    # -u <username> : Set live user name.
-    # -x            : Enable bash debug mode.
-    # -r            : Enable rebuild.
-    # -z <timezone> : Set the time zone.
-    # -l <language> : Set language.
+    # -b                        : Enable boot splash.
+    # -d                        : Enable debug mode.
+    # -g <localegen>            : Set locale-gen.
+    # -i <inst_dir>             : Set install dir
+    # -k <kernel config line>   : Set kernel name.
+    # -o <os name>              : Set os name.
+    # -p <password>             : Set password.
+    # -s <shell>                : Set user shell.
+    # -t                        : Set plymouth theme.
+    # -u <username>             : Set live user name.
+    # -x                        : Enable bash debug mode.
+    # -r                        : Enable rebuild.
+    # -z <timezone>             : Set the time zone.
+    # -l <language>             : Set language.
     #
     # -j is obsolete in AlterISO3 and cannot be used.
+    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     
     
     # Generate options of customize_airootfs.sh.
@@ -1032,7 +1035,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
     
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'"
+    share_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'"
     
     
     # X permission
@@ -1125,11 +1128,7 @@ make_setup_mkinitcpio() {
         exec 17<>$"{work_dir}/gpgkey"
     fi
     
-    if [[ ! ${kernel} = "core" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
-    else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
-    fi
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k '/boot/${kernel_filename}' -g /boot/archiso.img" run
     
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
@@ -1140,12 +1139,7 @@ make_setup_mkinitcpio() {
 make_boot() {
     mkdir -p "${work_dir}/iso/${install_dir}/boot/${arch}"
     cp "${work_dir}/${arch}/airootfs/boot/archiso.img" "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img"
-    
-    if [[ ! "${kernel}" = "core" ]]; then
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel}" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}"
-    else
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz"
-    fi
+    cp "${work_dir}/${arch}/airootfs/boot/${kernel_filename}" "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename})"
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
@@ -1161,11 +1155,7 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    if [[ ! ${kernel} = "core" ]]; then
-        _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    else
-        _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/vmlinuz-linux | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    fi
+    _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
     
     for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
@@ -1255,12 +1245,7 @@ make_efiboot() {
     
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
     
-    if [[ ! ${kernel} = "core" ]]; then
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}" "${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-${kernel}.efi"
-    else
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz" "${work_dir}/efiboot/EFI/archiso/vmlinuz.efi"
-    fi
-    
+    cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename})" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}).efi"
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
     
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
@@ -1300,11 +1285,7 @@ make_tarball() {
     fi
 
     arch-chroot "${work_dir}/airootfs" "/root/optimize_for_tarball.sh" -u ${username}
-    if [[ ! ${kernel} = "core" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p linux-${kernel}" run
-    else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p linux" run
-    fi
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
 
@@ -1380,11 +1361,7 @@ while :; do
             _msg_error "To use Japanese, use \"-g ja\"." '1'
         ;;
         -k | --kernel)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
-                kernel="${2}"
-            else
-                _msg_error "Invalid kernel ${2}" "1"
-            fi
+            kernel="${2}"
             shift 2
         ;;
         -l | --cleaning)
@@ -1577,18 +1554,11 @@ if [[ -n "${1}" ]]; then
     fi
 fi
 
-# Check architecture and kernel for each channel
+# Check architecture for each channel
 if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
     # architecture
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
-    
-    # kernel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
-            _msg_error "This kernel is currently not supported on this channel." "1"
-        fi
     fi
 fi
 
@@ -1603,14 +1573,15 @@ if [[ "${channel_name}" = "clean" ]]; then
     exit 0
 fi
 
+
 # Parse languages
-locale_list="${script_path}/system/locale-${arch}"
-alteriso_lang_list=($(cat "${locale_list}" | grep -h -v ^'#' | awk '{print $1}'))
-check_lang() {
+locale_config_file="${script_path}/system/locale-${arch}"
+locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_locale_line() {
     local _lang
     local count
     count=0
-    for _lang in ${alteriso_lang_list[@]}; do
+    for _lang in ${locale_name_list[@]}; do
         count=$(( count + 1 ))
         if [[ "${_lang}" == "${language}" ]]; then
             echo "${count}"
@@ -1620,18 +1591,49 @@ check_lang() {
     echo -n "failed"
     return 0
 }
-
-locale_line="$(check_lang)"
+locale_line="$(get_locale_line)"
 if [[ "${locale_line}" == "failed" ]]; then
     _msg_error "${language} is not a valid language." "1"
 fi
 
-locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
+locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
 
-localegen=$(echo ${locale_config_full} | awk '{print $2}')
-mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
-locale_name=$(echo ${locale_config_full} | awk '{print $4}')
-timezone=$(echo ${locale_config_full} | awk '{print $5}')
+localegen=$(echo ${locale_config_line} | awk '{print $2}')
+mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
+locale_name=$(echo ${locale_config_line} | awk '{print $4}')
+timezone=$(echo ${locale_config_line} | awk '{print $5}')
+
+
+# Parse kernel
+kernel_config_file="${script_path}/system/kernel-${arch}"
+kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_kernel_line() {
+    local _kernel
+    local count
+    count=0
+    for _kernel in ${kernel_name_list[@]}; do
+        count=$(( count + 1 ))
+        if [[ "${_kernel}" == "${kernel}" ]]; then
+            echo "${count}"
+            return 0
+        fi
+    done
+    echo -n "failed"
+    return 0
+}
+kernel_line="$(get_kernel_line)"
+if [[ "${kernel_line}" == "failed" ]]; then
+    _msg_error "Invalid kernel ${kernel}" "1"
+fi
+
+kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+
+kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
+kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+
+kernel_config_line="${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}"
 
 
 # Check the value of a variable that can only be set to true or false.
