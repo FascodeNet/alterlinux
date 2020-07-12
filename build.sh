@@ -265,13 +265,13 @@ _usage () {
 
     echo
     echo " Kernel for each architecture:"
-    for list in ${script_path}/system/kernel_list-* ; do
-        arch="${list#${script_path}/system/kernel_list-}"
+    for list in ${script_path}/system/kernel-* ; do
+        arch="${list#${script_path}/system/kernel-}"
         echo -n "    ${arch} "
         for i in $( seq 1 $(( ${blank} - 5 - ${#arch} )) ); do
             echo -ne " "
         done
-        for kernel in $(grep -h -v ^'#' ${list}); do
+        for kernel in $(grep -h -v ^'#' ${list} | awk '{print $1}'); do
             echo -n "${kernel} "
         done
         echo
@@ -1577,7 +1577,7 @@ if [[ -n "${1}" ]]; then
     fi
 fi
 
-# Check architecture and kernel for each channel
+# Check architecture for each channel
 if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
     # architecture
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
