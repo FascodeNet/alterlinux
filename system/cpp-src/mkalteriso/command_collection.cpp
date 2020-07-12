@@ -82,13 +82,14 @@ int command_collection::command_tarball(QString tarfile_name){
         Outdir.cdUp();
         Outdir.mkdir(bskun->get_out_dir());
     }
+    _cleanup_tarball();
     _msg_info("Creating tarball...");
     QString _vflag="";
     if(!bskun->get_quiet() || bskun->get_debug_mode()){
         _vflag="v";
     }
     QString tar_filepath=Outdir.path() + "/" + tarfile_name;
-    QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/" + bskun->get_architecture() + "/airootfs-tarball/*";
+    QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/airootfs/*";
     system(tar_cmd.toUtf8().data());
     _checksum_common(tar_filepath);
     _msg_success("Done! " + tar_filepath);
@@ -96,6 +97,7 @@ int command_collection::command_tarball(QString tarfile_name){
 }
 int command_collection::_cleanup(){
     if(bskun == nullptr) return 456;//nullptr
+    _cleanup_common();
     QDir bootkun(bskun->get_work_dir() + "/airootfs/boot");
     if(bootkun.exists()){   //Delete initcpio image(s) and kernel(s)
         QStringList nameFilters;
@@ -106,6 +108,11 @@ int command_collection::_cleanup(){
             bootkun.remove(filekun);
         }
     }
+    _msg_success("Done!");
+    return 0;
+}
+int command_collection::_cleanup_common(){
+
     QDir pacman_sync_D(bskun->get_work_dir() + "/airootfs/var/lib/pacman/sync");
     if(pacman_sync_D.exists()){
         QStringList fileskun=pacman_sync_D.entryList(QDir::Files);
@@ -144,7 +151,11 @@ int command_collection::_cleanup(){
     QString cmdkun_buf="work_dir=\"" + bskun->get_work_dir() + "\"\nfind \"${work_dir}\" \\( -name \"*.pacnew\" -o -name \"*.pacsave\" -o -name \"*.pacorig\" \\) -delete";
     _msg_infodbg(cmdkun_buf);
     system(cmdkun_buf.toUtf8().data());
-    _msg_success("Done!");
+    return 0;
+}
+int command_collection::_cleanup_tarball(){
+    _cleanup_common();
+    _msg_info("done!");
     return 0;
 }
 int command_collection::_mkairootfs_sfs(){
