@@ -280,17 +280,11 @@ _usage () {
     echo
     echo " Channel:"
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-            if [[ ! ${i} = "share" ]]; then
-                if [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
-                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                            channel_list="${channel_list[@]} ${i}"
-                        fi
-                    else
-                        channel_list="${channel_list[@]} ${i}"
-                    fi
-                fi
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+            if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                channel_list="${channel_list[@]} ${i}"
+            elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                channel_list="${channel_list[@]} ${i}"
             fi
         fi
     done
@@ -1512,17 +1506,11 @@ if [[ -n "${1}" ]]; then
         local i
         channel_list=()
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-                if [[ ! ${i} = "share" ]]; then
-                    if [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
-                        if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                            if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                                channel_list="${channel_list[@]} ${i}"
-                            fi
-                        else
-                            channel_list="${channel_list[@]} ${i}"
-                        fi
-                    fi
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+                if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    channel_list="${channel_list[@]} ${i}"
+                elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                    channel_list="${channel_list[@]} ${i}"
                 fi
             fi
         done
@@ -1532,11 +1520,9 @@ if [[ -n "${1}" ]]; then
                     echo -n "true"
                     return 0
                 fi
-            else
-                if [[ ${i} = ${1} ]]; then
-                    echo -n "true"
-                    return 0
-                fi
+            elif [[ ${i} = ${1} ]]; then
+                echo -n "true"
+                return 0
             fi
         done
         if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
@@ -1575,10 +1561,8 @@ if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] 
     fi
 
     # kernel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
-            _msg_error "This kernel is currently not supported on this channel." "1"
-        fi
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        _msg_error "This kernel is currently not supported on this channel." "1"
     fi
 fi
 
