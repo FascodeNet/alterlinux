@@ -19,7 +19,7 @@ AlterISOは様々なカーネルをサポートしています。カーネルは
 
 core            linux                    linux-headers                  vmlinuz-linux                  linux
 lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
-zen             linux-zen                linux-zen-beaders              vmlinuz-linux-zen              linux-zen
+zen             linux-zen                linux-zen-headers              vmlinuz-linux-zen              linux-zen
 ```
 
 #### kernel name
