@@ -246,7 +246,7 @@ _usage () {
     local arch
     local lang
     local list
-    local alteriso_lang_list
+    local locale_name_list
     local kernel
 
     echo " Language for each architecture:"
@@ -256,8 +256,8 @@ _usage () {
         for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
             echo -ne " "
         done
-        alteriso_lang_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
-        for lang in ${alteriso_lang_list[@]};do
+        locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
+        for lang in ${locale_name_list[@]};do
             echo -n "${lang} "
         done
         echo
@@ -1598,12 +1598,12 @@ fi
 
 # Parse languages
 locale_config_file="${script_path}/system/locale-${arch}"
-alteriso_lang_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-check_lang() {
+locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_locale_line() {
     local _lang
     local count
     count=0
-    for _lang in ${alteriso_lang_list[@]}; do
+    for _lang in ${locale_name_list[@]}; do
         count=$(( count + 1 ))
         if [[ "${_lang}" == "${language}" ]]; then
             echo "${count}"
@@ -1614,7 +1614,7 @@ check_lang() {
     return 0
 }
 
-locale_line="$(check_lang)"
+locale_line="$(get_locale_line)"
 if [[ "${locale_line}" == "failed" ]]; then
     _msg_error "${language} is not a valid language." "1"
 fi
