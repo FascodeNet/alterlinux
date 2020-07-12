@@ -224,7 +224,7 @@ fi
 
 # Replace the configuration file.
 # initcpio
-sed -i "s/%MKINITCPIO_PROFILE%/'${kernel_mkinitcpio_profile}'/g" /usr/share/calamares/modules/initcpio.conf
+sed -i "s/%MKINITCPIO_PROFILE%/${kernel_mkinitcpio_profile}/g" /usr/share/calamares/modules/initcpio.conf
 
 # unpackfs
 sed -i "s|%KERNEL_FILENAME%|${kernel_filename}|g" /usr/share/calamares/modules/unpackfs.conf
