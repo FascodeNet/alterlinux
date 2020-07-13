@@ -92,7 +92,7 @@ int command_collection::command_tarball(QString tarfile_name){
     //QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/airootfs/*";
     //system(tar_cmd.toUtf8().data());
     QStringList tar_cmdls;
-    tar_cmdls << "tar" << "Jpcg" + _vflag << tar_filepath << "./*";
+    tar_cmdls << "bash" << "-c" << "tar" << "Jpcg" + _vflag << tar_filepath << "./*";
     pid_t pidkun=fork();
     if(pidkun < 0){
         exit(-1);
@@ -367,7 +367,7 @@ int command_collection::_pacman(QString packages){
     QString safe_workdir=bskun->get_work_dir();
     safe_workdir=safe_workdir.replace(";","");
     QStringList command_lskun;
-    command_lskun << "pacstrap" << "-C" << safe_pacman_conf<< "-c" << "-G" << "-M" << "-U" << safe_workdir + "/airootfs" << package_path;
+    command_lskun << "bash" << "-c" << "pacstrap" << "-C" << safe_pacman_conf<< "-c" << "-G" << "-M" << "-U" << safe_workdir + "/airootfs" << package_path;
     //QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M -U \"" +safe_workdir + "/airootfs\" " + package_path;
     std::wcout << "Running pacstrap......\n" << /*command_strkun.toStdWString() << */std::endl;
     //system(command_strkun.toUtf8().data());
