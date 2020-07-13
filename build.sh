@@ -524,12 +524,6 @@ prepare_build() {
         save_var out_dir
         save_var gpg_key
 
-        write_rebuild_file "\n# mkalteriso Info"
-        save_var mkalteriso
-        save_var shmkalteriso
-        save_var mkalteriso_option
-        save_var tarball
-
         write_rebuild_file "\n# Live User Info"
         save_var username
         save_var password
@@ -605,6 +599,12 @@ prepare_build() {
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
 
+
+    write_rebuild_file "\n# mkalteriso Info"
+    save_var mkalteriso
+    save_var shmkalteriso
+    save_var mkalteriso_option
+    save_var tarball
 
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
