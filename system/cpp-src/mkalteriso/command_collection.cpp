@@ -91,8 +91,10 @@ int command_collection::command_tarball(QString tarfile_name){
     QString tar_filepath=Outdir.path() + "/" + tarfile_name;
     //QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/airootfs/*";
     //system(tar_cmd.toUtf8().data());
-    QStringList tar_cmdls;
-    tar_cmdls << "bash" << "-c" << "tar" << "-Jpcf" + _vflag << tar_filepath << "./*";
+    /*QStringList tar_cmdls;
+    tar_cmdls << "bash" << "-c" << "tar" << QString("Jpc" + _vflag + "f") << tar_filepath << "./*";
+    */
+    QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " ./*";
     pid_t pidkun=fork();
     if(pidkun < 0){
         exit(-1);
@@ -100,7 +102,8 @@ int command_collection::command_tarball(QString tarfile_name){
         //child process
         QDir current_dir = QDir::current();
         current_dir.cd(bskun->get_work_dir() + "/airootfs/");
-        exit(custom_exec(tar_cmdls));
+        system(tar_cmd.toUtf8().data());
+        exit(0);
     }
     int status;
     pid_t rkun=waitpid(pidkun,&status,0);
