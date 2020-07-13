@@ -354,7 +354,7 @@ int command_collection::_pacman(QString packages){
     QString safe_workdir=bskun->get_work_dir();
     safe_workdir=safe_workdir.replace(";","");
     QStringList command_lskun;
-    command_lskun << "pacstrap" << "-C" << "\"" + safe_pacman_conf  + "\"" << "-c" << "-G" << "-M" << "\"" + safe_workdir + "/airootfs\"" << packages;
+    command_lskun << "pacstrap" << "-C" << safe_pacman_conf << "-c" << "-G" << "-M" << QString(safe_workdir + "/airootfs" )<< packages.split(" ");
     //QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M \"" +safe_workdir + "/airootfs\" " + packages;
     std::wcout << "Running pacstrap......\n" /*<< command_strkun.toStdWString() */<< std::endl;
     custom_exec(command_lskun);
@@ -367,7 +367,7 @@ int command_collection::_pacman(QString packages){
     QString safe_workdir=bskun->get_work_dir();
     safe_workdir=safe_workdir.replace(";","");
     QStringList command_lskun;
-    command_lskun << "pacstrap" << "-C" << "\"" + safe_pacman_conf +"\"" << "-c" << "-G" << "-M" << "-U" << "\"" +safe_workdir + "/airootfs\"" << package_path;
+    command_lskun << "pacstrap" << "-C" << safe_pacman_conf<< "-c" << "-G" << "-M" << "-U" << safe_workdir + "/airootfs" << package_path;
     //QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M -U \"" +safe_workdir + "/airootfs\" " + package_path;
     std::wcout << "Running pacstrap......\n" << /*command_strkun.toStdWString() << */std::endl;
     //system(command_strkun.toUtf8().data());
