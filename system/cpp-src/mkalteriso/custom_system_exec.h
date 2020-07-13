@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 char** QStringList_to_charpp(QStringList);
-char** QStringList_to_charpp_null();
+char** QStringList_to_charpp_null(QStringList);
 int custom_exec(QString file_name,QStringList args);
 int custom_exec(QStringList args);
 #endif // CUSTOM_SYSTEM_EXEC_H
