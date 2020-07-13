@@ -101,7 +101,8 @@ int command_collection::command_tarball(QString tarfile_name){
     }else if(pidkun == 0){
         //child process
         QDir current_dir = QDir::current();
-        current_dir.cd(bskun->get_work_dir() + "/airootfs/");
+        QDir nextdirkun(bskun->get_work_dir() + "/airootfs/");
+        chdir(nextdirkun.path().toUtf8().data());
         system(tar_cmd.toUtf8().data());
         exit(0);
     }

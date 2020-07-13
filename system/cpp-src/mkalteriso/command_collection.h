@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <stdio.h>
+#include <unistd.h>
 #include "build_setting.h"
 #include "custom_system_exec.h"
 class command_collection : public QObject
