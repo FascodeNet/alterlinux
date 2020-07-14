@@ -375,12 +375,12 @@ int command_collection::_pacman(QString packages){
     safe_pacman_conf=safe_pacman_conf.replace(";","");
     QString safe_workdir=bskun->get_work_dir();
     safe_workdir=safe_workdir.replace(";","");
-    QStringList command_lskun;
-    command_lskun << "bash" << "-c" << "pacstrap" << "-C" << safe_pacman_conf<< "-c" << "-G" << "-M" << "-U" << safe_workdir + "/airootfs" << package_path;
-    //QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M -U \"" +safe_workdir + "/airootfs\" " + package_path;
-    std::wcout << "Running pacstrap......\n" << /*command_strkun.toStdWString() << */std::endl;
-    //system(command_strkun.toUtf8().data());
-    custom_exec(command_lskun);
+    //QStringList command_lskun;
+    //command_lskun << "bash" << "-c" << "pacstrap" << "-C" << safe_pacman_conf<< "-c" << "-G" << "-M" << "-U" << safe_workdir + "/airootfs" << package_path;
+    QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M -U \"" +safe_workdir + "/airootfs\" " + package_path;
+    std::wcout << "Running pacstrap......\n" << command_strkun.toStdWString() << std::endl;
+    system(command_strkun.toUtf8().data());
+    //custom_exec(command_lskun);
     _msg_success("Packages installed successfully!");
     return 0;
 }
