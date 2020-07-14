@@ -88,7 +88,7 @@ int command_collection::command_tarball(QString tarfile_name){
     if(!bskun->get_quiet() || bskun->get_debug_mode()){
         _vflag="v";
     }
-    QString tar_filepath=Outdir.path() + "/" + tarfile_name;
+    QString tar_filepath=Outdir.absolutePath() + "/" + tarfile_name;
     //QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/airootfs/*";
     //system(tar_cmd.toUtf8().data());
     /*QStringList tar_cmdls;
