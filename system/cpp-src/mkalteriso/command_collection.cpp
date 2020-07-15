@@ -94,7 +94,7 @@ int command_collection::command_tarball(QString tarfile_name){
     /*QStringList tar_cmdls;
     tar_cmdls << "bash" << "-c" << "tar" << QString("Jpc" + _vflag + "f") << tar_filepath << "./*";
     */
-    QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " ./*";
+    QString tar_cmd="tar apcf" + _vflag + " "+ tar_filepath + " ./*";
     pid_t pidkun=fork();
     if(pidkun < 0){
         exit(-1);
