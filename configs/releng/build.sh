@@ -13,7 +13,7 @@ out_dir=out
 gpg_key=""
 
 verbose=""
-script_path=$(readlink -f "${0%/*}")
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 umask 0022
 

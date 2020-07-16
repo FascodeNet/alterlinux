@@ -10,7 +10,7 @@ arch=$(uname -m)
 work_dir=work
 out_dir=out
 
-script_path=$(readlink -f "${0%/*}")
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 umask 0022
 
