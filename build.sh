@@ -1540,7 +1540,7 @@ if [[ -n "${1}" ]]; then
     fi
 
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
-        _msg_error "This channel does not support AlterISO 3." 1
+        _msg_error "This channel does not support AlterISO 3." "1"
     fi
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
