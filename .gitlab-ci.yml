@@ -3,19 +3,9 @@
 default:
   image: archlinux/base
   before_script:
-    - pacman --noconfirm -Syy
-    - pacman --noconfirm -S base-devel shellcheck
+    - pacman --noconfirm -Syu --needed base-devel shellcheck
 
 lint:
   stage: build
   script:
-    - shellcheck -s bash
-        archiso/mkarchiso
-        configs/{baseline,releng}/build.sh
-        configs/releng/airootfs/root/.automated_script.sh
-        configs/releng/airootfs/usr/local/bin/choose-mirror
-        scripts/run_archiso.sh
-        archiso/initcpio/install/*
-    - shellcheck -s dash
-        archiso/initcpio/hooks/*
-        archiso/initcpio/script/*
+    - make check

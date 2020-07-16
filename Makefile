@@ -13,6 +13,15 @@ DOC_DIR=$(DESTDIR)/usr/share/doc/archiso
 
 all:
 
+check:
+	shellcheck -s bash archiso/mkarchiso \
+	                   scripts/run_archiso.sh \
+	                   $(INSTALL_FILES) \
+	                   $(wildcard configs/*/build.sh) \
+	                   configs/releng/airootfs/root/.automated_script.sh \
+	                   configs/releng/airootfs/usr/local/bin/choose-mirror
+	shellcheck -s dash $(HOOKS_FILES) $(SCRIPT_FILES)
+
 install: install-program install-initcpio install-examples install-doc
 
 install-program:
@@ -32,4 +41,4 @@ install-doc:
 	install -d $(DOC_DIR)
 	install -m 644 -t $(DOC_DIR) $(DOC_FILES)
 
-.PHONY: install install-program install-initcpio install-examples install-doc
+.PHONY: check install install-program install-initcpio install-examples install-doc
