@@ -322,6 +322,7 @@ _usage () {
     echo "         --noaur                 No build and install AUR packages."
     echo "         --nocolor               No output colored output."
     echo "         --noconfirm             No check the settings before building."
+    echo "         --nochkver              NO check the version of the channel."
     echo "         --noloopmod             No check and load kernel module automatically."
     echo "         --nodepend              No check package dependencies before building."
     echo "         --noiso                 No build iso image. (Use with --tarball)"
@@ -1330,7 +1331,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1453,6 +1454,10 @@ while :; do
             noaur=true
             shift 1
             ;;
+        --nochkver)
+            nochkver=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1539,7 +1544,7 @@ if [[ -n "${1}" ]]; then
         _msg_error "Invalid channel ${channel_name}" "1"
     fi
 
-    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
         _msg_error "This channel does not support AlterISO 3." "1"
     fi
     
