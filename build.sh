@@ -1544,9 +1544,6 @@ if [[ -n "${1}" ]]; then
         _msg_error "Invalid channel ${channel_name}" "1"
     fi
 
-    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
-        _msg_error "This channel does not support AlterISO 3." "1"
-    fi
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
@@ -1560,6 +1557,9 @@ if [[ -n "${1}" ]]; then
 
     if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
         _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+        if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
+            _msg_error "This channel does not support AlterISO 3." "1"
+        fi
     fi
 fi
 
