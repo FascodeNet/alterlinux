@@ -86,11 +86,13 @@ fi
 rfkill unblock all
 systemctl enable bluetooth
 
-# Snap
-systemctl enable snapd.apparmor.service
-systemctl enable apparmor.service
-systemctl enable snapd.socket
-systemctl enable snapd.service
+if [[ "${arch}" = "x86_64" ]]; then
+    # Snap
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
+fi
 
 
 # Update system datebase
