@@ -1539,7 +1539,7 @@ if [[ -n "${1}" ]]; then
         _msg_error "Invalid channel ${channel_name}" "1"
     fi
 
-    if [[ ! "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
         _msg_error "This channel does not support AlterISO 3." 1
     fi
     
