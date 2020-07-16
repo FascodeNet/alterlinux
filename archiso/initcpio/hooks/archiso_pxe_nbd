@@ -1,7 +1,8 @@
 #!/bin/ash
 
 run_earlyhook() {
-    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
     if [ -n "${ip}" ] && [ -n "${archiso_nbd_srv}" ]; then
         # Module autoloading like with loop devices does not work, doing manually...
         modprobe nbd 2> /dev/null
