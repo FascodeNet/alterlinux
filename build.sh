@@ -569,6 +569,12 @@ prepare_build() {
         save_var defaultconfig
         save_var defaultusername
         save_var customized_username
+
+        write_rebuild_file "\n# mkalteriso Info"
+        save_var mkalteriso
+        save_var shmkalteriso
+        save_var mkalteriso_option
+        save_var tarball
     else
         if [[ "${channel_name}" = "rebuild" ]]; then
             # Delete the lock file.
@@ -600,12 +606,6 @@ prepare_build() {
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
 
-
-    write_rebuild_file "\n# mkalteriso Info"
-    save_var mkalteriso
-    save_var shmkalteriso
-    save_var mkalteriso_option
-    save_var tarball
 
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
