@@ -1507,7 +1507,7 @@ if [[ -n "${1}" ]]; then
         local i
         channel_list=()
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
                 if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                     channel_list="${channel_list[@]} ${i}"
                 elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
@@ -1537,6 +1537,10 @@ if [[ -n "${1}" ]]; then
     
     if [[ $(check_channel "${channel_name}") = false ]]; then
         _msg_error "Invalid channel ${channel_name}" "1"
+    fi
+
+    if [[ ! "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+        _msg_error "This channel does not support Alter ISO3." 1
     fi
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
