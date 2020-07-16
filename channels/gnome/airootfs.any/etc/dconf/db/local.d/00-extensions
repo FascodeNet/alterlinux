@@ -1,0 +1,2 @@
+[org/gnome/shell]
+enabled-extensions=['extensions@abteil.org', 'dash-to-dock@micxgx.gmail.com', 'topicons-redux@pop-planet.info']
