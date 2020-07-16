@@ -571,6 +571,12 @@ prepare_build() {
         save_var customized_username
 
         write_rebuild_file "\n# mkalteriso Info"
+        if [[ "${shmkalteriso}" = false ]]; then
+            mkalteriso="${script_path}/system/mkalteriso"
+        else
+            mkalteriso="${script_path}/system/mkalteriso.sh"
+        fi
+
         save_var mkalteriso
         save_var shmkalteriso
         save_var mkalteriso_option
