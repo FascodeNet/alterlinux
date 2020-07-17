@@ -117,14 +117,16 @@ make_setup_mkinitcpio() {
 
 # Customize installation (airootfs)
 make_customize_airootfs() {
-    if [ -n "${verbose}" ]; then
-        mkarchiso -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
-            -r '/root/customize_airootfs.sh' run
-    else
-        mkarchiso -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
-            -r '/root/customize_airootfs.sh' run
+    if [[ -e "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh" ]]; then
+        if [ -n "${verbose}" ]; then
+            mkarchiso -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
+                -r '/root/customize_airootfs.sh' run
+        else
+            mkarchiso -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
+                -r '/root/customize_airootfs.sh' run
+        fi
+        rm "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
     fi
-    rm "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/

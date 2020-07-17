@@ -2,6 +2,8 @@
 
 set -e -u
 
+echo 'Warning: customize_airootfs.sh is deprecated! Support for it will be removed in a future archiso version.'
+
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 
