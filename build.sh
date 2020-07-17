@@ -569,6 +569,18 @@ prepare_build() {
         save_var defaultconfig
         save_var defaultusername
         save_var customized_username
+
+        write_rebuild_file "\n# mkalteriso Info"
+        if [[ "${shmkalteriso}" = false ]]; then
+            mkalteriso="${script_path}/system/mkalteriso"
+        else
+            mkalteriso="${script_path}/system/mkalteriso.sh"
+        fi
+
+        save_var mkalteriso
+        save_var shmkalteriso
+        save_var mkalteriso_option
+        save_var tarball
     else
         if [[ "${channel_name}" = "rebuild" ]]; then
             # Delete the lock file.
@@ -600,12 +612,6 @@ prepare_build() {
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
 
-
-    write_rebuild_file "\n# mkalteriso Info"
-    save_var mkalteriso
-    save_var shmkalteriso
-    save_var mkalteriso_option
-    save_var tarball
 
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
@@ -1544,9 +1550,6 @@ if [[ -n "${1}" ]]; then
         _msg_error "Invalid channel ${channel_name}" "1"
     fi
 
-    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
-        _msg_error "This channel does not support AlterISO 3." "1"
-    fi
     
     if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
         channel_name="${channel_name}.add"
@@ -1560,6 +1563,9 @@ if [[ -n "${1}" ]]; then
 
     if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
         _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+        if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
+            _msg_error "This channel does not support AlterISO 3." "1"
+        fi
     fi
 fi
 
