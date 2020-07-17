@@ -38,7 +38,6 @@ cdrtools
 celt
 cheese
 chromaprint
-chromium
 cifs-utils
 clutter
 clutter-gst
@@ -212,7 +211,6 @@ ndctl
 neon
 net-tools
 nettle
-network-manager-applet
 networkmanager-openvpn
 nm-connection-editor
 nspr
