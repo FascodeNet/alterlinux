@@ -125,7 +125,8 @@ make_customize_airootfs() {
     fi
     rm "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
 
-    chmod -f 750 "${work_dir}/x86_64/airootfs/root"
+    [[ -e "${work_dir}/x86_64/airootfs/etc/shadow" ]] && chmod -f 0400 -- "${work_dir}/x86_64/airootfs/etc/shadow"
+    [[ -e "${work_dir}/x86_64/airootfs/root" ]] && chmod -f 0750 -- "${work_dir}/x86_64/airootfs/root"
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/

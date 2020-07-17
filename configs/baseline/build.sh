@@ -38,6 +38,16 @@ make_setup_mkinitcpio() {
         -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
 }
 
+# Prepare working directory and copy custom airootfs files (airootfs)
+make_custom_airootfs() {
+    local _airootfs="${work_dir}/airootfs"
+
+    if [[ -d "${script_path}/airootfs" ]]; then
+        cp -af --no-preserve=ownership -- "${script_path}/airootfs/." "${_airootfs}"
+        [[ -e "${_airootfs}/etc/shadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/shadow"
+    fi
+}
+
 # Prepare ${install_dir}/boot/
 make_boot() {
     mkdir -p "${work_dir}/iso/${install_dir}/boot/${arch}"
@@ -80,6 +90,7 @@ make_iso() {
 
 run_once make_basefs
 run_once make_setup_mkinitcpio
+run_once make_custom_airootfs
 run_once make_boot
 run_once make_syslinux
 run_once make_isolinux
