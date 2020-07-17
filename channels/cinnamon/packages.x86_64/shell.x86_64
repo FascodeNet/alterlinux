@@ -15,6 +15,9 @@ lsd
 lsd-control
 
 
+#-- Terminal --#
+gnome-terminal
+
 #-- Prompt --#
 powerline-go
 
