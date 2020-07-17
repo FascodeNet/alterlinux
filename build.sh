@@ -1266,7 +1266,7 @@ make_efiboot() {
     
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
     
-    cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename})" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}).efi"
+    cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}.efi"
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
     
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
