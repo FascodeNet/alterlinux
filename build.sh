@@ -1180,39 +1180,38 @@ make_syslinux() {
     _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
     
+    # copy all syslinux config to work dir
     for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
+             s|%KERNEL_FILENAME%|${kernel_filename}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
     
-    if [[ ${boot_splash} = true ]]; then
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
-        
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+    # Replace the SYSLINUX configuration file with or without boot splash.
+    local _use_config_name
+    local _no_use_config_name
+    local _pxe_or_sys
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name=splash
+        _no_use_config_name=nosplash
     else
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
-        
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+        _use_config_name=nosplash
+        _no_use_config_name=splash
     fi
-    
+    for _pxe_or_sys in "sys" "pxe"; do
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}.cfg"
+    done
+
+    # Set syslinux wallpaper
     if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
         cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
         cp "${script_path}/syslinux/${arch}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
+
+    # copy files
     cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/memdisk" "${work_dir}/iso/${install_dir}/boot/syslinux"
