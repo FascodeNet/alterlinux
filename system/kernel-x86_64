@@ -11,10 +11,13 @@
 #<kernel name>  <kernel package>         <headers package>              <kernel filename>              <mkinitcpio profile>
 #
 
+# ArchLinux Official kernels
 core            linux                    linux-headers                  vmlinuz-linux                  linux
 lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
 zen             linux-zen                linux-zen-headers              vmlinuz-linux-zen              linux-zen
+hardened        linux-hardened           linux-hardened-headers         vmlinuz-linux-hardened         linux-hardened
 
+# AUR Unofficial kernels
 lqx             linux-lqx                linux-lqx-headers              vmlinuz-linux-lqx              linux-lqx
 ck              linux-ck                 linux-ck-headers               vmlinuz-linux-ck               linux-ck
 rt              linux-rt                 linux-rt-headers               vmlinuz-linux-rt               linux-rt
