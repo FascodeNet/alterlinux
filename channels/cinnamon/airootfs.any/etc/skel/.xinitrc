@@ -30,4 +30,4 @@ export UNZIPOPT=-OCP932
 xset -b
 
 # Start xfce4
-exec startxfce4
+exec cinnamon-session
