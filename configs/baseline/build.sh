@@ -22,9 +22,23 @@ run_once() {
     fi
 }
 
+# Setup custom pacman.conf with current cache directories.
+make_pacman_conf() {
+    local _cache_dirs
+    _cache_dirs=("$(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g')")
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n "${_cache_dirs[@]}")|g" \
+        "${script_path}/pacman.conf" > "${work_dir}/pacman.conf"
+}
+
 # Base installation (airootfs)
 make_basefs() {
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" init
+}
+
+# Packages (airootfs)
+make_packages() {
+    mkarchiso -v -w "${work_dir}" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
+        -p "$(grep -h -v '^#' "${script_path}/packages.x86_64"| sed ':a;N;$!ba;s/\n/ /g')" install
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -88,7 +102,9 @@ make_iso() {
         "${iso_name}-${iso_version}-${arch}.iso"
 }
 
+run_once make_pacman_conf
 run_once make_basefs
+run_once make_packages
 run_once make_setup_mkinitcpio
 run_once make_custom_airootfs
 run_once make_boot
