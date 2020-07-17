@@ -1509,62 +1509,71 @@ rebuildfile="${work_dir}/build_options"
 set +eu
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
-    
-    # Channel list
-    # check_channel <channel name>
-    check_channel() {
-        local channel_list
-        local i
-        channel_list=()
-        for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
-                if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    channel_list="${channel_list[@]} ${i}"
-                elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                    channel_list="${channel_list[@]} ${i}"
-                fi
-            fi
-        done
-        for i in ${channel_list[@]}; do
+fi
+
+# check_channel <channel name>
+check_channel() {
+    local channel_list
+    local i
+    channel_list=()
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
             if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
-                    echo -n "true"
-                    return 0
-                fi
-            elif [[ ${i} = ${1} ]]; then
+                channel_list="${channel_list[@]} ${i}"
+            elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                channel_list="${channel_list[@]} ${i}"
+            fi
+        fi
+    done
+    for i in ${channel_list[@]}; do
+        if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
                 echo -n "true"
                 return 0
             fi
-        done
-        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
+        elif [[ ${i} = ${1} ]]; then
             echo -n "true"
             return 0
-        else
-            echo -n "false"
-            return 1
         fi
-    }
-    
-    if [[ $(check_channel "${channel_name}") = false ]]; then
-        _msg_error "Invalid channel ${channel_name}" "1"
+    done
+    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
+        echo -n "true"
+        return 0
+    else
+        echo -n "false"
+        return 1
     fi
+}
 
-    
-    if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
-        channel_name="${channel_name}.add"
-    elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
-        if [[ -f "${rebuildfile}" ]]; then
-            rebuild=true
-        else
-            _msg_error "The previous build information is not in the working directory." "1"
-        fi
+# Check for a valid channel name
+if [[ $(check_channel "${channel_name}") = false ]]; then
+    _msg_error "Invalid channel ${channel_name}" "1"
+fi
+
+# Set for special channels
+if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
+    channel_name="${channel_name}.add"
+elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
+    if [[ -f "${rebuildfile}" ]]; then
+        rebuild=true
+    else
+        _msg_error "The previous build information is not in the working directory." "1"
     fi
+elif [[ "${channel_name}" = "clean" ]]; then
+    umount_chroot
+    remove "${script_path}/menuconfig/build"
+	remove "${script_path}/system/cpp-src/mkalteriso/build"
+	remove "${script_path}/menuconfig-script/kernel_choice"
+    remove_work
+    remove "${rebuildfile}"
+    exit 0
+fi
 
-    if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
-        _msg_debug "channel path is ${script_path}/channels/${channel_name}"
-        if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
-            _msg_error "This channel does not support AlterISO 3." "1"
-        fi
+# Check channel version
+if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
+    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
+        _msg_error "This channel does not support AlterISO 3." "1"
     fi
 fi
 
@@ -1579,17 +1588,6 @@ if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] 
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
         _msg_error "This kernel is currently not supported on this channel." "1"
     fi
-fi
-
-# Run clean
-if [[ "${channel_name}" = "clean" ]]; then
-    umount_chroot
-    remove "${script_path}/menuconfig/build"
-	remove "${script_path}/system/cpp-src/mkalteriso/build"
-	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove_work
-    remove "${rebuildfile}"
-    exit 0
 fi
 
 
