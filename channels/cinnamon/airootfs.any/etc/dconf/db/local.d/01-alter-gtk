@@ -4,9 +4,7 @@ location-mode='path-bar'
 show-hidden=false
 show-size-column=true
 show-type-column=true
-sidebar-width=154
 sort-column='name'
 sort-directories-first=false
 sort-order='ascending'
 type-format='category'
-
