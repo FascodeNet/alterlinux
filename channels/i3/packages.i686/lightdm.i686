@@ -7,6 +7,9 @@
 #
 # (c) 2020 Fascode Network.
 #
-# Base packages
+# LightDM and theme packages
 
-base-devel
+
+lightdm
+lightdm-webkit2-greeter
+lightdm-webkit2-theme-alter
