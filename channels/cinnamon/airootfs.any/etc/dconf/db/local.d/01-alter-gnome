@@ -19,11 +19,6 @@ show-path=false
 sort-method='name'
 sort-type='ascending'
 
-[org/gnome/file-roller/ui]
-sidebar-width=200
-window-height=480
-window-width=600
-
 [org/gnome/gnome-system-monitor]
 maximized=false
 show-dependencies=false
@@ -35,5 +30,8 @@ col-6-visible=true
 col-6-width=0
 
 [org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
-font='SauceCodePro Nerd Font Medium 11'
+audible-bell=false
+font='SauceCodePro Nerd Font Medium 12'
+palette=['rgb(0,0,0)', 'rgb(170,0,0)', 'rgb(0,170,0)', 'rgb(170,85,0)', 'rgb(0,0,170)', 'rgb(170,0,170)', 'rgb(0,170,170)', 'rgb(170,170,170)', 'rgb(85,85,85)', 'rgb(255,85,85)', 'rgb(85,255,85)', 'rgb(255,255,85)', 'rgb(85,85,255)', 'rgb(255,85,255)', 'rgb(85,255,255)', 'rgb(255,255,255)']
+visible-name='AlterLinux'
 use-system-font=false
