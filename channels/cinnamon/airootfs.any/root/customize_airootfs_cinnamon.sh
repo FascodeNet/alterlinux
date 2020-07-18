@@ -116,18 +116,6 @@ else
 fi
 
 
-# Replace right menu
-if [[ "${language}" = "ja" ]]; then
-    remove "/etc/skel/.config/Thunar/uca.xml"
-    remove "/home/${username}/.config/Thunar/uca.xml"
-
-    mv "/etc/skel/.config/Thunar/uca.xml.jp" "/etc/skel/.config/Thunar/uca.xml"
-    mv "/home/${username}/.config/Thunar/uca.xml.jp" "/home/${username}/.config/Thunar/uca.xml"
-else
-    remove "/etc/skel/.config/Thunar/uca.xml.jp"
-    remove "/home/${username}/.config/Thunar/uca.xml.jp"
-fi
-
 # Added autologin group to auto login
 groupadd autologin
 usermod -aG autologin ${username}
