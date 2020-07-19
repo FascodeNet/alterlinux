@@ -45,4 +45,4 @@ remove /etc/udev/rules.d/81-dhcpcd.rules
 remove /etc/systemd/system/{choose-mirror.service,etc-pacman.d-gnupg.mount,getty@tty1.service.d}
 
 # Disabled auto login
-sed -i "s/^autologin/#autologin/g" "/etc/lightdm/lightdm.conf"
+sed -i "s/^AutomaticLogin/#AutomaticLogin/g" "/etc/gdm/gdm.conf"
