@@ -43,3 +43,8 @@ xfce4-screenshooter
 # system
 gparted
 grub-customizer
+
+# for bmenu
+ncdu
+dmidecode
+lshw
