@@ -15,9 +15,11 @@ public:
     void set_build_setting(build_setting* bskun);
     int command_init();
     int command_install();
+    int command_install_file();
     int command_run();
     int command_prepare();
     int command_pkglist();
+    int command_tarball(QString);
     int command_iso(QString);
     void force_umount();
 private:
@@ -37,11 +39,12 @@ private:
     int _chroot_init();
     int _chroot_run();
     int _pacman(QString );
+    int _pacman_file(QString );
     int _cleanup();
     int _mkairootfs_sfs();
     void _mkchecksum();
     void _mksignature();
-    void _mkisochecksum() ;
+    void _checksum_common(QString) ;
     void _msg_infodbg(QString);
     int _mkairootfs_img();
     int _mount_airootfs();

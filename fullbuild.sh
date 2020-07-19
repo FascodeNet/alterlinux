@@ -71,7 +71,7 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
 }
 
 
@@ -88,7 +88,7 @@ _msg_info() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')    $( echo_color -t '32' 'Info') ${*}"
 }
 
 
@@ -105,7 +105,7 @@ _msg_warn() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
 }
 
 
@@ -123,7 +123,7 @@ _msg_debug() {
     done
     shift $((OPTIND - 1))
     if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+        echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '35' 'Debug') ${*}"
     fi
 }
 
@@ -178,7 +178,7 @@ build() {
 }
 
 _help() {
-    echo "usage ${0} [options]"
+    echo "usage ${0} [options] [channel]"
     echo
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
@@ -189,15 +189,19 @@ _help() {
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode."
     echo
-    echo "!! WARNING !!"
-    echo "Do not set channel or architecture with -a."
-    echo "Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
-    echo "Example: ${0} -a '-b -k zen'"
+    echo " !! WARNING !!"
+    echo " Do not set channel or architecture with -a."
+    echo " Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
+    echo " Example: ${0} -a '-b -k zen'"
+    echo
+    echo "Run \"build.sh -h\" for channel details."
+    echo -n " Channel: "
+    "${script_path}/build.sh" --channellist
 }
 
 
-share_options=""
-default_options="-b --noconfirm -l"
+share_options="--noconfirm"
+default_options="-b -l"
 
 while getopts 'a:dghrs' arg; do
     case "${arg}" in
@@ -218,6 +222,15 @@ while getopts 'a:dghrs' arg; do
     esac
 done
 shift $((OPTIND - 1))
+
+if [[ -n "${*}" ]]; then
+    channnels=(${@})
+fi
+
+_msg_info "Options: ${share_options}"
+_msg_info "Press Enter to continue or Ctrl + C to cancel."
+read
+
 
 trap 'trap_exit' 1 2 3 15
 

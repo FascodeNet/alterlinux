@@ -123,14 +123,22 @@ else
 fi
 
 
-# Replace wallpaper
+# Replace logout banner
 remove "/usr/share/lxde/images/logout-banner.png"
 ln -s "/usr/share/lxde/images/alterlinux.png" "/usr/share/lxde/images/logout-banner.png"
 chmod 644 "/usr/share/lxde/images/logout-banner.png"
+
+
+# Replace wallpaper.
+if [[ -f "/usr/share/lxde/wallpapers/lxde_blue.jpg" ]]; then
+    remove "/usr/share/lxde/wallpapers/lxde_blue.jpg"
+    ln -s "/usr/share/backgrounds/alter.png" "/usr/share/lxde/wallpapers/lxde_blue.jpg"
+fi
+[[ -f "/usr/share/backgrounds/alter.png" ]] && chmod 644 "/usr/share/backgrounds/alter.png"
 
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
 
 # Set script permission
-chmod 755 /usr/local/bin/alterlinux-user-directory
+chmod 755 /usr/local/bin/alterlinux-sidebar

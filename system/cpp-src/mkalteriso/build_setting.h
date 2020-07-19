@@ -43,6 +43,10 @@ public:
     void set_use_gpg_key(bool);
     QStringList get_command_args();
     void set_command_args(QStringList);
+    void set_debug_mode(bool);
+    bool get_debug_mode();
+    void set_wsl(bool);
+    bool get_wsl();
 private:
     bool quiet;
     QString architecture;
@@ -62,6 +66,8 @@ private:
     QString gpg_key;
     bool use_gpg_key;
     QStringList command_args;
+    bool debug_mode;
+    bool enable_wsl;
 signals:
 
 };

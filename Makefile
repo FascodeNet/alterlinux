@@ -74,11 +74,6 @@ build_option:
 	./menuconf-to-alterconf.sh ./.build_option
 clean:
 	@sudo ./${BUILD_SCRIPT} clean
-	@rm -rf menuconfig/build
-	@rm -rf system/cpp-src/mkalteriso/build
-	@rm -f menuconfig-script/kernel_choice
-	@rm -f .config
-	@rm -f .build_option 
 build:build_option mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
 	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}

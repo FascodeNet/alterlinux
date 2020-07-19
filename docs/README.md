@@ -19,6 +19,9 @@
 	</a>
 </p>
 <p align="center">
+	<a href="https://travis-ci.org/github/FascodeNet/alterlinux">
+		<img src="https://img.shields.io/travis/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/issues">
 		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
 	</a>
@@ -108,6 +111,9 @@ These are a list of major branches. Other branches are temporary or used for spe
 			<th>
 				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
 			</th>
+			<th>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -123,6 +129,9 @@ These are a list of major branches. Other branches are temporary or used for spe
 			</td>
 			<td>
 				Always updated. There may be many issues left.
+			</td>
+			<td>
+				Next-generation AlterISO and new desktop environment are being developed.
 			</td>
 		</tr>
 	</tbody>

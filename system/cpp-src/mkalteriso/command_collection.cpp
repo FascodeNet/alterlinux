@@ -32,13 +32,37 @@ int command_collection::command_install(){
     return 0;
 
 }
+int command_collection::command_install_file(){
+    if(bskun == nullptr ) return 444;   //null pointer
+    QFileInfo finfo(bskun->get_pacman_conf());
+    if(!finfo.exists()){
+        _msg_err("Pacman config file '" + bskun->get_pacman_conf() + "' does not exist");
+        return 1;
+    }
+    _show_config(INSTALL);
+    QString pkgls=bskun->get_pkg_list();
+    pkgls=pkgls.simplified();
+    if(pkgls == ""){
+        _msg_err("Packages must be specified");
+        return 2;
+    }
+    _pacman_file(pkgls);
+    return 0;
+
+}
 int command_collection::_chroot_init(){
     if(bskun==nullptr)return 777;   // nullptr
     QDir dir(bskun->get_work_dir());
     if(!dir.exists("airootfs")){
         dir.mkpath("airootfs");
     }
-    _pacman("base base-devel syslinux mkinitcpio");
+    if(bskun->get_wsl()){
+
+        _pacman("base base-devel git");
+    }
+    else {
+        _pacman("base base-devel syslinux mkinitcpio git");
+    }
     return 0;
 }
 int command_collection::command_run(){
@@ -50,6 +74,25 @@ int command_collection::command_run(){
     _show_config(RUN);
     return _chroot_run();
 
+}
+int command_collection::command_tarball(QString tarfile_name){
+
+    QDir Outdir(bskun->get_out_dir());
+    if(!Outdir.exists()){
+        Outdir.cdUp();
+        Outdir.mkdir(bskun->get_out_dir());
+    }
+    _msg_info("Creating tarball...");
+    QString _vflag="";
+    if(!bskun->get_quiet() || bskun->get_debug_mode()){
+        _vflag="v";
+    }
+    QString tar_filepath=Outdir.path() + "/" + tarfile_name;
+    QString tar_cmd="tar Jpcf" + _vflag + " "+ tar_filepath + " " +bskun->get_work_dir() + "/" + bskun->get_architecture() + "/airootfs-tarball/*";
+    system(tar_cmd.toUtf8().data());
+    _checksum_common(tar_filepath);
+    _msg_success("Done! " + tar_filepath);
+    return 0;
 }
 int command_collection::_cleanup(){
     if(bskun == nullptr) return 456;//nullptr
@@ -293,6 +336,17 @@ int command_collection::_pacman(QString packages){
     system(command_strkun.toUtf8().data());
     _msg_success("Packages installed successfully!");
     return 0;
+}int command_collection::_pacman_file(QString package_path){
+    _msg_info("Installing packages to '" + bskun->get_work_dir() + "/airootfs/'...");
+    QString safe_pacman_conf=bskun->get_pacman_conf();
+    safe_pacman_conf=safe_pacman_conf.replace(";","");
+    QString safe_workdir=bskun->get_work_dir();
+    safe_workdir=safe_workdir.replace(";","");
+    QString command_strkun="pacstrap -C \"" + safe_pacman_conf +"\" -c -G -M -U \"" +safe_workdir + "/airootfs\" " + package_path;
+    std::wcout << "Running pacstrap......\n" << command_strkun.toStdWString() << std::endl;
+    system(command_strkun.toUtf8().data());
+    _msg_success("Packages installed successfully!");
+    return 0;
 }
 template<class... SHOWVALKUN> void command_collection::show_conf_l(int maxkun,void (*do_msgshow)(QString),SHOWVALKUN... txtargkun){
     QString bfkun="";
@@ -452,17 +506,17 @@ int command_collection::command_iso(QString iso_name){
         _msg_err(QString("xorriso! \n") + QString("Error code : ") + QString::number(ret));
         return 2;
     }
-    _mkisochecksum();
+    _checksum_common(img_name);
     _msg_success("Done! " + bskun->get_out_dir() + "/" + img_name);
     return 0;
 }
-void command_collection::_mkisochecksum(){
+void command_collection::_checksum_common(QString sum_file){
     _msg_info("Creating md5 checksum ...");
-    QString md5_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + img_name + "\"\ncd \"${out_dir}\"\nmd5sum \"${img_name}\" > \"${img_name}.md5\"";
+    QString md5_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + sum_file + "\"\ncd \"${out_dir}\"\nmd5sum \"${img_name}\" > \"${img_name}.md5\"";
     _msg_infodbg(md5_cmdkun);
     system(md5_cmdkun.toUtf8().data());
     _msg_info("Creating sha256 checksum ...");
-    QString sha256_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + img_name + "\"\ncd \"${out_dir}\"\nsha256sum \"${img_name}\" > \"${img_name}.sha256\"";
+    QString sha256_cmdkun="out_dir=\"" + bskun->get_out_dir() + "\"\nimg_name=\"" + sum_file + "\"\ncd \"${out_dir}\"\nsha256sum \"${img_name}\" > \"${img_name}.sha256\"";
     _msg_infodbg(sha256_cmdkun);
     system(sha256_cmdkun.toUtf8().data());
 
@@ -471,7 +525,7 @@ void command_collection::_msg_info(QString s){
     std::wcout << "[mkalteriso] INFO: " << s.toStdWString() << std::endl;
 }
 void command_collection::_msg_infodbg(QString s){
-    if(!bskun->get_quiet()){
+    if(!bskun->get_quiet() || bskun->get_debug_mode()){
         std::wcout << "\e[35m[mkalteriso] DEBUG: " << s.toStdWString() << "\e[0m" << std::endl;
     }
 }

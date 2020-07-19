@@ -1,0 +1,5 @@
+language: shell
+script:
+  - bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
+git:
+  submodules: false

@@ -89,7 +89,7 @@ echo_color() {
     shift $((OPTIND - 1))
 
     if [[ "${nocolor}" = false ]]; then
-        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
     else
         echo ${echo_opts} "${@}"
     fi
@@ -114,7 +114,7 @@ _msg_info() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${*}"
     if [[ "${bash_debug}" = true ]]; then
         set -xv
     else
@@ -141,7 +141,7 @@ _msg_warn() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
     if [[ "${bash_debug}" = true ]]; then
         set -xv
     else
@@ -169,7 +169,7 @@ _msg_debug() {
     done
     shift $((OPTIND - 1))
     if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${*}"
     fi
     if [[ "${bash_debug}" = true ]]; then
         set -xv
@@ -259,7 +259,7 @@ _usage () {
     echo
     local kernel
     local list
-    for list in $(ls ${script_path}/system/kernel_list-*); do
+    for list in ${script_path}/system/kernel_list-* ; do
         echo " ${list#${script_path}/system/kernel_list-}:"
         echo -n "    "
         for kernel in $(grep -h -v ^'#' ${list}); do
@@ -347,10 +347,11 @@ remove() {
     local _file
     _list=($(echo "$@"))
     for _file in "${_list[@]}"; do
-        _msg_debug "Removeing ${_file}"
         if [[ -f ${_file} ]]; then
+            _msg_debug "Removeing ${_file}"
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
+            _msg_debug "Removeing ${_file}"
             rm -rf "${_file}"
         fi
     done
@@ -381,17 +382,40 @@ load_config() {
 
 # 作業ディレクトリを削除
 remove_work() {
-    remove "$(ls ${work_dir}/* | grep "build.make")"
-    remove "${work_dir}"/pacman-*.conf
-    remove "${work_dir}/efiboot"
-    remove "${work_dir}/iso"
-    remove "${work_dir}/${arch}"
-    remove "${work_dir}/packages.list"
-    remove "${work_dir}/packages-full.list"
-    remove "${rebuildfile}"
-    if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-        remove ${work_dir}
+    if [[ -d "${work_dir}" ]]; then
+        remove "$(ls ${work_dir}/* | grep "build.make")"
+        remove "${work_dir}"/pacman-*.conf
+        remove "${work_dir}/efiboot"
+        remove "${work_dir}/iso"
+        remove "${work_dir}/${arch}"
+        remove "${work_dir}/packages.list"
+        remove "${work_dir}/packages-full.list"
+        #remove "${rebuildfile}"
+        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
+            remove ${work_dir}
+        fi
     fi
+}
+
+
+# Display channel list
+show_channel_list() {
+    local i
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+            if [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        echo -n "${i} "
+                    fi
+                else
+                    echo -n "${i} "
+                fi
+            fi
+        fi
+    done
+    echo
+    exit 0
 }
 
 
@@ -476,6 +500,23 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
+    
+        # Generate iso file name.
+        local _channel_name
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
+        else
+            _channel_name="${channel_name}"
+        fi
+        if [[ "${japanese}" = true ]]; then
+            _channel_name="${_channel_name}-jp"
+        fi
+        if [[ "${nochname}" = true ]]; then
+            iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+        else
+            iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+        fi
+        _msg_debug "Iso filename is ${iso_filename}"
 
         # Save the value of the variable for use in rebuild.
         save_var \
@@ -486,6 +527,7 @@ prepare_build() {
             iso_publisher \
             iso_application \
             iso_version \
+            iso_filename \
             install_dir \
             work_dir \
             out_dir \
@@ -516,7 +558,8 @@ prepare_build() {
             noloopmod
     else
         # Load rebuild file
-        load_config "${work_dir}/"
+        load_config "${rebuildfile}"
+        _msg_debug "Iso filename is ${iso_filename}"
 
         # Delete the lock file.
         # remove "$(ls ${work_dir}/* | grep "build.make")"
@@ -529,20 +572,6 @@ prepare_build() {
         _msg_info "Unmounting ${mount}"
         umount "${mount}"
     done
-
-
-    # Generate iso file name.
-    local _channel_name
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')"
-    else
-        _channel_name="${channel_name}"
-    fi
-    if [[ "${japanese}" = true ]]; then
-        _channel_name="${_channel_name}-jp"
-    fi
-    iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    _msg_debug "Iso filename is ${iso_filename}"
 
 
      # Check packages
@@ -756,9 +785,9 @@ make_packages() {
             done
         fi
 
-        if [[ -n "${excludelist[@]}" ]]; then
+        if [[ -n "${excludelist}" ]]; then
             _msg_debug "The following packages have been removed from the installation list."
-            _msg_debug "Excluded packages: ${excludelist[@]}"
+            _msg_debug "Excluded packages:" "${excludelist[@]}"
         fi
 
         # Exclude packages from the exclusion list for each channel
@@ -823,7 +852,7 @@ make_customize_airootfs() {
     copy_airootfs() {
         local i 
         for i in "${@}"; do
-            local _dir="${1%/}"
+            local _dir="${i%/}"
             if [[ -d "${_dir}" ]]; then
                 cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
             fi
@@ -1193,7 +1222,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod"
+_opt_long="arch:,boot-splash,comp-type:,debug,gpgkey:,help,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1268,7 +1297,7 @@ while :; do
             shift 2
             ;;
         -w | --work)
-            out_dir="${2}"
+            work_dir="${2}"
             shift 2
             ;;
         -x | --bash-debug)
@@ -1306,6 +1335,10 @@ while :; do
             ;;
         --noloopmod)
             noloopmod=true
+            shift 1
+            ;;
+        --channellist)
+            show_channel_list
             shift 1
             ;;
         --)
@@ -1417,32 +1450,52 @@ if [[ -n "${1}" ]]; then
         else
             _msg_error "The previous build information is not in the working directory." "1"
         fi
-    elif [[ "${channel_name}" = "clean" ]]; then
-            umount_chroot
-            rm -rf "${work_dir}"
-            exit 
     fi
 
-    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    if [[ ! "${channel_name}" == "rebuild" ]]; then
+        _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    fi
 fi
 
-# Check architecture for each channel
-if [[ ! "${channel_name}" = "rebuild" ]]; then
-    if [[ -z $(cat ${script_path}/channels/${channel_name}/architecture | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+# Check architecture and kernel for each channel
+if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
+    # architecture
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
+
+    # kernel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
+            _msg_error "This kernel is currently not supported on this channel." "1"
+        fi
+    fi
 fi
 
+# Run clean
+if [[ "${channel_name}" = "clean" ]]; then
+    umount_chroot
+    remove "${script_path}/menuconfig/build"
+	remove "${script_path}/system/cpp-src/mkalteriso/build"
+	remove "${script_path}/menuconfig-script/kernel_choice"
+    remove_work
+    remove "${rebuildfile}"
+    remove "${script_path}/temp"
+    exit 0
+fi
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
+    local _value
+    _value="$(eval echo '$'${1})"
     _msg_debug -n "Checking ${1}..."
-    case $(eval echo '$'${1}) in
-        true | false) : ;;
-                *) echo; _msg_error "The variable name ${1} is not of bool type." "1";;
-    esac
     if [[ "${debug}" = true ]]; then
-        echo -e " ok"
+        echo -e " ${_value}"
+    fi
+    if [[ ! -v "${1}" ]]; then
+        echo; _msg_error "The variable name ${1} is empty." "1"
+    elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+        echo; _msg_error "The variable name ${1} is not of bool type." "1"
     fi
 }
 
@@ -1462,6 +1515,7 @@ check_bool shmkalteriso
 check_bool msgdebug
 check_bool customized_username
 check_bool noloopmod
+check_bool nochname
 
 if [[ "${debug}" =  true ]]; then
     echo
