@@ -48,6 +48,9 @@ gnome-shell-extension-dash-to-dock
 gnome-shell-extension-topicons-redux
 
 
+#-- Display manager --#
+gdm
+
 #-- other --#
 gnome-bluetooth
 gnome-epub-thumbnailer
