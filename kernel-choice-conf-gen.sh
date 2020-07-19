@@ -3,15 +3,10 @@ script_path=`dirname $0`
 cd ${script_path}
 rm -f menuconfig-script/kernel_choice_i686
 rm -f menuconfig-script/kernel_choice_x86_64
-kernel_list=($(cat ${script_path}/system/kernel_list-i686 | grep -h -v ^'#'))
-for kernel_name in ${kernel_list[@]}
-do
-    echo "config KERNEL_N_A_M_E_${kernel_name}" >> menuconfig-script/kernel_choice_i686
-    echo -e "\tbool ${kernel_name}" >> menuconfig-script/kernel_choice_i686
-done
-kernel_list=($(cat ${script_path}/system/kernel_list-x86_64 | grep -h -v ^'#'))
-for kernel_name in ${kernel_list[@]}
-do
-    echo "config KERNEL_N_A_M_E_${kernel_name}" >> menuconfig-script/kernel_choice_x86_64
-    echo -e "\tbool ${kernel_name}" >> menuconfig-script/kernel_choice_x86_64
+for list in ${script_path}/system/kernel-* ; do
+    arch="${list#${script_path}/system/kernel-}"
+    for kernel in $(grep -h -v ^'#' ${list} | awk '{print $1}'); do
+        echo "config KERNEL_N_A_M_E_${kernel}" >> "menuconfig-script/kernel_choice_${arch}"
+        echo -e "\tbool ${kernel}" >> "menuconfig-script/kernel_choice_${arch}"
+    done
 done

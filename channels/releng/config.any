@@ -45,10 +45,13 @@ sfs_comp_opt=""
 # As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
 kernel=core
 
-# Set the Japanese mode.
-# When this is enabled, the packages in the japanese package list will be installed.
-# A file for Japanese input is added.
-japanese=false
+# Sets the default language for the live environment.
+# You can also place a package list for that language name and install packages specific to that language.
+language="en"
 
 # Set the user's default shell.
 usershell="/bin/zsh"
+
+# Do not install the AUR package.
+# This setting cannot be changed by an argument.
+noaur=true

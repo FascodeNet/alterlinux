@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# List of kernels available on this channel
+# If you want to limit the available kernels, put the kernel name of the kernel configuration file of the available kernels in this file.
+
+core

@@ -5,8 +5,9 @@
 #include <QFileInfo>
 #include <QDir>
 #include <stdio.h>
+#include <unistd.h>
 #include "build_setting.h"
-
+#include "custom_system_exec.h"
 class command_collection : public QObject
 {
     Q_OBJECT
@@ -19,6 +20,7 @@ public:
     int command_run();
     int command_prepare();
     int command_pkglist();
+    int command_tarball(QString);
     int command_iso(QString);
     void force_umount();
 private:
@@ -40,10 +42,12 @@ private:
     int _pacman(QString );
     int _pacman_file(QString );
     int _cleanup();
+    int _cleanup_tarball();
+    int _cleanup_common();
     int _mkairootfs_sfs();
     void _mkchecksum();
     void _mksignature();
-    void _mkisochecksum() ;
+    void _checksum_common(QString) ;
     void _msg_infodbg(QString);
     int _mkairootfs_img();
     int _mount_airootfs();

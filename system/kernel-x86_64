@@ -1,0 +1,27 @@
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# 
+# kernel list
+#
+#<kernel name>  <kernel package>         <headers package>              <kernel filename>              <mkinitcpio profile>
+#
+
+# ArchLinux Official kernels
+core            linux                    linux-headers                  vmlinuz-linux                  linux
+lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
+zen             linux-zen                linux-zen-headers              vmlinuz-linux-zen              linux-zen
+hardened        linux-hardened           linux-hardened-headers         vmlinuz-linux-hardened         linux-hardened
+
+# AUR Unofficial kernels
+lqx             linux-lqx                linux-lqx-headers              vmlinuz-linux-lqx              linux-lqx
+ck              linux-ck                 linux-ck-headers               vmlinuz-linux-ck               linux-ck
+rt              linux-rt                 linux-rt-headers               vmlinuz-linux-rt               linux-rt
+rt-lts          linux-rt-lts             linux-rt-lts-headers           vmlinuz-linux-rt               linux-rt
+xanmod          linux-xanmod             linux-xanmod-headers           vmlinuz-linux-xanmod           linux-xanmod
+xanmod-lts      linux-xanmod-lts         linux-xanmod-lts-headers       vmlinuz-linux-xanmod-lts       linux-xanmod-lts
+zen-letsnote    linux-zen-letsnote       linux-zen-letsnote-headers     vmlinuz-linux-zen-letsnote     linux-zen-letsnote

@@ -198,18 +198,8 @@ _pacman_file ()
     _msg_info "Packages installed successfully!"
 }
 
-# Cleanup airootfs
-_cleanup () {
-    _msg_info "Cleaning up what we can on airootfs..."
 
-    # Delete initcpio image(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
-    fi
-    # Delete kernel(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
-    fi
+_cleanup_common () {
     # Delete pacman database sync cache files (*.tar.gz)
     if [[ -d "${work_dir}/airootfs/var/lib/pacman" ]]; then
         find "${work_dir}/airootfs/var/lib/pacman" -maxdepth 1 -type f -delete
@@ -232,6 +222,30 @@ _cleanup () {
     fi
     # Delete package pacman related files.
     find "${work_dir}" \( -name "*.pacnew" -o -name "*.pacsave" -o -name "*.pacorig" \) -delete
+}
+
+# Cleanup airootfs
+_cleanup () {
+    _msg_info "Cleaning up what we can on airootfs..."
+
+    _cleanup_common
+
+    # Delete initcpio image(s)
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
+    fi
+    # Delete kernel(s)
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
+    fi
+
+    _msg_info "Done!"
+}
+
+# Cleanup airootfs
+_cleanup_tarball () {
+    _msg_info "Cleaning up what we can on airootfs for tarball..."
+    _cleanup_common
     _msg_info "Done!"
 }
 
@@ -291,19 +305,28 @@ _mkchecksum () {
     _msg_info "Done!"
 }
 
-_mkisochecksum() {
+_checksum_common() {
+    local name="${1}"
     _msg_info "Creating md5 checksum ..."
     cd "${out_dir}"
-    md5sum "${img_name}" > "${img_name}.md5"
+    md5sum "${name}" > "${name}.md5"
     cdback
     # _msg_info "Done!"
 
 
     _msg_info "Creating sha256 checksum ..."
     cd "${out_dir}"
-    sha256sum "${img_name}" > "${img_name}.sha256"
+    sha256sum "${name}" > "${name}.sha256"
     cdback
     # _msg_info "Done!"
+}
+
+_mkisochecksum() {
+    _checksum_common "${img_name}"
+}
+
+_mktarchecksum() {
+    _checksum_common "${tarball_name}"
 }
 
 _mksignature () {
@@ -371,14 +394,30 @@ command_iso () {
 
 # # Compress tarball from "iso" directory.
 command_tarball () {
+    if [[ ! -e "${work_dir}/airootfs" ]]; then
+        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    fi
+
+    _cleanup_tarball
+
     mkdir -p "${out_dir}"
     _msg_info "Creating tarball..."
+
     local _vflag=""
     if [[ ${quiet} == "n" ]]; then
         _vflag="-v"
     fi
-    tar -zc ${_vflag} -f "${out_dir}/${tarball_name}" "${work_dir}/airootfs"
-    _msg_info "Done! | $(ls -sh ${out_dir}/${tarball_name})"
+
+    local tar_path="$(realpath ${out_dir})/${tarball_name}"
+
+    cd "${work_dir}/airootfs"
+
+    tar -J -p -c ${_vflag} -f "${tar_path}" ./*
+
+    cdback
+
+    _mktarchecksum
+    _msg_info "Done! | $(ls -sh ${tar_path})"
 }
 
 # create airootfs.sfs filesystem, and push it in "iso" directory.

@@ -1,0 +1,16 @@
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# 
+# kernel list
+#
+#<kernel name>  <kernel package>         <headers package>              <kernel filename>              <mkinitcpio profile>
+#
+
+core            linux                    linux-headers                  vmlinuz-linux                  linux
+lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
+zen             linux-zen                linux-zen-headers              vmlinuz-linux-zen              linux-zen

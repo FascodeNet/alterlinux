@@ -1,6 +1,0 @@
-config KERNEL_N_A_M_E_core
-	bool core
-config KERNEL_N_A_M_E_lts
-	bool lts
-config KERNEL_N_A_M_E_zen
-	bool zen

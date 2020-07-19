@@ -214,26 +214,20 @@ _msg_error() {
 _usage () {
     echo "usage ${0} [options] [channel]"
     echo
+    echo "A channel is a profile of AlterISO settings."
+    echo
     echo " General options:"
     echo
     echo "    -b | --boot-splash           Enable boot splash"
-    echo "                                  Default: disable"
     echo "    -l | --cleanup               Enable post-build cleaning."
-    echo "                                  Default: disable"
-    echo "    -d | --debug                 Enable debug messages."
-    echo "                                  Default: disable"
-    echo "    -g | --lang                  Specifies the default language for the live environment."
-    echo "                                  Default: ${language}"
-    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
-    echo "                                  Default: disable"
     echo "    -h | --help                  This help message and exit."
     echo
     echo "    -a | --arch <arch>           Set iso architecture."
     echo "                                  Default: ${arch}"
-    echo "    -c | <comp_type>             Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
+    echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
-    echo "    -g | --gpgkey <key>          Set gpg key"
-    echo "                                  Default: ${gpg_key}"
+    echo "    -g | --lang <lang>           Specifies the default language for the live environment."
+    echo "                                  Default: ${language}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
     echo "                                  Default: ${kernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
@@ -242,51 +236,59 @@ _usage () {
     echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
     echo "                                  Default: empty"
-    echo "    -u | --user <username>        Set user name."
+    echo "    -u | --user <username>       Set user name."
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
     echo
-    echo "    --gitversion                 Add Git commit hash to image file version"
-    echo "    --msgdebug                   Enables output debugging."
-    echo "    --nocolor                    No output colored output."
-    echo "    --noconfirm                  No check the settings before building."
-    echo "    --noloopmod                  No check and load kernel module automatically."
-    echo "    --nodepend                   No check package dependencies before building."
-    echo "    --shmkalteriso               Use the shell script version of mkalteriso."
-    echo
-    echo "A list of kernels available for each architecture."
-    echo
-    local kernel
+
+    local blank="33"
+    local arch
+    local lang
     local list
-    for list in ${script_path}/system/kernel_list-* ; do
-        echo " ${list#${script_path}/system/kernel_list-}:"
-        echo -n "    "
-        for kernel in $(grep -h -v ^'#' ${list}); do
+    local locale_name_list
+    local kernel
+
+    echo " Language for each architecture:"
+    for list in ${script_path}/system/locale-* ; do
+        arch="${list#${script_path}/system/locale-}"
+        echo -n "    ${arch}"
+        for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
+            echo -ne " "
+        done
+        locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
+        for lang in ${locale_name_list[@]};do
+            echo -n "${lang} "
+        done
+        echo
+    done
+
+    echo
+    echo " Kernel for each architecture:"
+    for list in ${script_path}/system/kernel-* ; do
+        arch="${list#${script_path}/system/kernel-}"
+        echo -n "    ${arch} "
+        for i in $( seq 1 $(( ${blank} - 5 - ${#arch} )) ); do
+            echo -ne " "
+        done
+        for kernel in $(grep -h -v ^'#' ${list} | awk '{print $1}'); do
             echo -n "${kernel} "
         done
         echo
     done
-    echo
-    echo "You can switch between installed packages, files included in images, etc. by channel."
+
     echo
     echo " Channel:"
-    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-            if [[ ! ${i} = "share" ]]; then
-                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                        channel_list="${channel_list[@]} ${i}"
-                    fi
-                else
-                    channel_list="${channel_list[@]} ${i}"
-                fi
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+            if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                channel_list="${channel_list[@]} ${i}"
+            elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                channel_list="${channel_list[@]} ${i}"
             fi
         fi
     done
     channel_list="${channel_list[@]} rebuild retry"
-    local blank="33"
-    
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
@@ -310,6 +312,21 @@ _usage () {
         fi
         echo -ne "${description}\n"
     done
+
+    echo
+    echo " Debug options: Please use at your own risk."
+    echo "    -d | --debug                 Enable debug messages."
+    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
+    echo "         --gitversion            Add Git commit hash to image file version"
+    echo "         --msgdebug              Enables output debugging."
+    echo "         --noaur                 No build and install AUR packages."
+    echo "         --nocolor               No output colored output."
+    echo "         --noconfirm             No check the settings before building."
+    echo "         --nochkver              NO check the version of the channel."
+    echo "         --noloopmod             No check and load kernel module automatically."
+    echo "         --nodepend              No check package dependencies before building."
+    echo "         --noiso                 No build iso image. (Use with --tarball)"
+    echo "         --shmkalteriso          Use the shell script version of mkalteriso."
     
     if [[ -n "${1:-}" ]]; then
         exit "${1}"
@@ -402,22 +419,6 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
-    # Build mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-        cd "${script_path}"
-        _msg_info "Building mkalteriso..."
-        if [[ "${debug}" = true ]]; then
-            make mkalteriso
-            echo
-        else
-            make mkalteriso > /dev/null 2>&1
-        fi
-        cd - > /dev/null 2>&1
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-    
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
     
@@ -524,17 +525,20 @@ prepare_build() {
         save_var out_dir
         save_var gpg_key
 
-        write_rebuild_file "\n# mkalteriso Info"
-        save_var mkalteriso
-        save_var shmkalteriso
-        save_var mkalteriso_option
-        save_var tarball
-
         write_rebuild_file "\n# Live User Info"
         save_var username
         save_var password
-        save_var kernel
         save_var usershell
+
+        write_rebuild_file "\n# Kernel Info"
+        save_var kernel
+        save_var kernel_package
+        save_var kernel_headers_packages
+        save_var kernel_filename
+        save_var kernel_mkinitcpio_profile
+        save_var kernel_config_line
+        save_var kernel_config_file
+        save_var kernel_line
 
         write_rebuild_file "\n# Plymouth Info"
         save_var boot_splash
@@ -555,6 +559,7 @@ prepare_build() {
         save_var debug
         save_var bash_debug
         save_var nocolor
+        save_var noaur
         save_var msgdebug
         save_var gitversion
         save_var noloopmod
@@ -564,6 +569,18 @@ prepare_build() {
         save_var defaultconfig
         save_var defaultusername
         save_var customized_username
+
+        write_rebuild_file "\n# mkalteriso Info"
+        if [[ "${shmkalteriso}" = false ]]; then
+            mkalteriso="${script_path}/system/mkalteriso"
+        else
+            mkalteriso="${script_path}/system/mkalteriso.sh"
+        fi
+
+        save_var mkalteriso
+        save_var shmkalteriso
+        save_var mkalteriso_option
+        save_var tarball
     else
         if [[ "${channel_name}" = "rebuild" ]]; then
             # Delete the lock file.
@@ -578,7 +595,32 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
     fi
     
-    
+
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        _msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
+        fi
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
+
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
+
     # Unmount
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
@@ -671,6 +713,7 @@ show_settings() {
         _msg_info "Boot splash is enabled."
         _msg_info "Theme is used ${theme_name}."
     fi
+    _msg_info "Language is ${lang_fullname}."
     _msg_info "Use the ${kernel} kernel."
     _msg_info "Live username is ${username}."
     _msg_info "Live user password is ${password}."
@@ -718,10 +761,12 @@ make_basefs() {
     fi
     
     # Install kernel.
-    if [[ ! "${kernel}" = "core" ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "linux-${kernel} linux-${kernel}-headers broadcom-wl-dkms" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${kernel_package} ${kernel_headers_packages}" install
+
+    if [[ "${kernel_package}" = "linux" ]]; then
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl" install
     else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "linux linux-headers broadcom-wl" install
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl-dkms" install
     fi
 }
 
@@ -887,6 +932,10 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
+    if [ ${#pkglist_aur[@]} -eq 0 ]; then
+        echo "# No Package!" >>  "${work_dir}/packages.list"
+        return
+    fi
     echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
@@ -894,21 +943,44 @@ make_packages_aur() {
     
     # Build aur packages on airootfs
     local _aur_pkg
+    local _copy_aur_scripts
+    _copy_aur_scripts() {
+        cp -r "${script_path}/system/aur_scripts/${1}.sh" "${work_dir}/${arch}/airootfs/root/${1}.sh"
+        chmod 755 "${work_dir}/${arch}/airootfs/root/${1}.sh"
+    }
 
-    cp -r "${script_path}/system/aur.sh" "${work_dir}/${arch}/airootfs/root/aur.sh"
-    chmod 755 "${work_dir}/${arch}/airootfs/root/aur.sh"
-    cp -r "${script_path}/system/aur_remove.sh" "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
-    chmod 755 "${work_dir}/${arch}/airootfs/root/aur_remove.sh"
-    local _aur_packages_ls_str
-    _aur_packages_ls_str=""
-    for _pkg24 in ${pkglist_aur[@]}; do
-        _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg24}"
+    _copy_aur_scripts aur_install
+    _copy_aur_scripts aur_prepare
+    _copy_aur_scripts aur_remove
+    _copy_aur_scripts pacls_gen_new
+    _copy_aur_scripts pacls_gen_old
+
+
+    local _aur_packages_ls_str=""
+    for _pkg in ${pkglist_aur[@]}; do
+        _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg}"
     done
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${_aur_packages_ls_str}" run
+
+    # Create user to build AUR
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
+    # Install dependent packages.
+    "${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_INSTALL.sh" "${work_dir}/pacman-${arch}.conf" "${work_dir}/${arch}/airootfs" ${_aur_packages_ls_str}
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
+    # Build the package using makepkg.
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
   
-    for _pkg22 in ${pkglist_aur[@]}; do
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg22}/*.pkg.tar.*" install_file
+    # Install the built package file.
+    for _pkg in ${pkglist_aur[@]}; do
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
     done
+    delete_pkg_list=(`comm -13 --nocheck-order "${work_dir}/${arch}/airootfs/paclist_old" "${work_dir}/${arch}/airootfs/paclist_new" |xargs`)
+    for _dlpkg in ${delete_pkg_list[@]}; do
+        unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
+    done
+    rm -f "${work_dir}/${arch}/airootfs/paclist_old"
+    rm -f "${work_dir}/${arch}/airootfs/paclist_new"
+    # Delete the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
 
@@ -950,22 +1022,23 @@ make_customize_airootfs() {
     curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${mirror_country}"
     
     # customize_airootfs options
-    # -b            : Enable boot splash.
-    # -d            : Enable debug mode.
-    # -g <localegen>: Set locale-gen.
-    # -i <inst_dir> : Set install dir
-    # -k <kernel>   : Set kernel name.
-    # -o <os name>  : Set os name.
-    # -p <password> : Set password.
-    # -s <shell>    : Set user shell.
-    # -t            : Set plymouth theme.
-    # -u <username> : Set live user name.
-    # -x            : Enable bash debug mode.
-    # -r            : Enable rebuild.
-    # -z <timezone> : Set the time zone.
-    # -l <language> : Set language.
+    # -b                        : Enable boot splash.
+    # -d                        : Enable debug mode.
+    # -g <localegen>            : Set locale-gen.
+    # -i <inst_dir>             : Set install dir
+    # -k <kernel config line>   : Set kernel name.
+    # -o <os name>              : Set os name.
+    # -p <password>             : Set password.
+    # -s <shell>                : Set user shell.
+    # -t                        : Set plymouth theme.
+    # -u <username>             : Set live user name.
+    # -x                        : Enable bash debug mode.
+    # -r                        : Enable rebuild.
+    # -z <timezone>             : Set the time zone.
+    # -l <language>             : Set language.
     #
     # -j is obsolete in AlterISO3 and cannot be used.
+    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     
     
     # Generate options of customize_airootfs.sh.
@@ -989,7 +1062,7 @@ make_customize_airootfs() {
         addition_options="${addition_options} -r"
     fi
     
-    share_options="-p '${password}' -k '${kernel}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'"
+    share_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}'"
     
     
     # X permission
@@ -1082,11 +1155,7 @@ make_setup_mkinitcpio() {
         exec 17<>$"{work_dir}/gpgkey"
     fi
     
-    if [[ ! ${kernel} = "core" ]]; then
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux-${kernel} -g /boot/archiso.img" run
-    else
-        ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
-    fi
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img" run
     
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
@@ -1097,12 +1166,7 @@ make_setup_mkinitcpio() {
 make_boot() {
     mkdir -p "${work_dir}/iso/${install_dir}/boot/${arch}"
     cp "${work_dir}/${arch}/airootfs/boot/archiso.img" "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img"
-    
-    if [[ ! "${kernel}" = "core" ]]; then
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel}" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}"
-    else
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz"
-    fi
+    cp "${work_dir}/${arch}/airootfs/boot/${kernel_filename}" "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename}"
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
@@ -1118,46 +1182,41 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    if [[ ! ${kernel} = "core" ]]; then
-        _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    else
-        _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/vmlinuz-linux | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    fi
+    _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
     
+    # copy all syslinux config to work dir
     for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
+             s|%KERNEL_FILENAME%|${kernel_filename}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
     
-    if [[ ${boot_splash} = true ]]; then
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/pxe-plymouth/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
-        
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/sys-plymouth/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+    # Replace the SYSLINUX configuration file with or without boot splash.
+    local _use_config_name
+    local _no_use_config_name
+    local _pxe_or_sys
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name=splash
+        _no_use_config_name=nosplash
     else
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/pxe/archiso_pxe-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_pxe.cfg"
-        
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-        s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/syslinux/${arch}/sys/archiso_sys-${kernel}.cfg" > "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys.cfg"
+        _use_config_name=nosplash
+        _no_use_config_name=splash
     fi
-    
+    for _pxe_or_sys in "sys" "pxe"; do
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}.cfg"
+    done
+
+    # Set syslinux wallpaper
     if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
         cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
         cp "${script_path}/syslinux/${arch}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
+
+    # copy files
     cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/memdisk" "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -1212,12 +1271,7 @@ make_efiboot() {
     
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
     
-    if [[ ! ${kernel} = "core" ]]; then
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}" "${work_dir}/efiboot/EFI/archiso/vmlinuz-linux-${kernel}.efi"
-    else
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz" "${work_dir}/efiboot/EFI/archiso/vmlinuz.efi"
-    fi
-    
+    cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}.efi"
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
     
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
@@ -1248,6 +1302,22 @@ make_efiboot() {
     umount -d "${work_dir}/efiboot"
 }
 
+# Compress tarball
+make_tarball() {
+    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
+
+    if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
+        chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+    fi
+
+    arch-chroot "${work_dir}/airootfs" "/root/optimize_for_tarball.sh" -u ${username}
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
+
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
+
+    remove "${work_dir}/airootfs"
+}
+
 # Build airootfs filesystem image
 make_prepare() {
     cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
@@ -1261,12 +1331,6 @@ make_prepare() {
     fi
 }
 
-# Compress tarball
-make_tarball() {
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.gz"
-    _msg_info "The password for the live user and root is ${password}."
-}
-
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
@@ -1277,7 +1341,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1320,14 +1384,10 @@ while :; do
         ;;
         -j | --japanese)
             _msg_error "This option is obsolete in AlterISO 3."
-            _msg_error "To use Japanese, use \"-g ja_JP.UTF-8\"." '1'
+            _msg_error "To use Japanese, use \"-g ja\"." '1'
         ;;
         -k | --kernel)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
-                kernel="${2}"
-            else
-                _msg_error "Invalid kernel ${2}" "1"
-            fi
+            kernel="${2}"
             shift 2
         ;;
         -l | --cleaning)
@@ -1396,6 +1456,18 @@ while :; do
             tarball=true
             shift 1
             ;;
+        --noiso)
+            noiso=true
+            shift 1
+            ;;
+        --noaur)
+            noaur=true
+            shift 1
+            ;;
+        --nochkver)
+            nochkver=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1417,15 +1489,6 @@ if [[ ${EUID} -ne 0 ]]; then
     sudo ${0} ${options}
     exit 1
 fi
-
-
-# Show alteriso version
-if [[ -d "${script_path}/.git" ]]; then
-    cd  "${script_path}"
-    _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-    cd - > /dev/null 2>&1
-fi
-
 
 # Show config message
 [[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
@@ -1451,84 +1514,57 @@ rebuildfile="${work_dir}/build_options"
 set +eu
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
-    
-    # Channel list
-    # check_channel <channel name>
-    check_channel() {
-        local channel_list
-        local i
-        channel_list=()
-        for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-                if [[ ! ${i} = "share" ]]; then
-                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                            channel_list="${channel_list[@]} ${i}"
-                        fi
-                    else
-                        channel_list="${channel_list[@]} ${i}"
-                    fi
-                fi
-            fi
-        done
-        for i in ${channel_list[@]}; do
+fi
+
+# check_channel <channel name>
+check_channel() {
+    local channel_list
+    local i
+    channel_list=()
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
             if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
-                    echo -n "true"
-                    return 0
-                fi
-            else
-                if [[ ${i} = ${1} ]]; then
-                    echo -n "true"
-                    return 0
-                fi
+                channel_list="${channel_list[@]} ${i}"
+            elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                channel_list="${channel_list[@]} ${i}"
             fi
-        done
-        if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
+        fi
+    done
+    for i in ${channel_list[@]}; do
+        if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
+                echo -n "true"
+                return 0
+            fi
+        elif [[ ${i} = ${1} ]]; then
             echo -n "true"
             return 0
-        else
-            echo -n "false"
-            return 1
         fi
-    }
-    
-    if [[ $(check_channel "${channel_name}") = false ]]; then
-        _msg_error "Invalid channel ${channel_name}" "1"
+    done
+    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
+        echo -n "true"
+        return 0
+    else
+        echo -n "false"
+        return 1
     fi
-    
-    if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
-        channel_name="${channel_name}.add"
-    elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
-        if [[ -f "${rebuildfile}" ]]; then
-            rebuild=true
-        else
-            _msg_error "The previous build information is not in the working directory." "1"
-        fi
-    fi
+}
 
-    if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
-        _msg_debug "channel path is ${script_path}/channels/${channel_name}"
-    fi
+# Check for a valid channel name
+if [[ $(check_channel "${channel_name}") = false ]]; then
+    _msg_error "Invalid channel ${channel_name}" "1"
 fi
 
-# Check architecture and kernel for each channel
-if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
-    # architecture
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+# Set for special channels
+if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
+    channel_name="${channel_name}.add"
+elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
+    if [[ -f "${rebuildfile}" ]]; then
+        rebuild=true
+    else
+        _msg_error "The previous build information is not in the working directory." "1"
     fi
-    
-    # kernel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
-            _msg_error "This kernel is currently not supported on this channel." "1"
-        fi
-    fi
-fi
-
-# Run clean
-if [[ "${channel_name}" = "clean" ]]; then
+elif [[ "${channel_name}" = "clean" ]]; then
     umount_chroot
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
@@ -1538,14 +1574,36 @@ if [[ "${channel_name}" = "clean" ]]; then
     exit 0
 fi
 
+# Check channel version
+if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
+    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
+        _msg_error "This channel does not support AlterISO 3." "1"
+    fi
+fi
+
+# Check architecture for each channel
+if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
+    # architecture
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+    # kernel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        _msg_error "This kernel is currently not supported on this channel." "1"
+    fi
+fi
+
+
 # Parse languages
-locale_list="${script_path}/system/locale-${arch}"
-alteriso_lang_list=($(cat "${locale_list}" | grep -h -v ^'#' | awk '{print $1}'))
-check_lang() {
+locale_config_file="${script_path}/system/locale-${arch}"
+locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_locale_line() {
     local _lang
     local count
     count=0
-    for _lang in ${alteriso_lang_list[@]}; do
+    for _lang in ${locale_name_list[@]}; do
         count=$(( count + 1 ))
         if [[ "${_lang}" == "${language}" ]]; then
             echo "${count}"
@@ -1555,18 +1613,50 @@ check_lang() {
     echo -n "failed"
     return 0
 }
-
-locale_line="$(check_lang)"
+locale_line="$(get_locale_line)"
 if [[ "${locale_line}" == "failed" ]]; then
     _msg_error "${language} is not a valid language." "1"
 fi
 
-locale_config_full="$(cat "${locale_list}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
+locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
 
-localegen=$(echo ${locale_config_full} | awk '{print $2}')
-mirror_country=$(echo ${locale_config_full} | awk '{print $3}')
-locale_name=$(echo ${locale_config_full} | awk '{print $4}')
-timezone=$(echo ${locale_config_full} | awk '{print $5}')
+localegen=$(echo ${locale_config_line} | awk '{print $2}')
+mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
+locale_name=$(echo ${locale_config_line} | awk '{print $4}')
+timezone=$(echo ${locale_config_line} | awk '{print $5}')
+lang_fullname=$(echo ${locale_config_line} | awk '{print $6}')
+
+
+# Parse kernel
+kernel_config_file="${script_path}/system/kernel-${arch}"
+kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_kernel_line() {
+    local _kernel
+    local count
+    count=0
+    for _kernel in ${kernel_name_list[@]}; do
+        count=$(( count + 1 ))
+        if [[ "${_kernel}" == "${kernel}" ]]; then
+            echo "${count}"
+            return 0
+        fi
+    done
+    echo -n "failed"
+    return 0
+}
+kernel_line="$(get_kernel_line)"
+if [[ "${kernel_line}" == "failed" ]]; then
+    _msg_error "Invalid kernel ${kernel}" "1"
+fi
+
+kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+
+kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
+kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+
+kernel_config_line="${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}"
 
 
 # Check the value of a variable that can only be set to true or false.
@@ -1601,6 +1691,8 @@ check_bool customized_username
 check_bool noloopmod
 check_bool nochname
 check_bool tarball
+check_bool noiso
+check_bool noaur
 
 if [[ "${debug}" =  true ]]; then
     echo
@@ -1613,7 +1705,9 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-run_once make_packages_aur
+if [[ "${noaur}" = false ]]; then
+    run_once make_packages_aur
+fi
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 run_once make_boot
@@ -1622,12 +1716,13 @@ run_once make_syslinux
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
-run_once make_prepare
-#if [[ "${tarball}" = true ]]; then
+if [[ "${tarball}" = true ]]; then
     run_once make_tarball
-#fi
-run_once make_iso
-
+fi
+if [ "${noiso}" = false ]; then
+    run_once make_prepare
+    run_once make_iso
+fi
 if [[ ${cleaning} = true ]]; then
     remove_work
 fi

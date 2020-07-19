@@ -188,6 +188,7 @@ _help() {
     echo "    -r                 Set the number of retries."
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode."
+    echo "    -t                 Build the tarball as well."
     echo
     echo "!! WARNING !!"
     echo "Do not set channel or architecture with -a."
@@ -199,7 +200,7 @@ _help() {
 share_options=""
 default_options="-b --noconfirm -l"
 
-while getopts 'a:dghrs' arg; do
+while getopts 'a:dghrst' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         d) share_options="${share_options} ${default_options}" ;;
@@ -213,6 +214,7 @@ while getopts 'a:dghrs' arg; do
             ;;
         s) simulation=true;;
         r) retry="${OPTARG}" ;;
+        t) share_options="${share_options} --tarball" ;;
         h) _help ; exit 0 ;;
         *) _help ; exit 1 ;;
     esac

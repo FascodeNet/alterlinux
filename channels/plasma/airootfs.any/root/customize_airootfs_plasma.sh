@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
 
 set -e -u
 
@@ -7,7 +14,7 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel='zen'
+kernel_config_line='zen linux-zen linux-zen-beaders vmlinuz-linux-zen linux-zen'
 theme_name=alter-logo
 rebuild=false
 username='alter'
@@ -26,7 +33,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        k) kernel="${OPTARG}" ;;
+        k) kernel_config_line="${OPTARG}" ;;
         r) rebuild=true ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
@@ -40,6 +47,14 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         l) language="${OPTARG}" ;;
     esac
 done
+
+
+# Parse kernel
+kernel=$(echo ${kernel_config_line} | awk '{print $1}')
+kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
+kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
 
 
 # Delete file only if file exists
