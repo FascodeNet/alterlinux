@@ -9,8 +9,9 @@
 #  (c) 2020 Fascode Network.
 # ---------------------------------------------
 
-rofi.modi       : drun
+rofi.modi       : drun,power:~/.config/rofi/power.sh
 rofi.font       : hack 10
 rofi.show-icons : true
 rofi.icon-theme : Inverse-blue
 rofi.theme      : ~/.config/rofi/alter-dark.rasi
+rofi.kb-cancel  : Escape
