@@ -5,8 +5,11 @@
 	<img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="AlterLinux logo">
 </p>
 <p align="center">
+	<a href="https://fascode.net/en/projects/linux/alter/">
+		<img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+	</a>
 	<a href="../LICENSE">
-		<img src="https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu" alt="License: GPLv3.0">
+		<img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=for-the-badge" alt="License: GPLv3.0">
 	</a>
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
@@ -16,14 +19,28 @@
 	</a>
 </p>
 <p align="center">
+	<a href="https://travis-ci.org/github/FascodeNet/alterlinux">
+		<img src="https://img.shields.io/travis/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/issues">
 		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
 	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
 		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
 	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/network/members">
+		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
+</p>
+<p align="center">
 	<a href="https://github.com/FascodeNet/alterlinux/releases">
 		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
+	</a>
+	<a href="https://fascode.net/en/projects/linux/alter/downloads/">
+		<img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
+	</a>
+	<a href="">
+		<img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
 	</a>
 </p>
 
@@ -80,16 +97,19 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<thead>
 		<tr>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/master">master</a>
 			</th>
 			<th>	
-				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/stable">stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev">dev</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
+			</th>
+			<th>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
 			</th>
 		</tr>
 	</thead>
@@ -107,18 +127,25 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 			<td>
 				常に更新されます。問題が多数残っている場合があります。
 			</td>
+			<td>
+				次世代のAlterISOや新しいデスクトップ環境の開発が行われています。
+			</td>
 		</tr>
 	</tbody>
 </table>
 
 
 <h2>〈意見や感想について〉</h2>
-もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
-私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。
+もしAlterLinuxが起動しない、使いにくい、標準でインストールしてほしいソフトウェアがある、など意見がございましたらどうぞ遠慮なく<a href="https://github.com/FascodeNet/alterlinux/issues">Issues</a>まで意見をお寄せください。<br>
+私達はAlterLinuxをより良いものにするために様々なユーザーの意見を募集しています。<br>
+
+<h2>〈バグ報告やプルリクエストを送る際は〉</h2>
+必ず<a href="CONTRIBUTING.md">CONTRIBUTING.md</a>を読んでください。
 
 
 <h2>〈ドキュメント〉</h2>
 一部のドキュメントは情報が古かったり、一部の言語しかない場合が有ります。<br>
+また、全てのドキュメントは<code>docs</code>ディレクトリにあります。<br>
 もし誤字脱字や実際と異なる表記を見つけた場合はIssuesで報告して下さい。<br>
 <ul>
 	<li><a href="jp/BUILD.md">AlterLinuxをビルドする</a></li>
@@ -127,6 +154,7 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 	<li><a href="jp/PACKAGE.md">パッケージリストについての注意</a></li>
 	<li><a href="jp/DOCKER.md">Docker上でビルドする方法</a></li>
 	<li><a href="jp/KERNEL.md">新しいカーネルを追加する方法</a></li>
+	<li><a href="en/CONFIG.md">ビルドの設定ファイルについて</a></li>
 </ul>
 
 

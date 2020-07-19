@@ -5,13 +5,41 @@ Dockerでビルドする方法は[この手順](jp/DOCKER.md)を参照してく�
 実機でビルドする場合は、必ずOSがArchLinuxかAlterLinuxでなければなりません。  
 以下では実機でビルドする方法を解説します。  
   
-ビルドは2つの方法で行うことができます。ウィザードを使用する方法と直接実行する方法です。  
+ArchやAlter上で直接ビルドする場合、ビルドはいくつかの方法で行うことができます。
 
-### ソースコードを取得する
+### 準備
+
+ソースコードを取得します。  
 
 ```bash
-git clone https://github.com/SereneTeam/alterlinux.git
+git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
+```
+
+AlterLinuxのリポジトリを利用するための鍵を追加します。  
+
+```bash
+sudo ./keyring.sh --alter-add --arch32-add
+```
+
+ビルドに必要なパッケージをインストールします。
+
+```bash
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+```
+
+### TUIを使用する
+`menuconfig`を使用して設定を行いビルドできます。  
+
+```bash
+make menuconfig
+```
+
+### GUIを使用する
+GUIで設定を行ってビルドできます。
+
+```bash
+python ./build-wizard.py
 ```
 
 ### ビルドウィザードを使用する
@@ -27,42 +55,15 @@ bashで書かれていますのでターミナルから実行してください�
 
 ### 手動でオプションを指定してビルドする
 
-#### 鍵を追加する
-AlterLinuxには鍵を簡単に追加するスクリプトが含まれています。
-
-```bash
-sudo ./keyring.sh --alter-add --arch32-add
-```
-
-#### 依存関係をインストールする
-ビルドに必要なパッケージをインストールして下さい。  
-
-```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
-```
-
-#### ビルドを開始する
 `build.sh`を実行して下さい。  
 
 ```bash
-sudo ./build.sh
+sudo ./build.sh [options] [channel]
 ```
 
-`build.sh`の使い方は以下をご覧ください。
+### build.shの使い方
 
-### build.sh
-
-#### 基本
-
-```bash
-./build.sh <options> <channel>
-```
-
-##### 注意
-チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
-
-#### オプション
-完全なオプションと使い方は`./build -h`を実行して下さい。
+主なオプションは以下のとおです。完全なオプションと使い方は`./build -h`を実行して下さい。  
 
 用途 | 使い方
 --- | ---
@@ -76,6 +77,8 @@ sudo ./build.sh
 出力先ディレクトリを指定する| -o [dir]
 作業ディレクトリを指定する | -w [dir]
 
+##### 注意
+チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
 
 #### 例
 以下の条件でビルドするにはこのようにします。
@@ -90,10 +93,12 @@ sudo ./build.sh
 ```
 
 
+### 注意事項
 #### チャンネルについて
-チャンネルは、インストールするパッケージと含めるファイルを切り替えます。
-この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。
-2020年5月5日現在でサポートされているチャンネルは以下のとおりです。
+チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
+この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。  
+2020年5月5日現在でサポートされているチャンネルは以下のとおりです。  
+完全なチャンネルの一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 目的
 --- | ---

@@ -1,10 +1,11 @@
 FROM archlinux:latest
-RUN curl -o /etc/pacman.d/mirrorlist https://www.archlinux.org/mirrorlist/?country=all&protocol=http&protocol=https&ip_version=4
-RUN sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
+RUN echo 'Server = http://mirrors.cat.net/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist \
+&& echo 'nameserver 1.1.1.1' > /etc/resolv.conf
 RUN pacman -Syyu --noconfirm
-RUN pacman -S git archiso arch-install-scripts sudo qt5-base cmake ninja base-devel --noconfirm
-RUN git clone https://github.com/SereneTeam/alterlinux.git alterlinux/
+RUN pacman -S archiso git arch-install-scripts sudo qt5-base cmake ninja base-devel --noconfirm
+RUN pacman-key --init
+COPY . /alterlinux
 WORKDIR /alterlinux
 RUN git checkout dev
-RUN ./keyring.sh -ca
+RUN ./keyring.sh -a
 CMD ["./build.sh", "-b"]

@@ -5,8 +5,11 @@
 	<img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="AlterLinux logo">
 </p>
 <p align="center">
+	<a href="https://fascode.net/en/projects/linux/alter/">
+		<img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+	</a>
 	<a href="../LICENSE">
-		<img src="https://img.shields.io/badge/LICENSE-GPL--3.0-blue?style=for-the-badge&logo=gnu" alt="License: GPLv3.0">
+		<img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=for-the-badge" alt="License: GPLv3.0">
 	</a>
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
@@ -16,14 +19,28 @@
 	</a>
 </p>
 <p align="center">
+	<a href="https://travis-ci.org/github/FascodeNet/alterlinux">
+		<img src="https://img.shields.io/travis/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/issues">
 		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
 	</a>
 	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
 		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
 	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/network/members">
+		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
+</p>
+<p align="center">
 	<a href="https://github.com/FascodeNet/alterlinux/releases">
 		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
+	</a>
+	<a href="https://fascode.net/en/projects/linux/alter/downloads/">
+		<img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
+	</a>
+	<a href="">
+		<img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
 	</a>
 </p>
 
@@ -83,16 +100,19 @@ These are a list of major branches. Other branches are temporary or used for spe
 	<thead>
 		<tr>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/master">master</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/master">master</a>
 			</th>
 			<th>	
-				<a href="https://github.com/SereneTeam/alterlinux/tree/stable">stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/stable">stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev-stable">dev-stable</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev-stable">dev-stable</a>
 			</th>
 			<th>
-				<a href="https://github.com/SereneTeam/alterlinux/tree/dev">dev</a>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
+			</th>
+			<th>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
 			</th>
 		</tr>
 	</thead>
@@ -110,17 +130,24 @@ These are a list of major branches. Other branches are temporary or used for spe
 			<td>
 				Always updated. There may be many issues left.
 			</td>
+			<td>
+				Next-generation AlterISO and new desktop environment are being developed.
+			</td>
 		</tr>
 	</tbody>
 </table>
 
 
 <h2>〈About opinion and impression〉</h2>
-If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/SereneTeam/alterlinux/issues">Issues</a>.<br>
-We are soliciting opinions from various users to make AlterLinux better.
+If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/FascodeNet/alterlinux/issues">Issues</a>.<br>
+We are soliciting opinions from various users to make AlterLinux better.<br>
+
+<h2>〈When submitting a bug report or pull request〉</h2>
+Be sure to read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.
 
 <h2>〈Documents〉</h2>
 Some documents may have outdated information or only some languages.<br>
+All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
 	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
@@ -129,6 +156,7 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+	<li><a href="en/CONFIG.md">About build configuration file</a></li>
 </ul>
 
 
@@ -139,7 +167,7 @@ In addition, please write down the situation and model name <a href="https://git
 
 
 <h2>〈About FascodeNetwork and developers〉</h2>
-<a href="https://fascode.net/">Fascode Network</a>is a creative team mainly composed of students.<br>
+<a href="https://fascode.net/">Fascode Network</a> is a creative team mainly composed of students.<br>
 We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
 
 <h3>Official Twitter account</h3>

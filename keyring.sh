@@ -76,7 +76,7 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
     OPTIND=${OPTIND_bak}
 }
 
@@ -149,7 +149,7 @@ checkpkg() {
 
 
 run() {
-    msg_info "Running ${@}"
+    msg_info "Running ${*}"
     ${@}
 }
 

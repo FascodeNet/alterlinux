@@ -70,4 +70,6 @@ Thumbs.db
 # --------
 *.dll
 *.exe
-
+# QT
+CMakeLists.txt.user
+build/
