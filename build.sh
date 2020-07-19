@@ -713,6 +713,7 @@ show_settings() {
         _msg_info "Boot splash is enabled."
         _msg_info "Theme is used ${theme_name}."
     fi
+    _msg_info "Language is ${lang_fullname}."
     _msg_info "Use the ${kernel} kernel."
     _msg_info "Live username is ${username}."
     _msg_info "Live user password is ${password}."
@@ -931,6 +932,10 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
+    if [ ${#pkglist_aur[@]} -eq 0 ]; then
+        echo "# No Package!" >>  "${work_dir}/packages.list"
+        return
+    fi
     echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
@@ -1619,6 +1624,7 @@ localegen=$(echo ${locale_config_line} | awk '{print $2}')
 mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
 locale_name=$(echo ${locale_config_line} | awk '{print $4}')
 timezone=$(echo ${locale_config_line} | awk '{print $5}')
+lang_fullname=$(echo ${locale_config_line} | awk '{print $6}')
 
 
 # Parse kernel
