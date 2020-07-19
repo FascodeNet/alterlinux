@@ -932,6 +932,10 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
+    if [ ${#pkglist_aur[@]} -eq 0 ]; then
+        echo "# No Package!" >>  "${work_dir}/packages.list"
+        return
+    fi
     echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
