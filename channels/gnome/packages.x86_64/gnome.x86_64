@@ -1,37 +1,53 @@
-chrome-gnome-shell
-gnome-autoar
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Gnome
+
+
+#-- gnome --#
 gnome-backgrounds
-gnome-bluetooth
+gnome-boxes
 gnome-calculator
-gnome-color-manager
-gnome-common
-gnome-contacts
+gnome-calendar
 gnome-control-center
+gnome-common
 gnome-desktop
-gnome-disk-utility
-gnome-documents
-gnome-epub-thumbnailer
+gnome-disk-utilityya
 gnome-keyring
 gnome-logs
-gnome-maps
-gnome-music
-gnome-online-accounts
-gnome-online-miners
-gnome-photos
+gnome-menus
+gnome-remote-desktop
 gnome-screenshot
 gnome-session
 gnome-settings-daemon
 gnome-shell
 gnome-shell-extensions
+gnome-system-monitor
+gnome-terminal
+mutter
+nautilus
+sushi
+
+
+#-- gnome-extra --#
+dconf-editor
+gnome-tweaks
+
+#-- extentions --#
+chrome-gnome-shell
 gnome-shell-extension-extensions-git
 gnome-shell-extension-dash-to-dock
 # gnome-shell-extension-panel-osd
 # gnome-shell-extension-status-menu-buttons
 gnome-shell-extension-topicons-redux
-gnome-shell-extensions
-gnome-sound-recorder
-gnome-system-monitor
-gnome-terminal
-gnome-themes-extra
-gnome-tweaks
-gnome-weather
+
+
+#-- other --#
+gnome-bluetooth
+gnome-epub-thumbnailer
