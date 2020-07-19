@@ -108,6 +108,9 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 			<th>
 				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
 			</th>
+			<th>
+				<a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -123,6 +126,9 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 			</td>
 			<td>
 				常に更新されます。問題が多数残っている場合があります。
+			</td>
+			<td>
+				次世代のAlterISOや新しいデスクトップ環境の開発が行われています。
 			</td>
 		</tr>
 	</tbody>
