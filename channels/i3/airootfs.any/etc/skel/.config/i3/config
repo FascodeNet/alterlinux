@@ -70,6 +70,9 @@ bindsym $mod+b exec --no-startup-id sakura -e bmenu
 # show help document
 bindsym $mod+Shift+h exec --no-startup-id chromium /usr/share/doc/alter-i3/Document.html
 
+# start rofi (launcher)
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
 
 # change focus
 bindsym $mod+j focus left
@@ -116,8 +119,6 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 
-# start rofi (launcher)
-bindsym $mod+d exec --no-startup-id rofi -show run
 
 
 # Use Mouse+$mod to drag floating windows to their wanted position
