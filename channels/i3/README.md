@@ -52,7 +52,7 @@ mod+Shift+S で、Alter Linux i3独自のテーママネージャを起動でき
 このテーママネージャでは、画面の上 (デフォルト) にあるパネルの見た目、位置などを変更することが出来ます。
 ## システム設定マネージャを使用する
 mod+Bで、システム設定マネージャを起動できます。  
-このショートカットを押すと、新規ターミナル上でbmenuが起動します。変更したい設定に該当するカテゴリの数字を入力し、設定を変更してください。
+このショートカットを押すと、新規ターミナル上で設定マネージャが起動します。変更したい設定に該当するカテゴリの数字を入力し、設定を変更してください。
 ### インストール方法
 ライブ環境を試してみて、インストールしてみたいと思ったら、mod+iキーでインストーラが起動します。  
 インストーラの指示通りに進み、インストールしてみてください。
@@ -171,7 +171,7 @@ You can use mod+Shift+S to launch Alter Linux i3's own theme manager.
 This theme manager allows you to change the appearance, position, etc. of the panels at the top of the screen (the default).
 ## Using the System Configuration Manager
 You can use mod+B to start the System Configuration Manager.  
-Pressing this shortcut will launch bmenu in a new terminal. Enter the number of the category whose settings you want to change and change the settings.
+Pressing this shortcut will launch system manager in a new terminal. Enter the number of the category whose settings you want to change and change the settings.
 ### How to install
 If you want to try the live environment and install it, use the mod+i key to launch the installer.  
 Follow the installer's instructions and try to install it.
@@ -222,7 +222,7 @@ If you want to add some customization, please refer to this section.
 - Change the panel  
 Use the Theme Manager described above
 - Change the system settings, such as screen resolution, etc.  
-Use bmenu (setting manager) as described above
+Use system manager as described above
 - Change the wallpaper.  
 Edit `~/.config/i3/config` , and add line 16 `exec --no- startup-id "feh --bg-fill ***` with the path to the wallpaper in the *** position.
 - Hide the window with the operating instructions.  

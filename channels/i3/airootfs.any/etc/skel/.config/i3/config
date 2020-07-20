@@ -64,8 +64,8 @@ bindsym $mod+Escape exec --no-startup-id i3lock -k
 # polybar theme setting manager
 bindsym $mod+Shift+s exec --no-startup-id alterlinux-i3-manager
 
-# bmenu (system setting manager)
-bindsym $mod+b exec --no-startup-id sakura -e bmenu
+# system setting manager
+bindsym $mod+b exec --no-startup-id sakura -e alter-system-menu
 
 # show help document
 bindsym $mod+Shift+h exec --no-startup-id chromium /usr/share/doc/alter-i3/Document.html
