@@ -44,7 +44,6 @@ xfce4-screenshooter
 gparted
 grub-customizer
 
-# for bmenu
-ncdu
-dmidecode
-lshw
+# for sysmenu
+arandr
+htop

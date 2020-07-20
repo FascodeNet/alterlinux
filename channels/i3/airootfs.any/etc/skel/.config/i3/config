@@ -39,6 +39,9 @@ exec --no-startup-id dunst
 exec --no-startup-id conky
 exec --no-startup-id fcitx
 
+# software floating settings
+for_window [class="arandr"]      floating enable
+for_window [class="pavucontrol"] floating enable
 
 # ---------------------
 # KeyBind
@@ -55,9 +58,6 @@ bindsym $mod+Return exec --no-startup-id sakura
 # take a screenshot
 bindsym $mod+Shift+Print exec --no-startup-id xfce4-screenshooter
 
-# kill focused window
-bindsym $mod+Shift+q kill
-
 # lock screen
 bindsym $mod+Escape exec --no-startup-id i3lock -k
 
@@ -72,6 +72,12 @@ bindsym $mod+Shift+h exec --no-startup-id chromium /usr/share/doc/alter-i3/Docum
 
 # start rofi (launcher)
 bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# power menu
+bindsym $mod+Shift+e rofi -show power
+
+# kill focused window
+bindsym $mod+Shift+q kill
 
 
 # change focus
@@ -117,7 +123,6 @@ bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
-
 
 
 
@@ -212,5 +217,3 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 
-# power menu
-bindsym $mod+Shift+e rofi -show power
