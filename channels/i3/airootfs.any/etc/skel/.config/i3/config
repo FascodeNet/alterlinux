@@ -59,7 +59,7 @@ bindsym $mod+Shift+Print exec --no-startup-id xfce4-screenshooter
 bindsym $mod+Shift+q kill
 
 # lock screen
-bindsym Mod4+Escape exec --no-startup-id i3lock -k
+bindsym $mod+Escape exec --no-startup-id i3lock -k
 
 # polybar theme setting manager
 bindsym $mod+Shift+s exec --no-startup-id alterlinux-i3-manager
