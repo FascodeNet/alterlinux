@@ -69,7 +69,20 @@ make_custom_airootfs() {
 
         [[ -e "${_airootfs}/etc/shadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/shadow"
         [[ -e "${_airootfs}/etc/gshadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/gshadow"
-        [[ -e "${_airootfs}/root" ]] && chmod -f 0750 -- "${_airootfs}/root"
+
+        # Set up user home directories and permissions
+        if [[ -e "${_airootfs}/etc/passwd" ]]; then
+            while IFS=':' read -a passwd -r; do
+                [[ "${passwd[5]}" == '/' ]] && continue
+
+                if [[ -d "${_airootfs}${passwd[5]}" ]]; then
+                    chown -hR -- "${passwd[2]}:${passwd[3]}" "${_airootfs}${passwd[5]}"
+                    chmod -f 0750 -- "${_airootfs}${passwd[5]}"
+                else
+                    install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${_airootfs}${passwd[5]}"
+                fi
+             done < "${_airootfs}/etc/passwd"
+        fi
     fi
 }
 
