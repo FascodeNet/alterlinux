@@ -74,7 +74,7 @@ bindsym $mod+Shift+h exec --no-startup-id chromium /usr/share/doc/alter-i3/Docum
 bindsym $mod+d exec --no-startup-id rofi -show drun
 
 # power menu
-bindsym $mod+Shift+e rofi -show power
+bindsym $mod+Shift+e exec --no-startup-id rofi -show power
 
 # kill focused window
 bindsym $mod+Shift+q kill
