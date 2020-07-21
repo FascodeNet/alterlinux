@@ -1,0 +1,12 @@
+# 
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Write the alias here.
+#
+
+# no-beep less
+alias less='less -Q'
