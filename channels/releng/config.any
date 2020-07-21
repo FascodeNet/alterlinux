@@ -57,3 +57,32 @@ kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
 kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
 kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
 kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+
+# Use mkalteriso written in a traditional shell script 
+# instead of the C ++ version of mkalteriso.
+# Change the default behavior of "--shmkalteriso".
+shmkalteriso=true
+
+# List of packages required for build
+# The following packages are checked to see if they are installed before running build.sh
+# Also, wizard.sh will install it automatically.
+dependence=(
+#   "alterlinux-keyring"
+#   "archiso"
+    "arch-install-scripts"
+    "curl"
+    "dosfstools"
+    "edk2-shell"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
+    "squashfs-tools"
+    "libisoburn"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
+)
