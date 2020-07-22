@@ -235,7 +235,7 @@ for cha in ${channnels[@]}; do
                 for i in $(seq 1 ${retry}); do
                     build
                 done
-            f1i
+            fi
         done
     done
 done
