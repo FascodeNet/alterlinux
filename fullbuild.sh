@@ -197,7 +197,7 @@ _help() {
 
 
 share_options=""
-default_options="-b --noconfirm -l -u alter -p alter"
+default_options="-b --noconfirm -l -u alter -p alter --tarball"
 
 while getopts 'a:dghrst' arg; do
     case "${arg}" in
