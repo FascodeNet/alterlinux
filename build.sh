@@ -419,16 +419,15 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
-    # Set the fullpath
-    rebuildfile="$(realpath "${rebuildfile}")"
-    out_dir="$(realpath "${out_dir}")"
-    work_dir="$(realpath "${work_dir}")"
-
-
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-    
-    
+
+    # Set the fullpath
+    #rebuildfile="$(realpath -e "${rebuildfile}")"
+    out_dir="$(realpath -e "${out_dir}")"
+    work_dir="$(realpath -e "${work_dir}")"
+
+
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]&& [[ ! "${rebuild}" = true ]]; then
         umount_chroot
