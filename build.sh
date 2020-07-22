@@ -1252,8 +1252,9 @@ make_efi() {
     
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
-    s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
+         s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+    "${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
     
     # edk2-shell based UEFI shell
     cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
@@ -1293,8 +1294,9 @@ make_efiboot() {
     
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
-    s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
+         s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+    "${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
     
     cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
     cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
