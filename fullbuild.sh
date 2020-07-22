@@ -5,6 +5,7 @@ script_path="$(readlink -f ${0%/*})"
 channnels=(
     "xfce"
     "lxde"
+    "cinnamon"
 )
 
 architectures=(
@@ -198,7 +199,7 @@ _help() {
 
 
 share_options=""
-default_options="-b --noconfirm -l"
+default_options="-b --noconfirm -l -u alter -p alter"
 
 while getopts 'a:dghrst' arg; do
     case "${arg}" in
