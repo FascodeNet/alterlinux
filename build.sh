@@ -1480,6 +1480,22 @@ while :; do
             noloopmod=true
             shift 1
             ;;
+        --tarball)
+            tarball=true
+            shift 1
+            ;;
+        --noiso)
+            noiso=true
+            shift 1
+            ;;
+        --noaur)
+            noaur=true
+            shift 1
+            ;;
+        --nochkver)
+            nochkver=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1607,15 +1623,27 @@ if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] 
     fi
 fi
 
-# Run clean
-if [[ "${channel_name}" = "clean" ]]; then
-    umount_chroot
-    remove "${script_path}/menuconfig/build"
-	remove "${script_path}/system/cpp-src/mkalteriso/build"
-	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove_work
-    remove "${rebuildfile}"
-    exit 0
+# Parse languages
+locale_config_file="${script_path}/system/locale-${arch}"
+locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+get_locale_line() {
+    local _lang
+    local count
+    count=0
+    for _lang in ${locale_name_list[@]}; do
+        count=$(( count + 1 ))
+        if [[ "${_lang}" == "${language}" ]]; then
+            echo "${count}"
+            return 0
+        fi
+    done
+    echo -n "failed"
+    return 0
+}
+locale_line="$(get_locale_line)"
+
+if [[ "${locale_line}" == "failed" ]]; then
+    _msg_error "${language} is not a valid language." "1"
 fi
 
 locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
