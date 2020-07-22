@@ -241,4 +241,6 @@ for cha in ${channnels[@]}; do
 done
 
 
-_msg_info "All editions have been built"
+if [[ "${simulation}" = false ]]; then
+    _msg_info "All editions have been built"
+fi
