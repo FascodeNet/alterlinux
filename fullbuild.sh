@@ -229,13 +229,13 @@ fi
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
         for lang in ${languages[@]}; do
-            for i in $(seq 1 ${retry}); do
-                if [[ "${simulation}" = true ]]; then
+            if [[ "${simulation}" = true ]]; then
                     echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
-                else
+            else
+                for i in $(seq 1 ${retry}); do
                     build
-                fi
-            done
+                done
+            f1i
         done
     done
 done
