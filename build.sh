@@ -1499,6 +1499,7 @@ while :; do
         --channellist)
             show_channel_list
             exit 0
+            ;;
         --)
             shift
             break
