@@ -13,6 +13,11 @@ architectures=(
     "i686"
 )
 
+languages=(
+    "ja"
+    "gl"
+)
+
 work_dir=temp
 simulation=false
 retry=5
@@ -161,19 +166,12 @@ trap_exit() {
 
 
 build() {
-    options="${share_options} -a ${arch} ${cha}"
+    options="${share_options} -a ${arch} -g ${lang} ${cha}"
 
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}" ]]; then
-        _msg_info "Build ${cha} with ${arch} architecture."
+    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
+        _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
         sudo bash ${script_path}/build.sh ${options}
         touch "${work_dir}/fullbuild.${cha}_${arch}"
-    fi
-    sudo pacman -Sccc --noconfirm > /dev/null 2>&1
-
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_jp" ]]; then
-        _msg_info "Build the Japanese version of ${cha} on the ${arch} architecture."
-        sudo bash ${script_path}/build.sh -g 'ja' ${options}
-        touch "${work_dir}/fullbuild.${cha}_${arch}_jp"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
@@ -230,12 +228,14 @@ fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
-        for i in $(seq 1 ${retry}); do
-            if [[ "${simulation}" = true ]]; then
-                echo "build.sh ${share_options} -a ${arch} ${cha}"
-            else
-                build
-            fi
+        for lang in ${languages[@]}; do
+            for i in $(seq 1 ${retry}); do
+                if [[ "${simulation}" = true ]]; then
+                    echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+                else
+                    build
+                fi
+            done
         done
     done
 done
