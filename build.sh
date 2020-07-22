@@ -417,12 +417,38 @@ remove_work() {
 }
 
 
+# Display channel list
+show_channel_list() {
+    local i
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+            if [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        echo -n "${i} "
+                    fi
+                else
+                    echo -n "${i} "
+                fi
+            fi
+        fi
+    done
+    echo
+    exit 0
+}
+
+
 # Preparation for build
 prepare_build() {
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-    
-    
+
+    # Set the fullpath
+    #rebuildfile="$(realpath -e "${rebuildfile}")"
+    out_dir="$(realpath -e "${out_dir}")"
+    work_dir="$(realpath -e "${work_dir}")"
+
+
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]&& [[ ! "${rebuild}" = true ]]; then
         umount_chroot
@@ -1252,8 +1278,9 @@ make_efi() {
     
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
-    s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
+         s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+    "${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
     
     # edk2-shell based UEFI shell
     cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
@@ -1293,8 +1320,9 @@ make_efiboot() {
     
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
-    s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
+         s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+    "${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
     
     cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
     cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
@@ -1341,7 +1369,7 @@ make_iso() {
 # Parse options
 options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver"
+_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -1467,6 +1495,10 @@ while :; do
         --nochkver)
             nochkver=true
             shift 1
+            ;;
+        --channellist)
+            show_channel_list
+            exit 0
             ;;
         --)
             shift
@@ -1595,7 +1627,6 @@ if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] 
     fi
 fi
 
-
 # Parse languages
 locale_config_file="${script_path}/system/locale-${arch}"
 locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
@@ -1614,6 +1645,7 @@ get_locale_line() {
     return 0
 }
 locale_line="$(get_locale_line)"
+
 if [[ "${locale_line}" == "failed" ]]; then
     _msg_error "${language} is not a valid language." "1"
 fi

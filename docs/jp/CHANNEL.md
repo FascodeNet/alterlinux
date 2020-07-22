@@ -1,7 +1,7 @@
 # チャンネルとは
 チャンネルは、イメージファイルに含めるファイル（airootfs）やインストールするパッケージ、設定ファイルなどを簡単に切り替えられるように作られたAlterISO独自の仕組みです。  
 AlterISO 2の複数アーキテクチャ対応により大幅に仕様が変更されています。また、AlterISO 3の多言語化によってパッケージに関する部分が変更されています。  
-チャンネルでAlterLinuxとは全く別物のOSを構成、ビルドすることもできます。（[ArchLnux](https://github.com/FascodeNet/alterlinux/tree/fix-aur/channels/releng) [GrowthLinux](https://github.com/hyuoou/GrowthLinux)）  
+チャンネルでAlterLinuxとは全く別物のOSを構成、ビルドすることもできます。（[ArchLinux](https://github.com/FascodeNet/alterlinux/tree/fix-aur/channels/releng) [GrowthLinux](https://github.com/hyuoou/GrowthLinux)）  
   
 以下は2020年7月5日現在でのチャンネルの仕様です。  
 

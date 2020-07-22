@@ -46,3 +46,6 @@ remove /etc/systemd/system/{choose-mirror.service,etc-pacman.d-gnupg.mount,getty
 
 # Disabled auto login
 sed -i "s/^autologin/#autologin/g" /etc/lightdm.conf
+
+# Remove dconf for live environment
+remove "/etc/dconf/db/local.d/02-live-config"

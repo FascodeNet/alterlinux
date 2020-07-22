@@ -40,11 +40,6 @@ boot_splash=false
 sfs_comp="xz"
 sfs_comp_opt=""
 
-# Set the kernel that live session use.
-# Please don't set anything if you want to use normal kernel.
-# As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
-kernel=core
-
 # Sets the default language for the live environment.
 # You can also place a package list for that language name and install packages specific to that language.
 language="en"
@@ -55,3 +50,39 @@ usershell="/bin/zsh"
 # Do not install the AUR package.
 # This setting cannot be changed by an argument.
 noaur=true
+
+# kernel config
+kernel_config_line="core linux linux-headers vmlinuz-linux linux"
+kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
+kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+
+# Use mkalteriso written in a traditional shell script 
+# instead of the C ++ version of mkalteriso.
+# Change the default behavior of "--shmkalteriso".
+shmkalteriso=true
+
+# List of packages required for build
+# The following packages are checked to see if they are installed before running build.sh
+# Also, wizard.sh will install it automatically.
+dependence=(
+#   "alterlinux-keyring"
+#   "archiso"
+    "arch-install-scripts"
+    "curl"
+    "dosfstools"
+    "edk2-shell"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
+    "squashfs-tools"
+    "libisoburn"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
+)

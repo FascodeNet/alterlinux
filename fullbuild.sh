@@ -5,11 +5,17 @@ script_path="$(readlink -f ${0%/*})"
 channnels=(
     "xfce"
     "lxde"
+    "cinnamon"
 )
 
 architectures=(
     "x86_64"
     "i686"
+)
+
+languages=(
+    "ja"
+    "gl"
 )
 
 work_dir=temp
@@ -160,25 +166,18 @@ trap_exit() {
 
 
 build() {
-    options="${share_options} -a ${arch} ${cha}"
+    options="${share_options} -a ${arch} -g ${lang} ${cha}"
 
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}" ]]; then
-        _msg_info "Build ${cha} with ${arch} architecture."
+    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
+        _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
         sudo bash ${script_path}/build.sh ${options}
         touch "${work_dir}/fullbuild.${cha}_${arch}"
-    fi
-    sudo pacman -Sccc --noconfirm > /dev/null 2>&1
-
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_jp" ]]; then
-        _msg_info "Build the Japanese version of ${cha} on the ${arch} architecture."
-        sudo bash ${script_path}/build.sh -g 'ja' ${options}
-        touch "${work_dir}/fullbuild.${cha}_${arch}_jp"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
 
 _help() {
-    echo "usage ${0} [options]"
+    echo "usage ${0} [options] [channel]"
     echo
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
@@ -190,15 +189,19 @@ _help() {
     echo "    -s                 Enable simulation mode."
     echo "    -t                 Build the tarball as well."
     echo
-    echo "!! WARNING !!"
-    echo "Do not set channel or architecture with -a."
-    echo "Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
-    echo "Example: ${0} -a '-b -k zen'"
+    echo " !! WARNING !!"
+    echo " Do not set channel or architecture with -a."
+    echo " Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
+    echo " Example: ${0} -a '-b -k zen'"
+    echo
+    echo "Run \"build.sh -h\" for channel details."
+    echo -n " Channel: "
+    "${script_path}/build.sh" --channellist
 }
 
 
 share_options=""
-default_options="-b --noconfirm -l"
+default_options="-b --noconfirm -l -u alter -p alter --tarball"
 
 while getopts 'a:dghrst' arg; do
     case "${arg}" in
@@ -221,6 +224,15 @@ while getopts 'a:dghrst' arg; do
 done
 shift $((OPTIND - 1))
 
+if [[ -n "${*}" ]]; then
+    channnels=(${@})
+fi
+
+_msg_info "Options: ${share_options}"
+_msg_info "Press Enter to continue or Ctrl + C to cancel."
+read
+
+
 trap 'trap_exit' 1 2 3 15
 
 if [[ ! -d "${work_dir}" ]]; then
@@ -229,15 +241,19 @@ fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
-        for i in $(seq 1 ${retry}); do
+        for lang in ${languages[@]}; do
             if [[ "${simulation}" = true ]]; then
-                echo "build.sh ${share_options} -a ${arch} ${cha}"
+                    echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
             else
-                build
+                for i in $(seq 1 ${retry}); do
+                    build
+                done
             fi
         done
     done
 done
 
 
-_msg_info "All editions have been built"
+if [[ "${simulation}" = false ]]; then
+    _msg_info "All editions have been built"
+fi
