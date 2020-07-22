@@ -417,6 +417,27 @@ remove_work() {
 }
 
 
+# Display channel list
+show_channel_list() {
+    local i
+    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
+            if [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+                        echo -n "${i} "
+                    fi
+                else
+                    echo -n "${i} "
+                fi
+            fi
+        fi
+    done
+    echo
+    exit 0
+}
+
+
 # Preparation for build
 prepare_build() {
     # Create a working directory.
@@ -1459,22 +1480,6 @@ while :; do
             noloopmod=true
             shift 1
             ;;
-        --tarball)
-            tarball=true
-            shift 1
-            ;;
-        --noiso)
-            noiso=true
-            shift 1
-            ;;
-        --noaur)
-            noaur=true
-            shift 1
-            ;;
-        --nochkver)
-            nochkver=true
-            shift 1
-            ;;
         --)
             shift
             break
@@ -1602,27 +1607,15 @@ if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] 
     fi
 fi
 
-
-# Parse languages
-locale_config_file="${script_path}/system/locale-${arch}"
-locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-get_locale_line() {
-    local _lang
-    local count
-    count=0
-    for _lang in ${locale_name_list[@]}; do
-        count=$(( count + 1 ))
-        if [[ "${_lang}" == "${language}" ]]; then
-            echo "${count}"
-            return 0
-        fi
-    done
-    echo -n "failed"
-    return 0
-}
-locale_line="$(get_locale_line)"
-if [[ "${locale_line}" == "failed" ]]; then
-    _msg_error "${language} is not a valid language." "1"
+# Run clean
+if [[ "${channel_name}" = "clean" ]]; then
+    umount_chroot
+    remove "${script_path}/menuconfig/build"
+	remove "${script_path}/system/cpp-src/mkalteriso/build"
+	remove "${script_path}/menuconfig-script/kernel_choice"
+    remove_work
+    remove "${rebuildfile}"
+    exit 0
 fi
 
 locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
