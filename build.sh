@@ -419,6 +419,12 @@ remove_work() {
 
 # Preparation for build
 prepare_build() {
+    # Set the fullpath
+    rebuildfile="$(realpath "${rebuildfile}")"
+    out_dir="$(realpath "${out_dir}")"
+    work_dir="$(realpath "${work_dir}")"
+
+
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
     
