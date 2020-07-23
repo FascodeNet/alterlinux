@@ -119,12 +119,7 @@ function set_language () {
 }
 
 function check_files () {
-    local file
-    local _chkfile
-    local i
-    local error
-
-    error=false
+    local file _chkfile i error=false
     _chkfile() {
         if [[ ! -f "${1}" ]]; then
             msg_error "${1}が見つかりませんでした。" "${1} was not found."
@@ -137,6 +132,7 @@ function check_files () {
         "keyring.sh"
         "system/pacman-i686.conf"
         "system/pacman-x86_64.conf"
+        "default.conf"
     )
 
     for i in ${file[@]}; do
@@ -149,14 +145,10 @@ function check_files () {
 
 
 function install_dependencies () {
-    local checkpkg
-    local pkg
-    local installed_pkg
-    local installed_ver
-    local check_pkg
+    local checkpkg pkg installed_pkg installed_ver check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
-    sudo pacman -Sy --config "${pacman_conf}"
+    sudo pacman -Sy
     installed_pkg=($(pacman -Q | awk '{print $1}'))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
