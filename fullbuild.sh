@@ -12,8 +12,8 @@ architectures=(
     "i686"
 )
 
-work_dir=fullbuild.ignore.work
-
+work_dir=temp
+simulation=false
 retry=5
 
 
@@ -71,7 +71,7 @@ echo_color() {
 
     shift $((OPTIND - 1))
 
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${@}\e[m"
+    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
 }
 
 
@@ -88,7 +88,7 @@ _msg_info() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')    $( echo_color -t '32' 'Info') ${@}"
+    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')    $( echo_color -t '32' 'Info') ${*}"
 }
 
 
@@ -105,7 +105,7 @@ _msg_warn() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]') $( echo_color -t '33' 'Warning') ${@}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
 }
 
 
@@ -123,7 +123,7 @@ _msg_debug() {
     done
     shift $((OPTIND - 1))
     if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '35' 'Debug') ${@}"
+        echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '35' 'Debug') ${*}"
     fi
 }
 
@@ -150,9 +150,6 @@ _msg_error() {
 }
 
 
-if [[ ! -d "${work_dir}" ]]; then
-    mkdir -p "${work_dir}"
-fi
 
 trap_exit() {
     local status=${?}
@@ -161,10 +158,9 @@ trap_exit() {
     exit ${status}
 }
 
-trap 'trap_exit' 1 2 3 15
 
 build() {
-    options="-b --gitversion --noconfirm -l -a ${arch} ${cha}"
+    options="${share_options} -a ${arch} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}" ]]; then
         _msg_info "Build ${cha} with ${arch} architecture."
@@ -181,11 +177,75 @@ build() {
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
 
+_help() {
+    echo "usage ${0} [options] [channel]"
+    echo
+    echo " General options:"
+    echo "    -a <options>       Set other options in build.sh"
+    echo "    -d                 Use the default build.sh arguments. (${default_options})"
+    echo "    -g                 Use gitversion."
+    echo "    -h                 This help message."
+    echo "    -r                 Set the number of retries."
+    echo "                       Defalut: ${retry}"
+    echo "    -s                 Enable simulation mode."
+    echo
+    echo " !! WARNING !!"
+    echo " Do not set channel or architecture with -a."
+    echo " Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
+    echo " Example: ${0} -a '-b -k zen'"
+    echo
+    echo "Run \"build.sh -h\" for channel details."
+    echo -n " Channel: "
+    "${script_path}/build.sh" --channellist
+}
+
+
+share_options="--noconfirm"
+default_options="-b -l"
+
+while getopts 'a:dghrs' arg; do
+    case "${arg}" in
+        a) share_options="${share_options} ${OPTARG}" ;;
+        d) share_options="${share_options} ${default_options}" ;;
+        g) 
+            if [[ ! -d "${script_path}/.git" ]]; then
+                _msg_error "There is no git directory. You need to use git clone to use this feature."
+                exit 1
+            else
+                share_options="${share_options} --gitversion"
+            fi
+            ;;
+        s) simulation=true;;
+        r) retry="${OPTARG}" ;;
+        h) _help ; exit 0 ;;
+        *) _help ; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [[ -n "${*}" ]]; then
+    channnels=(${@})
+fi
+
+_msg_info "Options: ${share_options}"
+_msg_info "Press Enter to continue or Ctrl + C to cancel."
+read
+
+
+trap 'trap_exit' 1 2 3 15
+
+if [[ ! -d "${work_dir}" ]]; then
+    mkdir -p "${work_dir}"
+fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
         for i in $(seq 1 ${retry}); do
-            build
+            if [[ "${simulation}" = true ]]; then
+                echo "build.sh ${share_options} -a ${arch} ${cha}"
+            else
+                build
+            fi
         done
     done
 done

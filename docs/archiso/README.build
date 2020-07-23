@@ -11,6 +11,7 @@ INDEX
 
 ** For mkarchiso script needs these packages (build host):
  + arch-install-scripts    for pacstrap/arch-chroot
+ + edk2-shell              for UEFI shell
  + squashfs-tools          for mksquashfs
  + libisoburn              for xorriso
  + btrfs-progs             for mkfs.btrfs (optional)
