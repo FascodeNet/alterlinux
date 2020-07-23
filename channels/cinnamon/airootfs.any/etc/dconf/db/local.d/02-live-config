@@ -1,0 +1,2 @@
+[org/cinnamon/desktop/lockdown]
+disable-lock-screen=true
