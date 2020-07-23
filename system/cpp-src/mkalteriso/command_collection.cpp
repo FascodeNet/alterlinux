@@ -79,8 +79,9 @@ int command_collection::command_tarball(QString tarfile_name){
 
     QDir Outdir(bskun->get_out_dir());
     if(!Outdir.exists()){
-        Outdir.cdUp();
-        Outdir.mkdir(bskun->get_out_dir());
+        QDir root_dir(Outdir.absolutePath());
+        root_dir.cdUp();
+        root_dir.mkpath(Outdir.absolutePath());
     }
     _cleanup_tarball();
     _msg_info("Creating tarball...");
