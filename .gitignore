@@ -10,6 +10,7 @@
 *.sig
 .build_option
 system/mkalteriso
+system/cpp-src/mkalteriso
 system/cpp-src/mkalteriso/build/
 pkg/
 src/
