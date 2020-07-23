@@ -168,7 +168,7 @@ function install_dependencies () {
         echo -n "false"
         return 0
     }
-
+    echo
     for pkg in ${dependence[@]}; do
         msg "依存パッケージ ${pkg} を確認しています..." "Checking dependency package ${pkg} ..."
         if [[ $(check_pkg ${pkg}) = false ]]; then
