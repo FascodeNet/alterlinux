@@ -67,16 +67,8 @@ umask 0022
 # 8 => Concealed on
 
 echo_color() {
-    local backcolor
-    local textcolor
-    local decotypes
-    local echo_opts
-    local arg
-    local OPTIND
-    local OPT
-
+    local backcolor textcolor decotypes echo_opts arg OPTIND OPT
     echo_opts="-e"
-
     while getopts 'b:t:d:n' arg; do
         case "${arg}" in
             b) backcolor="${OPTARG}" ;;
@@ -85,9 +77,7 @@ echo_color() {
             n) echo_opts="-n -e"     ;;
         esac
     done
-
     shift $((OPTIND - 1))
-
     if [[ "${nocolor}" = false ]]; then
         echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
     else
@@ -104,10 +94,7 @@ _msg_info() {
     else
         set -xv
     fi
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
+    local echo_opts="-e" arg OPTIND OPT
     while getopts 'n' arg; do
         case "${arg}" in
             n) echo_opts="${echo_opts} -n" ;;
@@ -131,10 +118,7 @@ _msg_warn() {
     else
         set -xv
     fi
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
+    local echo_opts="-e" arg OPTIND OPT
     while getopts 'n' arg; do
         case "${arg}" in
             n) echo_opts="${echo_opts} -n" ;;
@@ -158,10 +142,7 @@ _msg_debug() {
     else
         set -xv
     fi
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
+    local echo_opts="-e" arg OPTIND OPT
     while getopts 'n' arg; do
         case "${arg}" in
             n) echo_opts="${echo_opts} -n" ;;
@@ -188,11 +169,7 @@ _msg_error() {
     else
         set -xv
     fi
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    local OPTARG
+    local echo_opts="-e" arg OPTIND OPT
     while getopts 'n' arg; do
         case "${arg}" in
             n) echo_opts="${echo_opts} -n" ;;
@@ -343,9 +320,7 @@ run_once() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list
-    local _file
-    _list=($(echo "$@"))
+    local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
         if [[ -f ${_file} ]]; then
             _msg_debug "Removeing ${_file}"
@@ -402,15 +377,13 @@ remove_work() {
 show_channel_list() {
     local i
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-            if [[ ! ${i} = "share" ]]; then
-                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                        echo -n "${i} "
-                    fi
-                else
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+            if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
                     echo -n "${i} "
                 fi
+            else
+                echo -n "${i} "
             fi
         fi
     done
@@ -483,11 +456,9 @@ prepare_build() {
         load_config "${script_path}/channels/share/config.any"
         load_config ${script_path}/channels/share/config.${arch}
 
-
         # If there is config for each channel. load that.
         load_config "${script_path}/channels/${channel_name}/config.any"
         load_config "${script_path}/channels/${channel_name}/config.${arch}"
-
 
         # Set username
         if [[ "${customized_username}" = false ]]; then
@@ -565,14 +536,12 @@ prepare_build() {
         # remove "$(ls ${work_dir}/* | grep "build.make")"
     fi
 
-
     # Unmount
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
         _msg_info "Unmounting ${mount}"
         umount "${mount}"
     done
-
 
      # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
@@ -673,9 +642,6 @@ show_settings() {
     if [[ ${noconfirm} = false ]]; then
         echo "Press Enter to continue or Ctrl + C to cancel."
         read
-    else
-        :
-        #sleep 3
     fi
     trap 1 2 3 15
     trap 'umount_trap' 1 2 3 15
@@ -718,13 +684,7 @@ make_packages() {
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     installpkglist() {
         set +e
-        local _loadfilelist
-        local _pkg
-        local _file
-        local jplist
-        local excludefile
-        local excludelist
-        local _pkglist
+        local _loadfilelist _pkg _file jplist excludefile excludelist _pkglist
 
         #-- Detect package list to load --#
         # Append the file in the share directory to the file to be read.
@@ -762,7 +722,7 @@ make_packages() {
         #-- Read package list --#
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
-            _msg_debug "Loaded package file ${_file}."
+            _msg_debug "Loaded package file ${_file}"
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         done
         if [[ ${debug} = true ]]; then
@@ -805,7 +765,6 @@ make_packages() {
                 fi
             done
         fi
-            
         
         # Sort the list of packages in abc order.
         pkglist=(
@@ -816,14 +775,6 @@ make_packages() {
                 | sort
             )"
         )
-
-
-        #-- Debug code --#
-        #for _pkg in ${pkglist[@]}; do
-        #    echo -n "${_pkg} "
-        #done
-        # echo "${pkglist[@]}"
-
 
         set -e
     }
@@ -874,10 +825,7 @@ make_customize_airootfs() {
     # cp "${build_pacman_conf}" "${work_dir}/${arch}/airootfs/etc"
 
     # Get the optimal mirror list.
-    local mirrorlisturl
-    local mirrorlisturl_all
-    local mirrorlisturl_jp
-
+    local mirrorlisturl mirrorlisturl_all  mirrorlisturl_jp
 
     case "${arch}" in
         "x86_64")
@@ -1058,9 +1006,6 @@ make_boot() {
 
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
-    # In AlterLinux, memtest has been removed.
-    # cp "${work_dir}/${arch}/airootfs/boot/memtest86+/memtest.bin" "${work_dir}/iso/${install_dir}/boot/memtest"
-    # cp "${work_dir}/${arch}/airootfs/usr/share/licenses/common/GPL2/license.txt" "${work_dir}/iso/${install_dir}/boot/memtest.COPYING"
     cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
     cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
     cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
@@ -1229,10 +1174,7 @@ if [[ ${?} != 0 ]]; then
 fi
 
 eval set -- "${OPT}"
-unset OPT
-unset _opt_short
-unset _opt_long
-
+unset OPT _opt_short _opt_long
 
 while :; do
     case ${1} in
@@ -1363,7 +1305,6 @@ if [[ ${EUID} -ne 0 ]]; then
     exit 1
 fi
 
-
 # Show alteriso version
 if [[ -d "${script_path}/.git" ]]; then
     cd  "${script_path}"
@@ -1371,19 +1312,15 @@ if [[ -d "${script_path}/.git" ]]; then
     cd - > /dev/null 2>&1
 fi
 
-
 # Show config message
 [[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
-
 
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
 if [[ "${bash_debug}" = true ]]; then
-    set -x
-    set -v
+    set -x -v
     mkalteriso_option="${mkalteriso_option} -x"
 fi
-
 
 # Pacman configuration file used only when building
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
@@ -1404,15 +1341,13 @@ if [[ -n "${1}" ]]; then
         local i
         channel_list=()
         for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-                if [[ ! ${i} = "share" ]]; then
-                    if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                        if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                            channel_list="${channel_list[@]} ${i}"
-                        fi
-                    else
+            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
                         channel_list="${channel_list[@]} ${i}"
                     fi
+                else
+                    channel_list="${channel_list[@]} ${i}"
                 fi
             fi
         done
@@ -1486,8 +1421,7 @@ fi
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
-    local _value
-    _value="$(eval echo '$'${1})"
+    local _value="$(eval echo '$'${1})"
     _msg_debug -n "Checking ${1}..."
     if [[ "${debug}" = true ]]; then
         echo -e " ${_value}"
@@ -1539,6 +1473,6 @@ run_once make_efiboot
 run_once make_prepare
 run_once make_iso
 
-if [[ ${cleaning} = true ]]; then
+if [[ "${cleaning}" = true ]]; then
     remove_work
 fi
