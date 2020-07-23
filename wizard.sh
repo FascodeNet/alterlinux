@@ -547,92 +547,59 @@ function select_kernel () {
 
 # チャンネルの指定
 function select_channel () {
-    local ask_channel
 
-    msg_n \
-        "デフォルト（xfce）以外のチャンネルを使用しますか？ （y/N） : " \
-        "Do you want to use a channel other than the default (xfce)? (y/N) : "
+    local i count=1 _channel channel_list description
 
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) details=true             ;;
-        n | N | no  | No  | NO  ) details=false            ;;
-        *                       ) select_channel; return 0 ;;
-    esac
+    # チャンネルの一覧を取得
+    channel_list=($("${script_path}/build.sh" --channellist))
 
-    function ask_channel () {
-        local i
-        local count
-        local _channel
-        local channel_list
-        local description
+    msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
 
-        # チャンネルの一覧を生成
-        for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
-                if [[ -n $(cat ${script_path}/channels/${i}/architecture | grep -h -v ^'#' | grep -x "${build_arch}") ]]; then
-                    channel_list=(${channel_list[@]} ${i})
-                fi
-            fi
-        done
-        msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
-        count=1
-        for _channel in ${channel_list[@]}; do
-            if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
-                description=$(cat "${script_path}/channels/${_channel}/description.txt")
-            else
-                if [[ "${lang}"  = "jp" ]]; then
-                    description="このチャンネルにはdescription.txtがありません。"
-                else
-                    description="This channel does not have a description.txt."
-                fi
-            fi
-            if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                echo -ne "${count}    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-                for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
-                    echo -ne " "
-                done
-            else
-                echo -ne "${count}    ${_channel}"
-                for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
-                    echo -ne " "
-                done
-            fi
-            echo -ne "${description}\n"
-            count=$(( count + 1 ))
-        done
-        echo -n ":"
-        read channel
-
-        # 数字かどうか判定する
-        set +e
-        expr "${channel}" + 1 >/dev/null 2>&1
-        if [[ ${?} -lt 2 ]]; then
-            set -e
-            # 数字である
-            channel=$(( channel - 1 ))
-            if [[ -z "${channel_list[${channel}]}" ]]; then
-                ask_channel
-                return 0
-            else
-                channel="${channel_list[${channel}]}"
-            fi
+    # 選択肢を生成
+    for _channel in ${channel_list[@]}; do
+        if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
+            description=$(cat "${script_path}/channels/${_channel}/description.txt")
         else
-            set -e
-            # 数字ではない
-            if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}.add"; echo -n ${?} ) -eq 0 ]]; then
-                if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}"; echo -n ${?} ) -eq 0 ]]; then
-                    ask_channel
-                    return 0
-                fi
+            if [[ "${lang}"  = "jp" ]]; then
+                description="このチャンネルにはdescription.txtがありません。"
+            else
+                description="This channel does not have a description.txt."
             fi
         fi
-    }
+        echo -ne "${count}    ${_channel}"
+        for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+            echo -ne " "
+        done
+        echo -ne "${description}\n"
+        count=$(( count + 1 ))
+    done
+    echo -n ":"
+    read channel
 
-    if [[ ${details} = true ]]; then
-        ask_channel
+    # 入力された値が数字かどうか判定する
+    set +e
+    expr "${channel}" + 1 >/dev/null 2>&1
+    if [[ ${?} -lt 2 ]]; then
+        set -e
+        # 数字である
+        channel=$(( channel - 1 ))
+        if [[ -z "${channel_list[${channel}]}" ]]; then
+            select_channel
+            return 0
+        else
+            channel="${channel_list[${channel}]}"
+        fi
+    else
+        set -e
+        # 数字ではない
+        if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}"; echo -n ${?} ) -eq 0 ]]; then
+            select_channel
+            return 0
+        fi
     fi
-    # echo ${channel}
+
+    echo "${channel}"
+
     return 0
 }
 
