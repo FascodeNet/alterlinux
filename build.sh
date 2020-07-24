@@ -413,8 +413,8 @@ prepare_build() {
 
     # Set the fullpath
     #rebuildfile="$(realpath -e "${rebuildfile}")"
-    out_dir="$(realpath -e "${out_dir}")"
-    work_dir="$(realpath -e "${work_dir}")"
+    #out_dir="$(realpath -e "${out_dir}")"
+    #work_dir="$(realpath -e "${work_dir}")"
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]&& [[ ! "${rebuild}" = true ]]; then
