@@ -423,13 +423,8 @@ prepare_build() {
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
-    # Set the fullpath
-    #rebuildfile="$(realpath -e "${rebuildfile}")"
-    #out_dir="$(realpath -e "${out_dir}")"
-    #work_dir="$(realpath -e "${work_dir}")"
-
     # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]&& [[ ! "${rebuild}" = true ]]; then
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
         umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
@@ -485,7 +480,6 @@ prepare_build() {
         fi
         _msg_debug "Iso filename is ${iso_filename}"
     
-    
         # Save build options
         local write_rebuild_file
         write_rebuild_file() {
@@ -508,7 +502,7 @@ prepare_build() {
         remove "${rebuildfile}"
         write_rebuild_file "#!/usr/bin/env bash"
         write_rebuild_file "# Build options are stored here."
-        
+
         write_rebuild_file "\n# OS Info"
         save_var arch
         save_var os_name
@@ -557,11 +551,7 @@ prepare_build() {
         save_var sfs_comp_opt
 
         write_rebuild_file "\n# Debug Info"
-        save_var debug
-        save_var bash_debug
-        save_var nocolor
         save_var noaur
-        save_var msgdebug
         save_var gitversion
         save_var noloopmod
 
