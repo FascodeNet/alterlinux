@@ -116,6 +116,10 @@ dconf update
 #fi
 
 
+# ntp
+systemctl enable systemd-timesyncd.service
+
+
 # Added autologin group to auto login
 groupadd autologin
 usermod -aG autologin ${username}

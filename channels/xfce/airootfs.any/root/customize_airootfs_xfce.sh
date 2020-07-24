@@ -120,6 +120,9 @@ fi
 groupadd autologin
 usermod -aG autologin ${username}
 
+# ntp
+systemctl enable systemd-timesyncd.service
+
 
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
