@@ -1590,9 +1590,7 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-if [[ "${noaur}" = false ]]; then
-    run_once make_packages_aur
-fi
+[[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 run_once make_boot
@@ -1601,13 +1599,7 @@ run_once make_syslinux
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
-if [[ "${tarball}" = true ]]; then
-    run_once make_tarball
-fi
-if [ "${noiso}" = false ]; then
-    run_once make_prepare
-    run_once make_iso
-fi
-if [[ ${cleaning} = true ]]; then
-    remove_work
-fi
+[[ "${tarball}" = true ]] && run_once make_tarball
+[[ "${noiso}" = false ]] && run_once make_prepare
+[[ "${noiso}" = false ]] && run_once make_iso
+[[ ${cleaning} = true ]] && remove_work
