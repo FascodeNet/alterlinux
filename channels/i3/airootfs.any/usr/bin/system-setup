@@ -1,0 +1,534 @@
+#!/bin/bash
+
+RED='\e[41m'
+BLUE='\e[44m'
+ORANGE='\e[46m'
+NC='\e[0m'
+
+STATUSVAR=1
+TEXTEDITOR=$EDITOR
+SELECTEDITEM=""
+
+# Service messages section
+CONTINMSG="$BLUE Press any key to continue$NC"
+ERRORMSG="$RED Wrong.$NC"
+TRYAGAINMSG="$RED Press any key and try again$NC"
+CURRENTPREFIXMSG="(current: "
+CURRENTSUFFIXMSG="):"
+AVAILABLESHELLMSG="Available shells "
+AVAILABLEDMMSG="Available display managers "
+PS3SHELLCHOOSMSG="Which shell do you wish to install and use as default? "
+ZSH1MSG="Z shell. Advanced and versatile shell with supreme configuration options and tab completion. Master of all trades, jack of none, but really needs configuration."
+ZSH2MSG="check oh-my-zsh or builtin configuration tool for configurations"
+ZSH3MSG="you might also like zsh-history-substring search or zsh-syntax-highlighting"
+BASH1MSG="Bourne again shell. Standard for most linux systems. Respectable choice for any use. Jack of all trades, master of none."
+FISH1MSG="Friendly interactive shell. Bad for scripting, great for interactive use without much configuration required."
+DASH1MSG="Debian almquist shell. Super light and feature free. Great for scripting and fast startup, entirely unsuitable for interactive use."
+PS3DISPLAYMNGMSG="Which displaymanager do you wish to install and use as default? "
+PS3DISKUTILSMSG="Select tool to use? "
+HIBERNATIONSETUPMSG="Enable delayed hibernation service? (y/n)"
+PS3CHOOSESESSIONMSG="Which session do you wish to use as default? "
+NOSUPPORTAUTOLOGINMSG="No support for setting up autologin without displaymanager on openrc. Yet."
+GDMWONTWORKMSG="gdm will not work with openrc"
+CURRENTSHELLMSG="$(echo $SHELL)"
+SETSUFFIXMSG=" was set successfully"
+SHELLPREFIXMSG="Shell "
+DISPLAYMGRPREFIXMSG="Display manager "
+AUTOLOGGERRPREFIXMSG="Autologger"
+HIBERNATIONPREFIXMSG="Hibernation"
+AURSUPPORTPREFIXMSG="AUR support"
+PRINTERSUPPORTMSG="Printer support"
+
+function pressanykeyrequest {
+	echo -e "$CONTINMSG"
+	read -s -n1
+	STATUSVAR=1
+}
+
+function shell_chooser {
+echo "$AVAILABLESHELLMSG$CURRENTPREFIXMSG$CURRENTSHELLMSG$CURRENTSUFFIXMSG"
+PS3="$PS3SHELLCHOOSMSG"
+SELECTEDITEM=""
+# Gather the results in an array.
+shells=("zsh" "bash" "fish" "dash" "cancel")
+
+select pick in "${shells[@]}"
+do
+	case $pick in
+		zsh)
+			echo ""
+			echo "$ZSH1MSG"
+			echo ""
+			echo ""
+			sudo pacman -Syu zsh zsh-completions command-not-found
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			echo ""
+			echo ""
+			echo "$ZSH2MSG"
+			echo "$ZSH3MSG"
+			echo ""
+			echo ""
+			chsh -s /usr/bin/zsh
+			SELECTEDITEM="$pick"
+			break
+			;;		
+		bash)
+			echo ""
+			echo ""
+			echo "$BASH1MSG"
+			echo ""
+			echo ""
+			sudo pacman -Syu bash bash-completion command-not-found
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			echo ""
+			chsh -s /bin/bash
+			SELECTEDITEM="$pick"
+			break
+			;;		
+		fish)
+			echo ""
+			echo ""
+			echo "$FISH1MSG"
+			echo ""
+			echo ""
+			sudo pacman -Syu fish command-not-found
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			chsh -s /usr/bin/fish
+			SELECTEDITEM="$pick"
+			break
+			;;		
+		dash)
+			echo ""
+			echo ""
+			echo "$DASH1MSG"
+			sudo pacman -Syu dash
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			chsh -s /usr/dash
+			SELECTEDITEM="$pick"
+			break
+			;;		
+		cancel)
+			break
+	esac
+done
+return $STATUSVAR
+}
+
+function displaymanager {
+CURRENTITEM=$(dm_detect)
+if [ "$CURRENTITEM" == "" ]; then
+	CURRENTITEM="none"
+fi
+PS3="$PS3DISPLAYMNGMSG"
+SELECTEDITEM=""
+# Gather the results in an array.
+dms=("lightdm" "kdm" "gdm" "lxdm" "mdm" "slim" "sddm" "cancel")
+sudo echo ""
+STATUSVAR=$?
+if [ $STATUSVAR -eq 1 ]; then
+	return $STATUSVAR
+fi
+echo "$AVAILABLEDMMSG$CURRENTPREFIXMSG$CURRENTITEM$CURRENTSUFFIXMSG"
+select pick in "${dms[@]}"
+do
+	case $pick in
+		slim)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy slim slim-themes && sudo systemctl enable slim.service -f
+			STATUSVAR=$?
+			else
+			sudo pacman -Sy slim slim-themes && sudo sed -i "s/$(grep "DISPLAYMANAGER=" /etc/conf.d/xdm)/DISPLAYMANAGER=\"slim\"/g" /etc/conf.d/xdm
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			sudo rc-update add xdm default
+			STATUSVAR=$?
+			fi
+			break
+			;;		
+		lightdm)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy lightdm lightdm-another-gtk-greeter lightdm-another-gtk-greeter-themes accountsservice \
+			&& sudo systemctl enable lightdm.service -f && sudo systemctl enable accounts-daemon && \
+			sudo $TEXTEDITOR /etc/lightdm/lightdm.conf
+			STATUSVAR=$?
+			else
+			sudo pacman -Sy lightdm lightdm-another-gtk-greeter lightdm-another-gtk-greeter-themes accountsservice \
+			&& sudo sed -i "s/$(grep "DISPLAYMANAGER=" /etc/conf.d/xdm)/DISPLAYMANAGER=\"lightdm\"/g" /etc/conf.d/xdm && \
+			sudo $TEXTEDITOR /etc/lightdm/lightdm.conf
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			sudo rc-update add xdm default
+			STATUSVAR=$?
+			fi
+			break
+			;;		
+		sddm)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy sddm && sudo systemctl enable sddm.service -f
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			else
+			sudo pacman -Sy sddm && sudo sed -i "s/$(grep "DISPLAYMANAGER=" /etc/conf.d/xdm)/DISPLAYMANAGER=\"sddm\"/g" /etc/conf.d/xdm
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			sudo rc-update add xdm default
+			STATUSVAR=$?
+			fi
+			break
+			;;		
+		mdm)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy mdm && sudo systemctl enable mdm.service -f
+			STATUSVAR=$?
+			else
+			sudo pacman -Sy mdm-nosystemd && sudo sed -i "s/$(grep "DISPLAYMANAGER=" /etc/conf.d/xdm)/DISPLAYMANAGER=\"mdm\"/g" /etc/conf.d/xdm
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			sudo rc-update add xdm default
+			STATUSVAR=$?
+			fi
+			break
+			;;		
+		lxdm)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy lxdm && sudo systemctl enable lxdm.service -f
+			STATUSVAR=$?
+			else
+			sudo pacman -Sy lxdm-consolekit && sudo sed -i "s/$(grep "DISPLAYMANAGER=" /etc/conf.d/xdm)/DISPLAYMANAGER=\"lxdm\"/g" /etc/conf.d/xdm
+			STATUSVAR=$?
+			fi
+			break
+			;;		
+		gdm)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy gdm3setup && sudo systemctl enable gdm.service -f
+			STATUSVAR=$?
+			else
+			echo "$GDMWONTWORKMSG"
+			read -s n1
+			fi
+			break
+			;;		
+		kdm)
+			SELECTEDITEM="$pick"
+			if ! [[ -d /run/openrc ]] ; then
+			sudo pacman -Sy kdebase-workspace archlinux-themes-kdm && sudo systemctl enable kdm.service -f
+			STATUSVAR=$?
+			else
+			sudo pacman -Sy kdebase-workspace-consolekit archlinux-themes-kdm && sudo sed -i "s/$(grep "DISPLAYMANAGER=" /etc/conf.d/xdm)/DISPLAYMANAGER=\"kdm\"/g" /etc/conf.d/xdm
+			STATUSVAR=$?
+			if [ $STATUSVAR -eq 1 ]; then
+				return $STATUSVAR
+			fi
+			sudo rc-update add xdm default
+			STATUSVAR=$?
+			fi 
+			break
+			;;		
+		cancel)
+			STATUSVAR=1
+			break
+	esac
+done
+return $STATUSVAR
+}
+
+function disk_utils {
+PS3="$PS3DISKUTILSMSG"
+# Gather the results in an array.
+tools=("cfdisk" "cgdisk" "gdisk" "parted" "gparted" "gnome-disks" "cancel")
+
+select pick in "${tools[@]}"
+do
+	case $pick in
+		cfdisk)
+			sudo cfdisk
+			break
+			;;		
+		cgdisk)
+			sudo cgdisk
+			break
+			;;		
+		gdisk)
+			sudo gdisk
+			break
+			;;		
+		parted)
+			sudo parted
+			break
+			;;		
+		gparted)
+			sudo gparted
+			break
+			;;		
+		gnome-disks)
+			sudo gnome-disks
+			break
+			;;		
+		cancel)
+			break
+	esac
+done
+}
+
+function hibernation_setup {
+	sudo hibernator
+	STATUSVAR=$?
+	if [ $STATUSVAR -eq 1 ]; then
+		return $STATUSVAR
+	fi
+	echo "$HIBERNATIONSETUPMSG"
+	read -s -n1 choix
+    case $choix in
+	    y|Y)
+    	sudo pacman -Syu delayed-hibernation
+    	STATUSVAR=$?
+    	break
+    	;;
+    	*)
+    	break
+    	;; 
+esac
+return $STATUSVAR
+}
+
+function dm_detect {
+if [ $(cat /proc/1/comm) = "systemd" ]; then
+	for displaymanager in kdm gdm sddm lightdm lxdm slim mdm; do
+		systemctl cat display-manager.service 2> /dev/null | awk -F'/' '/^Exec/ {print $NF}'
+	done
+else
+	grep 'DISPLAYMANAGER=' /etc/conf.d/xdm | cut -d \" -f 2
+fi
+}
+
+function choose_session {
+PS3="$PS3CHOOSESESSIONMSG"
+# Gather the results in an array.
+dms=($(ls /usr/share/xsessions/) "cancel")
+
+select pick in "${dms[@]}"
+do
+	case $pick in
+		*)
+			echo $pick
+			break
+			;;			
+		cancel)
+			STATUSVAR=1
+			break
+	esac
+done
+}
+
+function autologger {
+	sudo echo ""
+	STATUSVAR=$?
+	if [ $STATUSVAR -eq 1 ]; then
+		return $STATUSVAR
+	fi
+	dm=$(dm_detect)
+	eval user=$(whoami)
+	case dm in 
+		slim)
+			sudo sed -i '/autologin/s/^#//g' /etc/slim.conf && sudo sed -i '/defaultuser/s/^#//g' /etc/slim.conf
+			sudo sed -i "s/simone/$user/g" /etc/slim.conf
+			STATUSVAR=$?
+			break
+			;;		
+		lightdm)
+			sudo sed -i "s/^autologin-user=*/autologin-user=$user/g" /etc/lightdm.conf
+			sudo sed -i 's/^autologin-user-timeout=*/autologin-user-timeout=0/g' /etc/lightdm.conf
+			sudo groupadd -r autologin
+			sudo gpasswd -a $user autologin
+			STATUSVAR=$?						
+			sudo $TEXTEDITOR /etc/lightdm.conf
+			break
+			;;		
+		sddm)
+			session=$(choose_session)
+			if [ $STATUSVAR -eq 1 ] || [ "$session" == "" ]; then
+				return 1
+			fi
+			sudo sddm --example-config > /etc/sddm.conf
+			sudo sed -i "s/^User=/User=$user/g" /etc/sddm.conf
+			sudo sed -i "s/^Session/Session=$session/g" /etc/sddm.conf
+			STATUSVAR=$?
+			break
+			;;		
+		mdm)
+			sudo sed -i "s/^AutomaticLogin=*/AutomaticLogin=$user/g" /etc/mdm.conf
+			sudo sed -i 's/^AutomaticLoginEnable=*/AutomaticLoginEnable=true/g' /etc/mdm.conf
+			sudo sed -i 's/^TimedLoginEnable=*/TimedLoginEnable=true/g' /etc/mdm.conf
+			sudo sed -i 's/^TimedLogin=*/TimedLoginEnable=$user/g' /etc/mdm.conf
+			sudo sed -i 's/^TimedLoginDelay=*/TimedLoginDelay=0/g' /etc/mdm.conf
+			STATUSVAR=$?
+			sudo $TEXTEDITOR /etc/mdm/mdm.conf
+			break
+			;;		
+		lxdm)
+			sudo sed -i "1s/^/autologin=$user /" /etc/lxdm/lxdm.conf
+			STATUSVAR=$?
+			sudo $TEXTEDITOR /etc/lxdm/lxdm.conf
+			break
+			;;		
+		gdm)
+			sudo sed -i "s/^AutomaticLogin=*/AutomaticLogin=$user/g" /etc/gdm/custom.conf
+			sudo sed -i 's/^AutomaticLoginEnable=*/AutomaticLoginEnable=true/g' /etc/gdm/custom.conf
+			sudo sed -i 's/^TimedLoginEnable=*/TimedLoginEnable=true/g' /etc/gdm/custom.conf
+			sudo sed -i 's/^TimedLogin=*/TimedLoginEnable=$user/g' /etc/gdm/custom.conf
+			sudo sed -i 's/^TimedLoginDelay=*/TimedLoginDelay=0/g' /etc/gdm/custom.conf
+			STATUSVAR=$?
+			break
+			;;		
+		kdm)
+			sudo sed -i "s/^AutoLoginUser=*/AutoLoginUser=$user/g" /usr/kde/*/share/config/kdm/kdmrc
+			sudo sed -i "s/^AutoLoginEnable=*/AutoLoginEnable=true/g" /usr/kde/*/share/config/kdm/kdmrc
+			STATUSVAR=$?
+			break
+			;;		
+		*)
+			if ! [[ -d /run/openrc ]] ; then
+				sudo pacman -Syu xlogin && sudo systemctl enable xlogin@$(whoami)
+				STATUSVAR=$?
+			else
+				echo -e "$NOSUPPORTAUTOLOGINMSG"
+				read -s -n1
+			fi
+			;;
+	esac
+return $STATUSVAR
+}
+
+function main {
+    while true; do
+    clear
+    echo ""
+    echo -e "                            ::Setup:: "
+    echo -e " ┌─────────────────────────────────────────────────────────────┐"
+    echo -e " │    1   Enable hibernation        2   Install Display manager│"
+    echo -e " │    3   Enable autologin          4   Install AUR support    │"
+    echo -e " │    5   Install shell             6   Disk utility           │"    
+    echo -e " │    7   Install printer support   8   Recover files          │"
+    echo -e " └─────────────────────────────────────────────────────────────┘"
+    echo -e "          Select an item     -      0   Exit "
+    echo ""
+    read -s -n1 choix
+    case $choix in
+        1)
+            echo
+            hibernation_setup
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$HIBERNATIONPREFIXMSG$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            echo ""
+            ;;
+        2)
+            echo
+            displaymanager
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$DISPLAYMGRPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            echo ""
+            ;;
+        3)
+            echo
+            autologger
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$AUTOLOGGERRPREFIXMSG$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            echo ""
+            ;;
+        4)
+            echo
+            sudo pacman -Syu base-devel yaourt
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$AURSUPPORTPREFIXMSG$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            echo ""
+            ;;
+        5)
+            echo
+            shell_chooser
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$SHELLPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            echo ""
+            ;;
+        6)
+            echo
+            disk_utils
+            echo ""
+            ;;
+        7)
+            echo
+            sudo pacman -Syu manjaro-printers sane
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+            	echo ""
+            	echo -e "$PRINTERSUPPORTMSG$SETSUFFIXMSG"
+            	pressanykeyrequest
+            fi
+            echo ""
+            ;;
+        8)
+            echo
+            photorec
+            echo ""
+            ;;
+        0)
+            clear && exit
+            ;;
+        *)
+            echo -e "$ERRORMSG$TRYAGAINMSG"
+		    read -s -n1
+		    clear
+			;;
+    esac
+    done
+}
+
+main

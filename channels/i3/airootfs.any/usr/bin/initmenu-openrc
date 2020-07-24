@@ -1,0 +1,167 @@
+#!/bin/bash
+
+RED='\e[41m'
+BLUE='\e[44m'
+ORANGE='\e[46m'
+NC='\e[0m'
+STATUSVAR=1
+TEXTEDITOR=$EDITOR
+
+# Service messages section
+CONTINMSG="$BLUE Press any key to continue$NC"
+ERRORMSG="$RED Wrong.$NC"
+TRYAGAINMSG="$RED Press any key and try again$NC"
+SELECTFILEMSG="Select file to configure and press Enter: "
+SERVICEPREFIXMSG="Service "
+SERVICESTARTEDMSG=" was started successfully"
+SERVICEENABLEDMSG=" was enabled successfully"
+SERVICESTOPPEDMSG=" was stopped successfully"
+SERVICEDISABLEDMSG=" was disabled successfully"
+
+function pressanykeyrequest {
+	echo -e "$CONTINMSG"
+	read -s -n1
+	STATUSVAR=1
+}
+
+function config_editor {
+PS3="$SELECTFILEMSG"
+configs=("xdm" "rc.local" "sysctl.conf" "modules" "cancel")
+
+select pick in "${configs[@]}"
+do
+	case $pick in
+		xdm)
+			sudo $EDITOR /etc/conf.d/xdm
+			break
+			;;		
+		rc.local)
+			sudo $EDITOR /etc/rc.local
+			break
+			;;		
+		sysctl.conf)
+			sudo $EDITOR /etc/sysctl.conf
+			break
+			;;		
+		modules)
+			sudo $EDITOR /etc/conf.d/modules
+			break
+			;;		
+		cancel)
+			break
+	esac
+done	
+} 
+
+function enable_services {
+	sudo rc-update add $(rc-status -s | awk '/stopped/ {print $1}' | fzf -m -e --reverse)
+	STATUSVAR=$?
+return $STATUSVAR	
+}
+
+function start_services {
+	sudo rc-service start $(rc-status -s | awk '/stopped/ {print $1}' | fzf -m -e --reverse)
+	STATUSVAR=$?
+return $STATUSVAR
+}
+
+function stop_services {
+	sudo rc-service stop $(rc-status -s | awk '/started/ {print $1}' | fzf -m -e --reverse)
+	STATUSVAR=$?
+return $STATUSVAR
+}
+
+function disable_services {
+	sudo rc-update del $(rc-status -s | awk '/started/ {print $1}' | fzf -m -e --reverse)
+	STATUSVAR=$?
+return $STATUSVAR
+}
+
+function main {
+    while true; do
+    clear
+    echo ""
+    echo -e "                          ::Init menu:: "
+    echo -e " ┌─────────────────────────────────────────────────────────────┐"
+    echo -e " │    1   Enable services              2   Disable services    │"
+    echo -e " │    3   Start services               4   Stop Services       │"
+    echo -e " │    5   List active services         6   Show boot messages  │"    
+    echo -e " │    7   Edit configuration files                             │"
+    echo -e " └─────────────────────────────────────────────────────────────┘"
+    echo -e "          Select an item       -       0   Exit "
+    echo ""
+    read -s -n1 choix
+    case $choix in
+        1)
+            echo
+            enable_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$SERVICEENABLEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo ""
+	    	fi
+            ;;
+        2)
+            echo
+            disable_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$SERVICEDISABLEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo ""
+	    	fi
+            ;;
+        3)
+            echo
+            start_services
+            STATUSVAR=$?
+	    	if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$SERVICESTARTEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo""
+	    	fi
+            ;;
+        4)
+            echo
+            stop_services
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 0 ]; then
+		    	echo -e "$SERVICEPREFIXMSG$SERVICESTOPPEDMSG"
+		    	pressanykeyrequest
+	    	else
+		    	echo ""
+	    	fi
+            ;;
+        5)
+            echo
+            rc-status
+            echo ""
+            pressanykeyrequest
+            ;;
+        6)
+            echo
+            dmesg
+            echo ""
+            pressanykeyrequest
+            ;;
+        7)
+            echo
+            config_editor
+            echo ""
+            ;;
+        0)
+            clear && exit
+            ;;
+        *)
+            echo -e "$ERRORMSG$TRYAGAINMSG"
+            read -s -n1
+            clear
+            ;;
+    esac
+    done
+}
+main

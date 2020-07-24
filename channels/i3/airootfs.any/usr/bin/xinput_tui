@@ -1,0 +1,210 @@
+#!/bin/bash
+## xinput_tui
+touchpad_id=$(xinput --list | grep -i "Touchpad" | xargs -n 1 | grep "id=" | sed 's/id=//g')
+
+toggle_natural_scrolling()
+{
+natural_scrolling_code=$(xinput --list-props "$touchpad_id" | grep "Natural Scrolling" | awk '{print $5}' |  grep -o '[0-9]\+')
+
+if [[ $(xinput --list-props "$touchpad_id" | grep "Natural Scrolling Enabled (" | awk '{print $6}' | head -n1) == 1 ]]; then
+	xinput --set-prop "$touchpad_id" "$natural_scrolling_code" 0 && echo "Natural scrolling is now disabled" || echo "Something vent wrong"
+else
+	xinput --set-prop "$touchpad_id" "$natural_scrolling_code" 1 && echo "Natural scrolling is now enabled" || echo "Something vent wrong"		
+fi
+
+}
+
+toggle_tap_to_click()
+{
+tap_to_click_code=$(xinput --list-props "$touchpad_id" | awk '/Tapping Enabled \(/ {print $4}' | grep -o '[0-9]\+')
+
+if [[ $(xinput --list-props "$touchpad_id" | awk '/Tapping Enabled \(/ {print $5}') == 1 ]]; then
+	xinput --set-prop "$touchpad_id" "$tap_to_click_code" 0 && echo "Tap to click is now disabled" || echo "Something vent wrong"
+else
+	xinput --set-prop "$touchpad_id" "$tap_to_click_code" 1 && echo "Tap to click is now enabled" || echo "Something vent wrong"		
+fi
+
+}
+
+toggle_left_handed()
+{
+left_handed_code=$(xinput --list-props "$touchpad_id" | grep "Left Handed Enabled" | awk '{print $5}' |  grep -o '[0-9]\+')
+
+if [[ $(xinput --list-props "$touchpad_id" | grep "Left Handed Enabled" | awk '{print $6}' | head -n1) == 1 ]]; then
+	xinput --set-prop "$touchpad_id" "$left_handed_code" 0 && echo "Left handed mode is now disabled" || echo "Something vent wrong"
+else
+	xinput --set-prop "$touchpad_id" "$left_handed_code" 1 && echo "Left handed mode is now enabled" || echo "Something vent wrong"		
+fi
+
+}
+
+set_pointer_speed()
+{
+
+accel_speed_code=$(xinput --list-props "$touchpad_id" | awk '/Accel Speed \(/ {print $4}' | grep -o '[0-9]\+')
+current_speed=$(xinput --list-props "$touchpad_id" | awk '/Accel Speed \(/ {print $5}')
+
+	echo ""
+	echo "Setting pointer speed."
+	echo "Current speed is $current_speed"
+	echo "input number between -1 and 1 and press enter"
+	read speed
+	xinput --set-prop "$touchpad_id" "$accel_speed_code" "$speed"
+	echo "Speed is now set to $speed."
+	read -r -p "${1:-Do you wish to make this setting permanent? [Y/n]} " response
+    case $response in
+        [nN] | [nN][oO]) 
+            false
+            ;;
+        *)
+            sudo bash -c 'echo -e "Section \"InputClass\"
+	\tIdentifier \"'"$touchpad_id"'\"
+	\tDriver \"libinput\"
+	\tMatchIsTouchpad \"on\"
+	\tOption \"AccelSpeed\" \"'$speed'\"
+EndSection" > /etc/X11/xorg.conf.d/31-pointerspeed.conf'
+            ;;
+    esac
+    echo ""
+    echo "created file /etc/X11/xorg.conf.d/31-pointerspeed.conf. 
+    Press any key to continue"
+    read -s -n1
+}
+
+toggle_drag_lock()
+{
+drag_lock_code=$(xinput --list-props "$touchpad_id" | grep "Drag Lock Enabled (" | awk '{print $6}' |  grep -o '[0-9]\+')
+
+if [[ $(xinput --list-props "$touchpad_id" | grep "Drag Lock Enabled (" | awk '{print $7}' | head -n1) == 1 ]]; then
+	xinput --set-prop "$touchpad_id" "$drag_lock_code" 0 && echo "Drag lock is now disabled" || echo "Something vent wrong"
+else
+	xinput --set-prop "$touchpad_id" "$drag_lock_code" 1 && echo "Drag lock is now enabled" || echo "Something vent wrong"		
+fi
+
+}
+
+toggle_disable_while_typing()
+{
+disable_while_typing_code=$(xinput --list-props "$touchpad_id" | grep "Disable While Typing Enabled (" | awk '{print $6}' |  grep -o '[0-9]\+')
+
+if [[ $(xinput --list-props "$touchpad_id" | grep "Disable While Typing Enabled (" | awk '{print $7}' | head -n1) == 1 ]]; then
+	xinput --set-prop "$touchpad_id" "$disable_while_typing_code" 1 && echo "Touchpad is now disabled while typing" || echo "Something vent wrong"
+else
+	xinput --set-prop "$touchpad_id" "$disable_while_typing_code" 0 && echo "Touchpad is now enabled while typing" || echo "Something vent wrong"		
+fi
+
+}
+
+toggle_horizontal_scrolling()
+{
+horizontal_scrolling_code=$(xinput --list-props "$touchpad_id" | grep "Horizontal Scroll Enabled" | awk '{print $5}' |  grep -o '[0-9]\+')
+
+if [[ $(xinput --list-props "$touchpad_id" | grep "Horizontal Scroll Enabled" | awk '{print $6}' | head -n1) == 1 ]]; then
+	xinput --set-prop "$touchpad_id" "$horizontal_scrolling_code" 0 && echo "Horizontal scrolling is now disabled" || echo "Something vent wrong"
+else
+	xinput --set-prop "$touchpad_id" "$horizontal_scrolling_code" 1 && echo "Horizontal scrolling is now enabled" || echo "Something vent wrong"		
+fi
+
+}
+
+function gui {
+	if [ -e /usr/bin/lxinput ]; then
+		lxinput
+	else
+		read -p "Lxinput is not installed. Should it be installed? (y/N)" -n 1 -r
+		echo
+		if [[ $REPLY =~ ^[Yy]$ ]]
+		then
+			if [ -e /var/lib/pacman/db.lck ]; then 
+				echo "Pacman seems to be currently in use."
+			else 
+				sudo pacman -Sy lxinput && lxinput &>/dev/null
+			fi
+		fi
+	fi
+}
+
+function main {
+    while true; do
+    clear
+    echo ""
+    echo -e "            ::Touchpad settings:: "
+    echo -e " ┌──────────────────────────────────────────┐"
+    echo -e " │    1   Set pointer speed                 │"
+    echo -e " │    2   Toggle tap to click               │"
+    echo -e " │    3   Toggle drag lock                  │"    
+    echo -e " │    4   Toggle left handed mode           │"
+    echo -e " │    5   Toggle disable while typing       │"
+    echo -e " │    6   Toggle natural scrolling          │"
+    echo -e " │    7   Toggle horizontal scrolling       │"
+    echo -e " │    8   Show xinput manual                │"
+    echo -e " │    9   Show xinput wiki entry            │"
+    echo -e " │    L   Run lxinput                       │"
+    echo -e " └──────────────────────────────────────────┘"
+    echo -e "   Select an item   -     0   Exit "
+    echo ""
+    read -s -n1 choix
+    case $choix in
+        1)
+            echo
+            set_pointer_speed
+            ;;
+        2)
+            echo
+            toggle_tap_to_click
+            read -s -n1
+            ;;
+        3)
+            echo
+            toggle_drag_lock
+            read -s -n1
+            ;;
+        4)
+            echo
+            toggle_left_handed
+            read -s -n1
+	   		;;
+	   	5)
+            echo
+            toggle_disable_while_typing
+            read -s -n1
+            ;;
+        6)
+            echo
+            toggle_natural_scrolling
+            read -s -n1
+            ;;
+        7)
+            echo
+            toggle_horizontal_scrolling
+            read -s -n1
+            ;;
+        8)
+            echo
+            man xinput                 
+            read -s -n1
+            ;;
+        9)
+            echo
+            $BROWSER https://wiki.archlinux.org/index.php/Touchpad_Synaptics
+            read -s -n1
+            ;;
+        l|L)
+            echo
+            gui 
+			echo -e "Operation complete. Press any key to continue."                  
+            read -s -n1
+            ;;
+        0)
+            clear && exit
+            ;;
+        *)
+            echo -e "Wrong option. Press any key to continue."
+            read -s -n1
+            clear
+            ;;
+    esac
+    done
+}
+
+main
