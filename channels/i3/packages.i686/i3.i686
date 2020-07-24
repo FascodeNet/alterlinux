@@ -46,6 +46,7 @@ conky
 
 # launcher
 rofi
+inverse-icon-theme-blue-git
 
 # terminal emulator
 sakura
