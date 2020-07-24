@@ -154,3 +154,6 @@ sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
 
 # Set script permission
 chmod 755 /usr/local/bin/alterlinux-sidebar
+
+# ntp
+systemctl enable systemd-timesyncd.service

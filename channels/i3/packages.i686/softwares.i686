@@ -10,8 +10,7 @@
 # some softwares
 
 # internet
-# chromium
-firefox
+chromium
 thunderbird
 
 # file manager
@@ -44,7 +43,3 @@ xfce4-screenshooter
 # system
 gparted
 grub-customizer
-
-# for sysmenu
-arandr
-htop

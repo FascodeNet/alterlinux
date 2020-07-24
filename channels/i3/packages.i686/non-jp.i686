@@ -7,6 +7,4 @@
 #
 # (c) 2020 Fascode Network.
 #
-# Base packages
-
-base-devel
+# This package list will only be installed if the Japanese option is disabled.

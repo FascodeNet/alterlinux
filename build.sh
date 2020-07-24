@@ -391,15 +391,13 @@ remove_work() {
 show_channel_list() {
     local i
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]]; then
-            if [[ ! ${i} = "share" ]]; then
-                if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                    if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                        echo -n "${i} "
-                    fi
-                else
+        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
+            if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
                     echo -n "${i} "
                 fi
+            else
+                echo -n "${i} "
             fi
         fi
     done
@@ -1263,9 +1261,7 @@ if [[ ${?} != 0 ]]; then
 fi
 
 eval set -- "${OPT}"
-unset OPT
-unset _opt_short
-unset _opt_long
+unset OPT _opt_short _opt_long
 
 while :; do
     case ${1} in
@@ -1414,8 +1410,7 @@ fi
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
 if [[ "${bash_debug}" = true ]]; then
-    set -x
-    set -v
+    set -x -v
     mkalteriso_option="${mkalteriso_option} -x"
 fi
 
@@ -1570,8 +1565,7 @@ kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
-    local _value
-    _value="$(eval echo '$'${1})"
+    local _value="$(eval echo '$'${1})"
     _msg_debug -n "Checking ${1}..."
     if [[ "${debug}" = true ]]; then
         echo -e " ${_value}"

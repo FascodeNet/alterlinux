@@ -7,6 +7,20 @@
 #
 # (c) 2020 Fascode Network.
 #
-# Base packages
+# Shell and powerline
 
-base-devel
+
+# Powerline
+powerline-go
+
+
+# zsh
+zsh
+zsh-autosuggestions
+zsh-completions
+zsh-syntax-highlighting
+
+
+# lsd
+lsd
+lsd-control

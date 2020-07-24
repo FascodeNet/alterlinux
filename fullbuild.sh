@@ -184,7 +184,7 @@ _help() {
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion."
     echo "    -h                 This help message."
-    echo "    -r                 Set the number of retries."
+    echo "    -r <interer>       Set the number of retries."
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode."
     echo "    -t                 Build the tarball as well."
@@ -203,7 +203,7 @@ _help() {
 share_options=""
 default_options="-b --noconfirm -l -u alter -p alter --tarball"
 
-while getopts 'a:dghrst' arg; do
+while getopts 'a:dghr:s' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         d) share_options="${share_options} ${default_options}" ;;

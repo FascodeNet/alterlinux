@@ -7,6 +7,13 @@
 #
 # (c) 2020 Fascode Network.
 #
-# Base packages
+# Internet
 
-base-devel
+
+# network manager
+network-manager-applet
+
+
+# security
+firewalld
+ufw
