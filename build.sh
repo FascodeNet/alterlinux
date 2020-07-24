@@ -368,7 +368,6 @@ load_config() {
     done
 }
 
-
 # 作業ディレクトリを削除
 remove_work() {
     if [[ -d "${work_dir}" ]]; then
@@ -386,7 +385,6 @@ remove_work() {
     fi
 }
 
-
 # Display channel list
 show_channel_list() {
     local i
@@ -403,6 +401,20 @@ show_channel_list() {
     done
     echo
     exit 0
+}
+
+# Check the value of a variable that can only be set to true or false.
+check_bool() {
+    local _value="$(eval echo '$'${1})"
+    _msg_debug -n "Checking ${1}..."
+    if [[ "${debug}" = true ]]; then
+        echo -e " ${_value}"
+    fi
+    if [[ ! -v "${1}" ]]; then
+        echo; _msg_error "The variable name ${1} is empty." "1"
+        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+        echo; _msg_error "The variable name ${1} is not of bool type." "1"
+    fi
 }
 
 
@@ -582,8 +594,30 @@ prepare_build() {
         load_config "${rebuildfile}"
         _msg_debug "Iso filename is ${iso_filename}"
     fi
-    
 
+    # check bool
+    check_bool boot_splash
+    check_bool cleaning
+    check_bool noconfirm
+    check_bool nodepend
+    check_bool shmkalteriso
+    check_bool customized_username
+    check_bool noloopmod
+    check_bool nochname
+    check_bool tarball
+    check_bool noiso
+    check_bool noaur
+
+    # Check architecture for each channel
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+    # Check kernel for each channel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        _msg_error "This kernel is currently not supported on this channel." "1"
+    fi
+    
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
@@ -1491,18 +1525,6 @@ if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]
     fi
 fi
 
-# Check architecture for each channel
-if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]] && [[ ! "${channel_name}" = "retry" ]]; then
-    # architecture
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
-
-    # kernel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        _msg_error "This kernel is currently not supported on this channel." "1"
-    fi
-fi
 
 # Parse languages
 locale_config_file="${script_path}/system/locale-${arch}"
@@ -1563,39 +1585,12 @@ kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
 kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
 
 
-# Check the value of a variable that can only be set to true or false.
-check_bool() {
-    local _value="$(eval echo '$'${1})"
-    _msg_debug -n "Checking ${1}..."
-    if [[ "${debug}" = true ]]; then
-        echo -e " ${_value}"
-    fi
-    if [[ ! -v "${1}" ]]; then
-        echo; _msg_error "The variable name ${1} is empty." "1"
-        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-        echo; _msg_error "The variable name ${1} is not of bool type." "1"
-    fi
-}
-
 debug_line
-
-check_bool boot_splash
+check_bool rebuild
 check_bool debug
 check_bool bash_debug
-check_bool rebuild
-check_bool cleaning
-check_bool noconfirm
-check_bool nodepend
 check_bool nocolor
-check_bool shmkalteriso
 check_bool msgdebug
-check_bool customized_username
-check_bool noloopmod
-check_bool nochname
-check_bool tarball
-check_bool noiso
-check_bool noaur
-
 debug_line
 
 set -eu
