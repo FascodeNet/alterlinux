@@ -1015,20 +1015,12 @@ make_customize_airootfs() {
     
     
     # Generate options of customize_airootfs.sh.
-    local customize_airootfs_script_options
-    customize_airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}' -t ${theme_name}"
-    if [[ ${boot_splash} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -b"
-    fi
-    if [[ ${debug} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -d"
-    fi
-    if [[ ${bash_debug} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -x"
-    fi
-    if [[ ${rebuild} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -r"
-    fi
+    local airootfs_script_options
+    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}' -t ${theme_name}"
+    [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
+    [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
+    [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
+    [[ ${rebuild} = true ]]     && airootfs_script_options="${airootfs_script_options} -r"
 
     # X permission
     local chmod_755
@@ -1049,7 +1041,7 @@ make_customize_airootfs() {
     -w "${work_dir}/${arch}" \
     -C "${work_dir}/pacman-${arch}.conf" \
     -D "${install_dir}" \
-    -r "/root/customize_airootfs.sh ${customize_airootfs_script_options}" \
+    -r "/root/customize_airootfs.sh ${airootfs_script_options}" \
     run
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
@@ -1057,14 +1049,14 @@ make_customize_airootfs() {
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_${channel_name}.sh ${customize_airootfs_script_options}" \
+        -r "/root/customize_airootfs_${channel_name}.sh ${airootfs_script_options}" \
         run
     elif [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${customize_airootfs_script_options}" \
+        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${airootfs_script_options}" \
         run
     fi
     
@@ -1280,9 +1272,7 @@ options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
 _opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
-if [[ ${?} != 0 ]]; then
-    exit 1
-fi
+[[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
 unset OPT _opt_short _opt_long
@@ -1446,9 +1436,7 @@ rebuildfile="${work_dir}/build_options"
 
 # Parse channels
 set +eu
-if [[ -n "${1}" ]]; then
-    channel_name="${1}"
-fi
+[[ -n "${1}" ]] && channel_name="${1}"
 
 # check_channel <channel name>
 check_channel() {
@@ -1484,9 +1472,7 @@ check_channel() {
 }
 
 # Check for a valid channel name
-if [[ $(check_channel "${channel_name}") = false ]]; then
-    _msg_error "Invalid channel ${channel_name}" "1"
-fi
+[[ $(check_channel "${channel_name}") = false ]] && _msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
@@ -1533,9 +1519,7 @@ get_locale_line() {
 }
 locale_line="$(get_locale_line)"
 
-if [[ "${locale_line}" == "failed" ]]; then
-    _msg_error "${language} is not a valid language." "1"
-fi
+[[ "${locale_line}" == "failed" ]] && _msg_error "${language} is not a valid language." "1"
 
 locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
 
