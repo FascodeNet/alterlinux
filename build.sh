@@ -342,9 +342,7 @@ remove() {
 
 # Debug line
 debug_line() {
-    if [[ "${debug}" = true ]]; then
-        echo
-    fi
+    [[ "${debug}" = true ]] && echo
 }
 
 # 強制終了時にアンマウント
@@ -448,7 +446,7 @@ prepare_build() {
         
         # If there is config for share channel. load that.
         load_config "${script_path}/channels/share/config.any"
-        load_config ${script_path}/channels/share/config.${arch}
+        load_config "${script_path}/channels/share/config.${arch}"
         
         # If there is config for each channel. load that.
         load_config "${script_path}/channels/${channel_name}/config.any"
@@ -877,9 +875,7 @@ make_packages_aur() {
     )
 
     for _file in ${excludefile[@]}; do
-        if [[ -f "${_file}" ]]; then
-            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
-        fi
+        [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
 
     # 現在のpkglistをコピーする
