@@ -342,9 +342,7 @@ remove() {
 
 # Debug line
 debug_line() {
-    if [[ "${debug}" = true ]]; then
-        echo
-    fi
+    [[ "${debug}" = true ]] && echo
 }
 
 # 強制終了時にアンマウント
@@ -448,7 +446,7 @@ prepare_build() {
         
         # If there is config for share channel. load that.
         load_config "${script_path}/channels/share/config.any"
-        load_config ${script_path}/channels/share/config.${arch}
+        load_config "${script_path}/channels/share/config.${arch}"
         
         # If there is config for each channel. load that.
         load_config "${script_path}/channels/${channel_name}/config.any"
@@ -877,9 +875,7 @@ make_packages_aur() {
     )
 
     for _file in ${excludefile[@]}; do
-        if [[ -f "${_file}" ]]; then
-            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
-        fi
+        [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
 
     # 現在のpkglistをコピーする
@@ -1015,20 +1011,12 @@ make_customize_airootfs() {
     
     
     # Generate options of customize_airootfs.sh.
-    local customize_airootfs_script_options
-    customize_airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}' -t ${theme_name}"
-    if [[ ${boot_splash} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -b"
-    fi
-    if [[ ${debug} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -d"
-    fi
-    if [[ ${bash_debug} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -x"
-    fi
-    if [[ ${rebuild} = true ]]; then
-        customize_airootfs_script_options="${customize_airootfs_script_options} -r"
-    fi
+    local airootfs_script_options
+    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}' -t ${theme_name}"
+    [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
+    [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
+    [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
+    [[ ${rebuild} = true ]]     && airootfs_script_options="${airootfs_script_options} -r"
 
     # X permission
     local chmod_755
@@ -1049,7 +1037,7 @@ make_customize_airootfs() {
     -w "${work_dir}/${arch}" \
     -C "${work_dir}/pacman-${arch}.conf" \
     -D "${install_dir}" \
-    -r "/root/customize_airootfs.sh ${customize_airootfs_script_options}" \
+    -r "/root/customize_airootfs.sh ${airootfs_script_options}" \
     run
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
@@ -1057,14 +1045,14 @@ make_customize_airootfs() {
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_${channel_name}.sh ${customize_airootfs_script_options}" \
+        -r "/root/customize_airootfs_${channel_name}.sh ${airootfs_script_options}" \
         run
     elif [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${customize_airootfs_script_options}" \
+        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${airootfs_script_options}" \
         run
     fi
     
@@ -1280,9 +1268,7 @@ options="${@}"
 _opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
 _opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
-if [[ ${?} != 0 ]]; then
-    exit 1
-fi
+[[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
 unset OPT _opt_short _opt_long
@@ -1446,9 +1432,7 @@ rebuildfile="${work_dir}/build_options"
 
 # Parse channels
 set +eu
-if [[ -n "${1}" ]]; then
-    channel_name="${1}"
-fi
+[[ -n "${1}" ]] && channel_name="${1}"
 
 # check_channel <channel name>
 check_channel() {
@@ -1484,9 +1468,7 @@ check_channel() {
 }
 
 # Check for a valid channel name
-if [[ $(check_channel "${channel_name}") = false ]]; then
-    _msg_error "Invalid channel ${channel_name}" "1"
-fi
+[[ $(check_channel "${channel_name}") = false ]] && _msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
@@ -1533,9 +1515,7 @@ get_locale_line() {
 }
 locale_line="$(get_locale_line)"
 
-if [[ "${locale_line}" == "failed" ]]; then
-    _msg_error "${language} is not a valid language." "1"
-fi
+[[ "${locale_line}" == "failed" ]] && _msg_error "${language} is not a valid language." "1"
 
 locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
 
@@ -1590,9 +1570,7 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-if [[ "${noaur}" = false ]]; then
-    run_once make_packages_aur
-fi
+[[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 run_once make_boot
@@ -1601,13 +1579,9 @@ run_once make_syslinux
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
-if [[ "${tarball}" = true ]]; then
-    run_once make_tarball
-fi
-if [ "${noiso}" = false ]; then
-    run_once make_prepare
-    run_once make_iso
-fi
-if [[ ${cleaning} = true ]]; then
-    remove_work
-fi
+[[ "${tarball}" = true ]] && run_once make_tarball
+[[ "${noiso}" = false ]] && run_once make_prepare
+[[ "${noiso}" = false ]] && run_once make_iso
+[[ "${cleaning}" = true ]] && remove_work
+
+exit 0
