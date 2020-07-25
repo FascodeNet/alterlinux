@@ -75,9 +75,7 @@ function remove () {
 
 
 # Delete icon cache
-if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
-    rm /home/${username}/.cache/icon-cache.kcache
-fi
+[[ -f /home/${username}/.cache/icon-cache.kcache ]] && rm /home/${username}/.cache/icon-cache.kcache
 
 
 if [[ "${arch}" = "x86_64" ]]; then
