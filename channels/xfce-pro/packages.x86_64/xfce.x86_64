@@ -1,0 +1,50 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Xfce4 Desktop Environment
+
+ 
+ #-- Compiz --#
+ compiz
+
+
+#-- xfce4 base --#
+exo
+garcon
+gnome-keyring
+thunar
+thunar-volman
+tumbler
+xfce4-appfinder
+xfce4-notifyd 
+xfce4-screenshooter
+xfce4-session
+xfce4-settings
+xfce4-terminal
+xfce4-panel
+xfce4-power-manager
+xfconf
+xfdesktop
+# xfwm4
+# xfwm4-themes
+
+
+#-- xfce4 config --#
+alterlinux-xfce-conf
+
+
+#-- xfce4 plugins --#
+thunar-archive-plugin
+thunar-media-tags-plugin
+# thunar-vcs-plugin
+xfce4-calculator-plugin
+xfce4-clipman-plugin
+xfce4-docklike-plugin-git
+xfce4-pulseaudio-plugin
+xfce4-whiskermenu-plugin

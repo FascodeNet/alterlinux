@@ -1,0 +1,1 @@
+Use Xfce4 for desktop environment.
