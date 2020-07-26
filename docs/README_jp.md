@@ -69,6 +69,9 @@ AlterLinuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
+<h3>Cinnamon</h3>
+<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+
 
 <h2>〈特徴〉</h2>
 <ul>
