@@ -9,4 +9,7 @@
 #
 # Base packages
 
+#-- Client --#
+freerdp
+libvncserver
 remmina
