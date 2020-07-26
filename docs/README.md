@@ -73,6 +73,9 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
+<h3>Cinnamon</h3>
+<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+
 
 <h2>〈Feature〉</h2>
 <ul>
