@@ -5,6 +5,8 @@ script_path="$(readlink -f ${0%/*})"
 channnels=(
     "xfce"
     "lxde"
+    "cinnamon"
+    "i3"
 )
 
 architectures=(
