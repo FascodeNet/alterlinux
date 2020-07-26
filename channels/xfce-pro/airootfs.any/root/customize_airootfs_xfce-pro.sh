@@ -149,3 +149,6 @@ chmod 755 /usr/local/bin/alterlinux-sidebar
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+
+# Remove remmina session
+remove /usr/share/xsessions/remmina-gnome.desktop
