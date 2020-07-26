@@ -11,6 +11,7 @@
 
 
 #-- audio --#
+audacity
 pavucontrol
 pulseaudio
 
