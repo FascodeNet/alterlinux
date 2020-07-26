@@ -14,6 +14,9 @@
  compiz
 
 
+#-- Terminal --#
+guake
+
 #-- xfce4 base --#
 exo
 garcon
