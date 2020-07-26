@@ -35,6 +35,7 @@ exec_always --no-startup-id compton
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-clipman
+exec --no-startup-id dex -ae i3
 exec --no-startup-id dunst
 exec --no-startup-id conky
 exec --no-startup-id fcitx
