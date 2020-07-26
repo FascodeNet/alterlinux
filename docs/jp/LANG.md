@@ -11,16 +11,16 @@
 言語リストは以下の構文で記述して下さい。
 
 ```
-# <locale name> <locale.gen> <archlinux mirror> <lang version name> <timezone>
+# <locale name> <locale.gen> <archlinux mirror> <lang version name> <timezone> <fullname>
 
 # Global version
-gl      en_US.UTF-8      all    gl     UTC
+gl      en_US.UTF-8      all    gl     UTC         global
 
 # Japanese
-ja      ja_JP.UTF-8      JP     ja     Asia/Tokyo
+ja      ja_JP.UTF-8      JP     ja     Asia/Tokyo  japanese
 
 # English
-en      en_US.UTF-8      US     en     UTC
+en      en_US.UTF-8      US     en     UTC         english
 ```
 
 ## 基本構文とコメント
@@ -31,7 +31,7 @@ en      en_US.UTF-8      US     en     UTC
 言語名が重複することはスクリプトで考慮されていないので重複は絶対に避けて下さい。  
 
 ## locale.gen
-`/etc/locale.gen`でコメントアウトする値です。後半の部分（`ja_JP.UTF-8 UTF-8`の` UTF-8`の部分）は記述しないで下さい。  
+`/etc/locale.gen`でコメントアウトする値です。テキストエンコーディング（`ja_JP.UTF-8 UTF-8`の` UTF-8`の部分）は記述しないで下さい。  
   
 ## archlinux mirror
 [Mirrorlist Generator](https://www.archlinux.org/mirrorlist/)のURLの`/?country=`の後の文字列です。  
@@ -39,3 +39,9 @@ ArchLinux32とArchLinuxでは文字列が異なるので注意してください
 
 ## lang version name
 イメージファイルのファイル名に使用される言語の名前です。よほどの事情が無い限り`locale name`と同じで良いでしょう。  
+
+## timezone
+ライブ環境のタイムゾーンの設定です。`/usr/share/zoneinfo`以下のパスを記述して下さい。
+
+## fullname
+その言語のフルネームです。ビルド時のメッセージ等に使用されます。

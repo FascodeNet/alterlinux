@@ -1,0 +1,157 @@
+#!/bin/bash
+
+RED='\e[41m'
+BLUE='\e[44m'
+ORANGE='\e[46m'
+NC='\e[0m'
+TEXTEDITOR=$EDITOR
+STATUSVAR=1
+
+# Service messages section
+ERRORMSG="$RED Wrong.$NC"
+TRYAGAINMSG="$RED Press any key and try again$NC"
+PS3SYSSETTMSG="Select bootloader to configure: "
+CONTINMSG="$BLUE Press any key to continue$NC"
+USINGNANOFOREDITMSG="Using nano for edit..."
+
+function pressanykeyrequest {
+	echo -e "$CONTINMSG"
+	read -s -n1
+	STATUSVAR=1
+}
+
+function bootloader_configuration {
+PS3="$PS3SYSSETTMSG"
+# Gather the results in an array.
+dms=("grub" "refind" "systemdboot" "syslinux" "cancel")
+
+select pick in "${dms[@]}"
+do
+	case $pick in
+		grub)
+			sudo $TEXTEDITOR /etc/default/grub
+			sudo update-grub
+			break
+			;;		
+		refind)
+			sudo $TEXTEDITOR /boot/refind_linux.conf
+			sudo $TEXTEDITOR /boot/EFI/refind/refind.conf
+			break
+			;;		
+		systemdboot)
+			sudo $TEXTEDITOR /boot/loader/entries/manjaro.conf
+			break
+			;;		
+		syslinux)
+			sudo $TEXTEDITOR /boot/syslinux/syslinux.cfg
+			break
+			;;		
+		cancel)
+			break
+	esac
+done
+}
+
+function tryvisudo {
+	visudoerrormsggrep=""
+	visudoerrormsggrep=$(sudo visudo 2>&1 | grep "no editor found")
+	if [ "$visudoerrormsggrep" != "" ]; then
+		echo "$USINGNANOFOREDITMSG"
+		sudo EDITOR=nano visudo
+		return 0
+	else
+		pressanykeyrequest
+	fi
+	return 1
+}
+
+function main {
+    while true; do
+    clear
+    echo ""
+    echo -e "                          ::Settings:: "
+    echo -e " ┌─────────────────────────────────────────────────────────────┐"
+    echo -e " │    1   Pacman settings              2   Mkinitcpio          │"
+    echo -e " │    3   Fstab                        4   Sudoers             │"
+    echo -e " │    5   Logind                       6   Bootloader          │"    
+    echo -e " │    7   Udevil settings              8   Xinitrc             │"
+    echo -e " │    9   Setup                                                │"
+    echo -e " └─────────────────────────────────────────────────────────────┘"
+    echo -e "          Select an item       -       0   Exit "
+    echo ""
+    read -s -n1 choix
+    case $choix in
+        1)
+            echo
+            sudo $TEXTEDITOR /etc/pacman.conf
+            echo ""
+            ;;
+        2)
+            echo
+            sudo $TEXTEDITOR /etc/mkinitcpio.conf
+            echo ""
+            ;;
+        3)
+            echo
+            sudo $TEXTEDITOR /etc/fstab
+            echo ""
+            ;;
+        4)
+            echo
+            sudo echo ""
+            STATUSVAR=$?
+            if [ $STATUSVAR -eq 1 ]; then
+             echo ""
+            else
+            	sudo visudo
+            	STATUSVAR=$?
+            	if [ $STATUSVAR -eq 1 ]; then
+            		tryvisudo
+            		STATUSVAR=$?
+            			if [ $STATUSVAR -eq 0 ]; then
+            				pressanykeyrequest
+            			fi
+            	else
+            		pressanykeyrequest
+            	fi
+            fi
+            echo ""
+            ;;
+        5)
+            echo
+            sudo $TEXTEDITOR /etc/systemd/logind.conf
+            echo ""
+            ;;
+        6)
+            echo
+            bootloader_configuration
+            echo ""
+            ;;
+        7)
+            echo
+            sudo $TEXTEDITOR /etc/udevil/udevil.conf
+            echo ""
+            ;;
+        8)
+            echo
+            $TEXTEDITOR ~/.xinitrc
+            echo ""
+            ;;
+        9)
+            echo
+            system-setup
+            echo ""
+            ;;
+        0)
+            clear && exit
+            ;;
+        *)
+            echo -e "$ERRORMSG$TRYAGAINMSG"
+            read -s -n1
+	    clear
+            ;;
+    esac
+    done
+}
+
+main

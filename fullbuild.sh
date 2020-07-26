@@ -5,11 +5,17 @@ script_path="$(readlink -f ${0%/*})"
 channnels=(
     "xfce"
     "lxde"
+    "cinnamon"
 )
 
 architectures=(
     "x86_64"
     "i686"
+)
+
+languages=(
+    "ja"
+    "gl"
 )
 
 work_dir=temp
@@ -160,19 +166,12 @@ trap_exit() {
 
 
 build() {
-    options="${share_options} -a ${arch} ${cha}"
+    options="${share_options} -a ${arch} -g ${lang} ${cha}"
 
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}" ]]; then
-        _msg_info "Build ${cha} with ${arch} architecture."
+    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
+        _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
         sudo bash ${script_path}/build.sh ${options}
         touch "${work_dir}/fullbuild.${cha}_${arch}"
-    fi
-    sudo pacman -Sccc --noconfirm > /dev/null 2>&1
-
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_jp" ]]; then
-        _msg_info "Build the Japanese version of ${cha} on the ${arch} architecture."
-        sudo bash ${script_path}/build.sh -g 'ja' ${options}
-        touch "${work_dir}/fullbuild.${cha}_${arch}_jp"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
@@ -185,7 +184,7 @@ _help() {
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion."
     echo "    -h                 This help message."
-    echo "    -r                 Set the number of retries."
+    echo "    -r <interer>       Set the number of retries."
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode."
     echo "    -t                 Build the tarball as well."
@@ -198,9 +197,9 @@ _help() {
 
 
 share_options=""
-default_options="-b --noconfirm -l"
+default_options="-b --noconfirm -l -u alter -p alter --tarball"
 
-while getopts 'a:dghrst' arg; do
+while getopts 'a:dghr:s' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         d) share_options="${share_options} ${default_options}" ;;
@@ -229,15 +228,19 @@ fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
-        for i in $(seq 1 ${retry}); do
+        for lang in ${languages[@]}; do
             if [[ "${simulation}" = true ]]; then
-                echo "build.sh ${share_options} -a ${arch} ${cha}"
+                    echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
             else
-                build
+                for i in $(seq 1 ${retry}); do
+                    build
+                done
             fi
         done
     done
 done
 
 
-_msg_info "All editions have been built"
+if [[ "${simulation}" = false ]]; then
+    _msg_info "All editions have been built"
+fi

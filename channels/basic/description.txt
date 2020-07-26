@@ -1,0 +1,1 @@
+Base channel for configuring channels
