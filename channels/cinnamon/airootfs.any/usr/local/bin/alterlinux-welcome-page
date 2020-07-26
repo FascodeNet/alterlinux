@@ -11,13 +11,13 @@ set -e
 checklive=false
 alterlive=false
 url="https://fascode.net/en/projects/linux/alter/welcome.php"
-browser="chromium --start-maximized %s"
+browser="chromium --start-maximized --app=%s"
 custombrowser=false
 
 defaultbrowserlist=(
     "firefox %s"
-    "chromium --start-maximized %s"
-    "google-chrome  --start-maximized %s"
+    "chromium --start-maximized --app=%s"
+    "google-chrome  --start-maximized --app=%s"
 )
 
 remove () {
