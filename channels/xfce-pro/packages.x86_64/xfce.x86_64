@@ -11,11 +11,15 @@
 
  
 #-- Compiz --#
- compiz
+compiz
 
 
 #-- Terminal --#
 guake
+
+#-- Wallpaper --#
+alterlinu-wallpapers
+
 
 #-- xfce4 base --#
 exo
