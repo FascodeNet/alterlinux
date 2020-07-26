@@ -10,7 +10,7 @@ set -e
 
 checklive=false
 alterlive=false
-url="https://fascode.net/projects/linux/alter/welcome.php"
+url="https://fascode.net/en/projects/linux/alter/welcome.php"
 browser="chromium --start-maximized %s"
 custombrowser=false
 
