@@ -187,6 +187,7 @@ _help() {
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion."
     echo "    -h                 This help message."
+    echo "    -m <architecture>  Set the architecture to build."
     echo "    -r <interer>       Set the number of retries."
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode."
@@ -209,6 +210,7 @@ while getopts 'a:dghr:s' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         d) share_options="${share_options} ${default_options}" ;;
+        m) architectures=(${OPTARG}) ;;
         g) 
             if [[ ! -d "${script_path}/.git" ]]; then
                 _msg_error "There is no git directory. You need to use git clone to use this feature."
