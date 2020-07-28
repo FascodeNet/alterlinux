@@ -368,19 +368,7 @@ load_config() {
 
 # 作業ディレクトリを削除
 remove_work() {
-    if [[ -d "${work_dir}" ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make" 2> /dev/null)"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove ""${work_dir}/packages.list""
-        remove "${work_dir}/packages-full.list"
-        #remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
+    remove "${work_dir}"
 }
 
 # Display channel list
