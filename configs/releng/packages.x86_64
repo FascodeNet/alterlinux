@@ -1,6 +1,7 @@
 amd-ucode
 arch-install-scripts
 b43-fwcutter
+base
 bind-tools
 broadcom-wl
 btrfs-progs
@@ -72,6 +73,7 @@ sdparm
 sg3_utils
 smartmontools
 sudo
+syslinux
 systemd-resolvconf
 tcpdump
 terminus-font

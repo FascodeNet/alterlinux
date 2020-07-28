@@ -1,2 +1,4 @@
+base
 linux
 mkinitcpio
+syslinux

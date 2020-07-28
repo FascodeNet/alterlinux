@@ -59,12 +59,17 @@ make_pacman_conf() {
         "${script_path}/pacman.conf" > "${work_dir}/pacman.conf"
 }
 
-# Base installation (airootfs)
-make_basefs() {
-    if [ -n "${verbose}" ]; then
-        mkarchiso -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
-    else
-        mkarchiso -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
+# Prepare working directory and copy custom airootfs files (airootfs)
+make_custom_airootfs() {
+    local _airootfs="${work_dir}/x86_64/airootfs"
+    mkdir -p -- "${_airootfs}"
+
+    if [[ -d "${script_path}/airootfs" ]]; then
+        cp -af --no-preserve=ownership -- "${script_path}/airootfs/." "${_airootfs}"
+
+        [[ -e "${_airootfs}/etc/shadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/shadow"
+        [[ -e "${_airootfs}/etc/gshadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/gshadow"
+        [[ -e "${_airootfs}/root" ]] && chmod -f 0750 -- "${_airootfs}/root"
     fi
 }
 
@@ -112,10 +117,6 @@ make_setup_mkinitcpio() {
 
 # Customize installation (airootfs)
 make_customize_airootfs() {
-    cp -af --no-preserve=ownership "${script_path}/airootfs" "${work_dir}/x86_64"
-
-    cp "${script_path}/pacman.conf" "${work_dir}/x86_64/airootfs/etc"
-
     if [ -n "${verbose}" ]; then
         mkarchiso -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
             -r '/root/customize_airootfs.sh' run
@@ -124,9 +125,6 @@ make_customize_airootfs() {
             -r '/root/customize_airootfs.sh' run
     fi
     rm "${work_dir}/x86_64/airootfs/root/customize_airootfs.sh"
-
-    [[ -e "${work_dir}/x86_64/airootfs/etc/shadow" ]] && chmod -f 0400 -- "${work_dir}/x86_64/airootfs/etc/shadow"
-    [[ -e "${work_dir}/x86_64/airootfs/root" ]] && chmod -f 0750 -- "${work_dir}/x86_64/airootfs/root"
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/
@@ -290,7 +288,7 @@ done
 mkdir -p "${work_dir}"
 
 run_once make_pacman_conf
-run_once make_basefs
+run_once make_custom_airootfs
 run_once make_packages
 run_once make_setup_mkinitcpio
 run_once make_customize_airootfs

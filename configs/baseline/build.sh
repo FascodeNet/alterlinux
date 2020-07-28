@@ -30,9 +30,16 @@ make_pacman_conf() {
         "${script_path}/pacman.conf" > "${work_dir}/pacman.conf"
 }
 
-# Base installation (airootfs)
-make_basefs() {
-    mkarchiso -v -w "${work_dir}" -D "${install_dir}" init
+# Prepare working directory and copy custom airootfs files (airootfs)
+make_custom_airootfs() {
+    local _airootfs="${work_dir}/airootfs"
+    mkdir -p -- "${_airootfs}"
+
+    if [[ -d  "${script_path}/airootfs" ]]; then
+        cp -af --no-preserve=ownership -- "${script_path}/airootfs/." "${_airootfs}"
+        [[ -e "${_airootfs}/etc/shadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/shadow"
+        [[ -e "${_airootfs}/etc/gshadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/gshadow"
+    fi
 }
 
 # Packages (airootfs)
@@ -50,16 +57,6 @@ make_setup_mkinitcpio() {
     cp "${script_path}/mkinitcpio.conf" "${work_dir}/airootfs/etc/mkinitcpio-archiso.conf"
     mkarchiso -v -w "${work_dir}" -D "${install_dir}" \
         -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
-}
-
-# Prepare working directory and copy custom airootfs files (airootfs)
-make_custom_airootfs() {
-    local _airootfs="${work_dir}/airootfs"
-
-    if [[ -d "${script_path}/airootfs" ]]; then
-        cp -af --no-preserve=ownership -- "${script_path}/airootfs/." "${_airootfs}"
-        [[ -e "${_airootfs}/etc/shadow" ]] && chmod -f 0400 -- "${_airootfs}/etc/shadow"
-    fi
 }
 
 # Prepare ${install_dir}/boot/
@@ -102,11 +99,10 @@ make_iso() {
         "${iso_name}-${iso_version}-${arch}.iso"
 }
 
+run_once make_custom_airootfs
 run_once make_pacman_conf
-run_once make_basefs
 run_once make_packages
 run_once make_setup_mkinitcpio
-run_once make_custom_airootfs
 run_once make_boot
 run_once make_syslinux
 run_once make_isolinux
