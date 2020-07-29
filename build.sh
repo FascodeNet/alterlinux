@@ -239,7 +239,7 @@ _usage () {
     for list in ${script_path}/system/kernel_list-* ; do
         echo " ${list#${script_path}/system/kernel_list-}:"
         echo -n "    "
-        for kernel in $(grep -h -v ^'#' ${list}); do
+        for kernel in $(grep -h -v ^'#' ${list} | sed ':a;N;$!ba;s/\n/ /g'); do
             echo -n "${kernel} "
         done
         echo
@@ -705,7 +705,7 @@ make_packages() {
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
             _msg_debug "Loaded package file ${_file}"
-            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file} | sed ':a;N;$!ba;s/\n/ /g')" )
         done
         if [[ ${debug} = true ]]; then
             sleep 3
@@ -714,7 +714,7 @@ make_packages() {
         # Exclude packages from the share exclusion list
         excludefile="${script_path}/channels/share/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+            excludelist=( $(grep -h -v ^'#' "${excludefile}" | sed ':a;N;$!ba;s/\n/ /g') )
 
             # 現在のpkglistをコピーする
             _pkglist=(${pkglist[@]})
@@ -735,7 +735,7 @@ make_packages() {
         # Exclude packages from the exclusion list for each channel
         excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+            excludelist=( $(grep -h -v ^'#' "${excludefile}" | sed ':a;N;$!ba;s/\n/ /g') )
         
             # 現在のpkglistをコピーする
             _pkglist=(${pkglist[@]})
@@ -1192,7 +1192,7 @@ while :; do
             shift 1
             ;;
         -k | --kernel)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | sed ':a;N;$!ba;s/\n/ /g' | grep -x "${2}") ]]; then
                 kernel="${2}"
             else
                 _msg_error "Invalid kernel ${2}" "1"
@@ -1377,13 +1377,13 @@ fi
 # Check architecture and kernel for each channel
 if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
     # architecture
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | sed ':a;N;$!ba;s/\n/ /g' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
     # kernel
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | sed ':a;N;$!ba;s/\n/ /g' | grep -x "${kernel}") ]]; then
             _msg_error "This kernel is currently not supported on this channel." "1"
         fi
     fi

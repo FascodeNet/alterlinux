@@ -57,10 +57,8 @@ cdback() {
 
 _chroot_init() {
     mkdir -p ${work_dir}/airootfs
-    
-    #_pacman "base base-devel syslinux" <- old code
 
-    _pacman "base syslinux"
+    _pacman base syslinux
 }
 
 _chroot_run() {
@@ -308,7 +306,7 @@ command_pkglist () {
 
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
-    local _iso_efi_boot_args=""
+    local _iso_efi_boot_args=()
 
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
@@ -319,10 +317,12 @@ command_iso () {
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${work_dir}/iso/EFI/archiso/efiboot.img" ]]; then
-        _iso_efi_boot_args="-eltorito-alt-boot
-                            -e EFI/archiso/efiboot.img
-                            -no-emul-boot
-                            -isohybrid-gpt-basdat"
+        _iso_efi_boot_args+=(
+            '-eltorito-alt-boot'
+            '-e' 'EFI/archiso/efiboot.img'
+            '-no-emul-boot'
+            '-isohybrid-gpt-basdat'
+        )
     fi
 
     _show_config iso
@@ -330,23 +330,39 @@ command_iso () {
     mkdir -p "${out_dir}"
     _msg_info "Creating ISO image..."
     local _qflag=""
-    if [[ ${quiet} == "y" ]]; then
-        _qflag="-quiet"
+    if [[ "${quiet}" == "y" ]]; then
+        xorriso -as mkisofs -quiet \
+            -iso-level 3 \
+            -full-iso9660-filenames \
+            -volid "${iso_label}" \
+            -appid "${iso_application}" \
+            -publisher "${iso_publisher}" \
+            -preparer "prepared by mkarchiso" \
+            -eltorito-boot isolinux/isolinux.bin \
+            -eltorito-catalog isolinux/boot.cat \
+            -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -isohybrid-mbr "${work_dir}/iso/isolinux/isohdpfx.bin" \
+            "${_iso_efi_boot_args[@]}" \
+            -output "${out_dir}/${img_name}" \
+            "${work_dir}/iso/"
+    else
+        xorriso -as mkisofs \
+            -iso-level 3 \
+            -full-iso9660-filenames \
+            -volid "${iso_label}" \
+            -appid "${iso_application}" \
+            -publisher "${iso_publisher}" \
+            -preparer "prepared by mkarchiso" \
+            -eltorito-boot isolinux/isolinux.bin \
+            -eltorito-catalog isolinux/boot.cat \
+            -no-emul-boot -boot-load-size 4 -boot-info-table \
+            -isohybrid-mbr "${work_dir}/iso/isolinux/isohdpfx.bin" \
+            "${_iso_efi_boot_args[@]}" \
+            -output "${out_dir}/${img_name}" \
+            "${work_dir}/iso/"
     fi
-    xorriso -as mkisofs ${_qflag} \
-        -iso-level 3 \
-        -full-iso9660-filenames \
-        -volid "${iso_label}" \
-        -appid "${iso_application}" \
-        -publisher "${iso_publisher}" \
-        -preparer "prepared by mkalteriso" \
-        -eltorito-boot isolinux/isolinux.bin \
-        -eltorito-catalog isolinux/boot.cat \
-        -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
-        ${_iso_efi_boot_args} \
-        -output "${out_dir}/${img_name}" \
-        "${work_dir}/iso/"
+
+    
     _mkisochecksum
     _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
 }
@@ -374,17 +390,14 @@ command_install () {
         _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
     fi
 
-    #trim spaces
-    pkg_list="$(echo ${pkg_list})"
-
-    if [[ -z ${pkg_list} ]]; then
+    if [[ "${#pkg_list[@]}" -eq 0 ]]; then
         _msg_error "Packages must be specified" 0
         _usage 1
     fi
 
     _show_config install
 
-    _pacman "${pkg_list}"
+    _pacman "${pkg_list[@]}"
 }
 
 command_init() {
@@ -406,6 +419,10 @@ umask 0022
 while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
     case "${arg}" in
         a) arch="${OPTARG}" ;;
+        p)
+            read -r -a opt_pkg_list <<< "${OPTARG}"
+            pkg_list+=("${opt_pkg_list[@]}")
+            ;;
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
