@@ -250,24 +250,12 @@ sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
 # Enable root login with SSH.
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 
-
-# Comment out the mirror list.
+# Un comment the mirror list.
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
-
-
-# Set to save journal logs only in memory.
-sed -i 's/#\(Storage=\)auto/\1volatile/' /etc/systemd/journald.conf
 
 # Set the os name to grub
 grub_os_name="${os_name%' Linux'}"
 sed -i -r  "s/(GRUB_DISTRIBUTOR=).*/\1\"${grub_os_name}\"/g" "/etc/default/grub"
-
-
-# Set the operation when each power button is pressed in systemd power management.
-sed -i 's/#\(HandleSuspendKey=\)suspend/\1ignore/' /etc/systemd/logind.conf
-sed -i 's/#\(HandleHibernateKey=\)hibernate/\1ignore/' /etc/systemd/logind.conf
-sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
-
 
 # Create new icon cache
 # This is because alter icon was added by airootfs.
