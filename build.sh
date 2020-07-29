@@ -239,7 +239,7 @@ _usage () {
     for list in ${script_path}/system/kernel_list-* ; do
         echo " ${list#${script_path}/system/kernel_list-}:"
         echo -n "    "
-        for kernel in $(grep -h -v ^'#' ${list} | sed ':a;N;$!ba;s/\n/ /g'); do
+        for kernel in $(grep -h -v ^'#' ${list} | sed "/^$/d"); do
             echo -n "${kernel} "
         done
         echo
@@ -1150,7 +1150,7 @@ while :; do
             shift 1
             ;;
         -k | --kernel)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | sed ':a;N;$!ba;s/\n/ /g' | grep -x "${2}") ]]; then
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | sed "/^$/d" | grep -x "${2}") ]]; then
                 kernel="${2}"
             else
                 _msg_error "Invalid kernel ${2}" "1"
@@ -1263,7 +1263,7 @@ if [[ "${bash_debug}" = true ]]; then
 fi
 
 # Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 # Set rebuild config file
 rebuildfile="${work_dir}/build_options"
@@ -1335,13 +1335,13 @@ fi
 # Check architecture and kernel for each channel
 if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
     # architecture
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | sed ':a;N;$!ba;s/\n/ /g' | grep -x "${arch}") ]]; then
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | sed "/^$/d" | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
     # kernel
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | sed ':a;N;$!ba;s/\n/ /g' | grep -x "${kernel}") ]]; then
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | sed "/^$/d" | grep -x "${kernel}") ]]; then
             _msg_error "This kernel is currently not supported on this channel." "1"
         fi
     fi
