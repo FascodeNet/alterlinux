@@ -732,7 +732,7 @@ function generate_argument () {
     if [[ -n ${out_dir} ]]; then
         argument="${argument} -o '${out_dir}'"
     fi
-    argument="--noconfirm -a '${build_arch}' ${argument} ${channel}"
+    argument="--noconfirm -a ${build_arch} ${argument} ${channel}"
 }
 
 #　上の質問の関数を実行
