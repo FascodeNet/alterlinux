@@ -58,7 +58,9 @@ cdback() {
 _chroot_init() {
     mkdir -p ${work_dir}/airootfs
 
-    _pacman base syslinux
+    #_pacman "base base-devel syslinux" <- old code
+
+    _pacman "base syslinux"
 }
 
 _chroot_run() {
@@ -306,7 +308,7 @@ command_pkglist () {
 
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
-    local _iso_efi_boot_args=()
+    local _iso_efi_boot_args=""
 
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
@@ -390,14 +392,17 @@ command_install () {
         _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
     fi
 
-    if [[ "${#pkg_list[@]}" -eq 0 ]]; then
+    #trim spaces
+    pkg_list="$(echo ${pkg_list})"
+
+    if [[ -z ${pkg_list} ]]; then
         _msg_error "Packages must be specified" 0
         _usage 1
     fi
 
     _show_config install
 
-    _pacman "${pkg_list[@]}"
+    _pacman "${pkg_list}"
 }
 
 command_init() {
@@ -419,10 +424,7 @@ umask 0022
 while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
     case "${arg}" in
         a) arch="${OPTARG}" ;;
-        p)
-            read -r -a opt_pkg_list <<< "${OPTARG}"
-            pkg_list+=("${opt_pkg_list[@]}")
-            ;;
+        p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
         L) iso_label="${OPTARG}" ;;
