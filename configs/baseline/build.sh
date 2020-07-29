@@ -56,23 +56,17 @@ make_custom_airootfs() {
              done < "${_airootfs}/etc/passwd"
         fi
     fi
+
+    mkdir -p -- "${work_dir}/airootfs/etc/initcpio/hooks"
+    mkdir -p -- "${work_dir}/airootfs/etc/initcpio/install"
+    cp /usr/lib/initcpio/hooks/archiso "${work_dir}/airootfs/etc/initcpio/hooks/"
+    cp /usr/lib/initcpio/install/archiso "${work_dir}/airootfs/etc/initcpio/install/"
 }
 
 # Packages (airootfs)
 make_packages() {
     mkarchiso -v -w "${work_dir}" -C "${work_dir}/pacman.conf" -D "${install_dir}" \
         -p "$(grep -h -v '^#' "${script_path}/packages.x86_64"| sed ':a;N;$!ba;s/\n/ /g')" install
-}
-
-# Copy mkinitcpio archiso hooks and build initramfs (airootfs)
-make_setup_mkinitcpio() {
-    mkdir -p "${work_dir}/airootfs/etc/initcpio/hooks"
-    mkdir -p "${work_dir}/airootfs/etc/initcpio/install"
-    cp /usr/lib/initcpio/hooks/archiso "${work_dir}/airootfs/etc/initcpio/hooks"
-    cp /usr/lib/initcpio/install/archiso "${work_dir}/airootfs/etc/initcpio/install"
-    cp "${script_path}/mkinitcpio.conf" "${work_dir}/airootfs/etc/mkinitcpio-archiso.conf"
-    mkarchiso -v -w "${work_dir}" -D "${install_dir}" \
-        -r 'mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/vmlinuz-linux -g /boot/archiso.img' run
 }
 
 # Prepare ${install_dir}/boot/
@@ -118,7 +112,6 @@ make_iso() {
 run_once make_custom_airootfs
 run_once make_pacman_conf
 run_once make_packages
-run_once make_setup_mkinitcpio
 run_once make_boot
 run_once make_syslinux
 run_once make_isolinux
