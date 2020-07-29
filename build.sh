@@ -802,34 +802,6 @@ make_customize_airootfs() {
         cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio.conf"
     fi
 
-    # Code to use common pacman.conf in archiso.
-    # cp "${script_path}/pacman.conf" "${work_dir}/${arch}/airootfs/etc"
-    # cp "${build_pacman_conf}" "${work_dir}/${arch}/airootfs/etc"
-
-    # Get the optimal mirror list.
-    local mirrorlisturl mirrorlisturl_all  mirrorlisturl_jp
-
-    case "${arch}" in
-        "x86_64")
-            mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
-            mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
-            ;;
-        "i686")
-            mirrorlisturl_jp='https://archlinux32.org/mirrorlist/?country=jp'
-            mirrorlisturl_all='https://archlinux32.org/mirrorlist/?country=all'
-            ;;
-    esac
-
-    if [[ "${japanese}" = true ]]; then
-        mirrorlisturl="${mirrorlisturl_jp}"
-    else
-        mirrorlisturl="${mirrorlisturl_all}"
-    fi
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${mirrorlisturl}"
-
-    # Add install guide to /root (disabled)
-    # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
-
 
     # customize_airootfs.sh options
     # -b            : Enable boot splash.
