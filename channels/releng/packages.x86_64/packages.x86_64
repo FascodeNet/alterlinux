@@ -11,6 +11,7 @@ hdparm
 lvm2
 mdadm
 nano
+nvme-cli
 partclone
 parted
 partimage
