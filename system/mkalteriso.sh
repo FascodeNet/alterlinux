@@ -423,7 +423,6 @@ while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
             read -r -a opt_pkg_list <<< "${OPTARG}"
             pkg_list+=("${opt_pkg_list[@]}")
             ;;
-        p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
         C) pacman_conf="${OPTARG}" ;;
         L) iso_label="${OPTARG}" ;;
