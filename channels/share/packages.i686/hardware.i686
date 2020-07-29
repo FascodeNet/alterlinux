@@ -18,7 +18,6 @@ ipw2200-fw
 
 
 #-- interface support --#
-lsscsi
 sg3_utils
 usb_modeswitch
 usbutils

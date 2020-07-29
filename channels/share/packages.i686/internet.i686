@@ -28,8 +28,6 @@ wvdial
 
 
 #-- client --#
-# lftp
-ntp
 openssh
 wget
 
