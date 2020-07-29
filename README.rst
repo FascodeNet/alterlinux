@@ -112,6 +112,12 @@ To install archiso system-wide use the included **Makefile**:
 
     make install
 
+Optionally install archiso's mkinitcpio hooks:
+
+  .. code:: bash
+
+    make install-initcpio
+
 License
 =======
 

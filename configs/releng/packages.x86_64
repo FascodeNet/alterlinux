@@ -48,6 +48,7 @@ mc
 mdadm
 memtest86+
 mkinitcpio
+mkinitcpio-archiso
 mkinitcpio-nfs-utils
 mtools
 nano

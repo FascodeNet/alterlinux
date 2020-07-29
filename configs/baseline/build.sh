@@ -56,11 +56,6 @@ make_custom_airootfs() {
              done < "${_airootfs}/etc/passwd"
         fi
     fi
-
-    mkdir -p -- "${work_dir}/airootfs/etc/initcpio/hooks"
-    mkdir -p -- "${work_dir}/airootfs/etc/initcpio/install"
-    cp /usr/lib/initcpio/hooks/archiso "${work_dir}/airootfs/etc/initcpio/hooks/"
-    cp /usr/lib/initcpio/install/archiso "${work_dir}/airootfs/etc/initcpio/install/"
 }
 
 # Packages (airootfs)
