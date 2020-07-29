@@ -25,7 +25,7 @@ check:
 	                   configs/releng/airootfs/usr/local/bin/choose-mirror
 	shellcheck -s dash $(HOOKS_FILES) $(SCRIPT_FILES)
 
-install: install-program install-initcpio install-examples install-doc
+install: install-program install-examples install-doc
 
 install-program:
 	install -vDm 755 archiso/mkarchiso -t "$(DESTDIR)/usr/bin/"
