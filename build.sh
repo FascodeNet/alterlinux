@@ -787,7 +787,7 @@ make_customize_airootfs() {
         for i in "${@}"; do
             local _dir="${i%/}"
             if [[ -d "${_dir}" ]]; then
-                cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
+                cp -af --no-preserve=ownership "${_dir}"/* "${work_dir}/${arch}/airootfs"
             fi
         done
     }
