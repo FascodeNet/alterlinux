@@ -10,7 +10,8 @@
 # some softwares
 
 # internet
-chromium
+# chromium
+firefox
 thunderbird
 
 # file manager
@@ -18,7 +19,7 @@ thunar
 file-roller
 
 # software manager
-pamac
+pamac-aur
 
 # office
 libreoffice-still

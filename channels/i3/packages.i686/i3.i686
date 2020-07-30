@@ -53,3 +53,6 @@ sakura
 
 # theme manager
 alterlinux-i3-manager
+
+# autostart
+dex
