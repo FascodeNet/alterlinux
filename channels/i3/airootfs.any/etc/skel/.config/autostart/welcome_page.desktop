@@ -1,8 +1,8 @@
 [Desktop Entry]
 Encoding=UTF-8
 Version=1.0
-Name=Welcome to AlterLinux
-Comment=Displays the AlterLinux welcome page.
+Name=Welcome to Alter Linux
+Comment=Displays the Alter Linux welcome page.
 Icon=utilities-terminal
 Exec=/usr/bin/alterlinux-welcome-page -l --alterlive
 X-GNOME-Autostart-enabled=true

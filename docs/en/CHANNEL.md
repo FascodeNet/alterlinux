@@ -1,5 +1,5 @@
 # What is a channel
-Channel is an AlterLinux original mechanism that is made so that you can easily switch the files (airootfs) to be included in the image file, the packages to install, the configuration files, etc.  
+Channel is an Alter Linux original mechanism that is made so that you can easily switch the files (airootfs) to be included in the image file, the packages to install, the configuration files, etc.  
 This mechanism allows you to easily create an AlterOS derivative OS.  
 Initially it was only possible to switch packages, but now the specifications have changed significantly and various changes can be made for each channel.  
   
