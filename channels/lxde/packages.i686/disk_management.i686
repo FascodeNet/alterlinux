@@ -21,6 +21,7 @@ gptfdisk
 hdparm
 lvm2
 mdadm
+nvme-cli
 partclone
 parted
 partimage
