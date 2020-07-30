@@ -17,7 +17,7 @@ All ash and bash scripts are linted using shellcheck:
 
   .. code:: bash
 
-    make check
+    make lint
 
 Testing
 =======
