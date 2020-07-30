@@ -14,7 +14,6 @@ The following packages need to be installed to be able to create an image with t
 * arch-install-scripts
 * dosfstools
 * e2fsprogs
-* edk2-shell
 * libisoburn
 * squashfs-tools
 

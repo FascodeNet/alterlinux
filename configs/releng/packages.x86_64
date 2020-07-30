@@ -17,6 +17,7 @@ diffutils
 dmraid
 dnsmasq
 dosfstools
+edk2-shell
 efibootmgr
 ethtool
 exfat-utils

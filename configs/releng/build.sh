@@ -204,7 +204,7 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    cp /usr/share/edk2-shell/x64/Shell_Full.efi "${work_dir}/iso/shellx64.efi"
+    cp "${work_dir}/x86_64/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
