@@ -229,7 +229,7 @@ _mkairootfs_img () {
             -comp "${sfs_comp}" -no-progress &> /dev/null
     else
         mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
-            -comp "${sfs_comp}" -no-progress
+            -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
     rm "${work_dir}/airootfs.img"
@@ -248,7 +248,7 @@ _mkairootfs_sfs () {
             -comp "${sfs_comp}" -no-progress &> /dev/null
     else
         mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
-            -comp "${sfs_comp}" -no-progress
+            -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
 }
