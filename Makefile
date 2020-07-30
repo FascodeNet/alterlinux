@@ -16,7 +16,9 @@ DOC_DIR=$(DESTDIR)/usr/share/doc/archiso
 
 all:
 
-check:
+check: lint
+
+lint:
 	shellcheck -s bash archiso/mkarchiso \
 	                   scripts/run_archiso.sh \
 	                   $(INSTALL_FILES) \
@@ -44,4 +46,4 @@ install-examples:
 install-doc:
 	install -vDm 644 $(DOC_FILES) -t $(DOC_DIR)
 
-.PHONY: check install install-program install-initcpio install-examples install-doc
+.PHONY: check install install-program install-initcpio install-examples install-doc lint

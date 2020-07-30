@@ -10,4 +10,4 @@ default:
 lint:
   stage: build
   script:
-    - make check
+    - make lint
