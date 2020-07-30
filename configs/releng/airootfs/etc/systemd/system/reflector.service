@@ -9,7 +9,7 @@ ConditionKernelCommandLine=!mirror
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/reflector --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist
+ExecStart=/usr/bin/reflector --protocol https --latest 70 --sort rate --save /etc/pacman.d/mirrorlist
 Restart=on-failure
 RestartSec=10
 CacheDirectory=reflector
