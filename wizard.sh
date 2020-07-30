@@ -193,7 +193,7 @@ function install_dependencies () {
 
 function run_add_key_script () {
     local yn
-    msg_n "AlterLinuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the AlterLinux key? (y/N):"
+    msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
     read yn
     if ${nobuild}; then
         msg \

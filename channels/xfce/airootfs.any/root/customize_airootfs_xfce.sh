@@ -133,7 +133,7 @@ fi
 
 
 # Set script permission
-chmod 755 /usr/local/bin/alterlinux-sidebar
+chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
