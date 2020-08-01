@@ -13,7 +13,6 @@ clonezilla
 ddrescue
 diffutils
 dmraid
-elinks
 fsarchiver
 gpm
 gptfdisk
@@ -31,3 +30,6 @@ testdisk
 vi
 vim-minimal
 grub-theme-vimix
+gvfs-smb
+gvfs
+sshfs
