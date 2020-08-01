@@ -204,7 +204,7 @@ _help() {
 
 
 share_options="--noconfirm"
-default_options="-b -l"
+default_options="-b -l -u alter -p alter"
 
 while getopts 'a:dghr:s' arg; do
     case "${arg}" in
@@ -244,15 +244,19 @@ fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
-        for i in $(seq 1 ${retry}); do
-            if [[ "${simulation}" = true ]]; then
-                echo "build.sh ${share_options} -a ${arch} ${cha}"
-            else
-                build
-            fi
-        done
+        if [[ "${simulation}" = true ]]; then
+                echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+        else
+            for i in $(seq 1 ${retry}); do
+                if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+                    build
+                fi
+            done
+        fi
     done
 done
 
 
-_msg_info "All editions have been built"
+if [[ "${simulation}" = false ]]; then
+    _msg_info "All editions have been built"
+fi
