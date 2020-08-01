@@ -40,9 +40,9 @@ boot_splash=false
 sfs_comp="xz"
 sfs_comp_opt=""
 
-# Sets the default language for the live environment.
-# You can also place a package list for that language name and install packages specific to that language.
-language="en"
+# Sets the default locale for the live environment.
+# You can also place a package list for that locale name and install packages specific to that locale.
+locale_name="en"
 
 # Set the user's default shell.
 usershell="/bin/zsh"
