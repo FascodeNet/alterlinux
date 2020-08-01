@@ -30,3 +30,6 @@ testdisk
 vi
 vim-minimal
 grub-theme-vimix
+gvfs-smb
+gvfs
+sshfs
