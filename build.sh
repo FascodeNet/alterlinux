@@ -200,7 +200,7 @@ _usage () {
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
     echo "    -g | --lang <lang>           Specifies the default language for the live environment."
-    echo "                                  Default: ${language}"
+    echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
     echo "                                  Default: ${kernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
@@ -455,9 +455,9 @@ prepare_build() {
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_name}"
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
         else
-            _channel_name="${channel_name}-${locale_name}"
+            _channel_name="${channel_name}-${locale_version}"
         fi
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
@@ -527,10 +527,14 @@ prepare_build() {
         save_var theme_pkg
 
         write_rebuild_file "\n# Language Info"
-        save_var localegen
-        save_var language
-        save_var timezone
-        save_var mirror_country
+        save_var locale_gen_name
+        save_var locale_name
+        save_var locale_time
+        save_var locale_mirror
+        save_var locale_config_file
+        save_var locale_config_line
+        save_var locale_version
+        save_var locale_line_number
 
         write_rebuild_file "\n# Squashfs Info"
         save_var sfs_comp
@@ -701,7 +705,7 @@ show_settings() {
         _msg_info "Boot splash is enabled."
         _msg_info "Theme is used ${theme_name}."
     fi
-    _msg_info "Language is ${lang_fullname}."
+    _msg_info "Language is ${locale_fullname}."
     _msg_info "Use the ${kernel} kernel."
     _msg_info "Live username is ${username}."
     _msg_info "Live user password is ${password}."
@@ -765,9 +769,9 @@ make_packages() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     )
     
     
@@ -842,9 +846,9 @@ make_packages_aur() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages_aur.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
     )
 
     #-- Read package list --#
@@ -974,7 +978,7 @@ make_customize_airootfs() {
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
-    # -g <localegen>            : Set locale-gen.
+    # -g <locale_gen_name>      : Set locale-gen.
     # -i <inst_dir>             : Set install dir
     # -k <kernel config line>   : Set kernel name.
     # -o <os name>              : Set os name.
@@ -984,8 +988,8 @@ make_customize_airootfs() {
     # -u <username>             : Set live user name.
     # -x                        : Enable bash debug mode.
     # -r                        : Enable rebuild.
-    # -z <timezone>             : Set the time zone.
-    # -l <language>             : Set language.
+    # -z <locale_time>          : Set the time zone.
+    # -l <locale_name>          : Set language.
     #
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
@@ -993,7 +997,7 @@ make_customize_airootfs() {
     
     # Generate options of customize_airootfs.sh.
     local airootfs_script_options
-    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}' -t ${theme_name}"
+    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
     [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
@@ -1265,7 +1269,7 @@ while :; do
             shift 1
             ;;
         -g | --lang)
-            language="${2}"
+            locale_name="${2}"
             shift 2
             ;;
         -h | --help)
@@ -1468,14 +1472,14 @@ if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]
 fi
 
 
-# Parse languages
+# Parse locale
 locale_config_file="${script_path}/system/locale-${arch}"
 locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-get_locale_line() {
+get_locale_line_number() {
     local _lang count=0
     for _lang in ${locale_name_list[@]}; do
         count=$(( count + 1 ))
-        if [[ "${_lang}" == "${language}" ]]; then
+        if [[ "${_lang}" == "${locale_name}" ]]; then
             echo "${count}"
             return 0
         fi
@@ -1483,17 +1487,17 @@ get_locale_line() {
     echo -n "failed"
     return 0
 }
-locale_line="$(get_locale_line)"
+locale_line_number="$(get_locale_line_number)"
 
-[[ "${locale_line}" == "failed" ]] && _msg_error "${language} is not a valid language." "1"
+[[ "${locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
 
-locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
+locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
 
-localegen=$(echo ${locale_config_line} | awk '{print $2}')
-mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
-locale_name=$(echo ${locale_config_line} | awk '{print $4}')
-timezone=$(echo ${locale_config_line} | awk '{print $5}')
-lang_fullname=$(echo ${locale_config_line} | awk '{print $6}')
+locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
+locale_mirror=$(echo ${locale_config_line} | awk '{print $3}')
+locale_version=$(echo ${locale_config_line} | awk '{print $4}')
+locale_time=$(echo ${locale_config_line} | awk '{print $5}')
+locale_fullname=$(echo ${locale_config_line} | awk '{print $6}')
 
 
 # Parse kernel
