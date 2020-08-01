@@ -849,6 +849,15 @@ make_packages_aur() {
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
     )
+    if [ -d "${script_path}"/channels/${channel_name}/packages_aur.${arch} ]; then
+        :
+    else
+        if [ -d "${script_path}"/channels/share/packages_aur.${arch}/ ]; then
+        :
+        else
+            return
+        fi
+    fi
 
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
@@ -869,7 +878,6 @@ make_packages_aur() {
     for _file in ${excludefile[@]}; do
         [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
-
     # 現在のpkglistをコピーする
     _pkglist=(${pkglist[@]})
     unset pkglist
@@ -900,10 +908,6 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    if [ ${#pkglist_aur[@]} -eq 0 ]; then
-        echo "# No Package!" >>  "${work_dir}/packages.list"
-        return
-    fi
     echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
