@@ -14,7 +14,7 @@ architectures=(
     "i686"
 )
 
-languages=(
+locale_list=(
     "ja"
     "gl"
 )
@@ -244,7 +244,7 @@ fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
-        for lang in ${languages[@]}; do
+        for lang in ${locale_list[@]}; do
             if [[ "${simulation}" = true ]]; then
                     echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
             else
