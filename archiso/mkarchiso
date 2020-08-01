@@ -4,10 +4,13 @@
 
 set -e -u
 
-export LANG=C
+# Control the environment
+umask 0022
+export LANG="C"
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 
-app_name=${0##*/}
-arch=$(uname -m)
+app_name="${0##*/}"
+arch="$(uname -m)"
 pkg_list=()
 run_cmd=""
 quiet="y"
@@ -20,13 +23,14 @@ work_dir="work"
 out_dir="out"
 sfs_mode="sfs"
 sfs_comp="xz"
-gpg_key=
+gpg_key=""
 
 # Show an INFO message
 # $1: message string
 _msg_info() {
     local _msg="${1}"
-    echo "[mkarchiso] INFO: ${_msg}"
+    [[ "${quiet}" == "y" ]] || printf '[%s] INFO: %s\n' "${app_name}" "${_msg}"
+
 }
 
 # Show an ERROR message then exit with status
@@ -35,83 +39,83 @@ _msg_info() {
 _msg_error() {
     local _msg="${1}"
     local _error=${2}
-    echo
-    echo "[mkarchiso] ERROR: ${_msg}"
-    echo
-    if [[ ${_error} -gt 0 ]]; then
+    printf '\n[%s] ERROR: %s\n\n' "${app_name}" "${_msg}" >&2
+    if (( _error > 0 )); then
         exit "${_error}"
     fi
 }
 
 _chroot_init() {
-    mkdir -p ${work_dir}/airootfs
+    mkdir -p -- "${work_dir}/airootfs"
     _pacman base syslinux
 }
 
 _chroot_run() {
-    eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
+    eval -- arch-chroot "${work_dir}/airootfs" "${run_cmd}"
 }
 
 _mount_airootfs() {
     trap "_umount_airootfs" EXIT HUP INT TERM
-    mkdir -p "${work_dir}/mnt/airootfs"
+    mkdir -p -- "${work_dir}/mnt/airootfs"
     _msg_info "Mounting '${work_dir}/airootfs.img' on '${work_dir}/mnt/airootfs'"
-    mount "${work_dir}/airootfs.img" "${work_dir}/mnt/airootfs"
+    mount -- "${work_dir}/airootfs.img" "${work_dir}/mnt/airootfs"
     _msg_info "Done!"
 }
 
 _umount_airootfs() {
     _msg_info "Unmounting '${work_dir}/mnt/airootfs'"
-    umount -d "${work_dir}/mnt/airootfs"
+    umount -d -- "${work_dir}/mnt/airootfs"
     _msg_info "Done!"
-    rmdir "${work_dir}/mnt/airootfs"
+    rmdir -- "${work_dir}/mnt/airootfs"
     trap - EXIT HUP INT TERM
 }
 
 # Show help usage, with an exit status.
 # $1: exit status number.
-_usage ()
-{
-    echo "usage ${app_name} [options] command <command options>"
-    echo " general options:"
-    echo "    -p PACKAGE(S)    Package(s) to install, can be used multiple times"
-    echo "    -r <command>     Run <command> inside airootfs"
-    echo "    -C <file>        Config file for pacman."
-    echo "                     Default: '${pacman_conf}'"
-    echo "    -L <label>       Set a label for the disk"
-    echo "                     Default: '${iso_label}'"
-    echo "    -P <publisher>   Set a publisher for the disk"
-    echo "                     Default: '${iso_publisher}'"
-    echo "    -A <application> Set an application name for the disk"
-    echo "                     Default: '${iso_application}'"
-    echo "    -D <install_dir> Set an install_dir. All files will by located here."
-    echo "                     Default: '${install_dir}'"
-    echo "                     NOTE: Max 8 characters, use only [a-z0-9]"
-    echo "    -w <work_dir>    Set the working directory"
-    echo "                     Default: '${work_dir}'"
-    echo "    -o <out_dir>     Set the output directory"
-    echo "                     Default: '${out_dir}'"
-    echo "    -s <sfs_mode>    Set SquashFS image mode (img or sfs)"
-    echo "                     img: prepare airootfs.sfs for dm-snapshot usage"
-    echo "                     sfs: prepare airootfs.sfs for overlayfs usage"
-    echo "                     Default: ${sfs_mode}"
-    echo "    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                     Default: '${sfs_comp}'"
-    echo "    -v               Enable verbose output"
-    echo "    -h               This message"
-    echo " commands:"
-    echo "   init"
-    echo "      Make base layout and install base group"
-    echo "   install"
-    echo "      Install all specified packages (-p)"
-    echo "   run"
-    echo "      run command specified by -r"
-    echo "   prepare"
-    echo "      build all images"
-    echo "   pkglist"
-    echo "      make a pkglist.txt of packages installed on airootfs"
-    echo "   iso <image name>"
-    echo "      build an iso image from the working dir"
+_usage () {
+    IFS='' read -r -d '' usagetext <<ENDUSAGETEXT || true
+usage ${app_name} [options] command <command options>
+ general options:
+    -p PACKAGE(S)    Package(s) to install, can be used multiple times
+    -r <command>     Run <command> inside airootfs
+    -C <file>        Config file for pacman.
+                     Default: '${pacman_conf}'
+    -L <label>       Set a label for the disk
+                     Default: '${iso_label}'
+    -P <publisher>   Set a publisher for the disk
+                     Default: '${iso_publisher}'
+    -A <application> Set an application name for the disk
+                     Default: '${iso_application}'
+    -D <install_dir> Set an install_dir. All files will by located here.
+                     Default: '${install_dir}'
+                     NOTE: Max 8 characters, use only [a-z0-9]
+    -w <work_dir>    Set the working directory
+                     Default: '${work_dir}'
+    -o <out_dir>     Set the output directory
+                     Default: '${out_dir}'
+    -s <sfs_mode>    Set SquashFS image mode (img or sfs)
+                     img: prepare airootfs.sfs for dm-snapshot usage
+                     sfs: prepare airootfs.sfs for overlayfs usage
+                     Default: '${sfs_mode}'
+    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)
+                     Default: '${sfs_comp}'
+    -v               Enable verbose output
+    -h               This message
+ commands:
+   init
+      Make base layout and install base group
+   install
+      Install all specified packages (-p)
+   run
+      run command specified by -r
+   prepare
+      build all images
+   pkglist
+      make a pkglist.txt of packages installed on airootfs
+   iso <image name>
+      build an iso image from the working dir
+ENDUSAGETEXT
+    printf '%s\n' "${usagetext}"
     exit "${1}"
 }
 
@@ -119,7 +123,7 @@ _usage ()
 # $1: init | install | run | prepare | iso
 _show_config () {
     local _mode="$1"
-    echo
+    printf '\n'
     _msg_info "Configuration settings"
     _msg_info "                  Command:   ${command_name}"
     _msg_info "             Architecture:   ${arch}"
@@ -147,18 +151,17 @@ _show_config () {
             _msg_info "         Disk application:   ${iso_application}"
             ;;
     esac
-    echo
+    printf '\n'
 }
 
 # Install desired packages to airootfs
-_pacman ()
-{
+_pacman () {
     _msg_info "Installing packages to '${work_dir}/airootfs/'..."
 
     if [[ "${quiet}" = "y" ]]; then
-        pacstrap -C "${pacman_conf}" -c -G -M "${work_dir}/airootfs" "$@" &> /dev/null
+        pacstrap -C "${pacman_conf}" -c -G -M -- "${work_dir}/airootfs" "$@" &> /dev/null
     else
-        pacstrap -C "${pacman_conf}" -c -G -M "${work_dir}/airootfs" "$@"
+        pacstrap -C "${pacman_conf}" -c -G -M -- "${work_dir}/airootfs" "$@"
     fi
 
     _msg_info "Packages installed successfully!"
@@ -197,7 +200,7 @@ _cleanup () {
         find "${work_dir}/airootfs/var/tmp" -mindepth 1 -delete
     fi
     # Delete package pacman related files.
-    find "${work_dir}" \( -name "*.pacnew" -o -name "*.pacsave" -o -name "*.pacorig" \) -delete
+    find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
     _msg_info "Done!"
 }
 
@@ -208,21 +211,21 @@ _mkairootfs_img () {
     fi
 
     _msg_info "Creating ext4 image of 32GiB..."
-    truncate -s 32G "${work_dir}/airootfs.img"
-    local _qflag=""
+    truncate -s 32G -- "${work_dir}/airootfs.img"
     if [[ "${quiet}" == "y" ]]; then
-        _qflag="-q"
+        mkfs.ext4 -q -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
+    else
+        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
     fi
-    mkfs.ext4 ${_qflag} -O ^has_journal,^resize_inode -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
-    tune2fs -c 0 -i 0 "${work_dir}/airootfs.img" &> /dev/null
+    tune2fs -c 0 -i 0 -- "${work_dir}/airootfs.img" &> /dev/null
     _msg_info "Done!"
     _mount_airootfs
     _msg_info "Copying '${work_dir}/airootfs/' to '${work_dir}/mnt/airootfs/'..."
-    cp -aT "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
-    chown root:root "${work_dir}/mnt/airootfs/"
+    cp -aT -- "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
+    chown root:root -- "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
     _umount_airootfs
-    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p -- "${work_dir}/iso/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
         mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
@@ -232,7 +235,7 @@ _mkairootfs_img () {
             -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
-    rm "${work_dir}/airootfs.img"
+    rm -- "${work_dir}/airootfs.img"
 }
 
 # Makes a SquashFS filesystem from a source directory.
@@ -241,7 +244,7 @@ _mkairootfs_sfs () {
         _msg_error "The path '${work_dir}/airootfs' does not exist" 1
     fi
 
-    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p -- "${work_dir}/iso/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
         mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
@@ -255,17 +258,17 @@ _mkairootfs_sfs () {
 
 _mkchecksum () {
     _msg_info "Creating checksum file for self-test..."
-    cd "${work_dir}/iso/${install_dir}/${arch}"
+    cd -- "${work_dir}/iso/${install_dir}/${arch}"
     sha512sum airootfs.sfs > airootfs.sha512
-    cd "${OLDPWD}"
+    cd -- "${OLDPWD}"
     _msg_info "Done!"
 }
 
 _mksignature () {
     _msg_info "Creating signature file..."
-    cd "${work_dir}/iso/${install_dir}/${arch}"
+    cd -- "${work_dir}/iso/${install_dir}/${arch}"
     gpg --detach-sign --default-key "${gpg_key}" airootfs.sfs
-    cd "${OLDPWD}"
+    cd -- "${OLDPWD}"
     _msg_info "Done!"
 }
 
@@ -273,8 +276,7 @@ command_pkglist () {
     _show_config pkglist
 
     _msg_info "Creating a list of installed packages on live-enviroment..."
-    pacman -Q --sysroot "${work_dir}/airootfs" > \
-        "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
+    pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
     _msg_info "Done!"
 
 }
@@ -302,7 +304,7 @@ command_iso () {
 
     _show_config iso
 
-    mkdir -p "${out_dir}"
+    mkdir -p -- "${out_dir}"
     _msg_info "Creating ISO image..."
     local _qflag=""
     if [[ "${quiet}" == "y" ]]; then
@@ -313,7 +315,7 @@ command_iso () {
             -volid "${iso_label}" \
             -appid "${iso_application}" \
             -publisher "${iso_publisher}" \
-            -preparer "prepared by mkarchiso" \
+            -preparer "prepared by ${app_name}" \
             -eltorito-boot isolinux/isolinux.bin \
             -eltorito-catalog isolinux/boot.cat \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
@@ -329,7 +331,7 @@ command_iso () {
             -volid "${iso_label}" \
             -appid "${iso_application}" \
             -publisher "${iso_publisher}" \
-            -preparer "prepared by mkarchiso" \
+            -preparer "prepared by ${app_name}" \
             -eltorito-boot isolinux/isolinux.bin \
             -eltorito-catalog isolinux/boot.cat \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
@@ -338,7 +340,7 @@ command_iso () {
             -output "${out_dir}/${img_name}" \
             "${work_dir}/iso/"
     fi
-    _msg_info "Done! | $(ls -sh "${out_dir}/${img_name}")"
+    _msg_info "Done! | $(ls -sh -- "${out_dir}/${img_name}")"
 }
 
 # create airootfs.sfs filesystem, and push it in "iso" directory.
@@ -364,7 +366,7 @@ command_install () {
         _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
     fi
 
-    if [[ "${#pkg_list[@]}" -eq 0 ]]; then
+    if (( ${#pkg_list[@]} == 0 )); then
         _msg_error "Packages must be specified" 0
         _usage 1
     fi
@@ -384,12 +386,6 @@ command_run() {
     _chroot_run
 }
 
-if [[ "${EUID}" -ne 0 ]]; then
-    _msg_error "This script must be run as root." 1
-fi
-
-umask 0022
-
 while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     case "${arg}" in
         p)
@@ -397,13 +393,13 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
             pkg_list+=("${opt_pkg_list[@]}")
             ;;
         r) run_cmd="${OPTARG}" ;;
-        C) pacman_conf="${OPTARG}" ;;
+        C) pacman_conf="$(realpath -- "${OPTARG}")" ;;
         L) iso_label="${OPTARG}" ;;
         P) iso_publisher="${OPTARG}" ;;
         A) iso_application="${OPTARG}" ;;
         D) install_dir="${OPTARG}" ;;
-        w) work_dir="${OPTARG}" ;;
-        o) out_dir="${OPTARG}" ;;
+        w) work_dir="$(realpath -- "${OPTARG}")" ;;
+        o) out_dir="$(realpath -- "${OPTARG}")" ;;
         s) sfs_mode="${OPTARG}" ;;
         c) sfs_comp="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
@@ -416,9 +412,13 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     esac
 done
 
+if (( EUID != 0 )); then
+    _msg_error "${app_name} must be run as root." 1
+fi
+
 shift $((OPTIND - 1))
 
-if [[ $# -lt 1 ]]; then
+if (( $# < 1 )); then
     _msg_error "No command specified" 0
     _usage 1
 fi
@@ -441,7 +441,7 @@ case "${command_name}" in
         command_pkglist
         ;;
     iso)
-        if [[ $# -lt 2 ]]; then
+        if (( $# < 2 )); then
             _msg_error "No image specified" 0
             _usage 1
         fi
