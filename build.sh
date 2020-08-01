@@ -1254,6 +1254,65 @@ make_iso() {
     _msg_info "The password for the live user and root is ${password}."
 }
 
+# Parse files
+parse_files() {
+    # Parse locale
+    locale_config_file="${script_path}/system/locale-${arch}"
+    locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    get_locale_line_number() {
+        local _lang count=0
+        for _lang in ${locale_name_list[@]}; do
+            count=$(( count + 1 ))
+            if [[ "${_lang}" == "${locale_name}" ]]; then
+                echo "${count}"
+                return 0
+            fi
+        done
+        echo -n "failed"
+        return 0
+    }
+    locale_line_number="$(get_locale_line_number)"
+
+    [[ "${locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
+
+    locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
+
+    locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
+    locale_mirror=$(echo ${locale_config_line} | awk '{print $3}')
+    locale_version=$(echo ${locale_config_line} | awk '{print $4}')
+    locale_time=$(echo ${locale_config_line} | awk '{print $5}')
+    locale_fullname=$(echo ${locale_config_line} | awk '{print $6}')
+
+
+    # Parse kernel
+    kernel_config_file="${script_path}/system/kernel-${arch}"
+    kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    get_kernel_line() {
+        local _kernel
+        local count
+        count=0
+        for _kernel in ${kernel_name_list[@]}; do
+            count=$(( count + 1 ))
+            if [[ "${_kernel}" == "${kernel}" ]]; then
+                echo "${count}"
+                return 0
+            fi
+        done
+        echo -n "failed"
+        return 0
+    }
+    kernel_line="$(get_kernel_line)"
+    if [[ "${kernel_line}" == "failed" ]]; then
+        _msg_error "Invalid kernel ${kernel}" "1"
+    fi
+
+    kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+    kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+    kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+    kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
+    kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+}
+
 
 # Parse options
 options="${@}"
@@ -1489,64 +1548,6 @@ if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]
     fi
 fi
 
-
-# Parse locale
-locale_config_file="${script_path}/system/locale-${arch}"
-locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-get_locale_line_number() {
-    local _lang count=0
-    for _lang in ${locale_name_list[@]}; do
-        count=$(( count + 1 ))
-        if [[ "${_lang}" == "${locale_name}" ]]; then
-            echo "${count}"
-            return 0
-        fi
-    done
-    echo -n "failed"
-    return 0
-}
-locale_line_number="$(get_locale_line_number)"
-
-[[ "${locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
-
-locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
-
-locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
-locale_mirror=$(echo ${locale_config_line} | awk '{print $3}')
-locale_version=$(echo ${locale_config_line} | awk '{print $4}')
-locale_time=$(echo ${locale_config_line} | awk '{print $5}')
-locale_fullname=$(echo ${locale_config_line} | awk '{print $6}')
-
-
-# Parse kernel
-kernel_config_file="${script_path}/system/kernel-${arch}"
-kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-get_kernel_line() {
-    local _kernel
-    local count
-    count=0
-    for _kernel in ${kernel_name_list[@]}; do
-        count=$(( count + 1 ))
-        if [[ "${_kernel}" == "${kernel}" ]]; then
-            echo "${count}"
-            return 0
-        fi
-    done
-    echo -n "failed"
-    return 0
-}
-kernel_line="$(get_kernel_line)"
-if [[ "${kernel_line}" == "failed" ]]; then
-    _msg_error "Invalid kernel ${kernel}" "1"
-fi
-
-kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
-kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
-
-
 debug_line
 check_bool rebuild
 check_bool debug
@@ -1554,6 +1555,8 @@ check_bool bash_debug
 check_bool nocolor
 check_bool msgdebug
 debug_line
+
+parse_files
 
 set -eu
 
