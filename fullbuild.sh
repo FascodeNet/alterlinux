@@ -245,7 +245,8 @@ fi
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
         if [[ "${simulation}" = true ]]; then
-                echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+                echo "build.sh ${share_options} -a ${arch} ${cha}"
+                echo "build.sh ${share_options} -j -a ${arch} ${cha}"
         else
             for i in $(seq 1 ${retry}); do
                 if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
