@@ -248,7 +248,9 @@ for cha in ${channnels[@]}; do
                 echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
         else
             for i in $(seq 1 ${retry}); do
-                build
+                if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+                    build
+                fi
             done
         fi
     done
