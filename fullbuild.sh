@@ -219,7 +219,7 @@ _help() {
 share_options="--noconfirm"
 default_options="-b -l -u alter -p alter"
 
-while getopts 'a:dghr:sc' arg; do
+while getopts 'a:dghr:sct' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         c) all_channel=true ;;
