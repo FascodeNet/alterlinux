@@ -171,8 +171,12 @@ build() {
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
-        sudo bash ${script_path}/build.sh ${options}
-        touch "${work_dir}/fullbuild.${cha}_${arch}"
+            if [[ "${simulation}" = true ]]; then
+                echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+            else
+                sudo bash ${script_path}/build.sh ${options}
+                touch "${work_dir}/fullbuild.${cha}_${arch}"
+            fi
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
@@ -245,15 +249,11 @@ fi
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
         for lang in ${locale_list[@]}; do
-            if [[ "${simulation}" = true ]]; then
-                    echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
-            else
-                for i in $(seq 1 ${retry}); do
-                    if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-                        build
-                    fi
-                done
-            fi
+            for i in $(seq 1 ${retry}); do
+                if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+                    build
+                fi
+            done
         done
     done
 done
