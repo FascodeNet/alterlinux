@@ -14,7 +14,7 @@ _mnt_dmsnapshot() {
 
     ro_dev="$(losetup --find --show --read-only -- "${img}")"
     echo "${ro_dev}" >> /run/archiso/used_block_devices
-    ro_dev_size="$(blockdev --getsz -- "${ro_dev}")"
+    ro_dev_size="$(blockdev --getsz "${ro_dev}")"
 
     if [ "${cow_persistent}" = "P" ]; then
         if [ -f "/run/archiso/cowspace/${cow_directory}/${img_name}.cow" ]; then
