@@ -159,9 +159,12 @@
     "pinned-apps": {
         "type": "generic",
         "default": [
-            "firefox.desktop",
+            "chromium.desktop",
+            "nemo.desktop",
             "org.gnome.Terminal.desktop",
-            "nemo.desktop"
+            "thunderbird.desktop",
+            "gnome-system-monitor.desktop",
+            "cinnamon-settings.desktop"
         ],
         "value": [
             "chromium.desktop",
