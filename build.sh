@@ -1221,9 +1221,10 @@ make_iso() {
 
 # Parse files
 parse_files() {
+    #-- ロケールを解析、設定 --#
     local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
 
-    # Parse locale
+    # 選択されたロケールの設定が描かれた行番号を取得
     _locale_config_file="${script_path}/system/locale-${arch}"
     _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
     _get_locale_line_number() {
@@ -1240,10 +1241,14 @@ parse_files() {
     }
     _locale_line_number="$(_get_locale_line_number)"
 
+    # 不正なロケール名なら終了する
     [[ "${_locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
 
+    # ロケール設定ファイルから該当の行を抽出
     _locale_config_line="$(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)"
 
+    # 抽出された行に書かれた設定をそれぞれの変数に代入
+    # ここで定義された変数のみがグローバル変数
     locale_name=$(echo ${_locale_config_line} | awk '{print $1}')
     locale_gen_name=$(echo ${_locale_config_line} | awk '{print $2}')
     locale_version=$(echo ${_locale_config_line} | awk '{print $3}')
@@ -1251,9 +1256,10 @@ parse_files() {
     locale_fullname=$(echo ${_locale_config_line} | awk '{print $5}')
 
 
-    # Parse kernel
+    #-- カーネルを解析、設定 --#
     local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line _kernel_config_line
 
+    # 選択されたカーネルの設定が描かれた行番号を取得
     _kernel_config_file="${script_path}/system/kernel-${arch}"
     _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
     _get_kernel_line() {
@@ -1271,12 +1277,15 @@ parse_files() {
         return 0
     }
     _kernel_line="$(_get_kernel_line)"
-    if [[ "${_kernel_line}" == "failed" ]]; then
-        _msg_error "Invalid kernel ${kernel}" "1"
-    fi
 
+    # 不正なカーネル名なら終了する
+    [[ "${_kernel_line}" == "failed" ]]　&& _msg_error "Invalid kernel ${kernel}" "1"
+
+    # カーネル設定ファイルから該当の行を抽出
     _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
 
+    # 抽出された行に書かれた設定をそれぞれの変数に代入
+    # ここで定義された変数のみがグローバル変数
     kernel=$(echo ${_kernel_config_line} | awk '{print $1}')
     kernel_package=$(echo ${_kernel_config_line} | awk '{print $2}')
     kernel_headers_packages=$(echo ${_kernel_config_line} | awk '{print $3}')
