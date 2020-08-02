@@ -1469,7 +1469,7 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 # Set rebuild config file
-rebuildfile="${work_dir}/build_options"
+rebuildfile="${work_dir}/alteriso_config"
 
 # Parse channels
 set +eu
