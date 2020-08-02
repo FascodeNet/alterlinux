@@ -515,11 +515,12 @@ prepare_build() {
         save_var theme_pkg
 
         write_rebuild_file "\n# Language Info"
-        save_var locale_gen_name
         save_var locale_name
-        save_var locale_time
+        save_var locale_gen_name
         save_var locale_version
-
+        save_var locale_time
+        save_var locale_fullname
+        
         write_rebuild_file "\n# Kernel Info"
         save_var kernel
         save_var kernel_package
