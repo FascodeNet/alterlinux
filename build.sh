@@ -528,7 +528,6 @@ prepare_build() {
         save_var locale_gen_name
         save_var locale_name
         save_var locale_time
-        save_var locale_mirror
         save_var locale_config_file
         save_var locale_config_line
         save_var locale_version
@@ -1250,10 +1249,9 @@ parse_files() {
     locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
 
     locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
-    locale_mirror=$(echo ${locale_config_line} | awk '{print $3}')
-    locale_version=$(echo ${locale_config_line} | awk '{print $4}')
-    locale_time=$(echo ${locale_config_line} | awk '{print $5}')
-    locale_fullname=$(echo ${locale_config_line} | awk '{print $6}')
+    locale_version=$(echo ${locale_config_line} | awk '{print $3}')
+    locale_time=$(echo ${locale_config_line} | awk '{print $4}')
+    locale_fullname=$(echo ${locale_config_line} | awk '{print $5}')
 
 
     # Parse kernel
