@@ -215,7 +215,7 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" arch lang list locale_name_list kernel
+    local blank="33" arch lang list _locale_name_list kernel
 
     echo " Language for each architecture:"
     for list in ${script_path}/system/locale-* ; do
@@ -224,8 +224,8 @@ _usage () {
         for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
             echo -ne " "
         done
-        locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
-        for lang in ${locale_name_list[@]};do
+        _locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
+        for lang in ${_locale_name_list[@]};do
             echo -n "${lang} "
         done
         echo
@@ -515,8 +515,6 @@ prepare_build() {
         save_var kernel_headers_packages
         save_var kernel_filename
         save_var kernel_mkinitcpio_profile
-        save_var kernel_config_line
-        save_var kernel_config_file
         save_var kernel_line
 
         write_rebuild_file "\n# Plymouth Info"
@@ -528,10 +526,7 @@ prepare_build() {
         save_var locale_gen_name
         save_var locale_name
         save_var locale_time
-        save_var locale_config_file
-        save_var locale_config_line
         save_var locale_version
-        save_var locale_line_number
 
         write_rebuild_file "\n# Squashfs Info"
         save_var sfs_comp
@@ -986,7 +981,7 @@ make_customize_airootfs() {
     
     # Generate options of customize_airootfs.sh.
     local airootfs_script_options
-    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
+    airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
     [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
@@ -1227,12 +1222,14 @@ make_iso() {
 
 # Parse files
 parse_files() {
+    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
+
     # Parse locale
-    locale_config_file="${script_path}/system/locale-${arch}"
-    locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-    get_locale_line_number() {
+    _locale_config_file="${script_path}/system/locale-${arch}"
+    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _get_locale_line_number() {
         local _lang count=0
-        for _lang in ${locale_name_list[@]}; do
+        for _lang in ${_locale_name_list[@]}; do
             count=$(( count + 1 ))
             if [[ "${_lang}" == "${locale_name}" ]]; then
                 echo "${count}"
@@ -1242,26 +1239,29 @@ parse_files() {
         echo -n "failed"
         return 0
     }
-    locale_line_number="$(get_locale_line_number)"
+    _locale_line_number="$(_get_locale_line_number)"
 
-    [[ "${locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
+    [[ "${_locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
 
-    locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
+    _locale_config_line="$(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)"
 
-    locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
-    locale_version=$(echo ${locale_config_line} | awk '{print $3}')
-    locale_time=$(echo ${locale_config_line} | awk '{print $4}')
-    locale_fullname=$(echo ${locale_config_line} | awk '{print $5}')
+    locale_name=$(echo ${_locale_config_line} | awk '{print $1}')
+    locale_gen_name=$(echo ${_locale_config_line} | awk '{print $2}')
+    locale_version=$(echo ${_locale_config_line} | awk '{print $3}')
+    locale_time=$(echo ${_locale_config_line} | awk '{print $4}')
+    locale_fullname=$(echo ${_locale_config_line} | awk '{print $5}')
 
 
     # Parse kernel
-    kernel_config_file="${script_path}/system/kernel-${arch}"
-    kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    local 
+
+    _kernel_config_file="${script_path}/system/kernel-${arch}"
+    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
     get_kernel_line() {
         local _kernel
         local count
         count=0
-        for _kernel in ${kernel_name_list[@]}; do
+        for _kernel in ${_kernel_name_list[@]}; do
             count=$(( count + 1 ))
             if [[ "${_kernel}" == "${kernel}" ]]; then
                 echo "${count}"
@@ -1276,11 +1276,13 @@ parse_files() {
         _msg_error "Invalid kernel ${kernel}" "1"
     fi
 
-    kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
-    kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-    kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-    kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-    kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+    _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+
+    kernel=$(echo ${_kernel_config_line} | awk '{print $1}')
+    kernel_package=$(echo ${_kernel_config_line} | awk '{print $2}')
+    kernel_headers_packages=$(echo ${_kernel_config_line} | awk '{print $3}')
+    kernel_filename=$(echo ${_kernel_config_line} | awk '{print $4}')
+    kernel_mkinitcpio_profile=$(echo ${_kernel_config_line} | awk '{print $5}')
 }
 
 
