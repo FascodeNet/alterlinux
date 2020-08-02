@@ -167,16 +167,23 @@ trap_exit() {
 
 
 build() {
+    local _exit_code=0
+
     options="${share_options} -a ${arch} -g ${lang} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+            _exit_code="${?}"
         else
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash ${script_path}/build.sh ${options}
+            _exit_code="${?}"
         fi
-        touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
+        if [[ "${_exit_code}" == 0 ]]; then
+            touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
+        else
+            _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
