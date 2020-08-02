@@ -176,7 +176,7 @@ build() {
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash ${script_path}/build.sh ${options}
         fi
-        touch "${work_dir}/fullbuild.${cha}_${arch}"
+        touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
