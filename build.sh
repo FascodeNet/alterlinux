@@ -509,14 +509,6 @@ prepare_build() {
         save_var password
         save_var usershell
 
-        write_rebuild_file "\n# Kernel Info"
-        save_var kernel
-        save_var kernel_package
-        save_var kernel_headers_packages
-        save_var kernel_filename
-        save_var kernel_mkinitcpio_profile
-        save_var kernel_line
-
         write_rebuild_file "\n# Plymouth Info"
         save_var boot_splash
         save_var theme_name
@@ -527,6 +519,13 @@ prepare_build() {
         save_var locale_name
         save_var locale_time
         save_var locale_version
+
+        write_rebuild_file "\n# Kernel Info"
+        save_var kernel
+        save_var kernel_package
+        save_var kernel_headers_packages
+        save_var kernel_filename
+        save_var kernel_mkinitcpio_profile
 
         write_rebuild_file "\n# Squashfs Info"
         save_var sfs_comp
@@ -1253,11 +1252,11 @@ parse_files() {
 
 
     # Parse kernel
-    local 
+    local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line
 
     _kernel_config_file="${script_path}/system/kernel-${arch}"
     _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-    get_kernel_line() {
+    _get_kernel_line() {
         local _kernel
         local count
         count=0
@@ -1271,12 +1270,12 @@ parse_files() {
         echo -n "failed"
         return 0
     }
-    kernel_line="$(get_kernel_line)"
-    if [[ "${kernel_line}" == "failed" ]]; then
+    _kernel_line="$(_get_kernel_line)"
+    if [[ "${_kernel_line}" == "failed" ]]; then
         _msg_error "Invalid kernel ${kernel}" "1"
     fi
 
-    _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+    _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
 
     kernel=$(echo ${_kernel_config_line} | awk '{print $1}')
     kernel_package=$(echo ${_kernel_config_line} | awk '{print $2}')
