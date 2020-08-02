@@ -185,7 +185,7 @@ function install_dependencies () {
 
 function run_add_key_script () {
     local yn
-    msg_n "AlterLinuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the AlterLinux key? (y/N):"
+    msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
     read yn
     if ${nobuild}; then
         msg \
@@ -691,7 +691,7 @@ function generate_argument () {
     if [[ -n ${out_dir} ]]; then
         argument="${argument} -o '${out_dir}'"
     fi
-    argument="--noconfirm -a '${build_arch}' ${argument} ${channel}"
+    argument="--noconfirm -a ${build_arch} ${argument} ${channel}"
 }
 
 #　上の質問の関数を実行

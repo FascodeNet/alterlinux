@@ -1,0 +1,12 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/share/xsessions/remmina-gnome.desktop
+
+[Action]
+Description = Removing Remmina session ...
+When = PostTransaction
+Exec = /bin/bash -c 'rm -f /usr/share/xsessions/remmina-gnome.desktop'
+NeedsTargets

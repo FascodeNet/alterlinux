@@ -1,8 +1,8 @@
-## Build AlterLinux
+## Build Alter Linux
 There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
 Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
   
-When building on a real machine, the OS must be ArchLinux or AlterLinux.
+When building on a real machine, the OS must be ArchLinux or Alter Linux.
 The following explains how to build on a real machine.  
   
 TWhen building directly on Arch or Alter, there are several ways to build.  
@@ -16,7 +16,7 @@ git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
 ```
 
-Add a key to use AlterLinux repository.
+Add a key to use Alter Linux repository.
 
 ```bash
 sudo ./keyring.sh --alter-add --arch32-add
@@ -89,7 +89,7 @@ Do this to build under the following conditions.
 
 #### About channel
 Channels switch between packages to install and files to include.  
-This mechanism makes it possible to build various versions of AlterLinux.  
+This mechanism makes it possible to build various versions of Alter Linux.  
 The following channels are supported as of May 5, 2020.  
 See `./build.sh -h` for a complete list of channels.
 
@@ -113,10 +113,10 @@ ck | linux-ck contains patches to improve system responsiveness
 lts | Long term support (LTS) Linux kernel and modules in the core repository
 lqx | Distro kernel replacement built with Debian settings and ZEN kernel source for desktop multimedia games
 rt | This patch will allow you to run almost all of your kernel in real time
-zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (AlterLinux specific)
+zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (Alter Linux specific)
 
 ##### Note
-Be sure to put only the `foo` part of` linux-foo` in the `-k` option. For example, in the case of `linux-lts`,` lts` will be entered.　　
+Be sure to put only the `foo` part of` linux-foo` in the `-k` option. For example, in the case of `linux-lts`,` lts` will be entered.  
 
 
 #### About compression method

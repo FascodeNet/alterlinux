@@ -6,6 +6,7 @@ channnels=(
     "xfce"
     "lxde"
     "cinnamon"
+    "i3"
 )
 
 architectures=(
@@ -13,7 +14,7 @@ architectures=(
     "i686"
 )
 
-languages=(
+locale_list=(
     "ja"
     "gl"
 )
@@ -166,12 +167,24 @@ trap_exit() {
 
 
 build() {
+    local _exit_code=0
+
     options="${share_options} -a ${arch} -g ${lang} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
-        _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
-        sudo bash ${script_path}/build.sh ${options}
-        touch "${work_dir}/fullbuild.${cha}_${arch}"
+        if [[ "${simulation}" = true ]]; then
+            echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+            _exit_code="${?}"
+        else
+            _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
+            sudo bash ${script_path}/build.sh ${options}
+            _exit_code="${?}"
+        fi
+        if [[ "${_exit_code}" == 0 ]]; then
+            touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
+        else
+            _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
+        fi
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
@@ -184,6 +197,7 @@ _help() {
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion."
     echo "    -h                 This help message."
+    echo "    -m <architecture>  Set the architecture to build."
     echo "    -r <interer>       Set the number of retries."
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode."
@@ -196,13 +210,14 @@ _help() {
 }
 
 
-share_options=""
-default_options="-b --noconfirm -l -u alter -p alter --tarball"
+share_options="--noconfirm"
+default_options="-b -l -u alter -p alter"
 
 while getopts 'a:dghr:s' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         d) share_options="${share_options} ${default_options}" ;;
+        m) architectures=(${OPTARG}) ;;
         g) 
             if [[ ! -d "${script_path}/.git" ]]; then
                 _msg_error "There is no git directory. You need to use git clone to use this feature."
@@ -228,14 +243,12 @@ fi
 
 for cha in ${channnels[@]}; do
     for arch in ${architectures[@]}; do
-        for lang in ${languages[@]}; do
-            if [[ "${simulation}" = true ]]; then
-                    echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
-            else
-                for i in $(seq 1 ${retry}); do
+        for lang in ${locale_list[@]}; do
+            for i in $(seq 1 ${retry}); do
+                if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
                     build
-                done
-            fi
+                fi
+            done
         done
     done
 done

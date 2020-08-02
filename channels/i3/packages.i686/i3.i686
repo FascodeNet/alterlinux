@@ -14,7 +14,6 @@ gpm
 xorg-server
 xorg-xinit
 xorg-xrandr
-xterm
 
 # xorg-drivers
 xf86-video-voodoo
@@ -53,3 +52,6 @@ sakura
 
 # theme manager
 alterlinux-i3-manager
+
+# autostart
+dex

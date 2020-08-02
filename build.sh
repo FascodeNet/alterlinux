@@ -200,7 +200,7 @@ _usage () {
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
     echo "    -g | --lang <lang>           Specifies the default language for the live environment."
-    echo "                                  Default: ${language}"
+    echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
     echo "                                  Default: ${kernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
@@ -256,13 +256,11 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild retry"
+    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
-        elif [[ "${_channel}" = "rebuild" ]]; then
-            description="Build from scratch using previous build settings."
-        elif [[ ${_channel} = "retry" ]]; then
+        elif [[ ${_channel} = "rebuild" ]]; then
             description="Build from the point where it left off using the previous build settings."
         else
             description="This channel does not have a description.txt."
@@ -368,19 +366,7 @@ load_config() {
 
 # 作業ディレクトリを削除
 remove_work() {
-    if [[ -d "${work_dir}" ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make" 2> /dev/null)"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove ""${work_dir}/packages.list""
-        remove "${work_dir}/packages-full.list"
-        #remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
+    remove "${work_dir}"
 }
 
 # Display channel list
@@ -433,7 +419,7 @@ prepare_build() {
     trap_remove_work() {
         local status=${?}
         echo
-        remove_work
+        remove "${work_dir}"
         exit ${status}
     }
     trap 'trap_remove_work' 1 2 3 15
@@ -467,9 +453,9 @@ prepare_build() {
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_name}"
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
         else
-            _channel_name="${channel_name}-${locale_name}"
+            _channel_name="${channel_name}-${locale_version}"
         fi
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
@@ -539,10 +525,14 @@ prepare_build() {
         save_var theme_pkg
 
         write_rebuild_file "\n# Language Info"
-        save_var localegen
-        save_var language
-        save_var timezone
-        save_var mirror_country
+        save_var locale_gen_name
+        save_var locale_name
+        save_var locale_time
+        save_var locale_mirror
+        save_var locale_config_file
+        save_var locale_config_line
+        save_var locale_version
+        save_var locale_line_number
 
         write_rebuild_file "\n# Squashfs Info"
         save_var sfs_comp
@@ -571,13 +561,6 @@ prepare_build() {
         save_var mkalteriso_option
         save_var tarball
     else
-        if [[ "${channel_name}" = "rebuild" ]]; then
-            # Delete the lock file.
-            remove "$(ls ${work_dir}/* | grep "build.make")"
-            # reset work
-            remove_work
-        fi
-    
         # Load rebuild file
         load_config "${rebuildfile}"
         _msg_debug "Iso filename is ${iso_filename}"
@@ -713,7 +696,7 @@ show_settings() {
         _msg_info "Boot splash is enabled."
         _msg_info "Theme is used ${theme_name}."
     fi
-    _msg_info "Language is ${lang_fullname}."
+    _msg_info "Language is ${locale_fullname}."
     _msg_info "Use the ${kernel} kernel."
     _msg_info "Live username is ${username}."
     _msg_info "Live user password is ${password}."
@@ -776,9 +759,9 @@ make_packages() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     )
     
     
@@ -853,10 +836,14 @@ make_packages_aur() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages_aur.${arch}/lang/${language}.${arch}
+        "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
     )
+
+    if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
+        return
+    fi
 
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
@@ -877,7 +864,6 @@ make_packages_aur() {
     for _file in ${excludefile[@]}; do
         [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
-
     # 現在のpkglistをコピーする
     _pkglist=(${pkglist[@]})
     unset pkglist
@@ -908,10 +894,6 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    if [ ${#pkglist_aur[@]} -eq 0 ]; then
-        echo "# No Package!" >>  "${work_dir}/packages.list"
-        return
-    fi
     echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
@@ -988,12 +970,12 @@ make_customize_airootfs() {
         "i686"  ) arch_domain="https://archlinux32.org/mirrorlist/"   ;;
     esac
     
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${mirror_country}"
+    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${locale_mirror}"
     
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
-    # -g <localegen>            : Set locale-gen.
+    # -g <locale_gen_name>      : Set locale-gen.
     # -i <inst_dir>             : Set install dir
     # -k <kernel config line>   : Set kernel name.
     # -o <os name>              : Set os name.
@@ -1003,8 +985,8 @@ make_customize_airootfs() {
     # -u <username>             : Set live user name.
     # -x                        : Enable bash debug mode.
     # -r                        : Enable rebuild.
-    # -z <timezone>             : Set the time zone.
-    # -l <language>             : Set language.
+    # -z <locale_time>          : Set the time zone.
+    # -l <locale_name>          : Set language.
     #
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
@@ -1012,7 +994,7 @@ make_customize_airootfs() {
     
     # Generate options of customize_airootfs.sh.
     local airootfs_script_options
-    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${localegen}' -l '${language}' -z '${timezone}' -t ${theme_name}"
+    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
     [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
@@ -1103,7 +1085,7 @@ make_boot_extra() {
     cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
     cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
     cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
-    cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
+    cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -1262,6 +1244,65 @@ make_iso() {
     _msg_info "The password for the live user and root is ${password}."
 }
 
+# Parse files
+parse_files() {
+    # Parse locale
+    locale_config_file="${script_path}/system/locale-${arch}"
+    locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    get_locale_line_number() {
+        local _lang count=0
+        for _lang in ${locale_name_list[@]}; do
+            count=$(( count + 1 ))
+            if [[ "${_lang}" == "${locale_name}" ]]; then
+                echo "${count}"
+                return 0
+            fi
+        done
+        echo -n "failed"
+        return 0
+    }
+    locale_line_number="$(get_locale_line_number)"
+
+    [[ "${locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
+
+    locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
+
+    locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
+    locale_mirror=$(echo ${locale_config_line} | awk '{print $3}')
+    locale_version=$(echo ${locale_config_line} | awk '{print $4}')
+    locale_time=$(echo ${locale_config_line} | awk '{print $5}')
+    locale_fullname=$(echo ${locale_config_line} | awk '{print $6}')
+
+
+    # Parse kernel
+    kernel_config_file="${script_path}/system/kernel-${arch}"
+    kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    get_kernel_line() {
+        local _kernel
+        local count
+        count=0
+        for _kernel in ${kernel_name_list[@]}; do
+            count=$(( count + 1 ))
+            if [[ "${_kernel}" == "${kernel}" ]]; then
+                echo "${count}"
+                return 0
+            fi
+        done
+        echo -n "failed"
+        return 0
+    }
+    kernel_line="$(get_kernel_line)"
+    if [[ "${kernel_line}" == "failed" ]]; then
+        _msg_error "Invalid kernel ${kernel}" "1"
+    fi
+
+    kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
+    kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
+    kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
+    kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
+    kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+}
+
 
 # Parse options
 options="${@}"
@@ -1295,7 +1336,7 @@ while :; do
             shift 1
             ;;
         -g | --lang)
-            language="${2}"
+            locale_name="${2}"
             shift 2
             ;;
         -h | --help)
@@ -1428,7 +1469,7 @@ fi
 build_pacman_conf=${script_path}/system/pacman-${arch}.conf
 
 # Set rebuild config file
-rebuildfile="${work_dir}/build_options"
+rebuildfile="${work_dir}/alteriso_config"
 
 # Parse channels
 set +eu
@@ -1449,22 +1490,18 @@ check_channel() {
     done
     for i in ${channel_list[@]}; do
         if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
+            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]] ; then
                 echo -n "true"
                 return 0
             fi
-        elif [[ ${i} = ${1} ]]; then
+        elif [[ "${i}" == "${1}" ]] || [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
             echo -n "true"
             return 0
         fi
     done
-    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
-        echo -n "true"
-        return 0
-    else
-        echo -n "false"
-        return 1
-    fi
+    
+    echo -n "false"
+    return 1
 }
 
 # Check for a valid channel name
@@ -1473,7 +1510,7 @@ check_channel() {
 # Set for special channels
 if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
     channel_name="${channel_name}.add"
-elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
+elif [[ "${channel_name}" = "rebuild" ]]; then
     if [[ -f "${rebuildfile}" ]]; then
         rebuild=true
     else
@@ -1484,76 +1521,18 @@ elif [[ "${channel_name}" = "clean" ]]; then
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
 	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove_work
+    remove "${work_dir}"
     remove "${rebuildfile}"
     exit 0
 fi
 
 # Check channel version
-if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
+if [[ ! "${channel_name}" == "rebuild" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
         _msg_error "This channel does not support AlterISO 3." "1"
     fi
 fi
-
-
-# Parse languages
-locale_config_file="${script_path}/system/locale-${arch}"
-locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-get_locale_line() {
-    local _lang count=0
-    for _lang in ${locale_name_list[@]}; do
-        count=$(( count + 1 ))
-        if [[ "${_lang}" == "${language}" ]]; then
-            echo "${count}"
-            return 0
-        fi
-    done
-    echo -n "failed"
-    return 0
-}
-locale_line="$(get_locale_line)"
-
-[[ "${locale_line}" == "failed" ]] && _msg_error "${language} is not a valid language." "1"
-
-locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line}" | tail -n 1)"
-
-localegen=$(echo ${locale_config_line} | awk '{print $2}')
-mirror_country=$(echo ${locale_config_line} | awk '{print $3}')
-locale_name=$(echo ${locale_config_line} | awk '{print $4}')
-timezone=$(echo ${locale_config_line} | awk '{print $5}')
-lang_fullname=$(echo ${locale_config_line} | awk '{print $6}')
-
-
-# Parse kernel
-kernel_config_file="${script_path}/system/kernel-${arch}"
-kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-get_kernel_line() {
-    local _kernel
-    local count
-    count=0
-    for _kernel in ${kernel_name_list[@]}; do
-        count=$(( count + 1 ))
-        if [[ "${_kernel}" == "${kernel}" ]]; then
-            echo "${count}"
-            return 0
-        fi
-    done
-    echo -n "failed"
-    return 0
-}
-kernel_line="$(get_kernel_line)"
-if [[ "${kernel_line}" == "failed" ]]; then
-    _msg_error "Invalid kernel ${kernel}" "1"
-fi
-
-kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
-kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
-
 
 debug_line
 check_bool rebuild
@@ -1562,6 +1541,8 @@ check_bool bash_debug
 check_bool nocolor
 check_bool msgdebug
 debug_line
+
+parse_files
 
 set -eu
 
