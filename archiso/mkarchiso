@@ -241,13 +241,13 @@ _mkairootfs_img () {
     chown root:root -- "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
     _umount_airootfs
-    mkdir -p -- "${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${airootfs_dir}.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}.img" "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${airootfs_dir}.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}.img" "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
@@ -260,13 +260,13 @@ _mkairootfs_sfs () {
         _msg_error "The path '${airootfs_dir}' does not exist" 1
     fi
 
-    mkdir -p -- "${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${airootfs_dir}" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}" "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${airootfs_dir}" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}" "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
@@ -274,7 +274,7 @@ _mkairootfs_sfs () {
 
 _mkchecksum () {
     _msg_info "Creating checksum file for self-test..."
-    cd -- "${work_dir}/iso/${install_dir}/${arch}"
+    cd -- "${isofs_dir}/${install_dir}/${arch}"
     sha512sum airootfs.sfs > airootfs.sha512
     cd -- "${OLDPWD}"
     _msg_info "Done!"
@@ -282,35 +282,308 @@ _mkchecksum () {
 
 _mksignature () {
     _msg_info "Creating signature file..."
-    cd -- "${work_dir}/iso/${install_dir}/${arch}"
+    cd -- "${isofs_dir}/${install_dir}/${arch}"
     gpg --detach-sign --default-key "${gpg_key}" airootfs.sfs
     cd -- "${OLDPWD}"
     _msg_info "Done!"
 }
 
+# Helper function to run functions only one time.
+_run_once() {
+    if [[ ! -e "${work_dir}/build.${1}" ]]; then
+        "$1"
+        touch "${work_dir}/build.${1}"
+    fi
+}
+
+# Set up custom pacman.conf with current cache directories.
+_make_pacman_conf() {
+    local _cache_dirs
+    _cache_dirs="$(pacman-conf CacheDir)"
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir    = ${_cache_dirs[*]//$'\n'/ }|g" \
+        "${pacman_conf}" > "${work_dir}/pacman.conf"
+}
+
+# Prepare working directory and copy custom airootfs files (airootfs)
+_make_custom_airootfs() {
+    mkdir -m 755 -- "${airootfs_dir}"
+
+    local passwd=()
+    if [[ -d "${profile}/airootfs" ]]; then
+        cp -af --no-preserve=ownership -- "${profile}/airootfs/." "${airootfs_dir}"
+
+        [[ -e "${airootfs_dir}/etc/shadow" ]] && chmod -f 0400 -- "${airootfs_dir}/etc/shadow"
+        [[ -e "${airootfs_dir}/etc/gshadow" ]] && chmod -f 0400 -- "${airootfs_dir}/etc/gshadow"
+
+        # Set up user home directories and permissions
+        if [[ -e "${airootfs_dir}/etc/passwd" ]]; then
+            while IFS=':' read -a passwd -r; do
+                [[ "${passwd[5]}" == '/' ]] && continue
+                [[ -z "${passwd[5]}" ]] && continue
+
+                if [[ -d "${airootfs_dir}${passwd[5]}" ]]; then
+                    chown -hR -- "${passwd[2]}:${passwd[3]}" "${airootfs_dir}${passwd[5]}"
+                    chmod -f 0750 -- "${airootfs_dir}${passwd[5]}"
+                else
+                    install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${airootfs_dir}${passwd[5]}"
+                fi
+             done < "${airootfs_dir}/etc/passwd"
+        fi
+    fi
+}
+
+# Packages (airootfs)
+_make_packages() {
+    if [[ -n "${gpg_key}" ]]; then
+        exec {ARCHISO_GNUPG_FD}<>"${work_dir}/pubkey.gpg"
+        export ARCHISO_GNUPG_FD
+    fi
+    _pacman "${pkg_list[@]}"
+    if [[ -n "${gpg_key}" ]]; then
+        exec {ARCHISO_GNUPG_FD}<&-
+        unset ARCHISO_GNUPG_FD
+    fi
+}
+
+# Customize installation (airootfs)
+_make_customize_airootfs() {
+    local passwd=()
+    if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
+        while IFS=':' read -a passwd -r; do
+            if [[ "${passwd[5]}" == '/' ]]; then
+                continue
+            fi
+            cp -RdT --preserve=mode,timestamps,links -- "${airootfs_dir}/etc/skel" "${airootfs_dir}${passwd[5]}"
+            chown -hR -- "${passwd[2]}:${passwd[3]}" "${airootfs_dir}${passwd[5]}"
+
+        done < "${profile}/airootfs/etc/passwd"
+    fi
+
+    if [[ -e "${airootfs_dir}/root/customize_airootfs.sh" ]]; then
+        _msg_warning "customize_airootfs.sh is deprecated! Support for it will be removed in a future archiso version."
+        local run_cmd="/root/customize_airootfs.sh"
+        local work_dir="${work_dir}/${arch}"
+        command_run
+        rm -- "${airootfs_dir}/root/customize_airootfs.sh"
+    fi
+}
+
+# Prepare kernel/initramfs ${install_dir}/boot/
+_make_boot() {
+    mkdir -p -- "${isofs_dir}/${install_dir}/boot/${arch}"
+    install -m 0644 -- "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
+    install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-linux" "${isofs_dir}/${install_dir}/boot/${arch}/"
+}
+
+# Add other aditional/extra files to ${install_dir}/boot/
+_make_boot_extra() {
+    if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
+        # rename for PXE: https://wiki.archlinux.org/index.php/Syslinux#Using_memtest
+        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        mkdir -p "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" \
+            "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+    fi
+    if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
+        install -m 0644 -- "${airootfs_dir}/boot/intel-ucode.img" "${isofs_dir}/${install_dir}/boot/"
+        mkdir -p "${isofs_dir}/${install_dir}/boot/licenses/intel-ucode/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/intel-ucode/"* \
+            "${isofs_dir}/${install_dir}/boot/licenses/intel-ucode/"
+    fi
+    if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
+        install -m 0644 -- "${airootfs_dir}/boot/amd-ucode.img" "${isofs_dir}/${install_dir}/boot/"
+        mkdir -p "${isofs_dir}/${install_dir}/boot/licenses/amd-ucode/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/amd-ucode/"* \
+            "${isofs_dir}/${install_dir}/boot/licenses/amd-ucode/"
+    fi
+}
+
+# Prepare /${install_dir}/boot/syslinux
+_make_syslinux() {
+    _uname_r=$(file -b "${airootfs_dir}/boot/vmlinuz-linux"| awk 'f{print;f=0} /version/{f=1}' RS=' ')
+    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux"
+    for _cfg in "${profile}/syslinux/"*.cfg; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
+    done
+    install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/${install_dir}/boot/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux/"
+    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
+    gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > \
+        "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
+    gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > \
+        "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+}
+
+# Prepare /isolinux
+_make_isolinux() {
+    mkdir -p "${isofs_dir}/isolinux"
+    sed "s|%INSTALL_DIR%|${install_dir}|g" \
+        "${profile}/isolinux/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
+}
+
+# Prepare /EFI on ISO-9660
+_make_efi() {
+    mkdir -p "${isofs_dir}/EFI/BOOT"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
+        "${isofs_dir}/EFI/BOOT/BOOTx64.EFI"
+
+    mkdir -p "${isofs_dir}/loader/entries"
+    install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${isofs_dir}/loader/"
+
+    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+        "${profile}/efiboot/loader/entries/archiso-x86_64-usb.conf" > \
+        "${isofs_dir}/loader/entries/archiso-x86_64.conf"
+
+    # edk2-shell based UEFI shell
+    # shellx64.efi is picked up automatically when on /
+    install -m 0644 -- "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
+}
+
+# Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
+_make_efiboot() {
+    mkdir -p "${isofs_dir}/EFI/archiso"
+    mkfs.fat -C -n ARCHISO_EFI "${isofs_dir}/EFI/archiso/efiboot.img" 65536
+
+    mkdir -p "${work_dir}/efiboot"
+    mount "${isofs_dir}/EFI/archiso/efiboot.img" "${work_dir}/efiboot"
+
+    mkdir -p "${work_dir}/efiboot/EFI/archiso"
+    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/${arch}/vmlinuz-linux" "${work_dir}/efiboot/EFI/archiso/"
+    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/"
+
+    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/intel-ucode.img" "${work_dir}/efiboot/EFI/archiso/"
+    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/amd-ucode.img" "${work_dir}/efiboot/EFI/archiso/"
+
+    mkdir -p "${work_dir}/efiboot/EFI/BOOT"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
+        "${work_dir}/efiboot/EFI/BOOT/BOOTx64.EFI"
+
+    mkdir -p "${work_dir}/efiboot/loader/entries"
+    install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
+
+    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+         s|%INSTALL_DIR%|${install_dir}|g" \
+        "${profile}/efiboot/loader/entries/archiso-x86_64-cd.conf" > \
+        "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
+
+    # shellx64.efi is picked up automatically when on /
+    install -m 0644 -- "${isofs_dir}/shellx64.efi" "${work_dir}/efiboot/"
+
+    umount -d "${work_dir}/efiboot"
+}
+
+# Build airootfs filesystem image
+_make_prepare() {
+    if [[ "${sfs_mode}" == "sfs" ]]; then
+        _mkairootfs_sfs
+    else
+        _mkairootfs_img
+    fi
+    _mkchecksum
+    if [[ "${gpg_key}" ]]; then
+      _mksignature
+    fi
+}
+
+# Build ISO
+_make_iso() {
+    command_iso "${iso_name}-${iso_version}-${arch}.iso"
+}
+
+# Read profile's values from profiledef.sh
+_read_profile () {
+    if [[ -z "${profile}" ]]; then
+        _msg_error "No profile specified!" 1
+    fi
+    if [[ ! -d "${profile}" ]]; then
+        _msg_error "Profile '${profile}' does not exist!" 1
+    elif [[ ! -e "${profile}/profiledef.sh" ]]; then
+        _msg_error "Profile '${profile}' is missing 'profiledef.sh'!" 1
+    else
+        # Source profile's variables
+        # shellcheck source=configs/releng/profiledef.sh
+        . "${profile}/profiledef.sh"
+        cd -- "${profile}"
+
+        # Resolve paths
+        packages="$(realpath -- "${profile}/packages.${arch}")"
+        pacman_conf="$(realpath -- "${pacman_conf}")"
+
+        # Enumerate packages
+        [[ -e "${packages}" ]] || _msg_error "File '${packages}' does not exist!" 1
+        mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
+        if (( ${#pkg_list[@]} == 0 )); then
+            _msg_error "'${packages}' does not list any packages!" 1
+        fi
+
+        cd -- "${OLDPWD}"
+    fi
+}
+
+_set_up_directories() {
+    local directory
+    for directory in "${work_dir}" "${out_dir}" "${work_dir}/${arch}" "${isofs_dir}" "${isofs_dir}/${install_dir}"; do
+        [[ -d "${directory}" ]] || mkdir -m 0755 -- "${directory}"
+    done
+}
+
+_print_settings() {
+    _msg_info "${app_name} configuration settings"
+    _msg_info "    Command:                   ${command_name}"
+    _msg_info "    Working directory:         ${work_dir}"
+    _msg_info "    Output directory:          ${out_dir}"
+    _msg_info "    GPG key:                   ${gpg_key:-None}"
+    _msg_info "Profile configuration settings"
+    _msg_info "    Profile:                   ${profile}"
+    _msg_info "    Architecture:              ${arch}"
+    _msg_info "    Image name:                ${img_name}"
+    _msg_info "    Disk label:                ${iso_label}"
+    _msg_info "    Disk publisher:            ${iso_publisher}"
+    _msg_info "    Disk application:          ${iso_application}"
+    _msg_info "    Installation directory:    ${install_dir}"
+    _msg_info "    Pacman config file:        ${pacman_conf}"
+    _msg_info "    Packages:                  ${pkg_list[*]}"
+    _msg_info "    Boot modes:                ${bootmodes[*]}"
+}
+
+_export_gpg_publickey() {
+    if [[ -n "${gpg_key}" ]]; then
+        gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
+    fi
+}
+
+
+_make_pkglist() {
+    _msg_info "Creating a list of installed packages on live-enviroment..."
+    pacman -Q --sysroot "${airootfs_dir}" > "${isofs_dir}/${install_dir}/pkglist.${arch}.txt"
+    _msg_info "Done!"
+}
 
 command_pkglist () {
     _show_config pkglist
-
-    _msg_info "Creating a list of installed packages on live-enviroment..."
-    pacman -Q --sysroot "${airootfs_dir}" > "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
-    _msg_info "Done!"
-
+    _make_pkglist
 }
 
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
     local _iso_efi_boot_args=()
 
-    if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
+    if [[ ! -f "${isofs_dir}/isolinux/isolinux.bin" ]]; then
+         _msg_error "The file '${isofs_dir}/isolinux/isolinux.bin' does not exist." 1
     fi
-    if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
+    if [[ ! -f "${isofs_dir}/isolinux/isohdpfx.bin" ]]; then
+         _msg_error "The file '${isofs_dir}/isolinux/isohdpfx.bin' does not exist." 1
     fi
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${work_dir}/iso/EFI/archiso/efiboot.img" ]]; then
+    if [[ -f "${isofs_dir}/EFI/archiso/efiboot.img" ]]; then
         _iso_efi_boot_args+=(
             '-eltorito-alt-boot'
             '-e' 'EFI/archiso/efiboot.img'
@@ -336,10 +609,10 @@ command_iso () {
             -eltorito-boot isolinux/isolinux.bin \
             -eltorito-catalog isolinux/boot.cat \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -isohybrid-mbr "${work_dir}/iso/isolinux/isohdpfx.bin" \
+            -isohybrid-mbr "${isofs_dir}/isolinux/isohdpfx.bin" \
             "${_iso_efi_boot_args[@]}" \
             -output "${out_dir}/${img_name}" \
-            "${work_dir}/iso/"
+            "${isofs_dir}/"
     else
         xorriso -as mkisofs \
             -iso-level 3 \
@@ -352,10 +625,10 @@ command_iso () {
             -eltorito-boot isolinux/isolinux.bin \
             -eltorito-catalog isolinux/boot.cat \
             -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -isohybrid-mbr "${work_dir}/iso/isolinux/isohdpfx.bin" \
+            -isohybrid-mbr "${isofs_dir}/isolinux/isohdpfx.bin" \
             "${_iso_efi_boot_args[@]}" \
             -output "${out_dir}/${img_name}" \
-            "${work_dir}/iso/"
+            "${isofs_dir}/"
     fi
     _msg_info "Done! | $(ls -sh -- "${out_dir}/${img_name}")"
 }
@@ -365,15 +638,7 @@ command_prepare () {
     _show_config prepare
 
     _cleanup
-    if [[ "${sfs_mode}" == "sfs" ]]; then
-        _mkairootfs_sfs
-    else
-        _mkairootfs_img
-    fi
-    _mkchecksum
-    if [[ "${gpg_key}" ]]; then
-      _mksignature
-    fi
+    _make_prepare
 }
 
 # Install packages on airootfs.
@@ -390,7 +655,7 @@ command_install () {
 
     _show_config install
 
-    _pacman "${pkg_list[@]}"
+    _make_packages
 }
 
 command_init() {
@@ -407,14 +672,34 @@ command_build_profile() {
     _msg_warning "The ${FUNCNAME[0]#command_} command is not fully implemented yet :("
     # Set up essential directory paths
     airootfs_dir="${work_dir}/${arch}/airootfs"
+    isofs_dir="${work_dir}/iso"
+    # Set ISO file name
+    img_name="${iso_name}-${iso_version}-${arch}.iso"
 
-    exit 1
+    _print_settings
+    _run_once _set_up_directories
+    _run_once _make_pacman_conf
+    _run_once _export_gpg_publickey
+    _run_once _make_custom_airootfs
+    _run_once _make_packages
+    _run_once _make_customize_airootfs
+    _run_once _make_pkglist
+    _run_once _make_boot
+    _run_once _make_boot_extra
+    _run_once _make_syslinux
+    _run_once _make_isolinux
+    _run_once _make_efi
+    _run_once _make_efiboot
+    _run_once _cleanup
+    _run_once _make_prepare
+    _run_once _make_iso
 }
 
 while getopts 'B:p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     case "${arg}" in
         B)
             profile="$(realpath -- "${OPTARG}")"
+            _read_profile
             ;;
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
@@ -454,6 +739,7 @@ command_name="${1}"
 
 # Set directory path defaults
 airootfs_dir="${work_dir}/airootfs"
+isofs_dir="${work_dir}/iso"
 
 case "${command_name}" in
     init)
