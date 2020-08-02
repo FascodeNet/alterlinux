@@ -850,7 +850,7 @@ make_packages_aur() {
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
     )
 
-    if [ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ] && if [ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]; then
+    if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
         return
     fi
 
