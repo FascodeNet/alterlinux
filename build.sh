@@ -849,14 +849,9 @@ make_packages_aur() {
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
     )
-    if [ -d "${script_path}"/channels/${channel_name}/packages_aur.${arch} ]; then
-        :
-    else
-        if [ -d "${script_path}"/channels/share/packages_aur.${arch}/ ]; then
-        :
-        else
-            return
-        fi
+
+    if [ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ] && if [ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]; then
+        return
     fi
 
     #-- Read package list --#
