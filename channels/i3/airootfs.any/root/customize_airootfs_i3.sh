@@ -74,7 +74,7 @@ fi
 #rfkill unblock all
 #systemctl enable bluetooth
 
-# Replace panel config
+# Replace shortcut list config
 if [[ "${japanese}" = true ]]; then
     remove "/etc/skel/.config/conky/conky.conf"
     mv "/etc/skel/.config/conky/conky-jp.conf" "/etc/skel/.config/conky/conky.conf"
@@ -92,6 +92,13 @@ fi
 remove "/etc/skel/.config/conky/conky-live.conf"
 remove "/etc/skel/.config/conky/conky-live-jp.conf"
 remove "/home/${username}/.config/conky/conky-jp.conf"
+
+# Change browser that open help file
+if [[ "${arch}" = "i686" ]]; then
+    sed -i -e s/chromium/firefox/g /etc/skel/.config/i3/config
+    sed -i -e s/chromium/firefox/g /home/${username}/.config/i3/config
+fi
+
 
 # Snap
 #if [[ "${arch}" = "x86_64" ]]; then

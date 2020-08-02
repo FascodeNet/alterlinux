@@ -75,6 +75,9 @@ bindsym $mod+Shift+h exec --no-startup-id chromium /usr/share/doc/alter-i3/Docum
 # start rofi (launcher)
 bindsym $mod+d exec --no-startup-id rofi -show drun
 
+# start file manager
+bindsym $mod+Shift+f exec --no-startup-id thunar
+
 # power menu
 bindsym $mod+Shift+e exec --no-startup-id rofi -show power
 
