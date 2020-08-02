@@ -1252,7 +1252,7 @@ parse_files() {
 
 
     # Parse kernel
-    local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line
+    local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line _kernel_config_line
 
     _kernel_config_file="${script_path}/system/kernel-${arch}"
     _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
