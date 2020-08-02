@@ -256,13 +256,11 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild retry"
+    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
-        elif [[ "${_channel}" = "rebuild" ]]; then
-            description="Build from scratch using previous build settings."
-        elif [[ ${_channel} = "retry" ]]; then
+        elif [[ ${_channel} = "rebuild" ]]; then
             description="Build from the point where it left off using the previous build settings."
         else
             description="This channel does not have a description.txt."
@@ -563,13 +561,6 @@ prepare_build() {
         save_var mkalteriso_option
         save_var tarball
     else
-        if [[ "${channel_name}" = "rebuild" ]]; then
-            # Delete the lock file.
-            remove "$(ls ${work_dir}/* | grep "build.make")"
-            # reset work
-            remove_work
-        fi
-    
         # Load rebuild file
         load_config "${rebuildfile}"
         _msg_debug "Iso filename is ${iso_filename}"
@@ -851,6 +842,10 @@ make_packages_aur() {
         "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
     )
 
+    if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
+        return
+    fi
+
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
@@ -870,7 +865,6 @@ make_packages_aur() {
     for _file in ${excludefile[@]}; do
         [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
-
     # 現在のpkglistをコピーする
     _pkglist=(${pkglist[@]})
     unset pkglist
@@ -901,10 +895,6 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    if [ ${#pkglist_aur[@]} -eq 0 ]; then
-        echo "# No Package!" >>  "${work_dir}/packages.list"
-        return
-    fi
     echo >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
@@ -1461,7 +1451,7 @@ fi
 build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 # Set rebuild config file
-rebuildfile="${work_dir}/build_options"
+rebuildfile="${work_dir}/alteriso_config"
 
 # Parse channels
 set +eu
@@ -1482,22 +1472,18 @@ check_channel() {
     done
     for i in ${channel_list[@]}; do
         if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
+            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]] ; then
                 echo -n "true"
                 return 0
             fi
-        elif [[ ${i} = ${1} ]]; then
+        elif [[ "${i}" == "${1}" ]] || [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
             echo -n "true"
             return 0
         fi
     done
-    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
-        echo -n "true"
-        return 0
-    else
-        echo -n "false"
-        return 1
-    fi
+    
+    echo -n "false"
+    return 1
 }
 
 # Check for a valid channel name
@@ -1506,7 +1492,7 @@ check_channel() {
 # Set for special channels
 if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
     channel_name="${channel_name}.add"
-elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
+elif [[ "${channel_name}" = "rebuild" ]]; then
     if [[ -f "${rebuildfile}" ]]; then
         rebuild=true
     else
@@ -1523,7 +1509,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
 fi
 
 # Check channel version
-if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
+if [[ ! "${channel_name}" == "rebuild" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
         _msg_error "This channel does not support AlterISO 3." "1"
