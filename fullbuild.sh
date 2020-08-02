@@ -170,13 +170,13 @@ build() {
     options="${share_options} -a ${arch} -g ${lang} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
-        _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
-            if [[ "${simulation}" = true ]]; then
-                echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
-            else
-                sudo bash ${script_path}/build.sh ${options}
-            fi
-            touch "${work_dir}/fullbuild.${cha}_${arch}"
+        if [[ "${simulation}" = true ]]; then
+            _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
+            echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+        else
+            sudo bash ${script_path}/build.sh ${options}
+        fi
+        touch "${work_dir}/fullbuild.${cha}_${arch}"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
