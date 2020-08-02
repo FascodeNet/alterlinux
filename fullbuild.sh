@@ -175,8 +175,8 @@ build() {
                 echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
             else
                 sudo bash ${script_path}/build.sh ${options}
-                touch "${work_dir}/fullbuild.${cha}_${arch}"
             fi
+            touch "${work_dir}/fullbuild.${cha}_${arch}"
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
