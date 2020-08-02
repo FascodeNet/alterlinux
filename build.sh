@@ -1490,22 +1490,18 @@ check_channel() {
     done
     for i in ${channel_list[@]}; do
         if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]]; then
+            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]] ; then
                 echo -n "true"
                 return 0
             fi
-        elif [[ ${i} = ${1} ]]; then
+        elif [[ "${i}" == "${1}" ]] || [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
             echo -n "true"
             return 0
         fi
     done
-    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
-        echo -n "true"
-        return 0
-    else
-        echo -n "false"
-        return 1
-    fi
+    
+    echo -n "false"
+    return 1
 }
 
 # Check for a valid channel name
