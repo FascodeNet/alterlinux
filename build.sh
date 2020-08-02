@@ -256,13 +256,11 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild retry"
+    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
-        elif [[ "${_channel}" = "rebuild" ]]; then
-            description="Build from scratch using previous build settings."
-        elif [[ ${_channel} = "retry" ]]; then
+        elif [[ ${_channel} = "rebuild" ]]; then
             description="Build from the point where it left off using the previous build settings."
         else
             description="This channel does not have a description.txt."
@@ -563,13 +561,6 @@ prepare_build() {
         save_var mkalteriso_option
         save_var tarball
     else
-        if [[ "${channel_name}" = "rebuild" ]]; then
-            # Delete the lock file.
-            remove "$(ls ${work_dir}/* | grep "build.make")"
-            # reset work
-            remove_work
-        fi
-    
         # Load rebuild file
         load_config "${rebuildfile}"
         _msg_debug "Iso filename is ${iso_filename}"
@@ -1508,7 +1499,7 @@ check_channel() {
             return 0
         fi
     done
-    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]] || [[ "${channel_name}" = "retry" ]]; then
+    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
         echo -n "true"
         return 0
     else
@@ -1523,7 +1514,7 @@ check_channel() {
 # Set for special channels
 if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
     channel_name="${channel_name}.add"
-elif [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "retry" ]]; then
+elif [[ "${channel_name}" = "rebuild" ]]; then
     if [[ -f "${rebuildfile}" ]]; then
         rebuild=true
     else
@@ -1540,7 +1531,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
 fi
 
 # Check channel version
-if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" = "retry" ]]; then
+if [[ ! "${channel_name}" == "rebuild" ]]; then
     _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
         _msg_error "This channel does not support AlterISO 3." "1"
