@@ -1280,7 +1280,7 @@ parse_files() {
     _kernel_line="$(_get_kernel_line)"
 
     # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" == "failed" ]]　&& _msg_error "Invalid kernel ${kernel}" "1"
+    [[ "${_kernel_line}" == "failed" ]] && _msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
     _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
