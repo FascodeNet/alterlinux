@@ -23,6 +23,7 @@ work_dir=temp
 simulation=false
 retry=5
 
+all_channel=false
 
 # Color echo
 # usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
@@ -194,6 +195,7 @@ _help() {
     echo
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
+    echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion."
     echo "    -h                 This help message."
@@ -217,9 +219,10 @@ _help() {
 share_options="--noconfirm"
 default_options="-b -l -u alter -p alter"
 
-while getopts 'a:dghr:s' arg; do
+while getopts 'a:dghr:sc' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
+        c) all_channel=true ;;
         d) share_options="${share_options} ${default_options}" ;;
         m) architectures=(${OPTARG}) ;;
         g) 
@@ -239,7 +242,14 @@ while getopts 'a:dghr:s' arg; do
 done
 shift $((OPTIND - 1))
 
-if [[ -n "${*}" ]]; then
+
+if [[ "${all_channel}" = true  ]]; then
+    if [[ -n "${*}" ]]; then
+        _msg_error "Do not specify the channel." "1"
+    else    
+        channnels=($("${script_path}/build.sh" --channellist))
+    fi
+elif [[ -n "${*}" ]]; then
     channnels=(${@})
 fi
 
