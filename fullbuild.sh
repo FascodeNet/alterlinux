@@ -184,6 +184,7 @@ build() {
             touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
         else
             _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
+        fi
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
