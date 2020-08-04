@@ -113,3 +113,6 @@ chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+
+# Replace password for screensaver comment
+sed -i s/%PASSWORD%/${password}/g "/etc/dconf/db/local.d/02-disable-lock"
