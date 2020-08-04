@@ -83,10 +83,6 @@ if [[ "${arch}" = "x86_64" ]]; then
 fi
 
 
-# Update system datebase
-dconf update
-
-
 # firewalld
 systemctl enable firewalld.service
 
@@ -116,3 +112,6 @@ sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
 
 # Replace password for screensaver comment
 sed -i s/%PASSWORD%/${password}/g "/etc/dconf/db/local.d/02-disable-lock"
+
+# Update system datebase
+dconf update
