@@ -49,3 +49,7 @@ sed -i "s/^autologin/#autologin/g" /etc/lightdm.conf
 
 # Remove dconf for live environment
 remove "/etc/dconf/db/local.d/02-live-config"
+
+# Replace menu source (enable screen lock)
+remove "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
+mv "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js.org" "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
