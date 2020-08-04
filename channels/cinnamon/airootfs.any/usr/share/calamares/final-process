@@ -53,3 +53,7 @@ remove "/etc/dconf/db/local.d/02-disable-lock"
 # Replace menu source (enable screen lock)
 remove "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
 mv "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js.org" "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
+
+
+# Update system datebase
+dconf update
