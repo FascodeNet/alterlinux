@@ -1,0 +1,10 @@
+[org/cinnamon/desktop/lockdown]
+disable-lock-screen=true
+
+[org/gnome/desktop/lockdown]
+disable-lock-screen=true
+
+[org/cinnamon/desktop/screensaver]
+default-message='Password: %PASSWORD%'
+layout-group=0
+lock-enabled=false
