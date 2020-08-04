@@ -5,6 +5,7 @@ disable-lock-screen=true
 disable-lock-screen=true
 
 [org/cinnamon/desktop/screensaver]
+allow-keyboard-shortcuts=false
 default-message='Password: %PASSWORD%'
 layout-group=0
 lock-enabled=false
