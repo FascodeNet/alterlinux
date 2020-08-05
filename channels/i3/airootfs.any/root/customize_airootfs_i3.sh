@@ -99,6 +99,8 @@ if [[ "${arch}" = "i686" ]]; then
     sed -i -e s/chromium/firefox/g /home/${username}/.config/i3/config
 fi
 
+# disable light-locker on live
+sed -i "/light/s/^/# /g" /home/${username}/.config/i3/config
 
 # Snap
 #if [[ "${arch}" = "x86_64" ]]; then
