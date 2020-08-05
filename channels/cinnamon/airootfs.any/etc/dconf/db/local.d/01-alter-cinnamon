@@ -1,0 +1,50 @@
+[org/cinnamon]
+desktop-effects-close-effect='move'
+desktop-effects-close-time=100
+desktop-effects-close-transition='easeInBack'
+desktop-effects-map-effect='move'
+desktop-effects-map-time=100
+desktop-effects-map-transition='easeOutSine'
+desktop-effects-maximize-effect='scale'
+desktop-effects-maximize-time=100
+desktop-effects-maximize-transition='easeInBack'
+desktop-effects-minimize-effect='move'
+desktop-effects-minimize-time=100
+desktop-effects-minimize-transition='easeInSine'
+desktop-effects-style='move'
+desktop-effects-tile-effect='scale'
+desktop-effects-tile-time=100
+desktop-effects-tile-transition='easeInBack'
+desktop-effects-unmaximize-effect='scale'
+desktop-effects-unmaximize-time=100
+desktop-effects-unmaximize-transition='easeOutBounce'
+enabled-applets=['panel1:left:0:menu@cinnamon.org:0', 'panel1:left:1:grouped-window-list@cinnamon.org:2', 'panel1:right:0:systray@cinnamon.org:3', 'panel1:right:1:xapp-status@cinnamon.org:4', 'panel1:right:2:notifications@cinnamon.org:5', 'panel1:right:3:printers@cinnamon.org:6', 'panel1:right:4:removable-drives@cinnamon.org:7', 'panel1:right:5:keyboard@cinnamon.org:8', 'panel1:right:6:network@cinnamon.org:9', 'panel1:right:7:sound@cinnamon.org:10', 'panel1:right:8:power@cinnamon.org:11', 'panel1:right:9:calendar@cinnamon.org:12']
+hotcorner-layout=['expo:true:0', 'scale:false:0', ':true:0', 'desktop:true:0']
+next-applet-id=13
+panel-edit-mode=false
+panel-zone-symbolic-icon-sizes='[{"panelId": 1, "left": 28, "center": 28, "right": 16}]'
+panels-height=['1:40']
+
+[org/cinnamon/cinnamon-session]
+quit-time-delay=60
+
+[org/cinnamon/desktop/background]
+picture-uri='file:///usr/share/backgrounds/alter.png'
+
+[org/cinnamon/desktop/background/slideshow]
+delay=15
+image-source='directory:///usr/share/backgrounds'
+
+[org/cinnamon/desktop/interface]
+gtk-theme='Arc-Dark'
+icon-theme='Inverse-blue-dark'
+scaling-factor=uint32 0
+
+[org/cinnamon/desktop/sound]
+event-sounds=false
+
+[org/cinnamon/desktop/wm/preferences]
+theme='Arc-Darker'
+
+[org/cinnamon/theme]
+name='Adara-Dark'
