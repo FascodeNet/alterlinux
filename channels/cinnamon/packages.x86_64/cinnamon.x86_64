@@ -12,6 +12,7 @@
 
 #-- Cinnamon --#
 cinnamon
+cinnamon-translations
 
 #-- panel theme --#
 adara-theme-git
