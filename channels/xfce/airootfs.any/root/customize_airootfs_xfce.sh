@@ -91,19 +91,6 @@ dconf update
 systemctl enable firewalld.service
 
 
-# Replace link
-if [[ "${japanese}" = true ]]; then
-    remove "/etc/skel/Desktop/welcome-to-alter.desktop"
-    remove "/home/${username}/Desktop/welcome-to-alter.desktop"
-
-    mv "/etc/skel/Desktop/welcome-to-alter-jp.desktop" "/etc/skel/Desktop/welcome-to-alter.desktop"
-    mv "/home/${username}/Desktop/welcome-to-alter-jp.desktop" "/home/${username}/Desktop/welcome-to-alter.desktop"
-else
-    remove "/etc/skel/Desktop/welcome-to-alter-jp.desktop"
-    remove "/home/${username}/Desktop/welcome-to-alter-jp.desktop"
-fi
-
-
 # Replace right menu
 if [[ "${japanese}" = true ]]; then
     remove "/etc/skel/.config/Thunar/uca.xml"
@@ -133,7 +120,7 @@ fi
 
 
 # Set script permission
-chmod 755 /usr/local/bin/alterlinux-sidebar
+chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf

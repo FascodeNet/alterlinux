@@ -46,6 +46,11 @@ pamac-aur
 #-- printer --#
 system-config-printer
 
+#-- scripts --#
+alterlinux-gtk-bookmarks
+alterlinux-live-tools
+alterlinux-welcome-page
+
 
 #-- text editor --#
 medit

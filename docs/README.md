@@ -2,7 +2,7 @@
 <h2>Alter Linux - Arch Linux-derived OS made in Japan aimed at anyone to use</h2>
 
 <p align="center">
-	<img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="AlterLinux logo">
+	<img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="Alter Linux logo">
 </p>
 <p align="center">
 	<a href="https://fascode.net/en/projects/linux/alter/">
@@ -64,7 +64,7 @@
 <h2>〈Overview〉</h2>
 
 Alter Linux is a new OS developed based on Arch Linux.<br>
-Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of AlterLinux.<br>
+Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of Alter Linux.<br>
 Please see the <a href="https://fascode.net/projects/linux/alter/">official website</a> for information on announcements and bugs for users.
 
 <h3>Xfce</h3>
@@ -142,8 +142,8 @@ These are a list of major branches. Other branches are temporary or used for spe
 
 
 <h2>〈About opinion and impression〉</h2>
-If AlterLinux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/FascodeNet/alterlinux/issues">Issues</a>.<br>
-We are soliciting opinions from various users to make AlterLinux better.<br>
+If Alter Linux doesn't start, is hard to use, or has any software you want installed by default, feel free to post it to <a href="https://github.com/FascodeNet/alterlinux/issues">Issues</a>.<br>
+We are soliciting opinions from various users to make Alter Linux better.<br>
 
 <h2>〈When submitting a bug report or pull request〉</h2>
 Be sure to read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.
@@ -153,7 +153,7 @@ Some documents may have outdated information or only some languages.<br>
 All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
-	<li><a href="en/BUILD.md">Build AlterLinux</a></li>
+	<li><a href="en/BUILD.md">Build Alter Linux</a></li>
 	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
 	<li><a href="en/CHANNEL.md">Channel specifications</a></li>
 	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
@@ -171,7 +171,7 @@ In addition, please write down the situation and model name <a href="https://git
 
 <h2>〈About FascodeNetwork and developers〉</h2>
 <a href="https://fascode.net/">Fascode Network</a> is a creative team mainly composed of students.<br>
-We are developing <a href="https://fascode.net/projects/linux/alter/">AlterLinux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
+We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
 
 <h3>Official Twitter account</h3>
 <a href="https://twitter.com/FascodeNetwork">

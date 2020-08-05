@@ -44,3 +44,8 @@ xfce4-screenshooter
 # system
 gparted
 grub-customizer
+cpu-x
+
+# for sysmenu
+arandr
+htop
