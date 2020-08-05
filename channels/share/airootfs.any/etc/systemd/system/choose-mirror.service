@@ -4,7 +4,7 @@ ConditionKernelCommandLine=mirror
 
 [Service]
 Type=oneshot
-ExecStart=/etc/systemd/scripts/choose-mirror
+ExecStart=/usr/local/bin/choose-mirror
 
 [Install]
 WantedBy=multi-user.target

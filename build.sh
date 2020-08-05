@@ -215,7 +215,7 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" arch lang list locale_name_list kernel
+    local blank="33" arch lang list _locale_name_list kernel
 
     echo " Language for each architecture:"
     for list in ${script_path}/system/locale-* ; do
@@ -224,8 +224,8 @@ _usage () {
         for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
             echo -ne " "
         done
-        locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
-        for lang in ${locale_name_list[@]};do
+        _locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
+        for lang in ${_locale_name_list[@]};do
             echo -n "${lang} "
         done
         echo
@@ -509,30 +509,24 @@ prepare_build() {
         save_var password
         save_var usershell
 
-        write_rebuild_file "\n# Kernel Info"
-        save_var kernel
-        save_var kernel_package
-        save_var kernel_headers_packages
-        save_var kernel_filename
-        save_var kernel_mkinitcpio_profile
-        save_var kernel_config_line
-        save_var kernel_config_file
-        save_var kernel_line
-
         write_rebuild_file "\n# Plymouth Info"
         save_var boot_splash
         save_var theme_name
         save_var theme_pkg
 
         write_rebuild_file "\n# Language Info"
-        save_var locale_gen_name
         save_var locale_name
-        save_var locale_time
-        save_var locale_mirror
-        save_var locale_config_file
-        save_var locale_config_line
+        save_var locale_gen_name
         save_var locale_version
-        save_var locale_line_number
+        save_var locale_time
+        save_var locale_fullname
+        
+        write_rebuild_file "\n# Kernel Info"
+        save_var kernel
+        save_var kernel_package
+        save_var kernel_headers_packages
+        save_var kernel_filename
+        save_var kernel_mkinitcpio_profile
 
         write_rebuild_file "\n# Squashfs Info"
         save_var sfs_comp
@@ -728,8 +722,9 @@ make_pacman_conf() {
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "bash haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
-    
+    # ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "bash haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd" install
+
     # Install plymouth.
     if [[ "${boot_splash}" = true ]]; then
         if [[ -n "${theme_pkg}" ]]; then
@@ -964,14 +959,6 @@ make_customize_airootfs() {
         cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio.conf"
     fi
 
-    # Get the optimal mirror list.
-    case "${arch}" in
-        "x86_64") arch_domain="https://www.archlinux.org/mirrorlist/" ;;
-        "i686"  ) arch_domain="https://archlinux32.org/mirrorlist/"   ;;
-    esac
-    
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${arch_domain}/?country=${locale_mirror}"
-    
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
@@ -994,7 +981,7 @@ make_customize_airootfs() {
     
     # Generate options of customize_airootfs.sh.
     local airootfs_script_options
-    airootfs_script_options="-p '${password}' -k '${kernel_config_line}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
+    airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
     [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
@@ -1006,6 +993,7 @@ make_customize_airootfs() {
         _file="${1}"
         if [[ -f "$_file" ]]; then
             chmod 755 "${_file}"
+    
         fi
     }
     
@@ -1145,17 +1133,11 @@ make_isolinux() {
 # Prepare /EFI
 make_efi() {
     mkdir -p "${work_dir}/iso/EFI/boot"
-    cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/HashTool.efi" "${work_dir}/iso/EFI/boot/"
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/iso/EFI/boot/bootx64.efi"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/loader.efi"
-    fi
-    
+    cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/bootx64.efi"
+
     mkdir -p "${work_dir}/iso/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/iso/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/iso/loader/entries/"
-    
+
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -1163,8 +1145,8 @@ make_efi() {
     "${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
     
     # edk2-shell based UEFI shell
-    cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
-    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/EFI/Shell_Full_x64.efi
+    # shellx64.efi is picked up automatically when on /
+    cp "/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1185,27 +1167,21 @@ make_efiboot() {
     cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
     
     mkdir -p "${work_dir}/efiboot/EFI/boot"
-    cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
-    
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/loader.efi"
-    fi
-    
+    cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
+
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
-    
+
+
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
-    
-    cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
-    cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
-    
+
+    # shellx64.efi is picked up automatically when on /
+    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+
     umount -d "${work_dir}/efiboot"
 }
 
@@ -1246,12 +1222,15 @@ make_iso() {
 
 # Parse files
 parse_files() {
-    # Parse locale
-    locale_config_file="${script_path}/system/locale-${arch}"
-    locale_name_list=($(cat "${locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-    get_locale_line_number() {
+    #-- ロケールを解析、設定 --#
+    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
+
+    # 選択されたロケールの設定が描かれた行番号を取得
+    _locale_config_file="${script_path}/system/locale-${arch}"
+    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _get_locale_line_number() {
         local _lang count=0
-        for _lang in ${locale_name_list[@]}; do
+        for _lang in ${_locale_name_list[@]}; do
             count=$(( count + 1 ))
             if [[ "${_lang}" == "${locale_name}" ]]; then
                 echo "${count}"
@@ -1261,27 +1240,34 @@ parse_files() {
         echo -n "failed"
         return 0
     }
-    locale_line_number="$(get_locale_line_number)"
+    _locale_line_number="$(_get_locale_line_number)"
 
-    [[ "${locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
+    # 不正なロケール名なら終了する
+    [[ "${_locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
 
-    locale_config_line="$(cat "${locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${locale_line_number}" | tail -n 1)"
+    # ロケール設定ファイルから該当の行を抽出
+    _locale_config_line="$(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)"
 
-    locale_gen_name=$(echo ${locale_config_line} | awk '{print $2}')
-    locale_mirror=$(echo ${locale_config_line} | awk '{print $3}')
-    locale_version=$(echo ${locale_config_line} | awk '{print $4}')
-    locale_time=$(echo ${locale_config_line} | awk '{print $5}')
-    locale_fullname=$(echo ${locale_config_line} | awk '{print $6}')
+    # 抽出された行に書かれた設定をそれぞれの変数に代入
+    # ここで定義された変数のみがグローバル変数
+    locale_name=$(echo ${_locale_config_line} | awk '{print $1}')
+    locale_gen_name=$(echo ${_locale_config_line} | awk '{print $2}')
+    locale_version=$(echo ${_locale_config_line} | awk '{print $3}')
+    locale_time=$(echo ${_locale_config_line} | awk '{print $4}')
+    locale_fullname=$(echo ${_locale_config_line} | awk '{print $5}')
 
 
-    # Parse kernel
-    kernel_config_file="${script_path}/system/kernel-${arch}"
-    kernel_name_list=($(cat "${kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-    get_kernel_line() {
+    #-- カーネルを解析、設定 --#
+    local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line _kernel_config_line
+
+    # 選択されたカーネルの設定が描かれた行番号を取得
+    _kernel_config_file="${script_path}/system/kernel-${arch}"
+    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _get_kernel_line() {
         local _kernel
         local count
         count=0
-        for _kernel in ${kernel_name_list[@]}; do
+        for _kernel in ${_kernel_name_list[@]}; do
             count=$(( count + 1 ))
             if [[ "${_kernel}" == "${kernel}" ]]; then
                 echo "${count}"
@@ -1291,16 +1277,21 @@ parse_files() {
         echo -n "failed"
         return 0
     }
-    kernel_line="$(get_kernel_line)"
-    if [[ "${kernel_line}" == "failed" ]]; then
-        _msg_error "Invalid kernel ${kernel}" "1"
-    fi
+    _kernel_line="$(_get_kernel_line)"
 
-    kernel_config_line="$(cat "${kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${kernel_line}" | tail -n 1)"
-    kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-    kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-    kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-    kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+    # 不正なカーネル名なら終了する
+    [[ "${_kernel_line}" == "failed" ]] && _msg_error "Invalid kernel ${kernel}" "1"
+
+    # カーネル設定ファイルから該当の行を抽出
+    _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
+
+    # 抽出された行に書かれた設定をそれぞれの変数に代入
+    # ここで定義された変数のみがグローバル変数
+    kernel=$(echo ${_kernel_config_line} | awk '{print $1}')
+    kernel_package=$(echo ${_kernel_config_line} | awk '{print $2}')
+    kernel_headers_packages=$(echo ${_kernel_config_line} | awk '{print $3}')
+    kernel_filename=$(echo ${_kernel_config_line} | awk '{print $4}')
+    kernel_mkinitcpio_profile=$(echo ${_kernel_config_line} | awk '{print $5}')
 }
 
 
@@ -1466,7 +1457,7 @@ if [[ "${bash_debug}" = true ]]; then
 fi
 
 # Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
