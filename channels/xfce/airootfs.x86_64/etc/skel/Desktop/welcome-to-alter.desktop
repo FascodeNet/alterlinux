@@ -4,10 +4,10 @@ Type=Application
 Name=Welcome to Alter Linux
 Exec=/usr/bin/chromium https://fascode.net/en/projects/linux/alter/welcome.php
 Terminal=false
-Comment=This page is useful for using AlterLinux.
+Comment=This page is useful for using  .
 Icon=/usr/share/icons/hicolor/scalable/alter.svg
 URL=https://fascode.net/en/projects/linux/alter/welcome.php
 
-Name[ja]=AlterLinuxへようこそ
-GenericName[ja]=AlterLinuxへようこそ
-Comment[ja]=AlterLinuxの利用に役立つページです。
+Name[ja]=Alter Linuxへようこそ
+GenericName[ja]=Alter Linuxへようこそ
+Comment[ja]=Alter Linuxの利用に役立つページです。

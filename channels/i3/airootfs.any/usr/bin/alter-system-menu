@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+#
+# watasuke
+# Twitter: @Watasuke102
+# Email  : watasuke102@gmail.com
+#
+# (c) 2020 Fascode Network.
+#
+# sysmenu - bash-based system configration scripts for Alter Linux i3wm edition
+#
+
+set -u
+
+selected=""
+
+function package_manage () {
+	while true; do
+
+	clear
+    echo " ┌──────────────────┐ "
+    echo " │ [Package manage] │"
+    echo " ├──────────────────┴─────────────────────────────┐"
+    echo " │  1 - Update All Packages   2 - Search Package  │"
+    echo " │  3 - Install Package       4 - Remove Package  │"
+    echo " │                                                │"
+    echo " │                            0 - Canncel         │"
+    echo " └────────────────────────────────────────────────┘"
+
+    echo -n " [select] > "
+	read -n1 selected
+	echo ""
+	if [[ ${selected} == "0" ]]; then
+		return
+	fi
+
+	if [[ ${selected} != "1" ]]; then
+		local package_name
+    	echo -n " [packages name] > "
+		read package_name
+		if [[ ${package_name} == "0" ]]; then
+			return
+		fi
+	fi
+
+
+	echo ""
+	case ${selected} in
+		0) return                          ;;
+		1) sudo pacman -Syu                ;;
+		2)      pacman -Ss ${package_name} ;;
+		3) sudo pacman -Sy ${package_name} ;;
+		4) sudo pacman -R  ${package_name} ;;
+	esac
+	echo "Completed"
+	echo "Press any key to continue..."
+	read -n1 selected
+
+	done
+}
+
+function time_settings () {
+	while true; do
+
+	clear
+    echo " ┌─────────────────┐ "
+    echo " │ [Time Settings] │"
+    echo " ├─────────────────┴─────────────────────────────────┐"
+    echo " │  1 - Change Time Zone      2 - Sync network time  │"
+    echo " │  3 - Write hardware clock  4 - Change ntp         │"
+    echo " │                                                   │"
+    echo " │                            0 - Canncel            │"
+    echo " └───────────────────────────────────────────────────┘"
+
+    echo -n " [select] > "
+	read -n1 selected
+
+	if [[ ${selected} == "4" ]]; then
+    	echo -n "Enable to NTP? [y/n]: "
+		while true; do
+		local ntp
+			read -n1 ntp
+			[[ ${ntp} == "y" ||  ${ntp} == "n" ]] && exit 0
+		done
+	fi
+
+
+	echo ""
+	case ${selected} in
+		0) return                     ;;
+		1) tzselect                   ;;
+		2) ntpdate                    ;;
+		3) hwclock --systohc --local  ;;
+		4) timedatectl set-ntp ${ntp} ;;
+	esac
+	echo ""
+
+	done
+}
+
+function main () {
+	clear
+    echo " ┌───────────────┐ "
+    echo " │ [System Menu] │"
+    echo " ├───────────────┴──────────────────────────┐"
+    echo " │  1 - Display         2 - Network         │"
+    echo " │  3 - Sound           4 - Package manage  │"
+    echo " │  5 - Time settings   6 - Taskmanager     │"
+    echo " │                                          │"
+    echo " │                      0 - Exit            │"
+    echo " └──────────────────────────────────────────┘"
+
+    echo -n " [select] > "
+	read -n1 selected
+
+	echo ""
+	case ${selected} in
+		0) exit 0          ;;
+		1) arandr          ;;
+		2) nmtui           ;;
+		3) pavucontrol     ;;
+		4) package_manage  ;;
+		5) time_settings   ;;
+		6) htop            ;;
+	esac
+	echo ""
+}
+
+while true; do
+	main
+done
