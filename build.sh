@@ -714,16 +714,16 @@ show_settings() {
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     _msg_debug "Use ${build_pacman_conf}"
-    local _cache_dir="${work_dir}/pacman/cache"
-    local _db_dir="${work_dir}/pacman/db"
-    local _pacman_log="${work_dir}/pacman.log"
+    local pacman_cache_dir="${work_dir}/pacman/cache"
+    local pacman_db_dir="${work_dir}/pacman/db"
+    local pacman_log="${work_dir}/pacman.log"
 
-    mkdir -p "${_cache_dir}"
-    mkdir -p "${_db_dir}"
+    mkdir -p "${pacman_cache_dir}"
+    mkdir -p "${pacman_db_dir}"
 
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir    = ${_cache_dir}|g;
-            s|^#?\\s*DBPath.+|DBPath      = ${_db_dir}|g;
-            s|^#?\\s*LogFile.+|LogFile     = ${_cache_dir}|g;
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir    = ${pacman_cache_dir}|g;
+            s|^#?\\s*DBPath.+|DBPath      = ${pacman_db_dir}|g;
+            s|^#?\\s*LogFile.+|LogFile     = ${pacman_log}|g;
             " ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
 }
 
