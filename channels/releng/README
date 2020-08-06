@@ -1,0 +1,8 @@
+Alter Linux Releng
+===========
+
+Japanese:
+archisoのrelengをAlterISO上で再現したチャンネルです。
+Arch Linuxのブートディスクとほぼ同じものをそのままビルドできます。
+そのためAlter Linuxのリポジトリや日本語化など、全ての独自機能は無効化されています。
+x86_64とi686に対応しています。チャンネル名は xfce です。
