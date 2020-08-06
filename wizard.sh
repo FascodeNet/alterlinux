@@ -156,7 +156,7 @@ function install_dependencies () {
         local i
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config ${pacman_conf} ${1}) ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config "${pacman_conf}" ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -177,7 +177,7 @@ function install_dependencies () {
     done
     if [[ -n "${install}" ]]; then
         sudo pacman -Sy
-        sudo pacman -S --needed --config ${pacman_conf} ${install[@]}
+        sudo pacman -S --needed --config "${pacman_conf}" ${install[@]}
     fi
     echo
 }
@@ -203,7 +203,7 @@ function run_add_key_script () {
 
 function remove_dependencies () {
     if [[ -n "${install}" ]]; then
-        sudo pacman -Rsn --config ${pacman_conf} ${install[@]}
+        sudo pacman -Rsn --config "${pacman_conf}" ${install[@]}
     fi
 }
 
