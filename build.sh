@@ -714,9 +714,9 @@ show_settings() {
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     _msg_debug "Use ${build_pacman_conf}"
-    local pacman_cache_dir="${work_dir}/pacman/cache"
-    local pacman_db_dir="${work_dir}/pacman/db"
-    local pacman_log="${work_dir}/pacman.log"
+    local pacman_cache_dir="$(fullpath ${work_dir})/pacman/cache"
+    local pacman_db_dir="$(fullpath ${work_dir})/pacman/db"
+    local pacman_log="$(fullpath ${work_dir})/pacman.log"
 
     mkdir -p "${pacman_cache_dir}"
     mkdir -p "${pacman_db_dir}"
