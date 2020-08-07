@@ -481,9 +481,19 @@ command_init() {
     _chroot_init
 }
 
+umount_chroot() {
+    local mount
+    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+        _msg_info "Unmounting ${mount}"
+        umount "${mount}"
+    done
+}
+
 command_run() {
     _show_config run
+    umount_chroot
     _chroot_run
+    umount_chroot
 }
 
 if [[ ${EUID} -ne 0 ]]; then
