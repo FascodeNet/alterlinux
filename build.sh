@@ -310,11 +310,12 @@ umount_chroot () {
 
 # Helper function to run make_*() only one time.
 run_once() {
-    if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
+    if [[ ! -e "${work_dir}/lockfile/build.${1}_${arch}" ]]; then
         umount_chroot
         _msg_debug "Running $1 ..."
         "$1"
-        touch "${work_dir}/build.${1}_${arch}"
+        mkdir -p "${work_dir}/lockfile" 
+        touch "${work_dir}/lockfile/build.${1}_${arch}"
         umount_chroot
     else
         _msg_debug "Skipped because ${1} has already been executed."
@@ -365,11 +366,6 @@ load_config() {
     done
 }
 
-# 作業ディレクトリを削除
-remove_work() {
-    remove "${work_dir}"
-}
-
 # Display channel list
 show_channel_list() {
     local i
@@ -413,9 +409,9 @@ prepare_build() {
         umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}/${arch}"
-        remove "${work_dir%/}/build."*
+        remove "${work_dir%/}/lockfile"
         remove "${work_dir%/}/packages.list"
-        remove "${work_dir%/}/pacman.log"
+        remove "${work_dir%/}/logs"
         remove "${rebuildfile}"
         remove "${work_dir%/}/pacman-"*".conf"
     fi
@@ -825,11 +821,10 @@ make_packages() {
     set -e
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo "# The list of packages that is installed in live cd." > "${work_dir}/packages.list"
-    echo "#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    local _log_packages_list="${work_dir}/logs/packages.list"
+    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${_log_packages_list}"
     for _pkg in ${pkglist[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
+        echo ${_pkg} >> "${_log_packages_list}"
     done
     
     # Install packages on airootfs
@@ -904,10 +899,10 @@ make_packages_aur() {
     # _msg_debug "${pkglist[@]}"
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    local _log_packages_list="${work_dir}/logs/aur_packages.list"
+    echo -e "# The list of packages from AUR that is installed in live cd.\n#\n\n" > "${_log_packages_list}"
     for _pkg in ${pkglist_aur[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
+        echo ${_pkg} >> "${_log_packages_list}"
     done
     
     # Build aur packages on airootfs
@@ -931,22 +926,13 @@ make_packages_aur() {
     done
 
     # Create user to build AUR
-    local _script_run
-
-    # _script_run [command]
-    _script_run() {
-        umount_chroot
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -D "${install_dir}" -r "${1}" run
-        umount_chroot
-    }
-
-    _script_run "/root/aur_prepare.sh ${_aur_packages_ls_str}"
-    _script_run "/root/pacls_gen_old.sh"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run 
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
     # Install dependent packages.
     "${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_INSTALL.sh" "${work_dir}/pacman-${arch}.conf" "${work_dir}/${arch}/airootfs" ${_aur_packages_ls_str}
-    _script_run "/root/pacls_gen_new.sh"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
     # Build the package using makepkg.
-    _script_run "/root/aur_install.sh ${_aur_packages_ls_str}"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
   
     # Install the built package file.
     for _pkg in ${pkglist_aur[@]}; do
@@ -1537,7 +1523,10 @@ elif [[ "${channel_name}" = "clean" ]]; then
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
 	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${work_dir}"
+    remove "${work_dir}/${arch}"
+    remove "${work_dir}/logs"
+    remove "${work_dir}/lockfile"
+    remove "${work_dir}/pacman-"*".conf"
     remove "${rebuildfile}"
     exit 0
 fi
@@ -1579,6 +1568,6 @@ run_once make_efiboot
 [[ "${tarball}" = true ]] && run_once make_tarball
 [[ "${noiso}" = false ]] && run_once make_prepare
 [[ "${noiso}" = false ]] && run_once make_iso
-[[ "${cleaning}" = true ]] && remove_work
+[[ "${cleaning}" = true ]] && remove "${work_dir}"
 
 exit 0
