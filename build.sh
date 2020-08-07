@@ -719,8 +719,8 @@ make_pacman_conf() {
     _msg_debug "Use ${build_pacman_conf}"
 
     # Prepare dir
-    mkdir -p "${pacman_cache_dir}"
-    mkdir -p "${pacman_db_dir}"
+    mkdir -p "${pacman_cache_dir%/}/"
+    mkdir -p "${pacman_db_dir%/}/"
     mkdir -p "$(dirname "${pacman_log}")"
 
     sed -r "s|^#?\\s*CacheDir.+|CacheDir    = ${pacman_cache_dir}|g;
