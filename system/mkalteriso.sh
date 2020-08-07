@@ -9,7 +9,7 @@
 # (c) 2019-2020 Fascode Network.
 #
 
-set -e -u -x
+set -e -u
 
 export LANG=C
 
