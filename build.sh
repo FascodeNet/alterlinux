@@ -821,7 +821,7 @@ make_packages() {
     set -e
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    local _log_packages_list="${work_dir}/packages.list"
+    local _log_packages_list="${work_dir}/logs/packages.list"
     echo "# The list of packages that is installed in live cd." > "${_log_packages_list}"
     echo "#" >> ""
     echo >> "${_log_packages_list}"
