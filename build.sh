@@ -314,6 +314,7 @@ run_once() {
         umount_chroot
         _msg_debug "Running $1 ..."
         "$1"
+        mkdir -p "${work_dir}/lockfile" 
         touch "${work_dir}/lockfile/build.${1}_${arch}"
         umount_chroot
     else
