@@ -755,7 +755,7 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages() {
     # データベースをairootfsにコピー
-    cp "${pacman_db_dir}"/* "${work_dir}/${arch}/airootfs/var/lib/pacman"
+    cp -r "${pacman_db_dir}"/* "${work_dir}/${arch}/airootfs/var/lib/pacman"
 
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     set +e
