@@ -822,7 +822,7 @@ make_packages() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     local _log_packages_list="${work_dir}/logs/packages.list"
-    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${_log_packages_list}"
+    echo -e "# The list of packages that is installed in live cd.\n#\n" > "${_log_packages_list}"
     for _pkg in ${pkglist[@]}; do
         echo ${_pkg} >> "${_log_packages_list}"
     done
@@ -900,7 +900,7 @@ make_packages_aur() {
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     local _log_packages_list="${work_dir}/logs/aur_packages.list"
-    echo -e "# The list of packages from AUR that is installed in live cd.\n#\n\n" > "${_log_packages_list}"
+    echo -e "# The list of packages from AUR that is installed in live cd.\n#\n" > "${_log_packages_list}"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${_log_packages_list}"
     done
