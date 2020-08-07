@@ -409,7 +409,7 @@ prepare_build() {
         umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}/${arch}"
-        remove "${work_dir%/}/build."*
+        remove "${work_dir%/}/lockfile"
         remove "${work_dir%/}/packages.list"
         remove "${work_dir%/}/pacman.log"
         remove "${rebuildfile}"
