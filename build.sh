@@ -411,7 +411,7 @@ prepare_build() {
         remove "${work_dir%/}/${arch}"
         remove "${work_dir%/}/lockfile"
         remove "${work_dir%/}/packages.list"
-        remove "${work_dir%/}/pacman.log"
+        remove "${work_dir%/}/logs"
         remove "${rebuildfile}"
         remove "${work_dir%/}/pacman-"*".conf"
     fi
