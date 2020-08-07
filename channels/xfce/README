@@ -1,0 +1,15 @@
+Alter Linux Xfce
+===========
+
+Japanese:
+デスクトップ環境としてXfceを搭載したエディションです。
+カスタマイズされたXfceと基本的なGTKアプリケーションが入っています。
+Xfceは最も最初から開発されているエディションです。
+x86_64とi686に対応しています。チャンネル名は xfce です。
+
+English:
+Using Xfce for desktop-environment.
+Customized Xfce and standard GTK applications are included.
+Xfce Edition is an oldest edition in Alter Linux.
+Supported x86_64 & i686.
+The channel-name is xfce.
