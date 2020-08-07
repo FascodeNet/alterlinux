@@ -63,8 +63,19 @@ _chroot_init() {
     _pacman "base syslinux"
 }
 
+# Unmount chroot dir
+_umount_chroot () {
+    local mount
+    for mount in $(mount | awk '{print $3}' | grep $(realpath "${work_dir}/airootfs") | tac); do
+        _msg_info "Unmounting ${mount}"
+        umount -lf "${mount}"
+    done
+}
+
 _chroot_run() {
+    _umount_chroot
     eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
+    _umount_chroot
 }
 
 _mount_airootfs() {
