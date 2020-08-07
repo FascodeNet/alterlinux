@@ -754,6 +754,9 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
+    # データベースをairootfsにコピー
+    cp "${pacman_db_dir}"/* "${work_dir}/${arch}/airootfs/var/lib/pacman"
+
     # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     set +e
     local _loadfilelist _pkg _file excludefile excludelist _pkglist
@@ -762,9 +765,9 @@ make_packages() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}"
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
     )
     
     
