@@ -311,6 +311,7 @@ umount_chroot () {
 # Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
+        umount_chroot
         _msg_debug "Running $1 ..."
         "$1"
         touch "${work_dir}/build.${1}_${arch}"
