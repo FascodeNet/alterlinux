@@ -9,7 +9,7 @@
 # (c) 2019-2020 Fascode Network.
 #
 
-set -e -u
+set -e -u -x
 
 export LANG=C
 
@@ -485,7 +485,7 @@ umount_chroot() {
     local mount
     for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
         _msg_info "Unmounting ${mount}"
-        umount "${mount}"
+        umount -lf "${mount}"
     done
 }
 
