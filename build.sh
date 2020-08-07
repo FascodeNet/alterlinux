@@ -821,11 +821,12 @@ make_packages() {
     set -e
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo "# The list of packages that is installed in live cd." > "${work_dir}/packages.list"
-    echo "#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    local _log_packages_list="${work_dir}/packages.list"
+    echo "# The list of packages that is installed in live cd." > "${_log_packages_list}"
+    echo "#" >> ""
+    echo >> "${_log_packages_list}"
     for _pkg in ${pkglist[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
+        echo ${_pkg} >> "${_log_packages_list}"
     done
     
     # Install packages on airootfs
