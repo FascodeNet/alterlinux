@@ -365,11 +365,6 @@ load_config() {
     done
 }
 
-# 作業ディレクトリを削除
-remove_work() {
-    remove "${work_dir}"
-}
-
 # Display channel list
 show_channel_list() {
     local i
@@ -1579,6 +1574,6 @@ run_once make_efiboot
 [[ "${tarball}" = true ]] && run_once make_tarball
 [[ "${noiso}" = false ]] && run_once make_prepare
 [[ "${noiso}" = false ]] && run_once make_iso
-[[ "${cleaning}" = true ]] && remove_work
+[[ "${cleaning}" = true ]] && remove "${work_dir}"
 
 exit 0
