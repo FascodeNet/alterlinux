@@ -13,3 +13,6 @@
 playonlinux
 wine
 winetricks
+
+#-- OBS Studio --#
+obs-studio
