@@ -412,6 +412,7 @@ prepare_build() {
         remove "${work_dir%/}/lockfile"
         remove "${work_dir%/}/packages.list"
         remove "${work_dir%/}/logs"
+        remove "${work_dir%/}/pacman/db"
         remove "${rebuildfile}"
         remove "${work_dir%/}/pacman-"*".conf"
     fi
@@ -1527,6 +1528,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
     remove "${work_dir}/logs"
     remove "${work_dir}/lockfile"
     remove "${work_dir}/pacman-"*".conf"
+    remove "${work_dir%/}/pacman/db"
     remove "${rebuildfile}"
     exit 0
 fi
