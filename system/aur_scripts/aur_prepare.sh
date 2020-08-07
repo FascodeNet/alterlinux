@@ -46,6 +46,10 @@ chown aurbuild:aurbuild -R "/aurbuild_temp"
 echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 
+# update datebase
+pacman -Syy
+
+
 # Build and install
 remove "/aurbuild_temp/aur_prepare.sh"
 for _aur_pkg in ${*}; do
