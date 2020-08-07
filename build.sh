@@ -926,13 +926,22 @@ make_packages_aur() {
     done
 
     # Create user to build AUR
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
+    local _script_run
+
+    # _script_run [command]
+    _script_run() {
+        umount_chroot
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -D "${install_dir}" -r "${1}" run
+        umount_chroot
+    }
+
+    _script_run "/root/aur_prepare.sh ${_aur_packages_ls_str}"
+    _script_run "/root/pacls_gen_old.sh"
     # Install dependent packages.
     "${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_INSTALL.sh" "${work_dir}/pacman-${arch}.conf" "${work_dir}/${arch}/airootfs" ${_aur_packages_ls_str}
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
+    _script_run "/root/pacls_gen_new.sh"
     # Build the package using makepkg.
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
+    _script_run "/root/aur_install.sh ${_aur_packages_ls_str}"
   
     # Install the built package file.
     for _pkg in ${pkglist_aur[@]}; do
