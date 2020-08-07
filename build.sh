@@ -412,7 +412,12 @@ prepare_build() {
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
         umount_chroot
         _msg_info "Deleting the contents of ${work_dir}..."
-        remove "${work_dir%/}"/*
+        remove "${work_dir%/}/${arch}"
+        remove "${work_dir%/}/build."*
+        remove "${work_dir%/}/packages.list"
+        remove "${work_dir%/}/pacman.log"
+        remove "${rebuildfile}"
+        remove "${work_dir%/}/pacman-"*".conf"
     fi
     
     # 強制終了時に作業ディレクトリを削除する
