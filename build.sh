@@ -1523,7 +1523,10 @@ elif [[ "${channel_name}" = "clean" ]]; then
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
 	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${work_dir}"
+    remove "${work_dir}/${arch}"
+    remove "${work_dir}/logs"
+    remove "${work_dir}/lockfile"
+    remove "${work_dir}/pacman-"*".conf"
     remove "${rebuildfile}"
     exit 0
 fi
