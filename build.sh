@@ -901,10 +901,10 @@ make_packages_aur() {
     # _msg_debug "${pkglist[@]}"
     
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    local _log_packages_list="${work_dir}/logs/aur_packages.list"
+    echo -e "\n\n# AUR packages.\n#\n" >> "${_log_packages_list}"
     for _pkg in ${pkglist_aur[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
+        echo ${_pkg} >> "${_log_packages_list}"
     done
     
     # Build aur packages on airootfs
