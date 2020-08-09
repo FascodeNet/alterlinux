@@ -14,10 +14,12 @@
 0:not round 1:round
 0:simple    1:colorful
 
- 1: i3status
- 2: clock
- 4: network
- 8: cpu
-16: memory
-32: battery
-64: power
+  1: launcher
+  2: i3status
+  4: clock
+  8: network
+ 16: cpu
+ 32: memory
+ 64: battery
+128: power
+
