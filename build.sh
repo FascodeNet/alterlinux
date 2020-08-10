@@ -355,24 +355,6 @@ load_config() {
 }
 
 
-# 作業ディレクトリを削除
-remove_work() {
-    if [[ -d "${work_dir}" ]]; then
-        remove "$(ls ${work_dir}/* | grep "build.make")"
-        remove "${work_dir}"/pacman-*.conf
-        remove "${work_dir}/efiboot"
-        remove "${work_dir}/iso"
-        remove "${work_dir}/${arch}"
-        remove "${work_dir}/packages.list"
-        remove "${work_dir}/packages-full.list"
-        #remove "${rebuildfile}"
-        if [[ -z $(ls $(realpath "${work_dir}")/* 2>/dev/null) ]]; then
-            remove ${work_dir}
-        fi
-    fi
-}
-
-
 # Display channel list
 show_channel_list() {
     local i
@@ -427,7 +409,7 @@ prepare_build() {
     trap_remove_work() {
         local status=${?}
         echo
-        remove_work
+        remove "${work_dir}"
         exit ${status}
     }
     trap 'trap_remove_work' 1 2 3 15
@@ -1000,7 +982,7 @@ make_boot() {
     if [[ ! "${kernel}" = "core" ]]; then
         cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux-${kernel}" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}"
     else
-        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz"
+        cp "${work_dir}/${arch}/airootfs/boot/vmlinuz-linux" "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux"
     fi
 }
 
@@ -1009,7 +991,7 @@ make_boot_extra() {
     cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
     cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
     cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
-    cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
+    cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -1313,7 +1295,7 @@ if [[ -d "${script_path}/.git" ]]; then
 fi
 
 # Show config message
-[[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
+[[ -f "${defaultconfig}" ]] && _msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
@@ -1387,7 +1369,7 @@ if [[ -n "${1}" ]]; then
         fi
     fi
 
-    if [[ ! "${channel_name}" == "rebuild" ]]; then
+    if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" == "clean" ]]; then
         _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     fi
 fi
@@ -1413,7 +1395,8 @@ if [[ "${channel_name}" = "clean" ]]; then
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
 	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove_work
+    remove "${work_dir%/}"/*
+    remove "${work_dir}"
     remove "${rebuildfile}"
     remove "${script_path}/temp"
     exit 0
@@ -1474,5 +1457,5 @@ run_once make_prepare
 run_once make_iso
 
 if [[ "${cleaning}" = true ]]; then
-    remove_work
+    remove "${work_dir}"
 fi

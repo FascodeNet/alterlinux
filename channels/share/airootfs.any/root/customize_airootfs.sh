@@ -240,7 +240,7 @@ sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.
 sed -i s/%ARCH%/"${arch}"/g /usr/share/calamares/modules/unpackfs.conf
 
 # Add disabling of sudo setting
-echo "remove /etc/sudoers.d/alterlive " >> /usr/share/calamares/final-process
+echo -e "\nremove \"/etc/sudoers.d/alterlive\"" >> /usr/share/calamares/final-process
 
 
 # Set os name

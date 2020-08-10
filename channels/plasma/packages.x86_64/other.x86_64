@@ -25,6 +25,12 @@ ksysguard
 cpu-x
 
 
+#-- scripts --#
+alterlinux-gtk-bookmarks
+alterlinux-live-tools
+alterlinux-welcome-page
+
+
 #-- text editor --#
 kate
 nano

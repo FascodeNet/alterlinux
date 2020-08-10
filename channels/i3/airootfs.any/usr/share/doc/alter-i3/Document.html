@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="thank-you-for-try-alter-linux-i3-edition">Thank you for try Alter Linux i3 Edition</h1>
+<p>This document will show how to use Alter Linux i3 Edition.<br>
+このドキュメントでは、Alter Linux i3エディションの使い方を紹介します。</p>
+<ol>
+<li><a href="#%E7%9B%AE%E6%AC%A1">日本語</a></li>
+<li><a href="#table-of-contents">English</a></li>
+</ol>
+<hr>
+<h2 id="%E7%9B%AE%E6%AC%A1">目次</h2>
+<ol>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E4%BD%BF%E3%81%84%E6%96%B9">基本的な使い方</a>
+<ol>
+<li><a href="#%E3%82%BD%E3%83%95%E3%83%88%E3%82%92%E8%B5%B7%E5%8B%95%E3%81%99%E3%82%8B">ソフトを起動する</a></li>
+<li><a href="#%E3%82%A6%E3%82%A3%E3%83%B3%E3%83%89%E3%82%A6%E3%81%AE%E7%B0%A1%E6%98%93%E7%9A%84%E3%81%AA%E6%93%8D%E4%BD%9C">ウィンドウの簡易的な操作</a></li>
+<li><a href="#%E3%82%BD%E3%83%95%E3%83%88%E3%82%92%E8%BF%BD%E5%8A%A0%E3%83%BB%E6%9B%B4%E6%96%B0%E3%81%99%E3%82%8B">ソフトを追加・更新する</a></li>
+<li><a href="#%E3%82%B7%E3%83%A3%E3%83%83%E3%83%88%E3%83%80%E3%82%A6%E3%83%B3%E3%81%99%E3%82%8B">シャットダウンする</a></li>
+<li><a href="#%E3%83%86%E3%83%BC%E3%83%9E%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B">テーマを変更する</a></li>
+<li><a href="#%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E8%A8%AD%E5%AE%9A%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B">システム設定マネージャを使用する</a></li>
+<li><a href="#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%96%B9%E6%B3%95">インストール方法</a></li>
+</ol>
+</li>
+<li><a href="#%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88%E3%82%AD%E3%83%BC">ショートカットキー</a>
+<ol>
+<li><a href="#%E3%82%AD%E3%83%BC%E3%81%AE%E5%AE%9A%E7%BE%A9">キーの定義</a></li>
+<li><a href="#%E9%87%8D%E8%A6%81%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88">重要ショートカット</a></li>
+<li><a href="#%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%B9%E3%83%9A%E3%83%BC%E3%82%B9%E3%83%BB%E3%82%A6%E3%82%A3%E3%83%B3%E3%83%89%E3%82%A6">ワークスペース・ウィンドウ</a></li>
+<li><a href="#%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2">ソフトウェア</a></li>
+</ol>
+</li>
+<li><a href="#%E8%A8%AD%E5%AE%9A%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%97%E3%81%9F%E3%81%84">設定を変更したい</a></li>
+<li><a href="#%E3%81%9D%E3%81%AE%E4%BB%96">その他</a></li>
+</ol>
+<h2 id="%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E4%BD%BF%E3%81%84%E6%96%B9">基本的な使い方</h2>
+<p>i3wmはタイル型ウィンドウマネージャです。ウィンドウが増えるたびに、i3wmは自動でウィンドウをリサイズし、整列させます。<br>
+基本的な操作はショートカットで行います。ショートカットについては、<a href="#%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88%E3%82%AD%E3%83%BC">こちら</a>を参考にしてください。<br>
+豊富なショートカットが用意されていますが、その全てを覚える必要はありません。まずはデスクトップに表示しているショートカットキーを覚えるところからはじめましょう。</p>
+<h3 id="%E3%82%BD%E3%83%95%E3%83%88%E3%82%92%E8%B5%B7%E5%8B%95%E3%81%99%E3%82%8B">ソフトを起動する</h3>
+<p>ソフトを起動するために、ランチャーが用意されています。<br>
+mod(Windowsキー)+Dでランチャーを起動し、上下キーでソフトを選択、Enterキーで起動します。<br>
+デフォルトでインストールされている主なソフトの一部を紹介します。</p>
+<ul>
+<li>Chromium (Webブラウザー)</li>
+<li>Thunderbird (メーラー)</li>
+<li>VLC メディアプレイヤー</li>
+<li>LibreOffice</li>
+</ul>
+<h3 id="%E3%82%A6%E3%82%A3%E3%83%B3%E3%83%89%E3%82%A6%E3%81%AE%E7%B0%A1%E6%98%93%E7%9A%84%E3%81%AA%E6%93%8D%E4%BD%9C">ウィンドウの簡易的な操作</h3>
+<p>mod+上下左右キーで、アクティブなウィンドウを切り替えることが出来ます。<br>
+また、mod+Shift+Qキーで、アクティブなウィンドウを閉じることが出来ます。</p>
+<h3 id="%E3%82%BD%E3%83%95%E3%83%88%E3%82%92%E8%BF%BD%E5%8A%A0%E3%83%BB%E6%9B%B4%E6%96%B0%E3%81%99%E3%82%8B">ソフトを追加・更新する</h3>
+<p>mod+Dキーでランチャーを開き、「ソフトウェアの追加と削除」を起動してください。ストアが表示されます。<br>
+ソフトの更新は、上部の「アップデート」タブからすることができます。<br>
+「パッケージが見つかりません」と表示された場合は、右上のメニューから「データベースをアップデートする」を選択してください。</p>
+<h3 id="%E3%82%B7%E3%83%A3%E3%83%83%E3%83%88%E3%83%80%E3%82%A6%E3%83%B3%E3%81%99%E3%82%8B">シャットダウンする</h3>
+<p>mod(Windows)+Shift+iキーでメニューが表示されます。<br>
+「Shutdown」を選択することでシャットダウンが開始されます。<br>
+また、再起動やスリープなどもここから選択することが出来ます。</p>
+<h2 id="%E3%83%86%E3%83%BC%E3%83%9E%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B">テーマを変更する</h2>
+<p>mod+Shift+S で、Alter Linux i3独自のテーママネージャを起動できます。<br>
+このテーママネージャでは、画面の上 (デフォルト) にあるパネルの見た目、位置などを変更することが出来ます。</p>
+<h2 id="%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E8%A8%AD%E5%AE%9A%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B">システム設定マネージャを使用する</h2>
+<p>mod+Bで、システム設定マネージャを起動できます。<br>
+このショートカットを押すと、新規ターミナル上で設定マネージャが起動します。変更したい設定に該当するカテゴリの数字を入力し、設定を変更してください。</p>
+<h3 id="%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%96%B9%E6%B3%95">インストール方法</h3>
+<p>ライブ環境を試してみて、インストールしてみたいと思ったら、mod+iキーでインストーラが起動します。<br>
+インストーラの指示通りに進み、インストールしてみてください。</p>
+<h2 id="%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88%E3%82%AD%E3%83%BC">ショートカットキー</h2>
+<p>i3wmには多数の便利なショートカットがあります。ショートカットは[mod]と呼ばれるキーとの組み合わせであることがほとんどです。<br>
+ここでは、ショートカットの一部を紹介します。</p>
+<h3 id="%E3%82%AD%E3%83%BC%E3%81%AE%E5%AE%9A%E7%BE%A9">キーの定義</h3>
+<ul>
+<li>mod : super (Windowsキー)</li>
+<li>Arrow : ←[ j ], ↓[ k ], ↑[ l ], →[ ; ]キー (カッコ内キーで代用可)</li>
+</ul>
+<h3 id="%E9%87%8D%E8%A6%81%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88">重要ショートカット</h3>
+<table>
+<thead>
+<tr>
+<th>ショートカット</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mod+Enter</td>
+<td>ターミナルを開く</td>
+</tr>
+<tr>
+<td>mod+Shift+Q</td>
+<td>アクティブウィンドウを閉じる</td>
+</tr>
+<tr>
+<td>mod+D</td>
+<td>ランチャーの表示</td>
+</tr>
+<tr>
+<td>super+Esc</td>
+<td>画面のロック</td>
+</tr>
+<tr>
+<td>mod+Shift+E</td>
+<td>電源メニュー</td>
+</tr>
+<tr>
+<td></td>
+<td>(電源メニュー時)</td>
+</tr>
+<tr>
+<td>S</td>
+<td>シャットダウン</td>
+</tr>
+<tr>
+<td>R</td>
+<td>再起動</td>
+</tr>
+<tr>
+<td>O</td>
+<td>ログアウト</td>
+</tr>
+<tr>
+<td>L</td>
+<td>ロック</td>
+</tr>
+<tr>
+<td>Q, Esc, Enter</td>
+<td>キャンセル</td>
+</tr>
+</tbody>
+</table>
+<h3 id="%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%B9%E3%83%9A%E3%83%BC%E3%82%B9%E3%83%BB%E3%82%A6%E3%82%A3%E3%83%B3%E3%83%89%E3%82%A6">ワークスペース・ウィンドウ</h3>
+<table>
+<thead>
+<tr>
+<th>ショートカット</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mod+0-9</td>
+<td>ワークスペースの変更</td>
+</tr>
+<tr>
+<td>mod+R</td>
+<td>リサイズモード (リサイズモード中に押すとキャンセル)</td>
+</tr>
+<tr>
+<td>mod+Shift+0-9</td>
+<td>アクティブウィンドウを他のワークスペースに移動する</td>
+</tr>
+<tr>
+<td>mod+Arrow</td>
+<td>アクティブウィンドウの切り替え</td>
+</tr>
+<tr>
+<td>mod+Shift+Arrow</td>
+<td>アクティブウィンドウの移動</td>
+</tr>
+<tr>
+<td>mod+h</td>
+<td>新規ウィンドウの作成位置を水平 (横) 方向にする</td>
+</tr>
+<tr>
+<td>mod+v</td>
+<td>新規ウィンドウの作成位置を垂直 (縦) 方向にする</td>
+</tr>
+<tr>
+<td>mod+Shift+R</td>
+<td>i3wmの再読込</td>
+</tr>
+</tbody>
+</table>
+<h3 id="%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2">ソフトウェア</h3>
+<table>
+<thead>
+<tr>
+<th>ショートカット</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mod+Shift+S</td>
+<td>テーママネージャ (パネルの見た目変更)</td>
+</tr>
+<tr>
+<td>mod+B</td>
+<td>システム設定マネージャ</td>
+</tr>
+<tr>
+<td>mod+Shift+PrtScr</td>
+<td>スクリーンショットの撮影</td>
+</tr>
+</tbody>
+</table>
+<p>この他にも多数の便利なショートカットがあります。</p>
+<h2 id="%E8%A8%AD%E5%AE%9A%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%97%E3%81%9F%E3%81%84">設定を変更したい</h2>
+<p>カスタマイズを加えたい場合は、この項目を参考にしてください。</p>
+<ul>
+<li>パネルを変えたい<br>
+前述のテーママネージャを使用してください</li>
+<li>画面の解像度など、システムの設定を変更したい<br>
+前述の設定マネージャを使用してください</li>
+<li>壁紙を変えたい<br>
+<code>~/.config/i3/config</code> を編集し、16行目 <code>exec --no-startup-id &quot;feh --bg-fill ***</code> の***の位置に、壁紙のパスを記述してください</li>
+<li>操作方法が表示されたウィンドウを非表示にしたい<br>
+<code>~/.config/conky</code> を削除する、もしくは <code>~/.config/i3/config</code> を編集し、42行目 (<code>exec --no-startup-id conky</code>) を削除することで無効に出来ます</li>
+</ul>
+<h2 id="%E3%81%9D%E3%81%AE%E4%BB%96">その他</h2>
+<ul>
+<li>わからないことがある<br>
+Twitter <a href="https://twitter.com/Fascode_SPT">(@Fascode_SPT)</a> へのDMや返信等で気軽に聞いてください。</li>
+</ul>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#basic-usage">Basic Usage</a>
+<ol>
+<li><a href="#launch-the-software">Launch the software</a></li>
+<li><a href="#simple-manipulation-of-windows">Simple manipulation of windows</a></li>
+<li><a href="#add-or-update-software">Add or update software</a></li>
+<li><a href="#shutdown">Shutdown</a></li>
+<li><a href="#change-the-theme">Change the theme</a></li>
+<li><a href="#using-the-System-Configuration-Manager">Using the System Configuration Manager</a></li>
+<li><a href="#how-to-install">How to install</a></li>
+</ol>
+</li>
+<li><a href="#shortcut-keys">Shortcut keys</a>
+<ol>
+<li><a href="#key-definitions">key definitions</a></li>
+<li><a href="#most-important-shortcut">Most important shortcut</a></li>
+<li><a href="#workspace-window">Workspace, window</a></li>
+<li><a href="#softwares">Softwares</a></li>
+</ol>
+</li>
+<li><a href="#how-to-change-the-settings">How to change the settings</a></li>
+<li><a href="#qa">Q&amp;A</a></li>
+</ol>
+<h2 id="basic-usage">Basic Usage</h2>
+<p>i3wm is a tiling window manager. Each time you add more windows, i3wm will automatically resize and align them.<br>
+The basic operations are done using shortcuts. See <a href="#Shortcut-keys">Shortcut keys</a> for more information on shortcuts.<br>
+There are many shortcuts available, but you don't need to remember them all. Let's start by learning the shortcut keys that displaying on your desktop.</p>
+<h3 id="launch-the-software">Launch the software</h3>
+<p>The launcher is installed to launch the software.<br>
+Start the launcher by pressing mod(Windows key)+D, select the software by pressing the up and down keys, and start it by pressing Enter.<br>
+Some of the main software installed by default are listed below.</p>
+<ul>
+<li>Chromium (web browser)</li>
+<li>Thunderbird (mailer)</li>
+<li>VLC Media Player</li>
+<li>LibreOffice</li>
+</ul>
+<h3 id="simple-manipulation-of-windows">Simple manipulation of windows</h3>
+<p>You can use the mod+up, down, left, and right keys to switch between the active windows.<br>
+You can also use the mod+Shift+Q keys to close the active window.</p>
+<h3 id="add-or-update-software">Add or update software</h3>
+<p>Use the mod+D keys to open the launcher and launch &quot;Add/Remove Software&quot;. The Store will start.<br>
+You can update the software from the 'Update' tab at the top.<br>
+If you get a message &quot;Package not found&quot;, select &quot;Update database&quot; from the top right menu.</p>
+<h3 id="shutdown">Shutdown</h3>
+<p>Press mod(Windows)+Shift+E to bring up the menu.<br>
+Selecting &quot;Shutdown&quot; will start the shutdown.<br>
+You can also choose &quot;reboot&quot;, &quot;Logout&quot; and more.</p>
+<h2 id="change-the-theme">Change the theme</h2>
+<p>You can use mod+Shift+S to launch Alter Linux i3's own theme manager.<br>
+This theme manager allows you to change the appearance, position, etc. of the panels at the top of the screen (the default).</p>
+<h2 id="using-the-system-configuration-manager">Using the System Configuration Manager</h2>
+<p>You can use mod+B to start the System Configuration Manager.<br>
+Pressing this shortcut will launch system manager in a new terminal. Enter the number of the category whose settings you want to change and change the settings.</p>
+<h3 id="how-to-install">How to install</h3>
+<p>If you want to try the live environment and install it, use the mod+i key to launch the installer.<br>
+Follow the installer's instructions and try to install it.</p>
+<h2 id="shortcut-keys">Shortcut keys</h2>
+<p>i3wm has many useful shortcut keys. Most of the shortcuts are in combination with a key called [mod].<br>
+Here are some of them.</p>
+<h3 id="key-definitions">Key Definitions</h3>
+<ul>
+<li>mod : super (Windows key)</li>
+<li>Arrow : ←[ j ], ↓[ k ], ↑[ l ], →[ ; ] key (you can substitute the key in parentheses)</li>
+</ul>
+<h3 id="most-important-shortcut">Most important shortcut</h3>
+<table>
+<thead>
+<tr>
+<th>Shortcuts</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mod+Enter</td>
+<td>Open a new terminal</td>
+</tr>
+<tr>
+<td>mod+Shift+Q</td>
+<td>Kill active window</td>
+</tr>
+<tr>
+<td>mod+D</td>
+<td>Software launcher</td>
+</tr>
+<tr>
+<td>super+Esc</td>
+<td>Screen lock</td>
+</tr>
+<tr>
+<td>mod+Shift+E</td>
+<td>Power menu</td>
+</tr>
+<tr>
+<td>Esc</td>
+<td>Canncel the power menu</td>
+</tr>
+</tbody>
+</table>
+<h3 id="workspace-window">Workspace, window</h3>
+<table>
+<thead>
+<tr>
+<th>Shortcuts</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mod+0-9</td>
+<td>Switch workspaces</td>
+</tr>
+<tr>
+<td>mod+R</td>
+<td>Resize mode (Canncel when )</td>
+</tr>
+<tr>
+<td>mod+Shift+0-9</td>
+<td>Move active window to other workspace</td>
+</tr>
+<tr>
+<td>mod+Arrow</td>
+<td>Switch active window</td>
+</tr>
+<tr>
+<td>mod+Shift+Arrow</td>
+<td>Move active window</td>
+</tr>
+<tr>
+<td>mod+h</td>
+<td>Change the new window position horizontally</td>
+</tr>
+<tr>
+<td>mod+v</td>
+<td>Change the new window position horizontally</td>
+</tr>
+<tr>
+<td>mod+Shift+R</td>
+<td>Reload i3wm</td>
+</tr>
+</tbody>
+</table>
+<h3 id="softwares">Softwares</h3>
+<table>
+<thead>
+<tr>
+<th>Shortcuts</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mod+Shift+S</td>
+<td>Theme Manager (change the look of the panel )</td>
+</tr>
+<tr>
+<td>mod+B</td>
+<td>System setting manager</td>
+</tr>
+</tbody>
+</table>
+<p>There are many other useful shortcuts.</p>
+<h2 id="how-to-change-settings">How to change settings</h2>
+<p>If you want to add some customization, please refer to this section.</p>
+<ul>
+<li>Change the panel<br>
+Use the Theme Manager described above</li>
+<li>Change the system settings, such as screen resolution, etc.<br>
+Use system manager as described above</li>
+<li>Change the wallpaper.<br>
+Edit <code>~/.config/i3/config</code> , and add line 16 <code>exec --no- startup-id &quot;feh --bg-fill ***</code> with the path to the wallpaper in the *** position.</li>
+<li>Hide the window with the operating instructions.<br>
+Remove <code>~/.config/conky</code> , or edit <code>~/.config/i3/config</code> and remove line 42 (<code>exec --no-startup-id conky </code>)</li>
+</ul>
+<h2 id="qa">Q&amp;A</h2>
+<ul>
+<li>There's something I don't understand<br>
+Feel free to ask by DM or reply to Twitter <a href="https://twitter.com/Fascode_SPT">(@Fascode_SPT)</a>.</li>
+</ul>
+<hr>
+<pre><code>	Alter Linux i3 edition help document
+	Watasuke
+	Twitter: @Watasuke102
+	Email  : Watasuke102@gmail.com
+	(c) 2020 Fascode Network.</code></pre>
+
+</body>
+</html>

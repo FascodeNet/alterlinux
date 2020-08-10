@@ -29,5 +29,5 @@ export UNZIPOPT=-OCP932
 # No beep
 xset -b
 
-# Start xfce4
+# Start cinnamon
 exec cinnamon-session

@@ -1,8 +1,8 @@
-## AlterLinuxをビルドする
+## Alter Linuxをビルドする
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
 Dockerでビルドする方法は[この手順](jp/DOCKER.md)を参照してください。  
   
-実機でビルドする場合は、必ずOSがArchLinuxかAlterLinuxでなければなりません。  
+実機でビルドする場合は、必ずOSがArchLinuxかAlter Linuxでなければなりません。  
 以下では実機でビルドする方法を解説します。  
   
 ArchやAlter上で直接ビルドする場合、ビルドはいくつかの方法で行うことができます。
@@ -16,7 +16,7 @@ git clone https://github.com/FascodeNet/alterlinux.git
 cd alterlinux
 ```
 
-AlterLinuxのリポジトリを利用するための鍵を追加します。  
+Alter Linuxのリポジトリを利用するための鍵を追加します。  
 
 ```bash
 sudo ./keyring.sh --alter-add --arch32-add
@@ -96,7 +96,7 @@ sudo ./build.sh [options] [channel]
 ### 注意事項
 #### チャンネルについて
 チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
-この仕組みにより様々なバージョンのAlterLinuxをビルドすることが可能になります。  
+この仕組みにより様々なバージョンのAlter Linuxをビルドすることが可能になります。  
 2020年5月5日現在でサポートされているチャンネルは以下のとおりです。  
 完全なチャンネルの一覧は`./build.sh -h`を参照して下さい。  
 
@@ -120,7 +120,7 @@ ck | linux-ck にはシステムのレスポンスを良くするためのパッ
 lts | coreリポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
 lqx | デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
 rt | このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
-zen-letsnote | Let's Noteでサスペンドの問題が発生しないようにパッチを当てた`linux-zen`カーネル（AlterLinux独自）
+zen-letsnote | Let's Noteでサスペンドの問題が発生しないようにパッチを当てた`linux-zen`カーネル（Alter Linux独自）
 
 ##### 注意
 `-k`のオプションは必ず`linux-foo`の`foo`の部分のみを入れてください。例えば`linux-lts`の場合は`lts`が入ります。

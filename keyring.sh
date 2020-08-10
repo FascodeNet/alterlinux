@@ -8,7 +8,7 @@
 #
 # keyring.sh
 #
-# Script to import AlterLinux and ArchLinux keys.
+# Script to import Alter Linux and ArchLinux keys.
 #
 
 

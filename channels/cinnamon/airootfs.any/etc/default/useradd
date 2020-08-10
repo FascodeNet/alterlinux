@@ -1,7 +1,7 @@
-# useradd defaults file for AlterLinux
+# useradd defaults file for Alter Linux
 # original changes by TomK
 
-# In AlterLinux, the default shell is changed to /bin/zsh from the default of ArchLinux (by Hayao)
+# In  , the default shell is changed to /bin/zsh from the default of ArchLinux (by Hayao)
 
 GROUP=users
 HOME=/home
