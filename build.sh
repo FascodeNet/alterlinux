@@ -1295,7 +1295,7 @@ if [[ -d "${script_path}/.git" ]]; then
 fi
 
 # Show config message
-[[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
+[[ -f "${defaultconfig}" ]] && _msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
@@ -1369,7 +1369,7 @@ if [[ -n "${1}" ]]; then
         fi
     fi
 
-    if [[ ! "${channel_name}" == "rebuild" ]]; then
+    if [[ ! "${channel_name}" == "rebuild" ]] && [[ ! "${channel_name}" == "clean" ]]; then
         _msg_debug "channel path is ${script_path}/channels/${channel_name}"
     fi
 fi
