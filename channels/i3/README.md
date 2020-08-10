@@ -3,7 +3,7 @@ This document will show how to use Alter Linux i3 Edition.
 このドキュメントでは、Alter Linux i3エディションの使い方を紹介します。
 
 1. [日本語](#目次)
-1. [English](#Table-of-Contents)
+1. [English](#table-of-contents)
 
 ---
 ## 目次
