@@ -1395,7 +1395,7 @@ if [[ "${channel_name}" = "clean" ]]; then
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
 	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${work_dir}"
+    remove "${work_dir%/}"/*
     remove "${rebuildfile}"
     remove "${script_path}/temp"
     exit 0
