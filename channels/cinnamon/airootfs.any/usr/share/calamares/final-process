@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 function remove () {
     local list
     local file
@@ -38,14 +40,22 @@ remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
 
 if [[ -f /etc/systemd/journald.conf ]]; then
-    sed -i 's / Storage = volatile /＃Storage = auto /' /etc/systemd/journald.conf
+    sed -i 's/Storage=volatile/#Storage=auto/' /etc/systemd/journald.conf
 fi
 
 remove /etc/udev/rules.d/81-dhcpcd.rules
 remove /etc/systemd/system/{choose-mirror.service,getty@tty1.service.d}
 
 # Disabled auto login
-sed -i "s/^autologin/#autologin/g" /etc/lightdm.conf
+sed -i "s/^autologin/#autologin/g" /etc/lightdm/lightdm.conf
 
 # Remove dconf for live environment
-remove "/etc/dconf/db/local.d/02-live-config"
+remove "/etc/dconf/db/local.d/02-disable-lock"
+
+# Replace menu source (enable screen lock)
+remove "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
+mv "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js.org" "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
+
+
+# Update system datebase
+dconf update
