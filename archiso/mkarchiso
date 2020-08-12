@@ -187,13 +187,9 @@ _pacman () {
 _cleanup () {
     _msg_info "Cleaning up what we can on airootfs..."
 
-    # Delete initcpio image(s)
+    # Delete all files in /boot
     if [[ -d "${airootfs_dir}/boot" ]]; then
-        find "${airootfs_dir}/boot" -type f -name '*.img' -delete
-    fi
-    # Delete kernel(s)
-    if [[ -d "${airootfs_dir}/boot" ]]; then
-        find "${airootfs_dir}/boot" -type f -name 'vmlinuz*' -delete
+        find "${airootfs_dir}/boot" -mindepth 1 -delete
     fi
     # Delete pacman database sync cache files (*.tar.gz)
     if [[ -d "${airootfs_dir}/var/lib/pacman" ]]; then
