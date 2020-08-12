@@ -92,8 +92,8 @@ _usage () {
     IFS='' read -r -d '' usagetext <<ENDUSAGETEXT || true
 usage ${app_name} [options] command <command options>
  general options:
+    -B <profile_dir> Directory of the archiso profile to build
     -p PACKAGE(S)    Package(s) to install, can be used multiple times
-    -r <command>     Run <command> inside airootfs
     -C <file>        Config file for pacman.
                      Default: '${pacman_conf}'
     -L <label>       Set a label for the disk
@@ -118,18 +118,8 @@ usage ${app_name} [options] command <command options>
     -v               Enable verbose output
     -h               This message
  commands:
-   init
-      Make base layout and install base group
-   install
-      Install all specified packages (-p)
-   run
-      run command specified by -r
-   prepare
-      build all images
-   pkglist
-      make a pkglist.txt of packages installed on airootfs
-   iso <image name>
-      build an iso image from the working dir
+   build_profile
+      build an iso image from a profile
 ENDUSAGETEXT
     printf '%s\n' "${usagetext}"
     exit "${1}"
@@ -703,7 +693,6 @@ command_run() {
 }
 
 command_build_profile() {
-    _msg_warning "The ${FUNCNAME[0]#command_} command is not fully implemented yet :("
     # Set up essential directory paths
     airootfs_dir="${work_dir}/${arch}/airootfs"
     isofs_dir="${work_dir}/iso"
@@ -772,21 +761,27 @@ isofs_dir="${work_dir}/iso"
 
 case "${command_name}" in
     init)
+        _msg_warning "The '${command_name}' command is deprecated!"
         command_init
         ;;
     install)
+        _msg_warning "The '${command_name}' command is deprecated!"
         command_install
         ;;
     run)
+        _msg_warning "The '${command_name}' command is deprecated!"
         command_run
         ;;
     prepare)
+        _msg_warning "The '${command_name}' command is deprecated!"
         command_prepare
         ;;
     pkglist)
+        _msg_warning "The '${command_name}' command is deprecated!"
         command_pkglist
         ;;
     iso)
+        _msg_warning "The '${command_name}' command is deprecated!"
         if (( $# < 2 )); then
             _msg_error "No image specified" 0
             _usage 1

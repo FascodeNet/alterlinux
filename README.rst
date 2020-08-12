@@ -32,8 +32,7 @@ Profiles
 Archiso comes with two profiles: **baseline** and **releng**. While both can serve as starting points for creating
 custom live media, **releng** is used to create the monthly installation medium.
 They can be found below `configs/baseline/ <configs/baseline/>`_  and `configs/releng/ <configs/releng/>`_
-(respectively). Both profiles are defined by files to be placed into overlays (e.g. *airootfs* -> *the image's /*) and
-dynamic actions (i.e. *build.sh* scripts).
+(respectively). Both profiles are defined by files to be placed into overlays (e.g. *airootfs* -> *the image's /*).
 
 Create images
 =============
@@ -50,28 +49,27 @@ be lost on update).
 
 The examples below will assume an unmodified profile in a system location (unless noted otherwise).
 
-It is advised to check the help information of the **build.sh** scripts in the profiles:
+It is advised to check the help information of the **mkarchiso**:
 
   .. code:: bash
 
-    /usr/share/archiso/configs/releng/build.sh --help
+    mkarchiso -h
 
 Create images with packaged archiso
 -----------------------------------
 
   .. code:: bash
 
-    /usr/share/archiso/configs/releng/build.sh -w path/to/work_dir -o path/to/out_dir
+    mkarchiso -B path/to/profile -w path/to/work_dir -o path/to/out_dir build_profile
 
 Create images with local clone
 ------------------------------
 
-Clone this repository and make sure to run with the local `mkarchiso <archiso/mkarchiso>`_  script in *PATH* (if it has
-been modified):
+Clone this repository and run:
 
   .. code:: bash
 
-    PATH="archiso:$PATH" ./configs/releng/build.sh -w path/to/work_dir -o path/to/out_dir
+    ./archiso/mkarchiso -B path/to/profile -w path/to/work_dir -o path/to/out_dir build_profile
 
 Testing
 =======
