@@ -368,22 +368,23 @@ _make_customize_airootfs() {
     fi
 }
 
+# Set up boot loaders
+_make_bootmodes() {
+    local bootmode
+    for bootmode in "${bootmodes[@]}"; do
+        if typeset -f "_make_boot_${bootmode}" &> /dev/null; then
+            _run_once "_make_boot_${bootmode}"
+        else
+            _msg_error "${bootmode} is not a valid boot mode" 1
+        fi
+    done
+}
+
 # Prepare kernel/initramfs ${install_dir}/boot/
-_make_boot() {
+_make_boot_on_iso() {
     mkdir -p -- "${isofs_dir}/${install_dir}/boot/${arch}"
     install -m 0644 -- "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
     install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-linux" "${isofs_dir}/${install_dir}/boot/${arch}/"
-}
-
-# Add other aditional/extra files to ${install_dir}/boot/
-_make_boot_extra() {
-    if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
-        # rename for PXE: https://wiki.archlinux.org/index.php/Syslinux#Using_memtest
-        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
-        mkdir -p "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
-        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" \
-            "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
-    fi
     if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
         install -m 0644 -- "${airootfs_dir}/boot/intel-ucode.img" "${isofs_dir}/${install_dir}/boot/"
         mkdir -p "${isofs_dir}/${install_dir}/boot/licenses/intel-ucode/"
@@ -399,32 +400,53 @@ _make_boot_extra() {
 }
 
 # Prepare /${install_dir}/boot/syslinux
-_make_syslinux() {
-    _uname_r=$(file -b "${airootfs_dir}/boot/vmlinuz-linux"| awk 'f{print;f=0} /version/{f=1}' RS=' ')
+_make_boot_bios.syslinux.mbr() {
     mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux"
     for _cfg in "${profile}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+             "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
-    install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux/"
+    if [[ -e "${profile}/syslinux/splash.png" ]]; then
+        install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux/"
+    fi
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/${install_dir}/boot/syslinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux/"
+
+    _make_boot_on_iso
+    _uname_r=$(file -b "${isofs_dir}/${install_dir}/boot/${arch}/vmlinuz-linux" | awk 'f{print;f=0} /version/{f=1}' RS=' ')
+
     mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
     gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > \
         "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
     gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > \
         "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+
+    # Add other aditional/extra files to ${install_dir}/boot/
+    if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
+        # rename for PXE: https://wiki.archlinux.org/index.php/Syslinux#Using_memtest
+        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        mkdir -p "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" \
+            "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+    fi
 }
 
 # Prepare /isolinux
-_make_isolinux() {
+_make_boot_bios.syslinux.eltorito() {
     mkdir -p "${isofs_dir}/isolinux"
-    sed "s|%INSTALL_DIR%|${install_dir}|g" \
-        "${profile}/isolinux/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
+    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+         s|%INSTALL_DIR%|${install_dir}|g;
+         s|%ARCH%|${arch}|g" \
+         "${profile}/isolinux/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
+
+    # isolinux.cfg loads syslinux.cfg
+    _run_once _make_boot_bios.syslinux.mbr
 }
 
 # Prepare /EFI on ISO-9660
@@ -437,29 +459,38 @@ _make_efi() {
     install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${isofs_dir}/loader/"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
+         s|%INSTALL_DIR%|${install_dir}|g;
+         s|%ARCH%|${arch}|g" \
         "${profile}/efiboot/loader/entries/archiso-x86_64-usb.conf" > \
         "${isofs_dir}/loader/entries/archiso-x86_64.conf"
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    install -m 0644 -- "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
+    if [[ -e "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        install -m 0644 -- "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
+    fi
 }
 
-# Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
-_make_efiboot() {
+# Prepare kernel/initramfs on efiboot.img
+_make_boot_on_fat() {
+    mkdir -p "${work_dir}/efiboot/EFI/archiso"
+    install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-linux" "${work_dir}/efiboot/EFI/archiso/"
+    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/"
+    if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
+        install -m 0644 -- "${airootfs_dir}/boot/intel-ucode.img" "${work_dir}/efiboot/EFI/archiso/"
+    fi
+    if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
+        install -m 0644 -- "${airootfs_dir}/boot/amd-ucode.img" "${work_dir}/efiboot/EFI/archiso/"
+    fi
+}
+
+# Prepare efiboot.img::/EFI for EFI boot mode
+_make_boot_uefi-x64.systemd-boot.esp() {
     mkdir -p "${isofs_dir}/EFI/archiso"
     mkfs.fat -C -n ARCHISO_EFI "${isofs_dir}/EFI/archiso/efiboot.img" 65536
 
     mkdir -p "${work_dir}/efiboot"
     mount "${isofs_dir}/EFI/archiso/efiboot.img" "${work_dir}/efiboot"
-
-    mkdir -p "${work_dir}/efiboot/EFI/archiso"
-    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/${arch}/vmlinuz-linux" "${work_dir}/efiboot/EFI/archiso/"
-    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/"
-
-    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/intel-ucode.img" "${work_dir}/efiboot/EFI/archiso/"
-    install -m 0644 -- "${isofs_dir}/${install_dir}/boot/amd-ucode.img" "${work_dir}/efiboot/EFI/archiso/"
 
     mkdir -p "${work_dir}/efiboot/EFI/BOOT"
     install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
@@ -469,14 +500,27 @@ _make_efiboot() {
     install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
+         s|%INSTALL_DIR%|${install_dir}|g;
+         s|%ARCH%|${arch}|g" \
         "${profile}/efiboot/loader/entries/archiso-x86_64-cd.conf" > \
         "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
     # shellx64.efi is picked up automatically when on /
-    install -m 0644 -- "${isofs_dir}/shellx64.efi" "${work_dir}/efiboot/"
+    if [[ -e "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        install -m 0644 -- "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/efiboot/shellx64.efi"
+    fi
+
+    # Copy kernel and initramfs
+    _make_boot_on_fat
 
     umount -d "${work_dir}/efiboot"
+}
+
+# Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
+_make_boot_uefi-x64.systemd-boot.eltorito() {
+    _run_once _make_boot_uefi-x64.systemd-boot.esp
+    # Set up /EFI on ISO-9660
+    _run_once _make_efi
 }
 
 # Build airootfs filesystem image
@@ -494,7 +538,49 @@ _make_prepare() {
 
 # Build ISO
 _make_iso() {
-    command_iso "${iso_name}-${iso_version}-${arch}.iso"
+    local xorrisofs_options=()
+
+    if [[ "${quiet}" == "y" ]]; then
+        xorrisofs_options+=('-quiet')
+    fi
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.' ]]; then
+        if [[ ! -f "${isofs_dir}/isolinux/isolinux.bin" ]]; then
+            _msg_error "The file '${isofs_dir}/isolinux/isolinux.bin' does not exist." 1
+        fi
+        if [[ ! -f "${isofs_dir}/isolinux/isohdpfx.bin" ]]; then
+            _msg_error "The file '${isofs_dir}/isolinux/isohdpfx.bin' does not exist." 1
+        fi
+        xorrisofs_options+=(
+            '-eltorito-boot' 'isolinux/isolinux.bin'
+            '-eltorito-catalog' 'isolinux/boot.cat'
+            '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
+            '-isohybrid-mbr' "${isofs_dir}/isolinux/isohdpfx.bin"
+        )
+    fi
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.' ]]; then
+        xorrisofs_options+=(
+            '-eltorito-alt-boot'
+            '-e' 'EFI/archiso/efiboot.img'
+            '-no-emul-boot'
+            '-isohybrid-gpt-basdat'
+        )
+    fi
+
+    _msg_info "Creating ISO image..."
+    xorriso -as mkisofs \
+            -iso-level 3 \
+            -full-iso9660-filenames \
+            -rational-rock \
+            -volid "${iso_label}" \
+            -appid "${iso_application}" \
+            -publisher "${iso_publisher}" \
+            -preparer "prepared by ${app_name}" \
+            "${xorrisofs_options[@]}" \
+            -output "${out_dir}/${img_name}" \
+            "${isofs_dir}/"
+    _msg_info "Done! | $(du -h -- "${out_dir}/${img_name}")"
 }
 
 # Read profile's values from profiledef.sh
@@ -573,64 +659,16 @@ command_pkglist () {
 
 # Create an ISO9660 filesystem from "iso" directory.
 command_iso () {
-    local _iso_efi_boot_args=()
-
-    if [[ ! -f "${isofs_dir}/isolinux/isolinux.bin" ]]; then
-         _msg_error "The file '${isofs_dir}/isolinux/isolinux.bin' does not exist." 1
-    fi
-    if [[ ! -f "${isofs_dir}/isolinux/isohdpfx.bin" ]]; then
-         _msg_error "The file '${isofs_dir}/isolinux/isohdpfx.bin' does not exist." 1
-    fi
+    bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito')
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${isofs_dir}/EFI/archiso/efiboot.img" ]]; then
-        _iso_efi_boot_args+=(
-            '-eltorito-alt-boot'
-            '-e' 'EFI/archiso/efiboot.img'
-            '-no-emul-boot'
-            '-isohybrid-gpt-basdat'
-        )
+        bootmodes+=('uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
     fi
 
     _show_config iso
-
     mkdir -p -- "${out_dir}"
-    _msg_info "Creating ISO image..."
-    local _qflag=""
-    if [[ "${quiet}" == "y" ]]; then
-        xorriso -as mkisofs -quiet \
-            -iso-level 3 \
-            -full-iso9660-filenames \
-            -rational-rock \
-            -volid "${iso_label}" \
-            -appid "${iso_application}" \
-            -publisher "${iso_publisher}" \
-            -preparer "prepared by ${app_name}" \
-            -eltorito-boot isolinux/isolinux.bin \
-            -eltorito-catalog isolinux/boot.cat \
-            -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -isohybrid-mbr "${isofs_dir}/isolinux/isohdpfx.bin" \
-            "${_iso_efi_boot_args[@]}" \
-            -output "${out_dir}/${img_name}" \
-            "${isofs_dir}/"
-    else
-        xorriso -as mkisofs \
-            -iso-level 3 \
-            -full-iso9660-filenames \
-            -rational-rock \
-            -volid "${iso_label}" \
-            -appid "${iso_application}" \
-            -publisher "${iso_publisher}" \
-            -preparer "prepared by ${app_name}" \
-            -eltorito-boot isolinux/isolinux.bin \
-            -eltorito-catalog isolinux/boot.cat \
-            -no-emul-boot -boot-load-size 4 -boot-info-table \
-            -isohybrid-mbr "${isofs_dir}/isolinux/isohdpfx.bin" \
-            "${_iso_efi_boot_args[@]}" \
-            -output "${out_dir}/${img_name}" \
-            "${isofs_dir}/"
-    fi
-    _msg_info "Done! | $(ls -sh -- "${out_dir}/${img_name}")"
+    _make_iso
 }
 
 # create airootfs.sfs filesystem, and push it in "iso" directory.
@@ -684,12 +722,7 @@ command_build_profile() {
     _run_once _make_packages
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
-    _run_once _make_boot
-    _run_once _make_boot_extra
-    _run_once _make_syslinux
-    _run_once _make_isolinux
-    _run_once _make_efi
-    _run_once _make_efiboot
+    _make_bootmodes
     _run_once _cleanup
     _run_once _make_prepare
     _run_once _make_iso
