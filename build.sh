@@ -1447,7 +1447,7 @@ if [[ ${EUID} -ne 0 ]]; then
 fi
 
 # Show config message
-[[ -f "${defaultconfig}" ]] && _msg_debug "The settings have been overwritten by the ${defaultconfig}"
+[[ -f "${defaultconfig}" ]] && _msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
@@ -1512,6 +1512,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
     remove "${script_path}/menuconfig/build"
 	remove "${script_path}/system/cpp-src/mkalteriso/build"
 	remove "${script_path}/menuconfig-script/kernel_choice"
+    remove "${work_dir%/}"/*
     remove "${work_dir}"
     remove "${rebuildfile}"
     exit 0

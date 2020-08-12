@@ -8,6 +8,12 @@
 # Write the alias here.
 #
 
+# Alias
+unalias lsd
+unalias ls
+alias lsd='/usr/bin/lsd'
+
+
 # lsd-control
 [[ -f /usr/local/lib/lsd-alias ]] && source /usr/local/lib/lsd-alias
 
