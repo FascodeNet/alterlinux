@@ -239,7 +239,7 @@ _usage () {
     for list in ${script_path}/system/kernel_list-* ; do
         echo " ${list#${script_path}/system/kernel_list-}:"
         echo -n "    "
-        for kernel in $(grep -h -v ^'#' ${list}); do
+        for kernel in $(grep -h -v ^'#' ${list} | sed "/^$/d"); do
             echo -n "${kernel} "
         done
         echo
@@ -642,7 +642,7 @@ make_pacman_conf() {
 make_basefs() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
     # ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "bash haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd efitools" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "bash haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd" install
 
     # Install plymouth.
     if [[ "${boot_splash}" = true ]]; then
@@ -705,7 +705,7 @@ make_packages() {
         # Read the file and remove comments starting with # and add it to the list of packages to install.
         for _file in ${_loadfilelist[@]}; do
             _msg_debug "Loaded package file ${_file}"
-            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file} | sed ':a;N;$!ba;s/\n/ /g')" )
         done
         if [[ ${debug} = true ]]; then
             sleep 3
@@ -714,7 +714,7 @@ make_packages() {
         # Exclude packages from the share exclusion list
         excludefile="${script_path}/channels/share/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+            excludelist=( $(grep -h -v ^'#' "${excludefile}" | sed ':a;N;$!ba;s/\n/ /g') )
 
             # 現在のpkglistをコピーする
             _pkglist=(${pkglist[@]})
@@ -735,7 +735,7 @@ make_packages() {
         # Exclude packages from the exclusion list for each channel
         excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
-            excludelist=( $(grep -h -v ^'#' "${excludefile}") )
+            excludelist=( $(grep -h -v ^'#' "${excludefile}" | sed ':a;N;$!ba;s/\n/ /g') )
         
             # 現在のpkglistをコピーする
             _pkglist=(${pkglist[@]})
@@ -774,7 +774,7 @@ make_packages() {
     done
 
     # Install packages on airootfs
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkglist[@]}" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkglist[*]}" install
 }
 
 # Customize installation (airootfs)
@@ -787,7 +787,7 @@ make_customize_airootfs() {
         for i in "${@}"; do
             local _dir="${i%/}"
             if [[ -d "${_dir}" ]]; then
-                cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
+                cp -af --no-preserve=ownership "${_dir}"/* "${work_dir}/${arch}/airootfs"
             fi
         done
     }
@@ -801,34 +801,6 @@ make_customize_airootfs() {
     if [[ "${boot_splash}" = true ]]; then
         cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio.conf"
     fi
-
-    # Code to use common pacman.conf in archiso.
-    # cp "${script_path}/pacman.conf" "${work_dir}/${arch}/airootfs/etc"
-    # cp "${build_pacman_conf}" "${work_dir}/${arch}/airootfs/etc"
-
-    # Get the optimal mirror list.
-    local mirrorlisturl mirrorlisturl_all  mirrorlisturl_jp
-
-    case "${arch}" in
-        "x86_64")
-            mirrorlisturl_jp='https://www.archlinux.org/mirrorlist/?country=JP'
-            mirrorlisturl_all='https://www.archlinux.org/mirrorlist/?country=all'
-            ;;
-        "i686")
-            mirrorlisturl_jp='https://archlinux32.org/mirrorlist/?country=jp'
-            mirrorlisturl_all='https://archlinux32.org/mirrorlist/?country=all'
-            ;;
-    esac
-
-    if [[ "${japanese}" = true ]]; then
-        mirrorlisturl="${mirrorlisturl_jp}"
-    else
-        mirrorlisturl="${mirrorlisturl_all}"
-    fi
-    curl -o "${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist" "${mirrorlisturl}"
-
-    # Add install guide to /root (disabled)
-    # lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
 
 
     # customize_airootfs.sh options
@@ -1058,16 +1030,10 @@ make_isolinux() {
 # Prepare /EFI
 make_efi() {
     mkdir -p "${work_dir}/iso/EFI/boot"
-    cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/HashTool.efi" "${work_dir}/iso/EFI/boot/"
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/iso/EFI/boot/bootx64.efi"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/loader.efi"
-    fi
+    cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/bootx64.efi"
 
     mkdir -p "${work_dir}/iso/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/iso/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/iso/loader/entries/"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
@@ -1075,8 +1041,8 @@ make_efi() {
         "${script_path}/efiboot/loader/entries/usb/archiso-x86_64-usb-${kernel}.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
     # edk2-shell based UEFI shell
-    cp /usr/share/edk2-shell/x64/Shell.efi ${work_dir}/iso/EFI/Shell_x64.efi
-    cp /usr/share/edk2-shell/x64/Shell_Full.efi ${work_dir}/iso/EFI/Shell_Full_x64.efi
+    # shellx64.efi is picked up automatically when on /
+    cp "/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1102,17 +1068,10 @@ make_efiboot() {
     cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
-    cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
-
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/loader.efi"
-    fi
+    cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
-    cp "${script_path}/efiboot/loader/entries/uefi-shell-full-x86_64.conf" "${work_dir}/efiboot/loader/entries/"
 
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1120,8 +1079,8 @@ make_efiboot() {
          s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
-    cp "${work_dir}/iso/EFI/Shell_x64.efi" "${work_dir}/efiboot/EFI/"
-    cp "${work_dir}/iso/EFI/Shell_Full_x64.efi" "${work_dir}/efiboot/EFI/"
+    # shellx64.efi is picked up automatically when on /
+    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
 
     umount -d "${work_dir}/efiboot"
 }
@@ -1192,7 +1151,7 @@ while :; do
             shift 1
             ;;
         -k | --kernel)
-            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | grep -x "${2}") ]]; then
+            if [[ -n $(cat ${script_path}/system/kernel_list-${arch} | grep -h -v ^'#' | sed "/^$/d" | grep -x "${2}") ]]; then
                 kernel="${2}"
             else
                 _msg_error "Invalid kernel ${2}" "1"
@@ -1305,7 +1264,7 @@ if [[ "${bash_debug}" = true ]]; then
 fi
 
 # Pacman configuration file used only when building
-build_pacman_conf=${script_path}/system/pacman-${arch}.conf
+build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 # Set rebuild config file
 rebuildfile="${work_dir}/build_options"
@@ -1377,13 +1336,13 @@ fi
 # Check architecture and kernel for each channel
 if [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
     # architecture
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | sed "/^$/d" | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
     # kernel
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]]; then
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}") ]]; then
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | sed "/^$/d" | grep -x "${kernel}") ]]; then
             _msg_error "This kernel is currently not supported on this channel." "1"
         fi
     fi
