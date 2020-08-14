@@ -9,21 +9,30 @@ umask 0022
 export LANG="C"
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 
+# mkarchiso defaults
 app_name="${0##*/}"
-arch="$(uname -m)"
 pkg_list=()
 run_cmd=""
 quiet="y"
-pacman_conf="/etc/pacman.conf"
-iso_label="ARCH_$(date +%Y%m)"
-iso_publisher="Arch Linux <http://www.archlinux.org>"
-iso_application="Arch Linux Live/Rescue CD"
-install_dir="arch"
 work_dir="work"
 out_dir="out"
+img_name="${app_name}.iso"
 sfs_mode="sfs"
 sfs_comp="xz"
 gpg_key=""
+
+# profile defaults
+profile=""
+iso_name="${app_name}"
+iso_label="${app_name^^}"
+iso_publisher="${app_name}"
+iso_application="${app_name} iso"
+iso_version=""
+install_dir="${app_name}"
+arch="$(uname -m)"
+pacman_conf="/etc/pacman.conf"
+bootmodes=()
+
 
 # Show an INFO message
 # $1: message string
@@ -31,6 +40,13 @@ _msg_info() {
     local _msg="${1}"
     [[ "${quiet}" == "y" ]] || printf '[%s] INFO: %s\n' "${app_name}" "${_msg}"
 
+}
+
+# Show a WARNING message
+# $1: message string
+_msg_warning() {
+    local _msg="${1}"
+    printf '\n[%s] WARNING: %s\n\n' "${app_name}" "${_msg}" >&2
 }
 
 # Show an ERROR message then exit with status
@@ -46,19 +62,19 @@ _msg_error() {
 }
 
 _chroot_init() {
-    mkdir -p -- "${work_dir}/airootfs"
+    mkdir -p -- "${airootfs_dir}"
     _pacman base syslinux
 }
 
 _chroot_run() {
-    eval -- arch-chroot "${work_dir}/airootfs" "${run_cmd}"
+    eval -- arch-chroot "${airootfs_dir}" "${run_cmd}"
 }
 
 _mount_airootfs() {
     trap "_umount_airootfs" EXIT HUP INT TERM
     mkdir -p -- "${work_dir}/mnt/airootfs"
-    _msg_info "Mounting '${work_dir}/airootfs.img' on '${work_dir}/mnt/airootfs'"
-    mount -- "${work_dir}/airootfs.img" "${work_dir}/mnt/airootfs"
+    _msg_info "Mounting '${airootfs_dir}.img' on '${work_dir}/mnt/airootfs'"
+    mount -- "${airootfs_dir}.img" "${work_dir}/mnt/airootfs"
     _msg_info "Done!"
 }
 
@@ -156,12 +172,12 @@ _show_config () {
 
 # Install desired packages to airootfs
 _pacman () {
-    _msg_info "Installing packages to '${work_dir}/airootfs/'..."
+    _msg_info "Installing packages to '${airootfs_dir}/'..."
 
     if [[ "${quiet}" = "y" ]]; then
-        pacstrap -C "${pacman_conf}" -c -G -M -- "${work_dir}/airootfs" "$@" &> /dev/null
+        pacstrap -C "${pacman_conf}" -c -G -M -- "${airootfs_dir}" "$@" &> /dev/null
     else
-        pacstrap -C "${pacman_conf}" -c -G -M -- "${work_dir}/airootfs" "$@"
+        pacstrap -C "${pacman_conf}" -c -G -M -- "${airootfs_dir}" "$@"
     fi
 
     _msg_info "Packages installed successfully!"
@@ -172,32 +188,32 @@ _cleanup () {
     _msg_info "Cleaning up what we can on airootfs..."
 
     # Delete initcpio image(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
+    if [[ -d "${airootfs_dir}/boot" ]]; then
+        find "${airootfs_dir}/boot" -type f -name '*.img' -delete
     fi
     # Delete kernel(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
+    if [[ -d "${airootfs_dir}/boot" ]]; then
+        find "${airootfs_dir}/boot" -type f -name 'vmlinuz*' -delete
     fi
     # Delete pacman database sync cache files (*.tar.gz)
-    if [[ -d "${work_dir}/airootfs/var/lib/pacman" ]]; then
-        find "${work_dir}/airootfs/var/lib/pacman" -maxdepth 1 -type f -delete
+    if [[ -d "${airootfs_dir}/var/lib/pacman" ]]; then
+        find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
     fi
     # Delete pacman database sync cache
-    if [[ -d "${work_dir}/airootfs/var/lib/pacman/sync" ]]; then
-        find "${work_dir}/airootfs/var/lib/pacman/sync" -delete
+    if [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]]; then
+        find "${airootfs_dir}/var/lib/pacman/sync" -delete
     fi
     # Delete pacman package cache
-    if [[ -d "${work_dir}/airootfs/var/cache/pacman/pkg" ]]; then
-        find "${work_dir}/airootfs/var/cache/pacman/pkg" -type f -delete
+    if [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]]; then
+        find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
     fi
     # Delete all log files, keeps empty dirs.
-    if [[ -d "${work_dir}/airootfs/var/log" ]]; then
-        find "${work_dir}/airootfs/var/log" -type f -delete
+    if [[ -d "${airootfs_dir}/var/log" ]]; then
+        find "${airootfs_dir}/var/log" -type f -delete
     fi
     # Delete all temporary files and dirs
-    if [[ -d "${work_dir}/airootfs/var/tmp" ]]; then
-        find "${work_dir}/airootfs/var/tmp" -mindepth 1 -delete
+    if [[ -d "${airootfs_dir}/var/tmp" ]]; then
+        find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
     fi
     # Delete package pacman related files.
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
@@ -206,51 +222,51 @@ _cleanup () {
 
 # Makes a ext4 filesystem inside a SquashFS from a source directory.
 _mkairootfs_img () {
-    if [[ ! -e "${work_dir}/airootfs" ]]; then
-        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    if [[ ! -e "${airootfs_dir}" ]]; then
+        _msg_error "The path '${airootfs_dir}' does not exist" 1
     fi
 
     _msg_info "Creating ext4 image of 32GiB..."
-    truncate -s 32G -- "${work_dir}/airootfs.img"
+    truncate -s 32G -- "${airootfs_dir}.img"
     if [[ "${quiet}" == "y" ]]; then
-        mkfs.ext4 -q -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
+        mkfs.ext4 -q -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img"
     else
-        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
+        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img"
     fi
-    tune2fs -c 0 -i 0 -- "${work_dir}/airootfs.img" &> /dev/null
+    tune2fs -c 0 -i 0 -- "${airootfs_dir}.img" &> /dev/null
     _msg_info "Done!"
     _mount_airootfs
-    _msg_info "Copying '${work_dir}/airootfs/' to '${work_dir}/mnt/airootfs/'..."
-    cp -aT -- "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
+    _msg_info "Copying '${airootfs_dir}/' to '${work_dir}/mnt/airootfs/'..."
+    cp -aT -- "${airootfs_dir}/" "${work_dir}/mnt/airootfs/"
     chown root:root -- "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
     _umount_airootfs
     mkdir -p -- "${work_dir}/iso/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
-    rm -- "${work_dir}/airootfs.img"
+    rm -- "${airootfs_dir}.img"
 }
 
 # Makes a SquashFS filesystem from a source directory.
 _mkairootfs_sfs () {
-    if [[ ! -e "${work_dir}/airootfs" ]]; then
-        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    if [[ ! -e "${airootfs_dir}" ]]; then
+        _msg_error "The path '${airootfs_dir}' does not exist" 1
     fi
 
     mkdir -p -- "${work_dir}/iso/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
+        mksquashfs "${airootfs_dir}" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend \
             -comp "${sfs_comp}"
     fi
     _msg_info "Done!"
@@ -272,11 +288,12 @@ _mksignature () {
     _msg_info "Done!"
 }
 
+
 command_pkglist () {
     _show_config pkglist
 
     _msg_info "Creating a list of installed packages on live-enviroment..."
-    pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
+    pacman -Q --sysroot "${airootfs_dir}" > "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
     _msg_info "Done!"
 
 }
@@ -386,8 +403,19 @@ command_run() {
     _chroot_run
 }
 
-while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
+command_build_profile() {
+    _msg_warning "The ${FUNCNAME[0]#command_} command is not fully implemented yet :("
+    # Set up essential directory paths
+    airootfs_dir="${work_dir}/${arch}/airootfs"
+
+    exit 1
+}
+
+while getopts 'B:p:r:C:L:P:A:D:w:o:s:c:g:vh' arg; do
     case "${arg}" in
+        B)
+            profile="$(realpath -- "${OPTARG}")"
+            ;;
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
             pkg_list+=("${opt_pkg_list[@]}")
@@ -424,6 +452,9 @@ if (( $# < 1 )); then
 fi
 command_name="${1}"
 
+# Set directory path defaults
+airootfs_dir="${work_dir}/airootfs"
+
 case "${command_name}" in
     init)
         command_init
@@ -447,6 +478,9 @@ case "${command_name}" in
         fi
         img_name="${2}"
         command_iso
+        ;;
+    build_profile)
+        command_build_profile
         ;;
     *)
         _msg_error "Invalid command name '${command_name}'" 0

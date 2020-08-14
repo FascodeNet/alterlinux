@@ -23,6 +23,7 @@ lint:
 	                   scripts/run_archiso.sh \
 	                   $(INSTALL_FILES) \
 	                   $(wildcard configs/*/build.sh) \
+	                   $(wildcard configs/*/profiledef.sh) \
 	                   configs/releng/airootfs/root/.automated_script.sh \
 	                   configs/releng/airootfs/usr/local/bin/choose-mirror
 	shellcheck -s dash $(HOOKS_FILES) $(SCRIPT_FILES)
