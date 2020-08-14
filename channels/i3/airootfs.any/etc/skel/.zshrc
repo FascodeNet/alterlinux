@@ -110,3 +110,6 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 # Alias
 [[ -f .aliases ]] && source .aliases
+
+# Set default terminal
+export TERMINAL=/usr/bin/sakura
