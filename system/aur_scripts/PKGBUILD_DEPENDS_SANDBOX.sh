@@ -16,5 +16,4 @@ if [[ 1 -gt $# ]];then
 fi
 pkgbuild_data=$(cat $1)
 eval ${pkgbuild_data}
-echo ${makedepends[@]}
-echo ${depends[@]}
+echo ${makedepends[@]} ${depends[@]}
