@@ -271,6 +271,7 @@ systemctl enable pacman-init.service
 systemctl enable org.cups.cupsd.service
 systemctl enable NetworkManager.service
 systemctl enable alteriso-reflector.service
+systemctl disable reflector.service
 
 
 # TLP
