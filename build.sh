@@ -921,7 +921,7 @@ make_packages_aur() {
     # Install dependent packages.
     local pkgbuild_data
     for _aur_pkg in ${pkglist_aur[@]}; do
-        pkgbuild_data="$("${script_path}/PKGBUILD_DEPENDS_SANDBOX.sh" ""${work_dir}/${arch}/airootfs"/aurbuild_temp/${_aur_pkg}/PKGBUILD")"
+        pkgbuild_data="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" ""${work_dir}/${arch}/airootfs"/aurbuild_temp/${_aur_pkg}/PKGBUILD")"
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkgbuild_data}" install
     done
 
