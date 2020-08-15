@@ -917,9 +917,10 @@ make_packages_aur() {
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
+
     # Install dependent packages.
     local pkgbuild_data
-    for _aur_pkg in ${*}; do
+    for _aur_pkg in ${pkglist_aur[@]}; do
         pkgbuild_data="$("${script_path}/PKGBUILD_DEPENDS_SANDBOX.sh" ""${work_dir}/${arch}/airootfs"/aurbuild_temp/${_aur_pkg}/PKGBUILD")"
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkgbuild_data}" install
     done
