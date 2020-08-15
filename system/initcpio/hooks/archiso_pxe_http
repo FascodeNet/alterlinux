@@ -1,16 +1,17 @@
-# vim: set ft=sh:
+#!/bin/ash
 
 run_hook() {
-    if [[ -n "${ip}" && -n "${archiso_http_srv}" ]]; then
+    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    if [ -n "${ip}" ] && [ -n "${archiso_http_srv}" ]; then
 
         # booting with http is always copy-to-ram, so set here to make sure
         # addresses are flushed and interface is set down
-        copytoram="y"
+        export copytoram="y"
 
-        archiso_http_srv=$(eval echo ${archiso_http_srv})
-        [[ -z "${archiso_http_spc}" ]] && archiso_http_spc="75%"
+        archiso_http_srv=$(eval echo "${archiso_http_srv}")
+        [ -z "${archiso_http_spc}" ] && archiso_http_spc="75%"
 
-        mount_handler="archiso_pxe_http_mount_handler"
+        export mount_handler="archiso_pxe_http_mount_handler"
     fi
 }
 
@@ -23,6 +24,7 @@ _curl_get() {
     local _dst="${2}"
 
     msg ":: Downloading '${_url}'"
+    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
     if ! curl -L -f -o "/run/archiso/httpspace/${archisobasedir}${_dst}/${_url##*/}" --create-dirs "${_url}"; then
         echo "ERROR: Downloading '${_url}'"
         echo "   Falling back to interactive prompt"
@@ -38,17 +40,22 @@ archiso_pxe_http_mount_handler () {
     mkdir -p "/run/archiso/httpspace"
     mount -t tmpfs -o size="${archiso_http_spc}",mode=0755 httpspace "/run/archiso/httpspace"
 
+    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
     _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs" "/${arch}"
 
-    if [[ "${checksum}" == "y" ]]; then
+    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    if [ "${checksum}" = "y" ]; then
         _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sha512" "/${arch}"
     fi
-    if [[ "${verify}" == "y" ]]; then
+    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    if [ "${verify}" = "y" ]; then
         _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs.sig" "/${arch}"
     fi
 
     mkdir -p "/run/archiso/bootmnt"
     mount -o bind /run/archiso/httpspace /run/archiso/bootmnt
 
-    archiso_mount_handler ${newroot}
+    archiso_mount_handler "${newroot}"
 }
+
+# vim: set ft=sh:

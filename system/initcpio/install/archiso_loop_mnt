@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 build() {
     add_runscript
@@ -9,5 +9,3 @@ cat<<HELPEOF
   This hook loads the necessary modules for boot via loop device.
 HELPEOF
 }
-
-# vim: set ft=sh ts=4 sw=4 et:
