@@ -11,7 +11,8 @@ run_hook () {
     if [ -n "${ip}" ]; then
         if [ -n "${BOOTIF}" ]; then
             bootif_mac="${BOOTIF#01-}"
-            # shellcheck disable=SC2169 # ash supports bash-like string replacment
+            # shellcheck disable=SC2169
+            # ash supports bash-like string replacment
             bootif_mac="${bootif_mac//-/:}"
             for i in /sys/class/net/*/address; do
                 read -r net_mac < "${i}"
@@ -36,7 +37,8 @@ run_hook () {
             launch_interactive_shell
         fi
 
-        # shellcheck disable=SC1090 # ipconfig generates these files
+        # shellcheck disable=SC1090
+        # ipconfig generates these files
         . /tmp/net-*.conf
 
         export pxeserver="${ROOTSERVER}"
@@ -60,7 +62,8 @@ run_latehook () {
     if [ -n "${ip}" ]; then
         [ -z "${copy_resolvconf}" ] && copy_resolvconf="y"
 
-        # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+        # shellcheck disable=SC2154
+        # defined via initcpio's parse_cmdline()
         if [ "${copytoram}" = "y" ]; then
             if [ -n "${bootif_dev}" ]; then
                 ip addr flush dev "${bootif_dev}"

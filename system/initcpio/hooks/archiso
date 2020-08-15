@@ -63,7 +63,8 @@ _mnt_sfs() {
     local img_fullname="${img##*/}"
     local sfs_dev
 
-    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
     if [ "${copytoram}" = "y" ]; then
         msg -n ":: Copying squashfs image to RAM..."
         if ! cp -- "${img}" "/run/archiso/copytoram/${img_fullname}" ; then
@@ -129,10 +130,12 @@ run_hook() {
     [ -z "${copytoram_size}" ] && copytoram_size="75%"
     [ -z "${archisobasedir}" ] && archisobasedir="arch"
     [ -z "${dm_snap_prefix}" ] && dm_snap_prefix="arch"
-    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
     [ -z "${archisodevice}" ] && archisodevice="/dev/disk/by-label/${archisolabel}"
     [ -z "${cow_spacesize}" ] && cow_spacesize="256M"
-    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
     if [ -n "${cow_label}" ]; then
         cow_device="/dev/disk/by-label/${cow_label}"
         [ -z "${cow_persistent}" ] && cow_persistent="P"
@@ -163,7 +166,8 @@ archiso_mount_handler() {
         fi
     fi
 
-    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
     if [ "${checksum}" = "y" ]; then
         if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sha512" ]; then
             msg -n ":: Self-test requested, please wait..."
@@ -180,7 +184,8 @@ archiso_mount_handler() {
         fi
     fi
 
-    # shellcheck disable=SC2154 # defined via initcpio's parse_cmdline()
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
     if [ "${verify}" = "y" ]; then
         if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs.sig" ]; then
             msg -n ":: Signature verification requested, please wait..."
