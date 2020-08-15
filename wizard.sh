@@ -25,7 +25,6 @@ dependence=(
     "arch-install-scripts"
     "curl"
     "dosfstools"
-    "edk2-shell"
     "git"
     "libburn"
     "libisofs"

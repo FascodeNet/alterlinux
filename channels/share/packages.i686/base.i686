@@ -16,3 +16,4 @@ amd-ucode
 mkinitcpio-nfs-utils
 nbd
 
+edk2-shell
