@@ -14,6 +14,8 @@ if [[ 1 -gt $# ]];then
     echo "missing pkgbuild name"
     exit 1
 fi
+source "/etc/makepkg.conf"
+
 source "${1}"
 
 for pkg in ${makedepends[@]} ${depends[@]}; do
