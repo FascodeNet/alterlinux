@@ -14,6 +14,8 @@ if [[ 1 -gt $# ]];then
     echo "missing pkgbuild name"
     exit 1
 fi
-pkgbuild_data=$(grep -h -v ^'#' ${1} | grep depends)
-eval ${pkgbuild_data}
-echo ${makedepends[@]} ${depends[@]}
+source "${1}"
+
+for pkg in ${makedepends[@]} ${depends[@]}; do
+    echo "${pkg}" | cut -d '>' -f1 | cut -d '=' -f1
+done
