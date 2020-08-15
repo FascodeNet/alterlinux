@@ -4,7 +4,7 @@ set -e
 
 nobuild=false
 
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 build_arch=$(uname -m)
 

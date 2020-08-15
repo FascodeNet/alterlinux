@@ -16,7 +16,7 @@ set -u
 
 # Internal config
 # Do not change these values.
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
