@@ -15,7 +15,7 @@ set -eu
 
 # Internal config
 # Do not change these values.
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
@@ -719,11 +719,9 @@ make_pacman_conf() {
     sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
 }
 
-# Base installation, plus needed packages (airootfs)
+# Base installation (airootfs)
 make_basefs() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
-    # ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "haveged intel-ucode amd-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh efitools" install
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "bash haveged intel-ucode amd-ucode mkinitcpio-nfs-utils nbd" install
 
     # Install plymouth.
     if [[ "${boot_splash}" = true ]]; then
@@ -1036,6 +1034,10 @@ make_customize_airootfs() {
     # Delete customize_airootfs.sh.
     remove "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
     remove "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh"
+
+    # /root permission
+    # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
+    chmod -f 750 "${work_dir}/x86_64/airootfs/root"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -1077,10 +1079,18 @@ make_boot() {
 
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
-    cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
-    cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
-    cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
-    cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
+    if [[ -e "${work_dir}/${arch}/airootfs/boot/memtest86+/memtest.bin" ]]; then
+        cp "${work_dir}/${arch}/airootfs/boot/memtest86+/memtest.bin" "${work_dir}/iso/${install_dir}/boot/memtest"
+        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/common/GPL2/license.txt" "${work_dir}/iso/${install_dir}/boot/memtest.COPYING"
+    fi
+    if [[ -e "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" ]]; then
+        cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
+        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
+    fi
+    if [[ -e "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" ]]; then
+        cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
+        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
+    fi
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -1153,7 +1163,7 @@ make_efi() {
     
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    cp "/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    cp "${work_dir}/x86_64/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode

@@ -1,4 +1,4 @@
-# 
+#
 # Alter Linux package list
 #
 # Yamada Hayao 
@@ -7,17 +7,13 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Internet
+# Base packages
 
+bash
+haveged
+intel-ucode
+amd-ucode
+mkinitcpio-nfs-utils
+nbd
 
-#-- connection --#
-network-manager-applet
-
-
-#-- web browser --#
-chromium
-
-
-#-- security --#
-firewalld
-ufw
+edk2-shell

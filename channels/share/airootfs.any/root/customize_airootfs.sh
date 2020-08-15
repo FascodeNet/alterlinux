@@ -120,7 +120,6 @@ fi
 if [[ $(user_check root) = false ]]; then
     usermod -s "${usershell}" root
     cp -aT /etc/skel/ /root/
-    chmod 700 /root
     LC_ALL=C LANG=C xdg-user-dirs-update
 fi
 echo -e "${password}\n${password}" | passwd root
