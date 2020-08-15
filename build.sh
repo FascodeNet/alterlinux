@@ -910,6 +910,10 @@ make_customize_airootfs() {
     # Delete customize_airootfs.sh.
     remove "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
     remove "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh"
+
+    # /root permission
+    # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
+    chmod -f 750 "${work_dir}/x86_64/airootfs/root"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
