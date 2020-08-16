@@ -1,27 +1,35 @@
-xf86-input-libinput
-xf86-input-synaptics
-xf86-video-amdgpu
-xf86-video-ati
-xf86-video-fbdev
-xf86-video-intel
-xf86-video-nouveau
-xf86-video-vesa
-xkeyboard-config
-xorg-appres
-xorg-bdftopcf
-xorg-font-util
-xorg-fonts-encodings
-xorg-luit
-xorg-mkfontscale
+#
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Xorg
+
+#-- xorg --#
+gpm
 xorg-server
-xorg-server-common
-xorg-server-xwayland
-xorg-setxkbmap
-xorg-xauth
 xorg-xinit
-xorg-xkbcomp
-xorg-xmodmap
-xorg-xrandr
-xorg-xset
-xorgproto
-xscreensaver
+
+#-- drivers --#
+xf86-video-voodoo
+xf86-video-vmware
+xf86-video-vesa
+xf86-video-sisusb
+xf86-video-openchrome
+xf86-video-nouveau
+xf86-video-intel
+xf86-video-fbdev
+xf86-video-dummy
+xf86-video-ati
+xf86-video-amdgpu
+xf86-input-wacom
+xf86-input-void
+xf86-input-vmmouse
+xf86-input-synaptics
+xf86-input-libinput
+xf86-input-evdev
+xf86-input-elographics
