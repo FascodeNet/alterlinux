@@ -1,0 +1,26 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Intaractive shell
+
+
+#-- lsd --#
+lsd
+lsd-control
+
+
+#-- Prompt --#
+powerline-go
+
+
+#-- zsh --#
+zsh
+zsh-autosuggestions
+zsh-completions
+zsh-syntax-highlighting

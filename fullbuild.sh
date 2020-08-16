@@ -217,7 +217,7 @@ _help() {
 
 
 share_options="--noconfirm"
-default_options="-b -l -u alter -p alter"
+default_options="-b -e -u alter -p alter"
 
 while getopts 'a:dghr:sct' arg; do
     case "${arg}" in

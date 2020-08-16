@@ -893,6 +893,15 @@ make_packages_aur() {
 
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
+
+    # Check PKGBUILD
+    for _pkg in ${pkglist_aur[@]}; do
+        if [[ ! -f "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
+            _msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
+        fi
+    done
+
+    # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
 
     # Install dependent packages.
@@ -902,8 +911,9 @@ make_packages_aur() {
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkgbuild_data}" install
     done
 
-
+    # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
+
     # Build the package using makepkg.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
   
@@ -979,18 +989,13 @@ make_customize_airootfs() {
     # X permission
     local chmod_755
     chmod_755() {
-        _file="${1}"
-        if [[ -f "$_file" ]]; then
-            chmod 755 "${_file}"
-    
-        fi
+        for _file in ${@}; do
+            [[ -f "$_file" ]] &&chmod 755 "${_file}"
+        done
     }
     
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh"
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
-    
+    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
+
     # Execute customize_airootfs.sh.
     ${mkalteriso} ${mkalteriso_option} \
     -w "${work_dir}/${arch}" \
@@ -1299,7 +1304,7 @@ parse_files() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
