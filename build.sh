@@ -745,7 +745,6 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     set +e
     local _loadfilelist _pkg _file excludefile excludelist _pkglist
     
@@ -797,20 +796,12 @@ make_packages() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist=(
-        "$(
-            for _pkg in ${pkglist[@]}; do
-                echo "${_pkg}"
-            done \
-            | sort
-        )"
-    )
+    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg}" done | sort))
+
     set -e
-    
+
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo "# The list of packages that is installed in live cd." > "${work_dir}/packages.list"
-    echo "#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
     for _pkg in ${pkglist[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
@@ -821,7 +812,6 @@ make_packages() {
 
 
 make_packages_aur() {
-    # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     set +e
 
     local _loadfilelist _pkg _file excludefile excludelist _pkglist
@@ -858,6 +848,7 @@ make_packages_aur() {
     for _file in ${excludefile[@]}; do
         [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
+
     # 現在のpkglistをコピーする
     _pkglist=(${pkglist[@]})
     unset pkglist
@@ -874,39 +865,26 @@ make_packages_aur() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist_aur=(
-        "$(
-            for _pkg in ${pkglist_aur[@]}; do
-                echo "${_pkg}"
-            done \
-            | sort
-        )"
-    )
+    pkglist_aur=($( for _pkg in ${pkglist_aur[@]}; do echo -n "${_pkg}"; done | sort ))
+
     set -e
-    
-    # _msg_debug "${pkglist[@]}"
-    
+
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
     
     # Build aur packages on airootfs
-    local _aur_pkg
-    local _copy_aur_scripts
+    local _aur_pkg _copy_aur_scripts
     _copy_aur_scripts() {
-        cp -r "${script_path}/system/aur_scripts/${1}.sh" "${work_dir}/${arch}/airootfs/root/${1}.sh"
-        chmod 755 "${work_dir}/${arch}/airootfs/root/${1}.sh"
+        for _file in ${@}; do
+            cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+            chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+        done
     }
 
-    _copy_aur_scripts aur_install
-    _copy_aur_scripts aur_prepare
-    _copy_aur_scripts aur_remove
-    _copy_aur_scripts pacls_gen_new
-    _copy_aur_scripts pacls_gen_old
-
+    _copy_aur_scripts aur_install aur_prepare aur_remove pacls_gen_new pacls_gen_old
 
     local _aur_packages_ls_str=""
     for _pkg in ${pkglist_aur[@]}; do
@@ -933,13 +911,18 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
     done
+
+    # Remove packages
     delete_pkg_list=(`comm -13 --nocheck-order "${work_dir}/${arch}/airootfs/paclist_old" "${work_dir}/${arch}/airootfs/paclist_new" |xargs`)
     for _dlpkg in ${delete_pkg_list[@]}; do
         unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
     done
-    rm -f "${work_dir}/${arch}/airootfs/paclist_old"
-    rm -f "${work_dir}/${arch}/airootfs/paclist_new"
-    # Delete the user created for the build.
+
+    # Remove scripts
+    remove "${work_dir}/${arch}/airootfs/paclist_old"
+    remove "${work_dir}/${arch}/airootfs/paclist_new"
+
+    # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
 
