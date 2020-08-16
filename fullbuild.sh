@@ -170,11 +170,11 @@ trap_exit() {
 build() {
     local _exit_code=0
 
-    options="${share_options} -a ${arch} -g ${lang} ${cha}"
+    options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
-            echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+            echo "build.sh ${share_options} --arch ${arch} --lang ${lang} ${cha}"
             _exit_code="${?}"
         else
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."

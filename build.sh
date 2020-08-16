@@ -19,6 +19,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
+DEFAULT_ARGUMENT=""
 
 # Load config file
 if [[ -f "${defaultconfig}" ]]; then
@@ -192,14 +193,14 @@ _usage () {
     echo " General options:"
     echo
     echo "    -b | --boot-splash           Enable boot splash"
-    echo "    -l | --cleanup               Enable post-build cleaning."
+    echo "    -e | --cleanup               Enable post-build cleaning."
     echo "    -h | --help                  This help message and exit."
     echo
     echo "    -a | --arch <arch>           Set iso architecture."
     echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
-    echo "    -g | --lang <lang>           Specifies the default language for the live environment."
+    echo "    -l | --lang <lang>           Specifies the default language for the live environment."
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
     echo "                                  Default: ${kernel}"
@@ -1313,14 +1314,14 @@ parse_files() {
 
 
 # Parse options
-options="${@}"
-_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+ARGUMENT="${@}"
+_opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${DEFAULT_ARGUMENT} ${ARGUMENT}")
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT _opt_short _opt_long DEFAULT_ARGUMENT ARGUMENT
 
 while :; do
     case ${1} in
@@ -1343,8 +1344,12 @@ while :; do
             debug=true
             shift 1
             ;;
-        -g | --lang)
-            locale_name="${2}"
+        -e | --cleaning)
+            cleaning=true
+            shift 1
+            ;;
+        -g | --gpgkey)
+            gpg_key="$2"
             shift 2
             ;;
         -h | --help)
@@ -1359,9 +1364,9 @@ while :; do
             kernel="${2}"
             shift 2
             ;;
-        -l | --cleaning)
-            cleaning=true
-            shift 1
+        -l | --lang)
+            locale_name="${2}"
+            shift 2
             ;;
         -o | --out)
             out_dir="${2}"
@@ -1370,6 +1375,10 @@ while :; do
         -p | --password)
             password="${2}"
             shift 2
+            ;;
+        -r | --tarball)
+            tarball=true
+            shift 1
             ;;
         -t | --comp-opts)
             sfs_comp_opt="${2}"
@@ -1419,10 +1428,6 @@ while :; do
             ;;
         --noloopmod)
             noloopmod=true
-            shift 1
-            ;;
-        --tarball)
-            tarball=true
             shift 1
             ;;
         --noiso)
