@@ -898,6 +898,7 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do
         if [[ ! -f "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
             _msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
+        fi
     done
 
     # Dump packages
