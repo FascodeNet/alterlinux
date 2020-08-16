@@ -19,6 +19,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
+DEFAULT_ARGUMENT=""
 
 # Load config file
 if [[ -f "${defaultconfig}" ]]; then
@@ -1313,14 +1314,14 @@ parse_files() {
 
 
 # Parse options
-options="${@}"
+ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
 _opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${DEFAULT_ARGUMENT} ${ARGUMENT}")
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT _opt_short _opt_long DEFAULT_ARGUMENT ARGUMENT
 
 while :; do
     case ${1} in
