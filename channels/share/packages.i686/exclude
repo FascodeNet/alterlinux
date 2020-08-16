@@ -19,6 +19,5 @@ broadcom-wl-dkms
 linux
 linux-headers
 
-efitools
 memtest86+
 plymouth
