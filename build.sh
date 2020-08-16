@@ -1089,7 +1089,7 @@ make_boot_extra() {
     fi
     if [[ -e "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" ]]; then
         cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
-        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
+        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE.amd_ucode" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
     fi
 }
 
