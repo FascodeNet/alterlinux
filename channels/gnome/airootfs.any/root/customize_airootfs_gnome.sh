@@ -86,8 +86,8 @@ fi
 rfkill unblock all
 systemctl enable bluetooth
 
+# Snap
 if [[ "${arch}" = "x86_64" ]]; then
-    # Snap
     systemctl enable snapd.apparmor.service
     systemctl enable apparmor.service
     systemctl enable snapd.socket
@@ -103,25 +103,12 @@ dconf update
 systemctl enable firewalld.service
 
 
-# Replace link
-if [[ "${language}" = "ja" ]]; then
-    remove /etc/skel/Desktop/welcome-to-alter.desktop
-    remove /home/${username}/Desktop/welcome-to-alter.desktop
-
-    mv /etc/skel/Desktop/welcome-to-alter-jp.desktop /etc/skel/Desktop/welcome-to-alter.desktop
-    mv /home/${username}/Desktop/welcome-to-alter-jp.desktop /home/${username}/Desktop/welcome-to-alter.desktop
-else
-    remove /etc/skel/Desktop/welcome-to-alter-jp.desktop
-    remove /home/${username}/Desktop/welcome-to-alter-jp.desktop
-fi
-
-# Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/gdm/custom.conf
-
 # Added autologin group to auto login
 groupadd autologin
 usermod -aG autologin ${username}
 
+# ntp
+systemctl enable systemd-timesyncd.service
 
 # Enable gdm to auto login
 if [[ "${boot_splash}" =  true ]]; then
@@ -129,3 +116,10 @@ if [[ "${boot_splash}" =  true ]]; then
 else
     systemctl enable gdm.service
 fi
+
+
+# Set script permission
+chmod 755 /usr/bin/alterlinux-gtk-bookmarks
+
+# Replace auto login user
+sed -i s/%USERNAME%/${username}/g /etc/gdm/custom.conf
