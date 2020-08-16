@@ -13,9 +13,6 @@
 # and installed by the build script.
 #
 
-amd-ucode
-intel-ucode
-
 broadcom-wl
 broadcom-wl-dkms
 
