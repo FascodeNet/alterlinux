@@ -1314,7 +1314,7 @@ parse_files() {
 
 # Parse options
 options="${@}"
-_opt_short="a:bc:deg:hjk:l:o:p:t:u:w:x"
+_opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
 _opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 [[ ${?} != 0 ]] && exit 1
@@ -1375,6 +1375,10 @@ while :; do
             password="${2}"
             shift 2
             ;;
+        -r | --tarball)
+            tarball=true
+            shift 1
+            ;;
         -t | --comp-opts)
             sfs_comp_opt="${2}"
             shift 2
@@ -1423,10 +1427,6 @@ while :; do
             ;;
         --noloopmod)
             noloopmod=true
-            shift 1
-            ;;
-        --tarball)
-            tarball=true
             shift 1
             ;;
         --noiso)
