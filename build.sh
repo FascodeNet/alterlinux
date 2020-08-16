@@ -893,6 +893,14 @@ make_packages_aur() {
 
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
+
+    # Check PKGBUILD
+    for _pkg in ${pkglist_aur[@]}; do
+        if [[ ! -f "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
+            _msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
+    done
+
+    # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
 
     # Install dependent packages.
@@ -902,8 +910,9 @@ make_packages_aur() {
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkgbuild_data}" install
     done
 
-
+    # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
+
     # Build the package using makepkg.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
   
