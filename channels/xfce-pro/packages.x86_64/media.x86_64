@@ -24,6 +24,10 @@ bluez-utils
 pulseaudio-modules-bt
 
 
+#-- editor --#
+gimp
+
+
 #-- media player --#
 viewnior
 vlc

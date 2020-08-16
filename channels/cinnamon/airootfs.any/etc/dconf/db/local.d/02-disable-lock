@@ -1,0 +1,17 @@
+[org/cinnamon/desktop/lockdown]
+disable-lock-screen=true
+
+[org/gnome/desktop/lockdown]
+disable-lock-screen=true
+
+[org/cinnamon/desktop/screensaver]
+allow-keyboard-shortcuts=false
+default-message='Password: %PASSWORD%'
+layout-group=0
+lock-enabled=false
+
+[org/gnome/desktop/screensaver]
+lock-enabled=false
+
+[org/cinnamon/desktop/keybindings/media-keys]
+screensaver=@as []
