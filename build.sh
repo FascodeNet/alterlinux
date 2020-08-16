@@ -934,7 +934,7 @@ make_setup_mkinitcpio() {
     gnupg_fd=
     if [[ "${gpg_key}" ]]; then
       gpg --export "${gpg_key}" >"${work_dir}/gpgkey"
-      exec 17<>$"{work_dir}/gpgkey"
+      exec 17<>"${work_dir}/gpgkey"
     fi
 
     if [[ ! ${kernel} = "core" ]]; then
