@@ -796,7 +796,7 @@ make_packages() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg} "; done | sort))
+    pkglist=($( for _pkg in ${pkglist[@]}; do echo "${_pkg}"; done | sort))
 
     set -e
 
@@ -865,7 +865,7 @@ make_packages_aur() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist_aur=($( for _pkg in ${pkglist_aur[@]}; do echo -n "${_pkg} "; done | sort ))
+    pkglist_aur=($( for _pkg in ${pkglist_aur[@]}; do echo "${_pkg}"; done | sort ))
 
     set -e
 
