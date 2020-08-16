@@ -13,3 +13,5 @@
 #-- mtp --#
 gvfs-mtp
 mtpfs
+gvfs
+gvfs-smb

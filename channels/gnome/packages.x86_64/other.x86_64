@@ -13,11 +13,6 @@
 xarchiver
 
 
-#-- GVFS --#
-gvfs
-gvfs-smb
-
-
 #-- boot manager --#
 # grub-theme-vimix-alter
 grub-theme-vimix
@@ -59,7 +54,7 @@ vim
 
 
 #-- other --#
-# etcher-bin
+b43-firmware
 ipad_charge
 libreoffice-still
 snapd
