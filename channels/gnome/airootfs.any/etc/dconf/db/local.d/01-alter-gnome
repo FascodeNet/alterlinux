@@ -56,13 +56,23 @@ hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 1
-disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'remove-dropdown-arrows@mpdeimos.com']
 enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'desktop-icons@csoriano', 'zorin-menu@zorinos.com', 'arc-menu@linxgem33.com', 'topicons-redux@pop-planet.info']
 favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'thunderbird.desktop', 'pamac-updater.desktop', 'org.gnome.Screenshot.desktop']
 
 [org/gnome/shell/extensions/arc-menu]
-dtp-dtd-state=[false, false]
-pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'Terminal', 'utilities-terminal', 'org.gnome.Terminal.desktop', 'Arc Menu Settings', 'ArcMenu_ArcMenuIcon', 'gnome-extensions prefs arc-menu@linxgem33.com']
+arc-menu-placement='DTD'
+button-icon-padding=0
+custom-menu-button-icon='/usr/share/icons/hicolor/128x128/apps/alter.png'
+custom-menu-button-icon-size=24.0
+disable-activities-button=true
+disable-tooltips=false
+dtp-dtd-state=[false, true]
+enable-custom-arc-menu=false
+enable-menu-button-arrow=false
+menu-button-icon='Custom_Icon'
+pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'Terminal', 'utilities-terminal', 'org.gnome.Terminal.desktop', 'LibreOffice', 'libreoffice-startcenter', 'libreoffice-startcenter.desktop', 'VLCメディアプレイヤー', 'vlc', 'vlc.desktop', 'ソフトウェアの更新', 'system-software-update', 'pamac-updater.desktop', 'システムモニター', 'org.gnome.SystemMonitor', 'gnome-system-monitor.desktop', '端末', 'org.gnome.Terminal', 'org.gnome.Terminal.desktop', '設定', 'org.gnome.Settings', 'gnome-control-center.desktop']
+position-in-panel='Left'
 
 [org/gnome/shell/extensions/dash-to-dock]
 apply-custom-theme=false
