@@ -979,18 +979,13 @@ make_customize_airootfs() {
     # X permission
     local chmod_755
     chmod_755() {
-        _file="${1}"
-        if [[ -f "$_file" ]]; then
-            chmod 755 "${_file}"
-    
-        fi
+        for _file in ${@}; do
+            [[ -f "$_file" ]] &&chmod 755 "${_file}"
+        done
     }
     
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh"
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
-    
+    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
+
     # Execute customize_airootfs.sh.
     ${mkalteriso} ${mkalteriso_option} \
     -w "${work_dir}/${arch}" \
