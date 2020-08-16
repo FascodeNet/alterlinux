@@ -702,8 +702,8 @@ show_settings() {
         _msg_info "Use the ${channel_name} channel."
     fi
     _msg_info "Build with architecture ${arch}."
-    echo
     if [[ ${noconfirm} = false ]]; then
+        echo
         echo "Press Enter to continue or Ctrl + C to cancel."
         read
     fi
@@ -796,7 +796,7 @@ make_packages() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg}" done | sort))
+    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg}"; done | sort))
 
     set -e
 
