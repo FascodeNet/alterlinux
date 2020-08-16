@@ -191,7 +191,7 @@ build() {
 }
 
 _help() {
-    echo "usage ${0} [options]"
+    echo "usage ${0} [options] [channel]"
     echo
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
@@ -205,10 +205,14 @@ _help() {
     echo "    -s                 Enable simulation mode."
     echo "    -t                 Build the tarball as well."
     echo
-    echo "!! WARNING !!"
-    echo "Do not set channel or architecture with -a."
-    echo "Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
-    echo "Example: ${0} -a '-b -k zen'"
+    echo " !! WARNING !!"
+    echo " Do not set channel or architecture with -a."
+    echo " Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
+    echo " Example: ${0} -a '-b -k zen'"
+    echo
+    echo "Run \"build.sh -h\" for channel details."
+    echo -n " Channel: "
+    "${script_path}/build.sh" --channellist
 }
 
 
