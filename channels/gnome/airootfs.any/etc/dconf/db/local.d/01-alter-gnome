@@ -1,0 +1,103 @@
+[org/gnome/control-center]
+last-panel='background'
+
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/alter.png'
+
+[org/gnome/desktop/input-sources]
+show-all-sources=true
+sources=[('xkb', 'us')]
+xkb-options=@as []
+
+[org/gnome/desktop/interface]
+clock-show-date=true
+clock-show-weekday=false
+enable-animations=false
+enable-hot-corners=false
+gtk-im-module='gtk-im-context-simple'
+gtk-theme='Adapta-Nokto-Eta'
+icon-theme='Papirus-Dark'
+show-battery-percentage=true
+
+[org/gnome/desktop/notifications]
+application-children=['org-gnome-tweaks']
+
+[org/gnome/desktop/notifications/application/org-gnome-tweaks]
+application-id='org.gnome.tweaks.desktop'
+
+[org/gnome/desktop/peripherals/keyboard]
+numlock-state=true
+
+[org/gnome/desktop/screensaver]
+picture-uri='file:///usr/share/backgrounds/alter-nochr.png'
+
+[org/gnome/desktop/wm/keybindings]
+panel-main-menu=['<Alt>F1']
+
+[org/gnome/evolution-data-server]
+migrated=true
+network-monitor-gio-name=''
+
+[org/gnome/mutter]
+center-new-windows=false
+overlay-key='Super_L'
+
+[org/gnome/nautilus/preferences]
+default-folder-viewer='icon-view'
+search-filter-time-type='last_modified'
+
+[org/gnome/nautilus/window-state]
+initial-size=(890, 549)
+maximized=false
+
+[org/gnome/settings-daemon/plugins/xsettings]
+antialiasing='grayscale'
+hinting='slight'
+
+[org/gnome/shell]
+app-picker-view=uint32 1
+disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'desktop-icons@csoriano', 'zorin-menu@zorinos.com', 'arc-menu@linxgem33.com', 'topicons-redux@pop-planet.info']
+favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'thunderbird.desktop', 'pamac-updater.desktop', 'org.gnome.Screenshot.desktop']
+
+[org/gnome/shell/extensions/arc-menu]
+dtp-dtd-state=[false, false]
+pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'Terminal', 'utilities-terminal', 'org.gnome.Terminal.desktop', 'Arc Menu Settings', 'ArcMenu_ArcMenuIcon', 'gnome-extensions prefs arc-menu@linxgem33.com']
+
+[org/gnome/shell/extensions/dash-to-dock]
+apply-custom-theme=false
+custom-theme-shrink=true
+dash-max-icon-size=32
+dock-fixed=true
+dock-position='BOTTOM'
+extend-height=false
+force-straight-corner=false
+height-fraction=1.0
+hot-keys=false
+icon-size-fixed=true
+isolate-monitors=false
+isolate-workspaces=false
+multi-monitor=true
+preferred-monitor=0
+scroll-action='cycle-windows'
+show-apps-at-top=true
+show-show-apps-button=true
+show-trash=false
+
+[org/gnome/shell/extensions/desktop-icons]
+icon-size='small'
+
+[org/gnome/shell/extensions/user-theme]
+name='Adapta-Nokto-Eta'
+
+[org/gtk/settings/file-chooser]
+date-format='regular'
+location-mode='path-bar'
+show-hidden=false
+show-size-column=true
+show-type-column=true
+sort-column='name'
+sort-directories-first=false
+sort-order='ascending'
+type-format='category'
+
