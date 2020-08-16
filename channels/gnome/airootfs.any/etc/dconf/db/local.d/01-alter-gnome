@@ -56,7 +56,7 @@ hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 1
-disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'remove-dropdown-arrows@mpdeimos.com']
+disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com']
 enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'desktop-icons@csoriano', 'zorin-menu@zorinos.com', 'arc-menu@linxgem33.com', 'topicons-redux@pop-planet.info']
 favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'thunderbird.desktop', 'pamac-updater.desktop', 'org.gnome.Screenshot.desktop']
 
