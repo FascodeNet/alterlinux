@@ -796,7 +796,7 @@ make_packages() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg}" done | sort))
+    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg}"; done | sort))
 
     set -e
 
