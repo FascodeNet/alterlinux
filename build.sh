@@ -19,6 +19,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
+DEFAULT_ARGUMENT=""
 
 # Load config file
 if [[ -f "${defaultconfig}" ]]; then
@@ -192,14 +193,14 @@ _usage () {
     echo " General options:"
     echo
     echo "    -b | --boot-splash           Enable boot splash"
-    echo "    -l | --cleanup               Enable post-build cleaning."
+    echo "    -e | --cleanup               Enable post-build cleaning."
     echo "    -h | --help                  This help message and exit."
     echo
     echo "    -a | --arch <arch>           Set iso architecture."
     echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
-    echo "    -g | --lang <lang>           Specifies the default language for the live environment."
+    echo "    -l | --lang <lang>           Specifies the default language for the live environment."
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
     echo "                                  Default: ${kernel}"
@@ -744,7 +745,6 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     set +e
     local _loadfilelist _pkg _file excludefile excludelist _pkglist
     
@@ -796,20 +796,12 @@ make_packages() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist=(
-        "$(
-            for _pkg in ${pkglist[@]}; do
-                echo "${_pkg}"
-            done \
-            | sort
-        )"
-    )
+    pkglist=($( for _pkg in ${pkglist[@]}; do echo -n "${_pkg}" done | sort))
+
     set -e
-    
+
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo "# The list of packages that is installed in live cd." > "${work_dir}/packages.list"
-    echo "#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
     for _pkg in ${pkglist[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
@@ -820,7 +812,6 @@ make_packages() {
 
 
 make_packages_aur() {
-    # インストールするパッケージのリストを読み込み、配列pkglistに代入します。
     set +e
 
     local _loadfilelist _pkg _file excludefile excludelist _pkglist
@@ -857,6 +848,7 @@ make_packages_aur() {
     for _file in ${excludefile[@]}; do
         [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
+
     # 現在のpkglistをコピーする
     _pkglist=(${pkglist[@]})
     unset pkglist
@@ -873,39 +865,26 @@ make_packages_aur() {
     fi
 
     # Sort the list of packages in abc order.
-    pkglist_aur=(
-        "$(
-            for _pkg in ${pkglist_aur[@]}; do
-                echo "${_pkg}"
-            done \
-            | sort
-        )"
-    )
+    pkglist_aur=($( for _pkg in ${pkglist_aur[@]}; do echo -n "${_pkg}"; done | sort ))
+
     set -e
-    
-    # _msg_debug "${pkglist[@]}"
-    
+
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#" >> "${work_dir}/packages.list"
-    echo >> "${work_dir}/packages.list"
+    echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
     
     # Build aur packages on airootfs
-    local _aur_pkg
-    local _copy_aur_scripts
+    local _aur_pkg _copy_aur_scripts
     _copy_aur_scripts() {
-        cp -r "${script_path}/system/aur_scripts/${1}.sh" "${work_dir}/${arch}/airootfs/root/${1}.sh"
-        chmod 755 "${work_dir}/${arch}/airootfs/root/${1}.sh"
+        for _file in ${@}; do
+            cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+            chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+        done
     }
 
-    _copy_aur_scripts aur_install
-    _copy_aur_scripts aur_prepare
-    _copy_aur_scripts aur_remove
-    _copy_aur_scripts pacls_gen_new
-    _copy_aur_scripts pacls_gen_old
-
+    _copy_aur_scripts aur_install aur_prepare aur_remove pacls_gen_new pacls_gen_old
 
     local _aur_packages_ls_str=""
     for _pkg in ${pkglist_aur[@]}; do
@@ -932,13 +911,18 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
     done
+
+    # Remove packages
     delete_pkg_list=(`comm -13 --nocheck-order "${work_dir}/${arch}/airootfs/paclist_old" "${work_dir}/${arch}/airootfs/paclist_new" |xargs`)
     for _dlpkg in ${delete_pkg_list[@]}; do
         unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
     done
-    rm -f "${work_dir}/${arch}/airootfs/paclist_old"
-    rm -f "${work_dir}/${arch}/airootfs/paclist_new"
-    # Delete the user created for the build.
+
+    # Remove scripts
+    remove "${work_dir}/${arch}/airootfs/paclist_old"
+    remove "${work_dir}/${arch}/airootfs/paclist_new"
+
+    # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 }
 
@@ -1313,14 +1297,14 @@ parse_files() {
 
 
 # Parse options
-options="${@}"
-_opt_short="a:bc:dg:hjk:lo:p:t:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,help,lang,japanese,kernel:,cleaning,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+ARGUMENT="${@}"
+_opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${DEFAULT_ARGUMENT} ${ARGUMENT}")
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT _opt_short _opt_long DEFAULT_ARGUMENT ARGUMENT
 
 while :; do
     case ${1} in
@@ -1343,8 +1327,12 @@ while :; do
             debug=true
             shift 1
             ;;
-        -g | --lang)
-            locale_name="${2}"
+        -e | --cleaning)
+            cleaning=true
+            shift 1
+            ;;
+        -g | --gpgkey)
+            gpg_key="$2"
             shift 2
             ;;
         -h | --help)
@@ -1359,9 +1347,9 @@ while :; do
             kernel="${2}"
             shift 2
             ;;
-        -l | --cleaning)
-            cleaning=true
-            shift 1
+        -l | --lang)
+            locale_name="${2}"
+            shift 2
             ;;
         -o | --out)
             out_dir="${2}"
@@ -1370,6 +1358,10 @@ while :; do
         -p | --password)
             password="${2}"
             shift 2
+            ;;
+        -r | --tarball)
+            tarball=true
+            shift 1
             ;;
         -t | --comp-opts)
             sfs_comp_opt="${2}"
@@ -1419,10 +1411,6 @@ while :; do
             ;;
         --noloopmod)
             noloopmod=true
-            shift 1
-            ;;
-        --tarball)
-            tarball=true
             shift 1
             ;;
         --noiso)

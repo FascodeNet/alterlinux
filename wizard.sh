@@ -670,7 +670,7 @@ function set_out_dir () {
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
     if [[ ${japanese} = true ]]; then
-        argument="${argument} -g ja"
+        argument="${argument} -l ja"
     fi
     if [[ ${plymouth} = true ]]; then
         argument="${argument} -b"
