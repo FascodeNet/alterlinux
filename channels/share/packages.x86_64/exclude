@@ -14,14 +14,14 @@
 #
 
 amd-ucode
+intel-ucode
+
 broadcom-wl
 broadcom-wl-dkms
-efitools
-haveged
-intel-ucode
+
 linux
 linux-headers
+
+efitools
 memtest86+
-mkinitcpio-nfs-utils
-nbd
 plymouth
