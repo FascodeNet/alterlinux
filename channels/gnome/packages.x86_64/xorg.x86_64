@@ -10,7 +10,6 @@ xkeyboard-config
 xorg-appres
 xorg-bdftopcf
 xorg-font-util
-xorg-font-utils
 xorg-fonts-encodings
 xorg-luit
 xorg-mkfontscale
