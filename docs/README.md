@@ -191,11 +191,20 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/YangDevJP">
 	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
+<a href="https://twitter.com/Watasuke102">
+	<img src="https://avatars3.githubusercontent.com/u/36789813" width="100px">
+</a>
+<a href="https://twitter.com/kokkiemouse">
+	<img src="https://avatars0.githubusercontent.com/u/39451248" width="100px">
+</a>
+<a href="https://twitter.com/stmkza">
+	<img src="https://avatars2.githubusercontent.com/u/15907797" width="100px">
+</a>
 <a href="https://twitter.com/yamad_linuxer">
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
-<a href="https://twitter.com/tukutuN_27">
-	<img src="https://pbs.twimg.com/profile_images/1252216597164376064/_L3qgpkr_400x400.jpg" width="100px">
+<a href="https://twitter.com/tukutun27">
+	<img src="https://pbs.twimg.com/profile_images/1278526049903497217/CGMY5KUr.jpg" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">

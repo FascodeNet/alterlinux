@@ -120,7 +120,6 @@ fi
 if [[ $(user_check root) = false ]]; then
     usermod -s "${usershell}" root
     cp -aT /etc/skel/ /root/
-    chmod 700 /root
     LC_ALL=C LANG=C xdg-user-dirs-update
 fi
 echo -e "${password}\n${password}" | passwd root
@@ -246,7 +245,7 @@ sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.
 sed -i s/%ARCH%/"${arch}"/g /usr/share/calamares/modules/unpackfs.conf
 
 # Add disabling of sudo setting
-echo "remove /etc/sudoers.d/alterlive " >> /usr/share/calamares/final-process
+echo -e "\nremove \"/etc/sudoers.d/alterlive\"" >> /usr/share/calamares/final-process
 
 
 # Set os name
@@ -274,9 +273,10 @@ systemctl set-default graphical.target
 
 # Enable services.
 systemctl enable pacman-init.service
-systemctl enable choose-mirror.service
 systemctl enable org.cups.cupsd.service
 systemctl enable NetworkManager.service
+systemctl enable alteriso-reflector.service
+systemctl disable reflector.service
 
 
 # TLP

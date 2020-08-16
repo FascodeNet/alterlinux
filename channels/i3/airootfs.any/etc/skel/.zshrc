@@ -9,10 +9,6 @@
 # (c) 2020 Fascode Network.
 
 
-# Alias
-[[ -f .aliases ]] && source .aliases
-
-
 # Completion
 [ -e /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -U compinit
@@ -111,3 +107,9 @@ fi
 # Like fish prompt
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Alias
+[[ -f .aliases ]] && source .aliases
+
+# Set default terminal
+export TERMINAL=/usr/bin/sakura
