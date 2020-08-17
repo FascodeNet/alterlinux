@@ -1,16 +1,13 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
-Icon=/usr/share/icons/hicolor/scalable/alter.svg
-Exec=/usr/bin/alterlinux-welcome-page 
 Type=Application
-StartupNotify=false
-Terminal=false
-Hidden=false
-
 Name=Welcome to Alter Linux
-Comment=Displays the Alter Linux welcome page.
+Exec=/usr/bin/chromium https://fascode.net/projects/linux/alter/welcome.php
+Terminal=false
+Comment=This page is useful for using AlterLinux.
+Icon=/usr/share/icons/hicolor/scalable/alter.svg
+URL=https://fascode.net/projects/linux/alter/welcome.php
 
-Name[ja]=Alter Linuxへようこそ
-GenericName[ja]=Alter Linuxへようこそ
-Comment[ja]=Alter Linuxの利用に役立つページです。
+Name[ja]=AlterLinuxへようこそ
+GenericName[ja]=AlterLinuxへようこそ
+Comment[ja]=AlterLinuxの利用に役立つページです。
