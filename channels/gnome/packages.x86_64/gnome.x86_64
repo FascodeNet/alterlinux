@@ -42,9 +42,6 @@ gnome-tweaks
 #-- extentions --#
 chrome-gnome-shell
 gnome-shell-extension-extensions-git
-gnome-shell-extension-dash-to-dock
-# gnome-shell-extension-panel-osd
-# gnome-shell-extension-status-menu-buttons
 gnome-shell-extension-topicons-redux
 
 
