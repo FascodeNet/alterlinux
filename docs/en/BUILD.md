@@ -98,7 +98,7 @@ Name | Purpose
 xfce | Default channel with Xfce4 for desktop environment and various software added
 plasma | Currently developing channel with Plasma and Qt apps
 lxde | The lightest channel except releng, which contains only LXDE and minimal applications
-i3 | Lightest channel with the exception of the releng with i3-wm and customizable polybar
+i3 | Lightest channel with the exception of the releng with i3 and customizable polybar
 cinnamon | Channels with Cinnamon and basic software
 releng | A channel where you can build a pure Arch Linux live boot disk
 rebuild | A special channel that rebuilds using the settings in the working directory
