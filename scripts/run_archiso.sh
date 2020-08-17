@@ -22,6 +22,7 @@ Usage:
 
 Options:
     -b              set boot type to 'BIOS' (default)
+    -d              set image type to hard disk instead of optical disc
     -h              print help
     -i [image]      image to boot into
     -s              use Secure Boot (only relevant when using UEFI)
@@ -80,7 +81,9 @@ run_image() {
         -m "size=3072,slots=0,maxmem=$((3072*1024*1024))" \
         -k en \
         -name archiso,process=archiso_0 \
-        -drive file="${image}",media=cdrom,readonly=on,if=virtio \
+        -device virtio-scsi-pci,id=scsi0 \
+        -device "scsi-${mediatype%rom},bus=scsi0.0,drive=${mediatype}0" \
+        -drive "id=${mediatype}0,if=none,format=raw,media=${mediatype/hd/disk},readonly=on,file=${image}" \
         -display sdl \
         -vga virtio \
         -device virtio-net-pci,romfile=,netdev=net0 -netdev user,id=net0 \
@@ -105,16 +108,20 @@ set_image() {
 
 image=''
 boot_type='bios'
+mediatype='cdrom'
 secure_boot='off'
 qemu_options=()
 working_dir="$(mktemp -dt run_archiso.XXXXXXXXXX)"
 trap cleanup_working_dir EXIT
 
 if (( ${#@} > 0 )); then
-    while getopts 'bhi:su' flag; do
+    while getopts 'bdhi:su' flag; do
         case "$flag" in
             b)
                 boot_type='bios'
+                ;;
+            d)
+                mediatype='hd'
                 ;;
             h)
                 print_help
