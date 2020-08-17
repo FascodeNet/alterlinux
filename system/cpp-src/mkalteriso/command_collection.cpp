@@ -26,7 +26,7 @@ int command_collection::command_install(){
     pkgls=pkgls.simplified();
     if(pkgls == ""){
         _msg_err("Packages must be specified");
-        return 2;
+        return 0;
     }
     _pacman(pkgls);
     return 0;
