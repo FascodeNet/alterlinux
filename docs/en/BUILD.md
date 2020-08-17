@@ -2,7 +2,7 @@
 There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
 Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
   
-When building on a real machine, the OS must be ArchLinux or Alter Linux.
+When building on a real machine, the OS must be Arch Linux or Alter Linux.
 The following explains how to build on a real machine.  
   
 TWhen building directly on Arch or Alter, there are several ways to build.  
@@ -35,15 +35,15 @@ Install the packages required for building.
 sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 
-### TUIを使用する
+### Use the TUI
 You can configure and build using `menuconfig`.  
 
 ```bash
 make menuconfig
 ```
 
-### GUIを使用する
-GUIで設定を行ってビルドできます。
+### Use the GUI
+You can configure and build with the GUI.
 
 ```bash
 python ./build-wizard.py
@@ -98,6 +98,8 @@ Name | Purpose
 xfce | Default channel with Xfce4 for desktop environment and various software added
 plasma | Currently developing channel with Plasma and Qt apps
 lxde | The lightest channel except releng, which contains only LXDE and minimal applications
+i3 | Lightest channel with the exception of the releng with i3-wm and customizable polybar
+cinnamon | Channels with Cinnamon and basic software
 releng | A channel where you can build a pure Arch Linux live boot disk
 rebuild | A special channel that rebuilds using the settings in the working directory
 
