@@ -679,7 +679,7 @@ prepare_build() {
         make arch-pkgbuild-parser > /dev/null 2>&1
     fi
     cd - > /dev/null 2>&1
-    
+
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
@@ -918,7 +918,7 @@ make_packages_aur() {
     # Install dependent packages.
     local pkgbuild_data
     for _aur_pkg in ${pkglist_aur[@]}; do
-        pkgbuild_data="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
+        pkgbuild_data="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkgbuild_data}" install
     done
 
