@@ -669,17 +669,6 @@ prepare_build() {
     else
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
-    # Build arch-pkgbuild-parser
-    cd "${script_path}"
-    _msg_info "Building arch-pkgbuild-parser..."
-    if [[ "${debug}" = true ]]; then
-        make arch-pkgbuild-parser
-        echo
-    else   
-        make arch-pkgbuild-parser > /dev/null 2>&1
-    fi
-    cd - > /dev/null 2>&1
-
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then

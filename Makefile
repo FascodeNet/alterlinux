@@ -7,39 +7,39 @@ ARCH_x86_64  = -a x86_64
 ARCH_i686    = -a i686
 
 
-full:mkalteriso arch-pkgbuild-parser
+full:mkalteriso
 	@sudo ./fullbuild.sh
 	@make clean
 
-xfce-64:mkalteriso arch-pkgbuild-parser
+xfce-64:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} xfce
 	@make clean
 
-plasma-64:mkalteriso arch-pkgbuild-parser
+plasma-64:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} plasma
 	@make clean
 
-releng-64:mkalteriso arch-pkgbuild-parser
+releng-64:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} releng
 	@make clean
 
-lxde-64:mkalteriso arch-pkgbuild-parser
+lxde-64:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} lxde
 	@make clean
 
-xfce-32:mkalteriso arch-pkgbuild-parser
+xfce-32:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} xfce
 	@make clean
 
-plasma-32::mkalteriso arch-pkgbuild-parser
+plasma-32::mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} plasma
 	@make clean
 
-releng-32:mkalteriso arch-pkgbuild-parser
+releng-32:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} releng
 	@make clean
 
-lxde-32:mkalteriso arch-pkgbuild-parser
+lxde-32:mkalteriso
 	@sudo ./${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} lxde
 	@make clean
 
@@ -59,8 +59,6 @@ mkalteriso:
 		mkdir system/cpp-src/mkalteriso/build ;\
 	fi
 	(cd system/cpp-src/mkalteriso/build ; cmake -GNinja .. ; ninja -j4 ; cp -f mkalteriso ../../../)
-arch-pkgbuild-parser:
-	(cd system/rust-src/arch-pkgbuild-parser/ ; cargo build ; cp -f target/debug/arch-pkgbuild-parser ../../)
 	
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
@@ -76,7 +74,7 @@ build_option:
 	./menuconf-to-alterconf.sh ./.build_option
 clean:
 	@sudo ./${BUILD_SCRIPT} clean
-build:build_option mkalteriso arch-pkgbuild-parser
+build:build_option mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
 	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}
 keyring::
