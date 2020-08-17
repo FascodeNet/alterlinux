@@ -90,7 +90,7 @@ Do this to build under the following conditions.
 #### About channel
 Channels switch between packages to install and files to include.  
 This mechanism makes it possible to build various versions of Alter Linux.  
-The following channels are supported as of May 5, 2020.  
+The following channels are supported as of August 17, 2020.  
 See `./build.sh -h` for a complete list of channels.
 
 Name | Purpose
