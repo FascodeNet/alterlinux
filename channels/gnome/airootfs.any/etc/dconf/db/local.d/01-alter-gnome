@@ -31,6 +31,10 @@ picture-uri='file:///usr/share/backgrounds/alter-nochr.png'
 [org/gnome/desktop/wm/keybindings]
 panel-main-menu=['<Alt>F1']
 
+[org/gnome/desktop/wm/preferences]
+action-middle-click-titlebar='none'
+button-layout='appmenu:minimize,maximize,close'
+
 [org/gnome/evolution-data-server]
 migrated=true
 network-monitor-gio-name=''
