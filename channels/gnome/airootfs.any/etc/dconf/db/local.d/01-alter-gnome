@@ -1,6 +1,3 @@
-[org/gnome/control-center]
-last-panel='background'
-
 [org/gnome/desktop/background]
 picture-uri='file:///usr/share/backgrounds/alter.png'
 
@@ -18,9 +15,6 @@ gtk-im-module='gtk-im-context-simple'
 gtk-theme='Adapta-Nokto-Eta'
 icon-theme='Papirus-Dark'
 show-battery-percentage=true
-
-[org/gnome/desktop/notifications]
-application-children=['org-gnome-tweaks']
 
 [org/gnome/desktop/notifications/application/org-gnome-tweaks]
 application-id='org.gnome.tweaks.desktop'
@@ -46,56 +40,49 @@ overlay-key='Super_L'
 default-folder-viewer='icon-view'
 search-filter-time-type='last_modified'
 
-[org/gnome/nautilus/window-state]
-initial-size=(890, 549)
-maximized=false
-
 [org/gnome/settings-daemon/plugins/xsettings]
 antialiasing='grayscale'
 hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 1
-disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com']
-enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'desktop-icons@csoriano', 'zorin-menu@zorinos.com', 'arc-menu@linxgem33.com', 'topicons-redux@pop-planet.info']
-favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'thunderbird.desktop', 'pamac-updater.desktop', 'org.gnome.Screenshot.desktop']
+disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com','topicons-redux@pop-planet.info', 'dash-to-panel@jderose9.github.com', 'arc-menu@linxgem33.com', 'desktop-icons@csoriano']
+favorite-apps=['chromium.desktop', 'thunderbird.desktop', 'org.gnome.Nautilus.desktop', 'libreoffice-startcenter.desktop', 'vlc.desktop', 'medit.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Shell.Extensions.desktop', 'pamac-updater.desktop', 'gnome-control-center.desktop']
 
 [org/gnome/shell/extensions/arc-menu]
+application-shortcuts-list=[['Software', 'system-software-install-symbolic', 'ArcMenu_Software'], ['Settings', 'preferences-system-symbolic', 'gnome-control-center.desktop'], ['Tweaks', 'org.gnome.tweaks-symbolic', 'org.gnome.tweaks.desktop'], ['Terminal', 'utilities-terminal-symbolic', 'org.gnome.Terminal.desktop']]
 arc-menu-placement='DTD'
 button-icon-padding=0
 custom-menu-button-icon='/usr/share/icons/hicolor/128x128/apps/alter.png'
 custom-menu-button-icon-size=24.0
 disable-activities-button=true
 disable-tooltips=false
-dtp-dtd-state=[false, true]
+dtp-dtd-state=[true, true]
 enable-custom-arc-menu=false
 enable-menu-button-arrow=false
 menu-button-icon='Custom_Icon'
 pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'Terminal', 'utilities-terminal', 'org.gnome.Terminal.desktop', 'LibreOffice', 'libreoffice-startcenter', 'libreoffice-startcenter.desktop', 'VLCメディアプレイヤー', 'vlc', 'vlc.desktop', 'ソフトウェアの更新', 'system-software-update', 'pamac-updater.desktop', 'システムモニター', 'org.gnome.SystemMonitor', 'gnome-system-monitor.desktop', '端末', 'org.gnome.Terminal', 'org.gnome.Terminal.desktop', '設定', 'org.gnome.Settings', 'gnome-control-center.desktop']
 position-in-panel='Left'
+recently-installed-apps=@as []
 
-[org/gnome/shell/extensions/dash-to-dock]
-apply-custom-theme=false
-custom-theme-shrink=true
-dash-max-icon-size=32
-dock-fixed=true
-dock-position='BOTTOM'
-extend-height=false
-force-straight-corner=false
-height-fraction=1.0
-hot-keys=false
-icon-size-fixed=true
-isolate-monitors=false
-isolate-workspaces=false
-multi-monitor=true
-preferred-monitor=0
-scroll-action='cycle-windows'
-show-apps-at-top=true
-show-show-apps-button=true
-show-trash=false
-
-[org/gnome/shell/extensions/desktop-icons]
-icon-size='small'
+[org/gnome/shell/extensions/dash-to-panel]
+appicon-margin=4
+available-monitors=[0]
+dot-position='BOTTOM'
+group-apps=true
+hotkeys-overlay-combo='TEMPORARILY'
+intellihide=false
+isolate-workspaces=true
+panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"}]}'
+panel-positions='{"0":"BOTTOM"}'
+panel-size=32
+secondarymenu-contains-showdetails=true
+show-appmenu=false
+stockgs-keep-dash=false
+stockgs-keep-top-panel=false
+stockgs-panelbtn-click-only=false
+taskbar-locked=true
 
 [org/gnome/shell/extensions/user-theme]
 name='Adapta-Nokto-Eta'
@@ -110,4 +97,3 @@ sort-column='name'
 sort-directories-first=false
 sort-order='ascending'
 type-format='category'
-
