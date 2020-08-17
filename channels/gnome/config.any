@@ -14,3 +14,6 @@
 
 # Set the user's default shell.
 usershell="/bin/zsh"
+
+# Force install the AUR package.
+noaur=false
