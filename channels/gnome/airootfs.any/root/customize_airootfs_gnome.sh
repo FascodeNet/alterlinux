@@ -131,3 +131,8 @@ if [[ ! "${language}" = "ja" ]]; then
     sed -i "s/export QT_IM_MODULE=fcitx/#export QT_IM_MODULE=fcitx/g" "/etc/environment"
     sed -i "s/export XMODIFIERS=@im=fcitx/#export XMODIFIERS=@im=fcitx/g" "/etc/environment"
 fi
+
+
+# Remove shortcuts
+remove "/etc/skel/Desktop/calamares.desktop"
+remove "/home/${username}/Desktop/calamares.desktop"
