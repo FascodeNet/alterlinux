@@ -46,8 +46,8 @@ hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 1
-disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
-enabled-extensions=['extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com','topicons-redux@pop-planet.info', 'dash-to-panel@jderose9.github.com', 'arc-menu@linxgem33.com', 'desktop-icons@csoriano']
+disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com','topicons-redux@pop-planet.info', 'dash-to-panel@jderose9.github.com', 'arc-menu@linxgem33.com']
 favorite-apps=['chromium.desktop', 'thunderbird.desktop', 'org.gnome.Nautilus.desktop', 'libreoffice-startcenter.desktop', 'vlc.desktop', 'medit.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Shell.Extensions.desktop', 'pamac-updater.desktop', 'gnome-control-center.desktop']
 
 [org/gnome/shell/extensions/arc-menu]
