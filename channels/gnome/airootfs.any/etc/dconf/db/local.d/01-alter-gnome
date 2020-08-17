@@ -49,8 +49,9 @@ default-visible-columns=['name', 'size', 'type', 'date_modified']
 
 [org/gnome/nautilus/preferences]
 default-folder-viewer='icon-view'
-executable-text-activation='ask'
+executable-text-activation='launch'
 search-filter-time-type='last_modified'
+show-create-link=true
 show-delete-permanently=false
 
 [org/gnome/settings-daemon/plugins/power]
