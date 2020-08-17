@@ -23,4 +23,3 @@ temp/
 .config.old
 system/cpp-src/mkalteriso/CMakeLists.txt.user
 menuconfig-script/kernel_choice_*
-system/arch-pkgbuild-parser
