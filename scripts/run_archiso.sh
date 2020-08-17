@@ -83,7 +83,7 @@ run_image() {
         -drive file="${image}",media=cdrom,readonly=on,if=virtio \
         -display sdl \
         -vga virtio \
-        -device virtio-net-pci,netdev=net0 -netdev user,id=net0 \
+        -device virtio-net-pci,romfile=,netdev=net0 -netdev user,id=net0 \
         -machine type=q35,smm=on,accel=kvm \
         -global ICH9-LPC.disable_s3=1 \
         -enable-kvm \
