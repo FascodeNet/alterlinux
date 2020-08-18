@@ -25,14 +25,14 @@ sudo ./keyring.sh --alter-add --arch32-add
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
 ```
 
 #### Install the dependencies
 Install the packages required for building.  
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
 ```
 
 ### Use the TUI
@@ -64,7 +64,7 @@ Run `./build.sh -h` for full options and usage.
  Change kernel | -k [kernel]
  Change the username | -u [username]
  Change the password | -p [password]
- Japanese | -j
+ Japanese | -g ja
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
  Specify output destination directory | -o [dir]
