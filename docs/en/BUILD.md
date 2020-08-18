@@ -95,11 +95,15 @@ See `./build.sh -h` for a complete list of channels.
 
 Name | Purpose
 --- | ---
-xfce | Default channel with Xfce4 for desktop environment and various software added
-plasma | Currently developing channel with Plasma and Qt apps
-lxde | The lightest channel except releng, which contains only LXDE and minimal applications
-releng | A channel where you can build a pure Arch Linux live boot disk
-rebuild | A special channel that rebuilds using the settings in the working directory
+cinnamon | Gorgeous cinnamon desktop with many applications.
+gnome | This channel does not have a description.txt.
+i3 | using i3, a dynamic tiling window manager inspired by wmii.
+lxde | Composed of Lxde and a little software
+plasma |  Uses KDE and Qt software.
+releng | Build ArchLinux as is. Boot splash etc. cannot be used.
+xfce | Use Xfce4 for desktop environment.
+rebuild | Rebuild using the settings of the previous build.
+
 
 
 #### About the kernel
