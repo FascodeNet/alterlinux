@@ -79,7 +79,7 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 
 <h2>〈Feature〉</h2>
 <ul>
-	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>You can install the already built Arch Linux environment with GUI</li>
 	<li>We release not only 64bit but also 32bit version.</li>
 	<li>The 32-bit version does not require PAE (Physical Address Extension).</li>
 	<li>Adopt ZEN kernel by default</li>
