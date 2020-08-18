@@ -25,7 +25,7 @@ sudo ./keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
 ```
 
 ### TUIを使用する
@@ -71,7 +71,7 @@ sudo ./build.sh [options] [channel]
 カーネルを変える | -k [kernel]
 ユーザ名を変える | -u [username]
 パスワードを変更する | -p [password]
-日本語にする | -j
+日本語にする | -g ja
 圧縮方式を変更する | -c [comp type]
 圧縮のオプションを設定する | -t [comp option]
 出力先ディレクトリを指定する| -o [dir]
