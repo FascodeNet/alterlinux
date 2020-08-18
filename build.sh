@@ -200,6 +200,8 @@ _usage () {
     echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
+    echo "    -g | --gpgkey <key>          Set gpg key"
+    echo "                                  Default: ${gpg_key}"
     echo "    -l | --lang <lang>           Specifies the default language for the live environment."
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
