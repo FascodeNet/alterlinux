@@ -341,11 +341,6 @@ remove() {
     done
 }
 
-# Debug line
-debug_line() {
-    [[ "${debug}" = true ]] && echo
-}
-
 # 強制終了時にアンマウント
 umount_trap() {
     local status=${?}
@@ -626,11 +621,9 @@ prepare_build() {
             echo -n "not"
             return 0
         }
-        if [[ ${debug} = false ]]; then
-            _msg_info "Checking dependencies ..."
-        else
-            echo
-        fi
+
+        _msg_info "Checking dependencies ..."
+
         for pkg in ${dependence[@]}; do
             _msg_debug -n "Checking ${pkg} ..."
             case $(check_pkg ${pkg}) in
@@ -1313,7 +1306,7 @@ OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long DEFAULT_ARGUMENT ARGUMENT
+unset OPT _opt_short _opt_long
 
 while :; do
     case ${1} in
@@ -1455,10 +1448,12 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    _msg_warn "Re-run 'sudo ${0} ${options}'"
-    sudo ${0} ${options}
+    _msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
+    sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
     exit 1
 fi
+
+unset DEFAULT_ARGUMENT ARGUMENT
 
 # Show config message
 [[ -f "${defaultconfig}" ]] && _msg_debug "Use the default configuration file (${defaultconfig})."
@@ -1540,13 +1535,11 @@ if [[ ! "${channel_name}" == "rebuild" ]]; then
     fi
 fi
 
-debug_line
 check_bool rebuild
 check_bool debug
 check_bool bash_debug
 check_bool nocolor
 check_bool msgdebug
-debug_line
 
 parse_files
 
