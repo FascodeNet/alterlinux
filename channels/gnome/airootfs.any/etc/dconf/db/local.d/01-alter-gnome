@@ -30,6 +30,8 @@ picture-uri='file:///usr/share/backgrounds/alter-nochr.png'
 
 [org/gnome/desktop/wm/keybindings]
 panel-main-menu=['<Alt>F1']
+switch-group=@as []
+switch-group-backward=@as []
 
 [org/gnome/desktop/wm/preferences]
 action-middle-click-titlebar='none'
@@ -41,7 +43,7 @@ network-monitor-gio-name=''
 
 [org/gnome/mutter]
 center-new-windows=false
-overlay-key='Super_L'
+overlay-key=''
 
 [org/gnome/nautilus/list-view]
 default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'where', 'date_modified', 'date_modified_with_time', 'date_accessed', 'recency', 'starred', 'detailed_type']
