@@ -30,6 +30,8 @@ picture-uri='file:///usr/share/backgrounds/alter-nochr.png'
 
 [org/gnome/desktop/wm/keybindings]
 panel-main-menu=['<Alt>F1']
+switch-group=@as []
+switch-group-backward=@as []
 
 [org/gnome/desktop/wm/preferences]
 action-middle-click-titlebar='none'
@@ -41,7 +43,7 @@ network-monitor-gio-name=''
 
 [org/gnome/mutter]
 center-new-windows=false
-overlay-key='Super_L'
+overlay-key=''
 
 [org/gnome/nautilus/list-view]
 default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'where', 'date_modified', 'date_modified_with_time', 'date_accessed', 'recency', 'starred', 'detailed_type']
@@ -82,6 +84,10 @@ menu-button-icon='Custom_Icon'
 pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'Terminal', 'utilities-terminal', 'org.gnome.Terminal.desktop', 'LibreOffice', 'libreoffice-startcenter', 'libreoffice-startcenter.desktop', 'VLC Media Player', 'vlc', 'vlc.desktop', 'Update software', 'system-software-update', 'pamac-updater.desktop', 'System Monitor', 'org.gnome.SystemMonitor', 'gnome-system-monitor.desktop', 'Terminal', 'org.gnome.Terminal', 'org.gnome.Terminal.desktop', '設定', 'org.gnome.Settings', 'gnome-control-center.desktop']
 position-in-panel='Left'
 recently-installed-apps=@as []
+show-external-devices=true
+show-lock-button=true
+show-logout-button=true
+show-suspend-button=true
 
 [org/gnome/shell/extensions/dash-to-panel]
 appicon-margin=4
