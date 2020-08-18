@@ -2,7 +2,7 @@
 There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
 Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
   
-When building on a real machine, the OS must be ArchLinux or Alter Linux.
+When building on a real machine, the OS must be Arch Linux or Alter Linux.
 The following explains how to build on a real machine.  
   
 TWhen building directly on Arch or Alter, there are several ways to build.  
@@ -35,15 +35,15 @@ Install the packages required for building.
 sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
 ```
 
-### TUIを使用する
+### Use the TUI
 You can configure and build using `menuconfig`.  
 
 ```bash
 make menuconfig
 ```
 
-### GUIを使用する
-GUIで設定を行ってビルドできます。
+### Use the GUI
+You can configure and build with the GUI.
 
 ```bash
 python ./build-wizard.py
@@ -90,7 +90,7 @@ Do this to build under the following conditions.
 #### About channel
 Channels switch between packages to install and files to include.  
 This mechanism makes it possible to build various versions of Alter Linux.  
-The following channels are supported as of May 5, 2020.  
+The following channels are supported as of August 17, 2020.  
 See `./build.sh -h` for a complete list of channels.
 
 Name | Purpose
@@ -105,6 +105,7 @@ releng | Build ArchLinux as is. Boot splash etc. cannot be used.
 xfce | Use Xfce4 for desktop environment.
 xfce-pro | Pro Edition with some software added to Xfce and replaced with Compiz
 rebuild | Build from the point where it left off using the previous build settings.
+
 
 
 #### About the kernel

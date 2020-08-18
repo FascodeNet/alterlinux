@@ -6,21 +6,35 @@
 # Twitter: @Watasuke102
 # Email  : Watasuke102@gmail.com
 #
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
 # (c) 2020 Fascode Network.
 
 
-# Completion
+#-- Alias --#
+[[ -f .aliases ]] && source .aliases
+
+
+#-- Completion --#
 [ -e /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -U compinit
 compinit -u
 
 
-# Archive settings
+#-- Archive settings --#
 export ZIPINFOOPT=-OCP932
 export UNZIPOPT=-OCP932
 
 
-# Key
+#-- Like fish prompt --#
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+
+#-- Key --#
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
 typeset -A key
@@ -42,12 +56,16 @@ key[PageDown]=${terminfo[knp]}
 [[ -n "${key[End]}"      ]]  && bindkey  "${key[End]}"      end-of-line
 [[ -n "${key[Insert]}"   ]]  && bindkey  "${key[Insert]}"   overwrite-mode
 [[ -n "${key[Delete]}"   ]]  && bindkey  "${key[Delete]}"   delete-char
-[[ -n "${key[Up]}"       ]]  && bindkey  "${key[Up]}"       up-line-or-history
-[[ -n "${key[Down]}"     ]]  && bindkey  "${key[Down]}"     down-line-or-history
+[[ -n "${key[Up]}"       ]]  && bindkey  "${key[Up]}"       history-substring-search-up
+[[ -n "${key[Down]}"     ]]  && bindkey  "${key[Down]}"     history-substring-search-down
 [[ -n "${key[Left]}"     ]]  && bindkey  "${key[Left]}"     backward-char
 [[ -n "${key[Right]}"    ]]  && bindkey  "${key[Right]}"    forward-char
 [[ -n "${key[PageUp]}"   ]]  && bindkey  "${key[PageUp]}"   beginning-of-buffer-or-history
 [[ -n "${key[PageDown]}" ]]  && bindkey  "${key[PageDown]}" end-of-buffer-or-history
+
+# Normal history display
+#[[ -n "${key[Up]}"       ]]  && bindkey  "${key[Up]}"       up-line-or-history
+#[[ -n "${key[Down]}"     ]]  && bindkey  "${key[Down]}"     down-line-or-history
 
 # Finally, make sure the terminal is in application mode, when zle is
 # active. Only then are the values from $terminfo valid.
@@ -63,28 +81,28 @@ if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
 fi
 
 
-# Do not sound
+#-- Do not sound --#
 setopt nolistbeep
 setopt nolistbeep
 
 
-# Save history.
+#-- Save history. --#
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
 setopt share_history
 
 
-# Make colors available
+#-- Make colors available --#
 autoload -Uz colors
 colors
 
 
-# Pass to the path
+#-- Pass to the path --#
 [[ -d ~/.bin ]] && export PATH="~/.bin:${PATH}"
 
 
-# PROMPT
+#-- PROMPT --#
 if [[ ${TERM} = "linux" ]]; then
     PROMPT='%B%F{red}%(?..%? )%f%b%B%F{red}%n%f%b@%m %B%40<..<%~%<< %b%# '
 else
@@ -103,13 +121,3 @@ else
 
     install_powerline_precmd
 fi
-
-# Like fish prompt
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# Alias
-[[ -f .aliases ]] && source .aliases
-
-# Set default terminal
-export TERMINAL=/usr/bin/sakura
