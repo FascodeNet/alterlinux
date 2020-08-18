@@ -205,7 +205,7 @@ _cleanup () {
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
     _msg_info "Done!"
     # Create an empty /etc/machine-id
-    printf '' > "${work_dir}/airootfs/etc/machine-id"
+    printf '' > "${airootfs_dir}/etc/machine-id"
 }
 
 # Makes a ext4 filesystem inside a SquashFS from a source directory.
