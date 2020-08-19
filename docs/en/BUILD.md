@@ -64,7 +64,7 @@ Run `./build.sh -h` for full options and usage.
  Change kernel | -k [kernel]
  Change the username | -u [username]
  Change the password | -p [password]
- Japanese | -g ja
+ Japanese | -l ja
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
  Specify output destination directory | -o [dir]
