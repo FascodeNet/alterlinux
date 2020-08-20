@@ -353,11 +353,11 @@ umount_trap() {
 # 設定ファイルを読み込む
 # load_config [file1] [file2] ...
 load_config() {
-    local file
-    for file in ${@}; do
-        if [[ -f "${file}" ]]; then
-            source "${file}"
-            _msg_debug "The settings have been overwritten by the ${file}"
+    local _file
+    for _file in ${@}; do
+        if [[ -f "${_file}" ]]; then
+            source "${_file}"
+            _msg_debug "The settings have been overwritten by the ${_file}"
         fi
     done
 }
