@@ -371,8 +371,8 @@ remove_work() {
 show_channel_list() {
     local _channel
     for _channel in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! ${_channel} = "share" ]]; then
-            if [[ ! $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        if [[ -n "$(ls "${script_path}"/channels/${_channel})" ]] && [[ ! "${_channel}" == "share" ]]; then
+            if [[ ! "$(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/')" == "add" ]]; then
                 if [[ ! -d "${script_path}/channels/${_channel}.add" ]]; then
                     echo -n "${_channel} "
                 fi
@@ -413,14 +413,14 @@ prepare_build() {
     fi
     
     # 強制終了時に作業ディレクトリを削除する
-    local trap_remove_work
-    trap_remove_work() {
+    local _trap_remove_work
+    _trap_remove_work() {
         local status=${?}
         echo
         remove "${work_dir}"
         exit ${status}
     }
-    trap 'trap_remove_work' 1 2 3 15
+    trap '_trap_remove_work' 1 2 3 15
     
     if [[ ${rebuild} = false ]]; then
         # If there is pacman.conf for each channel, use that for building
