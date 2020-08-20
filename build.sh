@@ -603,14 +603,14 @@ prepare_build() {
         local installed_pkg=($(pacman -Q | awk '{print $1}')) installed_ver=($(pacman -Q | awk '{print $2}'))
 
         check_pkg() {
-            local i ver
-            for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-                if [[ "${installed_pkg[${i}]}" = ${1} ]]; then
-                    ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
-                    if [[ "${installed_ver[${i}]}" = "${ver}" ]]; then
+            local __pkg __ver
+            for __pkg in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
+                if [[ "${installed_pkg[${__pkg}]}" = ${1} ]]; then
+                    _ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                    if [[ "${installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         echo -n "installed"
                         return 0
-                        elif [[ -z ${ver} ]]; then
+                    elif [[ -z ${__ver} ]]; then
                         echo "norepo"
                         return 0
                     else
