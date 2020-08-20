@@ -85,7 +85,7 @@ echo_color() {
 
 # Show an INFO message
 # $1: message string
-_msg_info() {
+msg_info() {
     if [[ "${msgdebug}" = false ]]; then
         set +xv
     else
@@ -109,7 +109,7 @@ _msg_info() {
 
 # Show an Warning message
 # $1: message string
-_msg_warn() {
+msg_warn() {
     if [[ "${msgdebug}" = false ]]; then
         set +xv
     else
@@ -133,7 +133,7 @@ _msg_warn() {
 
 # Show an debug message
 # $1: message string
-_msg_debug() {
+msg_debug() {
     if [[ "${msgdebug}" = false ]]; then
         set +xv
     else
@@ -160,7 +160,7 @@ _msg_debug() {
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
-_msg_error() {
+msg_error() {
     if [[ "${msgdebug}" = false ]]; then
         set +xv
     else
@@ -306,7 +306,7 @@ _usage () {
 umount_chroot () {
     local _mount
     for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
-        _msg_info "Unmounting ${_mount}"
+        msg_info "Unmounting ${_mount}"
         umount -lf "${_mount}"
     done
 }
@@ -314,12 +314,12 @@ umount_chroot () {
 # Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
-        _msg_debug "Running $1 ..."
+        msg_debug "Running $1 ..."
         "$1"
         touch "${work_dir}/build.${1}_${arch}"
         umount_chroot
     else
-        _msg_debug "Skipped because ${1} has already been executed."
+        msg_debug "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -332,10 +332,10 @@ remove() {
     local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
         if [[ -f ${_file} ]]; then
-            _msg_debug "Removeing ${_file}"
+            msg_debug "Removeing ${_file}"
             rm -f "${_file}"
             elif [[ -d ${_file} ]]; then
-            _msg_debug "Removeing ${_file}"
+            msg_debug "Removeing ${_file}"
             rm -rf "${_file}"
         fi
     done
@@ -345,8 +345,8 @@ remove() {
 umount_trap() {
     local _status=${?}
     umount_chroot
-    _msg_error "It was killed by the user."
-    _msg_error "The process may not have completed successfully."
+    msg_error "It was killed by the user."
+    msg_error "The process may not have completed successfully."
     exit ${_status}
 }
 
@@ -357,7 +357,7 @@ load_config() {
     for _file in ${@}; do
         if [[ -f "${_file}" ]]; then
             source "${_file}"
-            _msg_debug "The settings have been overwritten by the ${_file}"
+            msg_debug "The settings have been overwritten by the ${_file}"
         fi
     done
 }
@@ -388,14 +388,14 @@ show_channel_list() {
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value="$(eval echo '$'${1})"
-    _msg_debug -n "Checking ${1}..."
+    msg_debug -n "Checking ${1}..."
     if [[ "${debug}" = true ]]; then
         echo -e " ${_value}"
     fi
     if [[ ! -v "${1}" ]]; then
-        echo; _msg_error "The variable name ${1} is empty." "1"
+        echo; msg_error "The variable name ${1} is empty." "1"
         elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-        echo; _msg_error "The variable name ${1} is not of bool type." "1"
+        echo; msg_error "The variable name ${1} is not of bool type." "1"
     fi
 }
 
@@ -408,7 +408,7 @@ prepare_build() {
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
         umount_chroot
-        _msg_info "Deleting the contents of ${work_dir}..."
+        msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
     fi
 
@@ -466,7 +466,7 @@ prepare_build() {
         else
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
-        _msg_debug "Iso filename is ${iso_filename}"
+        msg_debug "Iso filename is ${iso_filename}"
 
 
         # Save build options
@@ -562,7 +562,7 @@ prepare_build() {
     else
         # Load rebuild file
         load_config "${rebuildfile}"
-        _msg_debug "Iso filename is ${iso_filename}"
+        msg_debug "Iso filename is ${iso_filename}"
     fi
 
 
@@ -582,20 +582,20 @@ prepare_build() {
 
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
 
     # Check kernel for each channel
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        _msg_error "This kernel is currently not supported on this channel." "1"
+        msg_error "This kernel is currently not supported on this channel." "1"
     fi
 
 
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
         cd  "${script_path}"
-        _msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
         cd - > /dev/null 2>&1
     fi
 
@@ -603,7 +603,7 @@ prepare_build() {
     # Unmount
     local _mount
     for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
-        _msg_info "Unmounting ${_mount}"
+        msg_info "Unmounting ${_mount}"
         umount "${_mount}"
     done
     unset _mount
@@ -635,23 +635,23 @@ prepare_build() {
             return 0
         }
 
-        _msg_info "Checking dependencies ..."
+        msg_info "Checking dependencies ..."
 
         for _pkg in ${dependence[@]}; do
-            _msg_debug -n "Checking ${_pkg} ..."
+            msg_debug -n "Checking ${_pkg} ..."
             case $(_check_pkg ${_pkg}) in
                 "old")
                     [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n"
-                    _msg_warn "${_pkg} is not the latest package."
-                    _msg_warn "Local: $(pacman -Q ${_pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${_pkg} 2> /dev/null)"
+                    msg_warn "${_pkg} is not the latest package."
+                    msg_warn "Local: $(pacman -Q ${_pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${_pkg} 2> /dev/null)"
                 ;;
                 "not")
                     [[ "${debug}" = true ]] && echo
-                    _msg_error "${_pkg} is not installed." ; _check_failed=true
+                    msg_error "${_pkg} is not installed." ; _check_failed=true
                 ;;
                 "norepo")
                     [[ "${debug}" = true ]] && echo
-                    _msg_warn "${_pkg} is not a repository package."
+                    msg_warn "${_pkg} is not a repository package."
                 ;;
                 "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n" ;;
             esac
@@ -667,7 +667,7 @@ prepare_build() {
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
         cd "${script_path}"
-        _msg_info "Building mkalteriso..."
+        msg_info "Building mkalteriso..."
         if [[ "${debug}" = true ]]; then
             make mkalteriso
             echo
@@ -683,9 +683,9 @@ prepare_build() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            _msg_error "The currently running kernel module could not be found."
-            _msg_error "Probably the system kernel has been updated."
-            _msg_error "Reboot your system to run the latest kernel." "1"
+            msg_error "The currently running kernel module could not be found."
+            msg_error "Probably the system kernel has been updated."
+            msg_error "Reboot your system to run the latest kernel." "1"
         fi
         if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
             sudo modprobe loop
@@ -696,23 +696,23 @@ prepare_build() {
 
 # Show settings.
 show_settings() {
-    _msg_info "mkalteriso path is ${mkalteriso}"
+    msg_info "mkalteriso path is ${mkalteriso}"
     echo
     if [[ "${boot_splash}" = true ]]; then
-        _msg_info "Boot splash is enabled."
-        _msg_info "Theme is used ${theme_name}."
+        msg_info "Boot splash is enabled."
+        msg_info "Theme is used ${theme_name}."
     fi
-    _msg_info "Language is ${locale_fullname}."
-    _msg_info "Use the ${kernel} kernel."
-    _msg_info "Live username is ${username}."
-    _msg_info "Live user password is ${password}."
-    _msg_info "The compression method of squashfs is ${sfs_comp}."
+    msg_info "Language is ${locale_fullname}."
+    msg_info "Use the ${kernel} kernel."
+    msg_info "Live username is ${username}."
+    msg_info "Live user password is ${password}."
+    msg_info "The compression method of squashfs is ${sfs_comp}."
     if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        _msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+        msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
     else
-        _msg_info "Use the ${channel_name} channel."
+        msg_info "Use the ${channel_name} channel."
     fi
-    _msg_info "Build with architecture ${arch}."
+    msg_info "Build with architecture ${arch}."
     if [[ ${noconfirm} = false ]]; then
         echo
         echo "Press Enter to continue or Ctrl + C to cancel."
@@ -725,7 +725,7 @@ show_settings() {
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
-    _msg_debug "Use ${build_pacman_conf}"
+    msg_debug "Use ${build_pacman_conf}"
     local _cache_dirs
     _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
     sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
@@ -773,7 +773,7 @@ make_packages() {
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
         if [[ -f "${_file}" ]]; then
-            _msg_debug "Loaded package file ${_file}."
+            msg_debug "Loaded package file ${_file}."
             pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         fi
     done
@@ -802,8 +802,8 @@ make_packages() {
     done
 
     if [[ -n "${excludelist[*]}" ]]; then
-        _msg_debug "The following packages have been removed from the installation list."
-        _msg_debug "Excluded packages:" "${excludelist[@]}"
+        msg_debug "The following packages have been removed from the installation list."
+        msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
 
     # Sort the list of packages in abc order.
@@ -844,7 +844,7 @@ make_packages_aur() {
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
         if [[ -f "${_file}" ]]; then
-            _msg_debug "Loaded aur package file ${_file}."
+            msg_debug "Loaded aur package file ${_file}."
             pkglist_aur=( ${pkglist_aur[@]} "$(grep -h -v ^'#' ${_file})" )
         fi
     done
@@ -871,8 +871,8 @@ make_packages_aur() {
     done
 
     if [[ -n "${excludelist[*]}" ]]; then
-        _msg_debug "The following packages have been removed from the aur list."
-        _msg_debug "Excluded packages:" "${excludelist[@]}"
+        msg_debug "The following packages have been removed from the aur list."
+        msg_debug "Excluded packages:" "${excludelist[@]}"
     fi
 
     # Sort the list of packages in abc order.
@@ -908,7 +908,7 @@ make_packages_aur() {
     # Check PKGBUILD
     for _pkg in ${pkglist_aur[@]}; do
         if [[ ! -f "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
-            _msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
+            msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
         fi
     done
 
@@ -1236,7 +1236,7 @@ make_prepare() {
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
-    _msg_info "The password for the live user and root is ${password}."
+    msg_info "The password for the live user and root is ${password}."
 }
 
 # Parse files
@@ -1262,7 +1262,7 @@ parse_files() {
     _locale_line_number="$(_get_locale_line_number)"
 
     # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
+    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
     _locale_config_line="$(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)"
@@ -1299,7 +1299,7 @@ parse_files() {
     _kernel_line="$(_get_kernel_line)"
 
     # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" == "failed" ]] && _msg_error "Invalid kernel ${kernel}" "1"
+    [[ "${_kernel_line}" == "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
     _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
@@ -1337,7 +1337,7 @@ while :; do
         -c | --comp-type)
             case "${2}" in
                 "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
-                *) _msg_error "Invaild compressors '${2}'" '1' ;;
+                *) msg_error "Invaild compressors '${2}'" '1' ;;
             esac
             shift 2
             ;;
@@ -1358,8 +1358,8 @@ while :; do
             exit 0
             ;;
         -j | --japanese)
-            _msg_error "This option is obsolete in AlterISO 3."
-            _msg_error "To use Japanese, use \"-g ja\"." '1'
+            msg_error "This option is obsolete in AlterISO 3."
+            msg_error "To use Japanese, use \"-g ja\"." '1'
             ;;
         -k | --kernel)
             kernel="${2}"
@@ -1415,7 +1415,7 @@ while :; do
             if [[ -d "${script_path}/.git" ]]; then
                 gitversion=true
             else
-                _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+                msg_error "There is no git directory. You need to use git clone to use this feature." "1"
             fi
             shift 1
             ;;
@@ -1452,7 +1452,7 @@ while :; do
             break
             ;;
         *)
-            _msg_error "Invalid argument '${1}'"
+            msg_error "Invalid argument '${1}'"
             _usage 1
             ;;
     esac
@@ -1461,10 +1461,10 @@ done
 
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
-    _msg_warn "This script must be run as root." >&2
+    msg_warn "This script must be run as root." >&2
     # echo "Use -h to display script details." >&2
     # _usage 1
-    _msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
+    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
     exit 1
 fi
@@ -1472,7 +1472,7 @@ fi
 unset DEFAULT_ARGUMENT ARGUMENT
 
 # Show config message
-[[ -f "${defaultconfig}" ]] && _msg_debug "Use the default configuration file (${defaultconfig})."
+[[ -f "${defaultconfig}" ]] && msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
@@ -1521,7 +1521,7 @@ check_channel() {
 }
 
 # Check for a valid channel name
-[[ $(check_channel "${channel_name}") = false ]] && _msg_error "Invalid channel ${channel_name}" "1"
+[[ $(check_channel "${channel_name}") = false ]] && msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
@@ -1530,7 +1530,7 @@ elif [[ "${channel_name}" = "rebuild" ]]; then
     if [[ -f "${rebuildfile}" ]]; then
         rebuild=true
     else
-        _msg_error "The previous build information is not in the working directory." "1"
+        msg_error "The previous build information is not in the working directory." "1"
     fi
 elif [[ "${channel_name}" = "clean" ]]; then
     umount_chroot
@@ -1545,9 +1545,9 @@ fi
 
 # Check channel version
 if [[ ! "${channel_name}" == "rebuild" ]]; then
-    _msg_debug "channel path is ${script_path}/channels/${channel_name}"
+    msg_debug "channel path is ${script_path}/channels/${channel_name}"
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
-        _msg_error "This channel does not support AlterISO 3." "1"
+        msg_error "This channel does not support AlterISO 3." "1"
     fi
 fi
 
