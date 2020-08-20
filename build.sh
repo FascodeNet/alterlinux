@@ -369,15 +369,15 @@ remove_work() {
 
 # Display channel list
 show_channel_list() {
-    local i
-    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
-            if [[ ! $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                if [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                    echo -n "${i} "
+    local _channel
+    for _channel in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! ${_channel} = "share" ]]; then
+            if [[ ! $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                if [[ ! -d "${script_path}/channels/${_channel}.add" ]]; then
+                    echo -n "${_channel} "
                 fi
             else
-                echo -n "${i} "
+                echo -n "${_channel} "
             fi
         fi
     done
