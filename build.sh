@@ -463,14 +463,14 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
     
         # Save build options
-        local write_rebuild_file
-        write_rebuild_file() {
+        local _write_rebuild_file
+        _write_rebuild_file() {
             local out_file="${rebuildfile}"
             echo -e "${@}" >> "${out_file}"
         }
 
-        local save_var
-        save_var() {
+        local _save_var
+        _save_var() {
             local out_file="${rebuildfile}" i
             for i in ${@}; do
                 echo -n "${i}=" >> "${out_file}"
@@ -482,76 +482,76 @@ prepare_build() {
 
         # Save the value of the variable for use in rebuild.
         remove "${rebuildfile}"
-        write_rebuild_file "#!/usr/bin/env bash"
-        write_rebuild_file "# Build options are stored here."
+        _write_rebuild_file "#!/usr/bin/env bash"
+        _write_rebuild_file "# Build options are stored here."
 
-        write_rebuild_file "\n# OS Info"
-        save_var arch
-        save_var os_name
-        save_var iso_name
-        save_var iso_label
-        save_var iso_publisher
-        save_var iso_application
-        save_var iso_version
-        save_var iso_filename
-        save_var channel_name
+        _write_rebuild_file "\n# OS Info"
+        _save_var arch
+        _save_var os_name
+        _save_var iso_name
+        _save_var iso_label
+        _save_var iso_publisher
+        _save_var iso_application
+        _save_var iso_version
+        _save_var iso_filename
+        _save_var channel_name
 
-        write_rebuild_file "\n# Environment Info"
-        save_var install_dir
-        save_var work_dir
-        save_var out_dir
-        save_var gpg_key
+        _write_rebuild_file "\n# Environment Info"
+        _save_var install_dir
+        _save_var work_dir
+        _save_var out_dir
+        _save_var gpg_key
 
-        write_rebuild_file "\n# Live User Info"
-        save_var username
-        save_var password
-        save_var usershell
+        _write_rebuild_file "\n# Live User Info"
+        _save_var username
+        _save_var password
+        _save_var usershell
 
-        write_rebuild_file "\n# Plymouth Info"
-        save_var boot_splash
-        save_var theme_name
-        save_var theme_pkg
+        _write_rebuild_file "\n# Plymouth Info"
+        _save_var boot_splash
+        _save_var theme_name
+        _save_var theme_pkg
 
-        write_rebuild_file "\n# Language Info"
-        save_var locale_name
-        save_var locale_gen_name
-        save_var locale_version
-        save_var locale_time
-        save_var locale_fullname
+        _write_rebuild_file "\n# Language Info"
+        _save_var locale_name
+        _save_var locale_gen_name
+        _save_var locale_version
+        _save_var locale_time
+        _save_var locale_fullname
         
-        write_rebuild_file "\n# Kernel Info"
-        save_var kernel
-        save_var kernel_package
-        save_var kernel_headers_packages
-        save_var kernel_filename
-        save_var kernel_mkinitcpio_profile
+        _write_rebuild_file "\n# Kernel Info"
+        _save_var kernel
+        _save_var kernel_package
+        _save_var kernel_headers_packages
+        _save_var kernel_filename
+        _save_var kernel_mkinitcpio_profile
 
-        write_rebuild_file "\n# Squashfs Info"
-        save_var sfs_comp
-        save_var sfs_comp_opt
+        _write_rebuild_file "\n# Squashfs Info"
+        _save_var sfs_comp
+        _save_var sfs_comp_opt
 
-        write_rebuild_file "\n# Debug Info"
-        save_var noaur
-        save_var gitversion
-        save_var noloopmod
+        _write_rebuild_file "\n# Debug Info"
+        _save_var noaur
+        _save_var gitversion
+        _save_var noloopmod
 
-        write_rebuild_file "\n# Channel Info"
-        save_var build_pacman_conf
-        save_var defaultconfig
-        save_var defaultusername
-        save_var customized_username
+        _write_rebuild_file "\n# Channel Info"
+        _save_var build_pacman_conf
+        _save_var defaultconfig
+        _save_var defaultusername
+        _save_var customized_username
 
-        write_rebuild_file "\n# mkalteriso Info"
+        _write_rebuild_file "\n# mkalteriso Info"
         if [[ "${shmkalteriso}" = false ]]; then
             mkalteriso="${script_path}/system/mkalteriso"
         else
             mkalteriso="${script_path}/system/mkalteriso.sh"
         fi
 
-        save_var mkalteriso
-        save_var shmkalteriso
-        save_var mkalteriso_option
-        save_var tarball
+        _save_var mkalteriso
+        _save_var shmkalteriso
+        _save_var mkalteriso_option
+        _save_var tarball
     else
         # Load rebuild file
         load_config "${rebuildfile}"
