@@ -590,11 +590,12 @@ prepare_build() {
     fi
 
     # Unmount
-    local mount
-    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
-        _msg_info "Unmounting ${mount}"
-        umount "${mount}"
+    local _mount
+    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+        _msg_info "Unmounting ${_mount}"
+        umount "${_mount}"
     done
+    unset _mount
     
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
