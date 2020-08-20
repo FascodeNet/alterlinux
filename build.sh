@@ -304,10 +304,10 @@ _usage () {
 
 # Unmount chroot dir
 umount_chroot () {
-    local mount
-    for mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
-        _msg_info "Unmounting ${mount}"
-        umount -lf "${mount}"
+    local _mount
+    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
+        _msg_info "Unmounting ${_mount}"
+        umount -lf "${_mount}"
     done
 }
 
