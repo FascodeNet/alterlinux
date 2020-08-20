@@ -411,7 +411,8 @@ prepare_build() {
         _msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
     fi
-    
+
+
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
     _trap_remove_work() {
@@ -427,27 +428,32 @@ prepare_build() {
         if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
         fi
-        
+
+
         # If there is config for share channel. load that.
         load_config "${script_path}/channels/share/config.any"
         load_config "${script_path}/channels/share/config.${arch}"
-        
+
+
         # If there is config for each channel. load that.
         load_config "${script_path}/channels/${channel_name}/config.any"
         load_config "${script_path}/channels/${channel_name}/config.${arch}"
-        
+
+
         # Set username
         if [[ "${customized_username}" = false ]]; then
             username="${defaultusername}"
         fi
-        
+
+
         # gitversion
         if [[ "${gitversion}" = true ]]; then
             cd ${script_path}
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
-        
+
+
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
@@ -461,7 +467,8 @@ prepare_build() {
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
         _msg_debug "Iso filename is ${iso_filename}"
-    
+
+
         # Save build options
         local _write_rebuild_file
         _write_rebuild_file() {
@@ -558,6 +565,7 @@ prepare_build() {
         _msg_debug "Iso filename is ${iso_filename}"
     fi
 
+
     # check bool
     check_bool boot_splash
     check_bool cleaning
@@ -571,16 +579,18 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
 
+
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
+
     # Check kernel for each channel
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
         _msg_error "This kernel is currently not supported on this channel." "1"
     fi
-    
+
 
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
@@ -589,6 +599,7 @@ prepare_build() {
         cd - > /dev/null 2>&1
     fi
 
+
     # Unmount
     local _mount
     for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
@@ -596,18 +607,19 @@ prepare_build() {
         umount "${_mount}"
     done
     unset _mount
-    
+
+
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local check_pkg check_failed=false pkg
-        local installed_pkg=($(pacman -Q | awk '{print $1}')) installed_ver=($(pacman -Q | awk '{print $2}'))
+        local _check_pkg _check_failed=false _pkg
+        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}'))
 
-        check_pkg() {
+        _check_pkg() {
             local __pkg __ver
             for __pkg in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-                if [[ "${installed_pkg[${__pkg}]}" = ${1} ]]; then
+                if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
                     _ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
-                    if [[ "${installed_ver[${__pkg}]}" = "${__ver}" ]]; then
+                    if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         echo -n "installed"
                         return 0
                     elif [[ -z ${__ver} ]]; then
@@ -625,31 +637,32 @@ prepare_build() {
 
         _msg_info "Checking dependencies ..."
 
-        for pkg in ${dependence[@]}; do
-            _msg_debug -n "Checking ${pkg} ..."
-            case $(check_pkg ${pkg}) in
+        for _pkg in ${dependence[@]}; do
+            _msg_debug -n "Checking ${_pkg} ..."
+            case $(check_pkg ${_pkg}) in
                 "old")
-                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
-                    _msg_warn "${pkg} is not the latest package."
-                    _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n"
+                    _msg_warn "${_pkg} is not the latest package."
+                    _msg_warn "Local: $(pacman -Q ${_pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${_pkg} 2> /dev/null)"
                 ;;
                 "not")
                     [[ "${debug}" = true ]] && echo
-                    _msg_error "${pkg} is not installed." ; check_failed=true
+                    _msg_error "${_pkg} is not installed." ; _check_failed=true
                 ;;
                 "norepo")
                     [[ "${debug}" = true ]] && echo
-                    _msg_warn "${pkg} is not a repository package."
+                    _msg_warn "${_pkg} is not a repository package."
                 ;;
-                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n" ;;
+                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n" ;;
             esac
         done
         
-        if [[ "${check_failed}" = true ]]; then
+        if [[ "${_check_failed}" = true ]]; then
             exit 1
         fi
     fi
-    
+
+
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
@@ -665,6 +678,8 @@ prepare_build() {
     else
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
+
+
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
