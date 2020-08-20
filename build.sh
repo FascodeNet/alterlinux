@@ -343,11 +343,11 @@ remove() {
 
 # 強制終了時にアンマウント
 umount_trap() {
-    local status=${?}
+    local _status=${?}
     umount_chroot
     _msg_error "It was killed by the user."
     _msg_error "The process may not have completed successfully."
-    exit ${status}
+    exit ${_status}
 }
 
 # 設定ファイルを読み込む
