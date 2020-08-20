@@ -618,7 +618,7 @@ prepare_build() {
             local __pkg __ver
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    _ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                    __ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         echo -n "installed"
                         return 0
