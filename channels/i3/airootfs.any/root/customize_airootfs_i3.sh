@@ -87,7 +87,7 @@ fi
 #systemctl enable bluetooth
 
 # Replace shortcut list config
-if [[ "${japanese}" = true ]]; then
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/conky/conky.conf"
     mv "/etc/skel/.config/conky/conky-jp.conf" "/etc/skel/.config/conky/conky.conf"
 
