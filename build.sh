@@ -422,7 +422,7 @@ prepare_build() {
     }
     trap '_trap_remove_work' 1 2 3 15
     
-    if [[ ${rebuild} = false ]]; then
+    if [[ "${rebuild}" == false ]]; then
         # If there is pacman.conf for each channel, use that for building
         if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
