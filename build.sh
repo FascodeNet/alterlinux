@@ -639,7 +639,7 @@ prepare_build() {
 
         for _pkg in ${dependence[@]}; do
             _msg_debug -n "Checking ${_pkg} ..."
-            case $(check_pkg ${_pkg}) in
+            case $(_check_pkg ${_pkg}) in
                 "old")
                     [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n"
                     _msg_warn "${_pkg} is not the latest package."
