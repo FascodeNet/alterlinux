@@ -954,19 +954,19 @@ make_packages_aur() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    local copy_airootfs
+    local _copy_airootfs
     
-    copy_airootfs() {
+    _copy_airootfs() {
         local _dir="${1%/}"
         if [[ -d "${_dir}" ]]; then
             cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
         fi
     }
 
-    copy_airootfs "${script_path}/channels/share/airootfs.any"
-    copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
-    copy_airootfs "${script_path}/channels/${channel_name}/airootfs.any"
-    copy_airootfs "${script_path}/channels/${channel_name}/airootfs.${arch}"
+    _copy_airootfs "${script_path}/channels/share/airootfs.any"
+    _copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
+    _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.any"
+    _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.${arch}"
     
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
