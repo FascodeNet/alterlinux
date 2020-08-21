@@ -756,7 +756,7 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages() {
     set +e
-    local _loadfilelist _pkg _file excludefile excludelist _pkglist
+    local _loadfilelist _pkg _file _excludefile _excludelist _pkglist
     
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
@@ -773,51 +773,54 @@ make_packages() {
     for _file in ${_loadfilelist[@]}; do
         if [[ -f "${_file}" ]]; then
             msg_debug "Loaded package file ${_file}."
-            pkglist=( ${pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+            _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         fi
     done
 
     #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile=(
+    _excludefile=(
         "${script_path}/channels/share/packages.${arch}/exclude"
         "${script_path}/channels/${channel_name}/packages.${arch}/exclude"
     )
 
-    for _file in ${excludefile[@]}; do
+    for _file in ${_excludefile[@]}; do
         if [[ -f "${_file}" ]]; then
-            excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+            _excludelist=( ${_excludelist[@]} $(grep -h -v ^'#' "${_file}") )
         fi
     done
 
-    # 現在のpkglistをコピーする
-    _pkglist=(${pkglist[@]})
-    unset pkglist
-    for _pkg in ${_pkglist[@]}; do
-        # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-            pkglist=(${pkglist[@]} "${_pkg}")
+    #-- excludeに記述されたパッケージを除外 --#
+    # _pkglistを_subpkglistにコピーしexcludeのパッケージを除外し再代入
+    local _subpkglist=(${_pkglist[@]})
+    unset _pkglist
+    for _pkg in ${_subpkglist[@]}; do
+        # もし変数_pkgの値が配列_excludelistに含まれていなかったらpkglistに追加する
+        if [[ ! $(printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+            _pkglist=(${_pkglist[@]} "${_pkg}")
         fi
     done
+    unset _subpkglist
 
-    if [[ -n "${excludelist[*]}" ]]; then
+    #-- excludeされたパッケージを表示 --#
+    if [[ -n "${_excludelist[*]}" ]]; then
         msg_debug "The following packages have been removed from the installation list."
-        msg_debug "Excluded packages:" "${excludelist[@]}"
+        msg_debug "Excluded packages:" "${_excludelist[@]}"
     fi
 
     # Sort the list of packages in abc order.
-    pkglist=("$(for _pkg in ${pkglist[@]}; do echo "${_pkg}"; done | sort)")
+    _pkglist=("$(for _pkg in ${_pkglist[@]}; do echo "${_pkg}"; done | sort)")
 
     set -e
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    for _pkg in ${pkglist[@]}; do
+    for _pkg in ${_pkglist[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
     
     # Install packages on airootfs
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${pkglist[@]}" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${_pkglist[@]}" install
 }
 
 
