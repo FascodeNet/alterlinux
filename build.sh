@@ -994,12 +994,12 @@ make_customize_airootfs() {
     
     
     # Generate options of customize_airootfs.sh.
-    local airootfs_script_options
-    airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
-    [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
-    [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
-    [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
-    [[ ${rebuild} = true ]]     && airootfs_script_options="${airootfs_script_options} -r"
+    local _airootfs_script_options
+    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
+    [[ ${boot_splash} = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
+    [[ ${debug} = true ]]       && _airootfs_script_options="${_airootfs_script_options} -d"
+    [[ ${bash_debug} = true ]]  && _airootfs_script_options="${_airootfs_script_options} -x"
+    [[ ${rebuild} = true ]]     && _airootfs_script_options="${_airootfs_script_options} -r"
 
     # X permission
     local chmod_755
@@ -1016,7 +1016,7 @@ make_customize_airootfs() {
     -w "${work_dir}/${arch}" \
     -C "${work_dir}/pacman-${arch}.conf" \
     -D "${install_dir}" \
-    -r "/root/customize_airootfs.sh ${airootfs_script_options}" \
+    -r "/root/customize_airootfs.sh ${_airootfs_script_options}" \
     run
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
@@ -1024,14 +1024,14 @@ make_customize_airootfs() {
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_${channel_name}.sh ${airootfs_script_options}" \
+        -r "/root/customize_airootfs_${channel_name}.sh ${_airootfs_script_options}" \
         run
     elif [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${airootfs_script_options}" \
+        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${_airootfs_script_options}" \
         run
     fi
     
