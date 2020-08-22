@@ -1209,10 +1209,18 @@ make_tarball() {
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+        # Execute optimize_for_tarball.sh.
+        ${mkalteriso} ${mkalteriso_option} \
+        -w "${work_dir}/${arch}" \
+        -C "${work_dir}/pacman-${arch}.conf" \
+        -D "${install_dir}" \
+        -r "/root/optimize_for_tarball.sh" \
+        run
     fi
 
-    arch-chroot "${work_dir}/airootfs" "/root/optimize_for_tarball.sh" -u ${username}
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
+
+    remove "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
 
