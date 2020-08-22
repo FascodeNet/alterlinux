@@ -827,7 +827,7 @@ make_packages() {
 make_packages_aur() {
     set +e
 
-    local _loadfilelist _pkg _file excludefile excludelist _pkglist
+    local _loadfilelist _pkg _file _excludefile _excludelist _pkglist
     
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
@@ -853,13 +853,13 @@ make_packages_aur() {
     
     #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile=(
+    _excludefile=(
         "${script_path}/channels/share/packages_aur.${arch}/exclude"
         "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
     )
 
-    for _file in ${excludefile[@]}; do
-        [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+    for _file in ${_excludefile[@]}; do
+        [[ -f "${_file}" ]] && _excludelist=( ${_excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
 
     # 現在のpkglistをコピーする
@@ -867,14 +867,14 @@ make_packages_aur() {
     unset pkglist
     for _pkg in ${_pkglist[@]}; do
         # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+        if [[ ! $(printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
             pkglist=(${pkglist[@]} "${_pkg}")
         fi
     done
 
-    if [[ -n "${excludelist[*]}" ]]; then
+    if [[ -n "${_excludelist[*]}" ]]; then
         msg_debug "The following packages have been removed from the aur list."
-        msg_debug "Excluded packages:" "${excludelist[@]}"
+        msg_debug "Excluded packages:" "${_excludelist[@]}"
     fi
 
     # Sort the list of packages in abc order.
@@ -884,9 +884,7 @@ make_packages_aur() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    for _pkg in ${pkglist_aur[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
-    done
+    for _pkg in ${pkglist_aur[@]}; do; echo ${_pkg} >> "${work_dir}/packages.list"; done
     
     # Build aur packages on airootfs
     local _aur_pkg _copy_aur_scripts
