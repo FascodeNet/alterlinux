@@ -941,11 +941,11 @@ make_packages_aur() {
         unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
     done
 
-    # Remove scripts
-    remove "${work_dir}/${arch}/airootfs/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
-
     # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
+
+    # Remove scripts
+    remove "${work_dir}/${arch}/airootfs/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
 }
 
 # Customize installation (airootfs)
