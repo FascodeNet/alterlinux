@@ -423,7 +423,8 @@ command_tarball () {
 
     cd "${work_dir}/airootfs"
 
-    tar -J -p -c ${_vflag} -f "${tar_path}" ./*
+    #tar -J -p -c ${_vflag} -f "${tar_path}" ./*
+    tar f - ./* | pv | xz > "${tar_path}"
 
     cdback
 
