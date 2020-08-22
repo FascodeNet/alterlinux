@@ -884,7 +884,7 @@ make_packages_aur() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    for _pkg in ${pkglist_aur[@]}; do; echo ${_pkg} >> "${work_dir}/packages.list"; done
+    for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
     
     # Build aur packages on airootfs
     local _aur_pkg _copy_aur_scripts
