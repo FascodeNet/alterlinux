@@ -127,7 +127,7 @@ sed -i s/%USERNAME%/${username}/g /etc/gdm/custom.conf
 
 # Set autologin session
 mkdir -p "/var/lib/AccountsService/users/"
-echo "XSession=gnome-xorg" > "/var/lib/AccountsService/users/${username}"
+sed -i "s/XSession=*/XSession=gnome-xorg/g" "/var/lib/AccountsService/users/${username}"
 echo -e "\nremove /var/lib/AccountsService/users/${username}" >> "/usr/share/calamares/final-process\n"
 
 # Remove file for japanese input
