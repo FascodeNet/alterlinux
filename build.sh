@@ -827,7 +827,7 @@ make_packages() {
 make_packages_aur() {
     set +e
 
-    local _loadfilelist _pkg _file excludefile excludelist _pkglist
+    local _loadfilelist _pkg _file _excludefile _excludelist _pkglist
     
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
@@ -853,13 +853,13 @@ make_packages_aur() {
     
     #-- Read exclude list --#
     # Exclude packages from the share exclusion list
-    excludefile=(
+    _excludefile=(
         "${script_path}/channels/share/packages_aur.${arch}/exclude"
         "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
     )
 
-    for _file in ${excludefile[@]}; do
-        [[ -f "${_file}" ]] && excludelist=( ${excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+    for _file in ${_excludefile[@]}; do
+        [[ -f "${_file}" ]] && _excludelist=( ${_excludelist[@]} $(grep -h -v ^'#' "${_file}") )
     done
 
     # 現在のpkglistをコピーする
@@ -867,14 +867,14 @@ make_packages_aur() {
     unset pkglist
     for _pkg in ${_pkglist[@]}; do
         # もし変数_pkgの値が配列excludelistに含まれていなかったらpkglistに追加する
-        if [[ ! $(printf '%s\n' "${excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+        if [[ ! $(printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
             pkglist=(${pkglist[@]} "${_pkg}")
         fi
     done
 
-    if [[ -n "${excludelist[*]}" ]]; then
+    if [[ -n "${_excludelist[*]}" ]]; then
         msg_debug "The following packages have been removed from the aur list."
-        msg_debug "Excluded packages:" "${excludelist[@]}"
+        msg_debug "Excluded packages:" "${_excludelist[@]}"
     fi
 
     # Sort the list of packages in abc order.
@@ -884,9 +884,7 @@ make_packages_aur() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    for _pkg in ${pkglist_aur[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
-    done
+    for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
     
     # Build aur packages on airootfs
     local _aur_pkg _copy_aur_scripts
@@ -943,12 +941,11 @@ make_packages_aur() {
         unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
     done
 
-    # Remove scripts
-    remove "${work_dir}/${arch}/airootfs/paclist_old"
-    remove "${work_dir}/${arch}/airootfs/paclist_new"
-
     # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
+
+    # Remove scripts
+    remove "${work_dir}/${arch}/airootfs/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
 }
 
 # Customize installation (airootfs)
@@ -994,12 +991,12 @@ make_customize_airootfs() {
     
     
     # Generate options of customize_airootfs.sh.
-    local airootfs_script_options
-    airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
-    [[ ${boot_splash} = true ]] && airootfs_script_options="${airootfs_script_options} -b"
-    [[ ${debug} = true ]]       && airootfs_script_options="${airootfs_script_options} -d"
-    [[ ${bash_debug} = true ]]  && airootfs_script_options="${airootfs_script_options} -x"
-    [[ ${rebuild} = true ]]     && airootfs_script_options="${airootfs_script_options} -r"
+    local _airootfs_script_options
+    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
+    [[ ${boot_splash} = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
+    [[ ${debug} = true ]]       && _airootfs_script_options="${_airootfs_script_options} -d"
+    [[ ${bash_debug} = true ]]  && _airootfs_script_options="${_airootfs_script_options} -x"
+    [[ ${rebuild} = true ]]     && _airootfs_script_options="${_airootfs_script_options} -r"
 
     # X permission
     local chmod_755
@@ -1016,7 +1013,7 @@ make_customize_airootfs() {
     -w "${work_dir}/${arch}" \
     -C "${work_dir}/pacman-${arch}.conf" \
     -D "${install_dir}" \
-    -r "/root/customize_airootfs.sh ${airootfs_script_options}" \
+    -r "/root/customize_airootfs.sh ${_airootfs_script_options}" \
     run
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
@@ -1024,14 +1021,14 @@ make_customize_airootfs() {
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_${channel_name}.sh ${airootfs_script_options}" \
+        -r "/root/customize_airootfs_${channel_name}.sh ${_airootfs_script_options}" \
         run
     elif [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
-        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${airootfs_script_options}" \
+        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${_airootfs_script_options}" \
         run
     fi
     
@@ -1212,14 +1209,25 @@ make_tarball() {
 
     if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+        # Execute optimize_for_tarball.sh.
+        ${mkalteriso} ${mkalteriso_option} \
+        -w "${work_dir}/${arch}" \
+        -C "${work_dir}/pacman-${arch}.conf" \
+        -D "${install_dir}" \
+        -r "/root/optimize_for_tarball.sh" \
+        run
     fi
 
-    arch-chroot "${work_dir}/airootfs" "/root/optimize_for_tarball.sh" -u ${username}
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
+
+    remove "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
 
     remove "${work_dir}/airootfs"
+    if [[ "${noiso}" = true ]]; then
+        msg_info "The password for the live user and root is ${password}."
+    fi
 }
 
 # Build airootfs filesystem image

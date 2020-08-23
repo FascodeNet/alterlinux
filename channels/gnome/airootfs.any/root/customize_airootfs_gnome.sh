@@ -127,8 +127,15 @@ sed -i s/%USERNAME%/${username}/g /etc/gdm/custom.conf
 
 # Set autologin session
 mkdir -p "/var/lib/AccountsService/users/"
-echo "XSession=gnome-xorg" > "/var/lib/AccountsService/users/${username}"
-echo -e "\nremove /var/lib/AccountsService/users/${username}" >> "/usr/share/calamares/final-process\n"
+remove "/var/lib/AccountsService/users/${username}"
+cat > "/var/lib/AccountsService/users/${username}" << "EOF"
+[User]
+Language=
+Session=gnome-xorg
+XSession=gnome-xorg
+Icon=/home/${username}/.face
+SystemAccount=false
+EOF
 
 # Remove file for japanese input
 if [[ ! "${language}" = "ja" ]]; then
