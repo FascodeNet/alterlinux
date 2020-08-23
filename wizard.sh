@@ -4,7 +4,7 @@ set -e
 
 nobuild=false
 
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 build_arch=$(uname -m)
 
@@ -25,7 +25,6 @@ dependence=(
     "arch-install-scripts"
     "curl"
     "dosfstools"
-    "edk2-shell"
     "git"
     "libburn"
     "libisofs"
@@ -671,7 +670,7 @@ function set_out_dir () {
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
     if [[ ${japanese} = true ]]; then
-        argument="${argument} -g ja"
+        argument="${argument} -l ja"
     fi
     if [[ ${plymouth} = true ]]; then
         argument="${argument} -b"

@@ -14,8 +14,8 @@
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
 	</a>
-	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v45">
-		<img src="https://img.shields.io/badge/archiso--version-45--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v46">
+		<img src="https://img.shields.io/badge/archiso--version-46--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
 	</a>
 </p>
 <p align="center">
@@ -79,7 +79,7 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 
 <h2>〈Feature〉</h2>
 <ul>
-	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>You can install the already built Arch Linux environment with GUI</li>
 	<li>We release not only 64bit but also 32bit version.</li>
 	<li>The 32-bit version does not require PAE (Physical Address Extension).</li>
 	<li>Adopt ZEN kernel by default</li>
@@ -160,6 +160,7 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
 	<li><a href="en/CONFIG.md">About build configuration file</a></li>
+	<li><a href="en/arch-pkgbuild-parser.md">About arch-pkgbuild-parser</a></li>
 </ul>
 
 
@@ -191,11 +192,20 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/YangDevJP">
 	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
+<a href="https://twitter.com/Watasuke102">
+	<img src="https://avatars3.githubusercontent.com/u/36789813" width="100px">
+</a>
+<a href="https://twitter.com/kokkiemouse">
+	<img src="https://avatars0.githubusercontent.com/u/39451248" width="100px">
+</a>
+<a href="https://twitter.com/stmkza">
+	<img src="https://avatars2.githubusercontent.com/u/15907797" width="100px">
+</a>
 <a href="https://twitter.com/yamad_linuxer">
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">
 </a>
-<a href="https://twitter.com/tukutuN_27">
-	<img src="https://pbs.twimg.com/profile_images/1252216597164376064/_L3qgpkr_400x400.jpg" width="100px">
+<a href="https://twitter.com/tukutun27">
+	<img src="https://pbs.twimg.com/profile_images/1278526049903497217/CGMY5KUr.jpg" width="100px">
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">

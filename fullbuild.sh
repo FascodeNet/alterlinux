@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 channnels=(
     "xfce"
@@ -170,11 +170,11 @@ trap_exit() {
 build() {
     local _exit_code=0
 
-    options="${share_options} -a ${arch} -g ${lang} ${cha}"
+    options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
-            echo "build.sh ${share_options} -a ${arch} -g ${lang} ${cha}"
+            echo "build.sh ${share_options} --arch ${arch} --lang ${lang} ${cha}"
             _exit_code="${?}"
         else
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
@@ -217,9 +217,9 @@ _help() {
 
 
 share_options="--noconfirm"
-default_options="-b -l -u alter -p alter"
+default_options="-b -e -u alter -p alter"
 
-while getopts 'a:dghr:sct' arg; do
+while getopts 'a:dghr:sctm:' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         c) all_channel=true ;;

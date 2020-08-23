@@ -16,7 +16,6 @@ network-manager-applet
 
 #-- web browser --#
 chromium
-# elinks
 
 
 #-- security --#

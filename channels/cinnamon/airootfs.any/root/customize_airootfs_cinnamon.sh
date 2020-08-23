@@ -74,14 +74,6 @@ function remove () {
 }
 
 
-# Replace wallpaper.
-if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
-    remove /usr/share/backgrounds/xfce/xfce-stripes.png
-    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-fi
-[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
-
-
 # Bluetooth
 rfkill unblock all
 systemctl enable bluetooth
@@ -95,25 +87,8 @@ if [[ "${arch}" = "x86_64" ]]; then
 fi
 
 
-# Update system datebase
-dconf update
-
-
 # firewalld
 systemctl enable firewalld.service
-
-
-# Replace link
-if [[ "${language}" = "ja" ]]; then
-    remove "/etc/skel/Desktop/welcome-to-alter.desktop"
-    remove "/home/${username}/Desktop/welcome-to-alter.desktop"
-
-    mv "/etc/skel/Desktop/welcome-to-alter-jp.desktop" "/etc/skel/Desktop/welcome-to-alter.desktop"
-    mv "/home/${username}/Desktop/welcome-to-alter-jp.desktop" "/home/${username}/Desktop/welcome-to-alter.desktop"
-else
-    remove "/etc/skel/Desktop/welcome-to-alter-jp.desktop"
-    remove "/home/${username}/Desktop/welcome-to-alter-jp.desktop"
-fi
 
 
 # Added autologin group to auto login
@@ -138,3 +113,9 @@ chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+
+# Replace password for screensaver comment
+sed -i s/%PASSWORD%/${password}/g "/etc/dconf/db/local.d/02-disable-lock"
+
+# Update system datebase
+dconf update

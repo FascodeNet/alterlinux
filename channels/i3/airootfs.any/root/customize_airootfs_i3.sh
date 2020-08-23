@@ -86,8 +86,8 @@ fi
 #rfkill unblock all
 #systemctl enable bluetooth
 
-# Replace panel config
-if [[ "${japanese}" = true ]]; then
+# Replace shortcut list config
+if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/conky/conky.conf"
     mv "/etc/skel/.config/conky/conky-jp.conf" "/etc/skel/.config/conky/conky.conf"
 
@@ -105,6 +105,15 @@ remove "/etc/skel/.config/conky/conky-live.conf"
 remove "/etc/skel/.config/conky/conky-live-jp.conf"
 remove "/home/${username}/.config/conky/conky-jp.conf"
 
+# Change browser that open help file
+if [[ "${arch}" = "i686" ]]; then
+    sed -i -e s/chromium/firefox/g /etc/skel/.config/i3/config
+    sed -i -e s/chromium/firefox/g /home/${username}/.config/i3/config
+fi
+
+# disable light-locker on live
+sed -i "/light/s/^/# /g" /home/${username}/.config/i3/config
+
 # Snap
 #if [[ "${arch}" = "x86_64" ]]; then
 #    systemctl enable snapd.apparmor.service
@@ -121,18 +130,8 @@ dconf update
 # firewalld
 #systemctl enable firewalld.service
 
-
-# Replace link
-#if [[ "${japanese}" = true ]]; then
-#    remove "/etc/skel/Desktop/welcome-to-alter.desktop"
-#    remove "/home/${username}/Desktop/welcome-to-alter.desktop"
-
-#    mv "/etc/skel/Desktop/welcome-to-alter-jp.desktop" "/etc/skel/Desktop/welcome-to-alter.desktop"
-#    mv "/home/${username}/Desktop/welcome-to-alter-jp.desktop" "/home/${username}/Desktop/welcome-to-alter.desktop"
-#else
-#    remove "/etc/skel/Desktop/welcome-to-alter-jp.desktop"
-#    remove "/home/${username}/Desktop/welcome-to-alter-jp.desktop"
-#fi
+# ntp
+systemctl enable systemd-timesyncd.service
 
 
 # Added autologin group to auto login

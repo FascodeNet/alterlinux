@@ -2,7 +2,7 @@
 There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
 Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
   
-When building on a real machine, the OS must be ArchLinux or Alter Linux.
+When building on a real machine, the OS must be Arch Linux or Alter Linux.
 The following explains how to build on a real machine.  
   
 TWhen building directly on Arch or Alter, there are several ways to build.  
@@ -25,25 +25,25 @@ sudo ./keyring.sh --alter-add --arch32-add
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
 ```
 
 #### Install the dependencies
 Install the packages required for building.  
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
 ```
 
-### TUIを使用する
+### Use the TUI
 You can configure and build using `menuconfig`.  
 
 ```bash
 make menuconfig
 ```
 
-### GUIを使用する
-GUIで設定を行ってビルドできます。
+### Use the GUI
+You can configure and build with the GUI.
 
 ```bash
 python ./build-wizard.py
@@ -64,7 +64,7 @@ Run `./build.sh -h` for full options and usage.
  Change kernel | -k [kernel]
  Change the username | -u [username]
  Change the password | -p [password]
- Japanese | -j
+ Japanese | -l ja
  Change compression method | -c [comp type]
  Set compression options | -t [comp option]
  Specify output destination directory | -o [dir]
@@ -90,16 +90,22 @@ Do this to build under the following conditions.
 #### About channel
 Channels switch between packages to install and files to include.  
 This mechanism makes it possible to build various versions of Alter Linux.  
-The following channels are supported as of May 5, 2020.  
+The following channels are supported as of August 17, 2020.  
 See `./build.sh -h` for a complete list of channels.
 
 Name | Purpose
 --- | ---
-xfce | Default channel with Xfce4 for desktop environment and various software added
-plasma | Currently developing channel with Plasma and Qt apps
-lxde | The lightest channel except releng, which contains only LXDE and minimal applications
-releng | A channel where you can build a pure Arch Linux live boot disk
-rebuild | A special channel that rebuilds using the settings in the working directory
+basic | Base channel for configuring channels
+cinnamon | Gorgeous cinnamon desktop with many applications.
+gnome | Gnome customized with extension and software for beginner
+i3 | using i3, a dynamic tiling window manager inspired by wmii.
+lxde | Composed of Lxde and a little software
+plasma | Uses KDE and Qt software.
+releng | Build ArchLinux as is. Boot splash etc. cannot be used.
+xfce | Use Xfce4 for desktop environment.
+xfce-pro | Pro Edition with some software added to Xfce and replaced with Compiz
+rebuild | Build from the point where it left off using the previous build settings.
+
 
 
 #### About the kernel

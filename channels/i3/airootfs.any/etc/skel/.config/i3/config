@@ -30,14 +30,21 @@ for_window [class="^.*"] border pixel 2
 
 
 # automatic-startup
+exec_always --no-startup-id /usr/lib/mate-polkit/polkit-mate-authentication-agent-1
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+exec_always --no-startup-id light-locker
+exec_always --no-startup-id compton
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-clipman
+exec --no-startup-id dex -ae i3
 exec --no-startup-id dunst
 exec --no-startup-id conky
 exec --no-startup-id fcitx
 
+# software floating settings
+for_window [class="arandr"]      floating enable
+for_window [class="pavucontrol"] floating enable
 
 # ---------------------
 # KeyBind
@@ -54,20 +61,29 @@ bindsym $mod+Return exec --no-startup-id sakura
 # take a screenshot
 bindsym $mod+Shift+Print exec --no-startup-id xfce4-screenshooter
 
-# kill focused window
-bindsym $mod+Shift+q kill
-
 # lock screen
-bindsym Mod4+Escape exec --no-startup-id i3lock -k
+bindsym $mod+Escape exec --no-startup-id light-locker-command -l
 
 # polybar theme setting manager
 bindsym $mod+Shift+s exec --no-startup-id alterlinux-i3-manager
 
-# bmenu (system setting manager)
-bindsym $mod+b exec --no-startup-id sakura -e bmenu
+# system setting manager
+bindsym $mod+b exec --no-startup-id sakura -e alter-system-menu
 
 # show help document
 bindsym $mod+Shift+h exec --no-startup-id chromium /usr/share/doc/alter-i3/Document.html
+
+# start rofi (launcher)
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# start file manager
+bindsym $mod+Shift+f exec --no-startup-id thunar
+
+# power menu
+bindsym $mod+Shift+e exec --no-startup-id rofi -show power
+
+# kill focused window
+bindsym $mod+Shift+q kill
 
 
 # change focus
@@ -114,9 +130,6 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
-
-# start rofi (launcher)
-bindsym $mod+d exec --no-startup-id rofi -show run
 
 
 # Use Mouse+$mod to drag floating windows to their wanted position
@@ -210,18 +223,3 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 
-# power menu
-set $power_menu (S): Shutdown (R): Reboot (O): logOut (L): Lock
-mode "$power_menu" {
-        # s: Shutdown, r: Reboot, o: logOut, l: Lock
-        bindsym s exec --no-startup-id systemctl poweroff, mode "default"
-        bindsym r exec --no-startup-id systemctl reboot,   mode "default"
-        bindsym o exec --no-startup-id i3-msg exit,        mode "default"
-        bindsym l exec --no-startup-id i3lock -k,          mode "default"
-
-        # mode exit (q, Esc, Enter, Space)
-        bindsym q      mode "default"
-        bindsym Escape mode "default"
-        bindsym Return mode "default"
-}
-bindsym $mod+Shift+e mode "$power_menu"
