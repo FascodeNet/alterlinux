@@ -1,0 +1,46 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+
+
+#-- archiver --#
+xarchiver
+
+
+#-- GVFS --#
+gvfs
+gvfs-smb
+
+
+#-- boot manager --#
+grub-customizer
+
+
+#-- documents --#
+man-db
+man-pages
+
+
+#-- system monitor --#
+htop
+
+
+#-- printer --#
+system-config-printer
+
+
+#-- text editor --#
+medit
+nano
+vim
+
+
+#-- other --#
+arandr
+tlpui

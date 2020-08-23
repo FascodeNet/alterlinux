@@ -1,0 +1,34 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Lxde Desktop Environment
+
+
+#-- lxde base --#
+lxappearance
+lxappearance-obconf
+lxde-common
+lxde-icon-theme
+lxhotkey
+lxinput
+lxlauncher
+lxpanel
+lxsession
+lxtask
+lxterminal
+openbox
+pcmanfm
+
+#-- themes --#
+adapta-gtk-theme
+papirus-icon-theme
+
+
+#-- wallpaper --#
+alterlinux-wallpapers
