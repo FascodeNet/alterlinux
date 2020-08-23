@@ -37,12 +37,19 @@ remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
 
-if [[ -f "/etc/systemd/journald.conf" ]]; then
-    sed -i 's/Storage=volatile/#Storage=volatile/g' "/etc/systemd/journald.conf"
-fi
+remove /etc/systemd/journald.conf.d/volatile-storage.conf
+remove /airootfs.any/etc/systemd/logind.conf.d/do-not-suspend.conf
 
 remove /etc/udev/rules.d/81-dhcpcd.rules
-remove /etc/systemd/system/{choose-mirror.service,etc-pacman.d-gnupg.mount,getty@tty1.service.d}
+remove /etc/systemd/system/{choose-mirror.service,getty@tty1.service.d}
 
 # Disabled auto login
-sed -i "s/^AutomaticLogin/#AutomaticLogin/g" "/etc/gdm/gdm.conf"
+sed -i "s/Automatic*/#Automatic/g" "/etc/gdm/custom.conf"
+
+
+# Remove dconf for live environment
+remove "/etc/dconf/db/local.d/02-live-"*
+
+
+# Update system datebase
+dconf update
