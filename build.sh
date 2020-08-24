@@ -1249,7 +1249,7 @@ make_prepare() {
             echo "${@}" >> "${_info_file}"
         }
         rm -rf "${_info_file}"; touch "${_info_file}"
-        if [[ -d "${script_path}/.git" ]]; then
+        if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _write_info_file "${iso_application} ${arch} ${iso_version}-$(git rev-parse --short HEAD)"
         else
             _write_info_file "${iso_application} ${arch} ${iso_version}"
