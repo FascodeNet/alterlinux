@@ -1241,6 +1241,26 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${work_dir}/${arch}/airootfs"
     fi
+
+    # iso version info
+    if [[ "${include_info}" = true ]]; then
+        local _write_info_file _info_file="${work_dir}/iso/alteriso-info"
+        _write_info_file () {
+            echo "${@}" >> "${_info_file}"
+        }
+        rm -rf "${_info_file}"; touch "${_info_file}"
+
+        _write_info_file "Created by ${iso_publisher}"
+        _write_info_file "${iso_application} ${arch}"
+        if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
+            _write_info_file "Version   : ${iso_version}-$(git rev-parse --short HEAD)"
+        else
+        _write_info_file "Version       : ${iso_version}"
+        fi
+        _write_info_file "Channel   name: ${channel_name}"
+        _write_info_file "Live user name: ${username}"
+        _write_info_file "Live user pass: ${password}"
+    fi
 }
 
 # Build ISO
