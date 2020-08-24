@@ -49,7 +49,7 @@ be lost on update).
 
 The examples below will assume an unmodified profile in a system location (unless noted otherwise).
 
-It is advised to check the help information of the **mkarchiso**:
+It is advised to consult the help output of **mkarchiso**:
 
   .. code:: bash
 
@@ -60,7 +60,7 @@ Create images with packaged archiso
 
   .. code:: bash
 
-    mkarchiso -B path/to/profile -w path/to/work_dir -o path/to/out_dir build_profile
+    mkarchiso -w path/to/work_dir -o path/to/out_dir path/to/profile
 
 Create images with local clone
 ------------------------------
@@ -69,13 +69,13 @@ Clone this repository and run:
 
   .. code:: bash
 
-    ./archiso/mkarchiso -B path/to/profile -w path/to/work_dir -o path/to/out_dir build_profile
+    ./archiso/mkarchiso -w path/to/work_dir -o path/to/out_dir path/to/profile
 
 Testing
 =======
 
 The convenience script **run_archiso** is provided to boot into the medium using qemu.
-It is advised to read its help information:
+It is advised to consult its help output:
 
   .. code:: bash
 
@@ -91,7 +91,7 @@ Run the following to boot the iso using UEFI:
 
   .. code:: bash
 
-    run_archiso -i path/to/an/arch.iso -u
+    run_archiso -u -i path/to/an/arch.iso
 
 The script can of course also be executed from this repository:
 

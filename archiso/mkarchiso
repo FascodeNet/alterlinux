@@ -20,17 +20,22 @@ img_name="${app_name}.iso"
 sfs_mode="sfs"
 sfs_comp="xz"
 gpg_key=""
+override_gpg_key=""
 
 # profile defaults
 profile=""
 iso_name="${app_name}"
 iso_label="${app_name^^}"
+override_iso_label=""
 iso_publisher="${app_name}"
+override_iso_publisher=""
 iso_application="${app_name} iso"
+override_iso_application=""
 iso_version=""
 install_dir="${app_name}"
 arch="$(uname -m)"
 pacman_conf="/etc/pacman.conf"
+override_pacman_conf=""
 bootmodes=()
 
 
@@ -105,36 +110,52 @@ _umount_efibootimg() {
 # $1: exit status number.
 _usage() {
     IFS='' read -r -d '' usagetext <<ENDUSAGETEXT || true
-usage ${app_name} [options] command <command options>
- general options:
-    -B <profile_dir> Directory of the archiso profile to build
-    -p PACKAGE(S)    Package(s) to install, can be used multiple times
-    -C <file>        pacman configuration file.
-                     Default: '${pacman_conf}'
-    -L <label>       Set the ISO volume label
-                     Default: '${iso_label}'
-    -P <publisher>   Set a ISO publisher
-                     Default: '${iso_publisher}'
-    -A <application> Set an application name for the ISO
-                     Default: '${iso_application}'
-    -D <install_dir> Set an install_dir. All files will by located here.
-                     Default: '${install_dir}'
-                     NOTE: Max 8 characters, use only [a-z0-9]
-    -w <work_dir>    Set the working directory
-                     Default: '${work_dir}'
-    -o <out_dir>     Set the output directory
-                     Default: '${out_dir}'
-    -s <sfs_mode>    Set SquashFS image mode (img or sfs)
-                     img: prepare airootfs.sfs for dm-snapshot usage
-                     sfs: prepare airootfs.sfs for overlayfs usage
-                     Default: '${sfs_mode}'
-    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)
-                     Default: '${sfs_comp}'
-    -v               Enable verbose output
-    -h               This message
- commands:
-   build_profile
-      build an iso image from a profile
+usage ${app_name} [options] <profile_dir or legacy_command>
+  options:
+     -A <application> Set an application name for the ISO
+                      Default: '${iso_application}'
+     -C <file>        pacman configuration file.
+                      Default: '${pacman_conf}'
+     -D <install_dir> Set an install_dir. All files will by located here.
+                      Default: '${install_dir}'
+                      NOTE: Max 8 characters, use only [a-z0-9]
+     -L <label>       Set the ISO volume label
+                      Default: '${iso_label}'
+     -P <publisher>   Set the ISO publisher
+                      Default: '${iso_publisher}'
+     -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)
+                      Default: '${sfs_comp}'
+     -g <gpg_key>     Set the GPG key to be used for signing the sqashfs image
+     -h               This message
+     -o <out_dir>     Set the output directory
+                      Default: '${out_dir}'
+     -p PACKAGE(S)    Package(s) to install, can be used multiple times
+     -r <run_cmd>     Set a command to be run in chroot (only relevant for for command_run)
+                      NOTE: Deprecated, will be removed with archiso v49
+     -s <sfs_mode>    Set SquashFS image mode (img or sfs)
+                      img: prepare airootfs.sfs for dm-snapshot usage
+                      sfs: prepare airootfs.sfs for overlayfs usage
+                      Default: '${sfs_mode}'
+     -v               Enable verbose output
+     -w <work_dir>    Set the working directory
+                      Default: '${work_dir}'
+
+  profile_dir:        Directory of the archiso profile to build
+
+  legacy_command:     Legacy build.sh command
+                      NOTE: Deprecated, will be removed with archiso v49
+    command_init
+        initialize a chroot for building
+    command_install
+        install packages to the chroot
+    command_run
+        run a command in the chroot
+    command_prepare
+        cleanup and prepare the airootfs
+    command_pkglist
+        create a list of packages installed on the medium
+    command_iso
+        create the ISO
 ENDUSAGETEXT
     printf '%s' "${usagetext}"
     exit "${1}"
@@ -652,6 +673,29 @@ _read_profile() {
     fi
 }
 
+# set overrides from mkarchiso option parameters, if present
+_set_overrides() {
+    if [[ -n "$override_iso_label" ]]; then
+        iso_label="$override_iso_label"
+    fi
+    if [[ -n "$override_iso_publisher" ]]; then
+        iso_publisher="$override_iso_publisher"
+    fi
+    if [[ -n "$override_iso_application" ]]; then
+        iso_application="$override_iso_application"
+    fi
+    if [[ -n "$override_install_dir" ]]; then
+        install_dir="$override_install_dir"
+    fi
+    if [[ -n "$override_pacman_conf" ]]; then
+        pacman_conf="$override_pacman_conf"
+    fi
+    if [[ -n "$override_gpg_key" ]]; then
+        gpg_key="$override_gpg_key"
+    fi
+}
+
+
 _export_gpg_publickey() {
     if [[ -n "${gpg_key}" ]]; then
         gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
@@ -743,27 +787,23 @@ command_build_profile() {
     _run_once _make_iso
 }
 
-while getopts 'B:p:r:C:L:P:A:D:w:o:s:c:g:vh:?' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh?' arg; do
     case "${arg}" in
-        B)
-            profile="$(realpath -- "${OPTARG}")"
-            _read_profile
-            ;;
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
             pkg_list+=("${opt_pkg_list[@]}")
             ;;
         r) run_cmd="${OPTARG}" ;;
-        C) pacman_conf="$(realpath -- "${OPTARG}")" ;;
-        L) iso_label="${OPTARG}" ;;
-        P) iso_publisher="${OPTARG}" ;;
-        A) iso_application="${OPTARG}" ;;
-        D) install_dir="${OPTARG}" ;;
+        C) override_pacman_conf="$(realpath -- "${OPTARG}")" ;;
+        L) override_iso_label="${OPTARG}" ;;
+        P) override_iso_publisher="${OPTARG}" ;;
+        A) override_iso_application="${OPTARG}" ;;
+        D) override_install_dir="${OPTARG}" ;;
         w) work_dir="$(realpath -- "${OPTARG}")" ;;
         o) out_dir="$(realpath -- "${OPTARG}")" ;;
         s) sfs_mode="${OPTARG}" ;;
         c) sfs_comp="${OPTARG}" ;;
-        g) gpg_key="${OPTARG}" ;;
+        g) override_gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
@@ -791,40 +831,46 @@ isofs_dir="${work_dir}/iso"
 
 case "${command_name}" in
     init)
-        _msg_warning "The '${command_name}' command is deprecated!"
+        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
+        _set_overrides
         command_init
         ;;
     install)
-        _msg_warning "The '${command_name}' command is deprecated!"
+        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
+        _set_overrides
         command_install
         ;;
     run)
-        _msg_warning "The '${command_name}' command is deprecated!"
+        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
         command_run
         ;;
     prepare)
-        _msg_warning "The '${command_name}' command is deprecated!"
+        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
+        _set_overrides
         command_prepare
         ;;
     pkglist)
-        _msg_warning "The '${command_name}' command is deprecated!"
+        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
         command_pkglist
         ;;
     iso)
-        _msg_warning "The '${command_name}' command is deprecated!"
+        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
         if (( $# < 2 )); then
             _msg_error "No image specified" 0
             _usage 1
         fi
         img_name="${2}"
+        _set_overrides
         command_iso
         ;;
-    build_profile)
-        command_build_profile
-        ;;
     *)
-        _msg_error "Invalid command name '${command_name}'" 0
-        _usage 1
+        # NOTE: we call read_profile here, assuming that the first non-option parameter is a profile directory
+        # This way we can retain backwards compatibility with legacy build.sh scripts until we deprecate the old way of
+        # calling mkarchiso with named parameters in v49
+        profile="$(realpath -- "${command_name}")"
+        _read_profile
+        _set_overrides
+        command_build_profile
         ;;
 esac
 
