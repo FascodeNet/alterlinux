@@ -1,0 +1,14 @@
+Alter Linux Gnome
+===========
+
+Japanese:
+初心者向けに多くのパッケージを搭載してカスタマイズされたGnomeです。
+デフォルトでいくつかの拡張機能が有効化されており、簡単に使用できます。
+このエディションではGDMを採用しています。
+x86_64のみをサポートしており、チャンネル名は gnome です。
+
+English:
+A customized Gnome with many packages for beginners.
+Some extensions are enabled by default and are easy to use.
+This edition uses GDM.
+Only x86_64 is supported and the channel name is gnome.

@@ -13,15 +13,11 @@
 # and installed by the build script.
 #
 
-amd-ucode
 broadcom-wl
 broadcom-wl-dkms
-efitools
-haveged
-intel-ucode
+
 linux
 linux-headers
+
 memtest86+
-mkinitcpio-nfs-utils
-nbd
 plymouth

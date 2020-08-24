@@ -14,8 +14,8 @@
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
 	</a>
-	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v45">
-		<img src="https://img.shields.io/badge/archiso--version-45--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v46">
+		<img src="https://img.shields.io/badge/archiso--version-46--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
 	</a>
 </p>
 <p align="center">
@@ -79,7 +79,7 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 
 <h2>〈Feature〉</h2>
 <ul>
-	<li>You can install the already built ArchLinux environment with GUI</li>
+	<li>You can install the already built Arch Linux environment with GUI</li>
 	<li>We release not only 64bit but also 32bit version.</li>
 	<li>The 32-bit version does not require PAE (Physical Address Extension).</li>
 	<li>Adopt ZEN kernel by default</li>
@@ -160,6 +160,7 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
 	<li><a href="en/CONFIG.md">About build configuration file</a></li>
+	<li><a href="en/arch-pkgbuild-parser.md">About arch-pkgbuild-parser</a></li>
 </ul>
 
 

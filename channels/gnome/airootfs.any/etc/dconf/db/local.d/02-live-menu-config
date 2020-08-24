@@ -1,0 +1,4 @@
+[org/gnome/shell/extensions/arc-menu]
+show-suspend-button=false
+show-lock-button=false
+show-logout-button=false
