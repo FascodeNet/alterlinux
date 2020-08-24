@@ -1002,7 +1002,7 @@ make_customize_airootfs() {
     local chmod_755
     chmod_755() {
         for _file in ${@}; do
-            [[ -f "$_file" ]] &&chmod 755 "${_file}"
+            if [[ -f "$_file" ]]; then chmod 755 "${_file}" ;fi
         done
     }
     
