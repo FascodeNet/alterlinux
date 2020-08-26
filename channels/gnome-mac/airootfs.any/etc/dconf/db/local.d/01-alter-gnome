@@ -64,7 +64,7 @@ hinting='slight'
 app-picker-view=uint32 0
 disabled-extensions=['native-window-placement@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
 enabled-extensions=['extensions@abteil.org', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'topicons-redux@pop-planet.info', 'arc-menu@linxgem33.com', 'ding@rastersoft.com', 'dash-to-dock@micxgx.gmail.com']
-favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Shell.Extensions.desktop', 'pamac-updater.desktop', 'gnome-control-center.desktop']
+favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'pamac-updater.desktop', 'gnome-control-center.desktop']
 
 [org/gnome/shell/extensions/arc-menu]
 application-shortcuts-list=[['Software', 'system-software-install-symbolic', 'ArcMenu_Software'], ['Settings', 'preferences-system-symbolic', 'gnome-control-center.desktop'], ['Tweaks', 'org.gnome.tweaks-symbolic', 'org.gnome.tweaks.desktop'], ['Terminal', 'utilities-terminal-symbolic', 'org.gnome.Terminal.desktop']]
