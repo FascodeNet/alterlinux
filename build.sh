@@ -29,6 +29,11 @@ else
     exit 1
 fi
 
+# Load custom.conf
+if [[ -f "${script_path}/custom.conf" ]]; then
+    source "${script_path}/custom.conf"
+fi
+
 umask 0022
 
 # Color echo
