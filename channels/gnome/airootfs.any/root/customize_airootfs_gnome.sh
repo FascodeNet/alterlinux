@@ -131,8 +131,8 @@ remove "/var/lib/AccountsService/users/${username}"
 cat > "/var/lib/AccountsService/users/${username}" << "EOF"
 [User]
 Language=
-Session=gnome-xorg
-XSession=gnome-xorg
+Session=gnome
+XSession=gnome
 Icon=/home/${username}/.face
 SystemAccount=false
 EOF
