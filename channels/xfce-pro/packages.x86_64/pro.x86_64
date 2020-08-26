@@ -16,3 +16,6 @@ winetricks
 
 #-- OBS Studio --#
 obs-studio
+
+#-- openshot --#
+openshot
