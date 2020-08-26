@@ -29,6 +29,11 @@ else
     exit 1
 fi
 
+# Load custom.conf
+if [[ -f "${script_path}/custom.conf" ]]; then
+    source "${script_path}/custom.conf"
+fi
+
 umask 0022
 
 # Color echo
@@ -1002,7 +1007,7 @@ make_customize_airootfs() {
     local chmod_755
     chmod_755() {
         for _file in ${@}; do
-            [[ -f "$_file" ]] &&chmod 755 "${_file}"
+            if [[ -f "$_file" ]]; then chmod 755 "${_file}" ;fi
         done
     }
     
@@ -1347,7 +1352,7 @@ parse_files() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1477,6 +1482,10 @@ while :; do
             show_channel_list
             exit 0
             ;;
+        --config)
+            source "${2}"
+             shift 2
+             ;;
         --)
             shift
             break

@@ -1,4 +1,4 @@
-#
+# 
 # Alter Linux package list
 #
 # Yamada Hayao 
@@ -7,15 +7,11 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Pro packages
+# File System
 
-#-- Wine --#
-playonlinux
-wine
-winetricks
 
-#-- OBS Studio --#
-obs-studio
-
-#-- openshot --#
-openshot
+#-- mtp --#
+gvfs-mtp
+mtpfs
+gvfs
+gvfs-smb

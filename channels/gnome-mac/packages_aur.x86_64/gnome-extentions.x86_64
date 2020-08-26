@@ -7,15 +7,8 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Pro packages
+# Gnome extensions
 
-#-- Wine --#
-playonlinux
-wine
-winetricks
-
-#-- OBS Studio --#
-obs-studio
-
-#-- openshot --#
-openshot
+gnome-shell-extension-arc-menu
+# gnome-shell-extension-dash-to-panel
+gnome-shell-extension-desktop-icons-ng

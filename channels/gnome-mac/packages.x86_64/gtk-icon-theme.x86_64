@@ -1,4 +1,4 @@
-#
+# 
 # Alter Linux package list
 #
 # Yamada Hayao 
@@ -7,15 +7,12 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Pro packages
+# look and feel
 
-#-- Wine --#
-playonlinux
-wine
-winetricks
 
-#-- OBS Studio --#
-obs-studio
+# icon
+papirus-icon-theme
 
-#-- openshot --#
-openshot
+
+# theme
+adapta-gtk-theme
