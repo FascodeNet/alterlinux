@@ -219,7 +219,7 @@ _help() {
 
 
 share_options="--noconfirm"
-default_options="-b -e -u alter -p alter"
+default_options="--boot-splash --cleanup --user alter --password alter"
 
 while getopts 'a:dghr:sctm:' arg; do
     case "${arg}" in
