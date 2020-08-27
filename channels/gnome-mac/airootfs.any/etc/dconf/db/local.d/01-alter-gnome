@@ -95,13 +95,15 @@ show-suspend-button=false
 apply-custom-theme=false
 custom-theme-shrink=false
 dash-max-icon-size=32
-dock-fixed=true
+dock-fixed=false
 dock-position='BOTTOM'
+force-straight-corner=false
 height-fraction=1.0
 multi-monitor=true
 preferred-monitor=0
 running-indicator-style='DOTS'
-show-show-apps-button=false
+show-apps-at-top=true
+show-show-apps-button=true
 
 [org/gnome/shell/extensions/ding]
 icon-size='small'
