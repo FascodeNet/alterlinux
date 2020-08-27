@@ -1352,7 +1352,7 @@ parse_files() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1380,7 +1380,7 @@ while :; do
             debug=true
             shift 1
             ;;
-        -e | --cleaning)
+        -e | --cleaning | --cleanup)
             cleaning=true
             shift 1
             ;;
