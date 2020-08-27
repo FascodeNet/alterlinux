@@ -1511,7 +1511,10 @@ fi
 unset DEFAULT_ARGUMENT ARGUMENT
 
 # Show config message
-[[ -f "${defaultconfig}" ]] && msg_debug "Use the default configuration file (${defaultconfig})."
+msg_debug "Use the default configuration file (${defaultconfig})."
+if [[ -f "${script_path}/custom.conf" ]]; then
+    msg_debug "The default settings have been overridden by custom.conf"
+fi
 
 # Debug mode
 mkalteriso_option="-a ${arch} -v"
