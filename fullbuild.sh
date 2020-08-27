@@ -4,9 +4,11 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 channnels=(
     "xfce"
+    "xfce-pro"
     "lxde"
     "cinnamon"
     "i3"
+    "gnome"
 )
 
 architectures=(
@@ -16,7 +18,7 @@ architectures=(
 
 locale_list=(
     "ja"
-    "gl"
+    "en"
 )
 
 work_dir=temp
@@ -180,11 +182,11 @@ build() {
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash ${script_path}/build.sh ${options}
             _exit_code="${?}"
-        fi
-        if [[ "${_exit_code}" == 0 ]]; then
-            touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
-        else
-            _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
+            if [[ "${_exit_code}" == 0 ]]; then
+                touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
+            else
+                _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
+            fi
         fi
     fi
     sudo pacman -Sccc --noconfirm > /dev/null 2>&1
