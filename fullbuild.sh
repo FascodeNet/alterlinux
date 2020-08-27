@@ -255,6 +255,10 @@ elif [[ -n "${*}" ]]; then
     channnels=(${@})
 fi
 
+if [[ "${simulation}" = true ]]; then
+    retry=1
+fi
+
 _msg_info "Options: ${share_options}"
 _msg_info "Press Enter to continue or Ctrl + C to cancel."
 read
