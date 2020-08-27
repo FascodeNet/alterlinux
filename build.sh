@@ -1341,11 +1341,11 @@ parse_files() {
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
-    kernel="${_kernel_config_line[1]}"
-    kernel_package="${_kernel_config_line[2]}"
-    kernel_headers_packages="${_kernel_config_line[3]}"
-    kernel_filename="${_kernel_config_line[4]}"
-    kernel_mkinitcpio_profile="${_kernel_config_line[5]}"
+    kernel="${_kernel_config_line[0]}"
+    kernel_package="${_kernel_config_line[1]}"
+    kernel_headers_packages="${_kernel_config_line[2]}"
+    kernel_filename="${_kernel_config_line[3]}"
+    kernel_mkinitcpio_profile="${_kernel_config_line[4]}"
 }
 
 
