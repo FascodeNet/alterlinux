@@ -1300,15 +1300,15 @@ parse_files() {
     [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line="$(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)"
+    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
-    locale_name=$(echo ${_locale_config_line} | awk '{print $1}')
-    locale_gen_name=$(echo ${_locale_config_line} | awk '{print $2}')
-    locale_version=$(echo ${_locale_config_line} | awk '{print $3}')
-    locale_time=$(echo ${_locale_config_line} | awk '{print $4}')
-    locale_fullname=$(echo ${_locale_config_line} | awk '{print $5}')
+    locale_name="${_locale_config_line[0]}"
+    locale_gen_name="${_locale_config_line[1]}"
+    locale_version="${_locale_config_line[2]}"
+    locale_time="${_locale_config_line[3]}"
+    locale_fullname="${_locale_config_line[4]}"
 
 
     #-- カーネルを解析、設定 --#
