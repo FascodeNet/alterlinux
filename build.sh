@@ -1337,15 +1337,15 @@ parse_files() {
     [[ "${_kernel_line}" == "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
-    _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
+    _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
-    kernel=$(echo ${_kernel_config_line} | awk '{print $1}')
-    kernel_package=$(echo ${_kernel_config_line} | awk '{print $2}')
-    kernel_headers_packages=$(echo ${_kernel_config_line} | awk '{print $3}')
-    kernel_filename=$(echo ${_kernel_config_line} | awk '{print $4}')
-    kernel_mkinitcpio_profile=$(echo ${_kernel_config_line} | awk '{print $5}')
+    kernel="${_kernel_config_line[1]}"
+    kernel_package="${_kernel_config_line[2]}"
+    kernel_headers_packages="${_kernel_config_line[3]}"
+    kernel_filename="${_kernel_config_line[4]}"
+    kernel_mkinitcpio_profile="${_kernel_config_line[5]}"
 }
 
 
@@ -1501,8 +1501,6 @@ done
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     msg_warn "This script must be run as root." >&2
-    # echo "Use -h to display script details." >&2
-    # _usage 1
     msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
     exit 1
