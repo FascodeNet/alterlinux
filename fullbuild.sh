@@ -16,7 +16,7 @@ architectures=(
 
 locale_list=(
     "ja"
-    "gl"
+    "en"
 )
 
 work_dir=temp
