@@ -864,7 +864,7 @@ make_packages_aur() {
     )
 
     for _file in ${_excludefile[@]}; do
-        [[ -f "${_file}" ]] && _excludelist=( ${_excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        [[ -f "${_file}" ]] && _excludelist=(${_excludelist[@]} $(grep -h -v ^'#' "${_file}"))
     done
 
     # 現在のpkglistをコピーする
@@ -892,15 +892,10 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
     
     # Build aur packages on airootfs
-    local _aur_pkg _copy_aur_scripts
-    _copy_aur_scripts() {
-        for _file in ${@}; do
-            cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
-            chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
-        done
-    }
-
-    _copy_aur_scripts aur_install aur_prepare aur_remove pacls_gen_new pacls_gen_old
+    for _file in "aur_install" "aur_prepare" "aur_remove" "pacls_gen_new" "pacls_gen_old"; do
+        cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+        chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+    done
 
     local _aur_packages_ls_str=""
     for _pkg in ${pkglist_aur[@]}; do
