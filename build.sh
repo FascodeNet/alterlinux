@@ -20,6 +20,7 @@ defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
 DEFAULT_ARGUMENT=""
+legacy=false
 
 # Load config file
 if [[ -f "${defaultconfig}" ]]; then
@@ -256,12 +257,10 @@ _usage () {
     echo
     echo " Channel:"
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
-            if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                channel_list="${channel_list[@]} ${i}"
-            elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                channel_list="${channel_list[@]} ${i}"
-            fi
+        if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            channel_list="${channel_list[@]} ${i}"
+        elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
+            channel_list="${channel_list[@]} ${i}"
         fi
     done
     channel_list="${channel_list[@]} rebuild"
@@ -1587,7 +1586,9 @@ fi
 if [[ ! "${channel_name}" == "rebuild" ]]; then
     msg_debug "channel path is ${script_path}/channels/${channel_name}"
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
-        msg_error "This channel does not support AlterISO 3." "1"
+        msg_warn "This channel does not support AlterISO 3."
+        msg_warn "Some functions cannot be used due to the legacy mode."
+        legacy=true
     fi
 fi
 
