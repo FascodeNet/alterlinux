@@ -42,6 +42,7 @@ remove /airootfs.any/etc/systemd/logind.conf.d/do-not-suspend.conf
 
 remove /etc/udev/rules.d/81-dhcpcd.rules
 remove /etc/systemd/system/{choose-mirror.service,getty@tty1.service.d}
+remove /boot/archiso.img
 
 # Disabled auto login
 sed -i "s/Automatic*/#Automatic/g" "/etc/gdm/custom.conf"

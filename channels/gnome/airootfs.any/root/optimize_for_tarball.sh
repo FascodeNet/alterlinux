@@ -36,6 +36,7 @@ remove /etc/systemd/system/getty@tty1.service.d/autologin.conf
 remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
+remove /boot/archiso.img
 
 remove /etc/systemd/journald.conf.d/volatile-storage.conf
 remove /airootfs.any/etc/systemd/logind.conf.d/do-not-suspend.conf
