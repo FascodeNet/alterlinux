@@ -14,7 +14,7 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel_config_line='zen linux-zen linux-zen-beaders vmlinuz-linux-zen linux-zen'
+kernel_config_line=("zen" "linux-zen" "linux-zen-beaders" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
 rebuild=false
 username='alter'
@@ -33,7 +33,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line="${OPTARG}" ;;
+        k) kernel_config_line=(${OPTARG}) ;;
         r) rebuild=true ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
@@ -50,11 +50,11 @@ done
 
 
 # Parse kernel
-kernel=$(echo ${kernel_config_line} | awk '{print $1}')
-kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+kernel="${kernel_config_line[0]}"
+kernel_package="${kernel_config_line[1]}"
+kernel_headers_packages="${kernel_config_line[2]}"
+kernel_filename="${kernel_config_line[3]}"
+kernel_mkinitcpio_profile="${kernel_config_line[4]}"
 
 
 # Delete file only if file exists

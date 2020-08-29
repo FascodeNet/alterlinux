@@ -44,3 +44,4 @@ fi
 remove /etc/udev/rules.d/81-dhcpcd.rules
 remove /etc/systemd/system/{choose-mirror.service,etc-pacman.d-gnupg.mount,getty@tty1.service.d}
 
+remove /boot/archiso.img

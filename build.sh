@@ -198,26 +198,27 @@ _usage () {
     echo " General options:"
     echo
     echo "    -b | --boot-splash           Enable boot splash"
-    echo "    -e | --cleanup               Enable post-build cleaning."
-    echo "    -h | --help                  This help message and exit."
+    echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
+    echo "         --tarball               Build rootfs in tar.xz format"
+    echo "    -h | --help                  This help message and exit"
     echo
-    echo "    -a | --arch <arch>           Set iso architecture."
+    echo "    -a | --arch <arch>           Set iso architecture"
     echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
     echo "    -g | --gpgkey <key>          Set gpg key"
     echo "                                  Default: ${gpg_key}"
-    echo "    -l | --lang <lang>           Specifies the default language for the live environment."
+    echo "    -l | --lang <lang>           Specifies the default language for the live environment"
     echo "                                  Default: ${locale_name}"
-    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels."
+    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
     echo "                                  Default: ${kernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
     echo "                                  Default: ${password}"
-    echo "    -t | --comp-opts <options>   Set compressor-specific options."
+    echo "    -t | --comp-opts <options>   Set compressor-specific options"
     echo "                                  Default: empty"
-    echo "    -u | --user <username>       Set user name."
+    echo "    -u | --user <username>       Set user name"
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
@@ -264,43 +265,39 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
-        if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
-            description=$(cat "${script_path}/channels/${_channel}/description.txt")
-        elif [[ ${_channel} = "rebuild" ]]; then
-            description="Build from the point where it left off using the previous build settings."
-        else
-            description="This channel does not have a description.txt."
-        fi
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do
-                echo -ne " "
-            done
+            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do echo -ne " "; done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do
-                echo -ne " "
-            done
+            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
         fi
-        echo -ne "${description}\n"
+        if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
+            echo -ne "$(cat "${script_path}/channels/${_channel}/description.txt")\n"
+        else
+            echo -ne "This channel does not have a description.txt.\n"
+        fi
     done
+    echo -ne "    rebuild"
+    for i in $( seq 1 $(( ${blank} - 11 )) ); do echo -ne " "; done
+    echo -ne "Build from the point where it left off using the previous build settings.\n"
 
     echo
     echo " Debug options: Please use at your own risk."
-    echo "    -d | --debug                 Enable debug messages."
-    echo "    -x | --bash-debug            Enable bash debug mode.(set -xv)"
+    echo "    -d | --debug                 Enable debug messages"
+    echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
+    echo "         --channellist           Output the channel list and exit"
     echo "         --gitversion            Add Git commit hash to image file version"
-    echo "         --msgdebug              Enables output debugging."
-    echo "         --noaur                 No build and install AUR packages."
-    echo "         --nocolor               No output colored output."
-    echo "         --noconfirm             No check the settings before building."
-    echo "         --nochkver              NO check the version of the channel."
-    echo "         --noloopmod             No check and load kernel module automatically."
-    echo "         --nodepend              No check package dependencies before building."
-    echo "         --noiso                 No build iso image. (Use with --tarball)"
-    echo "         --shmkalteriso          Use the shell script version of mkalteriso."
+    echo "         --msgdebug              Enables output debugging"
+    echo "         --noaur                 No build and install AUR packages"
+    echo "         --nocolor               No output colored output"
+    echo "         --noconfirm             No check the settings before building"
+    echo "         --nochkver              NO check the version of the channel"
+    echo "         --noloopmod             No check and load kernel module automatically"
+    echo "         --nodepend              No check package dependencies before building"
+    echo "         --noiso                 No build iso image (Use with --tarball)"
+    echo "         --shmkalteriso          Use the shell script version of mkalteriso"
     if [[ -n "${1:-}" ]]; then
         exit "${1}"
     fi
@@ -417,7 +414,6 @@ prepare_build() {
         remove "${work_dir%/}"/*
     fi
 
-
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
     _trap_remove_work() {
@@ -434,22 +430,18 @@ prepare_build() {
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
         fi
 
-
         # If there is config for share channel. load that.
         load_config "${script_path}/channels/share/config.any"
         load_config "${script_path}/channels/share/config.${arch}"
-
 
         # If there is config for each channel. load that.
         load_config "${script_path}/channels/${channel_name}/config.any"
         load_config "${script_path}/channels/${channel_name}/config.${arch}"
 
-
         # Set username
         if [[ "${customized_username}" = false ]]; then
             username="${defaultusername}"
         fi
-
 
         # gitversion
         if [[ "${gitversion}" = true ]]; then
@@ -457,7 +449,6 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
-
 
         # Generate iso file name.
         local _channel_name
@@ -472,7 +463,6 @@ prepare_build() {
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
         msg_debug "Iso filename is ${iso_filename}"
-
 
         # Save build options
         local _write_rebuild_file
@@ -570,7 +560,6 @@ prepare_build() {
         msg_debug "Iso filename is ${iso_filename}"
     fi
 
-
     # check bool
     check_bool boot_splash
     check_bool cleaning
@@ -584,7 +573,6 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
 
-
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
@@ -596,14 +584,12 @@ prepare_build() {
         msg_error "This kernel is currently not supported on this channel." "1"
     fi
 
-
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
         cd  "${script_path}"
         msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
         cd - > /dev/null 2>&1
     fi
-
 
     # Unmount
     local _mount
@@ -613,60 +599,50 @@ prepare_build() {
     done
     unset _mount
 
-
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local _check_pkg _check_failed=false _pkg
-        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}'))
+        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
+        msg_info "Checking dependencies ..."
 
+        # _checl_pkg [package]
         _check_pkg() {
             local __pkg __ver
+            msg_debug -n "Checking ${_pkg} ..."
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
+                # パッケージがインストールされているかどうか
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
                     __ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
-                        echo -n "installed"
+                        # パッケージが最新の場合
+                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
                         return 0
                     elif [[ -z ${__ver} ]]; then
-                        echo "norepo"
+                        # リモートのバージョンの取得に失敗した場合
+                        [[ "${debug}" = true ]] && echo
+                        msg_warn "${1} is not a repository package."
                         return 0
                     else
-                        echo -n "old"
+                        # リモートとローカルのバージョンが一致しない場合
+                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
+                        msg_warn "${1} is not the latest package."
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)"
                         return 0
                     fi
                 fi
             done
-            echo -n "not"
+            [[ "${debug}" = true ]] && echo
+            msg_error "${_pkg} is not installed." ; _check_failed=true
             return 0
         }
 
-        msg_info "Checking dependencies ..."
-
         for _pkg in ${dependence[@]}; do
-            msg_debug -n "Checking ${_pkg} ..."
-            case $(_check_pkg ${_pkg}) in
-                "old")
-                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n"
-                    msg_warn "${_pkg} is not the latest package."
-                    msg_warn "Local: $(pacman -Q ${_pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${_pkg} 2> /dev/null)"
-                ;;
-                "not")
-                    [[ "${debug}" = true ]] && echo
-                    msg_error "${_pkg} is not installed." ; _check_failed=true
-                ;;
-                "norepo")
-                    [[ "${debug}" = true ]] && echo
-                    msg_warn "${_pkg} is not a repository package."
-                ;;
-                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n" ;;
-            esac
+            _check_pkg "${_pkg}"
         done
         
         if [[ "${_check_failed}" = true ]]; then
             exit 1
         fi
     fi
-
 
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
@@ -684,7 +660,6 @@ prepare_build() {
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
 
-
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
@@ -692,17 +667,14 @@ prepare_build() {
             msg_error "Probably the system kernel has been updated."
             msg_error "Reboot your system to run the latest kernel." "1"
         fi
-        if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
-            sudo modprobe loop
-        fi
+        [[ -z "$(lsmod | awk '{print $1}' | grep -x "loop")" ]] && modprobe loop
     fi
 }
 
 
 # Show settings.
 show_settings() {
-    msg_info "mkalteriso path is ${mkalteriso}"
-    echo
+    msg_debug "mkalteriso path is ${mkalteriso}"
     if [[ "${boot_splash}" = true ]]; then
         msg_info "Boot splash is enabled."
         msg_info "Theme is used ${theme_name}."
@@ -838,9 +810,9 @@ make_packages_aur() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
     )
 
     if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
@@ -864,7 +836,7 @@ make_packages_aur() {
     )
 
     for _file in ${_excludefile[@]}; do
-        [[ -f "${_file}" ]] && _excludelist=( ${_excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        [[ -f "${_file}" ]] && _excludelist=(${_excludelist[@]} $(grep -h -v ^'#' "${_file}"))
     done
 
     # 現在のpkglistをコピーする
@@ -892,15 +864,10 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
     
     # Build aur packages on airootfs
-    local _aur_pkg _copy_aur_scripts
-    _copy_aur_scripts() {
-        for _file in ${@}; do
-            cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
-            chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
-        done
-    }
-
-    _copy_aur_scripts aur_install aur_prepare aur_remove pacls_gen_new pacls_gen_old
+    for _file in "aur_install" "aur_prepare" "aur_remove" "pacls_gen_new" "pacls_gen_old"; do
+        cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+        chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+    done
 
     local _aur_packages_ls_str=""
     for _pkg in ${pkglist_aur[@]}; do
@@ -1300,15 +1267,15 @@ parse_files() {
     [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line="$(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)"
+    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
-    locale_name=$(echo ${_locale_config_line} | awk '{print $1}')
-    locale_gen_name=$(echo ${_locale_config_line} | awk '{print $2}')
-    locale_version=$(echo ${_locale_config_line} | awk '{print $3}')
-    locale_time=$(echo ${_locale_config_line} | awk '{print $4}')
-    locale_fullname=$(echo ${_locale_config_line} | awk '{print $5}')
+    locale_name="${_locale_config_line[0]}"
+    locale_gen_name="${_locale_config_line[1]}"
+    locale_version="${_locale_config_line[2]}"
+    locale_time="${_locale_config_line[3]}"
+    locale_fullname="${_locale_config_line[4]}"
 
 
     #-- カーネルを解析、設定 --#
@@ -1337,22 +1304,22 @@ parse_files() {
     [[ "${_kernel_line}" == "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
-    _kernel_config_line="$(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)"
+    _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
-    kernel=$(echo ${_kernel_config_line} | awk '{print $1}')
-    kernel_package=$(echo ${_kernel_config_line} | awk '{print $2}')
-    kernel_headers_packages=$(echo ${_kernel_config_line} | awk '{print $3}')
-    kernel_filename=$(echo ${_kernel_config_line} | awk '{print $4}')
-    kernel_mkinitcpio_profile=$(echo ${_kernel_config_line} | awk '{print $5}')
+    kernel="${_kernel_config_line[0]}"
+    kernel_package="${_kernel_config_line[1]}"
+    kernel_headers_packages="${_kernel_config_line[2]}"
+    kernel_filename="${_kernel_config_line[3]}"
+    kernel_mkinitcpio_profile="${_kernel_config_line[4]}"
 }
 
 
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1380,7 +1347,7 @@ while :; do
             debug=true
             shift 1
             ;;
-        -e | --cleaning)
+        -e | --cleaning | --cleanup)
             cleaning=true
             shift 1
             ;;
@@ -1501,8 +1468,6 @@ done
 # Check root.
 if [[ ${EUID} -ne 0 ]]; then
     msg_warn "This script must be run as root." >&2
-    # echo "Use -h to display script details." >&2
-    # _usage 1
     msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
     exit 1

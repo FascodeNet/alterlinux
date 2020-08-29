@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-
 set -e
 
+##--------------------Additional settings--------------------##
+## Uncomment the settings you want to use
+
+## Build with i686
+#build_arch="i686"
+
+## Build with x86_64
+#build_arch="x86_64"
+
+##-----------------------------------------------------------##
+
+
 nobuild=false
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
-
-build_arch=$(uname -m)
-
-machine_arch=$(uname -m)
+machine_arch="$(uname -m)"
 
 # Pacman configuration file used only when checking packages.
 pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
@@ -666,34 +674,37 @@ function set_out_dir () {
     fi
 }
 
+function enable_tarball () {
+    local yn
+    msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) tarball=true   ;;
+        n | N | no  | No  | NO  ) tarball=false  ;;
+        *                       ) enable_tarball ;;
+    esac
+}
+
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
-    if [[ ${japanese} = true ]]; then
-        argument="${argument} -l ja"
-    fi
-    if [[ ${plymouth} = true ]]; then
-        argument="${argument} -b"
-    fi
-    if [[ -n ${comp_type} ]]; then
-        argument="${argument} -c ${comp_type}"
-    fi
-    if [[ -n ${kernel} ]]; then
-        argument="${argument} -k ${kernel}"
-    fi
-    if [[ -n "${username}" ]]; then
-        argument="${argument} -u '${username}'"
-    fi
-    if [[ -n ${password} ]]; then
-        argument="${argument} -p '${password}'"
-    fi
-    if [[ -n ${out_dir} ]]; then
-        argument="${argument} -o '${out_dir}'"
-    fi
+    local _ADD_ARG
+    _ADD_ARG () {
+        argument="${argument} ${@}"
+    }
+
+    [[ "${japanese}" = true  ]] && _ADD_ARG "-l ja"
+    [[ ${plymouth} = true    ]] && _ADD_ARG "-b"
+    [[ -n ${comp_type}       ]] && _ADD_ARG "-c ${comp_type}"
+    [[ -n ${kernel}          ]] && _ADD_ARG "-k ${kernel}"
+    [[ -n "${username}"      ]] && _ADD_ARG "-u '${username}'"
+    [[ -n "${password}"      ]] && _ADD_ARG "-p '${password}'"
+    [[ -n "${out_dir}"       ]] && _ADD_ARG "-o '${out_dir}'"
+    [[ "${tarball}" = true   ]] && _ADD_ARG "--tarball"
     argument="--noconfirm -a ${build_arch} ${argument} ${channel}"
 }
 
-#　上の質問の関数を実行
+# 上の質問の関数を実行
 function ask () {
     enable_japanese
     enable_plymouth
@@ -704,6 +715,7 @@ function ask () {
     set_password
     select_channel
     set_iso_owner
+    enable_tarball
     # set_out_dir
     lastcheck
 }

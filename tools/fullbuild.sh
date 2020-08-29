@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
 
 channnels=(
     "xfce"
@@ -21,7 +21,7 @@ locale_list=(
     "en"
 )
 
-work_dir=temp
+work_dir="${script_path}/temp"
 simulation=false
 retry=5
 
@@ -176,7 +176,7 @@ build() {
 
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
-            echo "build.sh ${share_options} --arch ${arch} --lang ${lang} ${cha}"
+            echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
             _exit_code="${?}"
         else
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
@@ -219,7 +219,7 @@ _help() {
 
 
 share_options="--noconfirm"
-default_options="-b -e -u alter -p alter"
+default_options="--boot-splash --cleanup --user alter --password alter"
 
 while getopts 'a:dghr:sctm:' arg; do
     case "${arg}" in
@@ -253,6 +253,10 @@ if [[ "${all_channel}" = true  ]]; then
     fi
 elif [[ -n "${*}" ]]; then
     channnels=(${@})
+fi
+
+if [[ "${simulation}" = true ]]; then
+    retry=1
 fi
 
 _msg_info "Options: ${share_options}"
