@@ -51,14 +51,6 @@ pamac-aur
 system-config-printer
 
 
-#-- shell --#
-lsd
-lsd-control
-powerline
-zsh
-zsh-completions
-
-
 #-- text editor --#
 nano
 vim
