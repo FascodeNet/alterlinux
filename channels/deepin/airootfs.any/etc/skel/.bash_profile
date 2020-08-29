@@ -3,5 +3,7 @@
 #
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
-[[ -f ~/.setup.sh ]] && ~/.setup.sh
-[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
+
+if [[ $(systemctl is-active graphical.target) = "active" ]] && [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
+  exec startx
+fi
