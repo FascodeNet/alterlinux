@@ -111,11 +111,11 @@ done
 
 
 # Parse kernel
-kernel="${_kernel_config_line[0]}"
-kernel_package="${_kernel_config_line[1]}"
-kernel_headers_packages="${_kernel_config_line[2]}"
-kernel_filename="${_kernel_config_line[3]}"
-kernel_mkinitcpio_profile="${_kernel_config_line[4]}"
+kernel="${kernel_config_line[0]}"
+kernel_package="${kernel_config_line[1]}"
+kernel_headers_packages="${kernel_config_line[2]}"
+kernel_filename="${kernel_config_line[3]}"
+kernel_mkinitcpio_profile="${kernel_config_line[4]}"
 ```
 
 #### 日本語用処理部分
