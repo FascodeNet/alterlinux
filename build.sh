@@ -416,7 +416,6 @@ prepare_build() {
         remove "${work_dir%/}"/*
     fi
 
-
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
     _trap_remove_work() {
@@ -433,22 +432,18 @@ prepare_build() {
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
         fi
 
-
         # If there is config for share channel. load that.
         load_config "${script_path}/channels/share/config.any"
         load_config "${script_path}/channels/share/config.${arch}"
-
 
         # If there is config for each channel. load that.
         load_config "${script_path}/channels/${channel_name}/config.any"
         load_config "${script_path}/channels/${channel_name}/config.${arch}"
 
-
         # Set username
         if [[ "${customized_username}" = false ]]; then
             username="${defaultusername}"
         fi
-
 
         # gitversion
         if [[ "${gitversion}" = true ]]; then
@@ -456,7 +451,6 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
-
 
         # Generate iso file name.
         local _channel_name
@@ -471,7 +465,6 @@ prepare_build() {
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
         msg_debug "Iso filename is ${iso_filename}"
-
 
         # Save build options
         local _write_rebuild_file
@@ -569,7 +562,6 @@ prepare_build() {
         msg_debug "Iso filename is ${iso_filename}"
     fi
 
-
     # check bool
     check_bool boot_splash
     check_bool cleaning
@@ -583,7 +575,6 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
 
-
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
@@ -595,14 +586,12 @@ prepare_build() {
         msg_error "This kernel is currently not supported on this channel." "1"
     fi
 
-
     # Show alteriso version
     if [[ -d "${script_path}/.git" ]]; then
         cd  "${script_path}"
         msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
         cd - > /dev/null 2>&1
     fi
-
 
     # Unmount
     local _mount
@@ -612,53 +601,44 @@ prepare_build() {
     done
     unset _mount
 
-
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local _check_pkg _check_failed=false _pkg
-        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}'))
+        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
+        msg_info "Checking dependencies ..."
 
+        # _checl_pkg [package]
         _check_pkg() {
             local __pkg __ver
+            msg_debug -n "Checking ${_pkg} ..."
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
+                # パッケージがインストールされているかどうか
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
                     __ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
-                        echo -n "installed"
+                        # パッケージが最新の場合
+                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
                         return 0
                     elif [[ -z ${__ver} ]]; then
-                        echo "norepo"
+                        # リモートのバージョンの取得に失敗した場合
+                        [[ "${debug}" = true ]] && echo
+                        msg_warn "${1} is not a repository package."
                         return 0
                     else
-                        echo -n "old"
+                        # リモートとローカルのバージョンが一致しない場合
+                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
+                        msg_warn "${1} is not the latest package."
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)"
                         return 0
                     fi
                 fi
             done
-            echo -n "not"
+            [[ "${debug}" = true ]] && echo
+            msg_error "${_pkg} is not installed." ; _check_failed=true
             return 0
         }
 
-        msg_info "Checking dependencies ..."
-
         for _pkg in ${dependence[@]}; do
-            msg_debug -n "Checking ${_pkg} ..."
-            case $(_check_pkg ${_pkg}) in
-                "old")
-                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n"
-                    msg_warn "${_pkg} is not the latest package."
-                    msg_warn "Local: $(pacman -Q ${_pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${_pkg} 2> /dev/null)"
-                ;;
-                "not")
-                    [[ "${debug}" = true ]] && echo
-                    msg_error "${_pkg} is not installed." ; _check_failed=true
-                ;;
-                "norepo")
-                    [[ "${debug}" = true ]] && echo
-                    msg_warn "${_pkg} is not a repository package."
-                ;;
-                "installed") [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | awk '{print $2}')\n" ;;
-            esac
+            _check_pkg "${_pkg}"
         done
         
         if [[ "${_check_failed}" = true ]]; then
