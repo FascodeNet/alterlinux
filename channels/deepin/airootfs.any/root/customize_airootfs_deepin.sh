@@ -103,7 +103,9 @@ else
 fi
 
 # Added autologin group to auto login
-groupadd autologin
+if [[ -z "$(cut -d: -f1 /etc/group | grep -x "autologin")" ]]; then
+    groupadd autologin
+fi
 usermod -aG autologin ${username}
 
 # ntp
