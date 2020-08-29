@@ -1,0 +1,18 @@
+# 
+# Alter Linux package list
+#
+# Yamada Hayao 
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Internet
+
+
+#-- mail client --#
+thunderbird
+
+
+#-- web browser --#
+chromium

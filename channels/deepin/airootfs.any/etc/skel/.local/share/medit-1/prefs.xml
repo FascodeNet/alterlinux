@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- -*- xml -*- -->
+<moo-prefs version="1.0">
+  <Prefs>
+    <item name="Editor/highlight_current_line" type="bool">FALSE</item>
+    <item name="Editor/indent_width" type="int">4</item>
+    <item name="Editor/open_dialog_follows_doc" type="bool">TRUE</item>
+    <item name="Editor/show_line_numbers" type="bool">TRUE</item>
+    <item name="Editor/show_spaces" type="bool">TRUE</item>
+    <item name="Editor/show_tabs" type="bool">TRUE</item>
+    <item name="Editor/show_trailing_spaces" type="bool">TRUE</item>
+    <item name="Editor/strip" type="bool">TRUE</item>
+    <item name="Editor/tab_width" type="int">4</item>
+    <item name="Editor/wrapping_enable" type="bool">TRUE</item>
+    <item name="Plugins/FileSelector/enabled" type="bool">FALSE</item>
+    <item name="Plugins/MooFileList/enabled" type="bool">FALSE</item>
+    <item name="Plugins/MooLua/enabled" type="bool">FALSE</item>
+  </Prefs>
+</moo-prefs>
