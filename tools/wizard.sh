@@ -14,7 +14,7 @@ set -e
 
 
 nobuild=false
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
 
 machine_arch="$(uname -m)"
 
