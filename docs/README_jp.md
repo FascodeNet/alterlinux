@@ -14,8 +14,8 @@
 	<a href="https://www.archlinux.org/">
 		<img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
 	</a>
-	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v44">
-		<img src="https://img.shields.io/badge/archiso--version-44--2-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+	<a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v46">
+		<img src="https://img.shields.io/badge/archiso--version-46--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
 	</a>
 </p>
 <p align="center">
@@ -75,7 +75,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 
 <h2>〈特徴〉</h2>
 <ul>
-	<li>既に構築されたArchLinux環境をGUIでインストールできます</li>
+	<li>既に構築されたArch Linux環境をGUIでインストールできます</li>
 	<li>64bitだけでなく、32bit(i686)もリリースしています</li>
 	<li>32bit版はPAE（物理アドレス拡張）を必要としません。</li>
 	<li>既に完全に日本語化されており、インストールしてすぐに日本語入力を使用できます</li>
@@ -188,6 +188,15 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 </a>
 <a href="https://twitter.com/YangDevJP">
 	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
+</a>
+<a href="https://twitter.com/Watasuke102">
+	<img src="https://avatars3.githubusercontent.com/u/36789813" width="100px">
+</a>
+<a href="https://twitter.com/kokkiemouse">
+	<img src="https://avatars0.githubusercontent.com/u/39451248" width="100px">
+</a>
+<a href="https://twitter.com/stmkza">
+	<img src="https://avatars2.githubusercontent.com/u/15907797" width="100px">
 </a>
 <a href="https://twitter.com/yamad_linuxer">
 	<img src="https://avatars1.githubusercontent.com/u/45691925" width="100px">

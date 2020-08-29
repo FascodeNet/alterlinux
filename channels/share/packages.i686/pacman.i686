@@ -25,3 +25,4 @@ alterlinux-keyring
 
 #-- mirrorlist --#
 alterlinux-mirrorlist
+reflector

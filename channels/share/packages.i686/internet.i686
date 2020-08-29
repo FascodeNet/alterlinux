@@ -19,7 +19,6 @@ dhclient
 dhcpcd
 dnsutils
 ndisc6
-netctl
 networkmanager
 ppp
 pptpclient
@@ -28,8 +27,6 @@ wvdial
 
 
 #-- client --#
-# lftp
-ntp
 openssh
 wget
 

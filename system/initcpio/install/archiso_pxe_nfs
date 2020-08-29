@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 build() {
     add_module "nfs"
@@ -13,5 +13,3 @@ help() {
   This hook loads the necessary modules for boot via PXE and NFS.
 HELPEOF
 }
-
-# vim: set ft=sh ts=4 sw=4 et:
