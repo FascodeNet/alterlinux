@@ -38,7 +38,7 @@ DialogWidth=720
 
 [Containments][2][Applets][3][Configuration][General]
 favoritesPortedToKAstats=true
-icon=/usr/share/icons/hicolor/scalable/alter.svg
+icon=/usr/share/icons/hicolor/scalable/apps/alter.svg
 
 [Containments][2][Applets][3][Configuration][Shortcuts]
 global=Alt+F1
