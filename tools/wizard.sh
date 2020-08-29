@@ -689,9 +689,9 @@ function enable_tarball () {
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
     local _ADD_ARG
-    _ADD_ARG () [
+    _ADD_ARG () {
         argument="${argument} ${@}"
-    ]
+    }
 
     [[ "${japanese}" = true  ]] && _ADD_ARG "-l ja"
     [[ ${plymouth} = true    ]] && _ADD_ARG "-b"
