@@ -646,7 +646,6 @@ prepare_build() {
         fi
     fi
 
-
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
         mkalteriso="${script_path}/system/mkalteriso"
@@ -663,7 +662,6 @@ prepare_build() {
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
 
-
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
@@ -671,17 +669,14 @@ prepare_build() {
             msg_error "Probably the system kernel has been updated."
             msg_error "Reboot your system to run the latest kernel." "1"
         fi
-        if [[ -z $(lsmod | awk '{print $1}' | grep -x "loop") ]]; then
-            sudo modprobe loop
-        fi
+        [[ -z "$(lsmod | awk '{print $1}' | grep -x "loop")" ]] && modprobe loop
     fi
 }
 
 
 # Show settings.
 show_settings() {
-    msg_info "mkalteriso path is ${mkalteriso}"
-    echo
+    msg_debug "mkalteriso path is ${mkalteriso}"
     if [[ "${boot_splash}" = true ]]; then
         msg_info "Boot splash is enabled."
         msg_info "Theme is used ${theme_name}."
