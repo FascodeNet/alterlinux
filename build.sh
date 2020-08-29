@@ -199,7 +199,7 @@ _usage () {
     echo
     echo "    -b | --boot-splash           Enable boot splash"
     echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
-    echo "         --tarball               Build rootfs in tar.xz format."
+    echo "         --tarball               Build rootfs in tar.xz format"
     echo "    -h | --help                  This help message and exit"
     echo
     echo "    -a | --arch <arch>           Set iso architecture"
@@ -265,27 +265,23 @@ _usage () {
             fi
         fi
     done
-    channel_list="${channel_list[@]} rebuild"
     for _channel in ${channel_list[@]}; do
         if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do
-                echo -ne " "
-            done
+            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do echo -ne " "; done
         else
             echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do
-                echo -ne " "
-            done
+            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
         fi
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             echo -ne "$(cat "${script_path}/channels/${_channel}/description.txt")\n"
-        elif [[ ${_channel} = "rebuild" ]]; then
-            echo -ne "Build from the point where it left off using the previous build settings.\n"
         else
             echo -ne "This channel does not have a description.txt.\n"
         fi
     done
+    echo -ne "    rebuild"
+    for i in $( seq 1 $(( ${blank} - 11 )) ); do echo -ne " "; done
+    echo -ne "Build from the point where it left off using the previous build settings.\n"
 
     echo
     echo " Debug options: Please use at your own risk."
