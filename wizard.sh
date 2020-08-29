@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-
 set -e
 
-nobuild=false
+##--------------------Additional settings--------------------##
+## Uncomment the settings you want to use
 
+## Build with i686
+#build_arch="i686"
+
+## Build with x86_64
+#build_arch="x86_64"
+
+##-----------------------------------------------------------##
+
+
+nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
-build_arch=$(uname -m)
-
-machine_arch=$(uname -m)
+machine_arch="$(uname -m)"
 
 # Pacman configuration file used only when checking packages.
 pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
