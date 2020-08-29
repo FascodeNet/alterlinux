@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
 
 channnels=(
     "xfce"
@@ -21,7 +21,7 @@ locale_list=(
     "en"
 )
 
-work_dir=temp
+work_dir="${script_path}/temp"
 simulation=false
 retry=5
 
