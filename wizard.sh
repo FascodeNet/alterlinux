@@ -674,6 +674,17 @@ function set_out_dir () {
     fi
 }
 
+function enable_tarball () {
+    local yn
+    msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) tarball=true   ;;
+        n | N | no  | No  | NO  ) tarball=false  ;;
+        *                       ) enable_tarball ;;
+    esac
+}
+
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
@@ -698,6 +709,9 @@ function generate_argument () {
     if [[ -n ${out_dir} ]]; then
         argument="${argument} -o '${out_dir}'"
     fi
+    if [[ ${tarball} = true ]]; then
+        argument="${argument} --tarball"
+    fi
     argument="--noconfirm -a ${build_arch} ${argument} ${channel}"
 }
 
@@ -712,6 +726,7 @@ function ask () {
     set_password
     select_channel
     set_iso_owner
+    enable_tarball
     # set_out_dir
     lastcheck
 }
