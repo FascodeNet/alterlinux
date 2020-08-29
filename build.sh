@@ -810,9 +810,9 @@ make_packages_aur() {
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
         $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
     )
 
     if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
