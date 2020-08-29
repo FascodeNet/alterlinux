@@ -688,34 +688,23 @@ function enable_tarball () {
 
 # 最終的なbuild.shのオプションを生成
 function generate_argument () {
-    if [[ ${japanese} = true ]]; then
-        argument="${argument} -l ja"
-    fi
-    if [[ ${plymouth} = true ]]; then
-        argument="${argument} -b"
-    fi
-    if [[ -n ${comp_type} ]]; then
-        argument="${argument} -c ${comp_type}"
-    fi
-    if [[ -n ${kernel} ]]; then
-        argument="${argument} -k ${kernel}"
-    fi
-    if [[ -n "${username}" ]]; then
-        argument="${argument} -u '${username}'"
-    fi
-    if [[ -n ${password} ]]; then
-        argument="${argument} -p '${password}'"
-    fi
-    if [[ -n ${out_dir} ]]; then
-        argument="${argument} -o '${out_dir}'"
-    fi
-    if [[ ${tarball} = true ]]; then
-        argument="${argument} --tarball"
-    fi
+    local _ADD_ARG
+    _ADD_ARG () [
+        argument="${argument} ${@}"
+    ]
+
+    [[ "${japanese}" = true  ]] && _ADD_ARG "-l ja"
+    [[ ${plymouth} = true    ]] && _ADD_ARG "-b"
+    [[ -n ${comp_type}       ]] && _ADD_ARG "-c ${comp_type}"
+    [[ -n ${kernel}          ]] && _ADD_ARG "-k ${kernel}"
+    [[ -n "${username}"      ]] && _ADD_ARG "-u '${username}'"
+    [[ -n "${password}"      ]] && _ADD_ARG "-p '${password}'"
+    [[ -n "${out_dir}"       ]] && _ADD_ARG "-o '${out_dir}'"
+    [[ "${tarball}" = true   ]] && _ADD_ARG "--tarball"
     argument="--noconfirm -a ${build_arch} ${argument} ${channel}"
 }
 
-#　上の質問の関数を実行
+# 上の質問の関数を実行
 function ask () {
     enable_japanese
     enable_plymouth
