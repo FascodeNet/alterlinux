@@ -572,6 +572,7 @@ prepare_build() {
     check_bool tarball
     check_bool noiso
     check_bool noaur
+    check_bool customized_syslinux
 
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
@@ -1074,7 +1075,7 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
     cp -aT "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
-    if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]]; then
+    if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = false ]]; then
         cp -aT "${script_path}/channels/${channel_name}/syslinux.${arch}" "$work_dir/${arch}/"
     fi
     
