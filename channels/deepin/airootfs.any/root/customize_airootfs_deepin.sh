@@ -2,7 +2,7 @@
 #
 # Yamada Hayao
 # Twitter: @Hayao0819
-# Email  : hayao@fascode.net
+# Email  : hayao@fascone.net
 #
 # (c) 2019-2020 Fascode Network.
 #
@@ -74,29 +74,42 @@ function remove () {
 }
 
 
-remove /etc/skel/Desktop
-remove /root/Desktop
+# Replace wallpaper.
+if [[ -f /usr/share/backgrounds/deepin/desktop.jpg ]]; then
+    remove /usr/share/backgrounds/deepin/desktop.jpg
+    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/deepin/desktop.jpg
+fi
+[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
-if [[ "${arch}" = "i686" ]]; then
-    ln -s /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist32
+
+# Bluetooth
+rfkill unblock all
+systemctl enable bluetooth
+
+
+# Update system datebase
+dconf update
+
+# Added autologin group to auto login
+groupadd autologin
+usermod -aG autologin ${username}
+
+
+# Enable LightDM to auto login
+if [[ "${boot_splash}" =  true ]]; then
+    systemctl enable lightdm-plymouth.service
+else
+    systemctl enable lightdm.service
 fi
 
-sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-locale-gen
+# Added autologin group to auto login
+if [[ -z "$(cut -d: -f1 /etc/group | grep -x "autologin")" ]]; then
+    groupadd autologin
+fi
+usermod -aG autologin ${username}
 
-ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+# ntp
+systemctl enable systemd-timesyncd.service
 
-usermod -s /usr/bin/zsh root
-cp -aT /etc/skel/ /root/
-
-sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
-sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
-
-# Enable services.
-systemctl enable pacman-init.service
-systemctl enable alteriso-reflector.service
-systemctl disable reflector.service
-systemctl set-default multi-user.target
-
-remove /etc/arch-release
-touch /etc/arch-release
+# Replace auto login user
+sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf

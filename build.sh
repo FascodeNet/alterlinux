@@ -554,6 +554,9 @@ prepare_build() {
         _save_var shmkalteriso
         _save_var mkalteriso_option
         _save_var tarball
+
+        _write_rebuild_file "\n# depend package"
+        _write_rebuild_file "dependence=(${dependence[@]})"
     else
         # Load rebuild file
         load_config "${rebuildfile}"
@@ -572,6 +575,7 @@ prepare_build() {
     check_bool tarball
     check_bool noiso
     check_bool noaur
+    check_bool customized_syslinux
 
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
@@ -611,7 +615,7 @@ prepare_build() {
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
                 # パッケージがインストールされているかどうか
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    __ver=$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)
+                    __ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         # パッケージが最新の場合
                         [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
@@ -667,7 +671,7 @@ prepare_build() {
             msg_error "Probably the system kernel has been updated."
             msg_error "Reboot your system to run the latest kernel." "1"
         fi
-        [[ -z "$(lsmod | awk '{print $1}' | grep -x "loop")" ]] && modprobe loop
+        if [[ -z "$(lsmod | awk '{print $1}' | grep -x "loop")" ]]; then modprobe loop; fi
     fi
 }
 
@@ -1070,9 +1074,16 @@ make_boot_extra() {
 make_syslinux() {
     _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
+
+    # 一時ディレクトリに設定ファイルをコピー
+    mkdir -p "${work_dir}/${arch}/syslinux/"
+    cp -a "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
+    if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = true ]]; then
+        cp -af "${script_path}/channels/${channel_name}/syslinux.${arch}/"* "$work_dir/${arch}/syslinux/"
+    fi
     
     # copy all syslinux config to work dir
-    for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
+    for _cfg in $work_dir/${arch}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
