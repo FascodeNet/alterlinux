@@ -1077,9 +1077,9 @@ make_syslinux() {
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
-    cp -aT "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
+    cp -a "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
     if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = false ]]; then
-        cp -aT "${script_path}/channels/${channel_name}/syslinux.${arch}" "$work_dir/${arch}/"
+        cp -a "${script_path}/channels/${channel_name}/syslinux.${arch}" "$work_dir/${arch}/"
     fi
     
     # copy all syslinux config to work dir
