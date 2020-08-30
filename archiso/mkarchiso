@@ -378,9 +378,11 @@ _make_customize_airootfs() {
     if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
         _msg_info "Copying /etc/skel/* to user homes..."
         while IFS=':' read -a passwd -r; do
+            (( passwd[2] >= 1000 && passwd[2] < 60000 )) || continue
             [[ "${passwd[5]}" == '/' ]] && continue
             [[ -z "${passwd[5]}" ]] && continue
-            cp -RdT --preserve=mode,timestamps,links -- "${airootfs_dir}/etc/skel" "${airootfs_dir}${passwd[5]}"
+            cp -dnRT --preserve=mode,timestamps,links -- "${airootfs_dir}/etc/skel" "${airootfs_dir}${passwd[5]}"
+            chmod -f 0750 -- "${airootfs_dir}${passwd[5]}"
             chown -hR -- "${passwd[2]}:${passwd[3]}" "${airootfs_dir}${passwd[5]}"
 
         done < "${profile}/airootfs/etc/passwd"
