@@ -1079,7 +1079,7 @@ make_syslinux() {
     mkdir -p "${work_dir}/${arch}/syslinux/"
     cp -a "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
     if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -a "${script_path}/channels/${channel_name}/syslinux.${arch}" "$work_dir/${arch}/"
+        cp -af "${script_path}/channels/${channel_name}/syslinux.${arch}/"* "$work_dir/${arch}/syslinux/"
     fi
     
     # copy all syslinux config to work dir
