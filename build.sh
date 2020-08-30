@@ -554,6 +554,9 @@ prepare_build() {
         _save_var shmkalteriso
         _save_var mkalteriso_option
         _save_var tarball
+
+        _write_rebuild_file "\n# depend package"
+        _write_rebuild_file "dependence=(${dependence[@]})"
     else
         # Load rebuild file
         load_config "${rebuildfile}"
