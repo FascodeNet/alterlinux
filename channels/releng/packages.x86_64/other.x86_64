@@ -1,0 +1,7 @@
+#-- Shell --#
+grml-zsh-config
+
+#-- gui --#
+gpm
+
+#-- tools --#
