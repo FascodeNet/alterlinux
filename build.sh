@@ -572,6 +572,7 @@ prepare_build() {
     check_bool tarball
     check_bool noiso
     check_bool noaur
+    check_bool customized_syslinux
 
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
@@ -1070,9 +1071,16 @@ make_boot_extra() {
 make_syslinux() {
     _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
+
+    # 一時ディレクトリに設定ファイルをコピー
+    mkdir -p "${work_dir}/${arch}/syslinux/"
+    cp -aT "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
+    if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = false ]]; then
+        cp -aT "${script_path}/channels/${channel_name}/syslinux.${arch}" "$work_dir/${arch}/"
+    fi
     
     # copy all syslinux config to work dir
-    for _cfg in ${script_path}/syslinux/${arch}/*.cfg; do
+    for _cfg in $work_dir/${arch}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
