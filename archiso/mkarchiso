@@ -413,22 +413,22 @@ _make_bootmodes() {
 
 # Prepare kernel/initramfs ${install_dir}/boot/
 _make_boot_on_iso() {
+    local ucode_image
     _msg_info "Preparing kernel and intramfs for the ISO 9660 file system..."
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/${arch}"
-    install -m 0644 -- "${airootfs_dir}/boot/initramfs-linux.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
-    install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-linux" "${isofs_dir}/${install_dir}/boot/${arch}/"
-    if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
-        install -m 0644 -- "${airootfs_dir}/boot/intel-ucode.img" "${isofs_dir}/${install_dir}/boot/"
-        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/intel-ucode/"
-        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/intel-ucode/"* \
-            "${isofs_dir}/${install_dir}/boot/licenses/intel-ucode/"
-    fi
-    if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
-        install -m 0644 -- "${airootfs_dir}/boot/amd-ucode.img" "${isofs_dir}/${install_dir}/boot/"
-        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/amd-ucode/"
-        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/amd-ucode/"* \
-            "${isofs_dir}/${install_dir}/boot/licenses/amd-ucode/"
-    fi
+    install -m 0644 -- "${airootfs_dir}/boot/initramfs-"*".img" "${isofs_dir}/${install_dir}/boot/${arch}/"
+    install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-"* "${isofs_dir}/${install_dir}/boot/${arch}/"
+
+    for ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+        if [[ -e "${airootfs_dir}/boot/${ucode_image}" ]]; then
+            install -m 0644 -- "${airootfs_dir}/boot/${ucode_image}" "${isofs_dir}/${install_dir}/boot/"
+            if [[ -e "${airootfs_dir}/usr/share/licenses/${ucode_image%.*}/" ]]; then
+                install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${ucode_image%.*}/"
+                install -m 0644 -- "${airootfs_dir}/usr/share/licenses/${ucode_image%.*}/"* \
+                    "${isofs_dir}/${install_dir}/boot/licenses/${ucode_image%.*}/"
+            fi
+        fi
+    done
     _msg_info "Done!"
 }
 
@@ -450,13 +450,16 @@ _make_boot_bios.syslinux.mbr() {
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux/"
 
     _run_once _make_boot_on_iso
-    _uname_r=$(file -b "${isofs_dir}/${install_dir}/boot/${arch}/vmlinuz-linux" | awk 'f{print;f=0} /version/{f=1}' RS=' ')
 
-    install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
-    gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > \
-        "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
-    gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > \
-        "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+    if [[ -e "${isofs_dir}/${install_dir}/boot/syslinux/hdt.c32" ]]; then
+        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
+        if [[ -e "${airootfs_dir}/usr/share/hwdata/pci.ids" ]]; then
+            gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > \
+                "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
+        fi
+        find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > \
+            "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+    fi
 
     # Add other aditional/extra files to ${install_dir}/boot/
     if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
@@ -473,10 +476,12 @@ _make_boot_bios.syslinux.mbr() {
 _make_boot_bios.syslinux.eltorito() {
     _msg_info "Setting up SYSLINUX for BIOS booting from an optical disc..."
     install -d -m 0755 -- "${isofs_dir}/isolinux"
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g;
-         s|%ARCH%|${arch}|g" \
-         "${profile}/isolinux/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
+    for _cfg in "${profile}/isolinux/"*".cfg"; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+             "${_cfg}" > "${isofs_dir}/isolinux/${_cfg##*/}"
+    done
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
@@ -497,11 +502,12 @@ _make_efi() {
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
     install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${isofs_dir}/loader/"
 
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g;
-         s|%ARCH%|${arch}|g" \
-        "${profile}/efiboot/loader/entries/archiso-x86_64-linux.conf" > \
-        "${isofs_dir}/loader/entries/archiso-x86_64-linux.conf"
+    for _conf in "${profile}/efiboot/loader/entries/"*".conf"; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+            "${_conf}" > "${isofs_dir}/loader/entries/${_conf##*/}"
+    done
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
@@ -513,16 +519,21 @@ _make_efi() {
 
 # Prepare kernel/initramfs on efiboot.img
 _make_boot_on_fat() {
+    local ucode_image all_ucode_images=()
     _msg_info "Preparing kernel and intramfs for the FAT file system..."
     mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" \
         "::/${install_dir}" "::/${install_dir}/boot" "::/${install_dir}/boot/${arch}"
-    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/vmlinuz-linux" \
-        "${airootfs_dir}/boot/initramfs-linux.img" "::/${install_dir}/boot/${arch}/"
-    if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
-        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/intel-ucode.img" "::/${install_dir}/boot/"
-    fi
-    if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
-        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/amd-ucode.img" "::/${install_dir}/boot/"
+    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/vmlinuz-"* \
+        "${airootfs_dir}/boot/initramfs-"*".img" "::/${install_dir}/boot/${arch}/"
+    for ucode_image in \
+        "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}
+    do
+        if [[ -e "${ucode_image}" ]]; then
+            all_ucode_images+=("${ucode_image}")
+        fi
+    done
+    if (( ${#all_ucode_images[@]} )); then
+        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${all_ucode_images[@]}" "::/${install_dir}/boot/"
     fi
     _msg_info "Done!"
 }
@@ -542,11 +553,12 @@ _make_boot_uefi-x64.systemd-boot.esp() {
 
     mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/loader ::/loader/entries
     mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${profile}/efiboot/loader/loader.conf" ::/loader/
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%INSTALL_DIR%|${install_dir}|g;
-         s|%ARCH%|${arch}|g" \
-        "${profile}/efiboot/loader/entries/archiso-x86_64-linux.conf" \
-        | mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" - ::/loader/entries/archiso-x86_64-linux.conf
+    for _conf in "${profile}/efiboot/loader/entries/"*".conf"; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+            "${_conf}" | mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" - "::/loader/entries/${_conf##*/}"
+    done
 
     # shellx64.efi is picked up automatically when on /
     if [[ -e "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
