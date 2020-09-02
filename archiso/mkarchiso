@@ -91,22 +91,6 @@ _umount_airootfs() {
     trap - EXIT HUP INT TERM
 }
 
-_mount_efibootimg() {
-    trap "_umount_efibootimg" EXIT HUP INT TERM
-    install -d -m 0755 -- "${work_dir}/mnt/efiboot"
-    _msg_info "Mounting '${isofs_dir}/EFI/archiso/efiboot.img' on '${work_dir}/mnt/efiboot'..."
-    mount -- "${isofs_dir}/EFI/archiso/efiboot.img" "${work_dir}/mnt/efiboot"
-    _msg_info "Done!"
-}
-
-_umount_efibootimg() {
-    _msg_info "Unmounting '${work_dir}/mnt/efiboot'..."
-    umount -d -- "${work_dir}/mnt/efiboot"
-    _msg_info "Done!"
-    rmdir -- "${work_dir}/mnt/efiboot"
-    trap - EXIT HUP INT TERM
-}
-
 # Show help usage, with an exit status.
 # $1: exit status number.
 _usage() {
@@ -528,14 +512,14 @@ _make_efi() {
 # Prepare kernel/initramfs on efiboot.img
 _make_boot_on_fat() {
     _msg_info "Preparing kernel and intramfs for the FAT file system..."
-    install -d -m 0755 -- "${work_dir}/mnt/efiboot/EFI/archiso"
-    install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-linux" "${work_dir}/mnt/efiboot/EFI/archiso/"
-    install -m 0644 -- "${airootfs_dir}/boot/archiso.img" "${work_dir}/mnt/efiboot/EFI/archiso/"
+    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/EFI/archiso
+    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+        "${airootfs_dir}/boot/vmlinuz-linux" "${airootfs_dir}/boot/archiso.img" ::/EFI/archiso/
     if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
-        install -m 0644 -- "${airootfs_dir}/boot/intel-ucode.img" "${work_dir}/mnt/efiboot/EFI/archiso/"
+        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/intel-ucode.img" ::/EFI/archiso/
     fi
     if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
-        install -m 0644 -- "${airootfs_dir}/boot/amd-ucode.img" "${work_dir}/mnt/efiboot/EFI/archiso/"
+        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/amd-ucode.img" ::/EFI/archiso/
     fi
     _msg_info "Done!"
 }
@@ -544,32 +528,31 @@ _make_boot_on_fat() {
 _make_boot_uefi-x64.systemd-boot.esp() {
     _msg_info "Setting up systemd-boot for UEFI booting..."
     install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
+
+    # The FAT image must be created with mkfs.fat not mformat, as some systems have issues with mformat made images:
+    # https://lists.gnu.org/archive/html/grub-devel/2019-04/msg00099.html
     mkfs.fat -C -n ARCHISO_EFI "${isofs_dir}/EFI/archiso/efiboot.img" 65536
 
-    _mount_efibootimg
+    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/EFI ::/EFI/BOOT
+    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+        "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" ::/EFI/BOOT/BOOTx64.EFI
 
-    install -d -m 0755 -- "${work_dir}/mnt/efiboot/EFI/BOOT"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
-        "${work_dir}/mnt/efiboot/EFI/BOOT/BOOTx64.EFI"
-
-    install -d -m 0755 -- "${work_dir}/mnt/efiboot/loader/entries"
-    install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${work_dir}/mnt/efiboot/loader/"
-
+    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/loader ::/loader/entries
+    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${profile}/efiboot/loader/loader.conf" ::/loader/
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g;
          s|%ARCH%|${arch}|g" \
-        "${profile}/efiboot/loader/entries/archiso-x86_64-cd.conf" > \
-        "${work_dir}/mnt/efiboot/loader/entries/archiso-x86_64.conf"
+        "${profile}/efiboot/loader/entries/archiso-x86_64-cd.conf" \
+        | mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" - ::/loader/entries/archiso-x86_64.conf
 
     # shellx64.efi is picked up automatically when on /
     if [[ -e "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-        install -m 0644 -- "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/mnt/efiboot/shellx64.efi"
+        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+            "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ::/shellx64.efi
     fi
 
     # Copy kernel and initramfs
     _run_once _make_boot_on_fat
-
-    _umount_efibootimg
 
     _msg_info "Done! systemd-boot set up for UEFI booting successfully."
 }

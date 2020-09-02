@@ -15,6 +15,7 @@ The following packages need to be installed to be able to create an image with t
 * dosfstools
 * e2fsprogs
 * libisoburn
+* mtools
 * squashfs-tools
 
 For running the images in a virtualized test environment the following packages are required:
