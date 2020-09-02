@@ -500,8 +500,8 @@ _make_efi() {
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g;
          s|%ARCH%|${arch}|g" \
-        "${profile}/efiboot/loader/entries/archiso-x86_64-usb.conf" > \
-        "${isofs_dir}/loader/entries/archiso-x86_64.conf"
+        "${profile}/efiboot/loader/entries/archiso-x86_64-linux.conf" > \
+        "${isofs_dir}/loader/entries/archiso-x86_64-linux.conf"
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
@@ -514,14 +514,15 @@ _make_efi() {
 # Prepare kernel/initramfs on efiboot.img
 _make_boot_on_fat() {
     _msg_info "Preparing kernel and intramfs for the FAT file system..."
-    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/EFI/archiso
-    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
-        "${airootfs_dir}/boot/vmlinuz-linux" "${airootfs_dir}/boot/initramfs-linux.img" ::/EFI/archiso/
+    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+        "::/${install_dir}" "::/${install_dir}/boot" "::/${install_dir}/boot/${arch}"
+    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/vmlinuz-linux" \
+        "${airootfs_dir}/boot/initramfs-linux.img" "::/${install_dir}/boot/${arch}/"
     if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
-        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/intel-ucode.img" ::/EFI/archiso/
+        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/intel-ucode.img" "::/${install_dir}/boot/"
     fi
     if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
-        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/amd-ucode.img" ::/EFI/archiso/
+        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/amd-ucode.img" "::/${install_dir}/boot/"
     fi
     _msg_info "Done!"
 }
@@ -544,8 +545,8 @@ _make_boot_uefi-x64.systemd-boot.esp() {
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%INSTALL_DIR%|${install_dir}|g;
          s|%ARCH%|${arch}|g" \
-        "${profile}/efiboot/loader/entries/archiso-x86_64-cd.conf" \
-        | mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" - ::/loader/entries/archiso-x86_64.conf
+        "${profile}/efiboot/loader/entries/archiso-x86_64-linux.conf" \
+        | mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" - ::/loader/entries/archiso-x86_64-linux.conf
 
     # shellx64.efi is picked up automatically when on /
     if [[ -e "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
