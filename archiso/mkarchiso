@@ -415,7 +415,7 @@ _make_bootmodes() {
 _make_boot_on_iso() {
     _msg_info "Preparing kernel and intramfs for the ISO 9660 file system..."
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/${arch}"
-    install -m 0644 -- "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
+    install -m 0644 -- "${airootfs_dir}/boot/initramfs-linux.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
     install -m 0644 -- "${airootfs_dir}/boot/vmlinuz-linux" "${isofs_dir}/${install_dir}/boot/${arch}/"
     if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
         install -m 0644 -- "${airootfs_dir}/boot/intel-ucode.img" "${isofs_dir}/${install_dir}/boot/"
@@ -516,7 +516,7 @@ _make_boot_on_fat() {
     _msg_info "Preparing kernel and intramfs for the FAT file system..."
     mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/EFI/archiso
     mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
-        "${airootfs_dir}/boot/vmlinuz-linux" "${airootfs_dir}/boot/archiso.img" ::/EFI/archiso/
+        "${airootfs_dir}/boot/vmlinuz-linux" "${airootfs_dir}/boot/initramfs-linux.img" ::/EFI/archiso/
     if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
         mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/intel-ucode.img" ::/EFI/archiso/
     fi
