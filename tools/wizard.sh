@@ -136,7 +136,7 @@ function check_files () {
 
     file=(
         "build.sh"
-        "keyring.sh"
+        "tools/keyring.sh"
         "system/pacman-i686.conf"
         "system/pacman-x86_64.conf"
         "default.conf"
@@ -189,6 +189,14 @@ function install_dependencies () {
     echo
 }
 
+function guide_generator () {
+    if [[ "${lang}"  = "jp" ]]; then
+        msg "wizard.sh ではビルドオプションの生成以外にもパッケージのインストールやキーリングのインストールなど様々なことを行います。"
+        msg "もし既に環境が構築されておりそれらの操作が必要ない場合は、以下のサイトによるジェネレータも使用することができます。"
+        msg "http://hayao.fascode.net/alteriso-options-generator/"
+        echo
+    fi
+}
 
 function run_add_key_script () {
     local yn
@@ -775,6 +783,7 @@ change_iso_permission() {
 set_language
 check_files
 install_dependencies
+guide_generator
 run_add_key_script
 ask
 generate_argument
