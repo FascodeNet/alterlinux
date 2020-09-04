@@ -714,7 +714,7 @@ function ask () {
     set_username
     set_password
     select_channel
-    set_iso_owner
+    #set_iso_owner
     enable_tarball
     # set_out_dir
     lastcheck
