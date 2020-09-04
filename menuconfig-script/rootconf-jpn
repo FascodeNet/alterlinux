@@ -94,10 +94,10 @@ menu "Live環境の設定"
 		config CUSTOM_PASSWD
 			string "パスワード"
 	endif
-	choice 
+	choice
 		prompt "チャンネル"
 		default CHANNEL_XFCE
-		help 
+		help
 			"使用するチャンネルを選択します。"
 		config CHANNEL_XFCE
 			bool "Xfce"

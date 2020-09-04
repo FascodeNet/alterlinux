@@ -57,7 +57,7 @@ cdback() {
 
 _chroot_init() {
     mkdir -p ${work_dir}/airootfs
-    
+
     #_pacman "base base-devel syslinux" <- old code
 
     _pacman "base syslinux"

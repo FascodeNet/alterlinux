@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -18,7 +18,7 @@ thunar
 thunar-volman
 tumbler
 xfce4-appfinder
-xfce4-notifyd 
+xfce4-notifyd
 xfce4-screenshooter
 xfce4-session
 xfce4-settings

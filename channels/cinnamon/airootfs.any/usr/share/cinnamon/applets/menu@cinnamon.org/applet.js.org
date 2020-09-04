@@ -1242,7 +1242,7 @@ class CinnamonMenuApplet extends Applet.TextIconApplet {
              * height value is set in the .css style as get_preferred_height() returns this value in this case*/
             this.selectedAppBox.set_height(-1); //unset previously set height
             this.selectedAppBox.set_height(this.selectedAppBox.get_preferred_height(-1)[1]);
-            
+
             let n = Math.min(this._applicationsButtons.length,
                              INITIAL_BUTTON_LOAD);
             for (let i = 0; i < n; i++) {
@@ -2155,7 +2155,7 @@ class CinnamonMenuApplet extends Applet.TextIconApplet {
                 break;
             }
         }
-        
+
         if (!this.showPlaces) {
             return;
         }
@@ -2187,7 +2187,7 @@ class CinnamonMenuApplet extends Applet.TextIconApplet {
         }
 
         this._recentButtons = [];
-        
+
         for (let i = 0; i < this._categoryButtons.length; i++) {
             if (this._categoryButtons[i].categoryId === 'recent') {
                 this._categoryButtons[i].destroy();
@@ -2196,7 +2196,7 @@ class CinnamonMenuApplet extends Applet.TextIconApplet {
                 break;
             }
         }
-            
+
         if (!this.showRecents || !this.privacy_settings.get_boolean(REMEMBER_RECENT_KEY)) {
             return;
         }

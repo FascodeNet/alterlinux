@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Version=1.0
 Icon=/usr/share/icons/hicolor/scalable/apps/alter.svg
-Exec=/usr/bin/alterlinux-welcome-page 
+Exec=/usr/bin/alterlinux-welcome-page
 Type=Application
 StartupNotify=false
 Terminal=false

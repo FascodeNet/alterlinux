@@ -74,7 +74,7 @@ do
 			chsh -s /usr/bin/zsh
 			SELECTEDITEM="$pick"
 			break
-			;;		
+			;;
 		bash)
 			echo ""
 			echo ""
@@ -90,7 +90,7 @@ do
 			chsh -s /bin/bash
 			SELECTEDITEM="$pick"
 			break
-			;;		
+			;;
 		fish)
 			echo ""
 			echo ""
@@ -105,7 +105,7 @@ do
 			chsh -s /usr/bin/fish
 			SELECTEDITEM="$pick"
 			break
-			;;		
+			;;
 		dash)
 			echo ""
 			echo ""
@@ -118,7 +118,7 @@ do
 			chsh -s /usr/dash
 			SELECTEDITEM="$pick"
 			break
-			;;		
+			;;
 		cancel)
 			break
 	esac
@@ -159,7 +159,7 @@ do
 			STATUSVAR=$?
 			fi
 			break
-			;;		
+			;;
 		lightdm)
 			SELECTEDITEM="$pick"
 			if ! [[ -d /run/openrc ]] ; then
@@ -179,7 +179,7 @@ do
 			STATUSVAR=$?
 			fi
 			break
-			;;		
+			;;
 		sddm)
 			SELECTEDITEM="$pick"
 			if ! [[ -d /run/openrc ]] ; then
@@ -198,7 +198,7 @@ do
 			STATUSVAR=$?
 			fi
 			break
-			;;		
+			;;
 		mdm)
 			SELECTEDITEM="$pick"
 			if ! [[ -d /run/openrc ]] ; then
@@ -214,7 +214,7 @@ do
 			STATUSVAR=$?
 			fi
 			break
-			;;		
+			;;
 		lxdm)
 			SELECTEDITEM="$pick"
 			if ! [[ -d /run/openrc ]] ; then
@@ -225,7 +225,7 @@ do
 			STATUSVAR=$?
 			fi
 			break
-			;;		
+			;;
 		gdm)
 			SELECTEDITEM="$pick"
 			if ! [[ -d /run/openrc ]] ; then
@@ -236,7 +236,7 @@ do
 			read -s n1
 			fi
 			break
-			;;		
+			;;
 		kdm)
 			SELECTEDITEM="$pick"
 			if ! [[ -d /run/openrc ]] ; then
@@ -250,9 +250,9 @@ do
 			fi
 			sudo rc-update add xdm default
 			STATUSVAR=$?
-			fi 
+			fi
 			break
-			;;		
+			;;
 		cancel)
 			STATUSVAR=1
 			break
@@ -272,27 +272,27 @@ do
 		cfdisk)
 			sudo cfdisk
 			break
-			;;		
+			;;
 		cgdisk)
 			sudo cgdisk
 			break
-			;;		
+			;;
 		gdisk)
 			sudo gdisk
 			break
-			;;		
+			;;
 		parted)
 			sudo parted
 			break
-			;;		
+			;;
 		gparted)
 			sudo gparted
 			break
-			;;		
+			;;
 		gnome-disks)
 			sudo gnome-disks
 			break
-			;;		
+			;;
 		cancel)
 			break
 	esac
@@ -315,7 +315,7 @@ function hibernation_setup {
     	;;
     	*)
     	break
-    	;; 
+    	;;
 esac
 return $STATUSVAR
 }
@@ -341,7 +341,7 @@ do
 		*)
 			echo $pick
 			break
-			;;			
+			;;
 		cancel)
 			STATUSVAR=1
 			break
@@ -357,22 +357,22 @@ function autologger {
 	fi
 	dm=$(dm_detect)
 	eval user=$(whoami)
-	case dm in 
+	case dm in
 		slim)
 			sudo sed -i '/autologin/s/^#//g' /etc/slim.conf && sudo sed -i '/defaultuser/s/^#//g' /etc/slim.conf
 			sudo sed -i "s/simone/$user/g" /etc/slim.conf
 			STATUSVAR=$?
 			break
-			;;		
+			;;
 		lightdm)
 			sudo sed -i "s/^autologin-user=*/autologin-user=$user/g" /etc/lightdm.conf
 			sudo sed -i 's/^autologin-user-timeout=*/autologin-user-timeout=0/g' /etc/lightdm.conf
 			sudo groupadd -r autologin
 			sudo gpasswd -a $user autologin
-			STATUSVAR=$?						
+			STATUSVAR=$?
 			sudo $TEXTEDITOR /etc/lightdm.conf
 			break
-			;;		
+			;;
 		sddm)
 			session=$(choose_session)
 			if [ $STATUSVAR -eq 1 ] || [ "$session" == "" ]; then
@@ -383,7 +383,7 @@ function autologger {
 			sudo sed -i "s/^Session/Session=$session/g" /etc/sddm.conf
 			STATUSVAR=$?
 			break
-			;;		
+			;;
 		mdm)
 			sudo sed -i "s/^AutomaticLogin=*/AutomaticLogin=$user/g" /etc/mdm.conf
 			sudo sed -i 's/^AutomaticLoginEnable=*/AutomaticLoginEnable=true/g' /etc/mdm.conf
@@ -393,13 +393,13 @@ function autologger {
 			STATUSVAR=$?
 			sudo $TEXTEDITOR /etc/mdm/mdm.conf
 			break
-			;;		
+			;;
 		lxdm)
 			sudo sed -i "1s/^/autologin=$user /" /etc/lxdm/lxdm.conf
 			STATUSVAR=$?
 			sudo $TEXTEDITOR /etc/lxdm/lxdm.conf
 			break
-			;;		
+			;;
 		gdm)
 			sudo sed -i "s/^AutomaticLogin=*/AutomaticLogin=$user/g" /etc/gdm/custom.conf
 			sudo sed -i 's/^AutomaticLoginEnable=*/AutomaticLoginEnable=true/g' /etc/gdm/custom.conf
@@ -408,13 +408,13 @@ function autologger {
 			sudo sed -i 's/^TimedLoginDelay=*/TimedLoginDelay=0/g' /etc/gdm/custom.conf
 			STATUSVAR=$?
 			break
-			;;		
+			;;
 		kdm)
 			sudo sed -i "s/^AutoLoginUser=*/AutoLoginUser=$user/g" /usr/kde/*/share/config/kdm/kdmrc
 			sudo sed -i "s/^AutoLoginEnable=*/AutoLoginEnable=true/g" /usr/kde/*/share/config/kdm/kdmrc
 			STATUSVAR=$?
 			break
-			;;		
+			;;
 		*)
 			if ! [[ -d /run/openrc ]] ; then
 				sudo pacman -Syu xlogin && sudo systemctl enable xlogin@$(whoami)
@@ -436,7 +436,7 @@ function main {
     echo -e " ┌─────────────────────────────────────────────────────────────┐"
     echo -e " │    1   Enable hibernation        2   Install Display manager│"
     echo -e " │    3   Enable autologin          4   Install AUR support    │"
-    echo -e " │    5   Install shell             6   Disk utility           │"    
+    echo -e " │    5   Install shell             6   Disk utility           │"
     echo -e " │    7   Install printer support   8   Recover files          │"
     echo -e " └─────────────────────────────────────────────────────────────┘"
     echo -e "          Select an item     -      0   Exit "

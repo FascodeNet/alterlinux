@@ -32,20 +32,20 @@ do
 			sudo $TEXTEDITOR /etc/default/grub
 			sudo update-grub
 			break
-			;;		
+			;;
 		refind)
 			sudo $TEXTEDITOR /boot/refind_linux.conf
 			sudo $TEXTEDITOR /boot/EFI/refind/refind.conf
 			break
-			;;		
+			;;
 		systemdboot)
 			sudo $TEXTEDITOR /boot/loader/entries/manjaro.conf
 			break
-			;;		
+			;;
 		syslinux)
 			sudo $TEXTEDITOR /boot/syslinux/syslinux.cfg
 			break
-			;;		
+			;;
 		cancel)
 			break
 	esac
@@ -73,7 +73,7 @@ function main {
     echo -e " ┌─────────────────────────────────────────────────────────────┐"
     echo -e " │    1   Pacman settings              2   Mkinitcpio          │"
     echo -e " │    3   Fstab                        4   Sudoers             │"
-    echo -e " │    5   Logind                       6   Bootloader          │"    
+    echo -e " │    5   Logind                       6   Bootloader          │"
     echo -e " │    7   Udevil settings              8   Xinitrc             │"
     echo -e " │    9   Setup                                                │"
     echo -e " └─────────────────────────────────────────────────────────────┘"
