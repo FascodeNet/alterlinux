@@ -1369,8 +1369,7 @@ while :; do
             exit 0
             ;;
         -j | --japanese)
-            msg_error "This option is obsolete in AlterISO 3."
-            msg_error "To use Japanese, use \"-g ja\"." '1'
+            msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-g ja\"." "1"
             ;;
         -k | --kernel)
             kernel="${2}"
