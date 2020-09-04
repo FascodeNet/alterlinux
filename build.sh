@@ -639,9 +639,7 @@ prepare_build() {
             return 0
         }
 
-        for _pkg in ${dependence[@]}; do
-            _check_pkg "${_pkg}"
-        done
+        for _pkg in ${dependence[@]}; do _check_pkg "${_pkg}"; done
         
         if [[ "${_check_failed}" = true ]]; then
             exit 1
