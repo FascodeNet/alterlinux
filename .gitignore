@@ -20,3 +20,4 @@ work/
 *.ig*
 *.add*
 temp/
+/custom.conf
