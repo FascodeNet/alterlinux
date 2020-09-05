@@ -59,11 +59,11 @@ mkalteriso:
 		mkdir system/cpp-src/mkalteriso/build ;\
 	fi
 	(cd system/cpp-src/mkalteriso/build ; cmake -GNinja .. ; ninja -j4 ; cp -f mkalteriso ../../../)
-	
+
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
 menuconfig-script/kernel_choice:system/kernel_list-x86_64 system/kernel_list-i686
-	./kernel-choice-conf-gen.sh 
+	./kernel-choice-conf-gen.sh
 build_option:
 	if [ -f .config ];\
 	then \
@@ -78,4 +78,4 @@ build:build_option mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
 	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}
 keyring::
-	sudo ./keyring.sh --alter-add --arch-add 
+	sudo ./keyring.sh --alter-add --arch-add

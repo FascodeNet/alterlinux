@@ -174,15 +174,15 @@ int command_collection::_mount_airootfs(){
     if(!workkun.exists("mnt/airootfs")){
         workkun.mkpath("mnt/airootfs");
     }
-    _msg_info("Mounting '" + bskun->get_work_dir() + "/airootfs.img' on '" + bskun->get_work_dir() + "/mnt/airootfs'"); 
+    _msg_info("Mounting '" + bskun->get_work_dir() + "/airootfs.img' on '" + bskun->get_work_dir() + "/mnt/airootfs'");
     QString mount_cmd="mount \"" + bskun->get_work_dir() + "/airootfs.img\" \"" + bskun->get_work_dir() + "/mnt/airootfs\"";    //イメージのマウントコマンドの生成
     _msg_infodbg(mount_cmd);    //デバッグ時のみ表示
     int ret=system(mount_cmd.toUtf8().data());  //実行
     if(ret != 0){   //エラー時
         _msg_err(QString("mount airootfs\nError code : ") + QString::number(ret));
         return 2;
-    }    
-        
+    }
+
     _msg_success("Done!");
     return 0;
 

@@ -47,14 +47,3 @@ remove /etc/systemd/system/{choose-mirror.service,getty@tty1.service.d}
 
 # Disabled auto login
 sed -i "s/^autologin/#autologin/g" /etc/lightdm/lightdm.conf
-
-# Remove dconf for live environment
-remove "/etc/dconf/db/local.d/02-disable-lock"
-
-# Replace menu source (enable screen lock)
-remove "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
-mv "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js.org" "/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js"
-
-
-# Update system datebase
-dconf update
