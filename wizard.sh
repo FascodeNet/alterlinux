@@ -72,7 +72,7 @@ while getopts 'a:xnje' arg; do
                 "シミュレーションモードを有効化しました" "Enabled simulation mode"
             ;;
         x)
-            set -x 
+            set -x
             msg "デバッグモードを有効化しました" "Debug mode enabled"
             ;;
         e)

@@ -283,4 +283,3 @@ kconf_id_lookup (register const char *str, register unsigned int len)
   return 0;
 }
 #line 47 "scripts/kconfig/zconf.gperf"
-
