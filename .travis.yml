@@ -1,11 +1,15 @@
 language: shell
+sudo: required
 addons:
   apt:
     packages:
       - ninja
 script:
   - bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
-  - bash -c 'make mkalteriso'
+  - cd system/cpp-src/mkalteriso
+  - sudo -E env "PATH=$PATH" cmake -GNinja
+  - sudo -E env "PATH=$PATH" ninja
+  
 git:
   submodules: false
   language: bash
