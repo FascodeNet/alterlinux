@@ -58,7 +58,7 @@ kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
 kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
 kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
 
-# Use mkalteriso written in a traditional shell script 
+# Use mkalteriso written in a traditional shell script
 # instead of the C ++ version of mkalteriso.
 # Change the default behavior of "--shmkalteriso".
 shmkalteriso=true

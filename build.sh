@@ -423,7 +423,7 @@ prepare_build() {
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
-    
+
     if [[ "${rebuild}" == false ]]; then
         # If there is pacman.conf for each channel, use that for building
         if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
@@ -520,7 +520,7 @@ prepare_build() {
         _save_var locale_version
         _save_var locale_time
         _save_var locale_fullname
-        
+
         _write_rebuild_file "\n# Kernel Info"
         _save_var kernel
         _save_var kernel_package
@@ -640,7 +640,7 @@ prepare_build() {
         }
 
         for _pkg in ${dependence[@]}; do _check_pkg "${_pkg}"; done
-        
+
         if [[ "${_check_failed}" = true ]]; then
             exit 1
         fi
@@ -721,7 +721,7 @@ make_basefs() {
             ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "plymouth" install
         fi
     fi
-    
+
     # Install kernel.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${kernel_package} ${kernel_headers_packages}" install
 
@@ -736,7 +736,7 @@ make_basefs() {
 make_packages() {
     set +e
     local _loadfilelist _pkg _file _excludefile _excludelist _pkglist
-    
+
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
@@ -745,8 +745,8 @@ make_packages() {
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
         "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     )
-    
-    
+
+
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
@@ -797,7 +797,7 @@ make_packages() {
     for _pkg in ${_pkglist[@]}; do
         echo ${_pkg} >> "${work_dir}/packages.list"
     done
-    
+
     # Install packages on airootfs
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${_pkglist[@]}" install
 }
@@ -807,7 +807,7 @@ make_packages_aur() {
     set +e
 
     local _loadfilelist _pkg _file _excludefile _excludelist _pkglist
-    
+
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
@@ -829,7 +829,7 @@ make_packages_aur() {
             pkglist_aur=( ${pkglist_aur[@]} "$(grep -h -v ^'#' ${_file})" )
         fi
     done
-    
+
     #-- Read exclude list --#
     # Exclude packages from the share exclusion list
     _excludefile=(
@@ -864,7 +864,7 @@ make_packages_aur() {
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
-    
+
     # Build aur packages on airootfs
     for _file in "aur_install" "aur_prepare" "aur_remove" "pacls_gen_new" "pacls_gen_old"; do
         cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
@@ -903,7 +903,7 @@ make_packages_aur() {
 
     # Build the package using makepkg.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
-  
+
     # Install the built package file.
     for _pkg in ${pkglist_aur[@]}; do
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
@@ -926,7 +926,7 @@ make_packages_aur() {
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
     local _copy_airootfs
-    
+
     _copy_airootfs() {
         local _dir="${1%/}"
         if [[ -d "${_dir}" ]]; then
@@ -938,7 +938,7 @@ make_customize_airootfs() {
     _copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
     _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.any"
     _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.${arch}"
-    
+
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
         cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio.conf"
@@ -962,8 +962,8 @@ make_customize_airootfs() {
     #
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
-    
-    
+
+
     # Generate options of customize_airootfs.sh.
     local _airootfs_script_options
     _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
@@ -979,7 +979,7 @@ make_customize_airootfs() {
             if [[ -f "$_file" ]]; then chmod 755 "${_file}" ;fi
         done
     }
-    
+
     chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
 
     # Execute customize_airootfs.sh.
@@ -1005,7 +1005,7 @@ make_customize_airootfs() {
         -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${_airootfs_script_options}" \
         run
     fi
-    
+
     # Delete customize_airootfs.sh.
     remove "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
     remove "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh"
@@ -1037,9 +1037,9 @@ make_setup_mkinitcpio() {
       gpg --export "${gpg_key}" >"${work_dir}/gpgkey"
       exec 17<>"${work_dir}/gpgkey"
     fi
-    
+
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img" run
-    
+
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
     fi
@@ -1079,7 +1079,7 @@ make_syslinux() {
     if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = true ]]; then
         cp -af "${script_path}/channels/${channel_name}/syslinux.${arch}/"* "$work_dir/${arch}/syslinux/"
     fi
-    
+
     # copy all syslinux config to work dir
     for _cfg in $work_dir/${arch}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1087,7 +1087,7 @@ make_syslinux() {
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
-    
+
     # Replace the SYSLINUX configuration file with or without boot splash.
     local _use_config_name _no_use_config_name _pxe_or_sys
     if [[ "${boot_splash}" = true ]]; then
@@ -1121,7 +1121,7 @@ make_syslinux() {
 # Prepare /isolinux
 make_isolinux() {
     mkdir -p "${work_dir}/iso/isolinux"
-    
+
     sed "s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/system/isolinux.cfg" > "${work_dir}/iso/isolinux/isolinux.cfg"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/isolinux.bin" "${work_dir}/iso/isolinux/"
@@ -1142,7 +1142,7 @@ make_efi() {
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
-    
+
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
     cp "${work_dir}/x86_64/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
@@ -1153,18 +1153,18 @@ make_efiboot() {
     mkdir -p "${work_dir}/iso/EFI/archiso"
     truncate -s 64M "${work_dir}/iso/EFI/archiso/efiboot.img"
     mkfs.fat -n ARCHISO_EFI "${work_dir}/iso/EFI/archiso/efiboot.img"
-    
+
     mkdir -p "${work_dir}/efiboot"
     mount "${work_dir}/iso/EFI/archiso/efiboot.img" "${work_dir}/efiboot"
-    
+
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
-    
+
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}.efi"
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
-    
+
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
     cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
-    
+
     mkdir -p "${work_dir}/efiboot/EFI/boot"
     cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
 
@@ -1218,7 +1218,7 @@ make_prepare() {
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
-    
+
     if [[ "${cleaning}" = true ]]; then
         remove "${work_dir}/${arch}/airootfs"
     fi
@@ -1530,7 +1530,7 @@ check_channel() {
             return 0
         fi
     done
-    
+
     echo -n "false"
     return 1
 }

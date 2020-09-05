@@ -36,10 +36,10 @@ function scanner_interface {
 		xsane
 		STATUSVAR=$?
 	else
-		if [ - e /var/lib/pacman/db.lck ]; then 
+		if [ - e /var/lib/pacman/db.lck ]; then
 			echo "$XSANEINSTMSG"
 			STATUSVAR=$?
-		else 
+		else
 			sudo pacman -Sy xsane && xsane
 			STATUSVAR=$?
 		fi
@@ -93,7 +93,7 @@ function set_default_scanner {
   	echo "export SANE_DEFAULT_DEVICE=$default_scanner" >> $HOME/.profile
   	SANE_DEFAULT_DEVICE="$default_scanner"
   fi
-return $STATUSVAR  
+return $STATUSVAR
 }
 
 function select_filetype {
@@ -104,7 +104,7 @@ filetypes=("pnm" "tiff" "png" "jpeg")
 select pick in "${filetypes[@]}"
 do
 	case $pick in
-		*)	echo $pick	
+		*)	echo $pick
 			break
 	esac
 done
@@ -129,8 +129,8 @@ function scan {
   	fi
   else
   	STATUSVAR=1
-  fi	
-return $STATUSVAR  		
+  fi
+return $STATUSVAR
 }
 
 function default_scan {
@@ -160,8 +160,8 @@ function main {
     echo -e " ┌─────────────────────────────────────────────────────────────┐"
     echo -e " │    1   Manage Printers            2   Print files           │"
     echo -e " │    3   Set default printer        4   List printers         │"
-    echo -e " │    5   Set default scanner        6   Scan with GUI         │"    
-    echo -e " │    7   List scanners              8   Scan using defaults   │"    
+    echo -e " │    5   Set default scanner        6   Scan with GUI         │"
+    echo -e " │    7   List scanners              8   Scan using defaults   │"
     echo -e " └─────────────────────────────────────────────────────────────┘"
     echo -e "          Select an item      -      0 Exit "
     echo ""

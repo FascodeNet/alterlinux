@@ -48,4 +48,3 @@ style "MenuItem"
 }
 
 class "*MenuItem" style "MenuItem"
-
