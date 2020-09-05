@@ -85,4 +85,3 @@ fi
 
 # ntp
 systemctl enable systemd-timesyncd.service
-

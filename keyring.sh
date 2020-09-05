@@ -241,7 +241,7 @@ while getopts 'archli-:' arg; do
             run update_arch_key
             ;;
         # help
-        h) 
+        h)
             _usage 0
             ;;
         # arch32-add

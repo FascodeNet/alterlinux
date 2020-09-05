@@ -213,7 +213,7 @@ while getopts 'a:dghr:sc' arg; do
         c) all_channel=true ;;
         d) share_options="${share_options} ${default_options}" ;;
         m) architectures=(${OPTARG}) ;;
-        g) 
+        g)
             if [[ ! -d "${script_path}/.git" ]]; then
                 _msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
