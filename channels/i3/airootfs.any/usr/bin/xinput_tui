@@ -9,7 +9,7 @@ natural_scrolling_code=$(xinput --list-props "$touchpad_id" | grep "Natural Scro
 if [[ $(xinput --list-props "$touchpad_id" | grep "Natural Scrolling Enabled (" | awk '{print $6}' | head -n1) == 1 ]]; then
 	xinput --set-prop "$touchpad_id" "$natural_scrolling_code" 0 && echo "Natural scrolling is now disabled" || echo "Something vent wrong"
 else
-	xinput --set-prop "$touchpad_id" "$natural_scrolling_code" 1 && echo "Natural scrolling is now enabled" || echo "Something vent wrong"		
+	xinput --set-prop "$touchpad_id" "$natural_scrolling_code" 1 && echo "Natural scrolling is now enabled" || echo "Something vent wrong"
 fi
 
 }
@@ -21,7 +21,7 @@ tap_to_click_code=$(xinput --list-props "$touchpad_id" | awk '/Tapping Enabled \
 if [[ $(xinput --list-props "$touchpad_id" | awk '/Tapping Enabled \(/ {print $5}') == 1 ]]; then
 	xinput --set-prop "$touchpad_id" "$tap_to_click_code" 0 && echo "Tap to click is now disabled" || echo "Something vent wrong"
 else
-	xinput --set-prop "$touchpad_id" "$tap_to_click_code" 1 && echo "Tap to click is now enabled" || echo "Something vent wrong"		
+	xinput --set-prop "$touchpad_id" "$tap_to_click_code" 1 && echo "Tap to click is now enabled" || echo "Something vent wrong"
 fi
 
 }
@@ -33,7 +33,7 @@ left_handed_code=$(xinput --list-props "$touchpad_id" | grep "Left Handed Enable
 if [[ $(xinput --list-props "$touchpad_id" | grep "Left Handed Enabled" | awk '{print $6}' | head -n1) == 1 ]]; then
 	xinput --set-prop "$touchpad_id" "$left_handed_code" 0 && echo "Left handed mode is now disabled" || echo "Something vent wrong"
 else
-	xinput --set-prop "$touchpad_id" "$left_handed_code" 1 && echo "Left handed mode is now enabled" || echo "Something vent wrong"		
+	xinput --set-prop "$touchpad_id" "$left_handed_code" 1 && echo "Left handed mode is now enabled" || echo "Something vent wrong"
 fi
 
 }
@@ -53,7 +53,7 @@ current_speed=$(xinput --list-props "$touchpad_id" | awk '/Accel Speed \(/ {prin
 	echo "Speed is now set to $speed."
 	read -r -p "${1:-Do you wish to make this setting permanent? [Y/n]} " response
     case $response in
-        [nN] | [nN][oO]) 
+        [nN] | [nN][oO])
             false
             ;;
         *)
@@ -66,7 +66,7 @@ EndSection" > /etc/X11/xorg.conf.d/31-pointerspeed.conf'
             ;;
     esac
     echo ""
-    echo "created file /etc/X11/xorg.conf.d/31-pointerspeed.conf. 
+    echo "created file /etc/X11/xorg.conf.d/31-pointerspeed.conf.
     Press any key to continue"
     read -s -n1
 }
@@ -78,7 +78,7 @@ drag_lock_code=$(xinput --list-props "$touchpad_id" | grep "Drag Lock Enabled ("
 if [[ $(xinput --list-props "$touchpad_id" | grep "Drag Lock Enabled (" | awk '{print $7}' | head -n1) == 1 ]]; then
 	xinput --set-prop "$touchpad_id" "$drag_lock_code" 0 && echo "Drag lock is now disabled" || echo "Something vent wrong"
 else
-	xinput --set-prop "$touchpad_id" "$drag_lock_code" 1 && echo "Drag lock is now enabled" || echo "Something vent wrong"		
+	xinput --set-prop "$touchpad_id" "$drag_lock_code" 1 && echo "Drag lock is now enabled" || echo "Something vent wrong"
 fi
 
 }
@@ -90,7 +90,7 @@ disable_while_typing_code=$(xinput --list-props "$touchpad_id" | grep "Disable W
 if [[ $(xinput --list-props "$touchpad_id" | grep "Disable While Typing Enabled (" | awk '{print $7}' | head -n1) == 1 ]]; then
 	xinput --set-prop "$touchpad_id" "$disable_while_typing_code" 1 && echo "Touchpad is now disabled while typing" || echo "Something vent wrong"
 else
-	xinput --set-prop "$touchpad_id" "$disable_while_typing_code" 0 && echo "Touchpad is now enabled while typing" || echo "Something vent wrong"		
+	xinput --set-prop "$touchpad_id" "$disable_while_typing_code" 0 && echo "Touchpad is now enabled while typing" || echo "Something vent wrong"
 fi
 
 }
@@ -102,7 +102,7 @@ horizontal_scrolling_code=$(xinput --list-props "$touchpad_id" | grep "Horizonta
 if [[ $(xinput --list-props "$touchpad_id" | grep "Horizontal Scroll Enabled" | awk '{print $6}' | head -n1) == 1 ]]; then
 	xinput --set-prop "$touchpad_id" "$horizontal_scrolling_code" 0 && echo "Horizontal scrolling is now disabled" || echo "Something vent wrong"
 else
-	xinput --set-prop "$touchpad_id" "$horizontal_scrolling_code" 1 && echo "Horizontal scrolling is now enabled" || echo "Something vent wrong"		
+	xinput --set-prop "$touchpad_id" "$horizontal_scrolling_code" 1 && echo "Horizontal scrolling is now enabled" || echo "Something vent wrong"
 fi
 
 }
@@ -115,9 +115,9 @@ function gui {
 		echo
 		if [[ $REPLY =~ ^[Yy]$ ]]
 		then
-			if [ -e /var/lib/pacman/db.lck ]; then 
+			if [ -e /var/lib/pacman/db.lck ]; then
 				echo "Pacman seems to be currently in use."
-			else 
+			else
 				sudo pacman -Sy lxinput && lxinput &>/dev/null
 			fi
 		fi
@@ -132,7 +132,7 @@ function main {
     echo -e " ┌──────────────────────────────────────────┐"
     echo -e " │    1   Set pointer speed                 │"
     echo -e " │    2   Toggle tap to click               │"
-    echo -e " │    3   Toggle drag lock                  │"    
+    echo -e " │    3   Toggle drag lock                  │"
     echo -e " │    4   Toggle left handed mode           │"
     echo -e " │    5   Toggle disable while typing       │"
     echo -e " │    6   Toggle natural scrolling          │"
@@ -181,7 +181,7 @@ function main {
             ;;
         8)
             echo
-            man xinput                 
+            man xinput
             read -s -n1
             ;;
         9)
@@ -191,8 +191,8 @@ function main {
             ;;
         l|L)
             echo
-            gui 
-			echo -e "Operation complete. Press any key to continue."                  
+            gui
+			echo -e "Operation complete. Press any key to continue."
             read -s -n1
             ;;
         0)

@@ -34,29 +34,29 @@ do
 		xdm)
 			sudo $EDITOR /etc/conf.d/xdm
 			break
-			;;		
+			;;
 		rc.local)
 			sudo $EDITOR /etc/rc.local
 			break
-			;;		
+			;;
 		sysctl.conf)
 			sudo $EDITOR /etc/sysctl.conf
 			break
-			;;		
+			;;
 		modules)
 			sudo $EDITOR /etc/conf.d/modules
 			break
-			;;		
+			;;
 		cancel)
 			break
 	esac
-done	
-} 
+done
+}
 
 function enable_services {
 	sudo rc-update add $(rc-status -s | awk '/stopped/ {print $1}' | fzf -m -e --reverse)
 	STATUSVAR=$?
-return $STATUSVAR	
+return $STATUSVAR
 }
 
 function start_services {
@@ -85,7 +85,7 @@ function main {
     echo -e " ┌─────────────────────────────────────────────────────────────┐"
     echo -e " │    1   Enable services              2   Disable services    │"
     echo -e " │    3   Start services               4   Stop Services       │"
-    echo -e " │    5   List active services         6   Show boot messages  │"    
+    echo -e " │    5   List active services         6   Show boot messages  │"
     echo -e " │    7   Edit configuration files                             │"
     echo -e " └─────────────────────────────────────────────────────────────┘"
     echo -e "          Select an item       -       0   Exit "

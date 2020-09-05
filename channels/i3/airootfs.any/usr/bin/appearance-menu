@@ -155,17 +155,17 @@ function choose_gtk2_theme {
 			cancel)
 				CANCELSTATUS=1
 				break
-				;;		
-			*)	
+				;;
+			*)
 				picks+=("$pick")
 				break
-				;;		
+				;;
 		esac
 	done
 
 	if [ $CANCELSTATUS -eq 1 ]; then
 		echo ""
-	else 
+	else
 		if [[ $picks ]]; then
     		printf "$SETTINGGTK2THEMEMSG" "${picks[*]}"
    			SELECTEDITEM="${picks[@]}"
@@ -198,17 +198,17 @@ function choose_gtk3_theme {
 			cancel)
 				CANCELSTATUS=1
 				break
-				;;		
-			*)	
+				;;
+			*)
 				picks+=("$pick")
 				break
-				;;		
+				;;
 		esac
 	done
 
 	if [ $CANCELSTATUS -eq 1 ]; then
 		echo ""
-	else 
+	else
 		if [[ $picks ]]; then
     		printf "$SETTINGGTK3THEMEMSG" "${picks[*]}"
     		SELECTEDITEM="${picks[@]}"
@@ -222,7 +222,7 @@ function choose_gtk3_theme {
 function set_icon_theme {
 	new_theme="$@"
 	cp $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini.bak && sed -i "s/$(grep "gtk-icon-theme-name" $HOME/.config/gtk-3.0/settings.ini)/gtk-icon-theme-name=$new_theme/g" $HOME/.config/gtk-3.0/settings.ini
-	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-icon-theme-name" $HOME/.gtkrc-2.0)/gtk-icon-theme-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0	
+	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-icon-theme-name" $HOME/.gtkrc-2.0)/gtk-icon-theme-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0
 	STATUSVAR=$?
 	return $STATUSVAR
 }
@@ -242,11 +242,11 @@ function choose_icon_theme {
 			cancel)
 				CANCELSTATUS=1
 				break
-				;;		
-			*)	
+				;;
+			*)
 				picks+=("$pick")
 				break
-				;;		
+				;;
 		esac
 	done
 
@@ -287,11 +287,11 @@ function choose_pointer_theme {
 			cancel)
 				CANCELSTATUS=1
 				break
-				;;		
-			*)	
+				;;
+			*)
 				picks+=("$pick")
 				break
-				;;		
+				;;
 		esac
 	done
 
@@ -315,10 +315,10 @@ function numberinputprocedure {
 	schar=""
 	# This function checks font family and tries to find
 	# fonts with fixed pixel size value using fc-cat command.
-	# fc-cat output is huge and can be used in other procedures. 
+	# fc-cat output is huge and can be used in other procedures.
 	# If we found nothing user should enter font size manually
 	# because selected font is a size scalable one.
-	# If we found pixelsize items for selected font 
+	# If we found pixelsize items for selected font
 	# user selects size in range of these items.
 	CURRENTITEM=$(current_item_get "gtkfontsize")
 	fccatmsggrep=""
@@ -387,7 +387,7 @@ function checkfontsize {
 function set_font {
 	new_theme="$@"
 	cp $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini.bak && sed -i "s/$(grep "gtk-font-name" $HOME/.config/gtk-3.0/settings.ini)/gtk-font-name=$new_theme/g" $HOME/.config/gtk-3.0/settings.ini
-	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-font-name" $HOME/.gtkrc-2.0)/gtk-font-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0	
+	cp $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0.bak && sed -i "s/$(grep "gtk-font-name" $HOME/.gtkrc-2.0)/gtk-font-name=\"$new_theme\"/g" $HOME/.gtkrc-2.0
 	STATUSVAR=$?
 	return $STATUSVAR
 }
@@ -405,7 +405,7 @@ function choose_font {
 		if [ $STATUSVAR -eq 1 ]; then
 			return $STATUSVAR
 		else
-			font_size=$number			
+			font_size=$number
 			set_font $new_font $font_size
 			return $STATUSVAR
 		fi
@@ -426,7 +426,7 @@ function toggle_dark_theme {
 			;;
 		0) sed -i "s/gtk-application-prefer-dark-theme=0/gtk-application-prefer-dark-theme=1/g" $HOME/.config/gtk-3.0/settings.ini
 			;;
-	esac	
+	esac
 	STATUSVAR+=$?
 	return $STATUSVAR
 }
@@ -439,9 +439,9 @@ function main {
     echo -e " ┌────────────────────────────────────────────────────────────────┐"
     echo -e " │    1   Set gtk2 theme               2   Set gtk3 theme         │"
     echo -e " │    3   Set font                     4   Set icon theme         │"
-    echo -e " │    5   Toggle dark theme            6   Set pointer theme      │"    
-    echo -e " │    7   Edit gtk2 settings           8   Edit gtk3 settings     │" 
-    echo -e " │    9   Edit Xresources                                         │"   
+    echo -e " │    5   Toggle dark theme            6   Set pointer theme      │"
+    echo -e " │    7   Edit gtk2 settings           8   Edit gtk3 settings     │"
+    echo -e " │    9   Edit Xresources                                         │"
     echo -e " └────────────────────────────────────────────────────────────────┘"
     echo -e "          Select an item       -       0   Exit "
     echo ""
@@ -455,7 +455,7 @@ function main {
             	echo ""
             	echo -e "$GTK2THEMEPREFIXMSG$SELECTEDITEM$SETSUFFIXMSG"
             	pressanykeyrequest
-            fi            	
+            fi
             ;;
         2)
             echo

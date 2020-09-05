@@ -4,7 +4,7 @@ script_path=`dirname $0`
 build_arch=x86_64
 
 machine_arch=$(uname -m)
-cd ${script_path} 
+cd ${script_path}
 if [ $# -ne 1 ]; then
     echo "error!" 1>&2
     echo "You must set one arg!" 1>&2
@@ -64,7 +64,7 @@ if [[ $USE_CUSTOM_LANG = "true" ]]; then
     eval "$buf"
 fi
 
-echo build option : 
+echo build option :
     [[ -n "${language}" ]] && echo "           Language : ${language}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
@@ -75,7 +75,7 @@ echo build option :
     [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
 
 if [[ ${USE_CUSTOM_LANG} = "true" ]]; then
-    argument="${argument} -g ${language}" 
+    argument="${argument} -g ${language}"
 fi
 if [[ ${plymouth} = true ]]; then
     argument="${argument} -b"

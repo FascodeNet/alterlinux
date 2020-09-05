@@ -37,9 +37,9 @@ function cli_filemanager {
 		mc
 	else
 		echo "$INSTALLINGRNG1MSG"
-		if [ - e /var/lib/pacman/db.lck ]; then 
+		if [ - e /var/lib/pacman/db.lck ]; then
 			echo "$CLIFMNOTINSTMSG"
-		else 
+		else
 			sudo pacman -Sy ranger && ranger
 		fi
 	fi
@@ -50,9 +50,9 @@ function file_finder {
 		rifle $(find -type f | fzf -e --reverse)
 	else
 		echo "$INSTALLINGRNG2MSG"
-		if [ - e /var/lib/pacman/db.lck ]; then 
+		if [ - e /var/lib/pacman/db.lck ]; then
 			echo "$RIFLENOTINSTMSG"
-		else 
+		else
 			sudo pacman -Sy ranger && rifle $(find -type f | fzf -e --reverse)
 		fi
 	fi
@@ -63,9 +63,9 @@ function manage_time {
 		sudo timeset
 	else
 		echo "$INSTALLINGTIMESETMSG"
-		if [ -e /var/lib/pacman/db.lck ]; then 
+		if [ -e /var/lib/pacman/db.lck ]; then
 			echo "$TIMESETNOTINSTMSG"
-		else 
+		else
 			sudo pacman -Sy timeset && sudo timeset
 		fi
 	fi
@@ -81,9 +81,9 @@ function cli_browser {
 	elif [ -e /usr/bin/lynx ]; then
 		lynx
 	else
-		if [ -e /var/lib/pacman/db.lck ]; then 
+		if [ -e /var/lib/pacman/db.lck ]; then
 			echo "$CLIBROWSNOTINSTMSG"
-		else 
+		else
 			sudo pacman -Sy elinks && elinks
 		fi
 	fi
@@ -103,9 +103,9 @@ function display_settings {
 		brandr
 	else
 		echo "$INSTALLINGBRANDRMSG"
-		if [ -e /var/lib/pacman/db.lck ]; then 
+		if [ -e /var/lib/pacman/db.lck ]; then
 			echo "$BRANDRNOTINSTMSG"
-		else 
+		else
 			sudo pacman -Sy brandr && brandr
 		fi
 	fi
@@ -116,9 +116,9 @@ function hardware_settings {
 		mhwd-tui
 	else
 		echo "$INSTALLINGMHWDTUIMSG"
-		if [ -e /var/lib/pacman/db.lck ]; then 
+		if [ -e /var/lib/pacman/db.lck ]; then
 			echo "$MHWDTUINOTINSTMSG"
-		else 
+		else
 			sudo pacman -Sy mhwd-tui && mhwd-tui
 		fi
 	fi
@@ -140,7 +140,7 @@ function main {
     echo -e " ┌─────────────────────────────────────────────────────────────┐"
     echo -e " │    1   Hardware and drivers         2   Display             │"
     echo -e " │    3   Printers                     4   Appearance          │"
-    echo -e " │    5   Package manager              6   Network             │"    
+    echo -e " │    5   Package manager              6   Network             │"
     echo -e " │    7   Sound                        8   Configuration       │"
     echo -e " │    9   Time settings                T   Taskmanager         │"
     echo -e " │    F   File Manager                 B   Browser             │"

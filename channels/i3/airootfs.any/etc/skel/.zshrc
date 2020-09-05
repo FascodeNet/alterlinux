@@ -6,7 +6,7 @@
 # Twitter: @Watasuke102
 # Email  : Watasuke102@gmail.com
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #

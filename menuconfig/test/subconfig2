@@ -6,4 +6,3 @@ if GEN_CHOICE2
 		string
 		default "opt2"
 endif
-

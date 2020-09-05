@@ -82,7 +82,7 @@ void AppMain::run()
     QCommandLineOption option_wsl(QStringList() << "wsl","for wsl");
     QCommandLineOption option_gpg_key("g","gpg key","gpg key");
     QCommandLineOption option_help1(QStringList() << "h" << "help" << "?","help");
-    
+
     parser.addOptions({option_Architecture,option_PACKAGE,option_command,option_file_pacman,option_work_dir
                       ,option_out_dir,option_sfs_mode,option_sfs_comp,option_sfs_special_option,option_iso_label,option_iso_publisher,option_iso_application,option_install_dir
                       ,option_gpg_key});
