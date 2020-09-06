@@ -114,6 +114,9 @@ fi
 # disable light-locker on live
 sed -i "/light/s/^/# /g" /home/${username}/.config/i3/config
 
+# disable auto screen lock
+rm /etc/xdg/autostart/light-locker.desktop
+
 # Snap
 #if [[ "${arch}" = "x86_64" ]]; then
 #    systemctl enable snapd.apparmor.service
