@@ -615,7 +615,8 @@ prepare_build() {
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
                 # パッケージがインストールされているかどうか
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    __ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
+                    #__ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
+                    __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         # パッケージが最新の場合
                         [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
