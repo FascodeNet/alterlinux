@@ -817,19 +817,19 @@ make_packages_file() {
     #    "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     #)
 
-    ls "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #ls "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     # Install packages on airootfs
-    if [ $? -ne 0 ]; then
-        :
-    else
+    #if [ $? -ne 0 ]; then
+    #    :
+    #else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" install_file
-    fi
-    ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        :
-    else
+    #fi
+    #ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #if [ $? -ne 0 ]; then
+    #    :
+    #else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/share/package_files.${arch}/*.pkg.*" install_file
-    fi
+    #fi
 }
 
 make_packages_aur() {
