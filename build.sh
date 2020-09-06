@@ -803,6 +803,34 @@ make_packages() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${_pkglist[@]}" install
 }
 
+# Additional packages (airootfs)
+make_packages_file() {
+    set +e
+    #local _loadfilelist _pkg _file _excludefile _excludelist _pkglist
+
+    #-- Detect package list to load --#
+    # Add the files for each channel to the list of files to read.
+    #_loadfilelist=(
+    #    $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
+    #    "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
+    #    $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
+    #    "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
+    #)
+
+    ls "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    # Install packages on airootfs
+    if [ $? -ne 0 ]; then
+        :
+    else
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" install_file
+    fi
+    ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        :
+    else
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/share/package_files.${arch}/*.pkg.*" install_file
+    fi
+}
 
 make_packages_aur() {
     set +e
@@ -1573,6 +1601,7 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
+run_once make_packages_file
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
