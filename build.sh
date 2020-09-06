@@ -1479,7 +1479,7 @@ if [[ ${EUID} -ne 0 ]]; then
     msg_warn "This script must be run as root." >&2
     msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
-    exit 1
+    exit "${?}"
 fi
 
 unset DEFAULT_ARGUMENT ARGUMENT
