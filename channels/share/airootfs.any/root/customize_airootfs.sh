@@ -218,6 +218,9 @@ if [[ "${language}" = "ja" ]]; then
     echo 'LANG=ja_JP.UTF-8' > /etc/locale.conf
 fi
 
+#TUI Installer configs
+
+echo ${kernel_filename} > /root/kernel_filename
 
 # Calamares configs
 
