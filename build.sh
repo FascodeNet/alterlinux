@@ -1539,19 +1539,24 @@ check_channel() {
 OLD-PARSER
 
 check_channel() {
-    local _channel
+    local _channel _return_true
+    _return_true(){ echo -n "true"; return 0;}
+    
     if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
         _channel="${channel_name}.add"
     elif [[ -d "${script_path}/channels/${channel_name}" ]]; then
         _channel="${channel_name}"
-    elif [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
-        echo -n "false"
-        return 1
     fi
-    if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! ${_channel} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
-        echo -n "true"
-        return 0
+
+    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
+        _return_true
     fi
+    if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! "${_channel}" == "share" ]]; then
+        _return_true
+    fi
+
+    echo -n "false"
+    return 1
 }
 
 # Check for a valid channel name
