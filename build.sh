@@ -1507,6 +1507,7 @@ set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
 
 # check_channel <channel name>
+:<< OLD-PARSER
 check_channel() {
     local channel_list i
     channel_list=()
@@ -1534,12 +1535,29 @@ check_channel() {
     echo -n "false"
     return 1
 }
+OLD-PARSER
+
+check_channel() {
+    local _channel
+    if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
+        _channel="${channel_name}.add"
+    elif [[ -d "${script_path}/channels/${channel_name}" ]]; then
+        _channel="${channel_name}"
+    elif [[ ! "${channel_name}" = "rebuild" ]] && [[ ! "${channel_name}" = "clean" ]]; then
+        echo -n "false"
+        return 1
+    fi
+    if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! ${_channel} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+        echo -n "true"
+        return 0
+    fi
+}
 
 # Check for a valid channel name
 [[ $(check_channel "${channel_name}") = false ]] && msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
-if [[ -d "${script_path}"/channels/${channel_name}.add ]]; then
+if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
     channel_name="${channel_name}.add"
 elif [[ "${channel_name}" = "rebuild" ]]; then
     if [[ -f "${rebuildfile}" ]]; then
