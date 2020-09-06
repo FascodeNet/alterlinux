@@ -14,9 +14,9 @@ set -u
 selected=""
 
 function package_manage () {
-	while true; do
+    while true; do
 
-	clear
+    clear
     echo " ┌──────────────────┐ "
     echo " │ [Package manage] │"
     echo " ├──────────────────┴─────────────────────────────┐"
@@ -27,41 +27,41 @@ function package_manage () {
     echo " └────────────────────────────────────────────────┘"
 
     echo -n " [select] > "
-	read -n1 selected
-	echo ""
-	if [[ ${selected} == "0" ]]; then
-		return
-	fi
+    read -n1 selected
+    echo ""
+    if [[ ${selected} == "0" ]]; then
+        return
+    fi
 
-	if [[ ${selected} != "1" ]]; then
-		local package_name
-    	echo -n " [packages name] > "
-		read package_name
-		if [[ ${package_name} == "0" ]]; then
-			return
-		fi
-	fi
+    if [[ ${selected} != "1" ]]; then
+        local package_name
+        echo -n " [packages name] > "
+        read package_name
+        if [[ ${package_name} == "0" ]]; then
+            return
+        fi
+    fi
 
 
-	echo ""
-	case ${selected} in
-		0) return                          ;;
-		1) sudo pacman -Syu                ;;
-		2)      pacman -Ss ${package_name} ;;
-		3) sudo pacman -Sy ${package_name} ;;
-		4) sudo pacman -R  ${package_name} ;;
-	esac
-	echo "Completed"
-	echo "Press any key to continue..."
-	read -n1 selected
+    echo ""
+    case ${selected} in
+        0) return                          ;;
+        1) sudo pacman -Syu                ;;
+        2)      pacman -Ss ${package_name} ;;
+        3) sudo pacman -Sy ${package_name} ;;
+        4) sudo pacman -R  ${package_name} ;;
+    esac
+    echo "Completed"
+    echo "Press any key to continue..."
+    read -n1 selected
 
-	done
+    done
 }
 
 function time_settings () {
-	while true; do
+    while true; do
 
-	clear
+    clear
     echo " ┌─────────────────┐ "
     echo " │ [Time Settings] │"
     echo " ├─────────────────┴─────────────────────────────────┐"
@@ -72,33 +72,33 @@ function time_settings () {
     echo " └───────────────────────────────────────────────────┘"
 
     echo -n " [select] > "
-	read -n1 selected
+    read -n1 selected
 
-	if [[ ${selected} == "4" ]]; then
-    	echo -n "Enable to NTP? [y/n]: "
-		while true; do
-		local ntp
-			read -n1 ntp
-			[[ ${ntp} == "y" ||  ${ntp} == "n" ]] && exit 0
-		done
-	fi
+    if [[ ${selected} == "4" ]]; then
+        echo -n "Enable to NTP? [y/n]: "
+        while true; do
+        local ntp
+            read -n1 ntp
+            [[ ${ntp} == "y" ||  ${ntp} == "n" ]] && exit 0
+        done
+    fi
 
 
-	echo ""
-	case ${selected} in
-		0) return                     ;;
-		1) tzselect                   ;;
-		2) ntpdate                    ;;
-		3) hwclock --systohc --local  ;;
-		4) timedatectl set-ntp ${ntp} ;;
-	esac
-	echo ""
+    echo ""
+    case ${selected} in
+        0) return                     ;;
+        1) tzselect                   ;;
+        2) ntpdate                    ;;
+        3) hwclock --systohc --local  ;;
+        4) timedatectl set-ntp ${ntp} ;;
+    esac
+    echo ""
 
-	done
+    done
 }
 
 function main () {
-	clear
+    clear
     echo " ┌───────────────┐ "
     echo " │ [System Menu] │"
     echo " ├───────────────┴──────────────────────────┐"
@@ -110,21 +110,21 @@ function main () {
     echo " └──────────────────────────────────────────┘"
 
     echo -n " [select] > "
-	read -n1 selected
+    read -n1 selected
 
-	echo ""
-	case ${selected} in
-		0) exit 0          ;;
-		1) arandr          ;;
-		2) nmtui           ;;
-		3) pavucontrol     ;;
-		4) package_manage  ;;
-		5) time_settings   ;;
-		6) htop            ;;
-	esac
-	echo ""
+    echo ""
+    case ${selected} in
+        0) exit 0          ;;
+        1) arandr          ;;
+        2) nmtui           ;;
+        3) pavucontrol     ;;
+        4) package_manage  ;;
+        5) time_settings   ;;
+        6) htop            ;;
+    esac
+    echo ""
 }
 
 while true; do
-	main
+    main
 done
