@@ -1508,36 +1508,6 @@ set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
 
 # check_channel <channel name>
-:<< OLD-PARSER
-check_channel() {
-    local channel_list i
-    channel_list=()
-    for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]]; then
-            if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                channel_list="${channel_list[@]} ${i}"
-            elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                channel_list="${channel_list[@]} ${i}"
-            fi
-        fi
-    done
-    for i in ${channel_list[@]}; do
-        if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            if [[ $(echo ${i} | sed 's/\.[^\.]*$//') = ${1} ]] ; then
-                echo -n "true"
-                return 0
-            fi
-        elif [[ "${i}" == "${1}" ]] || [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
-            echo -n "true"
-            return 0
-        fi
-    done
-
-    echo -n "false"
-    return 1
-}
-OLD-PARSER
-
 check_channel() {
     local _channel _return_true
     _return_true(){ echo -n "true"; return 0;}
