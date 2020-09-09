@@ -34,7 +34,6 @@ exec_always --no-startup-id /usr/lib/mate-polkit/polkit-mate-authentication-agen
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 exec_always --no-startup-id light-locker
 exec_always --no-startup-id compton
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-clipman
 exec --no-startup-id dex -ae i3
