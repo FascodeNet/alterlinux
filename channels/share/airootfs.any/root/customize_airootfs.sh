@@ -109,11 +109,9 @@ else
 fi
 }
 
-if [[ $(user_check root) = false ]]; then
-    usermod -s "${usershell}" root
-    cp -aT /etc/skel/ /root/
-    LC_ALL=C LANG=C xdg-user-dirs-update
-fi
+usermod -s "${usershell}" root
+cp -aT /etc/skel/ /root/
+LC_ALL=C LANG=C xdg-user-dirs-update
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo
