@@ -38,7 +38,7 @@ xf86-input-elographics
 # i3wm
 i3-gaps
 i3lock-color
-feh
+nitrogen
 picom
 polybar
 conky
