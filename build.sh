@@ -196,7 +196,6 @@ _usage () {
     echo "A channel is a profile of AlterISO settings."
     echo
     echo " General options:"
-    echo
     echo "    -b | --boot-splash           Enable boot splash"
     echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
     echo "         --tarball               Build rootfs in tar.xz format"
@@ -224,31 +223,31 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" arch lang list _locale_name_list kernel
+    local blank="33" _arch _lang _list _locale_name_list kernel _dirname _channel _b
 
     echo " Language for each architecture:"
-    for list in ${script_path}/system/locale-* ; do
-        arch="${list#${script_path}/system/locale-}"
-        echo -n "    ${arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#arch} )) ); do
+    for _list in ${script_path}/system/locale-* ; do
+        _arch="${_list#${script_path}/system/locale-}"
+        echo -n "    ${_arch}"
+        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
             echo -ne " "
         done
-        _locale_name_list=$(cat ${list} | grep -h -v ^'#' | awk '{print $1}')
-        for lang in ${_locale_name_list[@]};do
-            echo -n "${lang} "
+        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
+        for _lang in ${_locale_name_list[@]};do
+            echo -n "${_lang} "
         done
         echo
     done
 
     echo
     echo " Kernel for each architecture:"
-    for list in ${script_path}/system/kernel-* ; do
-        arch="${list#${script_path}/system/kernel-}"
-        echo -n "    ${arch} "
-        for i in $( seq 1 $(( ${blank} - 5 - ${#arch} )) ); do
+    for _list in ${script_path}/system/kernel-* ; do
+        _arch="${_list#${script_path}/system/kernel-}"
+        echo -n "    ${_arch} "
+        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do
             echo -ne " "
         done
-        for kernel in $(grep -h -v ^'#' ${list} | awk '{print $1}'); do
+        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do
             echo -n "${kernel} "
         done
         echo
