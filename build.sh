@@ -259,24 +259,22 @@ _usage () {
     for i in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
         if [[ -n $(ls "${script_path}"/channels/${i}) ]] && [[ ! ${i} = "share" ]] && [[ "$(cat "${script_path}/channels/${i}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
             if [[ $(echo "${i}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                channel_list="${channel_list[@]} ${i}"
+                echo -ne "    $(echo ${i} | sed 's/\.[^\.]*$//')"
+                for _b in $( seq 1 $(( ${blank} - ${#i} )) ); do echo -ne " "; done
+                if [[ -f "${script_path}/channels/$(echo ${i} | sed 's/\.[^\.]*$//')/description.txt" ]]; then
+                    echo -ne "$(cat "${script_path}/channels/$(echo ${i} | sed 's/\.[^\.]*$//')/description.txt")\n"
+                else
+                    echo -ne "This channel does not have a description.txt.\n"
+                fi
             elif [[ ! -d "${script_path}/channels/${i}.add" ]]; then
-                channel_list="${channel_list[@]} ${i}"
+                echo -ne "    ${i}"
+                for _b in $( seq 1 $(( ${blank} - 4 - ${#i} )) ); do echo -ne " "; done
+                if [[ -f "${script_path}/channels/${i}/description.txt" ]]; then
+                    echo -ne "$(cat "${script_path}/channels/${i}/description.txt")\n"
+                else
+                    echo -ne "This channel does not have a description.txt.\n"
+                fi
             fi
-        fi
-    done
-    for _channel in ${channel_list[@]}; do
-        if [[ $(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            echo -ne "    $(echo ${_channel} | sed 's/\.[^\.]*$//')"
-            for i in $( seq 1 $(( ${blank} - ${#_channel} )) ); do echo -ne " "; done
-        else
-            echo -ne "    ${_channel}"
-            for i in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-        fi
-        if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
-            echo -ne "$(cat "${script_path}/channels/${_channel}/description.txt")\n"
-        else
-            echo -ne "This channel does not have a description.txt.\n"
         fi
     done
     echo -ne "    rebuild"
