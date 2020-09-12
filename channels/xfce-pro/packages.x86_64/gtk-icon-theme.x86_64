@@ -16,3 +16,8 @@ inverse-icon-theme-blue-git
 
 # theme
 arc-gtk-theme
+
+
+# Qt configs
+qt5ct
+qt5-styleplugins
