@@ -7,6 +7,7 @@ ARCH_x86_64  = -a x86_64
 ARCH_i686    = -a i686
 
 
+
 full:mkalteriso
 	@sudo ./fullbuild.sh
 	@make clean
