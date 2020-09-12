@@ -225,7 +225,7 @@ Use the Theme Manager described above
 - Change the system settings, such as screen resolution, etc.  
 Use system manager as described above
 - Change the wallpaper  
-Run nitrogen from the launcher or terminal, and select the image to one you like.  
+Run `nitrogen` from the launcher or terminal, and select the image to one you like.  
 If you want to add a wallpaper, click the button on bottom right to open the settings window, and add the folder where the wallpaper is located.
 - Hide the window with the operating instructions  
 Remove `~/.config/conky` , or edit `~/.config/i3/config` and remove line 42 (`exec --no-startup-id conky `)
