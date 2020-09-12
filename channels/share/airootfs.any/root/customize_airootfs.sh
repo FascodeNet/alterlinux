@@ -103,6 +103,9 @@ ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 # Set os name
 sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 
+# Create Calamares Entry
+cp /etc/skel/Desktop/calamares.desktop usr/share/applications/calamares.desktop
+
 
 # Creating a root user.
 # usermod -s /usr/bin/zsh root

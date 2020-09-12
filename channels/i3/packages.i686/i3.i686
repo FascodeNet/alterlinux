@@ -55,3 +55,7 @@ alterlinux-i3-manager
 
 # autostart
 dex
+
+# Qt config
+qt5ct
+qt5-styleplugins
