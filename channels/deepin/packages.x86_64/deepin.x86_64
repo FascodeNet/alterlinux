@@ -63,3 +63,8 @@ deepin-turbo
 deepin-wallpapers
 #deepin-wallpapers-extra
 deepin-wm
+
+
+#-- Qt --#
+qt5ct
+qt5-styleplugins
