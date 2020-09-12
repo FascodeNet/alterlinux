@@ -262,6 +262,8 @@ _usage () {
                 _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
                 _channel="${_dirname}"
+            else
+                continue
             fi
             echo -ne "    ${_channel}"
             for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
