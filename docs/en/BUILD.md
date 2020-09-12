@@ -25,7 +25,7 @@ sudo ./keyring.sh --alter-add --arch32-add
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
 ```
 
 #### Install the dependencies
