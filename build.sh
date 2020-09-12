@@ -20,6 +20,7 @@ defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
 DEFAULT_ARGUMENT=""
+alteriso_version="3.0"
 
 # Load config file
 if [[ -f "${defaultconfig}" ]]; then
@@ -256,7 +257,7 @@ _usage () {
     echo
     echo " Channel:"
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3" ]]; then
+        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]]; then
             if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
@@ -1573,7 +1574,7 @@ fi
 # Check channel version
 if [[ ! "${channel_name}" == "rebuild" ]]; then
     msg_debug "channel path is ${script_path}/channels/${channel_name}"
-    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3" ]] && [[ "${nochkver}" = false ]]; then
+    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]] && [[ "${nochkver}" = false ]]; then
         msg_error "This channel does not support AlterISO 3." "1"
     fi
 fi
