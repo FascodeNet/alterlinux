@@ -121,3 +121,5 @@ else
 
     install_powerline_precmd
 fi
+
+export TERMINAL=/usr/bin/sakura
