@@ -52,7 +52,7 @@ for_window [class="pavucontrol"] floating enable
 set $mod Mod4
 
 # start calamares (installer)
-bindsym $mod+i exec --no-startup-id sudo calamares
+bindsym $mod+i exec --no-startup-id sudo -E calamares
 
 # start a terminal
 bindsym $mod+Return exec --no-startup-id sakura
