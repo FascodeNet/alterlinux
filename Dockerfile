@@ -7,5 +7,5 @@ RUN pacman-key --init
 COPY . /alterlinux
 WORKDIR /alterlinux
 RUN git checkout dev
-RUN ./keyring.sh -a
+RUN ./tools/keyring.sh -a
 CMD ["./build.sh", "-b"]

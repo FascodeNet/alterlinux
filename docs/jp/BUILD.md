@@ -19,7 +19,7 @@ cd alterlinux
 Alter Linuxのリポジトリを利用するための鍵を追加します。  
 
 ```bash
-sudo ./keyring.sh --alter-add --arch32-add
+sudo ./tools/keyring.sh --alter-add --arch32-add
 ```
 
 ビルドに必要なパッケージをインストールします。

@@ -9,7 +9,7 @@ ARCH_i686    = -a i686
 
 
 full:mkalteriso
-	@sudo ./fullbuild.sh
+	@sudo ./tools/fullbuild.sh
 	@make clean
 
 xfce-64:mkalteriso
@@ -79,4 +79,4 @@ build:build_option mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
 	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}
 keyring::
-	sudo ./keyring.sh --alter-add --arch-add
+	sudo ./tools/keyring.sh --alter-add --arch-add

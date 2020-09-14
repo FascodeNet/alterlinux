@@ -19,7 +19,7 @@ cd alterlinux
 Add a key to use Alter Linux repository.
 
 ```bash
-sudo ./keyring.sh --alter-add --arch32-add
+sudo ./tools/keyring.sh --alter-add --arch32-add
 ```
 
 Install the packages required for build.
