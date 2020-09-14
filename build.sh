@@ -1288,13 +1288,9 @@ parse_files() {
         local _lang count=0
         for _lang in ${_locale_name_list[@]}; do
             count=$(( count + 1 ))
-            if [[ "${_lang}" == "${locale_name}" ]]; then
-                echo "${count}"
-                return 0
-            fi
+            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${count}"; return 0; fi
         done
         echo -n "failed"
-        return 0
     }
     _locale_line_number="$(_get_locale_line_number)"
 
