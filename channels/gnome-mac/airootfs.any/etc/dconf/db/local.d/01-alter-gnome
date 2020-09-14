@@ -12,7 +12,7 @@ clock-show-weekday=false
 enable-animations=false
 enable-hot-corners=false
 gtk-im-module='gtk-im-context-simple'
-gtk-theme='Adapta-Nokto-Eta'
+gtk-theme='Adapta-Blue-Nokto-Eta'
 icon-theme='Papirus-Dark'
 show-battery-percentage=true
 
@@ -112,7 +112,7 @@ show-network-volumes=false
 show-volumes=false
 
 [org/gnome/shell/extensions/user-theme]
-name='Adapta-Nokto-Eta'
+name='Adapta-Blue-Nokto'
 
 [org/gtk/settings/file-chooser]
 date-format='regular'

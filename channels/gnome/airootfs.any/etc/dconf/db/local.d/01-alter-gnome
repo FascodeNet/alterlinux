@@ -12,7 +12,7 @@ clock-show-weekday=false
 enable-animations=false
 enable-hot-corners=false
 gtk-im-module='gtk-im-context-simple'
-gtk-theme='Adapta-Nokto-Eta'
+gtk-theme='Adapta-Blue-Nokto-Eta'
 icon-theme='Papirus-Dark'
 show-battery-percentage=true
 
@@ -43,7 +43,7 @@ network-monitor-gio-name=''
 
 [org/gnome/mutter]
 center-new-windows=false
-overlay-key=''
+overlay-key='Super_L'
 
 [org/gnome/nautilus/list-view]
 default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'where', 'date_modified', 'date_modified_with_time', 'date_accessed', 'recency', 'starred', 'detailed_type']
@@ -115,7 +115,7 @@ show-network-volumes=false
 show-volumes=false
 
 [org/gnome/shell/extensions/user-theme]
-name='Adapta-Nokto-Eta'
+name='Adapta-Blue-Nokto'
 
 [org/gtk/settings/file-chooser]
 date-format='regular'

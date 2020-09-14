@@ -4,18 +4,17 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# 
+#
 # locale list
 #
 # <locale name>     <locale.gen>     <lang version name>     <timezone>     <fullname>
 #
 
 # Global version
-gl                  en_US.UTF-8      gl                      UTC            global 
+gl                  en_US.UTF-8      gl                      UTC            global
 
 # Japanese
 ja                  ja_JP.UTF-8      ja                      Asia/Tokyo     japanese
 
 # English
 en                  en_US.UTF-8      en                      UTC            english
-

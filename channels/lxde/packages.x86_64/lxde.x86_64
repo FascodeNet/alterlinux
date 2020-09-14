@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -37,3 +37,7 @@ papirus-icon-theme
 
 #-- wallpaper --#
 alterlinux-wallpapers
+
+# Qt config
+qt5ct
+qt5-styleplugins

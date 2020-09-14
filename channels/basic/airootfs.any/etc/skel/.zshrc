@@ -2,7 +2,7 @@
 # ~/.zshrc
 #
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #

@@ -199,13 +199,14 @@ _help() {
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
-    echo "    -g                 Use gitversion."
-    echo "    -h                 This help message."
-    echo "    -m <architecture>  Set the architecture to build."
-    echo "    -r <interer>       Set the number of retries."
+    echo "    -g                 Use gitversion"
+    echo "    -h                 This help message"
+    echo "    -l <locale>        Set the locale to build"
+    echo "    -m <architecture>  Set the architecture to build"
+    echo "    -r <interer>       Set the number of retries"
     echo "                       Defalut: ${retry}"
-    echo "    -s                 Enable simulation mode."
-    echo "    -t                 Build the tarball as well."
+    echo "    -s                 Enable simulation mode"
+    echo "    -t                 Build the tarball as well"
     echo
     echo " !! WARNING !!"
     echo " Do not set channel or architecture with -a."
@@ -221,13 +222,13 @@ _help() {
 share_options="--noconfirm"
 default_options="--boot-splash --cleanup --user alter --password alter"
 
-while getopts 'a:dghr:sctm:' arg; do
+while getopts 'a:dghr:sctm:l:' arg; do
     case "${arg}" in
         a) share_options="${share_options} ${OPTARG}" ;;
         c) all_channel=true ;;
         d) share_options="${share_options} ${default_options}" ;;
         m) architectures=(${OPTARG}) ;;
-        g) 
+        g)
             if [[ ! -d "${script_path}/.git" ]]; then
                 _msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
@@ -238,6 +239,7 @@ while getopts 'a:dghr:sctm:' arg; do
         s) simulation=true;;
         r) retry="${OPTARG}" ;;
         t) share_options="${share_options} --tarball" ;;
+        l) locale_list=(${OPTARG});;
         h) _help ; exit 0 ;;
         *) _help ; exit 1 ;;
     esac
@@ -248,7 +250,7 @@ shift $((OPTIND - 1))
 if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
         _msg_error "Do not specify the channel." "1"
-    else    
+    else
         channnels=($("${script_path}/build.sh" --channellist))
     fi
 elif [[ -n "${*}" ]]; then

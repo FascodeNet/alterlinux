@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascone.net
 #
@@ -63,3 +63,8 @@ deepin-turbo
 deepin-wallpapers
 #deepin-wallpapers-extra
 deepin-wm
+
+
+#-- Qt --#
+qt5ct
+qt5-styleplugins

@@ -7,7 +7,7 @@ In this document,here are the steps to update the channel for AlterISO2 => Alter
 In this document,expressing channel name as`<ch_name>`.Please rewrite your own channel-directory.  
 
 ## 1. Create version file.
-Please create `<ch_name>/alteriso`and write `alteriso=3`.
+Please create `<ch_name>/alteriso`and write `alteriso=3.0`.
 If this file doesn't exist,this channel is recognized as previous channel and wouldn't be build.
 
 ## 2. change Japanese-related code

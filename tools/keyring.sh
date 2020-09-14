@@ -15,7 +15,7 @@
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
-arch=$(uname -m)
+arch="$(uname -m)"
 
 
 # Set pacman.conf when build alterlinux
@@ -171,7 +171,8 @@ prepare() {
         exit 1
     fi
 
-    #pacman -Sy
+    pacman -Sc --noconfirm > /dev/null 2>&1
+    pacman -Syy
 }
 
 
@@ -179,10 +180,9 @@ update_arch_key() {
     pacman-key --refresh-keys
     pacman-key --init
     pacman-key --populate archlinux
-    pacman -S --noconfirm  core/archlinux-keyring
+    pacman -S --noconfirm core/archlinux-keyring
     pacman-key --init
     pacman-key --populate archlinux
-    pacman -Sy
 }
 
 
@@ -192,12 +192,10 @@ update_alter_key() {
     rm -f "/tmp/fascode.pub"
     pacman-key --lsign-key development@fascode.net
 
-    pacman --config "${alter_pacman_conf_x86_64}" -Sy --noconfirm
     pacman --config "${alter_pacman_conf_x86_64}" -S --noconfirm alter-stable/alterlinux-keyring
 
     pacman-key --init
     pacman-key --populate alterlinux
-    pacman -Sy
 }
 
 
@@ -206,12 +204,10 @@ remove_alter_key() {
     if checkpkg alterlinux-keyring; then
         pacman -Rsnc --noconfirm alterlinux-keyring
     fi
-    pacman -Sy
 }
 
 update_arch32_key() {
-    pacman -Sy --config "${alter_pacman_conf_i686}"
-    pacman --noconfirm -S --config "${alter_pacman_conf_i686}" alter-stable/archlinux32-keyring
+    pacman --noconfirm -S archlinux32-keyring
     pacman-key --init
     pacman-key --populate archlinux32
     #pacman-key --refresh-keys
@@ -241,7 +237,7 @@ while getopts 'archli-:' arg; do
             run update_arch_key
             ;;
         # help
-        h) 
+        h)
             _usage 0
             ;;
         # arch32-add
@@ -294,5 +290,5 @@ if [[ ${#} = 0 ]]; then
     run prepare
     # run update_arch_key
     run update_alter_key
-    # run update_arch32_key
+    run update_arch32_key
 fi

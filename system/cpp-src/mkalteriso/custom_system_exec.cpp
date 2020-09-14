@@ -30,7 +30,7 @@ int custom_exec(QString file_name,QStringList args){
     return custom_exec(lskun22);
 }
 int custom_exec(QStringList args){
-    
+
     std::vector<std::string> qllistkun;
     for(QString strkun:args){
         qllistkun.push_back(strkun.toStdString());
