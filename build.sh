@@ -368,20 +368,20 @@ remove_work() {
 
 # Display channel list
 show_channel_list() {
-    local _channel
-    for _channel in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9 }'); do
-        if [[ -n "$(ls "${script_path}"/channels/${_channel})" ]] && [[ ! "${_channel}" == "share" ]]; then
-            if [[ ! "$(echo "${_channel}" | sed 's/^.*\.\([^\.]*\)$/\1/')" == "add" ]]; then
-                if [[ ! -d "${script_path}/channels/${_channel}.add" ]]; then
-                    echo -n "${_channel} "
-                fi
+    local _channellist _dirname
+    for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
+        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]]; then
+            if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+                _channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+            elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
+                _channellist+=("${_dirname}")
             else
-                echo -n "${_channel} "
+                continue
             fi
         fi
     done
-    echo
-    exit 0
+    _channellist+=("rebuild")
+    echo "${_channellist[@]}"
 }
 
 # Check the value of a variable that can only be set to true or false.
