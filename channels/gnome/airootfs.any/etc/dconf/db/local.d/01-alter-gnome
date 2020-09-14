@@ -43,7 +43,7 @@ network-monitor-gio-name=''
 
 [org/gnome/mutter]
 center-new-windows=false
-overlay-key=''
+overlay-key='Super_L'
 
 [org/gnome/nautilus/list-view]
 default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'where', 'date_modified', 'date_modified_with_time', 'date_accessed', 'recency', 'starred', 'detailed_type']
