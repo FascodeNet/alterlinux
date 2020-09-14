@@ -1285,10 +1285,10 @@ parse_files() {
     _locale_config_file="${script_path}/system/locale-${arch}"
     _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
     _get_locale_line_number() {
-        local _lang count=0
+        local _lang _count=0
         for _lang in ${_locale_name_list[@]}; do
-            count=$(( count + 1 ))
-            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${count}"; return 0; fi
+            _count=$(( _count + 1 ))
+            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
     }
@@ -1316,15 +1316,10 @@ parse_files() {
     _kernel_config_file="${script_path}/system/kernel-${arch}"
     _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
     _get_kernel_line() {
-        local _kernel
-        local count
-        count=0
+        local _kernel _count=0
         for _kernel in ${_kernel_name_list[@]}; do
-            count=$(( count + 1 ))
-            if [[ "${_kernel}" == "${kernel}" ]]; then
-                echo "${count}"
-                return 0
-            fi
+            _count=$(( _count + 1 ))
+            if [[ "${_kernel}" == "${kernel}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
         return 0
