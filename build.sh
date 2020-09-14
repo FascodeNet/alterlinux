@@ -269,8 +269,8 @@ _usage () {
             for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
             if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=3.0" ]] && [[ "${nochkver}" = false ]]; then
                 echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
-            elif [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
-                echo -ne "$(cat "${script_path}/channels/${_channel}/description.txt")\n"
+            elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
+                echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
             else
                 echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
             fi
