@@ -267,12 +267,12 @@ _usage () {
             fi
             echo -ne "    ${_channel}"
             for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-            if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]]; then
+            if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=3.0" ]] && [[ "${nochkver}" = false ]]; then
                 echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
             elif [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
                 echo -ne "$(cat "${script_path}/channels/${_channel}/description.txt")\n"
             else
-                echo -ne "This channel does not have a description.txt.\n"
+                echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
             fi
         fi
     done
@@ -370,7 +370,7 @@ remove_work() {
 show_channel_list() {
     local _channellist _dirname
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]]; then
+        if [[ -n $(ls "${script_path}"/channels/${_dirname}) && ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]] || [[ "${nochkver}" = true ]]; then
             if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 _channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
