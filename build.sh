@@ -519,8 +519,6 @@ prepare_build() {
 
         _write_rebuild_file "\n# Kernel Info"
         _save_var kernel
-        _save_var kernel_package
-        _save_var kernel_headers_packages
         _save_var kernel_filename
         _save_var kernel_mkinitcpio_profile
 
@@ -988,7 +986,7 @@ make_customize_airootfs() {
 
     # Generate options of customize_airootfs.sh.
     local _airootfs_script_options
-    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
+    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ ${boot_splash} = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
     [[ ${debug} = true ]]       && _airootfs_script_options="${_airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && _airootfs_script_options="${_airootfs_script_options} -x"
@@ -1331,10 +1329,8 @@ parse_files() {
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
     kernel="${_kernel_config_line[0]}"
-    kernel_package="${_kernel_config_line[1]}"
-    kernel_headers_packages="${_kernel_config_line[2]}"
-    kernel_filename="${_kernel_config_line[3]}"
-    kernel_mkinitcpio_profile="${_kernel_config_line[4]}"
+    kernel_filename="${_kernel_config_line[1]}"
+    kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
 }
 
 
