@@ -709,15 +709,6 @@ make_pacman_conf() {
 # Base installation (airootfs)
 make_basefs() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
-
-    # Install kernel.
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${kernel_package} ${kernel_headers_packages}" install
-
-    if [[ "${kernel_package}" = "linux" ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl" install
-    else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl-dkms" install
-    fi
 }
 
 # Additional packages (airootfs)
@@ -735,6 +726,10 @@ make_packages() {
         # channel packages
         $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
         "${script_path}/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel packages
+        "${script_path}/channels/share/packages.${arch}/kernel/${kernel}.${arch}"
+        "${script_path}/channels/${channel_name}/packages.${arch}/kernel/${kernel}.${arch}"
     )
 
     # Plymouth package list
