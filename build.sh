@@ -509,7 +509,6 @@ prepare_build() {
         _write_rebuild_file "\n# Plymouth Info"
         _save_var boot_splash
         _save_var theme_name
-        _save_var theme_pkg
 
         _write_rebuild_file "\n# Language Info"
         _save_var locale_name
@@ -711,15 +710,6 @@ make_pacman_conf() {
 make_basefs() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
 
-    # Install plymouth.
-    if [[ "${boot_splash}" = true ]]; then
-        if [[ -n "${theme_pkg}" ]]; then
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
-        else
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "plymouth" install
-        fi
-    fi
-
     # Install kernel.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${kernel_package} ${kernel_headers_packages}" install
 
@@ -738,11 +728,22 @@ make_packages() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
+        # share packages
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
+
+        # channel packages
+        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
+        "${script_path}/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}"
     )
+
+    # Plymouth package list
+    if [[ "${boot_splash}" = true ]]; then
+        _loadfilelist+=(
+            $(ls "${script_path}"/channels/share/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
 
 
     #-- Read package list --#
