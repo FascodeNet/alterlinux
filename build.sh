@@ -245,12 +245,8 @@ _usage () {
     for _list in ${script_path}/system/kernel-* ; do
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
-        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do
-            echo -ne " "
-        done
-        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do
-            echo -n "${kernel} "
-        done
+        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do echo -ne " "; done
+        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do echo -n "${kernel} "; done
         echo
     done
 
@@ -295,9 +291,7 @@ _usage () {
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
-    if [[ -n "${1:-}" ]]; then
-        exit "${1}"
-    fi
+    if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
 
 
@@ -393,7 +387,7 @@ check_bool() {
     fi
     if [[ ! -v "${1}" ]]; then
         echo; msg_error "The variable name ${1} is empty." "1"
-        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+    elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
         echo; msg_error "The variable name ${1} is not of bool type." "1"
     fi
 }
@@ -472,10 +466,7 @@ prepare_build() {
         _save_var() {
             local out_file="${rebuildfile}" i
             for i in ${@}; do
-                echo -n "${i}=" >> "${out_file}"
-                echo -n '"' >> "${out_file}"
-                eval echo -n '$'{${i}} >> "${out_file}"
-                echo '"' >> "${out_file}"
+                printf "${i}=\"%s\"\n" "${1}" >> "${out_file}"
             done
         }
 
