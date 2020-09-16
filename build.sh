@@ -465,9 +465,7 @@ prepare_build() {
         local _save_var
         _save_var() {
             local out_file="${rebuildfile}" i
-            for i in ${@}; do
-                printf "${i}=\"%s\"\n" "${i}" >> "${out_file}"
-            done
+            for i in ${@}; do echo "${i}=\"$(eval echo -n '$'${i})\"" >> "${out_file}"; done
         }
 
         # Save the value of the variable for use in rebuild.
