@@ -466,7 +466,7 @@ prepare_build() {
         _save_var() {
             local out_file="${rebuildfile}" i
             for i in ${@}; do
-                printf "${i}=\"%s\"\n" "${1}" >> "${out_file}"
+                printf "${i}=\"%s\"\n" "${i}" >> "${out_file}"
             done
         }
 
