@@ -63,7 +63,7 @@ mkalteriso:
 
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
-menuconfig-script/kernel_choice:system/kernel_list-x86_64 system/kernel_list-i686
+menuconfig-script/kernel_choice:system/kernel-x86_64 system/kernel-i686
 	./kernel-choice-conf-gen.sh
 build_option:
 	if [ -f .config ];\
