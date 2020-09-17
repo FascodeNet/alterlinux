@@ -14,7 +14,7 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel_config_line=("zen" "linux-zen" "linux-zen-beaders" "vmlinuz-linux-zen" "linux-zen")
+kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
 rebuild=false
 username='alter'
@@ -51,10 +51,8 @@ done
 
 # Parse kernel
 kernel="${kernel_config_line[0]}"
-kernel_package="${kernel_config_line[1]}"
-kernel_headers_packages="${kernel_config_line[2]}"
-kernel_filename="${kernel_config_line[3]}"
-kernel_mkinitcpio_profile="${kernel_config_line[4]}"
+kernel_filename="${kernel_config_line[1]}"
+kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
 
 # Delete file only if file exists

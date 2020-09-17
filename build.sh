@@ -245,35 +245,28 @@ _usage () {
     for _list in ${script_path}/system/kernel-* ; do
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
-        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do
-            echo -ne " "
-        done
-        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do
-            echo -n "${kernel} "
-        done
+        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do echo -ne " "; done
+        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do echo -n "${kernel} "; done
         echo
     done
 
     echo
     echo " Channel:"
-    for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ ! ${_dirname} = "share" ]]; then
-            if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
-            elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
-                _channel="${_dirname}"
-            else
-                continue
-            fi
-            echo -ne "    ${_channel}"
-            for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-            if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=3.0" ]] && [[ "${nochkver}" = false ]]; then
-                echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
-            elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
-                echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
-            else
-                echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
-            fi
+    #for _dirname in $(if [[ "${nochkver}" = true ]]; then bash "${script_path}/tools/channel.sh" -d -b -n show; else bash "${script_path}/tools/channel.sh" -d -b show; fi); do
+    for _dirname in $(bash "${script_path}/tools/channel.sh" -d -b -n show); do
+        if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
+        else
+            _channel="${_dirname}"
+        fi
+        echo -ne "    ${_channel}"
+        for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
+        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+            echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
+        elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
+            echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
+        else
+            echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
         fi
     done
     echo -ne "    rebuild"
@@ -295,9 +288,7 @@ _usage () {
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
-    if [[ -n "${1:-}" ]]; then
-        exit "${1}"
-    fi
+    if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
 
 
@@ -368,20 +359,11 @@ remove_work() {
 
 # Display channel list
 show_channel_list() {
-    local _channellist _dirname
-    for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) && ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]] || [[ "${nochkver}" = true ]]; then
-            if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                _channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
-            elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
-                _channellist+=("${_dirname}")
-            else
-                continue
-            fi
-        fi
-    done
-    _channellist+=("rebuild")
-    echo "${_channellist[@]}"
+    if [[ "${nochkver}" = true ]]; then
+        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" -n show
+    else
+        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" show
+    fi
 }
 
 # Check the value of a variable that can only be set to true or false.
@@ -393,7 +375,7 @@ check_bool() {
     fi
     if [[ ! -v "${1}" ]]; then
         echo; msg_error "The variable name ${1} is empty." "1"
-        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+    elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
         echo; msg_error "The variable name ${1} is not of bool type." "1"
     fi
 }
@@ -471,12 +453,7 @@ prepare_build() {
         local _save_var
         _save_var() {
             local out_file="${rebuildfile}" i
-            for i in ${@}; do
-                echo -n "${i}=" >> "${out_file}"
-                echo -n '"' >> "${out_file}"
-                eval echo -n '$'{${i}} >> "${out_file}"
-                echo '"' >> "${out_file}"
-            done
+            for i in ${@}; do echo "${i}=\"$(eval echo -n '$'${i})\"" >> "${out_file}"; done
         }
 
         # Save the value of the variable for use in rebuild.
@@ -509,7 +486,6 @@ prepare_build() {
         _write_rebuild_file "\n# Plymouth Info"
         _save_var boot_splash
         _save_var theme_name
-        _save_var theme_pkg
 
         _write_rebuild_file "\n# Language Info"
         _save_var locale_name
@@ -520,8 +496,6 @@ prepare_build() {
 
         _write_rebuild_file "\n# Kernel Info"
         _save_var kernel
-        _save_var kernel_package
-        _save_var kernel_headers_packages
         _save_var kernel_filename
         _save_var kernel_mkinitcpio_profile
 
@@ -710,24 +684,6 @@ make_pacman_conf() {
 # Base installation (airootfs)
 make_basefs() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
-
-    # Install plymouth.
-    if [[ "${boot_splash}" = true ]]; then
-        if [[ -n "${theme_pkg}" ]]; then
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "plymouth ${theme_pkg}" install
-        else
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "plymouth" install
-        fi
-    fi
-
-    # Install kernel.
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${kernel_package} ${kernel_headers_packages}" install
-
-    if [[ "${kernel_package}" = "linux" ]]; then
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl" install
-    else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "broadcom-wl-dkms" install
-    fi
 }
 
 # Additional packages (airootfs)
@@ -738,18 +694,33 @@ make_packages() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
+        # share packages
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
+        "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
+
+        # channel packages
+        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
+        "${script_path}/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel packages
+        "${script_path}/channels/share/packages.${arch}/kernel/${kernel}.${arch}"
+        "${script_path}/channels/${channel_name}/packages.${arch}/kernel/${kernel}.${arch}"
     )
+
+    # Plymouth package list
+    if [[ "${boot_splash}" = true ]]; then
+        _loadfilelist+=(
+            $(ls "${script_path}"/channels/share/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
 
 
     #-- Read package list --#
     # Read the file and remove comments starting with # and add it to the list of packages to install.
     for _file in ${_loadfilelist[@]}; do
         if [[ -f "${_file}" ]]; then
-            msg_debug "Loaded package file ${_file}."
+            msg_debug "Loaded package file ${_file}"
             _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
         fi
     done
@@ -992,7 +963,7 @@ make_customize_airootfs() {
 
     # Generate options of customize_airootfs.sh.
     local _airootfs_script_options
-    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_package} ${kernel_headers_packages} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
+    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ ${boot_splash} = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
     [[ ${debug} = true ]]       && _airootfs_script_options="${_airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && _airootfs_script_options="${_airootfs_script_options} -x"
@@ -1335,10 +1306,8 @@ parse_files() {
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
     kernel="${_kernel_config_line[0]}"
-    kernel_package="${_kernel_config_line[1]}"
-    kernel_headers_packages="${_kernel_config_line[2]}"
-    kernel_filename="${_kernel_config_line[3]}"
-    kernel_mkinitcpio_profile="${_kernel_config_line[4]}"
+    kernel_filename="${_kernel_config_line[1]}"
+    kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
 }
 
 
@@ -1521,30 +1490,8 @@ rebuildfile="${work_dir}/alteriso_config"
 set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
 
-# check_channel <channel name>
-check_channel() {
-    local _channel _return_true
-    _return_true(){ echo -n "true"; return 0;}
-    
-    if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
-        _channel="${channel_name}.add"
-    elif [[ -d "${script_path}/channels/${channel_name}" ]]; then
-        _channel="${channel_name}"
-    fi
-
-    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
-        _return_true
-    fi
-    if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! "${_channel}" == "share" ]]; then
-        _return_true
-    fi
-
-    echo -n "false"
-    return 1
-}
-
 # Check for a valid channel name
-[[ $(check_channel "${channel_name}") = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+[[ "$(bash "${script_path}/tools/channel.sh" check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
@@ -1569,7 +1516,7 @@ fi
 # Check channel version
 if [[ ! "${channel_name}" == "rebuild" ]]; then
     msg_debug "channel path is ${script_path}/channels/${channel_name}"
-    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=3.0" ]] && [[ "${nochkver}" = false ]]; then
+    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
         msg_error "This channel does not support AlterISO 3." "1"
     fi
 fi

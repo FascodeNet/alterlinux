@@ -6,30 +6,30 @@
 # (c) 2019-2020 Fascode Network.
 #
 #
-# kernel list
+# kernel list for i686
 #
-#<kernel name>  <kernel package>         <headers package>              <kernel filename>              <mkinitcpio profile>
+# Enter the kernel package and header package name in the kernel package list.
+#
+#[kernel name]               [kernel filename]               [mkinitcpio profile]
 #
 
-
-# ArchLinux Official kernels
-core            linux                    linux-headers                  vmlinuz-linux                  linux
-lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
-zen             linux-zen                linux-zen-headers              vmlinuz-linux-zen              linux-zen
-hardened        linux-hardened           linux-hardened-headers         vmlinuz-linux-hardened         linux-hardened
+core                         vmlinuz-linux                   linux
+lts                          vmlinuz-linux-lts               linux-lts
+zen                          vmlinuz-linux-zen               linux-zen
+hardened                     vmlinuz-linux-hardened          linux-hardened
 
 
 # Arch Linux Trusted User repository
-rt              linux-rt                 linux-rt-headers               vmlinuz-linux-rt               linux-rt
-rt-lts          linux-rt-lts             linux-rt-lts-headers           vmlinuz-linux-rt               linux-rt
+rt                           vmlinuz-linux-rt                linux-rt
+rt-lts                       vmlinuz-linux-rt                linux-rt
 
 
 # AUR Unofficial kernels
-lqx             linux-lqx                linux-lqx-headers              vmlinuz-linux-lqx              linux-lqx
-ck              linux-ck                 linux-ck-headers               vmlinuz-linux-ck               linux-ck
-xanmod          linux-xanmod             linux-xanmod-headers           vmlinuz-linux-xanmod           linux-xanmod
-xanmod-lts      linux-xanmod-lts         linux-xanmod-lts-headers       vmlinuz-linux-xanmod-lts       linux-xanmod-lts
+lqx                          vmlinuz-linux-lqx               linux-lqx
+ck                           vmlinuz-linux-ck                linux-ck
+xanmod                       vmlinuz-linux-xanmod            linux-xanmod
+xanmod-lts                   vmlinuz-linux-xanmod-lts        linux-xanmod-lts
 
 
 # Alter Linux original packages
-zen-letsnote    linux-zen-letsnote       linux-zen-letsnote-headers     vmlinuz-linux-zen-letsnote     linux-zen-letsnote
+zen-letsnote                 vmlinuz-linux-zen-letsnote      linux-zen-letsnote

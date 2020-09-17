@@ -52,11 +52,10 @@ usershell="/bin/zsh"
 noaur=true
 
 # kernel config
-kernel_config_line="core linux linux-headers vmlinuz-linux linux"
-kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+_kernel_config_line=("core" "vmlinuz-linux" "linux")
+kernel="${_kernel_config_line[0]}"
+kernel_filename="${_kernel_config_line[1]}"
+kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
 
 # Use mkalteriso written in a traditional shell script
 # instead of the C ++ version of mkalteriso.
