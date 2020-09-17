@@ -252,24 +252,21 @@ _usage () {
 
     echo
     echo " Channel:"
-    for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ ! ${_dirname} = "share" ]]; then
-            if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
-            elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
-                _channel="${_dirname}"
-            else
-                continue
-            fi
-            echo -ne "    ${_channel}"
-            for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-            if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-                echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
-            elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
-                echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
-            else
-                echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
-            fi
+    #for _dirname in $(if [[ "${nochkver}" = true ]]; then bash "${script_path}/tools/channel.sh" -d -b -n show; else bash "${script_path}/tools/channel.sh" -d -b show; fi); do
+    for _dirname in $(bash "${script_path}/tools/channel.sh" -d -b -n show); do
+        if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
+        else
+            _channel="${_dirname}"
+        fi
+        echo -ne "    ${_channel}"
+        for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
+        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+            echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
+        elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
+            echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
+        else
+            echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
         fi
     done
     echo -ne "    rebuild"
@@ -362,20 +359,11 @@ remove_work() {
 
 # Display channel list
 show_channel_list() {
-    local _channellist _dirname
-    for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) && ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${nochkver}" = true ]]; then
-            if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-                _channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
-            elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]]; then
-                _channellist+=("${_dirname}")
-            else
-                continue
-            fi
-        fi
-    done
-    _channellist+=("rebuild")
-    echo "${_channellist[@]}"
+    if [[ "${nochkver}" = true ]]; then
+        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" -n show
+    else
+        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" show
+    fi
 }
 
 # Check the value of a variable that can only be set to true or false.
@@ -1502,30 +1490,8 @@ rebuildfile="${work_dir}/alteriso_config"
 set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
 
-# check_channel <channel name>
-check_channel() {
-    local _channel _return_true
-    _return_true(){ echo -n "true"; return 0;}
-    
-    if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
-        _channel="${channel_name}.add"
-    elif [[ -d "${script_path}/channels/${channel_name}" ]]; then
-        _channel="${channel_name}"
-    fi
-
-    if [[ "${channel_name}" = "rebuild" ]] || [[ "${channel_name}" = "clean" ]]; then
-        _return_true
-    fi
-    if [[ -n $(ls "${script_path}"/channels/${_channel}) ]] && [[ ! "${_channel}" == "share" ]]; then
-        _return_true
-    fi
-
-    echo -n "false"
-    return 1
-}
-
 # Check for a valid channel name
-[[ $(check_channel "${channel_name}") = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+[[ "$(bash "${script_path}/tools/channel.sh" check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
