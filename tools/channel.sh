@@ -30,8 +30,10 @@ _help() {
 gen_channel_list() {
     local _dirname
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) && ! ${_dirname} = "share" ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
-            if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
+            if [[ "${_dirname}" = "share" ]]; then
+                continue
+            elif [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 if [[ "${opt_dir_name}" = true ]]; then
                     channellist+=("${_dirname}")
                 else
