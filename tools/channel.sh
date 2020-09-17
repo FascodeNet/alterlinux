@@ -6,6 +6,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 opt_only_add=false
 opt_dir_name=false
 opt_nochkver=false
+opt_nobuiltin=false
 alteriso_version="3.0"
 mode=""
 
@@ -21,6 +22,7 @@ _help() {
     echo
     echo " General options:"
     echo "    -a                 Only additional channels"
+    echo "    -b                 Exclude built-in channels"
     echo "    -d                 Display directory names of all channel as it is"
     echo "    -n                 Ignore channel version"
     echo "    -v [ver]           Specifies the AlterISO version"
@@ -70,9 +72,10 @@ show() {
     echo "${channellist[*]}"
 }
 
-while getopts 'adhnv:' arg; do
+while getopts 'abdhnv:' arg; do
     case "${arg}" in
         a) opt_only_add=true ;;
+        b) opt_nobuiltin=true ;;
         d) opt_dir_name=true ;;
         n) opt_nochkver=true ;;
         v) alteriso_version="${OPTARG}" ;;
