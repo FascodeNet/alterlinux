@@ -324,7 +324,7 @@ remove() {
         if [[ -f ${_file} ]]; then
             msg_debug "Removeing ${_file}"
             rm -f "${_file}"
-            elif [[ -d ${_file} ]]; then
+        elif [[ -d ${_file} ]]; then
             msg_debug "Removeing ${_file}"
             rm -rf "${_file}"
         fi
