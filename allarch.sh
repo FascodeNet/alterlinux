@@ -6,7 +6,7 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# build.sh
+# allarch.sh
 #
 # The main script that runs the build
 #
@@ -104,7 +104,7 @@ msg_info() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${*}"
+    echo ${echo_opts} "$( echo_color -t '36' '[allarch.sh]')    $( echo_color -t '32' 'Info') ${*}"
     if [[ "${bash_debug}" = true ]]; then
         set -xv
     else
@@ -128,7 +128,7 @@ msg_warn() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[allarch.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
     if [[ "${bash_debug}" = true ]]; then
         set -xv
     else
@@ -153,7 +153,7 @@ msg_debug() {
     done
     shift $((OPTIND - 1))
     if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${*}"
+        echo ${echo_opts} "$( echo_color -t '36' '[allarch.sh]')   $( echo_color -t '35' 'Debug') ${*}"
     fi
     if [[ "${bash_debug}" = true ]]; then
         set -xv
@@ -179,7 +179,7 @@ msg_error() {
         esac
     done
     shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
+    echo ${echo_opts} "$( echo_color -t '36' '[allarch.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
     if [[ -n "${2:-}" ]]; then
         exit ${2}
     fi
