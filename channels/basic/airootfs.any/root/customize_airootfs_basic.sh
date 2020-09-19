@@ -71,10 +71,7 @@ function remove () {
 }
 
 # Update system datebase
-dconf update
+#dconf update
 
 # Replace link
 remove "/etc/skel/Desktop/"
-
-# Set script permission
-chmod 755 /usr/local/bin/alterlinux-sidebar
