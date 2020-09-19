@@ -994,7 +994,7 @@ make_syslinux() {
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
-    cp -a "${script_path}/syslinux/${arch}/"* "$work_dir/${arch}/syslinux/"
+    cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
     if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = true ]]; then
         cp -af "${script_path}/channels/${channel_name}/syslinux.${arch}/"* "$work_dir/${arch}/syslinux/"
     fi
@@ -1025,7 +1025,7 @@ make_syslinux() {
     if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
         cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
-        cp "${script_path}/syslinux/${arch}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+        cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
 
     # copy files
