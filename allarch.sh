@@ -584,6 +584,9 @@ prepare_build() {
         umount "${_mount}"
     done
     unset _mount
+
+    # Pacman configuration file used only when building
+    build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 }
 
 
@@ -1353,9 +1356,6 @@ if [[ "${bash_debug}" = true ]]; then
     set -x -v
     mkalteriso_option="${mkalteriso_option} -x"
 fi
-
-# Pacman configuration file used only when building
-build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 # Parse channels
 set +eu
