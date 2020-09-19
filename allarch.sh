@@ -587,6 +587,13 @@ prepare_build() {
 
     # Pacman configuration file used only when building
     build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
+
+    # Debug mode
+    mkalteriso_option="-a ${arch} -v"
+    if [[ "${bash_debug}" = true ]]; then
+        set -x -v
+        mkalteriso_option="${mkalteriso_option} -x"
+    fi
 }
 
 
@@ -1349,13 +1356,6 @@ unset DEFAULT_ARGUMENT ARGUMENT
 # Show config message
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
-
-# Debug mode
-mkalteriso_option="-a ${arch} -v"
-if [[ "${bash_debug}" = true ]]; then
-    set -x -v
-    mkalteriso_option="${mkalteriso_option} -x"
-fi
 
 # Parse channels
 set +eu
