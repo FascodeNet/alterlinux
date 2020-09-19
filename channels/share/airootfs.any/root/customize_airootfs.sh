@@ -121,7 +121,9 @@ fi
 
 usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
-LC_ALL=C LANG=C xdg-user-dirs-update
+if [[ -f "$(type -p xdg-user-dirs-update 2> /dev/null)" ]]; then
+    LC_ALL=C LANG=C xdg-user-dirs-update
+fi
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo
