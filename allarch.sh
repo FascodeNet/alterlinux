@@ -1004,6 +1004,7 @@ make_syslinux() {
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
+             s|%ARCH%|${arch}|g;
              s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
 
@@ -1018,7 +1019,7 @@ make_syslinux() {
     fi
     for _pxe_or_sys in "sys" "pxe"; do
         remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
-        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}.cfg"
+        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${arch}.cfg"
     done
 
     # Set syslinux wallpaper
@@ -1036,6 +1037,18 @@ make_syslinux() {
     gzip -c -9 "${work_dir}/${arch}/airootfs/usr/share/hwdata/pci.ids" > "${work_dir}/iso/${install_dir}/boot/syslinux/hdt/pciids.gz"
     gzip -c -9 "${work_dir}/${arch}/airootfs/usr/lib/modules/${_uname_r}/modules.alias" > "${work_dir}/iso/${install_dir}/boot/syslinux/hdt/modalias.gz"
 }
+
+make_syslinux_loadfiles() {
+    local _pxe_or_sys _write_load _arch
+    remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_"{pxe,sys}"_load.cfg"
+    for _pxe_or_sys in "sys" "pxe"; do
+        _write_load() { echo -e "${@}" >> "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_load.cfg"; }
+        _write_load "INCLUDE boot/syslinux/archiso_head.cfg"
+        for _arch in ${all_arch[@]}; do _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"; done
+        _write_load "INCLUDE boot/syslinux/archiso_tail.cfg"
+    done
+}
+
 
 # Prepare /isolinux
 make_isolinux() {
@@ -1059,6 +1072,7 @@ make_efi() {
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
@@ -1094,6 +1108,7 @@ make_efiboot() {
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-x86_64-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
@@ -1404,11 +1419,12 @@ for arch in ${all_arch[@]}; do
     [[ "${noaur}" = false ]] && run_once make_packages_aur
     run_once make_customize_airootfs
     run_once make_setup_mkinitcpio
+    run_once make_syslinux
     run_once make_boot
     run_once make_prepare
 done
 run_once make_boot_extra
-run_once make_syslinux
+run_once make_syslinux_loadfiles
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
