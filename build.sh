@@ -1082,6 +1082,7 @@ make_syslinux() {
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
+             s|%ARCH%|${arch}|g;
              s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
 
@@ -1137,6 +1138,7 @@ make_efi() {
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
+         s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-x86_64-usb.conf" > "${work_dir}/iso/loader/entries/archiso-x86_64.conf"
 
