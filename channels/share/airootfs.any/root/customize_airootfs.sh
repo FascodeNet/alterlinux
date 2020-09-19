@@ -109,21 +109,27 @@ cp /etc/skel/Desktop/calamares.desktop usr/share/applications/calamares.desktop
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
 function user_check () {
-if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
-    if [[ -z $1 ]]; then
+    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
+        if [[ -z $1 ]]; then
+            echo -n "false"
+        fi
+        echo -n "true"
+    else
         echo -n "false"
     fi
-    echo -n "true"
-else
-    echo -n "false"
-fi
+}
+
+# Execute only if the command exists
+# run_additional_command [command name] [command to actually execute]
+run_additional_command() {
+    if [[ -f "$(type -p "${1}" 2> /dev/null)" ]]; then
+        ${2}
+    fi
 }
 
 usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
-if [[ -f "$(type -p xdg-user-dirs-update 2> /dev/null)" ]]; then
-    LC_ALL=C LANG=C xdg-user-dirs-update
-fi
+run_additional_command "xdg-user-dirs-update" "LC_ALL=C LANG=C xdg-user-dirs-update"
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo
@@ -269,7 +275,7 @@ sed -i -r  "s/(GRUB_DISTRIBUTOR=).*/\1\"${grub_os_name}\"/g" "/etc/default/grub"
 
 # Create new icon cache
 # This is because alter icon was added by airootfs.
-gtk-update-icon-cache -f /usr/share/icons/hicolor
+run_additional_command "gtk-update-icon-cache" "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 
 
 # Enable graphical.
