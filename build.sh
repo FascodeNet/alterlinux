@@ -1103,7 +1103,7 @@ make_syslinux() {
     if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
         cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
-        cp "${script_path}/syslinux/${arch}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+        cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
 
     # copy files
