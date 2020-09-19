@@ -540,7 +540,7 @@ show_settings() {
     else
         msg_info "Use the ${channel_name} channel."
     fi
-    msg_info "Build with architecture ${all_arch[@]}."
+    msg_info "Build with architecture ${all_arch[*]}."
     if [[ ${noconfirm} = false ]]; then
         echo
         echo "Press Enter to continue or Ctrl + C to cancel."
