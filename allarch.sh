@@ -1426,8 +1426,8 @@ done
 run_once make_boot_extra
 run_once make_syslinux_loadfiles
 run_once make_isolinux
-run_once make_efi
-run_once make_efiboot
+#run_once make_efi
+#run_once make_efiboot
 run_once make_iso
 [[ "${cleaning}" = true ]] && remove_work
 
