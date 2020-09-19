@@ -1071,8 +1071,8 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/EFI/archiso"
 
-    cp "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}.efi"
-    cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
+    cp "${work_dir}/iso/${install_dir}/boot/x86_64/${kernel_filename}" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}.efi"
+    cp "${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
 
     cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
     cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
@@ -1408,13 +1408,11 @@ for arch in ${all_arch[@]}; do
     run_once make_boot_extra
     run_once make_syslinux
     run_once make_isolinux
-    run_once make_efi
-    run_once make_efiboot
+    run_once make_prepare
 done
-for arch in ${all_arch[@]}; do
-    [[ "${noiso}" = false ]] && run_once make_prepare
-done
-[[ "${noiso}" = false ]] && run_once make_iso
+run_once make_efi
+run_once make_efiboot
+run_once make_iso
 [[ "${cleaning}" = true ]] && remove_work
 
 exit 0
