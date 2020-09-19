@@ -1539,7 +1539,7 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
-run_once make_packages_file
+#run_once make_packages_file
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
