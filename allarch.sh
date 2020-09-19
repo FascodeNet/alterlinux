@@ -1324,7 +1324,7 @@ unset OPT _opt_short _opt_long
 while :; do
     case ${1} in
         -a | --arch)
-            arch="${2}"
+            all_arch=(${2})
             shift 2
             ;;
         -b | --boot-splash)
@@ -1531,23 +1531,29 @@ parse_files
 
 set -eu
 
-prepare_build
+for arch in ${all_arch[@]}; do
+    prepare_build
+done
 show_settings
-run_once make_pacman_conf
-run_once make_basefs
-run_once make_packages
-run_once make_packages_file
-[[ "${noaur}" = false ]] && run_once make_packages_aur
-run_once make_customize_airootfs
-run_once make_setup_mkinitcpio
-run_once make_boot
-run_once make_boot_extra
-run_once make_syslinux
-run_once make_isolinux
-run_once make_efi
-run_once make_efiboot
+for arch in ${all_arch[@]}; do
+    run_once make_pacman_conf
+    run_once make_basefs
+    run_once make_packages
+    run_once make_packages_file
+    [[ "${noaur}" = false ]] && run_once make_packages_aur
+    run_once make_customize_airootfs
+    run_once make_setup_mkinitcpio
+    run_once make_boot
+    run_once make_boot_extra
+    run_once make_syslinux
+    run_once make_isolinux
+    run_once make_efi
+    run_once make_efiboot
+done
 [[ "${tarball}" = true ]] && run_once make_tarball
-[[ "${noiso}" = false ]] && run_once make_prepare
+for arch in ${all_arch[@]}; do
+    [[ "${noiso}" = false ]] && run_once make_prepare
+done
 [[ "${noiso}" = false ]] && run_once make_iso
 [[ "${cleaning}" = true ]] && remove_work
 
