@@ -17,7 +17,7 @@ set -eu
 # Do not change these values.
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
-rebuild=false
+all_arch=("x86_64" "i686")
 customized_username=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
@@ -199,7 +199,6 @@ _usage () {
     echo " General options:"
     echo "    -b | --boot-splash           Enable boot splash"
     echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
-    echo "         --tarball               Build rootfs in tar.xz format"
     echo "    -h | --help                  This help message and exit"
     echo
     echo "    -a | --arch <arch>           Set iso architecture"
@@ -269,9 +268,6 @@ _usage () {
             echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
         fi
     done
-    echo -ne "    rebuild"
-    for i in $( seq 1 $(( ${blank} - 11 )) ); do echo -ne " "; done
-    echo -ne "Build from the point where it left off using the previous build settings.\n"
 
     echo
     echo " Debug options: Please use at your own risk."
@@ -286,7 +282,6 @@ _usage () {
     echo "         --nochkver              NO check the version of the channel"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
-    echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
     if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
@@ -380,199 +375,16 @@ check_bool() {
     fi
 }
 
-
-# Preparation for build
-prepare_build() {
-    # Create a working directory.
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-
-    # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
-        umount_chroot
-        msg_info "Deleting the contents of ${work_dir}..."
-        remove "${work_dir%/}"/*
-    fi
-
-    # 強制終了時に作業ディレクトリを削除する
-    local _trap_remove_work
-    _trap_remove_work() {
-        local status=${?}
-        echo
-        remove "${work_dir}"
-        exit ${status}
-    }
-    trap '_trap_remove_work' 1 2 3 15
-
-    if [[ "${rebuild}" == false ]]; then
-        # If there is pacman.conf for each channel, use that for building
-        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
-            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
-        fi
-
-        # If there is config for share channel. load that.
-        load_config "${script_path}/channels/share/config.any"
-        load_config "${script_path}/channels/share/config.${arch}"
-
-        # If there is config for each channel. load that.
-        load_config "${script_path}/channels/${channel_name}/config.any"
-        load_config "${script_path}/channels/${channel_name}/config.${arch}"
-
-        # Set username
-        if [[ "${customized_username}" = false ]]; then
-            username="${defaultusername}"
-        fi
-
-        # gitversion
-        if [[ "${gitversion}" = true ]]; then
-            cd ${script_path}
-            iso_version=${iso_version}-$(git rev-parse --short HEAD)
-            cd - > /dev/null 2>&1
-        fi
-
-        # Generate iso file name.
-        local _channel_name
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
-        else
-            _channel_name="${channel_name}-${locale_version}"
-        fi
-        if [[ "${nochname}" = true ]]; then
-            iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-        fi
-        msg_debug "Iso filename is ${iso_filename}"
-
-        # Save build options
-        local _write_rebuild_file
-        _write_rebuild_file() {
-            local out_file="${rebuildfile}"
-            echo -e "${@}" >> "${out_file}"
-        }
-
-        local _save_var
-        _save_var() {
-            local out_file="${rebuildfile}" i
-            for i in ${@}; do echo "${i}=\"$(eval echo -n '$'${i})\"" >> "${out_file}"; done
-        }
-
-        # Save the value of the variable for use in rebuild.
-        remove "${rebuildfile}"
-        _write_rebuild_file "#!/usr/bin/env bash"
-        _write_rebuild_file "# Build options are stored here."
-
-        _write_rebuild_file "\n# OS Info"
-        _save_var arch
-        _save_var os_name
-        _save_var iso_name
-        _save_var iso_label
-        _save_var iso_publisher
-        _save_var iso_application
-        _save_var iso_version
-        _save_var iso_filename
-        _save_var channel_name
-
-        _write_rebuild_file "\n# Environment Info"
-        _save_var install_dir
-        _save_var work_dir
-        _save_var out_dir
-        _save_var gpg_key
-
-        _write_rebuild_file "\n# Live User Info"
-        _save_var username
-        _save_var password
-        _save_var usershell
-
-        _write_rebuild_file "\n# Plymouth Info"
-        _save_var boot_splash
-        _save_var theme_name
-
-        _write_rebuild_file "\n# Language Info"
-        _save_var locale_name
-        _save_var locale_gen_name
-        _save_var locale_version
-        _save_var locale_time
-        _save_var locale_fullname
-
-        _write_rebuild_file "\n# Kernel Info"
-        _save_var kernel
-        _save_var kernel_filename
-        _save_var kernel_mkinitcpio_profile
-
-        _write_rebuild_file "\n# Squashfs Info"
-        _save_var sfs_comp
-        _save_var sfs_comp_opt
-
-        _write_rebuild_file "\n# Debug Info"
-        _save_var noaur
-        _save_var gitversion
-        _save_var noloopmod
-
-        _write_rebuild_file "\n# Channel Info"
-        _save_var build_pacman_conf
-        _save_var defaultconfig
-        _save_var defaultusername
-        _save_var customized_username
-
-        _write_rebuild_file "\n# mkalteriso Info"
-        if [[ "${shmkalteriso}" = false ]]; then
-            mkalteriso="${script_path}/system/mkalteriso"
-        else
-            mkalteriso="${script_path}/system/mkalteriso.sh"
-        fi
-
-        _save_var mkalteriso
-        _save_var shmkalteriso
-        _save_var mkalteriso_option
-        _save_var tarball
-
-        _write_rebuild_file "\n# depend package"
-        _write_rebuild_file "dependence=(${dependence[*]})"
-    else
-        # Load rebuild file
-        load_config "${rebuildfile}"
-        msg_debug "Iso filename is ${iso_filename}"
-    fi
-
-    # check bool
-    check_bool boot_splash
-    check_bool cleaning
-    check_bool noconfirm
-    check_bool nodepend
-    check_bool shmkalteriso
-    check_bool customized_username
-    check_bool noloopmod
-    check_bool nochname
-    check_bool tarball
-    check_bool noiso
-    check_bool noaur
-    check_bool customized_syslinux
-
+check_env() {
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
-
     # Check kernel for each channel
     if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
         msg_error "This kernel is currently not supported on this channel." "1"
     fi
-
-    # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd - > /dev/null 2>&1
-    fi
-
-    # Unmount
-    local _mount
-    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
-        msg_info "Unmounting ${_mount}"
-        umount "${_mount}"
-    done
-    unset _mount
 
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
@@ -617,6 +429,72 @@ prepare_build() {
             exit 1
         fi
     fi
+}
+
+prepare_all_arch() {
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+    # Check work dir
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]]; then
+        umount_chroot
+        msg_info "Deleting the contents of ${work_dir}..."
+        remove "${work_dir%/}"/*
+    fi
+
+    # 強制終了時に作業ディレクトリを削除する
+    local _trap_remove_work
+    _trap_remove_work() {
+        local status=${?}
+        echo
+        remove "${work_dir}"
+        exit ${status}
+    }
+    trap '_trap_remove_work' 1 2 3 15
+
+    # Set username
+    if [[ "${customized_username}" = false ]]; then
+        username="${defaultusername}"
+    fi
+
+    # Set architecture
+    all_arch=($(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#'))
+
+    # gitversion
+    if [[ "${gitversion}" = true ]]; then
+        cd ${script_path}
+        iso_version=${iso_version}-$(git rev-parse --short HEAD)
+        cd - > /dev/null 2>&1
+    fi
+
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
+    # Generate iso file name.
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
+    else
+        _channel_name="${channel_name}-${locale_version}"
+    fi
+    if [[ "${nochname}" = true ]]; then
+        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+    else
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    fi
+    msg_debug "Iso filename is ${iso_filename}"
+
+    # Set mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
 
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
@@ -645,7 +523,6 @@ prepare_build() {
     fi
 }
 
-
 # Show settings.
 show_settings() {
     msg_debug "mkalteriso path is ${mkalteriso}"
@@ -663,7 +540,7 @@ show_settings() {
     else
         msg_info "Use the ${channel_name} channel."
     fi
-    msg_info "Build with architecture ${arch}."
+    msg_info "Build with architecture ${all_arch}."
     if [[ ${noconfirm} = false ]]; then
         echo
         echo "Press Enter to continue or Ctrl + C to cancel."
@@ -671,6 +548,42 @@ show_settings() {
     fi
     trap 1 2 3 15
     trap 'umount_trap' 1 2 3 15
+}
+
+# Preparation for build
+prepare_build() {
+    # If there is pacman.conf for each channel, use that for building
+    if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
+    fi
+
+    # If there is config for share channel. load that.
+    load_config "${script_path}/channels/share/config.any"
+    load_config "${script_path}/channels/share/config.${arch}"
+
+    # If there is config for each channel. load that.
+    load_config "${script_path}/channels/${channel_name}/config.any"
+    load_config "${script_path}/channels/${channel_name}/config.${arch}"
+
+    # check bool
+    check_bool boot_splash
+    check_bool cleaning
+    check_bool noconfirm
+    check_bool nodepend
+    check_bool shmkalteriso
+    check_bool customized_username
+    check_bool noloopmod
+    check_bool nochname
+    check_bool noaur
+    check_bool customized_syslinux
+
+    # Unmount
+    local _mount
+    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+        msg_info "Unmounting ${_mount}"
+        umount "${_mount}"
+    done
+    unset _mount
 }
 
 
@@ -967,7 +880,6 @@ make_customize_airootfs() {
     [[ ${boot_splash} = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
     [[ ${debug} = true ]]       && _airootfs_script_options="${_airootfs_script_options} -d"
     [[ ${bash_debug} = true ]]  && _airootfs_script_options="${_airootfs_script_options} -x"
-    [[ ${rebuild} = true ]]     && _airootfs_script_options="${_airootfs_script_options} -r"
 
     # X permission
     local chmod_755
@@ -1181,32 +1093,6 @@ make_efiboot() {
     umount -d "${work_dir}/efiboot"
 }
 
-# Compress tarball
-make_tarball() {
-    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
-
-    if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
-        chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
-        # Execute optimize_for_tarball.sh.
-        ${mkalteriso} ${mkalteriso_option} \
-        -w "${work_dir}/${arch}" \
-        -C "${work_dir}/pacman-${arch}.conf" \
-        -D "${install_dir}" \
-        -r "/root/optimize_for_tarball.sh" \
-        run
-    fi
-
-    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
-
-    remove "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
-
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
-
-    remove "${work_dir}/airootfs"
-    if [[ "${noiso}" = true ]]; then
-        msg_info "The password for the live user and root is ${password}."
-    fi
-}
 
 # Build airootfs filesystem image
 make_prepare() {
@@ -1314,7 +1200,7 @@ parse_files() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
+_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,noaur,nochkver,channellist,config:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1369,10 +1255,6 @@ while :; do
             password="${2}"
             shift 2
             ;;
-        -r | --tarball)
-            tarball=true
-            shift 1
-            ;;
         -t | --comp-opts)
             sfs_comp_opt="${2}"
             shift 2
@@ -1421,10 +1303,6 @@ while :; do
             ;;
         --noloopmod)
             noloopmod=true
-            shift 1
-            ;;
-        --noiso)
-            noiso=true
             shift 1
             ;;
         --noaur)
@@ -1479,9 +1357,6 @@ fi
 # Pacman configuration file used only when building
 build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
-# Set rebuild config file
-rebuildfile="${work_dir}/alteriso_config"
-
 # Parse channels
 set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
@@ -1492,12 +1367,6 @@ set +eu
 # Set for special channels
 if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
     channel_name="${channel_name}.add"
-elif [[ "${channel_name}" = "rebuild" ]]; then
-    if [[ -f "${rebuildfile}" ]]; then
-        rebuild=true
-    else
-        msg_error "The previous build information is not in the working directory." "1"
-    fi
 elif [[ "${channel_name}" = "clean" ]]; then
     umount_chroot
     remove "${script_path}/menuconfig/build"
@@ -1505,19 +1374,15 @@ elif [[ "${channel_name}" = "clean" ]]; then
 	remove "${script_path}/menuconfig-script/kernel_choice"
     remove "${work_dir%/}"/*
     remove "${work_dir}"
-    remove "${rebuildfile}"
     exit 0
 fi
 
 # Check channel version
-if [[ ! "${channel_name}" == "rebuild" ]]; then
-    msg_debug "channel path is ${script_path}/channels/${channel_name}"
-    if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-        msg_error "This channel does not support AlterISO 3." "1"
-    fi
+msg_debug "channel path is ${script_path}/channels/${channel_name}"
+if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+    msg_error "This channel does not support AlterISO 3." "1"
 fi
 
-check_bool rebuild
 check_bool debug
 check_bool bash_debug
 check_bool nocolor
@@ -1527,11 +1392,11 @@ parse_files
 
 set -eu
 
-for arch in ${all_arch[@]}; do
-    prepare_build
-done
+check_env
+prepare_all_arch
 show_settings
 for arch in ${all_arch[@]}; do
+    prepare_build
     run_once make_pacman_conf
     run_once make_basefs
     run_once make_packages
@@ -1546,7 +1411,6 @@ for arch in ${all_arch[@]}; do
     run_once make_efi
     run_once make_efiboot
 done
-[[ "${tarball}" = true ]] && run_once make_tarball
 for arch in ${all_arch[@]}; do
     [[ "${noiso}" = false ]] && run_once make_prepare
 done
