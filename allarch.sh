@@ -482,9 +482,9 @@ prepare_all_arch() {
         _channel_name="${channel_name}-${locale_version}"
     fi
     if [[ "${nochname}" = true ]]; then
-        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+        iso_filename="${iso_name}-${iso_version}-dial.iso"
     else
-        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
     fi
     msg_debug "Iso filename is ${iso_filename}"
 
