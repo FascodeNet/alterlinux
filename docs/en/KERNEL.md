@@ -11,33 +11,32 @@ You can easily create a repository using GitHub.
 
 ### 2. Add to kernel list
 
-Add the kernel name to `kernel_list`. This variable is used to judge whether the value passed to `build.sh` is correct.  
-The value to add to the list is the character after `linux-`. In this case it will be `fooo`.  
+`kernel-<arch>` is a file written settings about kernel. The syntax is below, and it is analyzes by `build.sh`.  
+Line start with `#` treat as comment. One line per one kernel setting.
 
 ```bash
-echo "fooo" >> ./system/kernel_list
+#[kernel name]               [kernel filename]               [mkinitcpio profile]
+#
+
+core                         vmlinuz-linux                   linux
+lts                          vmlinuz-linux-lts               linux-lts
+zen                          vmlinuz-linux-zen               linux-zen
 ```
 
-### 3. Create the file
-You need to create some files for the new kernel. Below is a list of files that need to be created.  
-The easiest way is to rename the existing file, copy it, and fix the path to the kernel.  
-The file name has been replaced with `fooo`.  
+#### kernel name
+This is string specifyed `-k`, a part of `build.sh`. Do not duplicate.  
 
-1. syslinux/x86_64/pxe/archiso_pxe-fooo.cfg
-2. syslinux/i686/pxe/archiso_pxe-fooo.cfg
-3. syslinux/x86_64/pxe-plymouth/archiso-fooo.cfg
-4. syslinux/i686/pxe-plymouth/archiso-fooo.cfg
-5. syslinux/x86_64/sys/archiso_sys-fooo.cfg
-6. syslinux/i686/sys/archiso_sys-fooo.cfg
-7. syslinux/x86_64/sys-plymouth/archiso_sys-fooo.cfg
-8. syslinux/i686/sys-plymouth/archiso_sys-fooo.cfg
-9. efiboot/loader/entries/cd/archiso-x86_64-cd-fooo.conf
-10. efiboot/loader/entries/usb/archiso-x86_64-usb-fooo.conf
-11. channels/share/airootfs.any/usr/share/calamares/modules/unpackfs/unpackfs-fooo.conf
-12. channels/share/airootfs.any/usr/share/calamares/modules/initcpio/initcpio-fooo.conf
+#### kernel filename
+This is name of binary file that create under `/boot`. This is used for Calamares setting, and more.  
 
-These files are installer and boot loader files. Modify the path for each kernel.
+#### mkinitcpio profile
+This is profile name specified by `-p`, a part of `mkinitcpio`.  
 
-### 4.Send pull request
-Please post a pull request [here](https://github.com/FascodeNet/alterlinux/pulls).  
+### 3.カーネル用パッケージリストを作成する
+Please description kernel package and header package to exclusive package list.  
+Check [PACKAGE.md](./PACKAGE.md) for details.  
+
+
+### 4.プルリクエストを送る
+Please create pull request [here](https://github.com/FascodeNet/alterlinux/pulls).
 
