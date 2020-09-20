@@ -220,7 +220,7 @@ class MainWindow(Gtk.Window):
         else:
             kernel = kernel.replace("linux-", "")
         
-        command = "sudo ./build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(arch, kernel, locale, comp, username, password)
+        command = "sudo ../build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(arch, kernel, locale, comp, username, password)
         
         if self.boot_splash_button_enable.get_active():
             command = "{} --boot-splash".format(command)
