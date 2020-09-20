@@ -1009,7 +1009,7 @@ make_customize_airootfs() {
 
     # /root permission
     # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
-    chmod -f 750 "${work_dir}/x86_64/airootfs/root"
+    chmod -f 750 "${work_dir}/${arch}/airootfs/root"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
