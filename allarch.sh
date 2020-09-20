@@ -297,7 +297,7 @@ umount_chroot () {
 }
 
 # Helper function to run make_*() only one time.
-run_once() {
+run_arch() {
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
         msg_debug "Running $1 ..."
         "$1"
@@ -309,7 +309,7 @@ run_once() {
 }
 
 # Helper function to run make_*() only one time.
-run_arch() {
+run_once() {
     if [[ ! -e "${work_dir}/build.${1}" ]]; then
         msg_debug "Running $1 ..."
         "$1"
