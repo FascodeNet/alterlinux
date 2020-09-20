@@ -20,7 +20,7 @@ class MainWindow(Gtk.Window):
                 liststore = Gtk.ListStore(int, str)
                 liststore_num = 0
 
-                with open("./system/{}-{}".format(value, arch)) as f:
+                with open("../system/{}-{}".format(value, arch)) as f:
                     for i in [value.strip().split()[-1] for value in f.readlines() if not "#" in value and value != "\n"]:
                         liststore.append([liststore_num, i])
                         liststore_num += 1
@@ -31,8 +31,8 @@ class MainWindow(Gtk.Window):
             liststore = Gtk.ListStore(int, str)
             liststore_num = 0
             
-            for values in os.listdir("./channels"):
-                path = os.path.join("./channels", values)
+            for values in os.listdir("../channels"):
+                path = os.path.join("../channels", values)
 
                 if os.path.isdir(path) and values != "share":
                     with open("{}/architecture".format(path)) as f:
