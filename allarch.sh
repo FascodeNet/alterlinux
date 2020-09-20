@@ -308,6 +308,18 @@ run_once() {
     fi
 }
 
+# Helper function to run make_*() only one time.
+run_arch() {
+    if [[ ! -e "${work_dir}/build.${1}" ]]; then
+        msg_debug "Running $1 ..."
+        "$1"
+        touch "${work_dir}/build.${1}"
+        umount_chroot
+    else
+        msg_debug "Skipped because ${1} has already been executed."
+    fi
+}
+
 # rm helper
 # Delete the file if it exists.
 # For directories, rm -rf is used.
@@ -1430,16 +1442,16 @@ prepare_all_arch
 show_settings
 for arch in ${all_arch[@]}; do
     prepare_build
-    run_once make_pacman_conf
-    run_once make_basefs
-    run_once make_packages
-    #run_once make_packages_file
-    [[ "${noaur}" = false ]] && run_once make_packages_aur
-    run_once make_customize_airootfs
-    run_once make_setup_mkinitcpio
-    run_once make_syslinux
-    run_once make_boot
-    run_once make_prepare
+    run_arch make_pacman_conf
+    run_arch make_basefs
+    run_arch make_packages
+    #run_arch make_packages_file
+    [[ "${noaur}" = false ]] && run_arch make_packages_aur
+    run_arch make_customize_airootfs
+    run_arch make_setup_mkinitcpio
+    run_arch make_syslinux
+    run_arch make_boot
+    run_arch make_prepare
 done
 run_once make_boot_extra
 run_once make_syslinux_loadfiles
