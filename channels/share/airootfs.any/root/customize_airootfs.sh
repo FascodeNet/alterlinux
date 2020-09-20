@@ -129,7 +129,7 @@ run_additional_command() {
 
 usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
-run_additional_command "xdg-user-dirs-update" "LC_ALL=C LANG=C xdg-user-dirs-update"
+run_additional_command "xdg-user-dirs-update" "(LC_ALL=C; LANG=C; xdg-user-dirs-update)"
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo
