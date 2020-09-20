@@ -1064,27 +1064,29 @@ make_isolinux() {
 # Prepare /EFI
 make_efi() {
     mkdir -p "${work_dir}/iso/EFI/boot"
-    #cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/bootx64.efi"
-    (
-        local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
-    )
+    for arch in ${all_arch[@]}; do
+        (
+            local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+        )
+    done
 
     mkdir -p "${work_dir}/iso/loader/entries"
-    #cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/iso/loader/loader.conf"
+    sed "s|%ARCH%|${all_arch[0]}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/iso/loader/loader.conf"
 
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%OS_NAME%|${os_name}|g;
-         s|%KERNEL_FILENAME%|${kernel_filename}|g;
-         s|%ARCH%|${arch}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}-usb.conf"
+    for arch in ${all_arch[@]}; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}-usb.conf"
+    done
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" == "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
+        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
     fi
 }
 
@@ -1106,25 +1108,28 @@ make_efiboot() {
     cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
-    #cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
-    (
-        local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
-    )
+
+    for arch in ${all_arch[@]}; do
+        (
+            local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+        )
+    done
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
 
-
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%OS_NAME%|${os_name}|g;
-         s|%KERNEL_FILENAME%|${kernel_filename}|g;
-         s|%ARCH%|${arch}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
+    for arch in ${all_arch[@]}; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
+    done
 
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" == "x86_64" ]]; then
+    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
         cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
     fi
 
@@ -1439,8 +1444,8 @@ done
 run_once make_boot_extra
 run_once make_syslinux_loadfiles
 run_once make_isolinux
-#run_once make_efi
-#run_once make_efiboot
+run_once make_efi
+run_once make_efiboot
 run_once make_iso
 [[ "${cleaning}" = true ]] && remove_work
 
