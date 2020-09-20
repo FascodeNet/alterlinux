@@ -1085,8 +1085,8 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
-        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
     fi
 }
 
