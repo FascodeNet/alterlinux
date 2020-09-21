@@ -37,7 +37,6 @@ xf86-input-elographics
 
 # i3wm
 i3-gaps
-i3lock-color
 nitrogen
 picom
 polybar
@@ -45,7 +44,6 @@ conky
 
 # launcher
 rofi
-inverse-icon-theme-blue-git
 
 # terminal emulator
 sakura
@@ -58,3 +56,8 @@ dex
 
 # Qt config
 qt5ct
+qt5-styleplugins
+
+# Theme
+adapta-gtk-theme
+inverse-icon-theme-blue-git
