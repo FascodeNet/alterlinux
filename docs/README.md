@@ -18,8 +18,8 @@
     </a>
 </p>
 <p align="center">
-    <a href="https://travis-ci.org/github/FascodeNet/alterlinux">
-        <img src="https://img.shields.io/travis/FascodeNet/alterlinux?style=for-the-badge">
+  	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
+	    	<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=for-the-badge">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/issues">
         <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
@@ -74,6 +74,9 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 
 <h3>Cinnamon</h3>
 <img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+
+<h3>i3wm</h3>
+<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot">
 
 <h2>〈Feature〉</h2>
 <ul>
