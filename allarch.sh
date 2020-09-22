@@ -194,6 +194,9 @@ msg_error() {
 _usage () {
     echo "usage ${0} [options] [channel]"
     echo
+    echo "build.sh for building multiple architectures"
+    echo "Some features of build.sh are not available."
+    echo
     echo "A channel is a profile of AlterISO settings."
     echo
     echo " General options:"
