@@ -201,8 +201,6 @@ _usage () {
     echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
     echo "    -h | --help                  This help message and exit"
     echo
-    echo "    -a | --arch <arch>           Set iso architecture"
-    echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
     echo "                                  Default: ${sfs_comp}"
     echo "    -g | --gpgkey <key>          Set gpg key"
