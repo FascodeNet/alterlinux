@@ -172,7 +172,7 @@ prepare() {
     fi
 
     pacman -Sc --noconfirm > /dev/null 2>&1
-    pacman -Syyu
+    pacman -Syy
 }
 
 
@@ -180,7 +180,7 @@ update_arch_key() {
     pacman-key --refresh-keys
     pacman-key --init
     pacman-key --populate archlinux
-    pacman -Syu --noconfirm core/archlinux-keyring
+    pacman -Sy --noconfirm core/archlinux-keyring
     pacman-key --init
     pacman-key --populate archlinux
 }
@@ -192,7 +192,7 @@ update_alter_key() {
     rm -f "/tmp/fascode.pub"
     pacman-key --lsign-key development@fascode.net
 
-    pacman --config "${alter_pacman_conf_x86_64}" -Syu --noconfirm alter-stable/alterlinux-keyring
+    pacman --config "${alter_pacman_conf_x86_64}" -Sy --noconfirm alter-stable/alterlinux-keyring
 
     pacman-key --init
     pacman-key --populate alterlinux
