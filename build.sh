@@ -601,7 +601,7 @@ prepare_build() {
                         # リモートとローカルのバージョンが一致しない場合
                         [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
                         msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)"
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: ${__ver}"
                         return 0
                     fi
                 fi
