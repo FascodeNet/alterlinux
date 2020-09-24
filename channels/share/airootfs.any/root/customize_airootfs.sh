@@ -213,8 +213,8 @@ if [[ $boot_splash = true ]]; then
     plymouth-set-default-theme ${theme_name}
 else
     # Delete the configuration file for plymouth.
-    remove /usr/share/calamares/modules/services-plymouth.conf
-    remove /etc/plymouth
+    remove "/usr/share/calamares/modules/services-plymouth.conf"
+    remove "/etc/plymouth"
 fi
 
 
