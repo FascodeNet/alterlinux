@@ -399,6 +399,9 @@ check_env() {
         msg_error "This kernel is currently not supported on this channel." "1"
     fi
 
+    # Show warning about allarch.sh
+    msg_info "Some features of build.sh are not available."
+
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
         local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
