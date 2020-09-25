@@ -5,7 +5,7 @@ Name=Install %OS_NAME%
 GenericName=%OS_NAME% Installer
 Keywords=calamares;alter;linux;installer;
 TryExec=calamares
-Exec=pkexec /usr/bin/calamares
+Exec=sudo -E /usr/bin/calamares
 Comment=%OS_NAME% Installer - by Calamares
 Icon=/usr/share/icons/hicolor/scalable/apps/calamares.svg
 Terminal=false
@@ -14,7 +14,7 @@ Type=Application
 Categories=Qt;System;
 X-AppStream-Ignore=true
 
-Name[ar]=تثبيت النظام 
+Name[ar]=تثبيت النظام
 GenericName[ar]=مثبت النظام
 Comment[ar]=كالامارس - مثبت النظام
 Name[as]=চিছটেম ইনস্তল কৰক
@@ -159,4 +159,3 @@ Comment[pt_PT]=Calamares - Instalador de Sistema
 Name[tr_TR]=Sistemi Yükle
 GenericName[tr_TR]=Sistem Yükleyici
 Comment[tr_TR]=Calamares — Sistem Yükleyici
-

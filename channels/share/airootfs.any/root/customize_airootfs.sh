@@ -95,6 +95,9 @@ fi
 # Set os name
 sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 
+# Create Calamares Entry
+cp /etc/skel/Desktop/calamares.desktop usr/share/applications/calamares.desktop
+
 
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
@@ -109,11 +112,9 @@ else
 fi
 }
 
-if [[ $(user_check root) = false ]]; then
-    usermod -s "${usershell}" root
-    cp -aT /etc/skel/ /root/
-    LC_ALL=C LANG=C xdg-user-dirs-update
-fi
+usermod -s "${usershell}" root
+cp -aT /etc/skel/ /root/
+LC_ALL=C LANG=C xdg-user-dirs-update
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo

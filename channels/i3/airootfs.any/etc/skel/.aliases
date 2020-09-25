@@ -1,5 +1,5 @@
-# 
-# Yamada Hayao 
+#
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -9,8 +9,6 @@
 #
 
 # Alias
-unalias lsd
-unalias ls
 alias lsd='/usr/bin/lsd'
 
 

@@ -4,7 +4,7 @@ script_path=`dirname $0`
 build_arch=x86_64
 
 machine_arch=$(uname -m)
-cd ${script_path} 
+cd ${script_path}
 if [ $# -ne 1 ]; then
     echo "error!" 1>&2
     echo "You must set one arg!" 1>&2
@@ -61,7 +61,7 @@ buf=`grep CONFIG_CHANNEL_ .config | sed -e 's/=y//g' | sed -e 's/CONFIG_CHANNEL_
 eval "${buf,,}"
 
 
-echo build option : 
+echo build option :
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"

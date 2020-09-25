@@ -453,7 +453,7 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
-    
+
         # Generate iso file name.
         local _channel_name
         if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
@@ -565,7 +565,7 @@ prepare_build() {
         for pkg in ${dependence[@]}; do
             _msg_debug -n "Checking ${pkg} ..."
             case $(check_pkg ${pkg}) in
-                "old") 
+                "old")
                     [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${pkg} | awk '{print $2}')\n"
                     _msg_warn "${pkg} is not the latest package."
                     _msg_warn "Local: $(pacman -Q ${pkg} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${pkg} 2> /dev/null)"
@@ -574,7 +574,7 @@ prepare_build() {
                     [[ "${debug}" = true ]] && echo
                     _msg_error "${pkg} is not installed." ; check_failed=true
                     ;;
-                "norepo") 
+                "norepo")
                     [[ "${debug}" = true ]] && echo
                     _msg_warn "${pkg} is not a repository package."
                     ;;
@@ -734,7 +734,7 @@ make_packages() {
         excludefile="${script_path}/channels/${channel_name}/packages.${arch}/exclude"
         if [[ -f "${excludefile}" ]]; then
             excludelist=( $(grep -h -v ^'#' "${excludefile}" | sed ':a;N;$!ba;s/\n/ /g') )
-        
+
             # 現在のpkglistをコピーする
             _pkglist=(${pkglist[@]})
             unset pkglist
@@ -745,7 +745,7 @@ make_packages() {
                 fi
             done
         fi
-        
+
         # Sort the list of packages in abc order.
         pkglist=(
             "$(
@@ -781,7 +781,7 @@ make_customize_airootfs() {
     local copy_airootfs
 
     copy_airootfs() {
-        local i 
+        local i
         for i in "${@}"; do
             local _dir="${i%/}"
             if [[ -d "${_dir}" ]]; then
@@ -1144,7 +1144,7 @@ while :; do
             esac
             shift 2
             ;;
-        -d | --debug) 
+        -d | --debug)
             debug=true
             shift 1
             ;;
