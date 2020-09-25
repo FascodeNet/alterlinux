@@ -8,8 +8,7 @@
 #
 # disable-beep.sh
 #
-# Script to disable PC beep sound 
+# Script to disable PC beep sound
 #
 
 setterm -blength 0
-

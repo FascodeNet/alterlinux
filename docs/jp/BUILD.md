@@ -2,7 +2,7 @@
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
 Dockerでビルドする方法は[この手順](jp/DOCKER.md)を参照してください。  
   
-実機でビルドする場合は、必ずOSがArchLinuxかAlter Linuxでなければなりません。  
+実機でビルドする場合は、必ずOSがArch LinuxかAlter Linuxでなければなりません。  
 以下では実機でビルドする方法を解説します。  
   
 ArchやAlter上で直接ビルドする場合、ビルドはいくつかの方法で行うことができます。
@@ -25,7 +25,7 @@ sudo ./keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools cmake
 ```
 
 ### TUIを使用する
@@ -63,7 +63,7 @@ sudo ./build.sh [options] [channel]
 
 ### build.shの使い方
 
-主なオプションは以下のとおです。完全なオプションと使い方は`./build -h`を実行して下さい。  
+主なオプションは以下のとおりです。完全なオプションと使い方は`./build -h`を実行して下さい。  
 
 用途 | 使い方
 --- | ---
@@ -97,16 +97,18 @@ sudo ./build.sh [options] [channel]
 #### チャンネルについて
 チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
 この仕組みにより様々なバージョンのAlter Linuxをビルドすることが可能になります。  
-2020年5月5日現在でサポートされているチャンネルは以下のとおりです。  
+2020年8月17日現在でサポートされているチャンネルは以下のとおりです。  
 完全なチャンネルの一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 目的
 --- | ---
-xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
+cinnamon | 多くのアプリケーションを備えた豪華なシナモンデスクトップのチャンネル
+i3 | i3とカスタマイズ可能なpolybarを搭載したrelengを除いて最も軽量なチャンネル
+lxde | LXDEと最小限のアプリケーションのみが入っている軽量なチャンネル
 plasma | PlasmaとQtアプリを搭載した現在開発中のチャンネル
-lxde | LXDEと最小限のアプリケーションのみが入っているrelengを除いて最も軽量なチャンネル
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドできるチャンネル
 rebuild | 作業ディレクトリにある設定を利用して再ビルドを行う特殊なチャンネル
+xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
 
 
 #### カーネルについて

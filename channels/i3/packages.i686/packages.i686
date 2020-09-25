@@ -16,7 +16,6 @@ dmraid
 fsarchiver
 gpm
 gptfdisk
-grml-zsh-config
 hdparm
 lvm2
 mdadm
@@ -27,9 +26,9 @@ partimage
 sdparm
 smartmontools
 testdisk
-vi
 vim-minimal
 grub-theme-vimix
 gvfs-smb
 gvfs
 sshfs
+mate-polkit

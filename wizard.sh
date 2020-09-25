@@ -4,7 +4,7 @@ set -e
 
 nobuild=false
 
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
 build_arch=$(uname -m)
 
@@ -25,7 +25,6 @@ dependence=(
     "arch-install-scripts"
     "curl"
     "dosfstools"
-    "edk2-shell"
     "git"
     "libburn"
     "libisofs"
@@ -73,7 +72,7 @@ while getopts 'a:xnje' arg; do
                 "シミュレーションモードを有効化しました" "Enabled simulation mode"
             ;;
         x)
-            set -x 
+            set -x
             msg "デバッグモードを有効化しました" "Debug mode enabled"
             ;;
         e)

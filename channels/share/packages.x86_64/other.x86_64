@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -13,7 +13,6 @@
 #-- commandline tools --#
 arch-install-scripts
 bash-completion
-dialog
 mc
 
 

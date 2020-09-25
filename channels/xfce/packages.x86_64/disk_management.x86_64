@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -21,6 +21,7 @@ gptfdisk
 hdparm
 lvm2
 mdadm
+nvme-cli
 partclone
 parted
 partimage

@@ -14,7 +14,7 @@
 
 set -e
 
-script_path="$(readlink -f ${0%/*})"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 arch=$(uname -m)
 
 
@@ -241,7 +241,7 @@ while getopts 'archli-:' arg; do
             run update_arch_key
             ;;
         # help
-        h) 
+        h)
             _usage 0
             ;;
         # arch32-add

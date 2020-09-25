@@ -2,7 +2,7 @@
 # ~/.zshrc
 #
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -23,6 +23,12 @@ compinit -u
 #-- Archive settings --#
 export ZIPINFOOPT=-OCP932
 export UNZIPOPT=-OCP932
+
+
+#-- Like fish prompt --#
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 
 
 #-- Key --#
@@ -47,12 +53,16 @@ key[PageDown]=${terminfo[knp]}
 [[ -n "${key[End]}"      ]]  && bindkey  "${key[End]}"      end-of-line
 [[ -n "${key[Insert]}"   ]]  && bindkey  "${key[Insert]}"   overwrite-mode
 [[ -n "${key[Delete]}"   ]]  && bindkey  "${key[Delete]}"   delete-char
-[[ -n "${key[Up]}"       ]]  && bindkey  "${key[Up]}"       up-line-or-history
-[[ -n "${key[Down]}"     ]]  && bindkey  "${key[Down]}"     down-line-or-history
+[[ -n "${key[Up]}"       ]]  && bindkey  "${key[Up]}"       history-substring-search-up
+[[ -n "${key[Down]}"     ]]  && bindkey  "${key[Down]}"     history-substring-search-down
 [[ -n "${key[Left]}"     ]]  && bindkey  "${key[Left]}"     backward-char
 [[ -n "${key[Right]}"    ]]  && bindkey  "${key[Right]}"    forward-char
 [[ -n "${key[PageUp]}"   ]]  && bindkey  "${key[PageUp]}"   beginning-of-buffer-or-history
 [[ -n "${key[PageDown]}" ]]  && bindkey  "${key[PageDown]}" end-of-buffer-or-history
+
+# Normal history display
+#[[ -n "${key[Up]}"       ]]  && bindkey  "${key[Up]}"       up-line-or-history
+#[[ -n "${key[Down]}"     ]]  && bindkey  "${key[Down]}"     down-line-or-history
 
 # Finally, make sure the terminal is in application mode, when zle is
 # active. Only then are the values from $terminfo valid.
@@ -108,7 +118,3 @@ else
 
     install_powerline_precmd
 fi
-
-#-- Like fish prompt --#
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

@@ -1,7 +1,7 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
@@ -23,4 +23,5 @@ powerline-go
 zsh
 zsh-autosuggestions
 zsh-completions
+zsh-history-substring-search
 zsh-syntax-highlighting
