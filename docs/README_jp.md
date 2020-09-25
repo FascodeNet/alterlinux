@@ -72,6 +72,8 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <h3>Cinnamon</h3>
 <img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
 
+<h3>i3wm</h3>
+<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot">
 
 <h2>〈特徴〉</h2>
 <ul>
