@@ -382,7 +382,7 @@ command_iso () {
     mkdir -p "${out_dir}"
     _msg_info "Creating ISO image..."
     local _qflag=""
-    if [[ ${quiet}"y" ]]; then
+    if [[ "${quiet}" = "y" ]]; then
         _qflag="-quiet"
     fi
     xorriso -as mkisofs ${_qflag} \
