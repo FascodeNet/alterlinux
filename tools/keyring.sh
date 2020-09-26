@@ -14,7 +14,7 @@
 
 set -e
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 arch="$(uname -m)"
 
 
