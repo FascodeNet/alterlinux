@@ -18,9 +18,14 @@ AlterISO3では様々な新機能が追加されました。そしてそれと�
 
 ### config.<arch>
 
-以前の`japanese`変数は意味を成しません。  
+以前の`japanese`変数は意味を成しません。AlterISO3では言語名を`locale_name`変数で行っています。  
+特定の言語を強制的に使用させたい場合は、`-l`オプションで指定する言語名を`locale_name`変数で指定して下さい。  
 
-〜現在これ以降は仕様が確定していないため後から追記します。〜  
+#### 詳細設定を行う
+AlterISO3は`locale_name`の値を元にいくつかの変数を`system/locale-<arch>`から参照します。  
+チャンネルの`config`ファイルでは変数を上書きできるので、これらを詳細に書き換えることができます。  
+`locale.gen`の値は`locale_gen_name`変数、タイムゾーンは`locale_time`変数で設定できます。  
+詳細は[releng](/channels/releng/config.any)を参考にして下さい。  
 
 ### customize_airootfs_<ch_name>.sh
 
