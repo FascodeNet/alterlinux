@@ -370,9 +370,9 @@ command_iso () {
     fi
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${work_dir}/iso/EFI/archiso/efiboot.img" ]]; then
+    if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
         _iso_efi_boot_args="-eltorito-alt-boot
-                            -e EFI/archiso/efiboot.img
+                            -e EFI/alteriso/efiboot.img
                             -no-emul-boot
                             -isohybrid-gpt-basdat"
     fi

@@ -202,6 +202,7 @@ _usage () {
     echo " General options:"
     echo "    -b | --boot-splash           Enable boot splash"
     echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
+    echo "         --tarball               Build rootfs in tar.xz format"
     echo "    -h | --help                  This help message and exit"
     echo
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
@@ -283,6 +284,7 @@ _usage () {
     echo "         --nochkver              NO check the version of the channel"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
+    echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
     if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
@@ -368,9 +370,9 @@ remove_work() {
 # Display channel list
 show_channel_list() {
     if [[ "${nochkver}" = true ]]; then
-        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" -n show
+        bash "${script_path}/tools/channel.sh" -m -v "${alteriso_version}" -n show
     else
-        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" show
+        bash "${script_path}/tools/channel.sh" -m -v "${alteriso_version}" show
     fi
 }
 
@@ -399,6 +401,9 @@ check_env() {
         msg_error "This kernel is currently not supported on this channel." "1"
     fi
 
+    # Show warning about allarch.sh
+    msg_info "Some features of build.sh are not available."
+
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
         local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
@@ -426,7 +431,7 @@ check_env() {
                         # リモートとローカルのバージョンが一致しない場合
                         [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
                         msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: $(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null)"
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: ${__ver}"
                         return 0
                     fi
                 fi
@@ -587,6 +592,8 @@ prepare_build() {
     check_bool customized_username
     check_bool noloopmod
     check_bool nochname
+    check_bool tarball
+    check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
 
@@ -1008,8 +1015,8 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
     cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
-    if [[ -d "${script_path}/channels/${channel_name}/syslinux.${arch}" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${script_path}/channels/${channel_name}/syslinux.${arch}/"* "$work_dir/${arch}/syslinux/"
+    if [[ -d "${script_path}/channels/${channel_name}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
+        cp -af "${script_path}/channels/${channel_name}/syslinux/"* "$work_dir/${arch}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
@@ -1105,20 +1112,20 @@ make_efi() {
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
-    mkdir -p "${work_dir}/iso/EFI/archiso"
-    truncate -s 64M "${work_dir}/iso/EFI/archiso/efiboot.img"
-    mkfs.fat -n ARCHISO_EFI "${work_dir}/iso/EFI/archiso/efiboot.img"
+    mkdir -p "${work_dir}/iso/EFI/alteriso"
+    truncate -s 64M "${work_dir}/iso/EFI/alteriso/efiboot.img"
+    mkfs.fat -n ARCHISO_EFI "${work_dir}/iso/EFI/alteriso/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
-    mount "${work_dir}/iso/EFI/archiso/efiboot.img" "${work_dir}/efiboot"
+    mount "${work_dir}/iso/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
 
-    mkdir -p "${work_dir}/efiboot/EFI/archiso"
+    mkdir -p "${work_dir}/efiboot/EFI/alteriso"
 
-    cp "${work_dir}/iso/${install_dir}/boot/x86_64/${kernel_filename}" "${work_dir}/efiboot/EFI/archiso/${kernel_filename}.efi"
-    cp "${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
+    cp "${work_dir}/iso/${install_dir}/boot/x86_64/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}.efi"
+    cp "${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso.img"
 
-    cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
-    cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
+    cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/alteriso/intel_ucode.img"
+    cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/alteriso/amd_ucode.img"
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
 
@@ -1147,6 +1154,33 @@ make_efiboot() {
     fi
 
     umount -d "${work_dir}/efiboot"
+}
+
+# Compress tarball
+make_tarball() {
+    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
+
+    if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
+        chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+        # Execute optimize_for_tarball.sh.
+        ${mkalteriso} ${mkalteriso_option} \
+        -w "${work_dir}/${arch}" \
+        -C "${work_dir}/pacman-${arch}.conf" \
+        -D "${install_dir}" \
+        -r "/root/optimize_for_tarball.sh" \
+        run
+    fi
+
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
+
+    remove "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//' | sed "s/dual/${arch}/g").tar.xz"
+
+    remove "${work_dir}/airootfs"
+    if [[ "${noiso}" = true ]]; then
+        msg_info "The password for the live user and root is ${password}."
+    fi
 }
 
 
@@ -1256,7 +1290,7 @@ parse_files() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,noaur,nochkver,channellist,config:"
+_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1293,7 +1327,7 @@ while :; do
             exit 0
             ;;
         -j | --japanese)
-            msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-g ja\"." "1"
+            msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
             kernel="${2}"
@@ -1310,6 +1344,10 @@ while :; do
         -p | --password)
             password="${2}"
             shift 2
+            ;;
+        -r | --tarball)
+            tarball=true
+            shift 1
             ;;
         -t | --comp-opts)
             sfs_comp_opt="${2}"
@@ -1361,6 +1399,10 @@ while :; do
             noloopmod=true
             shift 1
             ;;
+        --noiso)
+            noiso=true
+            shift 1
+            ;;
         --noaur)
             noaur=true
             shift 1
@@ -1408,7 +1450,7 @@ set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
 
 # Check for a valid channel name
-[[ "$(bash "${script_path}/tools/channel.sh" check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+[[ "$(bash "${script_path}/tools/channel.sh" -m check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
@@ -1452,14 +1494,19 @@ for arch in ${all_arch[@]}; do
     run_arch make_setup_mkinitcpio
     run_arch make_syslinux
     run_arch make_boot
-    run_arch make_prepare
+    [[ "${noiso}" = false ]] && run_arch make_prepare
 done
 run_once make_boot_extra
 run_once make_syslinux_loadfiles
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
-run_once make_iso
+if [[ "${tarball}" = true ]]; then
+    for arch in ${all_arch[@]}; do
+        run_arch make_tarball
+    done
+fi
+[[ "${noiso}" = false ]] && run_once make_iso
 [[ "${cleaning}" = true ]] && remove_work
 
 exit 0

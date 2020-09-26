@@ -11,7 +11,7 @@ if ! type docker >/dev/null 2>&1; then
     exit 1
 fi
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 cd $SCRIPT_DIR
 docker build -t alterlinux-build:latest .
 docker run -e _DOCKER=true -t -i --privileged -v $SCRIPT_DIR/out:/alterlinux/out -v /usr/lib/modules:/usr/lib/modules:ro alterlinux-build
