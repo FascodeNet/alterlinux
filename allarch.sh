@@ -370,9 +370,9 @@ remove_work() {
 # Display channel list
 show_channel_list() {
     if [[ "${nochkver}" = true ]]; then
-        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" -n show
+        bash "${script_path}/tools/channel.sh" -m -v "${alteriso_version}" -n show
     else
-        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" show
+        bash "${script_path}/tools/channel.sh" -m -v "${alteriso_version}" show
     fi
 }
 
@@ -1450,7 +1450,7 @@ set +eu
 [[ -n "${1}" ]] && channel_name="${1}"
 
 # Check for a valid channel name
-[[ "$(bash "${script_path}/tools/channel.sh" check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+[[ "$(bash "${script_path}/tools/channel.sh" -m check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
 
 # Set for special channels
 if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
