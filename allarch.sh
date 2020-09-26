@@ -262,7 +262,7 @@ _usage () {
         fi
         echo -ne "    ${_channel}"
         for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
             echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
         elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
             echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
@@ -1235,14 +1235,14 @@ parse_files() {
         local _lang _count=0
         for _lang in ${_locale_name_list[@]}; do
             _count=$(( _count + 1 ))
-            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
+            if [[ "${_lang}" = "${locale_name}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
     }
     _locale_line_number="$(_get_locale_line_number)"
 
     # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
+    [[ "${_locale_line_number}" = "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
     _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
@@ -1266,7 +1266,7 @@ parse_files() {
         local _kernel _count=0
         for _kernel in ${_kernel_name_list[@]}; do
             _count=$(( _count + 1 ))
-            if [[ "${_kernel}" == "${kernel}" ]]; then echo "${_count}"; return 0; fi
+            if [[ "${_kernel}" = "${kernel}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
         return 0
@@ -1274,7 +1274,7 @@ parse_files() {
     _kernel_line="$(_get_kernel_line)"
 
     # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" == "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
+    [[ "${_kernel_line}" = "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
     _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))

@@ -60,7 +60,7 @@ gen_channel_list() {
 
 check() {
     gen_channel_list
-    if [[ ! "${#}" == "1" ]]; then
+    if [[ ! "${#}" = "1" ]]; then
         _help
         exit 1
     fi

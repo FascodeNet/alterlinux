@@ -56,8 +56,8 @@ check_image() {
 }
 
 run_image() {
-    [ "$boot_type" == "bios" ] && run_image_using_bios
-    [ "$boot_type" == "uefi" ] && run_image_using_uefi
+    [ "$boot_type" = "bios" ] && run_image_using_bios
+    [ "$boot_type" = "uefi" ] && run_image_using_uefi
 }
 
 run_image_using_bios() {

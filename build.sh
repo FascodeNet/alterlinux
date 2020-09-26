@@ -80,7 +80,7 @@ echo_color() {
             n) echo_opts="-n -e"     ;;
         esac
     done
-    shift $((OPTIND - 1))
+    shift "$((OPTIND - 1))"
     if [[ "${nocolor}" = false ]]; then
         echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
     else
@@ -103,7 +103,7 @@ msg_info() {
             n) echo_opts="${echo_opts} -n" ;;
         esac
     done
-    shift $((OPTIND - 1))
+    shift "$((OPTIND - 1))"
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${*}"
     if [[ "${bash_debug}" = true ]]; then
         set -xv
@@ -127,7 +127,7 @@ msg_warn() {
             n) echo_opts="${echo_opts} -n" ;;
         esac
     done
-    shift $((OPTIND - 1))
+    shift "$((OPTIND - 1))"
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
     if [[ "${bash_debug}" = true ]]; then
         set -xv
@@ -151,7 +151,7 @@ msg_debug() {
             n) echo_opts="${echo_opts} -n" ;;
         esac
     done
-    shift $((OPTIND - 1))
+    shift "$((OPTIND - 1))"
     if [[ ${debug} = true ]]; then
         echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${*}"
     fi
@@ -178,7 +178,7 @@ msg_error() {
             n) echo_opts="${echo_opts} -n" ;;
         esac
     done
-    shift $((OPTIND - 1))
+    shift "$((OPTIND - 1))"
     echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
     if [[ -n "${2:-}" ]]; then
         exit ${2}
@@ -261,7 +261,7 @@ _usage () {
         fi
         echo -ne "    ${_channel}"
         for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
             echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
         elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
             echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
@@ -403,7 +403,7 @@ prepare_build() {
     }
     trap '_trap_remove_work' 1 2 3 15
 
-    if [[ "${rebuild}" == false ]]; then
+    if [[ "${rebuild}" = false ]]; then
         # If there is pacman.conf for each channel, use that for building
         if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
             build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
@@ -1150,7 +1150,7 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" == "x86_64" ]]; then
+    if [[ "${arch}" = "x86_64" ]]; then
         cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
     fi
 }
@@ -1191,7 +1191,7 @@ make_efiboot() {
     "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" == "x86_64" ]]; then
+    if [[ "${arch}" = "x86_64" ]]; then
         cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
     fi
 
@@ -1276,14 +1276,14 @@ parse_files() {
         local _lang _count=0
         for _lang in ${_locale_name_list[@]}; do
             _count=$(( _count + 1 ))
-            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
+            if [[ "${_lang}" = "${locale_name}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
     }
     _locale_line_number="$(_get_locale_line_number)"
 
     # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
+    [[ "${_locale_line_number}" = "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
     _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
@@ -1307,7 +1307,7 @@ parse_files() {
         local _kernel _count=0
         for _kernel in ${_kernel_name_list[@]}; do
             _count=$(( _count + 1 ))
-            if [[ "${_kernel}" == "${kernel}" ]]; then echo "${_count}"; return 0; fi
+            if [[ "${_kernel}" = "${kernel}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
         return 0
@@ -1315,7 +1315,7 @@ parse_files() {
     _kernel_line="$(_get_kernel_line)"
 
     # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" == "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
+    [[ "${_kernel_line}" = "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
     _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
@@ -1531,7 +1531,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
 fi
 
 # Check channel version
-if [[ ! "${channel_name}" == "rebuild" ]]; then
+if [[ ! "${channel_name}" = "rebuild" ]]; then
     msg_debug "channel path is ${script_path}/channels/${channel_name}"
     if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
         msg_error "This channel does not support AlterISO 3." "1"
