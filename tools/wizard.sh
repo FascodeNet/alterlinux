@@ -32,6 +32,7 @@ dependence=(
 #   "archiso"
     "arch-install-scripts"
     "curl"
+    "cmake"
     "dosfstools"
     "git"
     "libburn"
@@ -39,12 +40,14 @@ dependence=(
     "lz4"
     "lzo"
     "make"
+    "ninja"
     "squashfs-tools"
     "libisoburn"
  #  "lynx"
     "xz"
     "zlib"
     "zstd"
+    "qt5-base"
 )
 
 
