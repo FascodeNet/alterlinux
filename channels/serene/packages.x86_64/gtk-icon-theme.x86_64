@@ -17,6 +17,7 @@ paper-icon-theme
 
 # theme
 #arc-gtk-theme
+numix-blue-gtk-theme-bin
 
 # Qt config
 qt5ct
