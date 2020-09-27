@@ -11,11 +11,12 @@
 
 
 # icon
-inverse-icon-theme-blue-git
+#inverse-icon-theme-blue-git
+paper-icon-theme
 
 
 # theme
-arc-gtk-theme
+#arc-gtk-theme
 
 # Qt config
 qt5ct
