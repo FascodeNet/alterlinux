@@ -191,6 +191,13 @@ msg_error() {
 }
 
 
+# Usage: getclm <number>
+# 標準入力から値を受けとり、引数で指定された列を抽出します。
+getclm() {
+    echo "$(cat -)" | cut -d " " -f "${1}"
+}
+
+
 _usage () {
     echo "usage ${0} [options] [channel]"
     echo
@@ -234,7 +241,7 @@ _usage () {
         for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
             echo -ne " "
         done
-        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
+        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
         for _lang in ${_locale_name_list[@]};do
             echo -n "${_lang} "
         done
@@ -247,7 +254,7 @@ _usage () {
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
         for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do echo -ne " "; done
-        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do echo -n "${kernel} "; done
+        for kernel in $(grep -h -v ^'#' ${_list} | getclm 1); do echo -n "${kernel} "; done
         echo
     done
 
@@ -406,7 +413,7 @@ check_env() {
 
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
+        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
         msg_info "Checking dependencies ..."
 
         # _checl_pkg [package]
@@ -537,7 +544,7 @@ prepare_all_arch() {
             msg_error "Probably the system kernel has been updated."
             msg_error "Reboot your system to run the latest kernel." "1"
         fi
-        if [[ -z "$(lsmod | awk '{print $1}' | grep -x "loop")" ]]; then modprobe loop; fi
+        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
 }
 
@@ -1230,7 +1237,7 @@ parse_files() {
 
     # 選択されたロケールの設定が描かれた行番号を取得
     _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | getclm 1))
     _get_locale_line_number() {
         local _lang _count=0
         for _lang in ${_locale_name_list[@]}; do
@@ -1261,7 +1268,7 @@ parse_files() {
 
     # 選択されたカーネルの設定が描かれた行番号を取得
     _kernel_config_file="${script_path}/system/kernel-${arch}"
-    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
     _get_kernel_line() {
         local _kernel _count=0
         for _kernel in ${_kernel_name_list[@]}; do
