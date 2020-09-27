@@ -13,15 +13,3 @@
 #-- lsd --#
 lsd
 lsd-control
-
-
-#-- Prompt --#
-powerline-go
-
-
-#-- zsh --#
-zsh
-zsh-autosuggestions
-zsh-completions
-zsh-history-substring-search
-zsh-syntax-highlighting
