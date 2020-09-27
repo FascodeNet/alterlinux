@@ -1,0 +1,24 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# look and feel
+
+
+# icon
+#inverse-icon-theme-blue-git
+paper-icon-theme
+
+
+# theme
+#arc-gtk-theme
+numix-blue-gtk-theme-bin
+
+# Qt config
+qt5ct
+qt5-styleplugins
