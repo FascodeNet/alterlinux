@@ -1,1 +1,6 @@
-gsettings set org.blueman.transfer shared-path ${HOME}/Downloads/
+#
+# ~/.bash_profile
+#
+
+[[ -f ~/.bashrc ]] && . ~/.bashrc
+
