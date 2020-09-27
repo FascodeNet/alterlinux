@@ -19,6 +19,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 all_arch=("x86_64" "i686")
 customized_username=false
+customized_password=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
 
@@ -397,16 +398,19 @@ check_bool() {
     fi
 }
 
-check_env() {
-    # Check architecture for each channel
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
+# Check the build environment and create a directory.
+prepare_env() {
+    for arch in ${all_arch[@]}; do
+        # Check architecture for each channel
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+            msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+        fi
 
-    # Check kernel for each channel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
-    fi
+        # Check kernel for each channel
+        if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+            msg_error "This kernel is currently not supported on this channel." "1"
+        fi
+    done
 
     # Show warning about allarch.sh
     msg_info "Some features of build.sh are not available."
@@ -454,72 +458,6 @@ check_env() {
             exit 1
         fi
     fi
-}
-
-prepare_all_arch() {
-    # Create a working directory.
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-
-    # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]]; then
-        umount_chroot
-        msg_info "Deleting the contents of ${work_dir}..."
-        remove "${work_dir%/}"/*
-    fi
-
-    # 強制終了時に作業ディレクトリを削除する
-    local _trap_remove_work
-    _trap_remove_work() {
-        local status=${?}
-        echo
-        remove "${work_dir}"
-        exit ${status}
-    }
-    trap '_trap_remove_work' 1 2 3 15
-
-    # Set username
-    if [[ "${customized_username}" = false ]]; then
-        username="${defaultusername}"
-    fi
-
-    # Set architecture
-    all_arch=($(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#'))
-
-    # gitversion
-    if [[ "${gitversion}" = true ]]; then
-        cd ${script_path}
-        iso_version=${iso_version}-$(git rev-parse --short HEAD)
-        cd - > /dev/null 2>&1
-    fi
-
-    # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd - > /dev/null 2>&1
-    fi
-
-    # Generate iso file name.
-    local _channel_name
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
-    else
-        _channel_name="${channel_name}-${locale_version}"
-    fi
-    if [[ "${nochname}" = true ]]; then
-        iso_filename="${iso_name}-${iso_version}-dial.iso"
-    else
-        iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
-    fi
-    msg_debug "Iso filename is ${iso_filename}"
-
-    # Set mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-
 
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
@@ -546,7 +484,79 @@ prepare_all_arch() {
         fi
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
+
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+    # Check work dir
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]]; then
+        umount_chroot
+        msg_info "Deleting the contents of ${work_dir}..."
+        remove "${work_dir%/}"/*
+    fi
+
+    # 強制終了時に作業ディレクトリを削除する
+    local _trap_remove_work
+    _trap_remove_work() {
+        local status=${?}
+        echo
+        remove "${work_dir}"
+        exit ${status}
+    }
+    trap '_trap_remove_work' 1 2 3 15
 }
+
+# Set variables for the channel.
+configure_var() {
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
+    # Set username
+    if [[ "${customized_username}" = false ]]; then
+        username="${defaultusername}"
+    fi
+
+    # Set password
+    if [[ "${customized_password}" = false ]]; then
+        password="${defaultpassword}"
+    fi
+
+    # Set architecture
+    all_arch=($(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#'))
+
+    # gitversion
+    if [[ "${gitversion}" = true ]]; then
+        cd ${script_path}
+        iso_version=${iso_version}-$(git rev-parse --short HEAD)
+        cd - > /dev/null 2>&1
+    fi
+
+    # Generate iso file name.
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
+    else
+        _channel_name="${channel_name}-${locale_version}"
+    fi
+    if [[ "${nochname}" = true ]]; then
+        iso_filename="${iso_name}-${iso_version}-dial.iso"
+    else
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
+    fi
+    msg_debug "Iso filename is ${iso_filename}"
+
+    # Set mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+}
+
 
 # Show settings.
 show_settings() {
@@ -597,6 +607,7 @@ prepare_build() {
     check_bool nodepend
     check_bool shmkalteriso
     check_bool customized_username
+    check_bool customized_password
     check_bool noloopmod
     check_bool nochname
     check_bool tarball
@@ -758,11 +769,26 @@ make_packages_aur() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+        # share packages
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
+
+        # channel packages
+        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel packages
+        "${script_path}/channels/share/packages_aur.${arch}/kernel/${kernel}.${arch}"
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/kernel/${kernel}.${arch}"
     )
+
+    # Plymouth package list
+    if [[ "${boot_splash}" = true ]]; then
+        _loadfilelist+=(
+            $(ls "${script_path}"/channels/share/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
 
     if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
         return
@@ -1349,6 +1375,7 @@ while :; do
             shift 2
             ;;
         -p | --password)
+            customized_password=true
             password="${2}"
             shift 2
             ;;
@@ -1487,8 +1514,8 @@ parse_files
 
 set -eu
 
-check_env
-prepare_all_arch
+prepare_env
+configure_var
 show_settings
 for arch in ${all_arch[@]}; do
     prepare_build
