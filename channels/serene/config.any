@@ -12,5 +12,64 @@
 # This configuration file follows the bash syntax.
 #
 
+#-- archiso --#
+# OS name used for startup screen, etc.
+# This setting cannot be changed by an argument.
+os_name="Serene Linux"
+
+# OS name used for the name of the image file.
+# This setting cannot be changed by an argument.
+iso_name=serenelinux
+
+# Image file label
+# This setting cannot be changed by an argument.
+iso_label="SereneLinux"
+
+# Image file creator information
+iso_publisher='Serene Team <https://fascode.net>'
+
+# Image name (not file name)
+# This setting cannot be changed by an argument.
+iso_application="Serene Linux Live/Rescue CD"
+
+# Directory name used for installation
+# This setting cannot be changed by an argument.
+install_dir=serene
+
+
+#-- Plymouth --#
+# Set the theme name of plymouth.
+theme_name="alter-logo"
+
+
+#-- alteriso config --#
+# If set to true, include alteriso_info in iso root.
+# This setting cannot be changed by an argument.
+include_info=true
+
+
+# Use a customized syslinux configuration file.
+# syslinux.<arch> must exist in the channel's directory. It works like airootfs.
+# If set to false, the channel syslinux configuration file will not be used.
+# Use this setting for debugging only.
+# # This setting cannot be changed by an argument.
+customized_syslinux=true
+
+
+#-- Live environment user --#
+
+# Set the default live environment user name
+# Channel developers should use this.
+defaultusername='serene'
+
+
+# Set the live environment user password
+# Change the default behavior of "-p" or "--password".
+password="serene"
+
 # Set the user's default shell.
-usershell="/bin/zsh"
+# This setting cannot be changed by an argument.
+#
+# The shell should be listed in /etc/shells, the package installed,
+# and the appropriate configuration files in /etc/skel.
+usershell="/bin/bash"
