@@ -168,7 +168,7 @@ function install_dependencies () {
     msg "データベースの更新をしています..." "Updating package datebase..."
     sudo pacman -Sy
     installed_pkg=($(pacman -Q | getclm 1))
-    installed_ver=($(pacman -Q | awk '{print $2}'))
+    installed_ver=($(pacman -Q | getclm 2))
 
     check_pkg() {
         local i

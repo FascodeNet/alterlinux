@@ -302,7 +302,7 @@ _usage () {
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
+    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
         msg_info "Unmounting ${_mount}"
         umount -lf "${_mount}" 2> /dev/null
     done
@@ -575,7 +575,7 @@ prepare_build() {
 
     # Unmount
     local _mount
-    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir})); do
         msg_info "Unmounting ${_mount}"
         umount "${_mount}"
     done
@@ -583,7 +583,7 @@ prepare_build() {
 
     # Check packages
     if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
+        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
         msg_info "Checking dependencies ..."
 
         # _checl_pkg [package]
@@ -597,7 +597,7 @@ prepare_build() {
                     __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         # パッケージが最新の場合
-                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
+                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
                         return 0
                     elif [[ -z ${__ver} ]]; then
                         # リモートのバージョンの取得に失敗した場合
@@ -606,9 +606,9 @@ prepare_build() {
                         return 0
                     else
                         # リモートとローカルのバージョンが一致しない場合
-                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
+                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
                         msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: ${__ver}"
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
                         return 0
                     fi
                 fi
