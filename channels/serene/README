@@ -1,15 +1,14 @@
-Alter Linux Xfce
+Serene Linux
 ===========
 
 Japanese:
-デスクトップ環境としてXfceを搭載したエディションです。
-カスタマイズされたXfceと基本的なGTKアプリケーションが入っています。
-Xfceは最も最初から開発されているエディションです。
-x86_64とi686に対応しています。チャンネル名は xfce です。
+Ubuntuベースで開発されていたSerene LinuxをAlterISOに移植したもの。
+インストールされているパッケージはxfceチャンネルと大差ありません。
+SereneLinuxのUIと壁紙が入っています。
+x86_64とi686に対応しています。チャンネル名は serene です。
 
 English:
-Using Xfce for desktop-environment.
-Customized Xfce and standard GTK applications are included.
-Xfce Edition is an oldest edition in Alter Linux.
-Supported x86_64 & i686.
-The channel-name is xfce.
+A port of Serene Linux, which was developed based on Ubuntu, to Alter ISO.
+The installed packages are not much different from the xfce channel.
+Contains the Serene Linux UI and wallpapers.
+It supports x86_64 and i686. The channel name is serene.
