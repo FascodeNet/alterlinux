@@ -823,11 +823,26 @@ make_packages_aur() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+        # share packages
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
+
+        # channel packages
+        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel packages
+        "${script_path}/channels/share/packages_aur.${arch}/kernel/${kernel}.${arch}"
+        "${script_path}/channels/${channel_name}/packages_aur.${arch}/kernel/${kernel}.${arch}"
     )
+
+    # Plymouth package list
+    if [[ "${boot_splash}" = true ]]; then
+        _loadfilelist+=(
+            $(ls "${script_path}"/channels/share/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
 
     if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
         return
