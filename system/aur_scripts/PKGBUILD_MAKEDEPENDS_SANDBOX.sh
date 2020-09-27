@@ -37,6 +37,6 @@ eval ${data_result}
 data_result=$(${1} -p ${2})
 eval ${data_result}
 
-for pkg in ${depends[@]} ; do
+for pkg in ${makedepends[@]} ; do
     echo "${pkg}" | cut -d '>' -f1 | cut -d '=' -f1
 done
