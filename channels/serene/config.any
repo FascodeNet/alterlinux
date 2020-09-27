@@ -65,7 +65,7 @@ defaultusername='serene'
 
 # Set the live environment user password
 # Change the default behavior of "-p" or "--password".
-password="serene"
+defaultpassword="serene"
 
 # Set the user's default shell.
 # This setting cannot be changed by an argument.
