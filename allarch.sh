@@ -398,7 +398,8 @@ check_bool() {
     fi
 }
 
-check_env() {
+# Check the build environment and create a directory.
+prepare_env() {
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
@@ -455,9 +456,33 @@ check_env() {
             exit 1
         fi
     fi
-}
 
-prepare_all_arch() {
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
+        fi
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
+    # Load loop kernel module
+    if [[ "${noloopmod}" = false ]]; then
+        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+            msg_error "The currently running kernel module could not be found."
+            msg_error "Probably the system kernel has been updated."
+            msg_error "Reboot your system to run the latest kernel." "1"
+        fi
+        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
+    fi
+
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -477,7 +502,10 @@ prepare_all_arch() {
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
+}
 
+# Set variables for the channel.
+configure_var() {
     # Set username
     if [[ "${customized_username}" = false ]]; then
         username="${defaultusername}"
@@ -525,34 +553,8 @@ prepare_all_arch() {
     else
         mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
-
-
-    # Build mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-        cd "${script_path}"
-        msg_info "Building mkalteriso..."
-        if [[ "${debug}" = true ]]; then
-            make mkalteriso
-            echo
-        else
-            make mkalteriso > /dev/null 2>&1
-        fi
-        cd - > /dev/null 2>&1
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-
-    # Load loop kernel module
-    if [[ "${noloopmod}" = false ]]; then
-        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            msg_error "The currently running kernel module could not be found."
-            msg_error "Probably the system kernel has been updated."
-            msg_error "Reboot your system to run the latest kernel." "1"
-        fi
-        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
-    fi
 }
+
 
 # Show settings.
 show_settings() {
@@ -1510,8 +1512,8 @@ parse_files
 
 set -eu
 
-check_env
-prepare_all_arch
+prepare_env
+configure_var
 show_settings
 for arch in ${all_arch[@]}; do
     prepare_build
