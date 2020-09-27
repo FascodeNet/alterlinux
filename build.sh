@@ -403,7 +403,7 @@ prepare_env() {
     fi
 
     # Check packages
-    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
+    if [[ "${nodepend}" = false ]]; then
         local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
         msg_info "Checking dependencies ..."
 
