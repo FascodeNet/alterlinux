@@ -391,17 +391,6 @@ check_bool() {
 
 # Check the build environment and create a directory.
 prepare_env() {
-    # Check architecture for each channel
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
-
-
-    # Check kernel for each channel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
-    fi
-
     # Check packages
     if [[ "${nodepend}" = false ]]; then
         local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
@@ -493,49 +482,6 @@ prepare_env() {
     trap '_trap_remove_work' 1 2 3 15
 }
 
-# Set variables for the channel.
-configure_var() {
-    # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd - > /dev/null 2>&1
-    fi
-
-    if [[ "${rebuild}" = false ]]; then
-        # Set username
-        if [[ "${customized_username}" = false ]]; then
-            username="${defaultusername}"
-        fi
-
-       # Set password
-        if [[ "${customized_password}" = false ]]; then
-            password="${defaultpassword}"
-        fi
-
-        # gitversion
-        if [[ "${gitversion}" = true ]]; then
-            cd ${script_path}
-            iso_version=${iso_version}-$(git rev-parse --short HEAD)
-            cd - > /dev/null 2>&1
-        fi
-
-        # Generate iso file name.
-        local _channel_name
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
-        else
-            _channel_name="${channel_name}-${locale_version}"
-        fi
-        if [[ "${nochname}" = true ]]; then
-            iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-        else
-            iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-        fi
-        msg_debug "Iso filename is ${iso_filename}"
-    fi
-}
-
 
 # Show settings.
 show_settings() {
@@ -564,23 +510,8 @@ show_settings() {
     trap 'umount_trap' 1 2 3 15
 }
 
-
-# Preparation for build
-prepare_build() {
-    if [[ "${rebuild}" = false ]]; then
-        # If there is pacman.conf for each channel, use that for building
-        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
-            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
-        fi
-
-        # If there is config for share channel. load that.
-        load_config "${script_path}/channels/share/config.any"
-        load_config "${script_path}/channels/share/config.${arch}"
-
-        # If there is config for each channel. load that.
-        load_config "${script_path}/channels/${channel_name}/config.any"
-        load_config "${script_path}/channels/${channel_name}/config.${arch}"
-
+# Save vars
+prepare_rebuild() {
         # Save build options
         local _write_rebuild_file
         _write_rebuild_file() {
@@ -667,6 +598,74 @@ prepare_build() {
 
         _write_rebuild_file "\n# depend package"
         _write_rebuild_file "dependence=(${dependence[*]})"
+}
+
+
+# Preparation for build
+prepare_build() {
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
+    if [[ "${rebuild}" = false ]]; then
+        # Pacman configuration file used only when building
+        # If there is pacman.conf for each channel, use that for building
+        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
+            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
+        else
+            build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
+        fi
+
+        # If there is config for share channel. load that.
+        load_config "${script_path}/channels/share/config.any"
+        load_config "${script_path}/channels/share/config.${arch}"
+
+        # If there is config for each channel. load that.
+        load_config "${script_path}/channels/${channel_name}/config.any"
+        load_config "${script_path}/channels/${channel_name}/config.${arch}"
+
+        # Set username
+        if [[ "${customized_username}" = false ]]; then
+            username="${defaultusername}"
+        fi
+
+       # Set password
+        if [[ "${customized_password}" = false ]]; then
+            password="${defaultpassword}"
+        fi
+
+        # gitversion
+        if [[ "${gitversion}" = true ]]; then
+            cd ${script_path}
+            iso_version=${iso_version}-$(git rev-parse --short HEAD)
+            cd - > /dev/null 2>&1
+        fi
+
+        # Generate iso file name.
+        local _channel_name
+        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
+        else
+            _channel_name="${channel_name}-${locale_version}"
+        fi
+        if [[ "${nochname}" = true ]]; then
+            iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+        else
+            iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+        fi
+        msg_debug "Iso filename is ${iso_filename}"
+
+        # Debug mode
+        mkalteriso_option="-a ${arch} -v"
+        if [[ "${bash_debug}" = true ]]; then
+            set -x -v
+            mkalteriso_option="${mkalteriso_option} -x"
+        fi
+
+        prepare_rebuild
     else
         # Load rebuild file
         load_config "${rebuildfile}"
@@ -688,6 +687,17 @@ prepare_build() {
     check_bool noaur
     check_bool customized_syslinux
 
+    # Check architecture for each channel
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+
+    # Check kernel for each channel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        msg_error "This kernel is currently not supported on this channel." "1"
+    fi
+
     # Unmount
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir})); do
@@ -695,16 +705,6 @@ prepare_build() {
         umount "${_mount}"
     done
     unset _mount
-
-    # Debug mode
-    mkalteriso_option="-a ${arch} -v"
-    if [[ "${bash_debug}" = true ]]; then
-        set -x -v
-        mkalteriso_option="${mkalteriso_option} -x"
-    fi
-
-    # Pacman configuration file used only when building
-    build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 }
 
 
@@ -1590,10 +1590,8 @@ parse_files
 set -eu
 
 prepare_env
-
-show_settings
 prepare_build
-configure_var
+show_settings
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
