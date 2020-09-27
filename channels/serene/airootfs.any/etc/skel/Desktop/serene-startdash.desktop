@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SereneStartdash
+Comment=A gui package installer.
+Exec=/usr/bin/serene-startdash
+Icon=/usr/share/icons/Paper/48x48@2x/apps/mintinstall.png
+Path=
+Terminal=false
+StartupNotify=false

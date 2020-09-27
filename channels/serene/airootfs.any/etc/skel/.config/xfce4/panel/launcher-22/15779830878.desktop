@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Keep
+Comment=A note-taking service.
+Type=Link
+URL=https://keep.google.com/
+Icon=/usr/share/icons/google-app/Keep_29993.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///usr/share/applications/Google%20Keep.desktop

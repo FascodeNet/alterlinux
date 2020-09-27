@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Messages for web
+Type=Link
+URL=https://messages.google.com/web
+Icon=/usr/share/icons/google-app/Messenger_30026.png
+Categories=GTK;Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/Messages%20for%20web.desktop
