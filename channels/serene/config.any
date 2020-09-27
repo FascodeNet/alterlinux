@@ -39,7 +39,7 @@ install_dir=serene
 
 #-- Plymouth --#
 # Set the theme name of plymouth.
-theme_name="alter-logo"
+theme_name="serene-logo"
 
 
 #-- alteriso config --#
