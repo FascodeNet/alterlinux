@@ -89,7 +89,7 @@ function remove () {
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if [[ ! "${localegen}" == "en_US\\.UTF-8\\" ]]; then
+if [[ ! "${localegen}" = "en_US\\.UTF-8\\" ]]; then
     sed -i "s/#\(${localegen})/\1/" /etc/locale.gen
 fi
 locale-gen
@@ -213,8 +213,8 @@ if [[ $boot_splash = true ]]; then
     plymouth-set-default-theme ${theme_name}
 else
     # Delete the configuration file for plymouth.
-    remove /usr/share/calamares/modules/services-plymouth.conf
-    remove /etc/plymouth
+    remove "/usr/share/calamares/modules/services-plymouth.conf"
+    remove "/etc/plymouth"
 fi
 
 

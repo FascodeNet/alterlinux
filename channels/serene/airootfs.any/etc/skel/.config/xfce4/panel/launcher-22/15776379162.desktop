@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Calendar
+Type=Link
+URL=https://calendar.google.com/calendar
+Icon=/usr/share/icons/google-app/1492616989-17-calender-schedule-time-management-control-day_83408.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/Google%20Calendar.desktop

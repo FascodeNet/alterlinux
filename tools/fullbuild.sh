@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 channnels=(
     "xfce"
@@ -182,7 +182,7 @@ build() {
             _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash ${script_path}/build.sh ${options}
             _exit_code="${?}"
-            if [[ "${_exit_code}" == 0 ]]; then
+            if [[ "${_exit_code}" = 0 ]]; then
                 touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
             else
                 _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."

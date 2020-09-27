@@ -7,6 +7,7 @@ opt_only_add=false
 opt_dir_name=false
 opt_nochkver=false
 opt_nobuiltin=false
+opt_allarch=false
 alteriso_version="3.0"
 mode=""
 
@@ -24,6 +25,7 @@ _help() {
     echo "    -a                 Only additional channels"
     echo "    -b                 Exclude built-in channels"
     echo "    -d                 Display directory names of all channel as it is"
+    echo "    -m                 Only channels supported by allarch.sh"
     echo "    -n                 Ignore channel version"
     echo "    -v [ver]           Specifies the AlterISO version"
     echo "    -h                 This help message"
@@ -49,14 +51,16 @@ gen_channel_list() {
         fi
     done
     if [[ "${opt_nobuiltin}" = false ]]; then
-        channellist+=("rebuild")
+        if [[ "${opt_allarch}" = false ]]; then
+            channellist+=("rebuild")
+        fi
         channellist+=("clean")
     fi
 }
 
 check() {
     gen_channel_list
-    if [[ ! "${#}" == "1" ]]; then
+    if [[ ! "${#}" = "1" ]]; then
         _help
         exit 1
     fi
@@ -72,11 +76,12 @@ show() {
     echo "${channellist[*]}"
 }
 
-while getopts 'abdhnv:' arg; do
+while getopts 'abdhmnv:' arg; do
     case "${arg}" in
         a) opt_only_add=true ;;
         b) opt_nobuiltin=true ;;
         d) opt_dir_name=true ;;
+        m) opt_allarch=true;;
         n) opt_nochkver=true ;;
         v) alteriso_version="${OPTARG}" ;;
         h) _help ; exit 0 ;;

@@ -178,8 +178,8 @@ Plymouthを強制的に無効化したい場合は`exclude`ではなく各チャ
 `channels/<ch_name>/pacman-<arch>.conf`を配置すると、ビルド時にそのファイルを使用します。ただし、インストール後の設定ファイルは置き換えないので`airootfs`で`/etc/pacman.conf`を配置して下さい。  
 
 
-## syslinux.<arch>
-Syslinuxの設定ファイルを上書きします。設定ファイルの基データは`/syslinux/<arch>`にあります。  
+## syslinux
+Syslinuxの設定ファイルを上書きします。設定ファイルの基データは`/syslinux/`にあります。  
 設定ファイル名などを変更すると正常に動作しません。公式ではこの仕組みは`releng`チャンネルでのみ使用されています。  
 `customized_syslinux=false`に設定することでチャンネルによる設定ファイルの上書きを禁止することができます。  
 カーネルパスの変更はこの設定ファイルで行わず、カーネル設定ファイルを使用して下さい。  

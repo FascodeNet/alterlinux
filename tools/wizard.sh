@@ -14,7 +14,7 @@ set -e
 
 
 nobuild=false
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 machine_arch="$(uname -m)"
 
@@ -32,6 +32,7 @@ dependence=(
 #   "archiso"
     "arch-install-scripts"
     "curl"
+    "cmake"
     "dosfstools"
     "git"
     "libburn"
@@ -39,12 +40,14 @@ dependence=(
     "lz4"
     "lzo"
     "make"
+    "ninja"
     "squashfs-tools"
     "libisoburn"
  #  "lynx"
     "xz"
     "zlib"
     "zstd"
+    "qt5-base"
 )
 
 
@@ -71,6 +74,14 @@ function msg_n() {
         echo -n "${2}"
     fi
 }
+
+
+# Usage: getclm <number>
+# 標準入力から値を受けとり、引数で指定された列を抽出します。
+getclm() {
+    echo "$(cat -)" | cut -d " " -f "${1}"
+}
+
 
 while getopts 'a:xnje' arg; do
     case "${arg}" in
@@ -156,8 +167,8 @@ function install_dependencies () {
 
     msg "データベースの更新をしています..." "Updating package datebase..."
     sudo pacman -Sy
-    installed_pkg=($(pacman -Q | awk '{print $1}'))
-    installed_ver=($(pacman -Q | awk '{print $2}'))
+    installed_pkg=($(pacman -Q | getclm 1))
+    installed_ver=($(pacman -Q | getclm 2))
 
     check_pkg() {
         local i
