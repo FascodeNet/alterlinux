@@ -1590,10 +1590,10 @@ parse_files
 set -eu
 
 prepare_env
-configure_var
 
 show_settings
 prepare_build
+configure_var
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages

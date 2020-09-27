@@ -1515,10 +1515,10 @@ parse_files
 set -eu
 
 prepare_env
-configure_var
 show_settings
 for arch in ${all_arch[@]}; do
     prepare_build
+    configure_var
     run_arch make_pacman_conf
     run_arch make_basefs
     run_arch make_packages
