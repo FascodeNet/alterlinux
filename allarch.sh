@@ -400,15 +400,17 @@ check_bool() {
 
 # Check the build environment and create a directory.
 prepare_env() {
-    # Check architecture for each channel
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
+    for arch in ${all_arch[@]}; do
+        # Check architecture for each channel
+        if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+            msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+        fi
 
-    # Check kernel for each channel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
-    fi
+        # Check kernel for each channel
+        if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+            msg_error "This kernel is currently not supported on this channel." "1"
+        fi
+    done
 
     # Show warning about allarch.sh
     msg_info "Some features of build.sh are not available."
@@ -506,6 +508,13 @@ prepare_env() {
 
 # Set variables for the channel.
 configure_var() {
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
     # Set username
     if [[ "${customized_username}" = false ]]; then
         username="${defaultusername}"
@@ -523,13 +532,6 @@ configure_var() {
     if [[ "${gitversion}" = true ]]; then
         cd ${script_path}
         iso_version=${iso_version}-$(git rev-parse --short HEAD)
-        cd - > /dev/null 2>&1
-    fi
-
-    # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
         cd - > /dev/null 2>&1
     fi
 

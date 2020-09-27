@@ -389,8 +389,89 @@ check_bool() {
 }
 
 
-# Preparation for build
-prepare_build() {
+# Check the build environment and create a directory.
+prepare_env() {
+    # Check architecture for each channel
+    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+
+    # Check kernel for each channel
+    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        msg_error "This kernel is currently not supported on this channel." "1"
+    fi
+
+    # Check packages
+    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
+        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
+        msg_info "Checking dependencies ..."
+
+        # _checl_pkg [package]
+        _check_pkg() {
+            local __pkg __ver
+            msg_debug -n "Checking ${_pkg} ..."
+            for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
+                # パッケージがインストールされているかどうか
+                if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
+                    #__ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
+                    __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
+                    if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
+                        # パッケージが最新の場合
+                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
+                        return 0
+                    elif [[ -z ${__ver} ]]; then
+                        # リモートのバージョンの取得に失敗した場合
+                        [[ "${debug}" = true ]] && echo
+                        msg_warn "${1} is not a repository package."
+                        return 0
+                    else
+                        # リモートとローカルのバージョンが一致しない場合
+                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
+                        msg_warn "${1} is not the latest package."
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
+                        return 0
+                    fi
+                fi
+            done
+            [[ "${debug}" = true ]] && echo
+            msg_error "${_pkg} is not installed." ; _check_failed=true
+            return 0
+        }
+
+        for _pkg in ${dependence[@]}; do _check_pkg "${_pkg}"; done
+
+        if [[ "${_check_failed}" = true ]]; then
+            exit 1
+        fi
+    fi
+
+    # Build mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+        cd "${script_path}"
+        msg_info "Building mkalteriso..."
+        if [[ "${debug}" = true ]]; then
+            make mkalteriso
+            echo
+        else
+            make mkalteriso > /dev/null 2>&1
+        fi
+        cd - > /dev/null 2>&1
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
+
+    # Load loop kernel module
+    if [[ "${noloopmod}" = false ]]; then
+        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
+            msg_error "The currently running kernel module could not be found."
+            msg_error "Probably the system kernel has been updated."
+            msg_error "Reboot your system to run the latest kernel." "1"
+        fi
+        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
+    fi
+
     # Create a working directory.
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
@@ -410,21 +491,18 @@ prepare_build() {
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
+}
+
+# Set variables for the channel.
+configure_var() {
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
 
     if [[ "${rebuild}" = false ]]; then
-        # If there is pacman.conf for each channel, use that for building
-        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
-            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
-        fi
-
-        # If there is config for share channel. load that.
-        load_config "${script_path}/channels/share/config.any"
-        load_config "${script_path}/channels/share/config.${arch}"
-
-        # If there is config for each channel. load that.
-        load_config "${script_path}/channels/${channel_name}/config.any"
-        load_config "${script_path}/channels/${channel_name}/config.${arch}"
-
         # Set username
         if [[ "${customized_username}" = false ]]; then
             username="${defaultusername}"
@@ -455,6 +533,53 @@ prepare_build() {
             iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
         fi
         msg_debug "Iso filename is ${iso_filename}"
+    fi
+}
+
+
+# Show settings.
+show_settings() {
+    msg_debug "mkalteriso path is ${mkalteriso}"
+    if [[ "${boot_splash}" = true ]]; then
+        msg_info "Boot splash is enabled."
+        msg_info "Theme is used ${theme_name}."
+    fi
+    msg_info "Language is ${locale_fullname}."
+    msg_info "Use the ${kernel} kernel."
+    msg_info "Live username is ${username}."
+    msg_info "Live user password is ${password}."
+    msg_info "The compression method of squashfs is ${sfs_comp}."
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
+    else
+        msg_info "Use the ${channel_name} channel."
+    fi
+    msg_info "Build with architecture ${arch}."
+    if [[ ${noconfirm} = false ]]; then
+        echo
+        echo "Press Enter to continue or Ctrl + C to cancel."
+        read
+    fi
+    trap 1 2 3 15
+    trap 'umount_trap' 1 2 3 15
+}
+
+
+# Preparation for build
+prepare_build() {
+    if [[ "${rebuild}" = false ]]; then
+        # If there is pacman.conf for each channel, use that for building
+        if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
+            build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
+        fi
+
+        # If there is config for share channel. load that.
+        load_config "${script_path}/channels/share/config.any"
+        load_config "${script_path}/channels/share/config.${arch}"
+
+        # If there is config for each channel. load that.
+        load_config "${script_path}/channels/${channel_name}/config.any"
+        load_config "${script_path}/channels/${channel_name}/config.${arch}"
 
         # Save build options
         local _write_rebuild_file
@@ -563,24 +688,6 @@ prepare_build() {
     check_bool noaur
     check_bool customized_syslinux
 
-    # Check architecture for each channel
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
-
-
-    # Check kernel for each channel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
-    fi
-
-    # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd - > /dev/null 2>&1
-    fi
-
     # Unmount
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir})); do
@@ -589,103 +696,15 @@ prepare_build() {
     done
     unset _mount
 
-    # Check packages
-    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
-        msg_info "Checking dependencies ..."
-
-        # _checl_pkg [package]
-        _check_pkg() {
-            local __pkg __ver
-            msg_debug -n "Checking ${_pkg} ..."
-            for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
-                # パッケージがインストールされているかどうか
-                if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    #__ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
-                    __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
-                    if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
-                        # パッケージが最新の場合
-                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        return 0
-                    elif [[ -z ${__ver} ]]; then
-                        # リモートのバージョンの取得に失敗した場合
-                        [[ "${debug}" = true ]] && echo
-                        msg_warn "${1} is not a repository package."
-                        return 0
-                    else
-                        # リモートとローカルのバージョンが一致しない場合
-                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
-                        return 0
-                    fi
-                fi
-            done
-            [[ "${debug}" = true ]] && echo
-            msg_error "${_pkg} is not installed." ; _check_failed=true
-            return 0
-        }
-
-        for _pkg in ${dependence[@]}; do _check_pkg "${_pkg}"; done
-
-        if [[ "${_check_failed}" = true ]]; then
-            exit 1
-        fi
+    # Debug mode
+    mkalteriso_option="-a ${arch} -v"
+    if [[ "${bash_debug}" = true ]]; then
+        set -x -v
+        mkalteriso_option="${mkalteriso_option} -x"
     fi
 
-    # Build mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-        cd "${script_path}"
-        msg_info "Building mkalteriso..."
-        if [[ "${debug}" = true ]]; then
-            make mkalteriso
-            echo
-        else
-            make mkalteriso > /dev/null 2>&1
-        fi
-        cd - > /dev/null 2>&1
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-
-    # Load loop kernel module
-    if [[ "${noloopmod}" = false ]]; then
-        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            msg_error "The currently running kernel module could not be found."
-            msg_error "Probably the system kernel has been updated."
-            msg_error "Reboot your system to run the latest kernel." "1"
-        fi
-        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
-    fi
-}
-
-
-# Show settings.
-show_settings() {
-    msg_debug "mkalteriso path is ${mkalteriso}"
-    if [[ "${boot_splash}" = true ]]; then
-        msg_info "Boot splash is enabled."
-        msg_info "Theme is used ${theme_name}."
-    fi
-    msg_info "Language is ${locale_fullname}."
-    msg_info "Use the ${kernel} kernel."
-    msg_info "Live username is ${username}."
-    msg_info "Live user password is ${password}."
-    msg_info "The compression method of squashfs is ${sfs_comp}."
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
-    else
-        msg_info "Use the ${channel_name} channel."
-    fi
-    msg_info "Build with architecture ${arch}."
-    if [[ ${noconfirm} = false ]]; then
-        echo
-        echo "Press Enter to continue or Ctrl + C to cancel."
-        read
-    fi
-    trap 1 2 3 15
-    trap 'umount_trap' 1 2 3 15
+    # Pacman configuration file used only when building
+    build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 }
 
 
@@ -1521,15 +1540,6 @@ unset DEFAULT_ARGUMENT ARGUMENT
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
-# Debug mode
-mkalteriso_option="-a ${arch} -v"
-if [[ "${bash_debug}" = true ]]; then
-    set -x -v
-    mkalteriso_option="${mkalteriso_option} -x"
-fi
-
-# Pacman configuration file used only when building
-build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
 
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
@@ -1579,8 +1589,11 @@ parse_files
 
 set -eu
 
-prepare_build
+prepare_env
+configure_var
+
 show_settings
+prepare_build
 run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
@@ -1588,14 +1601,16 @@ run_once make_packages
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
-run_once make_boot
-run_once make_boot_extra
 run_once make_syslinux
+run_once make_boot
+[[ "${noiso}" = false ]] && run_once make_prepare
+
+run_once make_boot_extra
 run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
 [[ "${tarball}" = true ]] && run_once make_tarball
-[[ "${noiso}" = false ]] && run_once make_prepare
+
 [[ "${noiso}" = false ]] && run_once make_iso
 [[ "${cleaning}" = true ]] && remove_work
 
