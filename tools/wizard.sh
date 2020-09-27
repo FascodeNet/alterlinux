@@ -75,6 +75,14 @@ function msg_n() {
     fi
 }
 
+
+# Usage: getclm <number>
+# 標準入力から値を受けとり、引数で指定された列を抽出します。
+getclm() {
+    echo "$(cat -)" | cut -d " " -f "${1}"
+}
+
+
 while getopts 'a:xnje' arg; do
     case "${arg}" in
         n)
@@ -159,7 +167,7 @@ function install_dependencies () {
 
     msg "データベースの更新をしています..." "Updating package datebase..."
     sudo pacman -Sy
-    installed_pkg=($(pacman -Q | awk '{print $1}'))
+    installed_pkg=($(pacman -Q | getclm 1))
     installed_ver=($(pacman -Q | awk '{print $2}'))
 
     check_pkg() {
