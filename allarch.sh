@@ -19,6 +19,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 all_arch=("x86_64" "i686")
 customized_username=false
+customized_password=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
 
@@ -482,6 +483,11 @@ prepare_all_arch() {
         username="${defaultusername}"
     fi
 
+    # Set password
+    if [[ "${customized_password}" = false ]]; then
+        password="${defaultpassword}"
+    fi
+
     # Set architecture
     all_arch=($(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#'))
 
@@ -597,6 +603,7 @@ prepare_build() {
     check_bool nodepend
     check_bool shmkalteriso
     check_bool customized_username
+    check_bool customized_password
     check_bool noloopmod
     check_bool nochname
     check_bool tarball
@@ -1364,6 +1371,7 @@ while :; do
             shift 2
             ;;
         -p | --password)
+            customized_password=true
             password="${2}"
             shift 2
             ;;
