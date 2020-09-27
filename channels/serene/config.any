@@ -73,3 +73,10 @@ defaultpassword="serene"
 # The shell should be listed in /etc/shells, the package installed,
 # and the appropriate configuration files in /etc/skel.
 usershell="/bin/bash"
+
+
+#-- Script options --#
+
+# Do not include the channel name in the filename of the image file.
+# This setting cannot be changed by an argument.
+nochname=true
