@@ -15,7 +15,7 @@ network-manager-applet
 
 
 #-- mail client --#
-thunderbird
+# thunderbird
 # mailspring
 
 
