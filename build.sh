@@ -686,6 +686,11 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
+    check_bool rebuild
+    check_bool debug
+    check_bool bash_debug
+    check_bool nocolor
+    check_bool msgdebug
 
     # Check architecture for each channel
     if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
@@ -1548,9 +1553,11 @@ unset DEFAULT_ARGUMENT ARGUMENT
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
-
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
+
+# Default squashfs options
+if [[ "${sfs_comp_opt}" = "-Xcompression-level 20" && ! "${sfs_comp}" = "zstd" ]]; then sfs_comp_opt=""; fi
 
 # Parse channels
 set +eu
@@ -1586,12 +1593,6 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
         msg_error "This channel does not support AlterISO 3." "1"
     fi
 fi
-
-check_bool rebuild
-check_bool debug
-check_bool bash_debug
-check_bool nocolor
-check_bool msgdebug
 
 parse_files
 
