@@ -26,8 +26,7 @@ _usage () {
 }
 
 # Start define var
-[[ -d /var/cache/pacman/pkg ]] && SHARE_PKG_DIR='/var/cache/pacman/pkg' || SHARE_PKG_DIR=${script_path}/cache/pkg
-[[ -d /var/lib/pacman ]] && SHARE_DB_DIR='/var/lib/pacman/sync' || SHARE_DB_DIR=${script_path}/cache/sync
+[[ -d /var/cache/pacman/pkg ]] && [[ -d /var/lib/pacman/sync ]] && SHARE_PKG_DIR='/var/cache/pacman/pkg' && SHARE_DB_DIR='/var/lib/pacman/sync' || SHARE_PKG_DIR=${script_path}/cache/pkg && SHARE_DB_DIR=${script_path}/cache/sync
 # End define var
 
 
@@ -48,7 +47,7 @@ while (( $# > 0 )); do
             shift 1
             ;;
         -p | --pkg-cache-dir)
-            [[ -d ${2} ]] && mkdir -p ${2}/pkg && mkdir -p ${2}/sync && SHARE_PKG_DIR=${2}/pkg && SHARE_DB_DIR=${2}/sync || echo "Error: The directory is not found or cannot make directory." 1>&2
+            [[ -d ${2} ]] && mkdir -p ${2}/pkg && mkdir -p ${2}/sync && SHARE_PKG_DIR=${2}/pkg && SHARE_DB_DIR=${2}/sync || echo "Error: The directory is not found or cannot make directory." 1>&2 && exit 1
             ;;
         -h | --help)
             _usage
