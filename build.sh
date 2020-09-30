@@ -911,7 +911,7 @@ make_customize_airootfs() {
 
     # /root permission
     # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
-    chmod -f 750 "${work_dir}/x86_64/airootfs/root"
+    chmod -f 750 "${work_dir}/${arch}/airootfs/root"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -1052,7 +1052,9 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    cp "${work_dir}/x86_64/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    fi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1090,7 +1092,9 @@ make_efiboot() {
         "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
     # shellx64.efi is picked up automatically when on /
-    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
+        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    fi
 
     umount -d "${work_dir}/efiboot"
 }
