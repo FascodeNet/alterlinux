@@ -33,7 +33,7 @@ padding            = 10
 horizontal_padding = 15
 separator_height   = 5
 transparency       = 10
-geometry           = "350x20-30+40"
+geometry           = "350x5-30+40"
 font               = Noto Sans 9
 
 [urgency_low]

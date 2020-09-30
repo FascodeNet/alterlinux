@@ -116,6 +116,13 @@ msg_error() {
 }
 
 
+# Usage: getclm <number>
+# 標準入力から値を受けとり、引数で指定された列を抽出します。
+getclm() {
+    echo "$(cat -)" | cut -d " " -f "${1}"
+}
+
+
 # Show usage
 _usage () {
     echo "usage ${0} [options]"
@@ -140,7 +147,7 @@ checkpkg() {
         msg_error "Multiple package specification is not available."
     fi
 
-    if [[ -n $( pacman -Q "${_pkg}" 2> /dev/null| awk '{print $1}' ) ]]; then
+    if [[ -n $( pacman -Q "${_pkg}" 2> /dev/null| getclm 1 ) ]]; then
         echo -n "true"
     else
         echo -n "false"

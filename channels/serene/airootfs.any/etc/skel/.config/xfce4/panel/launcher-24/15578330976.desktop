@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=medit
+Comment=Text editor
+Exec=medit %F
+Terminal=false
+Type=Application
+StartupNotify=true
+MimeType=text/plain;
+Icon=medit
+Categories=Utility;TextEditor;
+Keywords=editor;texteditor;text
+X-XFCE-Source=file:///usr/share/applications/medit.desktop

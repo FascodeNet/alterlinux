@@ -186,7 +186,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/Pixel_3a">
     <img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
 </a>
-<a href="https://twitter.com/YangDevJP">
+<a href="https://twitter.com/yangniao23">
     <img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
 <a href="https://twitter.com/Watasuke102">

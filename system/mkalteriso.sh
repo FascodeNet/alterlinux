@@ -269,7 +269,7 @@ _mkairootfs_img () {
     _msg_info "Creating ext4 image of 32GiB..."
     truncate -s 32G "${work_dir}/airootfs.img"
     local _qflag=""
-    if [[ ${quiet} == "y" ]]; then
+    if [[ ${quiet} = "y" ]]; then
         _qflag="-q"
     fi
     mkfs.ext4 ${_qflag} -O ^has_journal,^resize_inode -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
@@ -382,7 +382,7 @@ command_iso () {
     mkdir -p "${out_dir}"
     _msg_info "Creating ISO image..."
     local _qflag=""
-    if [[ ${quiet} == "y" ]]; then
+    if [[ "${quiet}" = "y" ]]; then
         _qflag="-quiet"
     fi
     xorriso -as mkisofs ${_qflag} \
@@ -415,7 +415,7 @@ command_tarball () {
     _msg_info "Creating tarball..."
 
     local _vflag=""
-    if [[ ${quiet} == "n" ]]; then
+    if [[ "${quiet}" = "n" ]]; then
         _vflag="-v"
     fi
 
@@ -436,7 +436,7 @@ command_prepare () {
     _show_config prepare
 
     _cleanup
-    if [[ ${sfs_mode} == "sfs" ]]; then
+    if [[ "${sfs_mode}" = "sfs" ]]; then
         _mkairootfs_sfs
     else
         _mkairootfs_img

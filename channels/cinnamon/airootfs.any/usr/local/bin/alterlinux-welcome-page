@@ -116,7 +116,7 @@ if [[ "${custombrowser}" = false ]]; then
         if [[ -f $(type -P "$(echo ${_browser} | awk '{print $1}')") ]]; then
             browser="${_browser}"
             break
-        elif [[ "${_browser}" == "END_OF_LIST" ]]; then
+        elif [[ "${_browser}" = "END_OF_LIST" ]]; then
             _msg_error "No available browser is installed."
             exit 1
         fi

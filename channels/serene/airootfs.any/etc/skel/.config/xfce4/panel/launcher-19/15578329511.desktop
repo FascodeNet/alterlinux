@@ -1,0 +1,28 @@
+[Desktop Entry]
+Version=1.0
+Name=Chromium Web Browser
+GenericName=Web Browser
+Comment=Access the Internet
+Exec=chromium-browser %U
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Icon=chromium-browser
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml_xml;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=true
+Actions=NewWindow;Incognito;TempProfile;
+X-AppInstall-Package=chromium-browser
+X-XFCE-Source=file:///usr/share/applications/chromium-browser.desktop
+
+[Desktop Action NewWindow]
+Name=Open a New Window
+Exec=chromium-browser
+
+[Desktop Action Incognito]
+Name=Open a New Window in incognito mode
+Exec=chromium-browser --incognito
+
+[Desktop Action TempProfile]
+Name=Open a New Window with a temporary profile
+Exec=chromium-browser --temp-profile

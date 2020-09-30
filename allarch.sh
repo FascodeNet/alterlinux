@@ -19,6 +19,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 all_arch=("x86_64" "i686")
 customized_username=false
+customized_password=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
 
@@ -191,6 +192,13 @@ msg_error() {
 }
 
 
+# Usage: getclm <number>
+# 標準入力から値を受けとり、引数で指定された列を抽出します。
+getclm() {
+    echo "$(cat -)" | cut -d " " -f "${1}"
+}
+
+
 _usage () {
     echo "usage ${0} [options] [channel]"
     echo
@@ -234,7 +242,7 @@ _usage () {
         for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
             echo -ne " "
         done
-        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
+        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
         for _lang in ${_locale_name_list[@]};do
             echo -n "${_lang} "
         done
@@ -247,7 +255,7 @@ _usage () {
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
         for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do echo -ne " "; done
-        for kernel in $(grep -h -v ^'#' ${_list} | awk '{print $1}'); do echo -n "${kernel} "; done
+        for kernel in $(grep -h -v ^'#' ${_list} | getclm 1); do echo -n "${kernel} "; done
         echo
     done
 
@@ -262,7 +270,7 @@ _usage () {
         fi
         echo -ne "    ${_channel}"
         for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" == "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
             echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
         elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
             echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
@@ -293,7 +301,7 @@ _usage () {
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir}) | tac); do
+    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
         msg_info "Unmounting ${_mount}"
         umount -lf "${_mount}" 2> /dev/null
     done
@@ -390,23 +398,26 @@ check_bool() {
     fi
 }
 
-check_env() {
-    # Check architecture for each channel
-    if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
+# Check the build environment and create a directory.
+prepare_env() {
+    for arch in ${all_arch[@]}; do
+        # Check architecture for each channel
+        if [[ -z $(cat "${channel_path}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+            msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+        fi
 
-    # Check kernel for each channel
-    if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
-    fi
+        # Check kernel for each channel
+        if [[ -f "${channel_path}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_path}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+            msg_error "This kernel is currently not supported on this channel." "1"
+        fi
+    done
 
     # Show warning about allarch.sh
     msg_info "Some features of build.sh are not available."
 
     # Check packages
-    if [[ "${nodepend}" = false ]] && [[ "${arch}" = $(uname -m) ]] ; then
-        local _installed_pkg=($(pacman -Q | awk '{print $1}')) _installed_ver=($(pacman -Q | awk '{print $2}')) _check_pkg _check_failed=false _pkg
+    if [[ "${nodepend}" = false ]]; then
+        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
         msg_info "Checking dependencies ..."
 
         # _checl_pkg [package]
@@ -420,7 +431,7 @@ check_env() {
                     __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         # パッケージが最新の場合
-                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
+                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
                         return 0
                     elif [[ -z ${__ver} ]]; then
                         # リモートのバージョンの取得に失敗した場合
@@ -429,9 +440,9 @@ check_env() {
                         return 0
                     else
                         # リモートとローカルのバージョンが一致しない場合
-                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | awk '{print $2}')\n"
+                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
                         msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | awk '{print $2}') Latest: ${__ver}"
+                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
                         return 0
                     fi
                 fi
@@ -447,72 +458,6 @@ check_env() {
             exit 1
         fi
     fi
-}
-
-prepare_all_arch() {
-    # Create a working directory.
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-
-    # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]]; then
-        umount_chroot
-        msg_info "Deleting the contents of ${work_dir}..."
-        remove "${work_dir%/}"/*
-    fi
-
-    # 強制終了時に作業ディレクトリを削除する
-    local _trap_remove_work
-    _trap_remove_work() {
-        local status=${?}
-        echo
-        remove "${work_dir}"
-        exit ${status}
-    }
-    trap '_trap_remove_work' 1 2 3 15
-
-    # Set username
-    if [[ "${customized_username}" = false ]]; then
-        username="${defaultusername}"
-    fi
-
-    # Set architecture
-    all_arch=($(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#'))
-
-    # gitversion
-    if [[ "${gitversion}" = true ]]; then
-        cd ${script_path}
-        iso_version=${iso_version}-$(git rev-parse --short HEAD)
-        cd - > /dev/null 2>&1
-    fi
-
-    # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd - > /dev/null 2>&1
-    fi
-
-    # Generate iso file name.
-    local _channel_name
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
-    else
-        _channel_name="${channel_name}-${locale_version}"
-    fi
-    if [[ "${nochname}" = true ]]; then
-        iso_filename="${iso_name}-${iso_version}-dial.iso"
-    else
-        iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
-    fi
-    msg_debug "Iso filename is ${iso_filename}"
-
-    # Set mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-
 
     # Build mkalteriso
     if [[ "${shmkalteriso}" = false ]]; then
@@ -537,9 +482,81 @@ prepare_all_arch() {
             msg_error "Probably the system kernel has been updated."
             msg_error "Reboot your system to run the latest kernel." "1"
         fi
-        if [[ -z "$(lsmod | awk '{print $1}' | grep -x "loop")" ]]; then modprobe loop; fi
+        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
+    fi
+
+    # Create a working directory.
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+
+    # Check work dir
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]]; then
+        umount_chroot
+        msg_info "Deleting the contents of ${work_dir}..."
+        remove "${work_dir%/}"/*
+    fi
+
+    # 強制終了時に作業ディレクトリを削除する
+    local _trap_remove_work
+    _trap_remove_work() {
+        local status=${?}
+        echo
+        remove "${work_dir}"
+        exit ${status}
+    }
+    trap '_trap_remove_work' 1 2 3 15
+}
+
+# Set variables for the channel.
+configure_var() {
+    # Show alteriso version
+    if [[ -d "${script_path}/.git" ]]; then
+        cd  "${script_path}"
+        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
+        cd - > /dev/null 2>&1
+    fi
+
+    # Set username
+    if [[ "${customized_username}" = false ]]; then
+        username="${defaultusername}"
+    fi
+
+    # Set password
+    if [[ "${customized_password}" = false ]]; then
+        password="${defaultpassword}"
+    fi
+
+    # Set architecture
+    all_arch=($(cat "${channel_path}/architecture" | grep -h -v ^'#'))
+
+    # gitversion
+    if [[ "${gitversion}" = true ]]; then
+        cd ${script_path}
+        iso_version=${iso_version}-$(git rev-parse --short HEAD)
+        cd - > /dev/null 2>&1
+    fi
+
+    # Generate iso file name.
+    local _channel_name
+    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
+    else
+        _channel_name="${channel_name}-${locale_version}"
+    fi
+    if [[ "${nochname}" = true ]]; then
+        iso_filename="${iso_name}-${iso_version}-dial.iso"
+    else
+        iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
+    fi
+    msg_debug "Iso filename is ${iso_filename}"
+
+    # Set mkalteriso
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
     fi
 }
+
 
 # Show settings.
 show_settings() {
@@ -571,8 +588,8 @@ show_settings() {
 # Preparation for build
 prepare_build() {
     # If there is pacman.conf for each channel, use that for building
-    if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
-        build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
+    if [[ -f "${channel_path}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${channel_path}/pacman-${arch}.conf"
     fi
 
     # If there is config for share channel. load that.
@@ -580,8 +597,8 @@ prepare_build() {
     load_config "${script_path}/channels/share/config.${arch}"
 
     # If there is config for each channel. load that.
-    load_config "${script_path}/channels/${channel_name}/config.any"
-    load_config "${script_path}/channels/${channel_name}/config.${arch}"
+    load_config "${channel_path}/config.any"
+    load_config "${channel_path}/config.${arch}"
 
     # check bool
     check_bool boot_splash
@@ -590,6 +607,7 @@ prepare_build() {
     check_bool nodepend
     check_bool shmkalteriso
     check_bool customized_username
+    check_bool customized_password
     check_bool noloopmod
     check_bool nochname
     check_bool tarball
@@ -599,7 +617,7 @@ prepare_build() {
 
     # Unmount
     local _mount
-    for _mount in $(mount | awk '{print $3}' | grep $(realpath ${work_dir})); do
+    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir})); do
         msg_info "Unmounting ${_mount}"
         umount "${_mount}"
     done
@@ -642,19 +660,19 @@ make_packages() {
         "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
-        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}"
+        $(ls ${channel_path}/packages.${arch}/*.${arch} 2> /dev/null)
+        "${channel_path}/packages.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
         "${script_path}/channels/share/packages.${arch}/kernel/${kernel}.${arch}"
-        "${script_path}/channels/${channel_name}/packages.${arch}/kernel/${kernel}.${arch}"
+        "${channel_path}/packages.${arch}/kernel/${kernel}.${arch}"
     )
 
     # Plymouth package list
     if [[ "${boot_splash}" = true ]]; then
         _loadfilelist+=(
             $(ls "${script_path}"/channels/share/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
-            $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${channel_path}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
         )
     fi
 
@@ -672,7 +690,7 @@ make_packages() {
     # Exclude packages from the share exclusion list
     _excludefile=(
         "${script_path}/channels/share/packages.${arch}/exclude"
-        "${script_path}/channels/${channel_name}/packages.${arch}/exclude"
+        "${channel_path}/packages.${arch}/exclude"
     )
 
     for _file in ${_excludefile[@]}; do
@@ -722,18 +740,18 @@ make_packages_file() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     #_loadfilelist=(
-    #    $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-    #    "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
+    #    $(ls ${channel_path}/packages.${arch}/*.${arch} 2> /dev/null)
+    #    ${channel_path}/packages.${arch}/lang/${locale_name}.${arch}
     #    $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
     #    "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     #)
 
-    #ls "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #ls "${channel_path}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     # Install packages on airootfs
     #if [ $? -ne 0 ]; then
     #    :
     #else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" install_file
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${channel_path}/package_files.${arch}/*.pkg.*" install_file
     #fi
     #ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     #if [ $? -ne 0 ]; then
@@ -751,13 +769,28 @@ make_packages_aur() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     _loadfilelist=(
-        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+        # share packages
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
+
+        # channel packages
+        $(ls ${channel_path}/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${channel_path}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel packages
+        "${script_path}/channels/share/packages_aur.${arch}/kernel/${kernel}.${arch}"
+        "${channel_path}/packages_aur.${arch}/kernel/${kernel}.${arch}"
     )
 
-    if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
+    # Plymouth package list
+    if [[ "${boot_splash}" = true ]]; then
+        _loadfilelist+=(
+            $(ls "${script_path}"/channels/share/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${channel_path}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
+
+    if [[ ! -d "${channel_path}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
         return
     fi
 
@@ -774,7 +807,7 @@ make_packages_aur() {
     # Exclude packages from the share exclusion list
     _excludefile=(
         "${script_path}/channels/share/packages_aur.${arch}/exclude"
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
+        "${channel_path}/packages_aur.${arch}/exclude"
     )
 
     for _file in ${_excludefile[@]}; do
@@ -876,8 +909,8 @@ make_customize_airootfs() {
 
     _copy_airootfs "${script_path}/channels/share/airootfs.any"
     _copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
-    _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.any"
-    _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.${arch}"
+    _copy_airootfs "${channel_path}/airootfs.any"
+    _copy_airootfs "${channel_path}/airootfs.${arch}"
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
@@ -1015,8 +1048,8 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
     cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
-    if [[ -d "${script_path}/channels/${channel_name}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${script_path}/channels/${channel_name}/syslinux/"* "$work_dir/${arch}/syslinux/"
+    if [[ -d "${channel_path}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
+        cp -af "${channel_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
@@ -1043,8 +1076,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
-        cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    if [[ -f "${channel_path}/splash.png" ]]; then
+        cp "${channel_path}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
@@ -1230,19 +1263,19 @@ parse_files() {
 
     # 選択されたロケールの設定が描かれた行番号を取得
     _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | getclm 1))
     _get_locale_line_number() {
         local _lang _count=0
         for _lang in ${_locale_name_list[@]}; do
             _count=$(( _count + 1 ))
-            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
+            if [[ "${_lang}" = "${locale_name}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
     }
     _locale_line_number="$(_get_locale_line_number)"
 
     # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
+    [[ "${_locale_line_number}" = "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
     _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
@@ -1261,12 +1294,12 @@ parse_files() {
 
     # 選択されたカーネルの設定が描かれた行番号を取得
     _kernel_config_file="${script_path}/system/kernel-${arch}"
-    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
     _get_kernel_line() {
         local _kernel _count=0
         for _kernel in ${_kernel_name_list[@]}; do
             _count=$(( _count + 1 ))
-            if [[ "${_kernel}" == "${kernel}" ]]; then echo "${_count}"; return 0; fi
+            if [[ "${_kernel}" = "${kernel}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
         return 0
@@ -1274,7 +1307,7 @@ parse_files() {
     _kernel_line="$(_get_kernel_line)"
 
     # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" == "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
+    [[ "${_kernel_line}" = "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
 
     # カーネル設定ファイルから該当の行を抽出
     _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
@@ -1342,6 +1375,7 @@ while :; do
             shift 2
             ;;
         -p | --password)
+            customized_password=true
             password="${2}"
             shift 2
             ;;
@@ -1445,16 +1479,33 @@ unset DEFAULT_ARGUMENT ARGUMENT
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
-# Parse channels
 set +eu
-[[ -n "${1}" ]] && channel_name="${1}"
 
 # Check for a valid channel name
-[[ "$(bash "${script_path}/tools/channel.sh" -m check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+case "$(bash "${script_path}/tools/channel.sh" -m check "${1}")" in
+    "incorrect")
+        msg_error "Invalid channel ${1}" "1"
+        ;;
+    "directory")
+        channel_dir="${1}"
+        channel_name="$(basename "${1%/}")"
+        ;;
+    "correct")
+        channel_dir="${script_path}/channels/${1}"
+        channel_name="${1}"
+        ;;
+esac
 
 # Set for special channels
-if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
-    channel_name="${channel_name}.add"
+if [[ -d "${channel_dir}.add" ]]; then
+    channel_name="${1}"
+    channel_dir="${channel_dir}.add"
+elif [[ "${channel_name}" = "rebuild" ]]; then
+    if [[ -f "${rebuildfile}" ]]; then
+        rebuild=true
+    else
+        msg_error "The previous build information is not in the working directory." "1"
+    fi
 elif [[ "${channel_name}" = "clean" ]]; then
     umount_chroot
     remove "${script_path}/menuconfig/build"
@@ -1462,12 +1513,13 @@ elif [[ "${channel_name}" = "clean" ]]; then
 	remove "${script_path}/menuconfig-script/kernel_choice"
     remove "${work_dir%/}"/*
     remove "${work_dir}"
+    remove "${rebuildfile}"
     exit 0
 fi
 
 # Check channel version
-msg_debug "channel path is ${script_path}/channels/${channel_name}"
-if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+msg_debug "channel path is ${channel_path}"
+if [[ ! "$(cat "${channel_path}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
     msg_error "This channel does not support AlterISO 3." "1"
 fi
 
@@ -1480,11 +1532,11 @@ parse_files
 
 set -eu
 
-check_env
-prepare_all_arch
+prepare_env
 show_settings
 for arch in ${all_arch[@]}; do
     prepare_build
+    configure_var
     run_arch make_pacman_conf
     run_arch make_basefs
     run_arch make_packages
