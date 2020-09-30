@@ -22,13 +22,13 @@ _help() {
     echo "    help               This help message"
     echo
     echo " General options:"
-    echo "    -a                 Only additional channels"
-    echo "    -b                 Exclude built-in channels"
-    echo "    -d                 Display directory names of all channel as it is"
-    echo "    -m                 Only channels supported by allarch.sh"
-    echo "    -n                 Ignore channel version"
-    echo "    -v [ver]           Specifies the AlterISO version"
-    echo "    -h                 This help message"
+    echo "    -a | --add                Only additional channels"
+    echo "    -b | --nobuiltin          Exclude built-in channels"
+    echo "    -d | --dirname            Display directory names of all channel as it is"
+    echo "    -m | --multi              Only channels supported by allarch.sh"
+    echo "    -n | --nochkver           Ignore channel version"
+    echo "    -v | --version [ver]      Specifies the AlterISO version"
+    echo "    -h | --help               This help message"
 }
 
 gen_channel_list() {
@@ -76,19 +76,54 @@ show() {
     echo "${channellist[*]}"
 }
 
-while getopts 'abdhmnv:' arg; do
-    case "${arg}" in
-        a) opt_only_add=true ;;
-        b) opt_nobuiltin=true ;;
-        d) opt_dir_name=true ;;
-        m) opt_allarch=true;;
-        n) opt_nochkver=true ;;
-        v) alteriso_version="${OPTARG}" ;;
-        h) _help ; exit 0 ;;
-        *) _help ; exit 1 ;;
+
+# Parse options
+ARGUMENT="${@}"
+_opt_short="abdmnv:h"
+_opt_long="add,nobuiltin,dirname,multi,nochkver,version:,help"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+[[ ${?} != 0 ]] && exit 1
+
+eval set -- "${OPT}"
+unset OPT _opt_short _opt_long
+
+while true; do
+    case ${1} in
+        -a | --add)
+            opt_only_add=true
+            shift 1
+            ;;
+        -b | --nobuiltin)
+            opt_nobuiltin=true
+            shift 1
+            ;;
+        -d | --dirname)
+            opt_dir_name=true
+            shift 1
+            ;;
+        -m | --multi)
+            opt_allarch=true
+            shift 1
+            ;;
+        -n | --nochkver)
+            opt_nochkver=true
+            shift 1
+            ;;
+        -v | --version)
+            alteriso_version="${2}"
+            shift 2
+            ;;
+        -h | --help)
+            _help
+            exit 0
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+
     esac
 done
-shift $((OPTIND - 1))
 
 if [[ -z "${1}" ]]; then
     _help
