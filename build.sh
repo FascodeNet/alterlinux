@@ -1561,14 +1561,26 @@ if [[ "${sfs_comp_opt}" = "-Xcompression-level 20" && ! "${sfs_comp}" = "zstd" ]
 
 # Parse channels
 set +eu
-[[ -n "${1}" ]] && channel_name="${1}"
 
 # Check for a valid channel name
-[[ "$(bash "${script_path}/tools/channel.sh" check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+case "$(bash "${script_path}/tools/channel.sh" check "${1}")" in
+    "incorrect")
+        msg_error "Invalid channel ${1}" "1"
+        ;;
+    "directory")
+        channel_dir="${1}"
+        channel_name="$(basename "${1%/}")"
+        ;;
+    "correct")
+        channel_dir="${script_path}/channels/${1}"
+        channel_name="${1}"
+        ;;
+esac
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
-    channel_name="${channel_name}.add"
+    channel_name="${1}"
+    channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "rebuild" ]]; then
     if [[ -f "${rebuildfile}" ]]; then
         rebuild=true
@@ -1585,8 +1597,6 @@ elif [[ "${channel_name}" = "clean" ]]; then
     remove "${rebuildfile}"
     exit 0
 fi
-
-channel_dir="${script_path}/channels/${channel_name}"
 
 # Check channel version
 if [[ ! "${channel_name}" = "rebuild" ]]; then

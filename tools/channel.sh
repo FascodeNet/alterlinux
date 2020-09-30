@@ -75,14 +75,14 @@ check() {
         exit 1
     fi
     if [[ $(printf '%s\n' "${channellist[@]}" | grep -qx "${1}"; echo -n ${?} ) -eq 0 ]]; then
-        echo "true"
+        echo "correct"
     elif [[ -d "${1}" ]] && [[ -n $(ls "${1}") ]] && [[ "$(cat "${1}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
             local _channel_name="$(basename "${1%/}")"
             if [[ ! "${_channel_name}" = "share" ]] && [[ $(echo "${_channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]] || [[ ! -d "${script_path}/channels/${_dirname}.add" ]] && [[ "${opt_only_add}" = false ]]; then
-                echo "true"
+                echo "directory"
             fi
     else
-        echo "false"
+        echo "incorrect"
     fi
 }
 
