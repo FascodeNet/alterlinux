@@ -1559,7 +1559,6 @@ rebuildfile="${work_dir}/alteriso_config"
 # Default squashfs options
 if [[ "${sfs_comp_opt}" = "-Xcompression-level 20" && ! "${sfs_comp}" = "zstd" ]]; then sfs_comp_opt=""; fi
 
-# Parse channels
 set +eu
 
 # Check for a valid channel name

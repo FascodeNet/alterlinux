@@ -402,12 +402,12 @@ check_bool() {
 prepare_env() {
     for arch in ${all_arch[@]}; do
         # Check architecture for each channel
-        if [[ -z $(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        if [[ -z $(cat "${channel_path}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
             msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
         fi
 
         # Check kernel for each channel
-        if [[ -f "${script_path}/channels/${channel_name}/kernel_list-${arch}" ]] && [[ -z $(cat "${script_path}/channels/${channel_name}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        if [[ -f "${channel_path}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_path}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
             msg_error "This kernel is currently not supported on this channel." "1"
         fi
     done
@@ -526,7 +526,7 @@ configure_var() {
     fi
 
     # Set architecture
-    all_arch=($(cat "${script_path}/channels/${channel_name}/architecture" | grep -h -v ^'#'))
+    all_arch=($(cat "${channel_path}/architecture" | grep -h -v ^'#'))
 
     # gitversion
     if [[ "${gitversion}" = true ]]; then
@@ -588,8 +588,8 @@ show_settings() {
 # Preparation for build
 prepare_build() {
     # If there is pacman.conf for each channel, use that for building
-    if [[ -f "${script_path}/channels/${channel_name}/pacman-${arch}.conf" ]]; then
-        build_pacman_conf="${script_path}/channels/${channel_name}/pacman-${arch}.conf"
+    if [[ -f "${channel_path}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${channel_path}/pacman-${arch}.conf"
     fi
 
     # If there is config for share channel. load that.
@@ -597,8 +597,8 @@ prepare_build() {
     load_config "${script_path}/channels/share/config.${arch}"
 
     # If there is config for each channel. load that.
-    load_config "${script_path}/channels/${channel_name}/config.any"
-    load_config "${script_path}/channels/${channel_name}/config.${arch}"
+    load_config "${channel_path}/config.any"
+    load_config "${channel_path}/config.${arch}"
 
     # check bool
     check_bool boot_splash
@@ -660,19 +660,19 @@ make_packages() {
         "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
-        $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}"
+        $(ls ${channel_path}/packages.${arch}/*.${arch} 2> /dev/null)
+        "${channel_path}/packages.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
         "${script_path}/channels/share/packages.${arch}/kernel/${kernel}.${arch}"
-        "${script_path}/channels/${channel_name}/packages.${arch}/kernel/${kernel}.${arch}"
+        "${channel_path}/packages.${arch}/kernel/${kernel}.${arch}"
     )
 
     # Plymouth package list
     if [[ "${boot_splash}" = true ]]; then
         _loadfilelist+=(
             $(ls "${script_path}"/channels/share/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
-            $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${channel_path}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
         )
     fi
 
@@ -690,7 +690,7 @@ make_packages() {
     # Exclude packages from the share exclusion list
     _excludefile=(
         "${script_path}/channels/share/packages.${arch}/exclude"
-        "${script_path}/channels/${channel_name}/packages.${arch}/exclude"
+        "${channel_path}/packages.${arch}/exclude"
     )
 
     for _file in ${_excludefile[@]}; do
@@ -740,18 +740,18 @@ make_packages_file() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     #_loadfilelist=(
-    #    $(ls "${script_path}"/channels/${channel_name}/packages.${arch}/*.${arch} 2> /dev/null)
-    #    "${script_path}"/channels/${channel_name}/packages.${arch}/lang/${locale_name}.${arch}
+    #    $(ls ${channel_path}/packages.${arch}/*.${arch} 2> /dev/null)
+    #    ${channel_path}/packages.${arch}/lang/${locale_name}.${arch}
     #    $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
     #    "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     #)
 
-    #ls "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #ls "${channel_path}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     # Install packages on airootfs
     #if [ $? -ne 0 ]; then
     #    :
     #else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/${channel_name}/package_files.${arch}/*.pkg.*" install_file
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${channel_path}/package_files.${arch}/*.pkg.*" install_file
     #fi
     #ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     #if [ $? -ne 0 ]; then
@@ -774,23 +774,23 @@ make_packages_aur() {
         "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
-        $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+        $(ls ${channel_path}/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${channel_path}/packages_aur.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
         "${script_path}/channels/share/packages_aur.${arch}/kernel/${kernel}.${arch}"
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/kernel/${kernel}.${arch}"
+        "${channel_path}/packages_aur.${arch}/kernel/${kernel}.${arch}"
     )
 
     # Plymouth package list
     if [[ "${boot_splash}" = true ]]; then
         _loadfilelist+=(
             $(ls "${script_path}"/channels/share/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
-            $(ls "${script_path}"/channels/${channel_name}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${channel_path}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
         )
     fi
 
-    if [[ ! -d "${script_path}/channels/${channel_name}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
+    if [[ ! -d "${channel_path}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
         return
     fi
 
@@ -807,7 +807,7 @@ make_packages_aur() {
     # Exclude packages from the share exclusion list
     _excludefile=(
         "${script_path}/channels/share/packages_aur.${arch}/exclude"
-        "${script_path}/channels/${channel_name}/packages_aur.${arch}/exclude"
+        "${channel_path}/packages_aur.${arch}/exclude"
     )
 
     for _file in ${_excludefile[@]}; do
@@ -909,8 +909,8 @@ make_customize_airootfs() {
 
     _copy_airootfs "${script_path}/channels/share/airootfs.any"
     _copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
-    _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.any"
-    _copy_airootfs "${script_path}/channels/${channel_name}/airootfs.${arch}"
+    _copy_airootfs "${channel_path}/airootfs.any"
+    _copy_airootfs "${channel_path}/airootfs.${arch}"
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
@@ -1048,8 +1048,8 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
     cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
-    if [[ -d "${script_path}/channels/${channel_name}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${script_path}/channels/${channel_name}/syslinux/"* "$work_dir/${arch}/syslinux/"
+    if [[ -d "${channel_path}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
+        cp -af "${channel_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
@@ -1076,8 +1076,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    if [[ -f "${script_path}/channels/${channel_name}/splash.png" ]]; then
-        cp "${script_path}/channels/${channel_name}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    if [[ -f "${channel_path}/splash.png" ]]; then
+        cp "${channel_path}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
@@ -1479,16 +1479,33 @@ unset DEFAULT_ARGUMENT ARGUMENT
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
-# Parse channels
 set +eu
-[[ -n "${1}" ]] && channel_name="${1}"
 
 # Check for a valid channel name
-[[ "$(bash "${script_path}/tools/channel.sh" -m check "${channel_name}")" = false ]] && msg_error "Invalid channel ${channel_name}" "1"
+case "$(bash "${script_path}/tools/channel.sh" -m check "${1}")" in
+    "incorrect")
+        msg_error "Invalid channel ${1}" "1"
+        ;;
+    "directory")
+        channel_dir="${1}"
+        channel_name="$(basename "${1%/}")"
+        ;;
+    "correct")
+        channel_dir="${script_path}/channels/${1}"
+        channel_name="${1}"
+        ;;
+esac
 
 # Set for special channels
-if [[ -d "${script_path}/channels/${channel_name}.add" ]]; then
-    channel_name="${channel_name}.add"
+if [[ -d "${channel_dir}.add" ]]; then
+    channel_name="${1}"
+    channel_dir="${channel_dir}.add"
+elif [[ "${channel_name}" = "rebuild" ]]; then
+    if [[ -f "${rebuildfile}" ]]; then
+        rebuild=true
+    else
+        msg_error "The previous build information is not in the working directory." "1"
+    fi
 elif [[ "${channel_name}" = "clean" ]]; then
     umount_chroot
     remove "${script_path}/menuconfig/build"
@@ -1496,12 +1513,13 @@ elif [[ "${channel_name}" = "clean" ]]; then
 	remove "${script_path}/menuconfig-script/kernel_choice"
     remove "${work_dir%/}"/*
     remove "${work_dir}"
+    remove "${rebuildfile}"
     exit 0
 fi
 
 # Check channel version
-msg_debug "channel path is ${script_path}/channels/${channel_name}"
-if [[ ! "$(cat "${script_path}/channels/${channel_name}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+msg_debug "channel path is ${channel_path}"
+if [[ ! "$(cat "${channel_path}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
     msg_error "This channel does not support AlterISO 3." "1"
 fi
 
