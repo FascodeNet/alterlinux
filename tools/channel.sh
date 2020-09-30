@@ -8,6 +8,7 @@ opt_dir_name=false
 opt_nochkver=false
 opt_nobuiltin=false
 opt_allarch=false
+opt_fullpath=false
 alteriso_version="3.0"
 mode=""
 
@@ -25,6 +26,7 @@ _help() {
     echo "    -a | --add                Only additional channels"
     echo "    -b | --nobuiltin          Exclude built-in channels"
     echo "    -d | --dirname            Display directory names of all channel as it is"
+    echo "    -f | --fullpath           Display the full path of the channel (Use with -db)"
     echo "    -m | --multi              Only channels supported by allarch.sh"
     echo "    -n | --nochkver           Ignore channel version"
     echo "    -v | --version [ver]      Specifies the AlterISO version"
@@ -39,12 +41,20 @@ gen_channel_list() {
                 continue
             elif [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 if [[ "${opt_dir_name}" = true ]]; then
-                    channellist+=("${_dirname}")
+                    if [[ "${opt_fullpath}" = true ]]; then
+                        channellist+=("${script_path}/channels/${_dirname}/")
+                    else
+                        channellist+=("${_dirname}")
+                    fi
                 else
                     channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
                 fi
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]] && [[ "${opt_only_add}" = false ]]; then
-                channellist+=("${_dirname}")
+                if [[ "${opt_fullpath}" = true ]]; then
+                    channellist+=("${script_path}/channels/${_dirname}/")
+                else
+                    channellist+=("${_dirname}")
+                fi
             else
                 continue
             fi
@@ -84,8 +94,8 @@ show() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="abdmnv:h"
-_opt_long="add,nobuiltin,dirname,multi,nochkver,version:,help"
+_opt_short="abdfmnv:h"
+_opt_long="add,nobuiltin,dirname,fullpath,multi,nochkver,version:,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -104,6 +114,10 @@ while true; do
             ;;
         -d | --dirname)
             opt_dir_name=true
+            shift 1
+            ;;
+        -f | --fullpath)
+            opt_fullpath=true
             shift 1
             ;;
         -m | --multi)
