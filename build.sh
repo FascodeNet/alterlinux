@@ -911,7 +911,7 @@ make_customize_airootfs() {
 
     # /root permission
     # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
-    chmod -f 750 "${work_dir}/x86_64/airootfs/root"
+    chmod -f 750 "${work_dir}/${arch}/airootfs/root"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -1040,7 +1040,10 @@ make_isolinux() {
 # Prepare /EFI
 make_efi() {
     mkdir -p "${work_dir}/iso/EFI/boot"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/iso/EFI/boot/bootx64.efi"
+    (
+        local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+    )
 
     mkdir -p "${work_dir}/iso/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
@@ -1052,13 +1055,15 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    cp "${work_dir}/x86_64/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    fi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
     mkdir -p "${work_dir}/iso/EFI/archiso"
-    truncate -s 64M "${work_dir}/iso/EFI/archiso/efiboot.img"
+    truncate -s 100M "${work_dir}/iso/EFI/archiso/efiboot.img"
     mkfs.fat -n ARCHISO_EFI "${work_dir}/iso/EFI/archiso/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
@@ -1078,7 +1083,10 @@ make_efiboot() {
     cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
+    (
+        local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+    )
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
@@ -1090,7 +1098,9 @@ make_efiboot() {
         "${script_path}/efiboot/loader/entries/cd/archiso-x86_64-cd-${kernel}.conf" > "${work_dir}/efiboot/loader/entries/archiso-x86_64.conf"
 
     # shellx64.efi is picked up automatically when on /
-    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
+        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    fi
 
     umount -d "${work_dir}/efiboot"
 }
