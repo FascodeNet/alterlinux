@@ -388,6 +388,7 @@ command_iso () {
     xorriso -as mkisofs ${_qflag} \
         -iso-level 3 \
         -full-iso9660-filenames \
+        -rational-rock \
         -volid "${iso_label}" \
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
