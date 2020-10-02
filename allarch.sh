@@ -1525,7 +1525,7 @@ if [[ ! "$(cat "${channel_path}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_
         msg_error "Please run \"git checkout alteriso-2\""
     else
         msg_error "Please download Alter ISO 2 here."
-        msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip"
+        msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
     fi
 fi
 
