@@ -868,9 +868,9 @@ make_packages_aur() {
     #        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
     #    fi
     #done
-    local dependent_packages=()
-    for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages+=($("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")); done
-    [[ -n "${dependent_packages[*]}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages[@]}" install
+    local dependent_packages=""
+    for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages="${dependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
+    [[ -n "${dependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
 
     # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
@@ -884,9 +884,9 @@ make_packages_aur() {
     #    fi
     #done
 
-    local makedependent_packages=()
-    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages+=($("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")); done
-    [[ -n "${makedependent_packages[*]}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages[@]}" install
+    local makedependent_packages=""
+    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages="${makedependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
+    [[ -n "${makedependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
 
 
     # Dump packages
