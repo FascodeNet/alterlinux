@@ -1600,7 +1600,7 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
     if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
         msg_error "This channel does not support Alter ISO 3."
         if [[ -d "${script_path}/.git" ]]; then
-            msg_error "Please run \"git checkout alteriso-2\""
+            msg_error "Please run \"git checkout alteriso-2\"" "1"
         else
             msg_error "Please download Alter ISO 2 here."
             msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
