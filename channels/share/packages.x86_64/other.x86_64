@@ -13,6 +13,7 @@
 #-- commandline tools --#
 arch-install-scripts
 bash-completion
+git
 mc
 
 

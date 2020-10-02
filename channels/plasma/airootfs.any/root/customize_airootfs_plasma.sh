@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
 
 set -e -u
 
@@ -7,35 +14,45 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel='zen'
+kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
 rebuild=false
-japanese=false
 username='alter'
 os_name="Alter Linux"
 install_dir="alter"
 usershell="/bin/bash"
-debug=true
+debug=false
+timezone="UTC"
+localegen="en_US\\.UTF-8\\"
+language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        k) kernel="${OPTARG}" ;;
+        k) kernel_config_line=(${OPTARG}) ;;
         r) rebuild=true ;;
-        j) japanese=true;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
         s) usershell="${OPTARG}" ;;
         d) debug=true ;;
         x) debug=true; set -xv ;;
-        a) arch="${OPTARG}"
+        a) arch="${OPTARG}" ;;
+        g) localegen="${OPTARG/./\\.}\\" ;;
+        z) timezone="${OPTARG}" ;;
+        l) language="${OPTARG}" ;;
     esac
 done
+
+
+# Parse kernel
+kernel="${kernel_config_line[0]}"
+kernel_filename="${kernel_config_line[1]}"
+kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
 
 # Delete file only if file exists
@@ -56,9 +73,7 @@ function remove () {
 
 
 # Delete icon cache
-if [[ -f /home/${username}/.cache/icon-cache.kcache ]]; then
-    rm /home/${username}/.cache/icon-cache.kcache
-fi
+[[ -f /home/${username}/.cache/icon-cache.kcache ]] && rm /home/${username}/.cache/icon-cache.kcache
 
 
 if [[ "${arch}" = "x86_64" ]]; then

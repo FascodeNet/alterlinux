@@ -17,7 +17,6 @@ lrzip
 lz4
 lzip
 lzop
-networkmanager
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
@@ -30,6 +29,7 @@ unrar
 unzip-iconv
 xdg-user-dirs
 xz
+yay
 yay-bin
 zip
 zstd

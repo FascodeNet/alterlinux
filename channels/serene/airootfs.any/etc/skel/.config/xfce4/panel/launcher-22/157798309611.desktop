@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Translate
+Comment=A free multilingual machine translation service.
+Type=Link
+URL=https://translate.google.com/
+Icon=/usr/share/icons/google-app/Tranlate_29992.png
+Categories=GTK;Office; 
+X-XFCE-Source=file:///usr/share/applications/Google%20Translate.desktop

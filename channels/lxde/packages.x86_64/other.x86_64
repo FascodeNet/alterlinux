@@ -56,7 +56,8 @@ vim
 
 
 #-- other --#
-arandr
+#仮想マシンでlxrandrが使えるようになったためarandrを無効化
+# arandr
 ipad_charge
 snapd
 tlpui

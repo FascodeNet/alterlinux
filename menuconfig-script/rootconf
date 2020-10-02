@@ -95,8 +95,12 @@ menu "起動設定"
 	endif
 endmenu
 menu "Live環境の設定"
-	config ENABLE_JAPANESE
-		bool "日本語のサポート"
+	config USE_CUSTOM_LANG
+		bool "英語以外の言語にする"
+	if USE_CUSTOM_LANG
+		config CUSTOM_LANGUAGE
+			string "ロケール名(ja)など"
+	endif
 	config USE_CUSTOM_USERNAME
 		bool "デフォルトではないユーザー名を使用(デフォルトはalter)"
 	if USE_CUSTOM_USERNAME

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Serene-Setup-Wizard
+Comment=SereneLinux Packages Easy Installer
+Exec=serene-setup-wizard
+Icon=/usr/share/pixmaps/serene/icon_black_circle.png
+Path=
+Terminal=true
+StartupNotify=true
+GenericName=SereneLinux Package Easy Installer
+Categories=GTK;System;Settings;

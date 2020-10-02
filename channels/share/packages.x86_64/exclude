@@ -13,11 +13,4 @@
 # and installed by the build script.
 #
 
-broadcom-wl
-broadcom-wl-dkms
-
-linux
-linux-headers
-
 memtest86+
-plymouth

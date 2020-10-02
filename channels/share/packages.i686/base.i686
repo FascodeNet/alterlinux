@@ -9,6 +9,8 @@
 #
 # Base packages
 
+base-devel
+
 bash
 haveged
 intel-ucode

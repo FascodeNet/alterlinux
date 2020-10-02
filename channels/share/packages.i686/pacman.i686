@@ -15,10 +15,6 @@ aptpac
 yay
 
 
-#-- gui frontend--#
-eg-installer
-
-
 #-- keyring --#
 alterlinux-keyring
 

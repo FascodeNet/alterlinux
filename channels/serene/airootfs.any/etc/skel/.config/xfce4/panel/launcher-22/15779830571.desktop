@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google
+Comment=A web search engine.
+Type=Link
+URL=https://www.google.com
+Icon=/usr/share/icons/google-app/google_icon-icons.com_62736.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///usr/share/applications/google.desktop

@@ -20,7 +20,7 @@ buf=`grep CONFIG_KERNEL_N_A_M_E_ .config | sed -e 's/=y//g' | sed -e 's/CONFIG_K
 eval "$buf"
 buf=`grep CONFIG_ENABLE_PLYMOUTH .config | sed -e 's/y/true/g' | sed -e 's/CONFIG_ENABLE_PLYMOUTH/plymouth/g'`
 eval "$buf"
-buf=`grep CONFIG_ENABLE_JAPANESE .config | sed -e 's/y/true/g' | sed -e 's/CONFIG_ENABLE_JAPANESE/japanese/g'`
+buf=`grep CONFIG_USE_CUSTOM_LANG .config | sed -e 's/y/true/g' | sed -e 's/CONFIG_USE_CUSTOM_LANG/USE_CUSTOM_LANG/g'`
 eval "$buf"
 buf=`grep CONFIG_SFS_CMP_ .config | sed -e 's/=y//g' | sed -e 's/CONFIG_SFS_CMP_/comp_type=/g'`
 eval "${buf,,}"
@@ -59,10 +59,13 @@ if [[ $CONFIG_USE_CUSTOM_PASSWD = "y" ]]; then
 fi
 buf=`grep CONFIG_CHANNEL_ .config | sed -e 's/=y//g' | sed -e 's/CONFIG_CHANNEL_/channel=/g'`
 eval "${buf,,}"
-
+if [[ $USE_CUSTOM_LANG = "true" ]]; then
+    buf=`grep CONFIG_CUSTOM_LANGUAGE .config | sed -e 's/CONFIG_CUSTOM_LANGUAGE/language/g' `
+    eval "$buf"
+fi
 
 echo build option :
-    [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
+    [[ -n "${language}" ]] && echo "           Language : ${language}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
     [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"
@@ -71,8 +74,8 @@ echo build option :
     [[ -n "${password}"    ]] && echo "           Password : ${password}"
     [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
 
-if [[ ${japanese} = true ]]; then
-        argument="${argument} -j"
+if [[ ${USE_CUSTOM_LANG} = "true" ]]; then
+    argument="${argument} -g ${language}"
 fi
 if [[ ${plymouth} = true ]]; then
     argument="${argument} -b"

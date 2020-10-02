@@ -20,4 +20,7 @@ work/
 *.ig*
 *.add*
 temp/
+.config.old
+system/cpp-src/mkalteriso/CMakeLists.txt.user
+menuconfig-script/kernel_choice_*
 /custom.conf

@@ -20,13 +20,13 @@ cd alterlinux
 Add a key to use Alter Linux repository.
 
 ```bash
-sudo ./keyring.sh --alter-add --arch32-add
+sudo ./tools/keyring.sh --alter-add --arch32-add
 ```
 
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
 ```
 
 ### Use the TUI
@@ -55,17 +55,17 @@ python ./build-wizard.py
 
 Run `./build.sh -h` for full options and usage.  
 
-| Purpose                              | Usage            |
-| ------------------------------------ | ---------------- |
-| Enable boot splash                   | -b               |
-| Change kernel                        | -k [kernel]      |
-| Change the username                  | -u [username]    |
-| Change the password                  | -p [password]    |
-| Japanese                             | -j               |
-| Change compression method            | -c [comp type]   |
-| Set compression options              | -t [comp option] |
-| Specify output destination directory | -o [dir]         |
-| Specify working directory            | -w [dir]         |
+ Purpose | Usage
+--- | ---
+ Enable boot splash | -b
+ Change kernel | -k [kernel]
+ Change the username | -u [username]
+ Change the password | -p [password]
+ Japanese | -l ja
+ Change compression method | -c [comp type]
+ Set compression options | -t [comp option]
+ Specify output destination directory | -o [dir]
+ Specify working directory | -w [dir]
 
 ##### Note
 
@@ -93,16 +93,18 @@ This mechanism makes it possible to build various versions of Alter Linux.
 The following channels are supported as of August 17, 2020.  
 See `./build.sh -h` for a complete list of channels.
 
-| Name     | Purpose                                                     |
-| -------- | ----------------------------------------------------------- |
-| cinnamon | Gorgeous cinnamon desktop with many applications.           |
-| gnome    | This channel does not have a description.txt.               |
-| i3       | using i3, a dynamic tiling window manager inspired by wmii. |
-| lxde     | Composed of Lxde and a little software                      |
-| plasma   | Uses KDE and Qt software.                                   |
-| releng   | Build ArchLinux as is. Boot splash etc. cannot be used.     |
-| xfce     | Use Xfce4 for desktop environment.                          |
-| rebuild  | Rebuild using the settings of the previous build.           |
+Name | Purpose
+--- | ---
+basic | Base channel for configuring channels
+cinnamon | Gorgeous cinnamon desktop with many applications.
+gnome | Gnome customized with extension and software for beginner
+i3 | using i3, a dynamic tiling window manager inspired by wmii.
+lxde | Composed of Lxde and a little software
+plasma | Uses KDE and Qt software.
+releng | Build ArchLinux as is. Boot splash etc. cannot be used.
+xfce | Use Xfce4 for desktop environment.
+xfce-pro | Pro Edition with some software added to Xfce and replaced with Compiz
+rebuild | Build from the point where it left off using the previous build settings.
 
 #### About the kernel
 
