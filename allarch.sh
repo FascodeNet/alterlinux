@@ -774,23 +774,23 @@ make_packages_aur() {
         "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
-        $(ls ${channel_path}/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${channel_path}/packages_aur.${arch}/lang/${locale_name}.${arch}"
+        $(ls ${channel_dir}/packages_aur.${arch}/*.${arch} 2> /dev/null)
+        "${channel_dir}/packages_aur.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
         "${script_path}/channels/share/packages_aur.${arch}/kernel/${kernel}.${arch}"
-        "${channel_path}/packages_aur.${arch}/kernel/${kernel}.${arch}"
+        "${channel_dir}/packages_aur.${arch}/kernel/${kernel}.${arch}"
     )
 
     # Plymouth package list
     if [[ "${boot_splash}" = true ]]; then
         _loadfilelist+=(
             $(ls "${script_path}"/channels/share/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
-            $(ls ${channel_path}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${channel_dir}/packages_aur.${arch}/plymouth/*.${arch} 2> /dev/null)
         )
     fi
 
-    if [[ ! -d "${channel_path}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
+    if [[ ! -d "${channel_dir}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
         return
     fi
 
@@ -807,7 +807,7 @@ make_packages_aur() {
     # Exclude packages from the share exclusion list
     _excludefile=(
         "${script_path}/channels/share/packages_aur.${arch}/exclude"
-        "${channel_path}/packages_aur.${arch}/exclude"
+        "${channel_dir}/packages_aur.${arch}/exclude"
     )
 
     for _file in ${_excludefile[@]}; do
@@ -859,17 +859,35 @@ make_packages_aur() {
         fi
     done
 
+
+    # Install dependent packages.
+    #local dependent_packages
+    #for _aur_pkg in ${pkglist_aur[@]}; do
+    #    dependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
+    #    if [[ -n "${dependent_packages}" ]]; then
+    #        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
+    #    fi
+    #done
+    local dependent_packages=()
+    for _aur_pkf in ${pkglist_aur[@]}; do dependent_packages+=($("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")); done
+    [[ -n "${dependent_packages[@]}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages[@]}" install
+
     # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
 
-    # Install dependent packages.
-    local dependent_packages
-    for _aur_pkg in ${pkglist_aur[@]}; do
-        dependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
-        if [[ -n "${dependent_packages}" ]]; then
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
-        fi
-    done
+    # Install makedependent packages.
+    #local makedependent_packages
+    #for _aur_pkg in ${pkglist_aur[@]}; do
+    #    makedependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
+    #    if [[ -n "${makedependent_packages}" ]]; then
+    #        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
+    #    fi
+    #done
+
+    local makedependent_packages=()
+    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages+=($("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")); done
+    [[ -n "${makedependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages[@]}" install
+
 
     # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
