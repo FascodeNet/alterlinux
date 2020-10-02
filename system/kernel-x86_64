@@ -1,0 +1,35 @@
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+#
+# kernel list for i686
+#
+# Enter the kernel package and header package name in the kernel package list.
+#
+#[kernel name]               [kernel filename]               [mkinitcpio profile]
+#
+
+core                         vmlinuz-linux                   linux
+lts                          vmlinuz-linux-lts               linux-lts
+zen                          vmlinuz-linux-zen               linux-zen
+hardened                     vmlinuz-linux-hardened          linux-hardened
+
+
+# Arch Linux Trusted User repository
+rt                           vmlinuz-linux-rt                linux-rt
+rt-lts                       vmlinuz-linux-rt-lts            linux-rt-lts
+
+
+# AUR Unofficial kernels
+lqx                          vmlinuz-linux-lqx               linux-lqx
+ck                           vmlinuz-linux-ck                linux-ck
+xanmod                       vmlinuz-linux-xanmod            linux-xanmod
+xanmod-lts                   vmlinuz-linux-xanmod-lts        linux-xanmod-lts
+
+
+# Alter Linux original packages
+zen-letsnote                 vmlinuz-linux-zen-letsnote      linux-zen-letsnote

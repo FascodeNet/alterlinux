@@ -1,0 +1,14 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Gnome extensions
+
+gnome-shell-extension-arc-menu
+gnome-shell-extension-dash-to-panel
+gnome-shell-extension-desktop-icons-ng

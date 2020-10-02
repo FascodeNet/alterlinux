@@ -1,0 +1,53 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Gnome
+
+
+#-- gnome --#
+gnome-backgrounds
+gnome-boxes
+gnome-calculator
+gnome-calendar
+gnome-control-center
+gnome-common
+gnome-desktop
+gnome-disk-utility
+gnome-keyring
+gnome-logs
+gnome-menus
+gnome-remote-desktop
+gnome-screenshot
+gnome-session
+gnome-settings-daemon
+gnome-shell
+gnome-shell-extensions
+gnome-system-monitor
+gnome-terminal
+mutter
+nautilus
+sushi
+
+
+#-- gnome-extra --#
+dconf-editor
+gnome-tweaks
+
+#-- extentions --#
+chrome-gnome-shell
+gnome-shell-extension-extensions-git
+gnome-shell-extension-topicons-redux
+
+
+#-- Display manager --#
+gdm
+
+#-- other --#
+gnome-bluetooth
+gnome-epub-thumbnailer

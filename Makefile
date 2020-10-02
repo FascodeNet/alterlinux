@@ -7,8 +7,9 @@ ARCH_x86_64  = -a x86_64
 ARCH_i686    = -a i686
 
 
+
 full:mkalteriso
-	@sudo ./fullbuild.sh
+	@sudo ./tools/fullbuild.sh
 	@make clean
 
 xfce-64:mkalteriso
@@ -62,7 +63,7 @@ mkalteriso:
 
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
-menuconfig-script/kernel_choice:system/kernel_list-x86_64 system/kernel_list-i686
+menuconfig-script/kernel_choice:system/kernel-x86_64 system/kernel-i686
 	./kernel-choice-conf-gen.sh
 build_option:
 	if [ -f .config ];\
@@ -78,4 +79,4 @@ build:build_option mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ./.build_option))
 	sudo ./${BUILD_SCRIPT} ${BUILD_OPTION}
 keyring::
-	sudo ./keyring.sh --alter-add --arch-add
+	sudo ./tools/keyring.sh --alter-add --arch-add

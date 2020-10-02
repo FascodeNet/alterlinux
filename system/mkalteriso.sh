@@ -63,8 +63,19 @@ _chroot_init() {
     _pacman "base syslinux"
 }
 
+# Unmount chroot dir
+_umount_chroot () {
+    local mount
+    for mount in $(mount | awk '{print $3}' | grep $(realpath "${work_dir}/airootfs") | tac); do
+        _msg_info "Unmounting ${mount}"
+        umount -lf "${mount}"
+    done
+}
+
 _chroot_run() {
+    _umount_chroot
     eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
+    _umount_chroot
 }
 
 _mount_airootfs() {
@@ -116,6 +127,8 @@ _usage ()
     echo "      Make base layout and install base group"
     echo "   install"
     echo "      Install all specified packages (-p)"
+    echo "   install_file"
+    echo "      Install all specified packages from a package file (-p)"
     echo "   run"
     echo "      run command specified by -r"
     echo "   prepare"
@@ -124,6 +137,8 @@ _usage ()
     echo "      make a pkglist.txt of packages installed on airootfs"
     echo "   iso <image name>"
     echo "      build an iso image from the working dir"
+    echo "   tarball <file name>"
+    echo "      Build a tarball from the working dir."
     exit ${1}
 }
 
@@ -180,18 +195,22 @@ _pacman ()
     _msg_info "Packages installed successfully!"
 }
 
-# Cleanup airootfs
-_cleanup () {
-    _msg_info "Cleaning up what we can on airootfs..."
+# Install desired packages to airootfs from pkg file
+_pacman_file ()
+{
+    _msg_info "Installing packages to '${work_dir}/airootfs/'..."
 
-    # Delete initcpio image(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
+    if [[ "${quiet}" = "y" ]]; then
+        pacstrap -C "${pacman_conf}" -c -G -M -U "${work_dir}/airootfs" $* &> /dev/null
+    else
+        pacstrap -C "${pacman_conf}" -c -G -M -U "${work_dir}/airootfs" $*
     fi
-    # Delete kernel(s)
-    if [[ -d "${work_dir}/airootfs/boot" ]]; then
-        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
-    fi
+
+    _msg_info "Packages installed successfully!"
+}
+
+
+_cleanup_common () {
     # Delete pacman database sync cache files (*.tar.gz)
     if [[ -d "${work_dir}/airootfs/var/lib/pacman" ]]; then
         find "${work_dir}/airootfs/var/lib/pacman" -maxdepth 1 -type f -delete
@@ -214,6 +233,30 @@ _cleanup () {
     fi
     # Delete package pacman related files.
     find "${work_dir}" \( -name "*.pacnew" -o -name "*.pacsave" -o -name "*.pacorig" \) -delete
+}
+
+# Cleanup airootfs
+_cleanup () {
+    _msg_info "Cleaning up what we can on airootfs..."
+
+    _cleanup_common
+
+    # Delete initcpio image(s)
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name '*.img' -delete
+    fi
+    # Delete kernel(s)
+    if [[ -d "${work_dir}/airootfs/boot" ]]; then
+        find "${work_dir}/airootfs/boot" -type f -name 'vmlinuz*' -delete
+    fi
+
+    _msg_info "Done!"
+}
+
+# Cleanup airootfs
+_cleanup_tarball () {
+    _msg_info "Cleaning up what we can on airootfs for tarball..."
+    _cleanup_common
     _msg_info "Done!"
 }
 
@@ -226,7 +269,7 @@ _mkairootfs_img () {
     _msg_info "Creating ext4 image of 32GiB..."
     truncate -s 32G "${work_dir}/airootfs.img"
     local _qflag=""
-    if [[ ${quiet} == "y" ]]; then
+    if [[ ${quiet} = "y" ]]; then
         _qflag="-q"
     fi
     mkfs.ext4 ${_qflag} -O ^has_journal,^resize_inode -E lazy_itable_init=0 -m 0 -F "${work_dir}/airootfs.img"
@@ -273,19 +316,28 @@ _mkchecksum () {
     _msg_info "Done!"
 }
 
-_mkisochecksum() {
+_checksum_common() {
+    local name="${1}"
     _msg_info "Creating md5 checksum ..."
     cd "${out_dir}"
-    md5sum "${img_name}" > "${img_name}.md5"
+    md5sum "${name}" > "${name}.md5"
     cdback
     # _msg_info "Done!"
 
 
     _msg_info "Creating sha256 checksum ..."
     cd "${out_dir}"
-    sha256sum "${img_name}" > "${img_name}.sha256"
+    sha256sum "${name}" > "${name}.sha256"
     cdback
     # _msg_info "Done!"
+}
+
+_mkisochecksum() {
+    _checksum_common "${img_name}"
+}
+
+_mktarchecksum() {
+    _checksum_common "${tarball_name}"
 }
 
 _mksignature () {
@@ -318,9 +370,9 @@ command_iso () {
     fi
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${work_dir}/iso/EFI/archiso/efiboot.img" ]]; then
+    if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
         _iso_efi_boot_args="-eltorito-alt-boot
-                            -e EFI/archiso/efiboot.img
+                            -e EFI/alteriso/efiboot.img
                             -no-emul-boot
                             -isohybrid-gpt-basdat"
     fi
@@ -330,7 +382,7 @@ command_iso () {
     mkdir -p "${out_dir}"
     _msg_info "Creating ISO image..."
     local _qflag=""
-    if [[ ${quiet} == "y" ]]; then
+    if [[ "${quiet}" = "y" ]]; then
         _qflag="-quiet"
     fi
     xorriso -as mkisofs ${_qflag} \
@@ -351,12 +403,40 @@ command_iso () {
     _msg_info "Done! | $(ls -sh ${out_dir}/${img_name})"
 }
 
+# # Compress tarball from "iso" directory.
+command_tarball () {
+    if [[ ! -e "${work_dir}/airootfs" ]]; then
+        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    fi
+
+    _cleanup_tarball
+
+    mkdir -p "${out_dir}"
+    _msg_info "Creating tarball..."
+
+    local _vflag=""
+    if [[ "${quiet}" = "n" ]]; then
+        _vflag="-v"
+    fi
+
+    local tar_path="$(realpath ${out_dir})/${tarball_name}"
+
+    cd "${work_dir}/airootfs"
+
+    tar -J -p -c ${_vflag} -f "${tar_path}" ./*
+
+    cdback
+
+    _mktarchecksum
+    _msg_info "Done! | $(ls -sh ${tar_path})"
+}
+
 # create airootfs.sfs filesystem, and push it in "iso" directory.
 command_prepare () {
     _show_config prepare
 
     _cleanup
-    if [[ ${sfs_mode} == "sfs" ]]; then
+    if [[ "${sfs_mode}" = "sfs" ]]; then
         _mkairootfs_sfs
     else
         _mkairootfs_img
@@ -385,6 +465,26 @@ command_install () {
     _show_config install
 
     _pacman "${pkg_list}"
+}
+
+# Install packages on airootfs from pkg file
+# A basic check to avoid double execution/reinstallation is done via hashing package names.
+command_install_file () {
+    if [[ ! -f "${pacman_conf}" ]]; then
+        _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
+    fi
+
+    #trim spaces
+    pkg_list="$(echo ${pkg_list})"
+
+    if [[ -z ${pkg_list} ]]; then
+        _msg_error "Packages must be specified" 0
+        _usage 1
+    fi
+
+    _show_config install
+
+    _pacman_file "${pkg_list}"
 }
 
 command_init() {
@@ -444,6 +544,9 @@ case "${command_name}" in
     install)
         command_install
         ;;
+    install_file)
+        command_install_file
+        ;;
     run)
         command_run
         ;;
@@ -460,6 +563,14 @@ case "${command_name}" in
         fi
         img_name="${2}"
         command_iso
+        ;;
+    tarball)
+        if [[ $# -lt 2 ]]; then
+            _msg_error "No name specified" 0
+            _usage 1
+        fi
+        tarball_name="${2}"
+        command_tarball
         ;;
     *)
         _msg_error "Invalid command name '${command_name}'" 0

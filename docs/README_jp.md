@@ -113,9 +113,6 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 			<th>
 				<a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
 			</th>
-			<th>
-				<a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
-			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -131,9 +128,6 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 			</td>
 			<td>
 				常に更新されます。問題が多数残っている場合があります。
-			</td>
-			<td>
-				次世代のAlterISOや新しいデスクトップ環境の開発が行われています。
 			</td>
 		</tr>
 	</tbody>
@@ -159,7 +153,9 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 	<li><a href="jp/PACKAGE.md">パッケージリストについての注意</a></li>
 	<li><a href="jp/DOCKER.md">Docker上でビルドする方法</a></li>
 	<li><a href="jp/KERNEL.md">新しいカーネルを追加する方法</a></li>
-	<li><a href="en/CONFIG.md">ビルドの設定ファイルについて</a></li>
+	<li><a href="jp/CONFIG.md">ビルドの設定ファイルについて</a></li>
+	<li><a href="jp/CHANNEL_2_to_3.md">AlterISO2のチャンネルを3に対応させる</a></li>
+	<li><a href="ja/arch-pkgbuild-parser.md">arch-pkgbuild-parserについて</a></li>
 </ul>
 
 
@@ -188,7 +184,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <a href="https://twitter.com/Pixel_3a">
 	<img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
 </a>
-<a href="https://twitter.com/YangDevJP">
+<a href="https://twitter.com/yangniao23">
 	<img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
 <a href="https://twitter.com/Watasuke102">

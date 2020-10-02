@@ -18,29 +18,29 @@
     </a>
 </p>
 <p align="center">
-  	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-	    	<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=for-the-badge">
-    </a>
-    <a href="https://github.com/FascodeNet/alterlinux/issues">
-        <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
-    </a>
-    <a href="https://github.com/FascodeNet/alterlinux/stargazers">
-        <img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
-    </a>
-    <a href="https://github.com/FascodeNet/alterlinux/network/members">
-        <img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
-    </a>
+	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
+		<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/issues">
+		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
+		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/network/members">
+		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
 </p>
 <p align="center">
-    <a href="https://github.com/FascodeNet/alterlinux/releases">
-        <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
-    </a>
-    <a href="https://fascode.net/en/projects/linux/alter/downloads/">
-        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
-    </a>
-    <a href="">
-        <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
-    </a>
+	<a href="https://github.com/FascodeNet/alterlinux/releases">
+		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
+	</a>
+	<a href="https://fascode.net/en/projects/linux/alter/downloads/">
+		<img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
+	</a>
+	<a href="https://github.com/FascodeNet/alterlinux/commits/">
+		<img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
+	</a>
 </p>
 
 <table>
@@ -114,9 +114,6 @@ These are a list of major branches. Other branches are temporary or used for spe
             <th>
                 <a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
             </th>
-            <th>
-                <a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
-            </th>
         </tr>
     </thead>
     <tbody>
@@ -132,9 +129,6 @@ These are a list of major branches. Other branches are temporary or used for spe
             </td>
             <td>
                 Always updated. There may be many issues left.
-            </td>
-            <td>
-                Next-generation AlterISO and new desktop environment are being developed.
             </td>
         </tr>
     </tbody>
@@ -152,13 +146,14 @@ Some documents may have outdated information or only some languages.<br>
 All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
-    <li><a href="en/BUILD.md">Build Alter Linux</a></li>
-    <li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
-    <li><a href="en/CHANNEL.md">Channel specifications</a></li>
-    <li><a href="en/PACKAGE.md">Notes on package list</a></li>
-    <li><a href="en/DOCKER.md">How to build on Docker</a></li>
-    <li><a href="en/KERNEL.md">How to add a new kernel</a></li>
-    <li><a href="en/CONFIG.md">About build configuration file</a></li>
+	<li><a href="en/BUILD.md">Build Alter Linux</a></li>
+	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
+	<li><a href="en/CHANNEL.md">Channel specifications</a></li>
+	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
+	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
+	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+	<li><a href="en/CONFIG.md">About build configuration file</a></li>
+	<li><a href="en/arch-pkgbuild-parser.md">About arch-pkgbuild-parser</a></li>
 </ul>
 
 <h2>〈If you cannot start〉</h2>
@@ -185,7 +180,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/Pixel_3a">
     <img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
 </a>
-<a href="https://twitter.com/YangDevJP">
+<a href="https://twitter.com/yangniao23">
     <img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
 <a href="https://twitter.com/Watasuke102">
