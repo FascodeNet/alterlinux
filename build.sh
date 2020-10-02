@@ -224,8 +224,8 @@ _usage () {
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
     echo "                                  Default: ${password}"
-    echo "    -t | --comp-opts <options>   Set compressor-specific options. Specify \"reset\" to empty"
-    echo "                                  Default: -Xcompression-level 20"
+    echo "    -t | --comp-opts <options>   Set compressor-specific options."
+    echo "                                  Default: empty"
     echo "    -u | --user <username>       Set user name"
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
@@ -1567,9 +1567,6 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
-
-# Default squashfs options
-if [[ "${sfs_comp_opt}" = "-Xcompression-level 20" && ! "${sfs_comp}" = "zstd" ]]; then sfs_comp_opt=""; fi
 
 set +eu
 
