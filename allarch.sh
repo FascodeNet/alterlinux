@@ -1328,6 +1328,7 @@ OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
+msg_debug "Argument: ${OPT}"
 unset OPT _opt_short _opt_long
 
 while :; do
