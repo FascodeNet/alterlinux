@@ -225,8 +225,8 @@ _usage () {
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
     echo "                                  Default: ${password}"
-    echo "    -t | --comp-opts <options>   Set compressor-specific options"
-    echo "                                  Default: empty"
+    echo "    -t | --comp-opts <options>   Set compressor-specific options. Specify \"reset\" to empty"
+    echo "                                  Default: -Xcompression-level 20"
     echo "    -u | --user <username>       Set user name"
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
@@ -1385,7 +1385,11 @@ while :; do
             shift 1
             ;;
         -t | --comp-opts)
-            sfs_comp_opt="${2}"
+            if [[ "${2}" = "reset" ]]; then
+                sfs_comp_opt=""
+            else
+                sfs_comp_opt="${2}"
+            fi
             shift 2
             ;;
         -u | --user)
