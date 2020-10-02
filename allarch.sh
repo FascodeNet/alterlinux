@@ -1520,7 +1520,13 @@ fi
 # Check channel version
 msg_debug "channel path is ${channel_path}"
 if [[ ! "$(cat "${channel_path}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-    msg_error "This channel does not support AlterISO 3." "1"
+    msg_error "This channel does not support Alter ISO 3."
+    if [[ -d "${script_path}/.git" ]]; then
+        msg_error "Please run \"git checkout alteriso-2\""
+    else
+        msg_error "Please download Alter ISO 2 here."
+        msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip"
+    fi
 fi
 
 check_bool debug
