@@ -11,6 +11,7 @@ opt_allarch=false
 opt_fullpath=false
 alteriso_version="3.0"
 mode=""
+arch="all"
 
 _help() {
     echo "usage ${0} [options] [command]"
@@ -23,12 +24,13 @@ _help() {
     echo "    help               This help message"
     echo
     echo " General options:"
-    echo "    -a | --add                Only additional channels"
+    echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -b | --nobuiltin          Exclude built-in channels"
     echo "    -d | --dirname            Display directory names of all channel as it is"
     echo "    -f | --fullpath           Display the full path of the channel (Use with -db)"
     echo "    -m | --multi              Only channels supported by allarch.sh"
     echo "    -n | --nochkver           Ignore channel version"
+    echo "    -o | --only-add           Only additional channels"
     echo "    -v | --version [ver]      Specifies the AlterISO version"
     echo "    -h | --help               This help message"
 }
@@ -37,6 +39,9 @@ gen_channel_list() {
     local _dirname
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
         if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
+            if [[  ! "${arch}" = "all" ]] && [[ -z "$(cat "${script_path}/channels/${_dirname}/architecture" 2> /dev/null | grep -h -v ^'#' | grep -x "${arch}")" ]]; then
+                continue
+            fi
             if [[ "${_dirname}" = "share" ]]; then
                 continue
             elif [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
@@ -94,8 +99,8 @@ show() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="abdfmnv:h"
-_opt_long="add,nobuiltin,dirname,fullpath,multi,nochkver,version:,help"
+_opt_short="a:bdfmnov:h"
+_opt_long="arch:,nobuiltin,dirname,fullpath,multi,only-add,nochkver,version:,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -104,9 +109,9 @@ unset OPT _opt_short _opt_long
 
 while true; do
     case ${1} in
-        -a | --add)
-            opt_only_add=true
-            shift 1
+        -a | --arch)
+            arch="${2}"
+            shift 2
             ;;
         -b | --nobuiltin)
             opt_nobuiltin=true
@@ -126,6 +131,10 @@ while true; do
             ;;
         -n | --nochkver)
             opt_nochkver=true
+            shift 1
+            ;;
+        -o | --only-add)
+            opt_only_add=true
             shift 1
             ;;
         -v | --version)
