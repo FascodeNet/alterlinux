@@ -258,11 +258,6 @@ load_config() {
     done
 }
 
-# 作業ディレクトリを削除
-remove_work() {
-    remove "${work_dir}"
-}
-
 # Display channel list
 show_channel_list() {
     if [[ "${nochkver}" = true ]]; then
@@ -1460,6 +1455,6 @@ if [[ "${tarball}" = true ]]; then
     done
 fi
 [[ "${noiso}" = false ]] && run_once make_iso
-[[ "${cleaning}" = true ]] && remove_work
+[[ "${cleaning}" = true ]] && remove "${work_dir}"
 
 exit 0
