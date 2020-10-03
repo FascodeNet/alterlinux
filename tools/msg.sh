@@ -12,6 +12,7 @@ message=""
 msg_type="info"
 msg_label=""
 label_width="7"
+customized_label=false
 
 _help() {
     echo "usage ${0} [option] [type] [message]"
@@ -25,17 +26,22 @@ _help() {
     echo "    debug                     Debug message"
     echo
     echo " General options:"
-    echo "    -a                        Specify the app name"
+    echo "    -a [name]                 Specify the app name"
+    echo "    -l [label]                Specify the label."
     echo "    -n | --nocolor            No output colored output"
-    echo "    -o                        Specify echo options"
+    echo "    -o [option]               Specify echo options"
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
 }
 
 
-while getopts "a:no:xh-:" arg; do
+while getopts "a:l:no:xh-:" arg; do
   case ${arg} in
         a) appname="${OPTARG}" ;;
+        l) 
+            customized_label=true
+            msg_label="${OPTARG}"
+            ;;
         n) nocolor=true ;;
         o) echo_opts="${OPTARG}" ;;
         x)
@@ -98,25 +104,25 @@ case ${1} in
     "info")
         msg_type="type"
         textcolor="32"
-        msg_label="Info"
+        [[ "${customized_label}" = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
         msg_type="warn"
         textcolor="33"
-        msg_label="Warning"
+        [[ "${customized_label}" = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
         msg_type="debug"
         textcolor="35"
-        msg_label="Debug"
+        [[ "${customized_label}" = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
         msg_type="error"
         textcolor="31"
-        msg_label="Error"
+        [[ "${customized_label}" = false ]] && msg_label="Error"
         shift 1
         ;;
     "")
