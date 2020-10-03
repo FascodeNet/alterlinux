@@ -93,7 +93,9 @@ check() {
 
 show() {
     gen_channel_list
-    echo "${channellist[*]}"
+    if (( "${#channellist[*]}" > 0)); then
+        echo "${channellist[*]}"
+    fi
 }
 
 
