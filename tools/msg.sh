@@ -127,9 +127,11 @@ case ${1} in
         ;;
     "")
         "${script_path}/tools/msg.sh" -a "msg.sh" error "Please specify the message type"
+        exit 1
         ;;
     *)
         "${script_path}/tools/msg.sh" -a "msg.sh" error "Unknown message type"
+        exit 1
         ;;
 esac
 
