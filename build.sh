@@ -38,156 +38,45 @@ fi
 
 umask 0022
 
-# Color echo
-# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
-#
-# Text Color
-# 30 => Black
-# 31 => Red
-# 32 => Green
-# 33 => Yellow
-# 34 => Blue
-# 35 => Magenta
-# 36 => Cyan
-# 37 => White
-#
-# Background color
-# 40 => Black
-# 41 => Red
-# 42 => Green
-# 43 => Yellow
-# 44 => Blue
-# 45 => Magenta
-# 46 => Cyan
-# 47 => White
-#
-# Text decoration
-# You can specify multiple decorations with ;.
-# 0 => All attributs off (ノーマル)
-# 1 => Bold on (太字)
-# 4 => Underscore (下線)
-# 5 => Blink on (点滅)
-# 7 => Reverse video on (色反転)
-# 8 => Concealed on
-
-echo_color() {
-    local backcolor textcolor decotypes echo_opts arg OPTIND OPT
-    echo_opts="-e"
-    while getopts 'b:t:d:n' arg; do
-        case "${arg}" in
-            b) backcolor="${OPTARG}" ;;
-            t) textcolor="${OPTARG}" ;;
-            d) decotypes="${OPTARG}" ;;
-            n) echo_opts="-n -e"     ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    if [[ "${nocolor}" = false ]]; then
-        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
-    else
-        echo ${echo_opts} "${@}"
-    fi
-}
-
-
 # Show an INFO message
 # $1: message string
 msg_info() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${*}"
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
-    fi
+    local _msg_opts="-a build.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
 }
-
 
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
-    fi
+    local _msg_opts="-a build.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
 }
-
 
 # Show an debug message
 # $1: message string
 msg_debug() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${*}"
-    fi
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
+    if [[ "${debug}" = true ]]; then
+        local _msg_opts="-a build.sh"
+        [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+        [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
     fi
 }
-
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
+    local _msg_opts="-a build.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit ${2}
-    fi
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
     fi
 }
 
