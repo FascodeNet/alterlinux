@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import gi, os, subprocess, shlex
+import gi, os, shlex, subprocess
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
@@ -20,7 +20,7 @@ class MainWindow(Gtk.Window):
                 liststore = Gtk.ListStore(int, str)
                 liststore_num = 0
 
-                with open("../system/{}-{}".format(value, arch)) as f:
+                with open("{}/system/{}-{}".format(root_dir, value, arch)) as f:
                     for i in [value.strip().split()[-1] for value in f.readlines() if not "#" in value and value != "\n"]:
                         liststore.append([liststore_num, i])
                         liststore_num += 1
@@ -31,8 +31,8 @@ class MainWindow(Gtk.Window):
             liststore = Gtk.ListStore(int, str)
             liststore_num = 0
             
-            for values in os.listdir("../channels"):
-                path = os.path.join("../channels", values)
+            for values in os.listdir("{}/channels".format(root_dir,)):
+                path = os.path.join("{}/channels".format(root_dir,), values)
 
                 if os.path.isdir(path) and values != "share":
                     with open("{}/architecture".format(path)) as f:
@@ -220,7 +220,7 @@ class MainWindow(Gtk.Window):
         else:
             kernel = kernel.replace("linux-", "")
         
-        command = "sudo ../build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(arch, kernel, locale, comp, username, password)
+        command = "sudo {}/build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(root_dir, arch, kernel, locale, comp, username, password)
         
         if self.boot_splash_button_enable.get_active():
             command = "{} --boot-splash".format(command)
@@ -263,6 +263,8 @@ class MainWindow(Gtk.Window):
 
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(script_dir)
     win = MainWindow()
     win.connect("destroy", Gtk.main_quit)
     win.show_all()
