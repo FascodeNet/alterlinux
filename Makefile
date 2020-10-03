@@ -25,7 +25,8 @@ lint:
 	                   $(wildcard configs/*/build.sh) \
 	                   $(wildcard configs/*/profiledef.sh) \
 	                   configs/releng/airootfs/root/.automated_script.sh \
-	                   configs/releng/airootfs/usr/local/bin/choose-mirror
+	                   configs/releng/airootfs/usr/local/bin/choose-mirror \
+	                   configs/releng/airootfs/usr/local/bin/livecd-sound
 	shellcheck -s dash $(HOOKS_FILES) $(SCRIPT_FILES)
 
 install: install-program install-examples install-doc
