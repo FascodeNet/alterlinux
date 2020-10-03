@@ -80,41 +80,39 @@ echo_color() {
     OPTIND=${OPTIND_bak}
 }
 
-
 # Show an INFO message
 # $1: message string
 msg_info() {
-    local _msg="${1}"
-    echo "$( echo_color -t '36' '[keyring.sh]')    $( echo_color -t '32' 'Info') ${_msg}"
+    local _msg_opts="-a keyring.sh"
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
 }
-
 
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    local _msg="${1}"
-    echo "$( echo_color -t '36' '[keyring.sh]') $( echo_color -t '33' 'Warning') ${_msg}" >&2
+    local _msg_opts="-a keyring.sh"
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
 }
-
 
 # Show an debug message
 # $1: message string
 msg_debug() {
-    local _msg="${1}"
-    if [[ ${debug} = true ]]; then
-        echo "$( echo_color -t '36' '[keyring.sh]')   $( echo_color -t '35' 'Debug') ${_msg}"
+    if [[ "${debug}" = true ]]; then
+        local _msg_opts="-a keyring.sh"
+        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
     fi
 }
-
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg="${1}"
-    echo "$( echo_color -t '36' '[keyring.sh]')   $( echo_color -t '31' 'Error') ${_msg}" >&2
+    local _msg_opts="-a keyring.sh"
+    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
+    fi
 }
-
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
