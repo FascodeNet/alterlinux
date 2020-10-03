@@ -11,7 +11,8 @@ echo_opts=""
 message=""
 msg_type="info"
 msg_label=""
-label_width="7"
+label_space="7"
+adjust_chr=" "
 customized_label=false
 
 _help() {
@@ -27,23 +28,27 @@ _help() {
     echo
     echo " General options:"
     echo "    -a [name]                 Specify the app name"
+    echo "    -c [character]            Specify the character to adjust the label"
     echo "    -l [label]                Specify the label."
     echo "    -n | --nocolor            No output colored output"
     echo "    -o [option]               Specify echo options"
+    echo "    -s [number]               Specifies the label space."
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
 }
 
 
-while getopts "a:l:no:xh-:" arg; do
+while getopts "a:c:l:no:s:xh-:" arg; do
   case ${arg} in
         a) appname="${OPTARG}" ;;
+        c) adjust_chr="${OPTARG}" ;;
         l) 
             customized_label=true
             msg_label="${OPTARG}"
             ;;
         n) nocolor=true ;;
         o) echo_opts="${OPTARG}" ;;
+        s) label_space="${OPTARG}" ;;
         x)
             bash_debug=true
             set -xv
@@ -139,8 +144,8 @@ word_count="${#msg_label}"
 message="${@}"
 
 echo_type() {
-    for i in $( seq 1 $(( ${label_width} - ${word_count} )) ); do
-        echo -ne " "
+    for i in $( seq 1 $(( ${label_space} - ${word_count} )) ); do
+        echo -ne "${adjust_chr}"
     done
     if [[ "${nocolor}" = false ]]; then
         echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m"
