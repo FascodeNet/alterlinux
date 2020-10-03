@@ -260,7 +260,6 @@ _usage () {
 
     echo
     echo " Channel:"
-    #for _dirname in $(if [[ "${nochkver}" = true ]]; then bash "${script_path}/tools/channel.sh" -d -b -n show; else bash "${script_path}/tools/channel.sh" -d -b show; fi); do
     for _dirname in $(bash "${script_path}/tools/channel.sh" -d -b -n show); do
         if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
@@ -403,7 +402,6 @@ prepare_env() {
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
                 # パッケージがインストールされているかどうか
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    #__ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
                     __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         # パッケージが最新の場合
@@ -940,13 +938,6 @@ make_packages_aur() {
 
 
     # Install dependent packages.
-    #local dependent_packages
-    #for _aur_pkg in ${pkglist_aur[@]}; do
-    #    dependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
-    #    if [[ -n "${dependent_packages}" ]]; then
-    #        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
-    #    fi
-    #done
     local dependent_packages=""
     for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages="${dependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
     [[ -n "${dependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
@@ -955,14 +946,6 @@ make_packages_aur() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
 
     # Install makedependent packages.
-    #local makedependent_packages
-    #for _aur_pkg in ${pkglist_aur[@]}; do
-    #    makedependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
-    #    if [[ -n "${makedependent_packages}" ]]; then
-    #        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
-    #    fi
-    #done
-
     local makedependent_packages=""
     for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages="${makedependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
     [[ -n "${makedependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
@@ -1209,7 +1192,6 @@ make_efi() {
     )
 
     mkdir -p "${work_dir}/iso/loader/entries"
-    #cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/iso/loader/loader.conf"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;

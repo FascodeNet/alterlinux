@@ -39,10 +39,7 @@ gen_channel_list() {
     local _dirname
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
         if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
-            if [[  ! "${arch}" = "all" ]] && [[ -z "$(cat "${script_path}/channels/${_dirname}/architecture" 2> /dev/null | grep -h -v ^'#' | grep -x "${arch}")" ]]; then
-                continue
-            fi
-            if [[ "${_dirname}" = "share" ]]; then
+            if [[  ! "${arch}" = "all" ]] && [[ -z "$(cat "${script_path}/channels/${_dirname}/architecture" 2> /dev/null | grep -h -v ^'#' | grep -x "${arch}")" ]] || [[ "${_dirname}" = "share" ]]; then
                 continue
             elif [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 if [[ "${opt_dir_name}" = true ]]; then
@@ -93,7 +90,9 @@ check() {
 
 show() {
     gen_channel_list
-    echo "${channellist[*]}"
+    if (( "${#channellist[*]}" > 0)); then
+        echo "${channellist[*]}"
+    fi
 }
 
 
