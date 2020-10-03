@@ -25,53 +25,43 @@ _help() {
     echo "    debug                     Debug message"
     echo
     echo " General options:"
-    echo "    -a | --appname [name]     Specify the app name"
+    echo "    -a                        Specify the app name"
     echo "    -n | --nocolor            No output colored output"
-    echo "    -o | --echo-opts [opts]   Specify echo options"
+    echo "    -o                        Specify echo options"
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
 }
 
-# Parse options
-ARGUMENT="${@}"
-_opt_short="a:no:xh"
-_opt_long="appname:,nocolor,echo-opts:,bash-debug,help"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
 
-eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
-
-while true; do
-    case ${1} in
-        -a | --appname)
-            appname="${2}"
-            shift 2
-            ;;
-        -n | --nocolor)
-            nocolor=true
-            shift 1
-            ;;
-        -o | --echo-opts)
-            echo_opts="${2}"
-            shift 2
-            ;;
-        -x | --bash-debug)
+while getopts "a:no:xh-:" arg; do
+  case ${arg} in
+        a) appname="${OPTARG}" ;;
+        n) nocolor=true ;;
+        o) echo_opts="${OPTARG}" ;;
+        x)
             bash_debug=true
             set -xv
-            shift 1
             ;;
-        -h | --help)
+        h)
             _help
             exit 0
             ;;
-        --)
-            shift 1
-            break
-            ;;
-
-    esac
+        -)
+            case "${OPTARG}" in
+                "nocolor") nocolor=true ;;
+                "bash-debug")
+                    bash_debug=true
+                    set -xv
+                    ;;
+                "help") 
+                    _help
+                    exit 0
+                    ;;
+            esac
+  esac
 done
+
+shift $((OPTIND - 1))
 
 # Color echo
 #
