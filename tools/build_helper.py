@@ -27,19 +27,13 @@ class MainWindow(Gtk.Window):
 
                 dict[value] = liststore
             
-            list = []
             liststore = Gtk.ListStore(int, str)
             liststore_num = 0
+            command = "{}/channel.sh --nobuiltin --arch {} show".format(script_dir, arch)
+            command_obj = shlex.split(command)
+            proc = subprocess.Popen(command_obj, stdout=subprocess.PIPE, text=True)
             
-            for values in os.listdir("{}/channels".format(root_dir,)):
-                path = os.path.join("{}/channels".format(root_dir,), values)
-
-                if os.path.isdir(path) and values != "share":
-                    with open("{}/architecture".format(path)) as f:
-                        for i in [value.strip().split()[-1] for value in f.readlines() if not "#" in value and value != "\n"]:
-                            if i == arch: list.append(values)
-            
-            for values in sorted(list):
+            for values in sorted(proc.stdout.read().strip().split()):
                 liststore.append([liststore_num, values])
                 liststore_num += 1
             
@@ -227,17 +221,16 @@ class MainWindow(Gtk.Window):
         
         command = "{} {}".format(command, channel)
         command_obj = shlex.split(command)
+        print("----- START -----")
         print("RUN CMD:", command)
-        proc = subprocess.Popen(command_obj, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        proc = subprocess.run(command_obj)
 
-        while True:
-            line = proc.stdout.readline()
-            
-            if line:
-                print(line.strip())
-            elif proc.poll() is not None:
-                print("Done!")
-                break
+        if proc.returncode == 0:
+            print("Done!")
+        else:
+            print("Error Occured! Return Code", proc.returncode)
+        
+        print("===== END =====\n")
 
     def on_reset_clicked(self, button):
         self.arch_combo.set_active(0)
