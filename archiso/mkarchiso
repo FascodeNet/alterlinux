@@ -544,16 +544,22 @@ _make_boot_uefi-x64.systemd-boot.esp() {
     _msg_info "Setting up systemd-boot for UEFI booting..."
     install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
 
-    efiboot_imgsize="$(( (( (( $(du --apparent-size -bc \
+    # the required image size in KiB (rounded up to the next full MiB with an additional MiB for reserved sectors)
+    efiboot_imgsize="$(du -bc \
         "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
         "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" \
         "${profile}/efiboot/" \
         "${airootfs_dir}/boot/vmlinuz-"* \
         "${airootfs_dir}/boot/initramfs-"*".img" \
         "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio} \
-        2>/dev/null | awk 'END {print $1}') / 1048576 )) +1 )) * 1024 ))"
+        2>/dev/null | awk 'function ceil(x){return int(x)+(x>int(x))}
+            function byte_to_kib(x){return x/1024}
+            function mib_to_kib(x){return x*1024}
+            END {print mib_to_kib(ceil((byte_to_kib($1)+1024)/1024))}'
+        )"
     # The FAT image must be created with mkfs.fat not mformat, as some systems have issues with mformat made images:
     # https://lists.gnu.org/archive/html/grub-devel/2019-04/msg00099.html
+    _msg_info "Creating FAT image of size: ${efiboot_imgsize} KiB..."
     mkfs.fat -C -n ARCHISO_EFI "${isofs_dir}/EFI/archiso/efiboot.img" "$efiboot_imgsize"
 
     mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/EFI ::/EFI/BOOT
