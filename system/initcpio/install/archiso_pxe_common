@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 build() {
     add_checked_modules -f "(irda|phy|wimax|wireless|ppp_|plip|pppoe)" "/drivers/net/"

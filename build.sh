@@ -38,156 +38,45 @@ fi
 
 umask 0022
 
-# Color echo
-# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
-#
-# Text Color
-# 30 => Black
-# 31 => Red
-# 32 => Green
-# 33 => Yellow
-# 34 => Blue
-# 35 => Magenta
-# 36 => Cyan
-# 37 => White
-#
-# Background color
-# 40 => Black
-# 41 => Red
-# 42 => Green
-# 43 => Yellow
-# 44 => Blue
-# 45 => Magenta
-# 46 => Cyan
-# 47 => White
-#
-# Text decoration
-# You can specify multiple decorations with ;.
-# 0 => All attributs off (ノーマル)
-# 1 => Bold on (太字)
-# 4 => Underscore (下線)
-# 5 => Blink on (点滅)
-# 7 => Reverse video on (色反転)
-# 8 => Concealed on
-
-echo_color() {
-    local backcolor textcolor decotypes echo_opts arg OPTIND OPT
-    echo_opts="-e"
-    while getopts 'b:t:d:n' arg; do
-        case "${arg}" in
-            b) backcolor="${OPTARG}" ;;
-            t) textcolor="${OPTARG}" ;;
-            d) decotypes="${OPTARG}" ;;
-            n) echo_opts="-n -e"     ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    if [[ "${nocolor}" = false ]]; then
-        echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
-    else
-        echo ${echo_opts} "${@}"
-    fi
-}
-
-
 # Show an INFO message
 # $1: message string
 msg_info() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')    $( echo_color -t '32' 'Info') ${*}"
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
-    fi
+    local _msg_opts="-a build.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
 }
-
 
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
-    fi
+    local _msg_opts="-a build.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
 }
-
 
 # Show an debug message
 # $1: message string
 msg_debug() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '35' 'Debug') ${*}"
-    fi
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
+    if [[ "${debug}" = true ]]; then
+        local _msg_opts="-a build.sh"
+        [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+        [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
     fi
 }
-
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    if [[ "${msgdebug}" = false ]]; then
-        set +xv
-    else
-        set -xv
-    fi
-    local echo_opts="-e" arg OPTIND OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift "$((OPTIND - 1))"
-    echo ${echo_opts} "$( echo_color -t '36' '[build.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
+    local _msg_opts="-a build.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit ${2}
-    fi
-    if [[ "${bash_debug}" = true ]]; then
-        set -xv
-    else
-        set +xv
     fi
 }
 
@@ -224,7 +113,7 @@ _usage () {
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
     echo "                                  Default: ${password}"
-    echo "    -t | --comp-opts <options>   Set compressor-specific options"
+    echo "    -t | --comp-opts <options>   Set compressor-specific options."
     echo "                                  Default: empty"
     echo "    -u | --user <username>       Set user name"
     echo "                                  Default: ${username}"
@@ -260,7 +149,6 @@ _usage () {
 
     echo
     echo " Channel:"
-    #for _dirname in $(if [[ "${nochkver}" = true ]]; then bash "${script_path}/tools/channel.sh" -d -b -n show; else bash "${script_path}/tools/channel.sh" -d -b show; fi); do
     for _dirname in $(bash "${script_path}/tools/channel.sh" -d -b -n show); do
         if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
@@ -403,7 +291,6 @@ prepare_env() {
             for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
                 # パッケージがインストールされているかどうか
                 if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    #__ver="$(pacman -Sp --print-format '%v' --config ${build_pacman_conf} ${1} 2> /dev/null; :)"
                     __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
                     if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
                         # パッケージが最新の場合
@@ -540,6 +427,7 @@ prepare_rebuild() {
         _save_var iso_version
         _save_var iso_filename
         _save_var channel_name
+        _save_var channel_dir
 
         _write_rebuild_file "\n# Environment Info"
         _save_var install_dir
@@ -939,24 +827,19 @@ make_packages_aur() {
 
 
     # Install dependent packages.
-    local dependent_packages
-    for _aur_pkg in ${pkglist_aur[@]}; do
-        dependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
-        if [[ -n "${dependent_packages}" ]]; then
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
-        fi
-    done
+    local dependent_packages=""
+    for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages="${dependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
+    [[ -n "${dependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
 
     # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
+
     # Install makedependent packages.
-    local makedependent_packages
-    for _aur_pkg in ${pkglist_aur[@]}; do
-        makedependent_packages="$("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"
-        if [[ -n "${makedependent_packages}" ]]; then
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
-        fi
-    done
+    local makedependent_packages=""
+    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages="${makedependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
+    [[ -n "${makedependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
+
+
     # Dump packages
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
 
@@ -1198,7 +1081,6 @@ make_efi() {
     )
 
     mkdir -p "${work_dir}/iso/loader/entries"
-    #cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/iso/loader/"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/iso/loader/loader.conf"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1395,6 +1277,7 @@ OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
+msg_debug "Argument: ${OPT}"
 unset OPT _opt_short _opt_long
 
 while :; do
@@ -1455,7 +1338,11 @@ while :; do
             shift 1
             ;;
         -t | --comp-opts)
-            sfs_comp_opt="${2}"
+            if [[ "${2}" = "reset" ]]; then
+                sfs_comp_opt=""
+            else
+                sfs_comp_opt="${2}"
+            fi
             shift 2
             ;;
         -u | --user)
@@ -1553,9 +1440,6 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
 
-# Default squashfs options
-if [[ "${sfs_comp_opt}" = "-Xcompression-level 20" && ! "${sfs_comp}" = "zstd" ]]; then sfs_comp_opt=""; fi
-
 set +eu
 
 # Check for a valid channel name
@@ -1598,7 +1482,13 @@ fi
 if [[ ! "${channel_name}" = "rebuild" ]]; then
     msg_debug "channel path is ${channel_dir}"
     if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-        msg_error "This channel does not support AlterISO 3." "1"
+        msg_error "This channel does not support Alter ISO 3."
+        if [[ -d "${script_path}/.git" ]]; then
+            msg_error "Please run \"git checkout alteriso-2\"" "1"
+        else
+            msg_error "Please download Alter ISO 2 here."
+            msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
+        fi
     fi
 fi
 

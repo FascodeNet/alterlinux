@@ -27,133 +27,43 @@ retry=5
 
 all_channel=false
 
-# Color echo
-# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
-#
-# Text Color
-# 30 => Black
-# 31 => Red
-# 32 => Green
-# 33 => Yellow
-# 34 => Blue
-# 35 => Magenta
-# 36 => Cyan
-# 37 => White
-#
-# Background color
-# 40 => Black
-# 41 => Red
-# 42 => Green
-# 43 => Yellow
-# 44 => Blue
-# 45 => Magenta
-# 46 => Cyan
-# 47 => White
-#
-# Text decoration
-# You can specify multiple decorations with ;.
-# 0 => All attributs off (ノーマル)
-# 1 => Bold on (太字)
-# 4 => Underscore (下線)
-# 5 => Blink on (点滅)
-# 7 => Reverse video on (色反転)
-# 8 => Concealed on
-
-echo_color() {
-    local backcolor
-    local textcolor
-    local decotypes
-    local echo_opts
-    local arg
-    local OPTIND
-    local OPT
-
-    echo_opts="-e"
-
-    while getopts 'b:t:d:n' arg; do
-        case "${arg}" in
-            b) backcolor="${OPTARG}" ;;
-            t) textcolor="${OPTARG}" ;;
-            d) decotypes="${OPTARG}" ;;
-            n) echo_opts="-n -e"     ;;
-        esac
-    done
-
-    shift $((OPTIND - 1))
-
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
-}
-
-
 # Show an INFO message
 # $1: message string
-_msg_info() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')    $( echo_color -t '32' 'Info') ${*}"
+msg_info() {
+    local _msg_opts="-a fullbuild.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
 }
-
 
 # Show an Warning message
 # $1: message string
-_msg_warn() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
+msg_warn() {
+    local _msg_opts="-a fullbuild.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
 }
-
 
 # Show an debug message
 # $1: message string
-_msg_debug() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '35' 'Debug') ${*}"
+msg_debug() {
+    if [[ "${debug}" = true ]]; then
+        local _msg_opts="-a fullbuild.sh"
+        [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+        [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
     fi
 }
-
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
-_msg_error() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    local OPTARG
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
+msg_error() {
+    local _msg_opts="-a fullbuild.sh"
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit ${2}
     fi
@@ -164,7 +74,7 @@ _msg_error() {
 trap_exit() {
     local status=${?}
     echo
-    _msg_error "fullbuild.sh has been killed by the user."
+    msg_error "fullbuild.sh has been killed by the user."
     exit ${status}
 }
 
@@ -179,13 +89,13 @@ build() {
             echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
             _exit_code="${?}"
         else
-            _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
+            msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash ${script_path}/build.sh ${options}
             _exit_code="${?}"
             if [[ "${_exit_code}" = 0 ]]; then
                 touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
             else
-                _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
+                msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
         fi
     fi
@@ -230,7 +140,7 @@ while getopts 'a:dghr:sctm:l:' arg; do
         m) architectures=(${OPTARG}) ;;
         g)
             if [[ ! -d "${script_path}/.git" ]]; then
-                _msg_error "There is no git directory. You need to use git clone to use this feature."
+                msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
             else
                 share_options="${share_options} --gitversion"
@@ -249,7 +159,7 @@ shift $((OPTIND - 1))
 
 if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
-        _msg_error "Do not specify the channel." "1"
+        msg_error "Do not specify the channel." "1"
     else
         channnels=($("${script_path}/build.sh" --channellist))
     fi
@@ -261,8 +171,8 @@ if [[ "${simulation}" = true ]]; then
     retry=1
 fi
 
-_msg_info "Options: ${share_options}"
-_msg_info "Press Enter to continue or Ctrl + C to cancel."
+msg_info "Options: ${share_options}"
+msg_info "Press Enter to continue or Ctrl + C to cancel."
 read
 
 
@@ -286,5 +196,5 @@ done
 
 
 if [[ "${simulation}" = false ]]; then
-    _msg_info "All editions have been built"
+    msg_info "All editions have been built"
 fi

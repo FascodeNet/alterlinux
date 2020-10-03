@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import gi, os, subprocess, shlex
+import gi, os, shlex, subprocess
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
@@ -20,26 +20,20 @@ class MainWindow(Gtk.Window):
                 liststore = Gtk.ListStore(int, str)
                 liststore_num = 0
 
-                with open("../system/{}-{}".format(value, arch)) as f:
+                with open("{}/system/{}-{}".format(root_dir, value, arch)) as f:
                     for i in [value.strip().split()[-1] for value in f.readlines() if not "#" in value and value != "\n"]:
                         liststore.append([liststore_num, i])
                         liststore_num += 1
 
                 dict[value] = liststore
             
-            list = []
             liststore = Gtk.ListStore(int, str)
             liststore_num = 0
+            command = "{}/channel.sh --nobuiltin --arch {} show".format(script_dir, arch)
+            command_obj = shlex.split(command)
+            proc = subprocess.Popen(command_obj, stdout=subprocess.PIPE, text=True)
             
-            for values in os.listdir("../channels"):
-                path = os.path.join("../channels", values)
-
-                if os.path.isdir(path) and values != "share":
-                    with open("{}/architecture".format(path)) as f:
-                        for i in [value.strip().split()[-1] for value in f.readlines() if not "#" in value and value != "\n"]:
-                            if i == arch: list.append(values)
-            
-            for values in sorted(list):
+            for values in sorted(proc.stdout.read().strip().split()):
                 liststore.append([liststore_num, values])
                 liststore_num += 1
             
@@ -220,24 +214,23 @@ class MainWindow(Gtk.Window):
         else:
             kernel = kernel.replace("linux-", "")
         
-        command = "sudo ../build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(arch, kernel, locale, comp, username, password)
+        command = "sudo {}/build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(root_dir, arch, kernel, locale, comp, username, password)
         
         if self.boot_splash_button_enable.get_active():
             command = "{} --boot-splash".format(command)
         
         command = "{} {}".format(command, channel)
         command_obj = shlex.split(command)
+        print("----- START -----")
         print("RUN CMD:", command)
-        proc = subprocess.Popen(command_obj, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        proc = subprocess.run(command_obj)
 
-        while True:
-            line = proc.stdout.readline()
-            
-            if line:
-                print(line.strip())
-            elif proc.poll() is not None:
-                print("Done!")
-                break
+        if proc.returncode == 0:
+            print("Done!")
+        else:
+            print("Error Occured! Return Code", proc.returncode)
+        
+        print("===== END =====\n")
 
     def on_reset_clicked(self, button):
         self.arch_combo.set_active(0)
@@ -263,6 +256,8 @@ class MainWindow(Gtk.Window):
 
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(script_dir)
     win = MainWindow()
     win.connect("destroy", Gtk.main_quit)
     win.show_all()

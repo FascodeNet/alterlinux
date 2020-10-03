@@ -13,8 +13,8 @@
     <a href="https://www.archlinux.org/">
         <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
     </a>
-    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v46">
-        <img src="https://img.shields.io/badge/archiso--version-46--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
+        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
     </a>
 </p>
 <p align="center">
