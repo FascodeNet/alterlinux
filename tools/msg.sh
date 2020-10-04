@@ -17,6 +17,7 @@ customized_label=false
 nolabel=false
 noappname=false
 noadjust=false
+output="stdout"
 
 _help() {
     echo "usage ${0} [option] [type] [message]"
@@ -123,24 +124,28 @@ case ${1} in
     "info")
         msg_type="type"
         textcolor="32"
+        output="stdout"
         [[ "${customized_label}" = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
         msg_type="warn"
         textcolor="33"
+        output="stdout"
         [[ "${customized_label}" = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
         msg_type="debug"
         textcolor="35"
+        output="stdout"
         [[ "${customized_label}" = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
         msg_type="error"
         textcolor="31"
+        output="stderr"
         [[ "${customized_label}" = false ]] && msg_label="Error"
         shift 1
         ;;
@@ -186,4 +191,16 @@ echo_message() {
     echo -ne "${message}\n"
 }
 
-echo ${echo_opts} "$(echo_appname)$(echo_type)$(echo_message)"
+full_message="$(echo_appname)$(echo_type)$(echo_message)"
+
+case "${output}" in
+    "stdout")
+        echo ${echo_opts} "${full_message}" >&1
+        ;;
+    "stderr")
+        echo ${echo_opts} "${full_message}" >&2
+        ;;
+    *)
+        echo ${echo_opts} "${full_message}" > ${output}
+        ;;
+esac
