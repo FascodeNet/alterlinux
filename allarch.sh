@@ -1388,11 +1388,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "rebuild" ]]; then
-    if [[ -f "${rebuildfile}" ]]; then
-        rebuild=true
-    else
-        msg_error "The previous build information is not in the working directory." "1"
-    fi
+    msg_error "allarch.sh does not support rebuild." "1"
 elif [[ "${channel_name}" = "clean" ]]; then
    "${script_path}/tools/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
