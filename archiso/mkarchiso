@@ -523,9 +523,9 @@ _make_efi() {
 _make_boot_on_fat() {
     local ucode_image all_ucode_images=()
     _msg_info "Preparing kernel and intramfs for the FAT file system..."
-    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+    mmd -i "${work_dir}/efiboot.img" \
         "::/${install_dir}" "::/${install_dir}/boot" "::/${install_dir}/boot/${arch}"
-    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${airootfs_dir}/boot/vmlinuz-"* \
+    mcopy -i "${work_dir}/efiboot.img" "${airootfs_dir}/boot/vmlinuz-"* \
         "${airootfs_dir}/boot/initramfs-"*".img" "::/${install_dir}/boot/${arch}/"
     for ucode_image in \
         "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}
@@ -535,7 +535,7 @@ _make_boot_on_fat() {
         fi
     done
     if (( ${#all_ucode_images[@]} )); then
-        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${all_ucode_images[@]}" "::/${install_dir}/boot/"
+        mcopy -i "${work_dir}/efiboot.img" "${all_ucode_images[@]}" "::/${install_dir}/boot/"
     fi
     _msg_info "Done!"
 }
@@ -544,7 +544,6 @@ _make_boot_on_fat() {
 _make_boot_uefi-x64.systemd-boot.esp() {
     local efiboot_imgsize="0"
     _msg_info "Setting up systemd-boot for UEFI booting..."
-    install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
 
     # the required image size in KiB (rounded up to the next full MiB with an additional MiB for reserved sectors)
     efiboot_imgsize="$(du -bc \
@@ -561,26 +560,26 @@ _make_boot_uefi-x64.systemd-boot.esp() {
         )"
     # The FAT image must be created with mkfs.fat not mformat, as some systems have issues with mformat made images:
     # https://lists.gnu.org/archive/html/grub-devel/2019-04/msg00099.html
-    [[ -e "${isofs_dir}/EFI/archiso/efiboot.img" ]] && rm -f -- "${isofs_dir}/EFI/archiso/efiboot.img"
+    [[ -e "${work_dir}/efiboot.img" ]] && rm -f -- "${work_dir}/efiboot.img"
     _msg_info "Creating FAT image of size: ${efiboot_imgsize} KiB..."
-    mkfs.fat -C -n ARCHISO_EFI "${isofs_dir}/EFI/archiso/efiboot.img" "$efiboot_imgsize"
+    mkfs.fat -C -n ARCHISO_EFI "${work_dir}/efiboot.img" "$efiboot_imgsize"
 
-    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/EFI ::/EFI/BOOT
-    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+    mmd -i "${work_dir}/efiboot.img" ::/EFI ::/EFI/BOOT
+    mcopy -i "${work_dir}/efiboot.img" \
         "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" ::/EFI/BOOT/BOOTx64.EFI
 
-    mmd -i "${isofs_dir}/EFI/archiso/efiboot.img" ::/loader ::/loader/entries
-    mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" "${profile}/efiboot/loader/loader.conf" ::/loader/
+    mmd -i "${work_dir}/efiboot.img" ::/loader ::/loader/entries
+    mcopy -i "${work_dir}/efiboot.img" "${profile}/efiboot/loader/loader.conf" ::/loader/
     for _conf in "${profile}/efiboot/loader/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
              s|%ARCH%|${arch}|g" \
-            "${_conf}" | mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" - "::/loader/entries/${_conf##*/}"
+            "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
     done
 
     # shellx64.efi is picked up automatically when on /
     if [[ -e "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-        mcopy -i "${isofs_dir}/EFI/archiso/efiboot.img" \
+        mcopy -i "${work_dir}/efiboot.img" \
             "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ::/shellx64.efi
     fi
 
@@ -619,29 +618,106 @@ _make_iso() {
     if [[ "${quiet}" == "y" ]]; then
         xorrisofs_options+=('-quiet')
     fi
+
+    # xorrisofs options for x86 BIOS booting using SYSLINUX
     # shellcheck disable=SC2076
     if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.' ]]; then
-        if [[ ! -f "${isofs_dir}/isolinux/isolinux.bin" ]]; then
-            _msg_error "The file '${isofs_dir}/isolinux/isolinux.bin' does not exist." 1
+
+        # SYSLINUX El Torito
+        if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.eltorito ' ]]; then
+            if [[ ! -f "${isofs_dir}/isolinux/isolinux.bin" ]]; then
+                _msg_error "The file '${isofs_dir}/isolinux/isolinux.bin' does not exist." 1
+            fi
+
+            # SYSLINUX MBR
+            if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.mbr ' ]]; then
+                if [[ ! -f "${isofs_dir}/isolinux/isohdpfx.bin" ]]; then
+                    _msg_error "The file '${isofs_dir}/isolinux/isohdpfx.bin' does not exist." 1
+                fi
+
+                xorrisofs_options+=(
+                    # SYSLINUX MBR bootstrap code; does not work without "-eltorito-boot isolinux/isolinux.bin"
+                    '-isohybrid-mbr' "${isofs_dir}/isolinux/isohdpfx.bin"
+                    # When GPT is used, create an additional partition in the MBR (besides 0xEE) for sectors 0–1 (MBR
+                    # bootstrap code area) and mark it as bootable
+                    # This violates the UEFI specification, but may allow booting on some systems
+                    # https://wiki.archlinux.org/index.php/Partitioning#Tricking_old_BIOS_into_booting_from_GPT
+                    '--mbr-force-bootable'
+                    # Set the ISO 9660 partition's type to "Linux filesystem data"
+                    # When only MBR is present, the partition type ID will be 0x83 "Linux" as xorriso translates all
+                    # GPT partition type GUIDs except for the ESP GUID to MBR type ID 0x83
+                    '-iso_mbr_part_type' '0FC63DAF-8483-4772-8E79-3D69D8477DE4'
+                    # Move the first partition away from the start of the ISO to match the expectations of partition
+                    # editors
+                    # May allow booting on some systems
+                    # https://dev.lovelyhq.com/libburnia/libisoburn/src/branch/master/doc/partition_offset.wiki
+                    '-partition_offset' '16'
+                )
+            fi
+
+            xorrisofs_options+=(
+                # El Torito boot image for x86 BIOS
+                '-eltorito-boot' 'isolinux/isolinux.bin'
+                # El Torito boot catalog file
+                '-eltorito-catalog' 'isolinux/boot.cat'
+                # Required options to boot with ISOLINUX
+                '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
+            )
+        else
+            _msg_error "Using 'bios.syslinux.mbr' boot mode without 'bios.syslinux.eltorito' is not supported." 1
         fi
-        if [[ ! -f "${isofs_dir}/isolinux/isohdpfx.bin" ]]; then
-            _msg_error "The file '${isofs_dir}/isolinux/isohdpfx.bin' does not exist." 1
-        fi
-        xorrisofs_options+=(
-            '-eltorito-boot' 'isolinux/isolinux.bin'
-            '-eltorito-catalog' 'isolinux/boot.cat'
-            '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
-            '-isohybrid-mbr' "${isofs_dir}/isolinux/isohdpfx.bin"
-        )
     fi
+
+    # xorrisofs options for X64 UEFI booting using systemd-boot
     # shellcheck disable=SC2076
     if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.' ]]; then
-        xorrisofs_options+=(
-            '-eltorito-alt-boot'
-            '-e' 'EFI/archiso/efiboot.img'
-            '-no-emul-boot'
-            '-isohybrid-gpt-basdat'
-        )
+        if [[ ! -f "${work_dir}/efiboot.img" ]]; then
+            _msg_error "The file '${work_dir}/efiboot.img' does not exist." 1
+        fi
+        [[ -e "${isofs_dir}/EFI/archiso" ]] && rm -rf -- "${isofs_dir}/EFI/archiso"
+
+        # systemd-boot in an attached EFI system partition
+        if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
+            # Move the first partition away from the start of the ISO, otherwise the GPT will not be valid and ISO 9660
+            # partition will not be mountable
+            [[ " ${xorrisofs_options[*]} " =~ ' -partition_offset ' ]] || xorrisofs_options+=('-partition_offset' '16')
+            xorrisofs_options+=(
+                # Attach efiboot.img as a second partition and set its partition type to "EFI system partition"
+                '-append_partition' '2' 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B' "${work_dir}/efiboot.img"
+                # Ensure GPT is used as some systems do not support UEFI booting without it
+                '-appended_part_as_gpt'
+            )
+
+            # systemd-boot in an attached EFI system partition via El Torito
+            if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
+                xorrisofs_options+=(
+                    # Start a new El Torito boot entry for UEFI
+                    '-eltorito-alt-boot'
+                    # Set the second partition as the El Torito UEFI boot image
+                    '-e' '--interval:appended_partition_2:all::'
+                    # Boot image is not emulating floppy or hard disk; required for all known boot loaders
+                    '-no-emul-boot'
+                )
+            fi
+        # systemd-boot in an embedded efiboot.img via El Torito
+        elif [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
+            # The ISO will not contain a GPT partition table, so to be able to reference efiboot.img, place it as a
+            # file inside the ISO 9660 file system
+            install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
+            cp -a -- "${work_dir}/efiboot.img" "${isofs_dir}/EFI/archiso/efiboot.img"
+
+            xorrisofs_options+=(
+                # Start a new El Torito boot entry for UEFI
+                '-eltorito-alt-boot'
+                # Set efiboot.img as the El Torito UEFI boot image
+                '-e' 'EFI/archiso/efiboot.img'
+                # Boot image is not emulating floppy or hard disk; required for all known boot loaders
+                '-no-emul-boot'
+            )
+        fi
+
+        # Specify where to save the El Torito boot catalog file in case it is not already set by bios.syslinux.eltorito
+        [[ " ${bootmodes[*]} " =~ ' bios.' ]] || xorrisofs_options+=('-eltorito-catalog' 'EFI/boot.cat')
     fi
 
     _msg_info "Creating ISO image..."
@@ -737,7 +813,7 @@ command_iso() {
     bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito')
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${isofs_dir}/EFI/archiso/efiboot.img" ]]; then
+    if [[ -f "${work_dir}/efiboot.img" ]]; then
         bootmodes+=('uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
     fi
 
