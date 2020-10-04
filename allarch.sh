@@ -159,11 +159,11 @@ _usage () {
         echo -ne "    ${_channel}"
         for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
         if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-            echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
+            "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
         elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
             echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
         else
-            echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
+            "${script_path}/tools/msg.sh" --noadjust -l 'WARN :' --noappname warn "This channel does not have a description.txt"
         fi
     done
 
