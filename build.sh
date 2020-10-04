@@ -603,12 +603,7 @@ prepare_build() {
     fi
 
     # Unmount
-    local _mount
-    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir})); do
-        msg_info "Unmounting ${_mount}"
-        umount "${_mount}"
-    done
-    unset _mount
+    umount_chroot
 }
 
 
