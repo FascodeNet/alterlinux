@@ -561,6 +561,7 @@ _make_boot_uefi-x64.systemd-boot.esp() {
         )"
     # The FAT image must be created with mkfs.fat not mformat, as some systems have issues with mformat made images:
     # https://lists.gnu.org/archive/html/grub-devel/2019-04/msg00099.html
+    [[ -e "${isofs_dir}/EFI/archiso/efiboot.img" ]] && rm -f -- "${isofs_dir}/EFI/archiso/efiboot.img"
     _msg_info "Creating FAT image of size: ${efiboot_imgsize} KiB..."
     mkfs.fat -C -n ARCHISO_EFI "${isofs_dir}/EFI/archiso/efiboot.img" "$efiboot_imgsize"
 
@@ -584,7 +585,7 @@ _make_boot_uefi-x64.systemd-boot.esp() {
     fi
 
     # Copy kernel and initramfs
-    _run_once _make_boot_on_fat
+    _make_boot_on_fat
 
     _msg_info "Done! systemd-boot set up for UEFI booting successfully."
 }
