@@ -84,10 +84,10 @@ msg_debug() {
 # $2: exit code number (with 0 does not exit)
 msg_error() {
     local _msg_opts="-a build.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
