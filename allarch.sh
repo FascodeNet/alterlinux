@@ -382,7 +382,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         echo
-        remove "${work_dir}"
+        "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
@@ -1444,6 +1444,5 @@ if [[ "${tarball}" = true ]]; then
     done
 fi
 [[ "${noiso}" = false ]] && run_once make_iso
-[[ "${cleaning}" = true ]] && remove "${work_dir}"
-
+[[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
 exit 0
