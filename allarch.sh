@@ -1367,19 +1367,21 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 set +eu
 
 # Check for a valid channel name
-case "$(bash "${script_path}/tools/channel.sh" -m check "${1}")" in
-    "incorrect")
-        msg_error "Invalid channel ${1}" "1"
-        ;;
-    "directory")
-        channel_dir="${1}"
-        channel_name="$(basename "${1%/}")"
-        ;;
-    "correct")
-        channel_dir="${script_path}/channels/${1}"
-        channel_name="${1}"
-        ;;
-esac
+if [[ -n "${1}" ]]; then
+    case "$(bash "${script_path}/tools/channel.sh" -m check "${1}")" in
+        "incorrect")
+            msg_error "Invalid channel ${1}" "1"
+            ;;
+        "directory")
+            channel_dir="${1}"
+            channel_name="$(basename "${1%/}")"
+            ;;
+        "correct")
+            channel_dir="${script_path}/channels/${1}"
+            channel_name="${1}"
+            ;;
+    esac
+fi
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
@@ -1394,6 +1396,8 @@ elif [[ "${channel_name}" = "rebuild" ]]; then
 elif [[ "${channel_name}" = "clean" ]]; then
    "${script_path}/tools/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
+else
+    channel_dir="${script_path}/channels/${channel_name}"
 fi
 
 # Check channel version
