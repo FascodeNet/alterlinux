@@ -1474,13 +1474,7 @@ elif [[ "${channel_name}" = "rebuild" ]]; then
         msg_error "The previous build information is not in the working directory." "1"
     fi
 elif [[ "${channel_name}" = "clean" ]]; then
-    umount_chroot
-    remove "${script_path}/menuconfig/build"
-	remove "${script_path}/system/cpp-src/mkalteriso/build"
-	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${work_dir%/}"/*
-    remove "${work_dir}"
-    remove "${rebuildfile}"
+   "${script_path}/tools/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
 fi
 
