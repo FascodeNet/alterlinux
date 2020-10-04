@@ -58,7 +58,7 @@ msg_debug() {
             _msg_opts="${_msg_opts} -o -n"
             shift 1
         fi
-        "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
+        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
     fi
 }
 

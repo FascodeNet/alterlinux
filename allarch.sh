@@ -63,7 +63,7 @@ msg_debug() {
         local _msg_opts="-a build.sh"
         [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
         [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
+        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${@}"
     fi
 }
 
