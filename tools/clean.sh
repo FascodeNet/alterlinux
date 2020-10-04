@@ -3,6 +3,7 @@
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 work_dir="${script_path}/work"
 debug=false
+only_work=false
 
 # Show an INFO message
 # $1: message string
@@ -94,6 +95,7 @@ _help() {
     echo
     echo " General options:"
     echo "    -d                       Show debug message"
+    echo "    -o                       Remove only work dir"
     echo "    -w [dir]                 Specify the work dir"
     echo "    -h                       This help message"
 }
@@ -101,6 +103,7 @@ _help() {
 while getopts "dw:h" arg; do
     case ${arg} in
         d)  debug=true ;;
+        o) only_work=true ;;
         w) work_dir="${OPTARG}" ;;
         h) 
             _help
@@ -118,10 +121,11 @@ shift $((OPTIND - 1))
 msg_debug "ほげえ"
 
 umount_chroot
-remove "${script_path}/menuconfig/build/"**
-remove "${script_path}/system/cpp-src/mkalteriso/build"/**
-remove "${script_path}/menuconfig-script/kernel_choice"
+if [[ "${only_work}" = false ]]; then
+    remove "${script_path}/menuconfig/build/"**
+    remove "${script_path}/system/cpp-src/mkalteriso/build"/**
+    remove "${script_path}/menuconfig-script/kernel_choice"
+    remove "${script_path}/system/mkalteriso"
+fi
 remove "${work_dir%/}"/**
 remove "${work_dir}"
-remove "${script_path}/system/mkalteriso"
-
