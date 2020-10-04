@@ -21,7 +21,7 @@ noadjust=false
 _help() {
     echo "usage ${0} [option] [type] [message]"
     echo
-    echo "Outputs colored messages" 
+    echo "Display a message with a colored app name and message type label"
     echo
     echo " General type:"
     echo "    info                      General message"
