@@ -1368,7 +1368,7 @@ set +eu
 
 # Check for a valid channel name
 if [[ -n "${1}" ]]; then
-    case "$(bash "${script_path}/tools/channel.sh" -m check "${1}")" in
+    case "$(bash "${script_path}/tools/channel.sh" -n -m check "${1}")" in
         "incorrect")
             msg_error "Invalid channel ${1}" "1"
             ;;
