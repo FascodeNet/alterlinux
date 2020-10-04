@@ -14,6 +14,9 @@ msg_label=""
 label_space="7"
 adjust_chr=" "
 customized_label=false
+nolabel=false
+noappname=false
+noadjust=false
 
 _help() {
     echo "usage ${0} [option] [type] [message]"
@@ -35,6 +38,10 @@ _help() {
     echo "    -s [number]               Specifies the label space."
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
+    echo
+    echo "         --nolabel            Do not output label"
+    echo "         --noappname          Do not output app name"
+    echo "         --noadjust           Do not adjust the width of the label"
 }
 
 
@@ -67,6 +74,13 @@ while getopts "a:c:l:no:s:xh-:" arg; do
                 "help") 
                     _help
                     exit 0
+                    ;;
+                "nolabel") nolabel=true ;;
+                "noappname") noappname=true ;;
+                "noadjust") noadjust=true ;;
+                *)
+                    _help
+                    exit 1
                     ;;
             esac
   esac
@@ -144,22 +158,32 @@ word_count="${#msg_label}"
 message="${@}"
 
 echo_type() {
-    for i in $( seq 1 $(( ${label_space} - ${word_count} )) ); do
-        echo -ne "${adjust_chr}"
-    done
-    if [[ "${nocolor}" = false ]]; then
-        echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m"
-    else
-        echo -ne "${msg_label}"
+    if [[ "${nolabel}" = false ]]; then
+        if [[ "${noadjust}" = false ]]; then
+            for i in $( seq 1 $(( ${label_space} - ${word_count})) ); do
+                echo -ne "${adjust_chr}"
+            done
+        fi
+        if [[ "${nocolor}" = false ]]; then
+            echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m "
+        else
+            echo -ne "${msg_label} "
+        fi
     fi
 }
 
 echo_appname() {
-    if [[ "${nocolor}" = false ]]; then
-        echo -ne "\e[36m[${appname}]\e[m"
-    else
-        echo -ne "[${appname}]"
+    if [[ "${noappname}" = false ]]; then
+        if [[ "${nocolor}" = false ]]; then
+            echo -ne "\e[36m[${appname}]\e[m "
+        else
+            echo -ne "[${appname}] "
+        fi
     fi
 }
 
-echo ${echo_opts} "$(echo_appname) $(echo_type) ${message}"
+echo_message() {
+    echo -ne "${message}\n"
+}
+
+echo ${echo_opts} "$(echo_appname)$(echo_type)$(echo_message)"
