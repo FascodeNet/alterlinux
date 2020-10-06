@@ -46,6 +46,7 @@ wpa_supplicant
 
 
 #-- vpn --#
+networkmanager-openvpn
 openconnect
 openvpn
 vpnc
