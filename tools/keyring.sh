@@ -84,14 +84,22 @@ echo_color() {
 # $1: message string
 msg_info() {
     local _msg_opts="-a keyring.sh"
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
 }
 
 # Show an Warning message
 # $1: message string
 msg_warn() {
     local _msg_opts="-a keyring.sh"
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
 }
 
 # Show an debug message
@@ -99,7 +107,11 @@ msg_warn() {
 msg_debug() {
     if [[ "${debug}" = true ]]; then
         local _msg_opts="-a keyring.sh"
-        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
+        if [[ "${1}" = "-n" ]]; then
+            _msg_opts="${_msg_opts} -o -n"
+            shift 1
+        fi
+        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
     fi
 }
 
@@ -108,6 +120,10 @@ msg_debug() {
 # $2: exit code number (with 0 does not exit)
 msg_error() {
     local _msg_opts="-a keyring.sh"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
     "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit ${2}
