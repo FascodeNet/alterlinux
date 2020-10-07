@@ -827,7 +827,9 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:g:vh?' arg; do
     esac
 done
 
-if (( OPTIND <= 1 )); then
+shift $((OPTIND - 1))
+
+if (( $# < 1 )); then
     _msg_error "No command specified" 0
     _usage 1
 fi
@@ -836,7 +838,6 @@ if (( EUID != 0 )); then
     _msg_error "${app_name} must be run as root." 1
 fi
 
-shift $((OPTIND - 1))
 command_name="${1}"
 
 # Set directory path defaults for legacy commands
