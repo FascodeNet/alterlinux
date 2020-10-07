@@ -27,7 +27,7 @@ alteriso_version="3.0"
 if [[ -f "${defaultconfig}" ]]; then
     source "${defaultconfig}"
 else
-    echo "${defaultconfig} was not found."
+    "${script_path}/tools/msg.sh" -a 'build.sh' error "${defaultconfig} was not found."
     exit 1
 fi
 
