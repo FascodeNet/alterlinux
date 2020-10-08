@@ -109,13 +109,13 @@ ForegroundVisited=0,188,212
 ColorScheme=MateriaDark
 Name=Materia Dark
 shadeSortColumn=true
-widgetStyle=Breeze
+widgetStyle=kvantum
 
 [Icons]
 Theme=Papirus-Dark
 
 [KDE]
-ColorScheme=Breeze
+ColorScheme=MateriaDark
 LookAndFeelPackage=AlterLinux
 SingleClick=false
 contrast=4
