@@ -116,7 +116,7 @@ Theme=Papirus-Dark
 
 [KDE]
 ColorScheme=MateriaDark
-LookAndFeelPackage=AlterLinux
+LookAndFeelPackage=net.fascode.network.alterlinux.desktop
 SingleClick=false
 contrast=4
 widgetStyle=kvantum
