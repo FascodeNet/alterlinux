@@ -116,6 +116,23 @@ Optionally install archiso's mkinitcpio hooks:
 
     make install-initcpio
 
+Contribute
+==========
+
+Development of archiso takes place on Arch Linux' Gitlab: https://gitlab.archlinux.org/archlinux/archiso
+
+Please read our distribution-wide `Code of Conduct <https://wiki.archlinux.org/index.php/Code_of_conduct>`_ before
+contributing, to understand what actions will and will not be tolerated.
+
+Read our `contributing guide <CONTRIBUTING.rst>`_ to learn more about how to provide fixes or improvements for the code
+base.
+
+Discussion around archiso takes place on the `arch-releng mailing list
+<https://lists.archlinux.org/listinfo/arch-releng>`_ and in `#archlinux-releng
+<ircs://chat.freenode.net/archlinux-releng>`_ on `freenode.net <https://freenode.net/>`_.
+
+All past and present authors of archiso are listed in `AUTHORS <AUTHORS.rst>`_.
+
 License
 =======
 
