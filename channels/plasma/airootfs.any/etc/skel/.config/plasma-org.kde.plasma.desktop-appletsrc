@@ -106,9 +106,6 @@ PreloadWeight=42
 ToolBoxButtonState=topcenter
 ToolBoxButtonX=464
 
-[Containments][20][Wallpaper][org.kde.image][General]
-Image=file:///usr/share/wallpapers/AlterLinuxWallpaperMadebyJiju/contents/screenshot.png
-
 [Containments][7]
 activityId=
 formfactor=2

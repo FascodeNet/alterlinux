@@ -27,7 +27,7 @@ alteriso_version="3.0"
 if [[ -f "${defaultconfig}" ]]; then
     source "${defaultconfig}"
 else
-    echo "${defaultconfig} was not found."
+    "${script_path}/tools/msg.sh" -a 'allarch.sh' error "${defaultconfig} was not found."
     exit 1
 fi
 
@@ -41,7 +41,7 @@ umask 0022
 # Show an INFO message
 # $1: message string
 msg_info() {
-    local _msg_opts="-a build.sh"
+    local _msg_opts="-a allarch.sh"
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
@@ -50,7 +50,7 @@ msg_info() {
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    local _msg_opts="-a build.sh"
+    local _msg_opts="-a allarch.sh"
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
@@ -60,10 +60,10 @@ msg_warn() {
 # $1: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a build.sh"
+        local _msg_opts="-a allarch.sh"
         [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
         [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
+        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${@}"
     fi
 }
 
@@ -71,7 +71,7 @@ msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a build.sh"
+    local _msg_opts="-a allarch.sh"
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
@@ -159,11 +159,11 @@ _usage () {
         echo -ne "    ${_channel}"
         for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
         if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-            echo -ne "$( echo_color -t '31' 'ERROR:') Not compatible with AlterISO3\n"
+            "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
         elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
             echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
         else
-            echo -ne "$( echo_color -t '33' 'WARN :') This channel does not have a description.txt.\n"
+            "${script_path}/tools/msg.sh" --noadjust -l 'WARN :' --noappname warn "This channel does not have a description.txt"
         fi
     done
 
@@ -382,7 +382,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         echo
-        remove "${work_dir}"
+        "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
@@ -498,12 +498,7 @@ prepare_build() {
     check_bool customized_syslinux
 
     # Unmount
-    local _mount
-    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir})); do
-        msg_info "Unmounting ${_mount}"
-        umount "${_mount}"
-    done
-    unset _mount
+    umount_chroot
 
     # Pacman configuration file used only when building
     build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
@@ -1372,39 +1367,31 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 set +eu
 
 # Check for a valid channel name
-case "$(bash "${script_path}/tools/channel.sh" -m check "${1}")" in
-    "incorrect")
-        msg_error "Invalid channel ${1}" "1"
-        ;;
-    "directory")
-        channel_dir="${1}"
-        channel_name="$(basename "${1%/}")"
-        ;;
-    "correct")
-        channel_dir="${script_path}/channels/${1}"
-        channel_name="${1}"
-        ;;
-esac
+if [[ -n "${1}" ]]; then
+    case "$(bash "${script_path}/tools/channel.sh" -n -m check "${1}")" in
+        "incorrect")
+            msg_error "Invalid channel ${1}" "1"
+            ;;
+        "directory")
+            channel_dir="${1}"
+            channel_name="$(basename "${1%/}")"
+            ;;
+        "correct")
+            channel_dir="${script_path}/channels/${1}"
+            channel_name="${1}"
+            ;;
+    esac
+fi
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
-elif [[ "${channel_name}" = "rebuild" ]]; then
-    if [[ -f "${rebuildfile}" ]]; then
-        rebuild=true
-    else
-        msg_error "The previous build information is not in the working directory." "1"
-    fi
 elif [[ "${channel_name}" = "clean" ]]; then
-    umount_chroot
-    remove "${script_path}/menuconfig/build"
-	remove "${script_path}/system/cpp-src/mkalteriso/build"
-	remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${work_dir%/}"/*
-    remove "${work_dir}"
-    remove "${rebuildfile}"
+   "${script_path}/tools/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
+else
+    channel_dir="${script_path}/channels/${channel_name}"
 fi
 
 # Check channel version
@@ -1455,6 +1442,5 @@ if [[ "${tarball}" = true ]]; then
     done
 fi
 [[ "${noiso}" = false ]] && run_once make_iso
-[[ "${cleaning}" = true ]] && remove "${work_dir}"
-
+[[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
 exit 0

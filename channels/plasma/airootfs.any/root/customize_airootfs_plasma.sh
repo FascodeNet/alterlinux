@@ -73,7 +73,7 @@ function remove () {
 
 
 # Delete icon cache
-[[ -f /home/${username}/.cache/icon-cache.kcache ]] && rm /home/${username}/.cache/icon-cache.kcache
+remove "/home/${username}/.cache/icon-cache.kcache"
 
 
 if [[ "${arch}" = "x86_64" ]]; then
@@ -89,13 +89,23 @@ if [[ "${arch}" = "x86_64" ]]; then
 fi
 
 
-# Disable services.
-# To disable start up of sddm.
-# If it is enable, Users have to enter password.
-#systemctl disable sddm
-#if [[ ${boot_splash} = true ]]; then
-#    systemctl disable sddm-plymouth.service
-#fi
+# Bluetooth
+rfkill unblock all
+systemctl enable bluetooth
+
+# Update system datebase
+dconf update
+
+# Enable SDDM to auto login in live session
+if [[ "${boot_splash}" = true ]]; then
+    systemctl enable sddm-plymouth.service
+    systemctl disable sddm.service
+else
+    systemctl enable sddm.service
+fi
+
+echo -e "\nremove /etc/sddm.conf.d/autologin.conf" >> "/usr/share/calamares/final-process"
+sed -i "s|%USERNAME%|${username}|g" "/etc/sddm.conf.d/autologin.conf"
 
 
 # ntp

@@ -14,11 +14,15 @@ msg_label=""
 label_space="7"
 adjust_chr=" "
 customized_label=false
+nolabel=false
+noappname=false
+noadjust=false
+output="stdout"
 
 _help() {
     echo "usage ${0} [option] [type] [message]"
     echo
-    echo "Outputs colored messages" 
+    echo "Display a message with a colored app name and message type label"
     echo
     echo " General type:"
     echo "    info                      General message"
@@ -35,6 +39,10 @@ _help() {
     echo "    -s [number]               Specifies the label space."
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
+    echo
+    echo "         --nolabel            Do not output label"
+    echo "         --noappname          Do not output app name"
+    echo "         --noadjust           Do not adjust the width of the label"
 }
 
 
@@ -67,6 +75,13 @@ while getopts "a:c:l:no:s:xh-:" arg; do
                 "help") 
                     _help
                     exit 0
+                    ;;
+                "nolabel") nolabel=true ;;
+                "noappname") noappname=true ;;
+                "noadjust") noadjust=true ;;
+                *)
+                    _help
+                    exit 1
                     ;;
             esac
   esac
@@ -109,24 +124,28 @@ case ${1} in
     "info")
         msg_type="type"
         textcolor="32"
+        output="stdout"
         [[ "${customized_label}" = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
         msg_type="warn"
         textcolor="33"
+        output="stdout"
         [[ "${customized_label}" = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
         msg_type="debug"
         textcolor="35"
+        output="stdout"
         [[ "${customized_label}" = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
         msg_type="error"
         textcolor="31"
+        output="stderr"
         [[ "${customized_label}" = false ]] && msg_label="Error"
         shift 1
         ;;
@@ -144,22 +163,44 @@ word_count="${#msg_label}"
 message="${@}"
 
 echo_type() {
-    for i in $( seq 1 $(( ${label_space} - ${word_count} )) ); do
-        echo -ne "${adjust_chr}"
-    done
-    if [[ "${nocolor}" = false ]]; then
-        echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m"
-    else
-        echo -ne "${msg_label}"
+    if [[ "${nolabel}" = false ]]; then
+        if [[ "${noadjust}" = false ]]; then
+            for i in $( seq 1 $(( ${label_space} - ${word_count})) ); do
+                echo -ne "${adjust_chr}"
+            done
+        fi
+        if [[ "${nocolor}" = false ]]; then
+            echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m "
+        else
+            echo -ne "${msg_label} "
+        fi
     fi
 }
 
 echo_appname() {
-    if [[ "${nocolor}" = false ]]; then
-        echo -ne "\e[36m[${appname}]\e[m"
-    else
-        echo -ne "[${appname}]"
+    if [[ "${noappname}" = false ]]; then
+        if [[ "${nocolor}" = false ]]; then
+            echo -ne "\e[36m[${appname}]\e[m "
+        else
+            echo -ne "[${appname}] "
+        fi
     fi
 }
 
-echo ${echo_opts} "$(echo_appname) $(echo_type) ${message}"
+echo_message() {
+    echo -ne "${message}\n"
+}
+
+full_message="$(echo_appname)$(echo_type)$(echo_message)"
+
+case "${output}" in
+    "stdout")
+        echo ${echo_opts} "${full_message}" >&1
+        ;;
+    "stderr")
+        echo ${echo_opts} "${full_message}" >&2
+        ;;
+    *)
+        echo ${echo_opts} "${full_message}" > ${output}
+        ;;
+esac
