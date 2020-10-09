@@ -1,12 +1,15 @@
 #
+# Alter Linux package list
+#
 # Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Supported architecture list
+# Alter Linux original
 
-x86_64
-i686
-i486
+
+#-- installer --#
+alterlinux-calamares
+libpwquality
