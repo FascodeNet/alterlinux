@@ -25,96 +25,66 @@ _help() {
     echo "Display a message with a colored app name and message type label"
     echo
     echo " General type:"
-    echo "    info                                  General message"
-    echo "    warn                                  Warning message"
-    echo "    error                                 Error message"
-    echo "    debug                                 Debug message"
+    echo "    info                      General message"
+    echo "    warn                      Warning message"
+    echo "    error                     Error message"
+    echo "    debug                     Debug message"
     echo
     echo " General options:"
-    echo "    -a | --appname [name]                 Specify the app name"
-    echo "    -c | --chr     [character]            Specify the character to adjust the label"
-    echo "    -l | --label   [label]                Specify the label"
-    echo "    -n | --nocolor                        No output colored output"
-    echo "    -o | --option  [option]               Specify echo options"
-    echo "    -s | --space   [number]               Specifies the label space"
-    echo "    -x | --bash-debug                     Enables output bash debugging"
-    echo "    -h | --help                           This help message"
+    echo "    -a [name]                 Specify the app name"
+    echo "    -c [character]            Specify the character to adjust the label"
+    echo "    -l [label]                Specify the label."
+    echo "    -n | --nocolor            No output colored output"
+    echo "    -o [option]               Specify echo options"
+    echo "    -s [number]               Specifies the label space."
+    echo "    -x | --bash-debug         Enables output bash debugging"
+    echo "    -h | --help               This help message"
     echo
-    #echo "         --labelcolor                     Specify the color of label"
-    echo "         --nolabel                        Do not output label"
-    echo "         --noappname                      Do not output app name"
-    echo "         --noadjust                       Do not adjust the width of the label"
+    echo "         --nolabel            Do not output label"
+    echo "         --noappname          Do not output app name"
+    echo "         --noadjust           Do not adjust the width of the label"
 }
 
 
-# Parse options
-ARGUMENT="${@}"
-_opt_short="a:c:l:no:s:xh-:"
-_opt_long="appname:,chr:,label:,nocolor,option:,space:,bash-debug,help,nolabel,noappname,noadjust"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
-
-eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
-
-while true; do
-  case ${1} in
-        -a | --appname)
-            appname="${2}"
-            shift 2
-            ;;
-        -c | --chr)
-            adjust_chr="${2}"
-            shift 2
-            ;;
-        -l | --label)
+while getopts "a:c:l:no:s:xh-:" arg; do
+  case ${arg} in
+        a) appname="${OPTARG}" ;;
+        c) adjust_chr="${OPTARG}" ;;
+        l) 
             customized_label=true
-            msg_label="${2}"
-            shift 2
+            msg_label="${OPTARG}"
             ;;
-        -n | --nocolor)
-            nocolor=true
-            shift 1
-            ;;
-        -o | --option)
-            echo_opts="${2}"
-            shift 2
-            ;;
-        -s | --spade)
-            label_space="${2}"
-            shift 2
-            ;;
-        -x | --bash-debug)
+        n) nocolor=true ;;
+        o) echo_opts="${OPTARG}" ;;
+        s) label_space="${OPTARG}" ;;
+        x)
             bash_debug=true
-            shift 1
             set -xv
             ;;
-        -h |  --help)
+        h)
             _help
             shift 1
             exit 0
             ;;
-        --nolabel)
-            nolabel=true
-            shift 1
-            ;;
-        --noappname)
-            noappname=true
-            shift 1
-            ;;
-        --noadjust)
-            noadjust=true
-            shift 1
-            ;;
-        --)
-            shift
-            break
-            ;;
-        *)
-            _help
-            shift 1
-            exit 1
-            ;;
+        -)
+            case "${OPTARG}" in
+                "nocolor") nocolor=true ;;
+                "bash-debug")
+                    bash_debug=true
+                    set -xv
+                    ;;
+                "help") 
+                    _help
+                    exit 0
+                    ;;
+                "nolabel") nolabel=true ;;
+                "noappname") noappname=true ;;
+                "noadjust") noadjust=true ;;
+                *)
+                    _help
+                    exit 1
+                    ;;
+            esac
   esac
 done
 
