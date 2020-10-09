@@ -98,7 +98,7 @@ while true; do
             ;;
         -h |  --help)
             _help
-            shit 1
+            shift 1
             exit 0
             ;;
         --nolabel)
