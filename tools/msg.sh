@@ -35,8 +35,6 @@ _help() {
     echo "    -a | --appname [name]                 Specify the app name"
     echo "    -c | --chr     [character]            Specify the character to adjust the label"
     echo "    -l | --label   [label]                Specify the label"
-    echo "    -m | --message [message]              Specify the message."
-    echo "                                          Use only if you have problems interpreting arguments"
     echo "    -n | --nocolor                        No output colored output"
     echo "    -o | --option  [option]               Specify echo options"
     echo "    -s | --space   [number]               Specifies the label space"
@@ -58,8 +56,8 @@ msg_error() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:c:l:m:no:s:xh-:"
-_opt_long="appname:,chr:,label:,nocolor,message:,option:,space:,bash-debug,help,labelcolor:,nolabel,noappname,noadjust"
+_opt_short="a:c:l:no:s:xh-:"
+_opt_long="appname:,chr:,label:,nocolor,option:,space:,bash-debug,help,labelcolor:,nolabel,noappname,noadjust"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -79,10 +77,6 @@ while true; do
         -l | --label)
             customized_label=true
             msg_label="${2}"
-            shift 2
-            ;;
-        -m | --message)
-            message="${2}"
             shift 2
             ;;
         -n | --nocolor)
@@ -238,9 +232,7 @@ case ${1} in
 esac
 
 word_count="${#msg_label}"
-if [[ -z "${message}" ]]; then
-    message="${@}"
-fi
+message="${@}"
 
 echo_type() {
     if [[ "${nolabel}" = false ]]; then
