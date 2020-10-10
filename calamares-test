@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+cd $(readlink -f "${0%/*}")
+if [ -z "$1" ]; then
+    echo "Usage ./calamares-test [channel-name]"
+    exit 810
+fi
+lrelease channels/$1/airootfs.any/etc/calamares/branding/serene/lang/calamares-serene_ja.ts
+qmlscene -I calamares-qmls/qml/ -geometry 600x400 -translation channels/$1/airootfs.any/etc/calamares/branding/alter/lang/calamares-alter_ja.qm channels/$1/airootfs.any/etc/calamares/branding/alter/show.qml
