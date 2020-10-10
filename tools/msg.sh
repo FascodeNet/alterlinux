@@ -14,6 +14,7 @@ msg_label=""
 label_space="7"
 adjust_chr=" "
 customized_label=false
+customized_label_color=false
 nolabel=false
 noappname=false
 noadjust=false
@@ -36,6 +37,7 @@ _help() {
     echo "    -l [label]                Specify the label."
     echo "    -n | --nocolor            No output colored output"
     echo "    -o [option]               Specify echo options"
+    echo "    -r [color]                Specify the color of label"
     echo "    -s [number]               Specifies the label space."
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
@@ -45,8 +47,13 @@ _help() {
     echo "         --noadjust           Do not adjust the width of the label"
 }
 
+# Message functions
+msg_error() {
+    "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
+}
 
-while getopts "a:c:l:no:s:xh-:" arg; do
+
+while getopts "a:c:l:no:r:s:xh-:" arg; do
   case ${arg} in
         a) appname="${OPTARG}" ;;
         c) adjust_chr="${OPTARG}" ;;
@@ -56,6 +63,39 @@ while getopts "a:c:l:no:s:xh-:" arg; do
             ;;
         n) nocolor=true ;;
         o) echo_opts="${OPTARG}" ;;
+        r)
+            customized_label_color=true
+            case ${OPTARG} in
+                "black")
+                    labelcolor="30"
+                    ;;
+                "red")
+                    labelcolor="31"
+                    ;;
+                "green")
+                    labelcolor="32"
+                    ;;
+                "yellow")
+                    labelcolor="33"
+                    ;;
+                "blue")
+                    labelcolor="34"
+                    ;;
+                "magenta")
+                    labelcolor="35"
+                    ;;
+                "cyan")
+                    labelcolor="36"
+                    ;;
+                "white")
+                    labelcolor="37"
+                    ;;
+                *)
+                    msg_error "The wrong color."
+                    exit 1
+                    ;;
+            esac
+            ;;
         s) label_space="${OPTARG}" ;;
         x)
             bash_debug=true
@@ -63,6 +103,7 @@ while getopts "a:c:l:no:s:xh-:" arg; do
             ;;
         h)
             _help
+            shift 1
             exit 0
             ;;
         -)
@@ -123,38 +164,38 @@ shift $((OPTIND - 1))
 case ${1} in
     "info")
         msg_type="type"
-        textcolor="32"
         output="stdout"
-        [[ "${customized_label}" = false ]] && msg_label="Info"
+        [[ "${customized_label_color}" = false ]] && labelcolor="32"
+        [[ "${customized_label}"       = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
         msg_type="warn"
-        textcolor="33"
         output="stdout"
-        [[ "${customized_label}" = false ]] && msg_label="Warning"
+        [[ "${customized_label_color}" = false ]] && labelcolor="33"
+        [[ "${customized_label}"       = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
         msg_type="debug"
-        textcolor="35"
         output="stdout"
-        [[ "${customized_label}" = false ]] && msg_label="Debug"
+        [[ "${customized_label_color}" = false ]] && labelcolor="35"
+        [[ "${customized_label}"       = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
         msg_type="error"
-        textcolor="31"
         output="stderr"
-        [[ "${customized_label}" = false ]] && msg_label="Error"
+        [[ "${customized_label_color}" = false ]] && labelcolor="31"
+        [[ "${customized_label}"       = false ]] && msg_label="Error"
         shift 1
         ;;
     "")
-        "${script_path}/tools/msg.sh" -a "msg.sh" error "Please specify the message type"
+        msg_error "Please specify the message type"
         exit 1
         ;;
     *)
-        "${script_path}/tools/msg.sh" -a "msg.sh" error "Unknown message type"
+        msg_error "Unknown message type"
         exit 1
         ;;
 esac
@@ -170,7 +211,7 @@ echo_type() {
             done
         fi
         if [[ "${nocolor}" = false ]]; then
-            echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m "
+            echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v labelcolor ]] && echo -n ";${labelcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m "
         else
             echo -ne "${msg_label} "
         fi

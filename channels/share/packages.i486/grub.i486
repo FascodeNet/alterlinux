@@ -1,12 +1,18 @@
 #
+# Alter Linux package list
+#
 # Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Supported architecture list
+# boot tools
+#
 
-x86_64
-i686
-# i486
+# Grub
+grub
+os-prober
+
+# EFI
+efibootmgr

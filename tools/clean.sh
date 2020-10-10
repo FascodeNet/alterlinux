@@ -100,7 +100,7 @@ _help() {
     echo "    -h                       This help message"
 }
 
-while getopts "dw:h" arg; do
+while getopts "dow:h" arg; do
     case ${arg} in
         d)  debug=true ;;
         o) only_work=true ;;

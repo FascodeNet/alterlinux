@@ -27,7 +27,7 @@ alteriso_version="3.0"
 if [[ -f "${defaultconfig}" ]]; then
     source "${defaultconfig}"
 else
-    echo "${defaultconfig} was not found."
+    "${script_path}/tools/msg.sh" -a 'allarch.sh' error "${defaultconfig} was not found."
     exit 1
 fi
 
@@ -41,7 +41,7 @@ umask 0022
 # Show an INFO message
 # $1: message string
 msg_info() {
-    local _msg_opts="-a build.sh"
+    local _msg_opts="-a allarch.sh"
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
@@ -50,7 +50,7 @@ msg_info() {
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    local _msg_opts="-a build.sh"
+    local _msg_opts="-a allarch.sh"
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
@@ -60,7 +60,7 @@ msg_warn() {
 # $1: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a build.sh"
+        local _msg_opts="-a allarch.sh"
         [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
         [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
         "${script_path}/tools/msg.sh" ${_msg_opts} debug "${@}"
@@ -71,7 +71,7 @@ msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a build.sh"
+    local _msg_opts="-a allarch.sh"
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
