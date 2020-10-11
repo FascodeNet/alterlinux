@@ -118,8 +118,6 @@ done
 
 shift $((OPTIND - 1))
 
-msg_debug "ほげえ"
-
 umount_chroot
 if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig/build/"**
