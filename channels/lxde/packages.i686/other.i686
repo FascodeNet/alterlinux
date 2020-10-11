@@ -35,8 +35,7 @@ htop
 
 
 #-- pacman --#
-archlinux-appstream-data-pamac
-pamac-aur
+gnome-packagekit
 
 
 #-- printer --#

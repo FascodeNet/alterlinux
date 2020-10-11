@@ -19,8 +19,7 @@ thunar
 file-roller
 
 # software manager
-archlinux-appstream-data-pamac
-pamac-aur
+gnome-packagekit
 
 # office
 libreoffice-still
