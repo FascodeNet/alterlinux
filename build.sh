@@ -585,6 +585,7 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
+    check_bool norescue_entry
     check_bool rebuild
     check_bool debug
     check_bool bash_debug
@@ -1056,6 +1057,12 @@ make_syslinux() {
         cp "${channel_dir}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    fi
+
+    # Remove rescue config
+    if [[ "${norescue_entry}" = true ]]; then
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
+        sed -i "s|$(cat "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "archiso_sys_rescue")||g" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
     fi
 
     # copy files
