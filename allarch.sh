@@ -496,6 +496,7 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
+    check_bool norescue_entry
 
     # Unmount
     umount_chroot
@@ -963,7 +964,11 @@ make_syslinux() {
     fi
 
     # Rename rescue config
-    mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+    if [[ "${norescue_entry}" = false ]]; then
+        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+    else
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
+    fi
 
     # copy files
     cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -982,7 +987,7 @@ make_syslinux_loadfiles() {
         _write_load "INCLUDE boot/syslinux/archiso_head.cfg"
         for _arch in ${all_arch[@]}; do 
             _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"
-            if [[ "${_pxe_or_sys}" = "sys" ]]; then
+            if [[ "${_pxe_or_sys}" = "sys" ]] && [[ "${norescue_entry}" = false ]]; then
                 _write_load "INCLUDE boot/syslinux/archiso_sys_rescue_${arch}.cfg"
             fi
         done
