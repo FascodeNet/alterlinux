@@ -933,7 +933,7 @@ make_syslinux() {
     fi
 
     # copy all syslinux config to work dir
-    for _cfg in $work_dir/${arch}/syslinux/*.cfg; do
+    for _cfg in ${work_dir}/${arch}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -962,6 +962,9 @@ make_syslinux() {
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
 
+    # Rename rescue config
+    mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+
     # copy files
     cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -977,7 +980,12 @@ make_syslinux_loadfiles() {
     for _pxe_or_sys in "sys" "pxe"; do
         _write_load() { echo -e "${@}" >> "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_load.cfg"; }
         _write_load "INCLUDE boot/syslinux/archiso_head.cfg"
-        for _arch in ${all_arch[@]}; do _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"; done
+        for _arch in ${all_arch[@]}; do 
+            _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"
+            if [[ "${_pxe_or_sys}" = "sys" ]]; then
+                _write_load "INCLUDE boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+            fi
+        done
         _write_load "INCLUDE boot/syslinux/archiso_tail.cfg"
     done
 }
