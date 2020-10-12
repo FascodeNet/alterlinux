@@ -1105,9 +1105,14 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
-    fi
+    #if [[ "${arch}" = "x86_64" ]]; then
+    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    #fi
+
+    local _efi_shell_arch
+    for _efi_shell_arch in "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/"*; do
+        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${work_dir}/iso/shell_${_efi_shell_arch}.efi"
+    done
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1145,9 +1150,12 @@ make_efiboot() {
     "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
-    fi
+    #if [[ "${arch}" = "x86_64" ]]; then
+    #    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    #fi
+
+    cp "${work_dir}/iso/shell"*".efi" "${work_dir}/efiboot/"
+
 
     umount -d "${work_dir}/efiboot"
 }
