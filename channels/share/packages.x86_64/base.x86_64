@@ -17,5 +17,5 @@ intel-ucode
 amd-ucode
 mkinitcpio-nfs-utils
 nbd
-
+efitools
 edk2-shell
