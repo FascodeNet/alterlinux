@@ -1110,7 +1110,7 @@ make_efi() {
     #fi
 
     local _efi_shell_arch
-    for _efi_shell_arch in "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/"*; do
+    for _efi_shell_arch in $(ls "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/"* 2> /dev/null); do
         cp "${_efi_shell_arch}/Shell_Full.efi" "${work_dir}/iso/shell_${_efi_shell_arch}.efi"
     done
 }
