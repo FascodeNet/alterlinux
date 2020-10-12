@@ -234,10 +234,10 @@ remove() {
     local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
         if [[ -f ${_file} ]]; then
-            msg_debug "Removeing ${_file}"
+            msg_debug "Removing ${_file}"
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
-            msg_debug "Removeing ${_file}"
+            msg_debug "Removing ${_file}"
             rm -rf "${_file}"
         fi
     done
@@ -585,6 +585,7 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
+    check_bool norescue_entry
     check_bool rebuild
     check_bool debug
     check_bool bash_debug
@@ -1058,6 +1059,12 @@ make_syslinux() {
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
 
+    # Remove rescue config
+    if [[ "${norescue_entry}" = true ]]; then
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
+        sed -i "s|$(cat "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "archiso_sys_rescue")||g" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+    fi
+
     # copy files
     cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -1192,16 +1199,23 @@ make_prepare() {
         }
         rm -rf "${_info_file}"; touch "${_info_file}"
 
-        _write_info_file "Created by ${iso_publisher}"
-        _write_info_file "${iso_application} ${arch}"
+        _write_info_file "Developer      : ${iso_publisher}"
+        _write_info_file "OS Name        : ${iso_application}"
+        _write_info_file "Architecture   : ${arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
-            _write_info_file "Version   : ${iso_version}-$(git rev-parse --short HEAD)"
+            _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
         else
-        _write_info_file "Version       : ${iso_version}"
+        _write_info_file "Version        : ${iso_version}"
         fi
-        _write_info_file "Channel   name: ${channel_name}"
-        _write_info_file "Live user name: ${username}"
-        _write_info_file "Live user pass: ${password}"
+        _write_info_file "Channel   name : ${channel_name}"
+        _write_info_file "Live user name : ${username}"
+        _write_info_file "Live user pass : ${password}"
+        _write_info_file "Kernel    name : ${kernel}"
+        if [[ "${boot_splash}" = true ]]; then
+            _write_info_file "Plymouth       : Yes"
+        else
+            _write_info_file "Plymouth       : No"
+        fi
     fi
 }
 

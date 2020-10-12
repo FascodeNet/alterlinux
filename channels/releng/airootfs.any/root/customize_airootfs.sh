@@ -100,7 +100,7 @@ systemctl set-default multi-user.target
 remove /etc/arch-release
 touch /etc/arch-release
 
-rmeove "/etc/plymouth"
+remove "/etc/plymouth"
 remove "/usr/share/calamares"
 remove "/home/hayao/Git/alterlinux/channels/share/airootfs.any/etc/polkit-1/rules.d/01-nopasswork.rules"
 remove "/home/hayao/Git/alterlinux/channels/share/airootfs.any/etc/polkit-1/rules.d/10-enable-mount.rules"

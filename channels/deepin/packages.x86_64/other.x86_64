@@ -45,6 +45,7 @@ cpu-x
 
 
 #-- pacman --#
+archlinux-appstream-data-pamac
 pamac-aur
 
 
