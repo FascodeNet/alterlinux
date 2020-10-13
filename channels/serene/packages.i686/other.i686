@@ -40,7 +40,7 @@ htop
 
 
 #-- pacman --#
-pamac-aur
+gnome-packagekit
 
 
 #-- printer --#

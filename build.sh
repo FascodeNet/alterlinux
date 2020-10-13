@@ -234,10 +234,10 @@ remove() {
     local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
         if [[ -f ${_file} ]]; then
-            msg_debug "Removeing ${_file}"
+            msg_debug "Removing ${_file}"
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
-            msg_debug "Removeing ${_file}"
+            msg_debug "Removing ${_file}"
             rm -rf "${_file}"
         fi
     done
@@ -585,6 +585,7 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
+    check_bool norescue_entry
     check_bool rebuild
     check_bool debug
     check_bool bash_debug
@@ -1058,6 +1059,12 @@ make_syslinux() {
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     fi
 
+    # Remove rescue config
+    if [[ "${norescue_entry}" = true ]]; then
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
+        sed -i "s|$(cat "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "archiso_sys_rescue")||g" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+    fi
+
     # copy files
     cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
     cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
@@ -1094,13 +1101,18 @@ make_efi() {
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
          s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}-usb.conf"
+    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}.conf"
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
-    fi
+    #if [[ "${arch}" = "x86_64" ]]; then
+    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    #fi
+
+    local _efi_shell_arch
+    for _efi_shell_arch in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
+        cp "${_efi_shell_arch}/Shell_Full.efi" "${work_dir}/iso/shell_$(basename ${_efi_shell_arch}).efi"
+    done
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1123,7 +1135,7 @@ make_efiboot() {
     mkdir -p "${work_dir}/efiboot/EFI/boot"
     (
         local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
     )
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
@@ -1138,9 +1150,12 @@ make_efiboot() {
     "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
     # shellx64.efi is picked up automatically when on /
-    if [[ "${arch}" = "x86_64" ]]; then
-        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
-    fi
+    #if [[ "${arch}" = "x86_64" ]]; then
+    #    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    #fi
+
+    cp "${work_dir}/iso/shell"*".efi" "${work_dir}/efiboot/"
+
 
     umount -d "${work_dir}/efiboot"
 }
@@ -1192,16 +1207,23 @@ make_prepare() {
         }
         rm -rf "${_info_file}"; touch "${_info_file}"
 
-        _write_info_file "Created by ${iso_publisher}"
-        _write_info_file "${iso_application} ${arch}"
+        _write_info_file "Developer      : ${iso_publisher}"
+        _write_info_file "OS Name        : ${iso_application}"
+        _write_info_file "Architecture   : ${arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
-            _write_info_file "Version   : ${iso_version}-$(git rev-parse --short HEAD)"
+            _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
         else
-        _write_info_file "Version       : ${iso_version}"
+        _write_info_file "Version        : ${iso_version}"
         fi
-        _write_info_file "Channel   name: ${channel_name}"
-        _write_info_file "Live user name: ${username}"
-        _write_info_file "Live user pass: ${password}"
+        _write_info_file "Channel   name : ${channel_name}"
+        _write_info_file "Live user name : ${username}"
+        _write_info_file "Live user pass : ${password}"
+        _write_info_file "Kernel    name : ${kernel}"
+        if [[ "${boot_splash}" = true ]]; then
+            _write_info_file "Plymouth       : Yes"
+        else
+            _write_info_file "Plymouth       : No"
+        fi
     fi
 }
 
@@ -1449,6 +1471,7 @@ rebuildfile="${work_dir}/alteriso_config"
 set +eu
 
 # Check for a valid channel name
+# Todo 2020/10/13 Hayao0819: This process does not currently work.
 if [[ -n "${1}" ]]; then
     case "$(bash "${script_path}/tools/channel.sh" -n -m check "${1}")" in
         "incorrect")
@@ -1483,6 +1506,7 @@ else
 fi
 
 # Check channel version
+# Todo 2020/10/13 Hayao0819: If the wrong channel is specified, the script will return this error.
 if [[ ! "${channel_name}" = "rebuild" ]]; then
     msg_debug "channel path is ${channel_dir}"
     if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then

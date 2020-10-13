@@ -62,6 +62,11 @@ kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
 # Change the default behavior of "--shmkalteriso".
 shmkalteriso=true
 
+# Do not add rescue mode launch items
+# If true, do not add items such as "without GUI" or "Safe graphics".
+# This setting cannot be changed by an argument.
+norescue_entry=true
+
 # List of packages required for build
 # The following packages are checked to see if they are installed before running build.sh
 # Also, wizard.sh will install it automatically.
