@@ -1101,7 +1101,7 @@ make_efi() {
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
          s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}-usb.conf"
+    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}.conf"
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
