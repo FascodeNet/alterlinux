@@ -1024,6 +1024,7 @@ make_isolinux() {
 }
 
 # Prepare /EFI
+# Todo 2020/10/13 Hayao0819: x86_64に依存しているのをなくす
 make_efi() {
     mkdir -p "${work_dir}/iso/EFI/boot"
     for arch in ${all_arch[@]}; do
@@ -1042,14 +1043,23 @@ make_efi() {
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}-usb.conf"
+        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}.conf"
     done
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
-    fi
+    #if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    #fi
+
+    #if [[ "${arch}" = "x86_64" ]]; then
+    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    #fi
+
+    local _efi_shell_arch
+    for _efi_shell_arch in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
+        cp "${_efi_shell_arch}/Shell_Full.efi" "${work_dir}/iso/shell_$(basename ${_efi_shell_arch}).efi"
+    done
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1074,7 +1084,7 @@ make_efiboot() {
     for arch in ${all_arch[@]}; do
         (
             local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
         )
     done
 
@@ -1091,9 +1101,11 @@ make_efiboot() {
     done
 
     # shellx64.efi is picked up automatically when on /
-    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
-        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
-    fi
+    #if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
+    #    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    #fi
+
+    cp "${work_dir}/iso/shell"*".efi" "${work_dir}/efiboot/"
 
     umount -d "${work_dir}/efiboot"
 }
