@@ -1123,7 +1123,7 @@ make_efiboot() {
     if [[ ! ${kernel} = "core" ]]; then
         cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux-${kernel}" "${work_dir}/efiboot/EFI/alteriso/vmlinuz-linux-${kernel}.efi"
     else
-        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz" "${work_dir}/efiboot/EFI/alteriso/vmlinuz.efi"
+        cp "${work_dir}/iso/${install_dir}/boot/${arch}/vmlinuz-linux" "${work_dir}/efiboot/EFI/alteriso/vmlinuz.efi"
     fi
     
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso.img"
