@@ -1168,7 +1168,7 @@ make_efiboot() {
     mkdir -p "${work_dir}/efiboot/EFI/boot"
     (
         local __bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
+        cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/EFI/boot/${__bootfile#systemd-}"
     )
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
