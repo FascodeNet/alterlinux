@@ -1120,7 +1120,7 @@ make_efi() {
     for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
         _efi_shell_arch="$(basename ${_efi_shell})"
         cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-        cat > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" <<"EOF"
+        cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
 title  UEFI Shell (Full) ${_efi_shell_arch}
 efi    /EFI/Shell_Full_${_efi_shell_arch}.efi
 EOF
