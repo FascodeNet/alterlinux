@@ -545,7 +545,7 @@ prepare_build() {
 
         # Set dirs
         airootfs_dir="${work_dir}/${arch}/airootfs"
-        isofs_dir="${isofs_dir}"
+        isofs_dir="${work_dir}/iso"
 
         # Generate iso file name.
         local _channel_name
