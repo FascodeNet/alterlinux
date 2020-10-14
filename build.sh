@@ -1157,7 +1157,7 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/"
+    cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1167,7 +1167,7 @@ make_efiboot() {
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
-    cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/"
+    cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
     umount -d "${work_dir}/efiboot"
 }
