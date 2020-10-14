@@ -438,9 +438,11 @@ prepare_rebuild() {
         _save_var iso_version
         _save_var iso_filename
         _save_var channel_name
-        _save_var channel_dir
 
         _write_rebuild_file "\n# Environment Info"
+        _save_var channel_dir
+        _save_var airootfs_dir
+        _save_var isofs_dir
         _save_var install_dir
         _save_var work_dir
         _save_var out_dir
