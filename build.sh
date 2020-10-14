@@ -1173,7 +1173,7 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
-    cp "${isofs_dir}/efiboot/loader/uefi-shell"* "${work_dir}/efiboot/loader/"
+    cp "${isofs_dir}/loader/uefi-shell"* "${work_dir}/efiboot/loader/"
 
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
