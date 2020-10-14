@@ -1037,7 +1037,7 @@ OLD
             fi
         fi
     done
-    _msg_info "Done!"
+    msg_info "Done!"
 }
 
 # Prepare /${install_dir}/boot/syslinux
