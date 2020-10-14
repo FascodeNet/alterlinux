@@ -1157,8 +1157,13 @@ make_efiboot() {
     cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}.efi"
     cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso.img"
 
-    cp "${isofs_dir}/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/alteriso/intel_ucode.img"
-    cp "${isofs_dir}/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/alteriso/amd_ucode.img"
+    #cp "${isofs_dir}/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/alteriso/intel_ucode.img"
+    #cp "${isofs_dir}/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/alteriso/amd_ucode.img"
+
+    local _ucode_image
+    for _ucode_image in "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+        [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${work_dir}/efiboot/EFI/alteriso/"
+    done
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
     (
