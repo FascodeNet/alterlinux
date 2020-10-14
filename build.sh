@@ -1130,9 +1130,14 @@ make_efi() {
     #    cp "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
     #fi
 
-    local _efi_shell_arch
-    for _efi_shell_arch in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
-        cp "${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/shell_$(basename ${_efi_shell_arch}).efi"
+    local _efi_shell _efi_shell_arch
+    for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
+        _efi_shell_arch="$(basename ${_efi_shell})"
+        cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/shell_${_efi_shell_arch}.efi"
+        cat > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" <<"EOF"
+title  UEFI Shell (Full) ${_efi_shell_arch}
+efi    /EFI/Shell_Full_${_efi_shell_arch}.efi
+EOF
     done
 }
 
@@ -1161,6 +1166,7 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
+    cp "${script_path}/efiboot/loader/uefi-shell"* "${work_dir}/efiboot/loader/"
 
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
