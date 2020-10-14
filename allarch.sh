@@ -41,29 +41,41 @@ umask 0022
 # Show an INFO message
 # $1: message string
 msg_info() {
-    local _msg_opts="-a allarch.sh"
+    local _msg_opts="-a build.sh"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${@}"
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
 }
 
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    local _msg_opts="-a allarch.sh"
+    local _msg_opts="-a build.sh"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${@}"
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
 }
 
 # Show an debug message
 # $1: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a allarch.sh"
+        local _msg_opts="-a build.sh"
+        if [[ "${1}" = "-n" ]]; then
+            _msg_opts="${_msg_opts} -o -n"
+            shift 1
+        fi
         [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
         [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${@}"
+        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
     fi
 }
 
@@ -71,7 +83,11 @@ msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a allarch.sh"
+    local _msg_opts="-a build.sh"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
     "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
@@ -228,10 +244,10 @@ remove() {
     local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
         if [[ -f ${_file} ]]; then
-            msg_debug "Removeing ${_file}"
+            msg_debug "Removing ${_file}"
             rm -f "${_file}"
         elif [[ -d ${_file} ]]; then
-            msg_debug "Removeing ${_file}"
+            msg_debug "Removing ${_file}"
             rm -rf "${_file}"
         fi
     done
@@ -285,12 +301,12 @@ check_bool() {
 prepare_env() {
     for arch in ${all_arch[@]}; do
         # Check architecture for each channel
-        if [[ -z $(cat "${channel_path}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+        if [[ -z $(cat "${channel_dir}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
             msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
         fi
 
         # Check kernel for each channel
-        if [[ -f "${channel_path}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_path}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+        if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
             msg_error "This kernel is currently not supported on this channel." "1"
         fi
     done
@@ -408,7 +424,7 @@ configure_var() {
     fi
 
     # Set architecture
-    all_arch=($(cat "${channel_path}/architecture" | grep -h -v ^'#'))
+    all_arch=($(cat "${channel_dir}/architecture" | grep -h -v ^'#'))
 
     # gitversion
     if [[ "${gitversion}" = true ]]; then
@@ -470,8 +486,8 @@ show_settings() {
 # Preparation for build
 prepare_build() {
     # If there is pacman.conf for each channel, use that for building
-    if [[ -f "${channel_path}/pacman-${arch}.conf" ]]; then
-        build_pacman_conf="${channel_path}/pacman-${arch}.conf"
+    if [[ -f "${channel_dir}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${channel_dir}/pacman-${arch}.conf"
     fi
 
     # If there is config for share channel. load that.
@@ -479,8 +495,8 @@ prepare_build() {
     load_config "${script_path}/channels/share/config.${arch}"
 
     # If there is config for each channel. load that.
-    load_config "${channel_path}/config.any"
-    load_config "${channel_path}/config.${arch}"
+    load_config "${channel_dir}/config.any"
+    load_config "${channel_dir}/config.${arch}"
 
     # check bool
     check_bool boot_splash
@@ -496,6 +512,7 @@ prepare_build() {
     check_bool noiso
     check_bool noaur
     check_bool customized_syslinux
+    check_bool norescue_entry
 
     # Unmount
     umount_chroot
@@ -537,19 +554,19 @@ make_packages() {
         "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
-        $(ls ${channel_path}/packages.${arch}/*.${arch} 2> /dev/null)
-        "${channel_path}/packages.${arch}/lang/${locale_name}.${arch}"
+        $(ls ${channel_dir}/packages.${arch}/*.${arch} 2> /dev/null)
+        "${channel_dir}/packages.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
         "${script_path}/channels/share/packages.${arch}/kernel/${kernel}.${arch}"
-        "${channel_path}/packages.${arch}/kernel/${kernel}.${arch}"
+        "${channel_dir}/packages.${arch}/kernel/${kernel}.${arch}"
     )
 
     # Plymouth package list
     if [[ "${boot_splash}" = true ]]; then
         _loadfilelist+=(
             $(ls "${script_path}"/channels/share/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
-            $(ls ${channel_path}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${channel_dir}/packages.${arch}/plymouth/*.${arch} 2> /dev/null)
         )
     fi
 
@@ -567,7 +584,7 @@ make_packages() {
     # Exclude packages from the share exclusion list
     _excludefile=(
         "${script_path}/channels/share/packages.${arch}/exclude"
-        "${channel_path}/packages.${arch}/exclude"
+        "${channel_dir}/packages.${arch}/exclude"
     )
 
     for _file in ${_excludefile[@]}; do
@@ -617,18 +634,18 @@ make_packages_file() {
     #-- Detect package list to load --#
     # Add the files for each channel to the list of files to read.
     #_loadfilelist=(
-    #    $(ls ${channel_path}/packages.${arch}/*.${arch} 2> /dev/null)
-    #    ${channel_path}/packages.${arch}/lang/${locale_name}.${arch}
+    #    $(ls ${channel_dir}/packages.${arch}/*.${arch} 2> /dev/null)
+    #    ${channel_dir}/packages.${arch}/lang/${locale_name}.${arch}
     #    $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
     #    "${script_path}"/channels/share/packages.${arch}/lang/${locale_name}.${arch}
     #)
 
-    #ls "${channel_path}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #ls "${channel_dir}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     # Install packages on airootfs
     #if [ $? -ne 0 ]; then
     #    :
     #else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${channel_path}/package_files.${arch}/*.pkg.*" install_file
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${channel_dir}/package_files.${arch}/*.pkg.*" install_file
     #fi
     #ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     #if [ $? -ne 0 ]; then
@@ -789,8 +806,8 @@ make_customize_airootfs() {
 
     _copy_airootfs "${script_path}/channels/share/airootfs.any"
     _copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
-    _copy_airootfs "${channel_path}/airootfs.any"
-    _copy_airootfs "${channel_path}/airootfs.${arch}"
+    _copy_airootfs "${channel_dir}/airootfs.any"
+    _copy_airootfs "${channel_dir}/airootfs.${arch}"
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
@@ -928,12 +945,12 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
     cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
-    if [[ -d "${channel_path}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
+    if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
+        cp -af "${channel_dir}/syslinux/"* "$work_dir/${arch}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
-    for _cfg in $work_dir/${arch}/syslinux/*.cfg; do
+    for _cfg in ${work_dir}/${arch}/syslinux/*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -956,10 +973,17 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    if [[ -f "${channel_path}/splash.png" ]]; then
-        cp "${channel_path}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    if [[ -f "${channel_dir}/splash.png" ]]; then
+        cp "${channel_dir}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
     else
         cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+    fi
+
+    # Rename rescue config
+    if [[ "${norescue_entry}" = false ]]; then
+        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+    else
+        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
     fi
 
     # copy files
@@ -977,7 +1001,12 @@ make_syslinux_loadfiles() {
     for _pxe_or_sys in "sys" "pxe"; do
         _write_load() { echo -e "${@}" >> "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_load.cfg"; }
         _write_load "INCLUDE boot/syslinux/archiso_head.cfg"
-        for _arch in ${all_arch[@]}; do _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"; done
+        for _arch in ${all_arch[@]}; do 
+            _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"
+            if [[ "${_pxe_or_sys}" = "sys" ]] && [[ "${norescue_entry}" = false ]]; then
+                _write_load "INCLUDE boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+            fi
+        done
         _write_load "INCLUDE boot/syslinux/archiso_tail.cfg"
     done
 }
@@ -995,6 +1024,7 @@ make_isolinux() {
 }
 
 # Prepare /EFI
+# Todo 2020/10/13 Hayao0819: x86_64に依存しているのをなくす
 make_efi() {
     mkdir -p "${work_dir}/iso/EFI/boot"
     for arch in ${all_arch[@]}; do
@@ -1013,14 +1043,23 @@ make_efi() {
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}-usb.conf"
+        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}.conf"
     done
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-        cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
-    fi
+    #if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    #fi
+
+    #if [[ "${arch}" = "x86_64" ]]; then
+    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+    #fi
+
+    local _efi_shell_arch
+    for _efi_shell_arch in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
+        cp "${_efi_shell_arch}/Shell_Full.efi" "${work_dir}/iso/shell_$(basename ${_efi_shell_arch}).efi"
+    done
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -1045,7 +1084,7 @@ make_efiboot() {
     for arch in ${all_arch[@]}; do
         (
             local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
         )
     done
 
@@ -1062,9 +1101,11 @@ make_efiboot() {
     done
 
     # shellx64.efi is picked up automatically when on /
-    if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
-        cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
-    fi
+    #if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
+    #    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+    #fi
+
+    cp "${work_dir}/iso/shell"*".efi" "${work_dir}/efiboot/"
 
     umount -d "${work_dir}/efiboot"
 }
@@ -1117,16 +1158,23 @@ make_prepare() {
         }
         rm -rf "${_info_file}"; touch "${_info_file}"
 
-        _write_info_file "Created by ${iso_publisher}"
-        _write_info_file "${iso_application} ${arch}"
+        _write_info_file "Developer      : ${iso_publisher}"
+        _write_info_file "OS Name        : ${iso_application}"
+        _write_info_file "Architecture   : ${all_arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
-            _write_info_file "Version   : ${iso_version}-$(git rev-parse --short HEAD)"
+            _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
         else
-        _write_info_file "Version       : ${iso_version}"
+        _write_info_file "Version        : ${iso_version}"
         fi
-        _write_info_file "Channel   name: ${channel_name}"
-        _write_info_file "Live user name: ${username}"
-        _write_info_file "Live user pass: ${password}"
+        _write_info_file "Channel   name : ${channel_name}"
+        _write_info_file "Live user name : ${username}"
+        _write_info_file "Live user pass : ${password}"
+        _write_info_file "Kernel    name : ${kernel}"
+        if [[ "${boot_splash}" = true ]]; then
+            _write_info_file "Plymouth       : Yes"
+        else
+            _write_info_file "Plymouth       : No"
+        fi
     fi
 }
 
@@ -1395,8 +1443,8 @@ else
 fi
 
 # Check channel version
-msg_debug "channel path is ${channel_path}"
-if [[ ! "$(cat "${channel_path}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+msg_debug "channel path is ${channel_dir}"
+if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
     msg_error "This channel does not support Alter ISO 3."
     if [[ -d "${script_path}/.git" ]]; then
         msg_error "Please run \"git checkout alteriso-2\"" "1"

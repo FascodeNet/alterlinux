@@ -520,8 +520,8 @@ int command_collection::command_iso(QString iso_name){
         _msg_err("The file '" + bskun->get_work_dir ()+"/iso/isolinux/isohdpfx.bin' does not exist.");
         return 1;
     }
-    if(workd.exists("iso/EFI/archiso/efiboot.img")){
-        _iso_efi_boot_args="-eltorito-alt-boot -e EFI/archiso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat";
+    if(workd.exists("iso/EFI/alteriso/efiboot.img")){
+        _iso_efi_boot_args="-eltorito-alt-boot -e EFI/alteriso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat";
     }
     _show_config(ISO);
     QDir Outdir(bskun->get_out_dir());
