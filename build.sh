@@ -1007,6 +1007,8 @@ make_boot_extra() {
         cp "${work_dir}/${arch}/airootfs/boot/memtest86+/memtest.bin" "${work_dir}/iso/${install_dir}/boot/memtest"
         cp "${work_dir}/${arch}/airootfs/usr/share/licenses/common/GPL2/license.txt" "${work_dir}/iso/${install_dir}/boot/memtest.COPYING"
     fi
+
+:<<OLD
     if [[ -e "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" ]]; then
         cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
         cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
@@ -1015,6 +1017,21 @@ make_boot_extra() {
         cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
         cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
     fi
+OLD
+
+    local _ucode_image
+    msg_info "Preparing microcode for the ISO 9660 file system..."
+
+    for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+        if [[ -e "${work_dir}/${arch}/airootfs/boot/${_ucode_image}" ]]; then
+            install -m 0644 -- "${work_dir}/${arch}/airootfs/boot/${_ucode_image}" "${work_dir}/iso/${install_dir}/boot/"
+            if [[ -e "${work_dir}/${arch}/airootfs/usr/share/licenses/${_ucode_image%.*}/" ]]; then
+                install -d -m 0755 -- "${work_dir}/iso/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+                install -m 0644 -- "${work_dir}/${arch}/airootfs/usr/share/licenses/${_ucode_image%.*}/"* "${work_dir}/iso/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+            fi
+        fi
+    done
+    _msg_info "Done!"
 }
 
 # Prepare /${install_dir}/boot/syslinux
