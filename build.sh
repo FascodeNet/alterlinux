@@ -1014,17 +1014,6 @@ make_boot_extra() {
         cp "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/memtest.COPYING"
     fi
 
-:<<OLD
-    if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
-        cp "${airootfs_dir}/boot/intel-ucode.img" "${isofs_dir}/${install_dir}/boot/intel_ucode.img"
-        cp "${airootfs_dir}/usr/share/licenses/intel-ucode/LICENSE" "${isofs_dir}/${install_dir}/boot/intel_ucode.LICENSE"
-    fi
-    if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
-        cp "${airootfs_dir}/boot/amd-ucode.img" "${isofs_dir}/${install_dir}/boot/amd_ucode.img"
-        cp "${airootfs_dir}/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${isofs_dir}/${install_dir}/boot/amd_ucode.LICENSE"
-    fi
-OLD
-
     local _ucode_image
     msg_info "Preparing microcode for the ISO 9660 file system..."
 
@@ -1127,11 +1116,6 @@ make_efi() {
     "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
 
     # edk2-shell based UEFI shell
-    # shellx64.efi is picked up automatically when on /
-    #if [[ "${arch}" = "x86_64" ]]; then
-    #    cp "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
-    #fi
-
     local _efi_shell _efi_shell_arch
     for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
         _efi_shell_arch="$(basename ${_efi_shell})"
@@ -1183,13 +1167,7 @@ make_efiboot() {
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
-    # shellx64.efi is picked up automatically when on /
-    #if [[ "${arch}" = "x86_64" ]]; then
-    #    cp "${isofs_dir}/shellx64.efi" "${work_dir}/efiboot/"
-    #fi
-
     cp "${isofs_dir}/shell"*".efi" "${work_dir}/efiboot/"
-
 
     umount -d "${work_dir}/efiboot"
 }
