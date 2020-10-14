@@ -1119,7 +1119,7 @@ make_efi() {
     local _efi_shell _efi_shell_arch
     for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
         _efi_shell_arch="$(basename ${_efi_shell})"
-        cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/shell_${_efi_shell_arch}.efi"
+        cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
         cat > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" <<"EOF"
 title  UEFI Shell (Full) ${_efi_shell_arch}
 efi    /EFI/Shell_Full_${_efi_shell_arch}.efi
@@ -1167,7 +1167,7 @@ make_efiboot() {
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
-    cp "${isofs_dir}/shell"*".efi" "${work_dir}/efiboot/"
+    cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/"
 
     umount -d "${work_dir}/efiboot"
 }
