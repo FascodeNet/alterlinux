@@ -1121,8 +1121,9 @@ make_efi() {
         _efi_shell_arch="$(basename ${_efi_shell})"
         cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
         cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
-title  UEFI Shell (Full) ${_efi_shell_arch}
-efi    /EFI/Shell_Full_${_efi_shell_arch}.efi
+title  UEFI Shell ${_efi_shell_arch}
+efi    /EFI/shell_${_efi_shell_arch}.efi
+
 EOF
     done
 }
