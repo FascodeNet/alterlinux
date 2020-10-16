@@ -61,7 +61,7 @@ int command_collection::_chroot_init(){
         _pacman("base base-devel git");
     }
     else {
-        _pacman("base base-devel syslinux mkinitcpio git");
+        _pacman("base syslinux");
     }
     return 0;
 }
