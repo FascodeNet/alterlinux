@@ -20,3 +20,9 @@ tarball=true
 # Be sure to set the tarball to true if you want this to be true.
 # Change the default behavior of "--noiso".
 noiso=true
+
+# kernel config
+_kernel_config_line=("core" "vmlinuz-linux-armv7" "linux-armv7")
+kernel="${_kernel_config_line[0]}"
+kernel_filename="${_kernel_config_line[1]}"
+kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
