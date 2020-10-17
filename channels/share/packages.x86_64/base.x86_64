@@ -19,3 +19,4 @@ mkinitcpio-nfs-utils
 nbd
 
 edk2-shell
+syslinux
