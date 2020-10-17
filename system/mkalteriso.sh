@@ -61,7 +61,7 @@ _chroot_init() {
 
     #_pacman "base base-devel syslinux" <- old code
 
-    _pacman "base syslinux"
+    _pacman "base"
 }
 
 # Unmount chroot dir
