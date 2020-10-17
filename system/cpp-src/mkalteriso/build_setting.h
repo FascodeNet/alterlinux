@@ -45,8 +45,6 @@ public:
     void set_command_args(QStringList);
     void set_debug_mode(bool);
     bool get_debug_mode();
-    void set_wsl(bool);
-    bool get_wsl();
 private:
     bool quiet;
     QString architecture;

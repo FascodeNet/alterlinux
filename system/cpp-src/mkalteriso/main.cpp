@@ -50,7 +50,6 @@ void AppMain::run()
     build_setting_obj.set_iso_application("Alter Linux Live/Rescue CD");
     build_setting_obj.set_quiet(true);
     build_setting_obj.set_use_gpg_key(false);
-    build_setting_obj.set_wsl(false);
     time_t     now;
     struct tm  *ts;
     char       buf[80];
@@ -132,9 +131,6 @@ void AppMain::run()
     if(parser.isSet(option_gpg_key)){
         build_setting_obj.set_use_gpg_key(true);
         build_setting_obj.set_gpg_key(parser.value(option_gpg_key));
-    }
-    if(parser.isSet(option_wsl)){
-        build_setting_obj.set_wsl(true);
     }
     build_setting_obj.set_command_args(parser.positionalArguments());
     cmd_collect.set_build_setting(&build_setting_obj);

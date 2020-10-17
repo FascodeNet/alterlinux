@@ -56,13 +56,7 @@ int command_collection::_chroot_init(){
     if(!dir.exists("airootfs")){
         dir.mkpath("airootfs");
     }
-    if(bskun->get_wsl()){
-
-        _pacman("base base-devel git");
-    }
-    else {
-        _pacman("base syslinux");
-    }
+    _pacman("base git");
     return 0;
 }
 int command_collection::command_run(){
