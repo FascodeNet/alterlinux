@@ -1213,7 +1213,15 @@ make_prepare() {
     fi
 
     # iso version info
-    if [[ "${include_info}" = true ]]; then ${airootfs_dir}/usr/lib/syslinux
+    if [[ "${include_info}" = true ]]; then
+        local _write_info_file _info_file="${isofs_dir}/alteriso-info"
+        _write_info_file () {
+            echo "${@}" >> "${_info_file}"
+        }
+        rm -rf "${_info_file}"; touch "${_info_file}"
+
+        _write_info_file "Developer      : ${iso_publisher}"
+        _write_info_file "OS Name        : ${iso_application}"
         _write_info_file "Architecture   : ${arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
