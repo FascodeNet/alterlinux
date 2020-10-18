@@ -1213,7 +1213,7 @@ make_prepare() {
     fi
 
     # iso version info
-    if [[ "${include_info}" = true ]]; then${airootfs_dir}/usr/lib/syslinux
+    if [[ "${include_info}" = true ]]; then ${airootfs_dir}/usr/lib/syslinux
         _write_info_file "Architecture   : ${arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
