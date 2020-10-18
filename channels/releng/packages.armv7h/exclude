@@ -34,3 +34,13 @@ zstd
 
 broadcom-wl
 broadcom-wl-dkms
+
+
+# These do not exist in armv7h
+
+grub
+edk2-shell
+intel-ucode
+ipw2100-fw
+ipw2200-fw
+reflector
