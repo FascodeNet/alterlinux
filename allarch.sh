@@ -257,8 +257,7 @@ remove() {
 umount_trap() {
     local _status=${?}
     umount_chroot
-    msg_error "It was killed by the user."
-    msg_error "The process may not have completed successfully."
+    msg_error "It was killed by the user.\nThe process may not have completed successfully."
     exit ${_status}
 }
 
@@ -296,6 +295,7 @@ check_bool() {
         echo; msg_error "The variable name ${1} is not of bool type." "1"
     fi
 }
+
 
 # Check the build environment and create a directory.
 prepare_env() {
@@ -339,8 +339,7 @@ prepare_env() {
                     else
                         # リモートとローカルのバージョンが一致しない場合
                         [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
+                        msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
                         return 0
                     fi
                 fi
@@ -376,9 +375,7 @@ prepare_env() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            msg_error "The currently running kernel module could not be found."
-            msg_error "Probably the system kernel has been updated."
-            msg_error "Reboot your system to run the latest kernel." "1"
+            msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
         fi
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
@@ -1449,8 +1446,7 @@ if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_v
     if [[ -d "${script_path}/.git" ]]; then
         msg_error "Please run \"git checkout alteriso-2\"" "1"
     else
-        msg_error "Please download Alter ISO 2 here."
-        msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
+        msg_error "Please download Alter ISO 2 here.\nhttps://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
     fi
 fi
 
