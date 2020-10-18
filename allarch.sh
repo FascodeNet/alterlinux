@@ -1492,8 +1492,8 @@ done
 run_once make_boot_extra
 run_once make_syslinux_loadfiles
 run_once make_isolinux
-run_once make_efi
-run_once make_efiboot
+#run_once make_efi
+#run_once make_efiboot
 if [[ "${tarball}" = true ]]; then
     for arch in ${all_arch[@]}; do
         run_arch make_tarball
