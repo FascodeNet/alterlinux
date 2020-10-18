@@ -1454,11 +1454,6 @@ if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_v
     fi
 fi
 
-check_bool debug
-check_bool bash_debug
-check_bool nocolor
-check_bool msgdebug
-
 parse_files
 
 set -eu
