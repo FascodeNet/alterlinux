@@ -1103,7 +1103,7 @@ make_efiboot() {
     for arch in ${all_arch[@]}; do
         (
             local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/EFI/boot/${__bootfile#systemd-}"
         )
     done
 
