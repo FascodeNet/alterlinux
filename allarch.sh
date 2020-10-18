@@ -1053,9 +1053,8 @@ make_efi() {
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
-            s|%KERNEL_FILENAME%|${kernel_filename}-${arch}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
-            s|archiso.img|archiso-${arch}.img|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
     done
@@ -1087,8 +1086,9 @@ make_efiboot() {
     mkdir -p "${work_dir}/efiboot/EFI/alteriso"
 
     for arch in ${all_arch[@]}; do
-        cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}-${arch}.efi"
-        cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso-${arch}.img"
+        mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
+        cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
+        cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
     done
 
     local _ucode_image
@@ -1108,23 +1108,17 @@ make_efiboot() {
     done
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
-    cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
+    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
     cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
-            s|%KERNEL_FILENAME%|${kernel_filename}-${arch}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
-            s|archiso.img|archiso-${arch}.img|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
     done
-
-    # shellx64.efi is picked up automatically when on /
-    #if [[ -f "${isofs_dir}/shellx64.efi" ]]; then
-    #    cp "${isofs_dir}/shellx64.efi" "${work_dir}/efiboot/"
-    #fi
 
     cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
