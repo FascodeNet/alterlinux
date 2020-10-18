@@ -7,6 +7,7 @@ This document will show how to use Alter Linux i3 Edition.
 
 ---
 ## 目次
+1. [インストールされているi3wmについて](インストールされているi3wmについて)
 1. [基本的な使い方](#基本的な使い方)
 	1. [ソフトを起動する](#ソフトを起動する)
 	1. [ウィンドウの簡易的な操作](#ウィンドウの簡易的な操作)
@@ -22,9 +23,12 @@ This document will show how to use Alter Linux i3 Edition.
 	1. [ソフトウェア](#ソフトウェア)
 1. [設定を変更したい](#設定を変更したい)
 1. [その他](#その他)
-## 注意
-これからi3wmとして紹介するものはi3wmの派生であるi3-gapsです。
-オリジナルのi3ではありませんのでご注意ください。
+
+## インストールされているi3wmについて
+Alter Linuxでは，ウィンドウマネージャとしてi3wmからフォークされたi3-gapsがインストールされています。  
+これはオリジナルのi3wmに，ウィンドウの間を空ける機能などが搭載されたものです。  
+以降はi3-gapsをi3wmとして解説します。  
+
 ## 基本的な使い方
 i3wmはタイル型ウィンドウマネージャです。ウィンドウが増えるたびに、i3wmは自動でウィンドウをリサイズし、整列させます。  
 基本的な操作はショートカットで行います。ショートカットについては、[こちら](#ショートカットキー)を参考にしてください。  
@@ -144,6 +148,11 @@ Twitter [(@Fascode_SPT)](https://twitter.com/Fascode_SPT) へのDMや返信等�
 	1. [Softwares](#softwares)
 1. [How to change the settings](#how-to-change-the-settings)
 1. [Q&A](#qa)
+
+## About installed i3wm
+Alter Linux installed i3-gaps forked from i3wm as a window manager.  
+i3-gaps added gaps between window to original i3wm.  
+This document will explain i3-gaps as i3wm.  
 
 ## Basic Usage
 i3wm is a tiling window manager. Each time you add more windows, i3wm will automatically resize and align them.  
