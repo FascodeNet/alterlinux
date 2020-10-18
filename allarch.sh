@@ -515,7 +515,6 @@ prepare_build() {
     check_bool noaur
     check_bool customized_syslinux
     check_bool norescue_entry
-    check_bool rebuild
     check_bool debug
     check_bool bash_debug
     check_bool nocolor
