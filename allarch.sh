@@ -1090,7 +1090,7 @@ make_efiboot() {
     for arch in ${all_arch[@]}; do
         cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}-${arch}.efi"
         cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso-${arch}.img"
-    fi
+    done
 
     local _ucode_image
     for arch in ${all_arch[@]}; do
