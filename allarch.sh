@@ -1052,8 +1052,9 @@ make_efi() {
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
-            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}-${arch}|g;
             s|%ARCH%|${arch}|g;
+            s|archiso.img|archiso-${arch}.img|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
     done
@@ -1084,8 +1085,10 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/EFI/alteriso"
 
-    cp "${isofs_dir}/${install_dir}/boot/x86_64/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}.efi"
-    cp "${isofs_dir}/${install_dir}/boot/x86_64/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso.img"
+    for arch in ${all_arch[@]}; do
+        cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}-${arch}.efi"
+        cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso-${arch}.img"
+    fi
 
     local _ucode_image
     for arch in ${all_arch[@]}; do
@@ -1110,8 +1113,9 @@ make_efiboot() {
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
-            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}-${arch}|g;
             s|%ARCH%|${arch}|g;
+            s|archiso.img|archiso-${arch}.img|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
         "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
     done
