@@ -1484,7 +1484,6 @@ rebuildfile="${work_dir}/alteriso_config"
 set +eu
 
 # Check for a valid channel name
-# Todo 2020/10/13 Hayao0819: This process does not currently work.
 if [[ -n "${1}" ]]; then
     case "$(bash "${script_path}/tools/channel.sh" -n -m check "${1}")" in
         "incorrect")
@@ -1519,7 +1518,6 @@ else
 fi
 
 # Check channel version
-# Todo 2020/10/13 Hayao0819: If the wrong channel is specified, the script will return this error.
 if [[ ! "${channel_name}" = "rebuild" ]]; then
     msg_debug "channel path is ${channel_dir}"
     if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
