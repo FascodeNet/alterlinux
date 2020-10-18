@@ -514,6 +514,11 @@ prepare_build() {
     check_bool noaur
     check_bool customized_syslinux
     check_bool norescue_entry
+    check_bool rebuild
+    check_bool debug
+    check_bool bash_debug
+    check_bool nocolor
+    check_bool msgdebug
 
     # Unmount
     umount_chroot
@@ -928,14 +933,20 @@ make_boot_extra() {
         cp "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
         cp "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/memtest.COPYING"
     fi
-    if [[ -e "${airootfs_dir}/boot/intel-ucode.img" ]]; then
-        cp "${airootfs_dir}/boot/intel-ucode.img" "${isofs_dir}/${install_dir}/boot/intel_ucode.img"
-        cp "${airootfs_dir}/usr/share/licenses/intel-ucode/LICENSE" "${isofs_dir}/${install_dir}/boot/intel_ucode.LICENSE"
-    fi
-    if [[ -e "${airootfs_dir}/boot/amd-ucode.img" ]]; then
-        cp "${airootfs_dir}/boot/amd-ucode.img" "${isofs_dir}/${install_dir}/boot/amd_ucode.img"
-        cp "${airootfs_dir}/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${isofs_dir}/${install_dir}/boot/amd_ucode.LICENSE"
-    fi
+
+    local _ucode_image
+    msg_info "Preparing microcode for the ISO 9660 file system..."
+
+    for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+        if [[ -e "${airootfs_dir}/boot/${_ucode_image}" ]]; then
+            install -m 0644 -- "${airootfs_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
+            if [[ -e "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
+                install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+                install -m 0644 -- "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/"* "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+            fi
+        fi
+    done
+    msg_info "Done!"
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -945,9 +956,9 @@ make_syslinux() {
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
-    cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
+    cp -a "${script_path}/syslinux/"* "${work_dir}/${arch}/syslinux/"
     if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_dir}/syslinux/"* "$work_dir/${arch}/syslinux/"
+        cp -af "${channel_dir}/syslinux"* "${work_dir}/${arch}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
@@ -1030,8 +1041,8 @@ make_efi() {
     mkdir -p "${isofs_dir}/EFI/boot"
     for arch in ${all_arch[@]}; do
         (
-            local __bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
+            local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
         )
     done
 
@@ -1048,25 +1059,24 @@ make_efi() {
     done
 
     # edk2-shell based UEFI shell
-    # shellx64.efi is picked up automatically when on /
-    #if [[ -f "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-    #    cp "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
-    #fi
+    local _efi_shell _efi_shell_arch
+    for arch in ${all_arch[@]}; do
+        for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
+            _efi_shell_arch="$(basename ${_efi_shell})"
+            cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
+title  UEFI Shell ${_efi_shell_arch}
+efi    /EFI/shell_${_efi_shell_arch}.efi
 
-    #if [[ "${arch}" = "x86_64" ]]; then
-    #    cp "${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
-    #fi
-
-    local _efi_shell_arch
-    for _efi_shell_arch in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
-        cp "${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/shell_$(basename ${_efi_shell_arch}).efi"
+EOF
+        done
     done
-}
+    }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
     mkdir -p "${isofs_dir}/EFI/alteriso"
-    truncate -s 64M "${isofs_dir}/EFI/alteriso/efiboot.img"
+    truncate -s 128M "${isofs_dir}/EFI/alteriso/efiboot.img"
     mkfs.fat -n ARCHISO_EFI "${isofs_dir}/EFI/alteriso/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
@@ -1077,20 +1087,25 @@ make_efiboot() {
     cp "${isofs_dir}/${install_dir}/boot/x86_64/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}.efi"
     cp "${isofs_dir}/${install_dir}/boot/x86_64/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso.img"
 
-    cp "${isofs_dir}/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/alteriso/intel_ucode.img"
-    cp "${isofs_dir}/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/alteriso/amd_ucode.img"
+    local _ucode_image
+    for arch in ${all_arch[@]}; do
+        for _ucode_image in "${work_dir}/${arch}/airootfs/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+            [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${work_dir}/efiboot/EFI/alteriso/"
+        done
+    done
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
 
     for arch in ${all_arch[@]}; do
         (
-            local __bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
+            local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
         )
     done
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
     cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
+    cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1106,7 +1121,7 @@ make_efiboot() {
     #    cp "${isofs_dir}/shellx64.efi" "${work_dir}/efiboot/"
     #fi
 
-    cp "${isofs_dir}/shell"*".efi" "${work_dir}/efiboot/"
+    cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
     umount -d "${work_dir}/efiboot"
 }
