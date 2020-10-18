@@ -1213,15 +1213,7 @@ make_prepare() {
     fi
 
     # iso version info
-    if [[ "${include_info}" = true ]]; then
-        local _write_info_file _info_file="${isofs_dir}/alteriso-info"
-        _write_info_file () {
-            echo "${@}" >> "${_info_file}"
-        }
-        rm -rf "${_info_file}"; touch "${_info_file}"
-
-        _write_info_file "Developer      : ${iso_publisher}"
-        _write_info_file "OS Name        : ${iso_application}"
+    if [[ "${include_info}" = true ]]; then${airootfs_dir}/usr/lib/syslinux
         _write_info_file "Architecture   : ${arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
@@ -1547,17 +1539,19 @@ run_once make_packages
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
-run_once make_syslinux
+if [[ -d "${airootfs_dir}/usr/lib/syslinux" ]] && [[ "${noiso}" = false ]] ; then
+    run_once make_syslinux
+    run_once make_isolinux
+fi
 run_once make_boot
 [[ "${noiso}" = false ]] && run_once make_prepare
-
 run_once make_boot_extra
-run_once make_isolinux
-run_once make_efi
-run_once make_efiboot
+if [[ "${noiso}" = false ]]; then
+    run_once make_efi
+    run_once make_efiboot
+fi
 [[ "${tarball}" = true ]] && run_once make_tarball
-
 [[ "${noiso}" = false ]] && run_once make_iso
-[[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+[[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
 
 exit 0
