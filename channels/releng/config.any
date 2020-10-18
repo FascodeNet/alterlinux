@@ -67,6 +67,14 @@ shmkalteriso=true
 # This setting cannot be changed by an argument.
 norescue_entry=true
 
+# If set to true, include alteriso_info in iso root.
+# This setting cannot be changed by an argument.
+include_info=false
+
+# Do not include the channel name in the filename of the image file.
+# This setting cannot be changed by an argument.
+nochname=true
+
 # List of packages required for build
 # The following packages are checked to see if they are installed before running build.sh
 # Also, wizard.sh will install it automatically.
