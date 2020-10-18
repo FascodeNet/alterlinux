@@ -193,7 +193,8 @@ _usage () {
     echo "         --noaur                 No build and install AUR packages"
     echo "         --nocolor               No output colored output"
     echo "         --noconfirm             No check the settings before building"
-    echo "         --nochkver              NO check the version of the channel"
+    echo "         --nochkver              No check the version of the channel"
+    echo "         --noefi                 No efi boot"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
@@ -519,6 +520,7 @@ prepare_build() {
     check_bool bash_debug
     check_bool nocolor
     check_bool msgdebug
+    check_bool noefi
 
     # Unmount
     umount_chroot
@@ -1271,7 +1273,7 @@ parse_files() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
+_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1398,6 +1400,10 @@ while :; do
             nochkver=true
             shift 1
             ;;
+        --noefi)
+            noefi=true
+            shift 1
+            ;;
         --channellist)
             show_channel_list
             exit 0
@@ -1489,15 +1495,17 @@ for arch in ${all_arch[@]}; do
     [[ "${noaur}" = false ]] && run_arch make_packages_aur
     run_arch make_customize_airootfs
     run_arch make_setup_mkinitcpio
-    run_arch make_syslinux
+    [[ "${noiso}" = false ]] && run_arch make_syslinux
     run_arch make_boot
     [[ "${noiso}" = false ]] && run_arch make_prepare
 done
 run_once make_boot_extra
-run_once make_syslinux_loadfiles
-run_once make_isolinux
-#run_once make_efi
-#run_once make_efiboot
+if [[ "${noiso}" = false ]] && [[ "${noefi}" = false ]]; then
+    run_once make_syslinux_loadfiles
+    run_once make_isolinux
+    run_once make_efi
+    run_once make_efiboot
+fi
 if [[ "${tarball}" = true ]]; then
     for arch in ${all_arch[@]}; do
         run_arch make_tarball
