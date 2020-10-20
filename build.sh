@@ -143,13 +143,9 @@ _usage () {
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
-            echo -ne " "
-        done
+        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do echo -ne " "; done
         _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
-        for _lang in ${_locale_name_list[@]};do
-            echo -n "${_lang} "
-        done
+        for _lang in ${_locale_name_list[@]};do echo -n "${_lang} ": done
         echo
     done
 
