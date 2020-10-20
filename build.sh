@@ -145,7 +145,7 @@ _usage () {
         echo -n "    ${_arch}"
         for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do echo -ne " "; done
         _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
-        for _lang in ${_locale_name_list[@]};do echo -n "${_lang} ": done
+        for _lang in ${_locale_name_list[@]};do echo -n "${_lang} "; done
         echo
     done
 
