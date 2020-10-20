@@ -512,13 +512,9 @@ prepare_build() {
             build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
         fi
 
-        # If there is config for share channel. load that.
-        load_config "${script_path}/channels/share/config.any"
-        load_config "${script_path}/channels/share/config.${arch}"
-
-        # If there is config for each channel. load that.
-        load_config "${channel_dir}/config.any"
-        load_config "${channel_dir}/config.${arch}"
+        # If there is config for channel. load that.
+        load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
+        load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
         # Set username
         if [[ "${customized_username}" = false ]]; then
