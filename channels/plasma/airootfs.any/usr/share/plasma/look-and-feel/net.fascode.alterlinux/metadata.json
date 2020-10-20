@@ -7,7 +7,7 @@
             }
         ],
         "Description": "Alter Linux Default Theme",
-        "Id": "net.fascode.network.alterlinux",
+        "Id": "net.fascode.alterlinux",
         "License": "GPLv3",
         "Name": "AlterLinux",
         "ServiceTypes": [

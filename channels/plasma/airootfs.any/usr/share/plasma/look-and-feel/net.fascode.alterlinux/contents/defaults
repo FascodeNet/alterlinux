@@ -25,4 +25,4 @@ name=alterlinux
 
 [ksplashrc][KSplash]
 Engine=KSplashQML
-Theme=net.fascode.network.alterlinux
+Theme=net.fascode.alterlinux
