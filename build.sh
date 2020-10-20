@@ -588,7 +588,7 @@ prepare_build() {
     check_bool noefi
 
     # Check architecture for each channel
-    if [[ -z $(cat "${channel_dir}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b -m check "${channel_name}")" = "correct" ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
