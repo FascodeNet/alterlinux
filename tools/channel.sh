@@ -12,6 +12,7 @@ opt_fullpath=false
 alteriso_version="3.0"
 mode=""
 arch="all"
+kernel="all"
 
 _help() {
     echo "usage ${0} [options] [command]"
@@ -28,6 +29,7 @@ _help() {
     echo "    -b | --nobuiltin          Exclude built-in channels"
     echo "    -d | --dirname            Display directory names of all channel as it is"
     echo "    -f | --fullpath           Display the full path of the channel (Use with -db)"
+    echo "    -k | --kernel [name]      Specify the supported kernel"
     echo "    -m | --multi              Only channels supported by allarch.sh"
     echo "    -n | --nochkver           Ignore channel version"
     echo "    -o | --only-add           Only additional channels"
@@ -39,7 +41,7 @@ gen_channel_list() {
     local _dirname
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
         if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
-            if [[  ! "${arch}" = "all" ]] && [[ -z "$(cat "${script_path}/channels/${_dirname}/architecture" 2> /dev/null | grep -h -v ^'#' | grep -x "${arch}")" ]] || [[ "${_dirname}" = "share" ]]; then
+            if [[  ! "${arch}" = "all" ]] && [[ -z "$(cat "${script_path}/channels/${_dirname}/architecture" 2> /dev/null | grep -h -v ^'#' | grep -x "${arch}")" ]] || [[ "${_dirname}" = "share" ]] || [[ ! "${kernel}" = "all" ]] && [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $( ( cat "${script_path}/channels/${_dirname}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" ) 2> /dev/null) ]]; then
                 continue
             elif [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
                 if [[ "${opt_dir_name}" = true ]]; then
@@ -100,8 +102,8 @@ show() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bdfmnov:h"
-_opt_long="arch:,nobuiltin,dirname,fullpath,multi,only-add,nochkver,version:,help"
+_opt_short="a:bdfk:mnov:h"
+_opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,multi,only-add,nochkver,version:,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -125,6 +127,10 @@ while true; do
         -f | --fullpath)
             opt_fullpath=true
             shift 1
+            ;;
+        -k | --kernel)
+            kernel="${2}"
+            shift 2
             ;;
         -m | --multi)
             opt_allarch=true
