@@ -240,11 +240,10 @@ run_once() {
 remove() {
     local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            msg_debug "Removing ${_file}"
+        msg_debug "Removing ${_file}"
+        if [[ -f "${_file}" ]]; then    
             rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            msg_debug "Removing ${_file}"
+        elif [[ -d "${_file}" ]]; then
             rm -rf "${_file}"
         fi
     done
@@ -252,10 +251,10 @@ remove() {
 
 # 強制終了時にアンマウント
 umount_trap() {
-    local _status=${?}
+    local _status="${?}"
     umount_chroot
     msg_error "It was killed by the user.\nThe process may not have completed successfully."
-    exit ${_status}
+    exit "${_status}"
 }
 
 # 設定ファイルを読み込む
