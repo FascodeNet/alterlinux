@@ -1074,8 +1074,7 @@ make_efiboot() {
     mkdir -p "${work_dir}/efiboot"
     mount "${isofs_dir}/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
 
-    mkdir -p "${work_dir}/efiboot/EFI/alteriso"
-
+    mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
     for arch in ${all_arch[@]}; do
         mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
         cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"

@@ -1122,6 +1122,8 @@ make_efiboot() {
     mkdir -p "${isofs_dir}/EFI/alteriso"
     truncate -s 128M "${isofs_dir}/EFI/alteriso/efiboot.img"
     mkfs.fat -n ARCHISO_EFI "${isofs_dir}/EFI/alteriso/efiboot.img"
+
+    mkdir -p "${work_dir}/efiboot"
     mount "${isofs_dir}/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
 
     mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
