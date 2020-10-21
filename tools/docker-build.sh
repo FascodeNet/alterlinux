@@ -11,7 +11,7 @@ if ! type docker >/dev/null 2>&1; then
     exit 1
 fi
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 _usage () {
     echo "usage ${0} [options]"
