@@ -296,10 +296,10 @@ check_bool() {
 # Check the build environment and create a directory.
 prepare_env() {
     for arch in ${all_arch[@]}; do
-        # Check architecture for each channel
-        if [[ -z $(cat "${channel_dir}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-        fi
+    # Check architecture for each channel
+    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b -m check "${channel_name}")" = "correct" ]]; then
+        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
 
         # Check kernel for each channel
         if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
