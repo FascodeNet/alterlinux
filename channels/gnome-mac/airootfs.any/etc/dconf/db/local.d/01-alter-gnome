@@ -26,13 +26,14 @@ two-finger-scrolling-enabled=true
 picture-uri='file:///usr/share/backgrounds/alter-nochr.png'
 
 [org/gnome/desktop/wm/keybindings]
-panel-main-menu=['<Alt>F1']
+panel-main-menu=@as []
 switch-group=@as []
 switch-group-backward=@as []
 
 [org/gnome/desktop/wm/preferences]
 action-middle-click-titlebar='none'
 button-layout='appmenu:minimize,maximize,close'
+num-workspaces=2
 
 [org/gnome/evolution-data-server]
 migrated=true
@@ -40,7 +41,8 @@ network-monitor-gio-name=''
 
 [org/gnome/mutter]
 center-new-windows=false
-overlay-key='Super_L'
+dynamic-workspaces=true
+overlay-key='Super_R'
 
 [org/gnome/nautilus/list-view]
 default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'where', 'date_modified', 'date_modified_with_time', 'date_accessed', 'recency', 'starred', 'detailed_type']
@@ -91,6 +93,22 @@ show-lock-button=false
 show-logout-button=false
 show-suspend-button=false
 
+[org/gnome/shell/extensions/clipboard-indicator]
+disable-down-arrow=true
+display-mode=0
+enable-keybindings=false
+history-size=20
+notify-on-copy=false
+strip-text=true
+
+[org/gnome/shell/extensions/coverflowalttab]
+current-workspace-only='all-currentfirst'
+enforce-primary-monitor=false
+hide-panel=false
+icon-style='Overlay'
+position='Bottom'
+switcher-style='Coverflow'
+
 [org/gnome/shell/extensions/dash-to-dock]
 apply-custom-theme=false
 custom-theme-shrink=false
@@ -113,6 +131,9 @@ show-volumes=false
 
 [org/gnome/shell/extensions/user-theme]
 name='Adapta-Blue-Nokto'
+
+[org/gnome/shell/keybindings]
+toggle-overview=@as []
 
 [org/gtk/settings/file-chooser]
 date-format='regular'
