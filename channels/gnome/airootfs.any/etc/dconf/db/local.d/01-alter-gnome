@@ -101,11 +101,12 @@ strip-text=true
 
 [org/gnome/shell/extensions/coverflowalttab]
 current-workspace-only='all-currentfirst'
+elastic-mode=true
 enforce-primary-monitor=false
 hide-panel=false
-icon-style='Overlay'
+icon-style='Classic'
 position='Bottom'
-switcher-style='Coverflow'
+switcher-style='Timeline'
 
 [org/gnome/shell/extensions/dash-to-panel]
 appicon-margin=4
