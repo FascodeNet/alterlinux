@@ -1232,7 +1232,7 @@ make_overisofs() {
 
     _copy_isofs() {
         local _dir="${1%/}"
-        [[ -d "${_dir}" ]] && cp -af "${_dir}"/* "${isofs_dir}"
+        if [[ -d "${_dir}" ]]; then cp -af "${_dir}"/* "${isofs_dir}"; fi
     }
 
     _copy_isofs "${script_path}/channels/share/over_isofs.any"
