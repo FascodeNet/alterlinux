@@ -202,9 +202,9 @@ _pacman() {
     _msg_info "Installing packages to '${airootfs_dir}/'..."
 
     if [[ "${quiet}" = "y" ]]; then
-        pacstrap -C "${pacman_conf}" -c -G -M -- "${airootfs_dir}" "$@" &> /dev/null
+        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@" &> /dev/null
     else
-        pacstrap -C "${pacman_conf}" -c -G -M -- "${airootfs_dir}" "$@"
+        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@"
     fi
 
     _msg_info "Done! Packages installed successfully."
@@ -321,12 +321,32 @@ _run_once() {
     fi
 }
 
-# Set up custom pacman.conf with current cache directories.
+# Set up custom pacman.conf with custom cache and pacman hook directories
 _make_pacman_conf() {
-    local _cache_dirs
-    _cache_dirs="$(pacman-conf CacheDir)"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir    = ${_cache_dirs[*]//$'\n'/ }|g" \
-        "${pacman_conf}" > "${work_dir}/pacman.conf"
+    local _cache_dirs _system_cache_dirs _profile_cache_dirs
+    _system_cache_dirs="$(pacman-conf CacheDir| tr '\n' ' ')"
+    _profile_cache_dirs="$(pacman-conf --config "${pacman_conf}" CacheDir| tr '\n' ' ')"
+
+    # only use the profile's CacheDir, if it is not the default and not the same as the system cache dir
+    if [[ "${_profile_cache_dirs}" != "/var/cache/pacman/pkg" ]] && \
+        [[ "${_system_cache_dirs}" != "${_profile_cache_dirs}" ]]; then
+        _cache_dirs="${_profile_cache_dirs}"
+    else
+        _cache_dirs="${_system_cache_dirs}"
+    fi
+
+    _msg_info "Copying custom pacman.conf to work directory..."
+    # take the profile pacman.conf and strip all settings that would break in chroot when using pacman -r
+    # see `man 8 pacman` for further info
+    pacman-conf --config "${pacman_conf}" | \
+        sed '/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d' > "${work_dir}/pacman.conf"
+
+    _msg_info "Using pacman CacheDir: ${_cache_dirs}"
+    # append CacheDir and HookDir to [options] section
+    # HookDir is *always* set to the airootfs' override directory
+    sed "/\[options\]/a CacheDir = ${_cache_dirs}
+        /\[options\]/a HookDir = ${airootfs_dir}/etc/pacman.d/hooks/" \
+        -i "${work_dir}/pacman.conf"
 }
 
 # Prepare working directory and copy custom airootfs files (airootfs)
@@ -336,7 +356,7 @@ _make_custom_airootfs() {
     install -d -m 0755 -o 0 -g 0 -- "${airootfs_dir}"
 
     if [[ -d "${profile}/airootfs" ]]; then
-        _msg_info "Copying custom custom airootfs files and setting up user home directories..."
+        _msg_info "Copying custom airootfs files and setting up user home directories..."
         cp -af --no-preserve=ownership -- "${profile}/airootfs/." "${airootfs_dir}"
 
         [[ -e "${airootfs_dir}/etc/shadow" ]] && chmod -f 0400 -- "${airootfs_dir}/etc/shadow"
