@@ -1534,19 +1534,19 @@ run_once make_packages
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
-if [[ "${noiso}" = false ]] ; then
+if [[ "${noiso}" = false ]]; then
     run_once make_syslinux
     run_once make_isolinux
-fi
-run_once make_boot
-[[ "${noiso}" = false ]] && run_once make_prepare
-run_once make_boot_extra
-if [[ "${noiso}" = false ]] && [[ "${noefi}" = false ]]; then
-    run_once make_efi
-    run_once make_efiboot
+    run_once make_boot
+    run_once make_prepare
+    run_once make_boot_extra
+    if [[ "${noefi}" = false ]]; then
+        run_once make_efi
+        run_once make_efiboot
+    fi
+    run_once make_iso
 fi
 [[ "${tarball}" = true ]] && run_once make_tarball
-[[ "${noiso}" = false ]] && run_once make_iso
 [[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
 
 exit 0
