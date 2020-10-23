@@ -1226,6 +1226,21 @@ make_prepare() {
     fi
 }
 
+# Add files to the root of isofs
+make_overisofs() {
+    local _copy_isofs
+
+    _copy_isofs() {
+        local _dir="${1%/}"
+        [[ -d "${_dir}" ]] && cp -af "${_dir}"/* "${isofs_dir}"
+    }
+
+    _copy_isofs "${script_path}/channels/share/over_isofs.any"
+    _copy_isofs "${script_path}/channels/share/over_isofs.${arch}"
+    _copy_isofs "${channel_dir}/over_isofs.any"
+    _copy_isofs "${channel_dir}/over_isofs.${arch}"
+}
+
 # Build ISO
 make_iso() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
@@ -1540,6 +1555,7 @@ if [[ "${noiso}" = false ]]; then
     run_once make_boot
     run_once make_prepare
     run_once make_boot_extra
+    run_once make_overisofs
     if [[ "${noefi}" = false ]]; then
         run_once make_efi
         run_once make_efiboot
