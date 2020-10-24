@@ -95,7 +95,7 @@ _umount_airootfs() {
 # $1: exit status number.
 _usage() {
     IFS='' read -r -d '' usagetext <<ENDUSAGETEXT || true
-usage ${app_name} [options] <profile_dir or legacy_command>
+usage: ${app_name} [options] <profile_dir>
   options:
      -A <application> Set an application name for the ISO
                       Default: '${iso_application}'
@@ -115,8 +115,6 @@ usage ${app_name} [options] <profile_dir or legacy_command>
      -o <out_dir>     Set the output directory
                       Default: '${out_dir}'
      -p PACKAGE(S)    Package(s) to install, can be used multiple times
-     -r <run_cmd>     Set a command to be run in chroot (only relevant for legacy 'run' command)
-                      NOTE: Deprecated, will be removed with archiso v49
      -s <sfs_mode>    Set SquashFS image mode (img or sfs)
                       img: prepare airootfs.sfs for dm-snapshot usage
                       sfs: prepare airootfs.sfs for overlayfs usage
@@ -126,21 +124,6 @@ usage ${app_name} [options] <profile_dir or legacy_command>
                       Default: '${work_dir}'
 
   profile_dir:        Directory of the archiso profile to build
-
-  legacy_command:     Legacy build.sh command
-                      NOTE: Deprecated, will be removed with archiso v49
-    init
-        initialize a chroot for building
-    install
-        install packages to the chroot
-    run
-        run a command in the chroot
-    prepare
-        cleanup and prepare the airootfs
-    pkglist
-        create a list of packages installed on the medium
-    iso
-        create the ISO
 ENDUSAGETEXT
     printf '%s' "${usagetext}"
     exit "${1}"
@@ -149,51 +132,23 @@ ENDUSAGETEXT
 # Shows configuration according to command mode.
 # $1: build_profile | init | install | run | prepare | iso
 _show_config() {
-    local _mode="$1" build_date
+    local build_date
     build_date="$(date --utc --iso-8601=seconds -d "@${SOURCE_DATE_EPOCH}")"
     _msg_info "${app_name} configuration settings"
-    [[ ! -d "${command_name}" ]] && _msg_info "           Legacy Command:   ${command_name}"
     _msg_info "             Architecture:   ${arch}"
     _msg_info "        Working directory:   ${work_dir}"
     _msg_info "   Installation directory:   ${install_dir}"
-    case "${_mode}" in
-        build_profile)
-            _msg_info "               Build date:   ${build_date}"
-            _msg_info "         Output directory:   ${out_dir}"
-            _msg_info "                  GPG key:   ${gpg_key:-None}"
-            _msg_info "                  Profile:   ${profile}"
-            _msg_info "Pacman configuration file:   ${pacman_conf}"
-            _msg_info "          Image file name:   ${img_name}"
-            _msg_info "         ISO volume label:   ${iso_label}"
-            _msg_info "            ISO publisher:   ${iso_publisher}"
-            _msg_info "          ISO application:   ${iso_application}"
-            _msg_info "               Boot modes:   ${bootmodes[*]}"
-            _msg_info "                 Packages:   ${pkg_list[*]}"
-            ;;
-        init)
-            _msg_info "Pacman configuration file:   ${pacman_conf}"
-            ;;
-        install)
-            _msg_info "                  GPG key:   ${gpg_key:-None}"
-            _msg_info "Pacman configuration file:   ${pacman_conf}"
-            _msg_info "                 Packages:   ${pkg_list[*]}"
-            ;;
-        run)
-            _msg_info "              Run command:   ${run_cmd}"
-            ;;
-        prepare)
-            _msg_info "                  GPG key:   ${gpg_key:-None}"
-            ;;
-        pkglist)
-            ;;
-        iso)
-            _msg_info "         Output directory:   ${out_dir}"
-            _msg_info "          Image file name:   ${img_name}"
-            _msg_info "         ISO volume label:   ${iso_label}"
-            _msg_info "            ISO publisher:   ${iso_publisher}"
-            _msg_info "          ISO application:   ${iso_application}"
-            ;;
-    esac
+    _msg_info "               Build date:   ${build_date}"
+    _msg_info "         Output directory:   ${out_dir}"
+    _msg_info "                  GPG key:   ${gpg_key:-None}"
+    _msg_info "                  Profile:   ${profile}"
+    _msg_info "Pacman configuration file:   ${pacman_conf}"
+    _msg_info "          Image file name:   ${img_name}"
+    _msg_info "         ISO volume label:   ${iso_label}"
+    _msg_info "            ISO publisher:   ${iso_publisher}"
+    _msg_info "          ISO application:   ${iso_application}"
+    _msg_info "               Boot modes:   ${bootmodes[*]}"
+    _msg_info "                 Packages:   ${pkg_list[*]}"
     [[ "${quiet}" == "y" ]] || printf '\n'
 }
 
@@ -823,60 +778,7 @@ _make_pkglist() {
     _msg_info "Done!"
 }
 
-command_pkglist() {
-    _show_config "${FUNCNAME[0]#command_}"
-    _make_pkglist
-}
-
-# Create an ISO9660 filesystem from "iso" directory.
-command_iso() {
-    bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito')
-
-    # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${work_dir}/efiboot.img" ]]; then
-        bootmodes+=('uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
-    fi
-
-    _show_config "${FUNCNAME[0]#command_}"
-    _make_iso
-}
-
-# create airootfs.sfs filesystem, and push it in "iso" directory.
-command_prepare() {
-    _show_config "${FUNCNAME[0]#command_}"
-
-    _cleanup
-    _make_prepare
-}
-
-# Install packages on airootfs.
-# A basic check to avoid double execution/reinstallation is done via hashing package names.
-command_install() {
-    if [[ ! -f "${pacman_conf}" ]]; then
-        _msg_error "Pacman config file '${pacman_conf}' does not exist" 1
-    fi
-
-    if (( ${#pkg_list[@]} == 0 )); then
-        _msg_error "Packages must be specified" 0
-        _usage 1
-    fi
-
-    _show_config "${FUNCNAME[0]#command_}"
-
-    _make_packages
-}
-
-command_init() {
-    _show_config "${FUNCNAME[0]#command_}"
-    _chroot_init
-}
-
-command_run() {
-    _show_config "${FUNCNAME[0]#command_}"
-    _chroot_run
-}
-
-command_build_profile() {
+_build_profile() {
     # Set up essential directory paths
     airootfs_dir="${work_dir}/${arch}/airootfs"
     isofs_dir="${work_dir}/iso"
@@ -891,7 +793,7 @@ command_build_profile() {
         printf '%s\n' "$SOURCE_DATE_EPOCH" > "${work_dir}/build_date"
     fi
 
-    _show_config "${FUNCNAME[0]#command_}"
+    _show_config
     _run_once _make_pacman_conf
     _run_once _export_gpg_publickey
     _run_once _make_custom_airootfs
@@ -933,7 +835,7 @@ done
 shift $((OPTIND - 1))
 
 if (( $# < 1 )); then
-    _msg_error "No command specified" 0
+    _msg_error "No profile specified" 0
     _usage 1
 fi
 
@@ -941,55 +843,14 @@ if (( EUID != 0 )); then
     _msg_error "${app_name} must be run as root." 1
 fi
 
-command_name="${1}"
+# get the absolute path representation of the first non-option argument
+profile="$(realpath -- "${1}")"
 
 # Set directory path defaults for legacy commands
 airootfs_dir="${work_dir}/airootfs"
 isofs_dir="${work_dir}/iso"
-
-case "${command_name}" in
-    init)
-        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
-        _set_overrides
-        command_init
-        ;;
-    install)
-        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
-        _set_overrides
-        command_install
-        ;;
-    run)
-        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
-        command_run
-        ;;
-    prepare)
-        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
-        _set_overrides
-        command_prepare
-        ;;
-    pkglist)
-        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
-        command_pkglist
-        ;;
-    iso)
-        _msg_warning "The '${command_name}' command is deprecated! It will be removed with archiso v49."
-        if (( $# < 2 )); then
-            _msg_error "No image specified" 0
-            _usage 1
-        fi
-        img_name="${2}"
-        _set_overrides
-        command_iso
-        ;;
-    *)
-        # NOTE: we call read_profile here, assuming that the first non-option parameter is a profile directory
-        # This way we can retain backwards compatibility with legacy build.sh scripts until we deprecate the old way of
-        # calling mkarchiso with named parameters in v49
-        profile="$(realpath -- "${command_name}")"
-        _read_profile
-        _set_overrides
-        command_build_profile
-        ;;
-esac
+_read_profile
+_set_overrides
+_build_profile
 
 # vim:ts=4:sw=4:et:
