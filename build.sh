@@ -1039,10 +1039,10 @@ make_isolinux() {
 
 # Prepare /EFI
 make_efi() {
-    mkdir -p "${isofs_dir}/EFI/boot"
+    mkdir -p "${work_dir}/iso/EFI/boot"
     (
         local __bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
+        cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
     )
 
     mkdir -p "${work_dir}/iso/loader/entries"
