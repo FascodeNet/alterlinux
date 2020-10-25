@@ -577,7 +577,7 @@ function select_channel () {
     local i count=1 _channel channel_list description
 
     # チャンネルの一覧を取得
-    channel_list=($("${script_path}/channel.sh" --nobuiltin show))
+    channel_list=($("${script_path}/tools/channel.sh" --nobuiltin show))
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
 
