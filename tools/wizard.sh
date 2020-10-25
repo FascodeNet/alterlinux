@@ -71,8 +71,20 @@ getclm() {
     echo "$(cat -)" | cut -d " " -f "${1}"
 }
 
+# 使い方
+_help() {
+    echo "usage ${0} [options]"
+    echo
+    echo " General options:"
+    echo "    -a          Specify the architecture"
+    echo "    -e          English"
+    echo "    -j          Japanese"
+    echo "    -n          Enable simulation mode"
+    echo "    -x          Enable bash debug"
+    echo "    -h          This help message"
+}
 
-while getopts 'a:xnje' arg; do
+while getopts 'a:xnjeh' arg; do
     case "${arg}" in
         n)
             nobuild=true
@@ -93,8 +105,16 @@ while getopts 'a:xnje' arg; do
             echo "日本語が設定されました"
             skip_set_lang=true
             ;;
+        h)
+            _help
+            exit 0
+            ;;
         a)
             build_arch="${OPTARG}"
+            ;;
+        *)
+            _help
+            exit 1
             ;;
     esac
 done
