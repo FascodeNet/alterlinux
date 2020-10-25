@@ -166,7 +166,7 @@ function install_dependencies () {
     local checkpkg pkg installed_pkg installed_ver check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
-    sudo pacman -Sy
+    sudo pacman -Sy --config "${pacman_conf}"
     installed_pkg=($(pacman -Q | getclm 1))
     installed_ver=($(pacman -Q | getclm 2))
 
@@ -194,7 +194,6 @@ function install_dependencies () {
         fi
     done
     if [[ -n "${install}" ]]; then
-        sudo pacman -Sy
         sudo pacman -S --needed --config "${pacman_conf}" ${install[@]}
     fi
     echo
