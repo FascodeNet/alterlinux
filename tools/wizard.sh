@@ -1,22 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-##--------------------Additional settings--------------------##
-## Uncomment the settings you want to use
-
-## Build with i686
-#build_arch="i686"
-
-## Build with x86_64
-#build_arch="x86_64"
-
-##-----------------------------------------------------------##
-
-
 nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 machine_arch="$(uname -m)"
+build_arch="${machine_arch}"
 
 # Pacman configuration file used only when checking packages.
 pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
@@ -232,6 +221,49 @@ function remove_dependencies () {
     fi
 }
 
+
+function select_arch() {
+    local yn
+    local details
+    local ask_arch
+    msg_n "アーキテクチャを指定しますか？ （y/N） : " "Do you want to specify the architecture? (y/N)"
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) details=true               ;;
+        n | N | no  | No  | NO  ) details=false              ;;
+        *                       ) select_comp_type; return 0 ;;
+    esac
+
+    function ask_arch () {
+        local ask
+        msg \
+            "アーキテクチャを選択して下さい " \
+            "Please select an architecture."
+        msg \
+            "注意：このウィザードでは正式にサポートされているアーキテクチャのみ選択可能です。" \
+            "Note: Only officially supported architectures can be selected in this wizard."
+        echo
+        echo "1: x86_64 (64bit)"
+        echo "2: i686 (32bit)"
+        echo -n ": "
+
+        read ask
+
+        case "${ask}" in
+            1 | "x86_64" ) build_arch="x86_64" ;;
+            2 | "i686"   ) build_arch="i686"   ;;
+            *            ) ask_arch            ;;
+        esac
+    }
+
+    if [[ ${details} = true ]]; then
+        ask_arch
+    else
+        build_arch="${machine_arch}"
+    fi
+
+    return 0
+}
 
 function enable_plymouth () {
     local yn
@@ -725,6 +757,7 @@ function generate_argument () {
 # 上の質問の関数を実行
 function ask () {
     enable_japanese
+    select_arch
     enable_plymouth
     select_kernel
     select_comp_type
@@ -743,6 +776,7 @@ function lastcheck () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
+    [[ -n "${build_arch}"  ]] && echo "       Architecture : ${build_arch}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
     [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"
