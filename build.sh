@@ -1039,10 +1039,10 @@ make_isolinux() {
 
 # Prepare /EFI
 make_efi() {
-    mkdir -p "${work_dir}/iso/EFI/boot"
+    mkdir -p "${isofs_dir}/EFI/boot"
     (
-        local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+        local __bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+        cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
     )
 
     mkdir -p "${work_dir}/iso/loader/entries"
@@ -1057,13 +1057,14 @@ make_efi() {
     # shellx64.efi is picked up automatically when on /
     if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
         cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
+        cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/iso/loader/entries/"
     fi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
     mkdir -p "${work_dir}/iso/EFI/archiso"
-    truncate -s 100M "${work_dir}/iso/EFI/archiso/efiboot.img"
+    truncate -s 128M "${work_dir}/iso/EFI/archiso/efiboot.img"
     mkfs.fat -n ARCHISO_EFI "${work_dir}/iso/EFI/archiso/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
@@ -1079,13 +1080,17 @@ make_efiboot() {
 
     cp "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/archiso/archiso.img"
 
-    cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
-    cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
+    if [[ -f "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" ]]; then
+        cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/archiso/intel_ucode.img"
+    fi
+    if [[ -f "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" ]]; then
+        cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/archiso/amd_ucode.img"
+    fi
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
     (
-        local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-        cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+        local __bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+        cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/EFI/boot/${__bootfile#systemd-}"
     )
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
@@ -1100,6 +1105,7 @@ make_efiboot() {
     # shellx64.efi is picked up automatically when on /
     if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
         cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
+        cp "${script_path}/efiboot/loader/entries/uefi-shell-x86_64.conf" "${work_dir}/efiboot/"
     fi
 
     umount -d "${work_dir}/efiboot"
