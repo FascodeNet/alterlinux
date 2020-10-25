@@ -643,12 +643,12 @@ function select_channel () {
                 description="This channel does not have a description.txt."
             fi
         fi
-        echo -ne "${count}    ${_channel}"
+        echo -ne "$(printf %02d "${count}")    ${_channel}"
         for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
             echo -ne " "
         done
         echo -ne "${description}\n"
-        count=$(( count + 1 ))
+        count="$(( count + 1 ))"
     done
     echo -n ":"
     read channel
