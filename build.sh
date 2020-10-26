@@ -402,95 +402,95 @@ show_settings() {
 
 # Save vars
 prepare_rebuild() {
-        # Save build options
-        local _write_rebuild_file
-        _write_rebuild_file() {
-            local out_file="${rebuildfile}"
-            echo -e "${@}" >> "${out_file}"
-        }
+    # Save build options
+    local _write_rebuild_file
+    _write_rebuild_file() {
+        local out_file="${rebuildfile}"
+        echo -e "${@}" >> "${out_file}"
+    }
 
-        local _save_var
-        _save_var() {
-            local out_file="${rebuildfile}" i
-            for i in ${@}; do echo "${i}=\"$(eval echo -n '$'${i})\"" >> "${out_file}"; done
-        }
+    local _save_var
+    _save_var() {
+        local out_file="${rebuildfile}" i
+        for i in ${@}; do echo "${i}=\"$(eval echo -n '$'${i})\"" >> "${out_file}"; done
+    }
 
-        # Save the value of the variable for use in rebuild.
-        remove "${rebuildfile}"
-        _write_rebuild_file "#!/usr/bin/env bash"
-        _write_rebuild_file "# Build options are stored here."
+    # Save the value of the variable for use in rebuild.
+    remove "${rebuildfile}"
+    _write_rebuild_file "#!/usr/bin/env bash"
+    _write_rebuild_file "# Build options are stored here."
 
-        _write_rebuild_file "\n# OS Info"
-        _save_var arch
-        _save_var os_name
-        _save_var iso_name
-        _save_var iso_label
-        _save_var iso_publisher
-        _save_var iso_application
-        _save_var iso_version
-        _save_var iso_filename
-        _save_var channel_name
+    _write_rebuild_file "\n# OS Info"
+    _save_var arch
+    _save_var os_name
+    _save_var iso_name
+    _save_var iso_label
+    _save_var iso_publisher
+    _save_var iso_application
+    _save_var iso_version
+    _save_var iso_filename
+    _save_var channel_name
 
-        _write_rebuild_file "\n# Environment Info"
-        _save_var channel_dir
-        _save_var airootfs_dir
-        _save_var isofs_dir
-        _save_var install_dir
-        _save_var work_dir
-        _save_var out_dir
-        _save_var gpg_key
+    _write_rebuild_file "\n# Environment Info"
+    _save_var channel_dir
+    _save_var airootfs_dir
+    _save_var isofs_dir
+    _save_var install_dir
+    _save_var work_dir
+    _save_var out_dir
+    _save_var gpg_key
 
-        _write_rebuild_file "\n# Live User Info"
-        _save_var username
-        _save_var password
-        _save_var usershell
+    _write_rebuild_file "\n# Live User Info"
+    _save_var username
+    _save_var password
+    _save_var usershell
 
-        _write_rebuild_file "\n# Plymouth Info"
-        _save_var boot_splash
-        _save_var theme_name
+    _write_rebuild_file "\n# Plymouth Info"
+    _save_var boot_splash
+    _save_var theme_name
 
-        _write_rebuild_file "\n# Language Info"
-        _save_var locale_name
-        _save_var locale_gen_name
-        _save_var locale_version
-        _save_var locale_time
-        _save_var locale_fullname
+    _write_rebuild_file "\n# Language Info"
+    _save_var locale_name
+    _save_var locale_gen_name
+    _save_var locale_version
+    _save_var locale_time
+    _save_var locale_fullname
 
-        _write_rebuild_file "\n# Kernel Info"
-        _save_var kernel
-        _save_var kernel_filename
-        _save_var kernel_mkinitcpio_profile
+    _write_rebuild_file "\n# Kernel Info"
+    _save_var kernel
+    _save_var kernel_filename
+    _save_var kernel_mkinitcpio_profile
 
-        _write_rebuild_file "\n# Squashfs Info"
-        _save_var sfs_comp
-        _save_var sfs_comp_opt
+    _write_rebuild_file "\n# Squashfs Info"
+    _save_var sfs_comp
+    _save_var sfs_comp_opt
 
-        _write_rebuild_file "\n# Debug Info"
-        _save_var noaur
-        _save_var gitversion
-        _save_var noloopmod
+    _write_rebuild_file "\n# Debug Info"
+    _save_var noaur
+    _save_var gitversion
+    _save_var noloopmod
 
-        _write_rebuild_file "\n# Channel Info"
-        _save_var build_pacman_conf
-        _save_var defaultconfig
-        _save_var defaultusername
-        _save_var customized_username
-        _save_var customized_password
+    _write_rebuild_file "\n# Channel Info"
+    _save_var build_pacman_conf
+    _save_var defaultconfig
+    _save_var defaultusername
+    _save_var customized_username
+    _save_var customized_password
 
-        _write_rebuild_file "\n# mkalteriso Info"
-        if [[ "${shmkalteriso}" = false ]]; then
-            mkalteriso="${script_path}/system/mkalteriso"
-        else
-            mkalteriso="${script_path}/system/mkalteriso.sh"
-        fi
+    _write_rebuild_file "\n# mkalteriso Info"
+    if [[ "${shmkalteriso}" = false ]]; then
+        mkalteriso="${script_path}/system/mkalteriso"
+    else
+        mkalteriso="${script_path}/system/mkalteriso.sh"
+    fi
 
-        _save_var mkalteriso
-        _save_var shmkalteriso
-        _save_var mkalteriso_option
-        _save_var tarball
+    _save_var mkalteriso
+    _save_var shmkalteriso
+    _save_var mkalteriso_option
+    _save_var tarball
 
-        _write_rebuild_file "\n# depend package"
-        _write_rebuild_file "dependence=(${dependence[*]})"
+    _write_rebuild_file "\n# depend package"
+    _write_rebuild_file "dependence=(${dependence[*]})"
 }
 
 
