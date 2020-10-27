@@ -1422,22 +1422,26 @@ for arch in ${all_arch[@]}; do
     [[ "${noaur}" = false ]] && run_arch make_packages_aur
     run_arch make_customize_airootfs
     run_arch make_setup_mkinitcpio
-    [[ "${noiso}" = false ]] && run_arch make_syslinux
-    run_arch make_boot
-    [[ "${noiso}" = false ]] && run_arch make_prepare
+    if [[ "${noiso}" = false ]]; then
+        run_arch make_syslinux
+        run_arch make_boot
+        run_arch make_prepare
+    fi
 done
-run_once make_boot_extra
-if [[ "${noiso}" = false ]] && [[ "${noefi}" = false ]]; then
+if [[ "${noiso}" = false ]]; then
+    run_once make_boot_extra
     run_once make_syslinux_loadfiles
     run_once make_isolinux
-    run_once make_efi
-    run_once make_efiboot
+    if [[ "${noefi}" = false ]]; then
+        run_once make_efi
+        run_once make_efiboot
+    fi
+    run_once make_iso
 fi
 if [[ "${tarball}" = true ]]; then
     for arch in ${all_arch[@]}; do
         run_arch make_tarball
     done
 fi
-[[ "${noiso}" = false ]] && run_once make_iso
 [[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
 exit 0
