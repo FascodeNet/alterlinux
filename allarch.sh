@@ -1191,67 +1191,9 @@ make_iso() {
 
 # Parse files
 parse_files() {
-    #-- ロケールを解析、設定 --#
-    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
-
-    # 選択されたロケールの設定が描かれた行番号を取得
-    _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | getclm 1))
-    _get_locale_line_number() {
-        local _lang _count=0
-        for _lang in ${_locale_name_list[@]}; do
-            _count=$(( _count + 1 ))
-            if [[ "${_lang}" = "${locale_name}" ]]; then echo "${_count}"; return 0; fi
-        done
-        echo -n "failed"
-    }
-    _locale_line_number="$(_get_locale_line_number)"
-
-    # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" = "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
-
-    # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
-
-    # 抽出された行に書かれた設定をそれぞれの変数に代入
-    # ここで定義された変数のみがグローバル変数
-    locale_name="${_locale_config_line[0]}"
-    locale_gen_name="${_locale_config_line[1]}"
-    locale_version="${_locale_config_line[2]}"
-    locale_time="${_locale_config_line[3]}"
-    locale_fullname="${_locale_config_line[4]}"
-
-
-    #-- カーネルを解析、設定 --#
-    local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line _kernel_config_line
-
-    # 選択されたカーネルの設定が描かれた行番号を取得
-    _kernel_config_file="${script_path}/system/kernel-${arch}"
-    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
-    _get_kernel_line() {
-        local _kernel _count=0
-        for _kernel in ${_kernel_name_list[@]}; do
-            _count=$(( _count + 1 ))
-            if [[ "${_kernel}" = "${kernel}" ]]; then echo "${_count}"; return 0; fi
-        done
-        echo -n "failed"
-        return 0
-    }
-    _kernel_line="$(_get_kernel_line)"
-
-    # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" = "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
-
-    # カーネル設定ファイルから該当の行を抽出
-    _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
-
-    # 抽出された行に書かれた設定をそれぞれの変数に代入
-    # ここで定義された変数のみがグローバル変数
-    kernel="${_kernel_config_line[0]}"
-    kernel_filename="${_kernel_config_line[1]}"
-    kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
+    eval $(bash "${script_path}/tools/locale.sh" -a "${arch}" get "${kernel}")
+    eval $(bash "${script_path}/tools/kernel.sh" -a "${arch}" get "${kernel}")
 }
-
 
 # Parse options
 ARGUMENT="${@}"
@@ -1462,7 +1404,9 @@ if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_v
     fi
 fi
 
-parse_files
+for arch in ${all_arch[@]}; do
+    parse_files
+done
 
 set -eu
 
