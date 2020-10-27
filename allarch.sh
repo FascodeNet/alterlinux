@@ -365,7 +365,7 @@ prepare_env() {
         fi
         cd - > /dev/null 2>&1
     else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
+        mkalteriso="${script_path}/tools/mkalteriso.sh"
     fi
 
     # Load loop kernel module
@@ -439,13 +439,6 @@ configure_var() {
         iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
     fi
     msg_debug "Iso filename is ${iso_filename}"
-
-    # Set mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
 }
 
 

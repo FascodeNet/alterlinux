@@ -340,7 +340,7 @@ prepare_env() {
         fi
         cd - > /dev/null 2>&1
     else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
+        mkalteriso="${script_path}/tools/mkalteriso.sh"
     fi
 
     # Load loop kernel module
@@ -478,12 +478,6 @@ prepare_rebuild() {
     _save_var customized_password
 
     _write_rebuild_file "\n# mkalteriso Info"
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-
     _save_var mkalteriso
     _save_var shmkalteriso
     _save_var mkalteriso_option
