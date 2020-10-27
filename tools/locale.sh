@@ -7,6 +7,7 @@ mode=""
 arch=""
 channel=""
 locale=""
+script=false
 
 _help() {
     echo "usage ${0} [options] [command]"
@@ -33,7 +34,7 @@ getclm() {
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -a "locale.sh" error "${1}"
+    "${script_path}/tools/msg.sh" -s 6 -a "locale.sh" error "${1}"
 }
 
 gen_locale_list() {
@@ -55,8 +56,10 @@ check() {
     fi
     if [[ $(printf '%s\n' "${localelist[@]}" | grep -qx "${1}"; echo -n ${?} ) -eq 0 ]]; then
         echo "correct"
+        exit 0
     else
         echo "incorrect"
+        exit 1
     fi
 }
 
@@ -93,6 +96,9 @@ get() {
     # 不正なロケール名なら終了する
     if [[ "${_locale_line_number}" = "failed" ]]; then
         msg_error "${1} is not a valid language."
+        if [[ "${script}" = true ]]; then
+            echo "exit 1"
+        fi
         exit 1
     fi
 
@@ -112,8 +118,8 @@ EOF
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:c:h"
-_opt_long="arch:,channel:,help"
+_opt_short="a:c:hs"
+_opt_long="arch:,channel:,help,script"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -129,6 +135,10 @@ while true; do
         -c | --channel)
             channel="${2}"
             shift 2
+            ;;
+        -s | --script)
+            script=true
+            shift 1
             ;;
         -h | --help)
             _help

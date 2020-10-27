@@ -7,6 +7,7 @@ mode=""
 arch=""
 channel=""
 kernel=""
+script=false
 
 _help() {
     echo "usage ${0} [options] [command]"
@@ -22,6 +23,7 @@ _help() {
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -c | --channel            Specify the channel"
+    echo "    -s | --script             Enable script mode"
     echo "    -h | --help               This help message"
 }
 
@@ -33,7 +35,7 @@ getclm() {
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -a "kernel.sh" error "${1}"
+    "${script_path}/tools/msg.sh" -s 6 -a "kernel.sh" error "${1}"
 }
 
 gen_kernel_list() {
@@ -60,8 +62,10 @@ check() {
     fi
     if [[ $(printf '%s\n' "${kernellist[@]}" | grep -qx "${1}"; echo -n ${?} ) -eq 0 ]]; then
         echo "correct"
+        exit 0
     else
         echo "incorrect"
+        exit 1
     fi
 }
 
@@ -99,6 +103,9 @@ get() {
     # 不正なカーネル名なら終了する
     if [[ "${_kernel_line}" = "failed" ]]; then
         msg_error "Invalid kernel ${1}"
+        if [[ "${script}" = true ]]; then
+            echo "exit 1"
+        fi
         exit 1
     fi
 
@@ -116,8 +123,8 @@ EOF
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:c:h"
-_opt_long="arch:,channel:,help"
+_opt_short="a:c:hs"
+_opt_long="arch:,channel:,help,script"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -133,6 +140,10 @@ while true; do
         -c | --channel)
             channel="${2}"
             shift 2
+            ;;
+        -s | --script)
+            script=true
+            shift 1
             ;;
         -h | --help)
             _help
