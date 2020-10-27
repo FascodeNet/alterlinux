@@ -1191,7 +1191,7 @@ make_iso() {
 
 # Parse files
 parse_files() {
-    eval $(bash "${script_path}/tools/locale.sh" -a "${arch}" get "${kernel}")
+    eval $(bash "${script_path}/tools/locale.sh" -a "${arch}" get "${locale_name}")
     eval $(bash "${script_path}/tools/kernel.sh" -a "${arch}" get "${kernel}")
 }
 
