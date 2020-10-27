@@ -535,6 +535,7 @@ prepare_build() {
 
         # Set dirs
         airootfs_dir="${work_dir}/${arch}/airootfs"
+        share_dir="${script_path}/channels/share"
         isofs_dir="${work_dir}/iso"
 
         # Generate iso file name.
@@ -625,14 +626,14 @@ make_packages() {
     _loadfilelist=(
         # share packages
         $(ls "${script_path}"/channels/share/packages.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/share/packages.${arch}/lang/${locale_name}.${arch}"
+        "${share_dir}/packages.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
         $(ls ${channel_dir}/packages.${arch}/*.${arch} 2> /dev/null)
         "${channel_dir}/packages.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
-        "${script_path}/channels/share/packages.${arch}/kernel/${kernel}.${arch}"
+        "${share_dir}/packages.${arch}/kernel/${kernel}.${arch}"
         "${channel_dir}/packages.${arch}/kernel/${kernel}.${arch}"
     )
 
@@ -657,7 +658,7 @@ make_packages() {
     #-- Read exclude list --#
     # Exclude packages from the share exclusion list
     _excludefile=(
-        "${script_path}/channels/share/packages.${arch}/exclude"
+        "${share_dir}/packages.${arch}/exclude"
         "${channel_dir}/packages.${arch}/exclude"
     )
 
@@ -721,11 +722,11 @@ make_packages_file() {
     #else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${channel_dir}/package_files.${arch}/*.pkg.*" install_file
     #fi
-    #ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #ls "${share_dir}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     #if [ $? -ne 0 ]; then
     #    :
     #else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/share/package_files.${arch}/*.pkg.*" install_file
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${share_dir}/package_files.${arch}/*.pkg.*" install_file
     #fi
 }
 
@@ -739,14 +740,14 @@ make_packages_aur() {
     _loadfilelist=(
         # share packages
         $(ls "${script_path}"/channels/share/packages_aur.${arch}/*.${arch} 2> /dev/null)
-        "${script_path}/channels/share/packages_aur.${arch}/lang/${locale_name}.${arch}"
+        "${share_dir}/packages_aur.${arch}/lang/${locale_name}.${arch}"
 
         # channel packages
         $(ls ${channel_dir}/packages_aur.${arch}/*.${arch} 2> /dev/null)
         "${channel_dir}/packages_aur.${arch}/lang/${locale_name}.${arch}"
 
         # kernel packages
-        "${script_path}/channels/share/packages_aur.${arch}/kernel/${kernel}.${arch}"
+        "${share_dir}/packages_aur.${arch}/kernel/${kernel}.${arch}"
         "${channel_dir}/packages_aur.${arch}/kernel/${kernel}.${arch}"
     )
 
@@ -758,7 +759,7 @@ make_packages_aur() {
         )
     fi
 
-    if [[ ! -d "${channel_dir}/packages_aur.${arch}/" ]] && [[ ! -d "${script_path}/channels/share/packages_aur.${arch}/" ]]; then
+    if [[ ! -d "${channel_dir}/packages_aur.${arch}/" ]] && [[ ! -d "${share_dir}/packages_aur.${arch}/" ]]; then
         return
     fi
 
@@ -774,7 +775,7 @@ make_packages_aur() {
     #-- Read exclude list --#
     # Exclude packages from the share exclusion list
     _excludefile=(
-        "${script_path}/channels/share/packages_aur.${arch}/exclude"
+        "${share_dir}/packages_aur.${arch}/exclude"
         "${channel_dir}/packages_aur.${arch}/exclude"
     )
 
@@ -878,8 +879,8 @@ make_customize_airootfs() {
         fi
     }
 
-    _copy_airootfs "${script_path}/channels/share/airootfs.any"
-    _copy_airootfs "${script_path}/channels/share/airootfs.${arch}"
+    _copy_airootfs "${share_dir}/airootfs.any"
+    _copy_airootfs "${share_dir}/airootfs.${arch}"
     _copy_airootfs "${channel_dir}/airootfs.any"
     _copy_airootfs "${channel_dir}/airootfs.${arch}"
 
@@ -1235,8 +1236,8 @@ make_overisofs() {
         if [[ -d "${_dir}" ]]; then cp -af "${_dir}"/* "${isofs_dir}"; fi
     }
 
-    _copy_isofs "${script_path}/channels/share/over_isofs.any"
-    _copy_isofs "${script_path}/channels/share/over_isofs.${arch}"
+    _copy_isofs "${share_dir}/over_isofs.any"
+    _copy_isofs "${share_dir}/over_isofs.${arch}"
     _copy_isofs "${channel_dir}/over_isofs.any"
     _copy_isofs "${channel_dir}/over_isofs.${arch}"
 }
