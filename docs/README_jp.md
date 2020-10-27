@@ -69,6 +69,9 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
+<h3>Gnome</h3>
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+
 <h3>Cinnamon</h3>
 <img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
 

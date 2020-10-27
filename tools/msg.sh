@@ -228,20 +228,19 @@ echo_appname() {
     fi
 }
 
-echo_message() {
-    echo -ne "${message}\n"
-}
 
-full_message="$(echo_appname)$(echo_type)$(echo_message)"
-
-case "${output}" in
-    "stdout")
-        echo ${echo_opts} "${full_message}" >&1
-        ;;
-    "stderr")
-        echo ${echo_opts} "${full_message}" >&2
-        ;;
-    *)
-        echo ${echo_opts} "${full_message}" > ${output}
-        ;;
-esac
+for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
+    echo_message=$(echo -ne "${message}\n" |head -n "${count}" | tail -n 1 )
+    full_message="$(echo_appname)$(echo_type)${echo_message}"
+    case "${output}" in
+        "stdout")
+            echo ${echo_opts} "${full_message}" >&1
+            ;;
+        "stderr")
+            echo ${echo_opts} "${full_message}" >&2
+            ;;
+        *)
+            echo ${echo_opts} "${full_message}" > ${output}
+            ;;
+    esac
+done

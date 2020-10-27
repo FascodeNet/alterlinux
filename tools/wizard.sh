@@ -1,22 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-##--------------------Additional settings--------------------##
-## Uncomment the settings you want to use
-
-## Build with i686
-#build_arch="i686"
-
-## Build with x86_64
-#build_arch="x86_64"
-
-##-----------------------------------------------------------##
-
-
 nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 machine_arch="$(uname -m)"
+build_arch="${machine_arch}"
 
 # Pacman configuration file used only when checking packages.
 pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
@@ -82,8 +71,20 @@ getclm() {
     echo "$(cat -)" | cut -d " " -f "${1}"
 }
 
+# 使い方
+_help() {
+    echo "usage ${0} [options]"
+    echo
+    echo " General options:"
+    echo "    -a          Specify the architecture"
+    echo "    -e          English"
+    echo "    -j          Japanese"
+    echo "    -n          Enable simulation mode"
+    echo "    -x          Enable bash debug"
+    echo "    -h          This help message"
+}
 
-while getopts 'a:xnje' arg; do
+while getopts 'a:xnjeh' arg; do
     case "${arg}" in
         n)
             nobuild=true
@@ -104,8 +105,16 @@ while getopts 'a:xnje' arg; do
             echo "日本語が設定されました"
             skip_set_lang=true
             ;;
+        h)
+            _help
+            exit 0
+            ;;
         a)
             build_arch="${OPTARG}"
+            ;;
+        *)
+            _help
+            exit 1
             ;;
     esac
 done
@@ -166,7 +175,7 @@ function install_dependencies () {
     local checkpkg pkg installed_pkg installed_ver check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
-    sudo pacman -Sy
+    sudo pacman -Sy --config "${pacman_conf}"
     installed_pkg=($(pacman -Q | getclm 1))
     installed_ver=($(pacman -Q | getclm 2))
 
@@ -194,7 +203,6 @@ function install_dependencies () {
         fi
     done
     if [[ -n "${install}" ]]; then
-        sudo pacman -Sy
         sudo pacman -S --needed --config "${pacman_conf}" ${install[@]}
     fi
     echo
@@ -233,6 +241,49 @@ function remove_dependencies () {
     fi
 }
 
+
+function select_arch() {
+    local yn
+    local details
+    local ask_arch
+    msg_n "アーキテクチャを指定しますか？ （y/N） : " "Do you want to specify the architecture? (y/N)"
+    read yn
+    case ${yn} in
+        y | Y | yes | Yes | YES ) details=true               ;;
+        n | N | no  | No  | NO  ) details=false              ;;
+        *                       ) select_comp_type; return 0 ;;
+    esac
+
+    function ask_arch () {
+        local ask
+        msg \
+            "アーキテクチャを選択して下さい " \
+            "Please select an architecture."
+        msg \
+            "注意：このウィザードでは正式にサポートされているアーキテクチャのみ選択可能です。" \
+            "Note: Only officially supported architectures can be selected in this wizard."
+        echo
+        echo "1: x86_64 (64bit)"
+        echo "2: i686 (32bit)"
+        echo -n ": "
+
+        read ask
+
+        case "${ask}" in
+            1 | "x86_64" ) build_arch="x86_64" ;;
+            2 | "i686"   ) build_arch="i686"   ;;
+            *            ) ask_arch            ;;
+        esac
+    }
+
+    if [[ ${details} = true ]]; then
+        ask_arch
+    else
+        build_arch="${machine_arch}"
+    fi
+
+    return 0
+}
 
 function enable_plymouth () {
     local yn
@@ -577,7 +628,7 @@ function select_channel () {
     local i count=1 _channel channel_list description
 
     # チャンネルの一覧を取得
-    channel_list=($("${script_path}/channel.sh" --nobuiltin show))
+    channel_list=($("${script_path}/tools/channel.sh" --nobuiltin show))
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
 
@@ -592,12 +643,12 @@ function select_channel () {
                 description="This channel does not have a description.txt."
             fi
         fi
-        echo -ne "${count}    ${_channel}"
+        echo -ne "$(printf %02d "${count}")    ${_channel}"
         for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
             echo -ne " "
         done
         echo -ne "${description}\n"
-        count=$(( count + 1 ))
+        count="$(( count + 1 ))"
     done
     echo -n ":"
     read channel
@@ -726,6 +777,7 @@ function generate_argument () {
 # 上の質問の関数を実行
 function ask () {
     enable_japanese
+    select_arch
     enable_plymouth
     select_kernel
     select_comp_type
@@ -744,6 +796,7 @@ function lastcheck () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
+    [[ -n "${build_arch}"  ]] && echo "       Architecture : ${build_arch}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
     [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"

@@ -144,13 +144,9 @@ _usage () {
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
-            echo -ne " "
-        done
+        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do echo -ne " "; done
         _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
-        for _lang in ${_locale_name_list[@]};do
-            echo -n "${_lang} "
-        done
+        for _lang in ${_locale_name_list[@]};do echo -n "${_lang} "; done
         echo
     done
 
@@ -193,7 +189,8 @@ _usage () {
     echo "         --noaur                 No build and install AUR packages"
     echo "         --nocolor               No output colored output"
     echo "         --noconfirm             No check the settings before building"
-    echo "         --nochkver              NO check the version of the channel"
+    echo "         --nochkver              No check the version of the channel"
+    echo "         --noefi                 No efi boot"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
@@ -243,11 +240,10 @@ run_once() {
 remove() {
     local _list=($(echo "$@")) _file
     for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            msg_debug "Removing ${_file}"
+        msg_debug "Removing ${_file}"
+        if [[ -f "${_file}" ]]; then    
             rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            msg_debug "Removing ${_file}"
+        elif [[ -d "${_file}" ]]; then
             rm -rf "${_file}"
         fi
     done
@@ -255,11 +251,10 @@ remove() {
 
 # 強制終了時にアンマウント
 umount_trap() {
-    local _status=${?}
+    local _status="${?}"
     umount_chroot
-    msg_error "It was killed by the user."
-    msg_error "The process may not have completed successfully."
-    exit ${_status}
+    msg_error "It was killed by the user.\nThe process may not have completed successfully."
+    exit "${_status}"
 }
 
 # 設定ファイルを読み込む
@@ -297,13 +292,14 @@ check_bool() {
     fi
 }
 
+
 # Check the build environment and create a directory.
 prepare_env() {
     for arch in ${all_arch[@]}; do
-        # Check architecture for each channel
-        if [[ -z $(cat "${channel_dir}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
-            msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-        fi
+    # Check architecture for each channel
+    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b -m check "${channel_name}")" = "correct" ]]; then
+        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
 
         # Check kernel for each channel
         if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
@@ -339,8 +335,7 @@ prepare_env() {
                     else
                         # リモートとローカルのバージョンが一致しない場合
                         [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        msg_warn "${1} is not the latest package."
-                        msg_warn "Local: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
+                        msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
                         return 0
                     fi
                 fi
@@ -376,9 +371,7 @@ prepare_env() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            msg_error "The currently running kernel module could not be found."
-            msg_error "Probably the system kernel has been updated."
-            msg_error "Reboot your system to run the latest kernel." "1"
+            msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
         fi
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
@@ -490,13 +483,13 @@ prepare_build() {
         build_pacman_conf="${channel_dir}/pacman-${arch}.conf"
     fi
 
-    # If there is config for share channel. load that.
-    load_config "${script_path}/channels/share/config.any"
-    load_config "${script_path}/channels/share/config.${arch}"
+    # If there is config for channel. load that.
+    load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
+    load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
-    # If there is config for each channel. load that.
-    load_config "${channel_dir}/config.any"
-    load_config "${channel_dir}/config.${arch}"
+    # Set dirs
+    airootfs_dir="${work_dir}/${arch}/airootfs"
+    isofs_dir="${work_dir}/iso"
 
     # check bool
     check_bool boot_splash
@@ -513,6 +506,11 @@ prepare_build() {
     check_bool noaur
     check_bool customized_syslinux
     check_bool norescue_entry
+    check_bool debug
+    check_bool bash_debug
+    check_bool nocolor
+    check_bool msgdebug
+    check_bool noefi
 
     # Unmount
     umount_chroot
@@ -734,8 +732,8 @@ make_packages_aur() {
 
     # Build aur packages on airootfs
     for _file in "aur_install" "aur_prepare" "aur_remove" "pacls_gen_new" "pacls_gen_old"; do
-        cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${work_dir}/${arch}/airootfs/root/${_file}.sh"
-        chmod 755 "${work_dir}/${arch}/airootfs/root/${_file}.sh"
+        cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${airootfs_dir}/root/${_file}.sh"
+        chmod 755 "${airootfs_dir}/root/${_file}.sh"
     done
 
     local _aur_packages_ls_str=""
@@ -748,7 +746,7 @@ make_packages_aur() {
 
     # Check PKGBUILD
     for _pkg in ${pkglist_aur[@]}; do
-        if [[ ! -f "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
+        if [[ ! -f "${airootfs_dir}/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
             msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
         fi
     done
@@ -756,7 +754,7 @@ make_packages_aur() {
 
     # Install dependent packages.
     local dependent_packages=""
-    for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages="${dependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
+    for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages="${dependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${airootfs_dir}/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
     [[ -n "${dependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
 
     # Dump packages
@@ -764,7 +762,7 @@ make_packages_aur() {
 
     # Install makedependent packages.
     local makedependent_packages=""
-    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages="${makedependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${work_dir}/${arch}/airootfs/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
+    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages="${makedependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${airootfs_dir}/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
     [[ -n "${makedependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
 
 
@@ -776,20 +774,20 @@ make_packages_aur() {
 
     # Install the built package file.
     for _pkg in ${pkglist_aur[@]}; do
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${work_dir}/${arch}/airootfs/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${airootfs_dir}/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
     done
 
     # Remove packages
-    delete_pkg_list=(`comm -13 --nocheck-order "${work_dir}/${arch}/airootfs/paclist_old" "${work_dir}/${arch}/airootfs/paclist_new" |xargs`)
+    delete_pkg_list=(`comm -13 --nocheck-order "${airootfs_dir}/paclist_old" "${airootfs_dir}/paclist_new" |xargs`)
     for _dlpkg in ${delete_pkg_list[@]}; do
-        unshare --fork --pid pacman -r "${work_dir}/${arch}/airootfs" -R --noconfirm ${_dlpkg}
+        unshare --fork --pid pacman -r "${airootfs_dir}" -R --noconfirm ${_dlpkg}
     done
 
     # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 
     # Remove scripts
-    remove "${work_dir}/${arch}/airootfs/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
+    remove "${airootfs_dir}/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
 }
 
 # Customize installation (airootfs)
@@ -800,7 +798,7 @@ make_customize_airootfs() {
     _copy_airootfs() {
         local _dir="${1%/}"
         if [[ -d "${_dir}" ]]; then
-            cp -af "${_dir}"/* "${work_dir}/${arch}/airootfs"
+            cp -af "${_dir}"/* "${airootfs_dir}"
         fi
     }
 
@@ -811,7 +809,7 @@ make_customize_airootfs() {
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
-        cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio.conf"
+        cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     fi
 
     # customize_airootfs options
@@ -849,7 +847,7 @@ make_customize_airootfs() {
         done
     }
 
-    chmod_755 "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
+    chmod_755 "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
 
     # Execute customize_airootfs.sh.
     ${mkalteriso} ${mkalteriso_option} \
@@ -859,14 +857,14 @@ make_customize_airootfs() {
     -r "/root/customize_airootfs.sh ${_airootfs_script_options}" \
     run
 
-    if [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh" ]]; then
+    if [[ -f "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" ]]; then
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
         -r "/root/customize_airootfs_${channel_name}.sh ${_airootfs_script_options}" \
         run
-    elif [[ -f "${work_dir}/${arch}/airootfs/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
+    elif [[ -f "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
         -C "${work_dir}/pacman-${arch}.conf" \
@@ -876,30 +874,30 @@ make_customize_airootfs() {
     fi
 
     # Delete customize_airootfs.sh.
-    remove "${work_dir}/${arch}/airootfs/root/customize_airootfs.sh"
-    remove "${work_dir}/${arch}/airootfs/root/customize_airootfs_${channel_name}.sh"
+    remove "${airootfs_dir}/root/customize_airootfs.sh"
+    remove "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
 
     # /root permission
     # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
-    chmod -f 750 "${work_dir}/${arch}/airootfs/root"
+    chmod -f 750 "${airootfs_dir}/root"
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
     local _hook
-    mkdir -p "${work_dir}/${arch}/airootfs/etc/initcpio/hooks"
-    mkdir -p "${work_dir}/${arch}/airootfs/etc/initcpio/install"
+    mkdir -p "${airootfs_dir}/etc/initcpio/hooks"
+    mkdir -p "${airootfs_dir}/etc/initcpio/install"
     for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        cp "${script_path}/system/initcpio/hooks/${_hook}" "${work_dir}/${arch}/airootfs/etc/initcpio/hooks"
-        cp "${script_path}/system/initcpio/install/${_hook}" "${work_dir}/${arch}/airootfs/etc/initcpio/install"
+        cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
+        cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
     done
-    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${work_dir}/${arch}/airootfs/etc/initcpio/install/archiso_shutdown"
-    cp "${script_path}/system/initcpio/install/archiso_kms" "${work_dir}/${arch}/airootfs/etc/initcpio/install"
-    cp "${script_path}/system/initcpio/archiso_shutdown" "${work_dir}/${arch}/airootfs/etc/initcpio"
+    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
+    cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
+    cp "${script_path}/system/initcpio/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
     if [[ "${boot_splash}" = true ]]; then
-        cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio-archiso.conf"
+        cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
     else
-        cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${work_dir}/${arch}/airootfs/etc/mkinitcpio-archiso.conf"
+        cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
     fi
     gnupg_fd=
     if [[ "${gpg_key}" ]]; then
@@ -916,37 +914,43 @@ make_setup_mkinitcpio() {
 
 # Prepare kernel/initramfs ${install_dir}/boot/
 make_boot() {
-    mkdir -p "${work_dir}/iso/${install_dir}/boot/${arch}"
-    cp "${work_dir}/${arch}/airootfs/boot/archiso.img" "${work_dir}/iso/${install_dir}/boot/${arch}/archiso.img"
-    cp "${work_dir}/${arch}/airootfs/boot/${kernel_filename}" "${work_dir}/iso/${install_dir}/boot/${arch}/${kernel_filename}"
+    mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
+    cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
+    cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
-    if [[ -e "${work_dir}/${arch}/airootfs/boot/memtest86+/memtest.bin" ]]; then
-        cp "${work_dir}/${arch}/airootfs/boot/memtest86+/memtest.bin" "${work_dir}/iso/${install_dir}/boot/memtest"
-        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/common/GPL2/license.txt" "${work_dir}/iso/${install_dir}/boot/memtest.COPYING"
+    if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
+        cp "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        cp "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/memtest.COPYING"
     fi
-    if [[ -e "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" ]]; then
-        cp "${work_dir}/${arch}/airootfs/boot/intel-ucode.img" "${work_dir}/iso/${install_dir}/boot/intel_ucode.img"
-        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/intel-ucode/LICENSE" "${work_dir}/iso/${install_dir}/boot/intel_ucode.LICENSE"
-    fi
-    if [[ -e "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" ]]; then
-        cp "${work_dir}/${arch}/airootfs/boot/amd-ucode.img" "${work_dir}/iso/${install_dir}/boot/amd_ucode.img"
-        cp "${work_dir}/${arch}/airootfs/usr/share/licenses/amd-ucode/LICENSE.amd-ucode" "${work_dir}/iso/${install_dir}/boot/amd_ucode.LICENSE"
-    fi
+
+    local _ucode_image
+    msg_info "Preparing microcode for the ISO 9660 file system..."
+
+    for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+        if [[ -e "${airootfs_dir}/boot/${_ucode_image}" ]]; then
+            install -m 0644 -- "${airootfs_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
+            if [[ -e "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
+                install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+                install -m 0644 -- "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/"* "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+            fi
+        fi
+    done
+    msg_info "Done!"
 }
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    _uname_r="$(file -b ${work_dir}/${arch}/airootfs/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux"
+    _uname_r="$(file -b ${airootfs_dir}/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
+    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux"
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
-    cp -a "${script_path}/syslinux/"* "$work_dir/${arch}/syslinux/"
+    cp -a "${script_path}/syslinux/"* "${work_dir}/${arch}/syslinux/"
     if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_dir}/syslinux/"* "$work_dir/${arch}/syslinux/"
+        cp -af "${channel_dir}/syslinux"* "${work_dir}/${arch}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
@@ -955,7 +959,7 @@ make_syslinux() {
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%ARCH%|${arch}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${work_dir}/iso/${install_dir}/boot/syslinux/${_cfg##*/}"
+             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
@@ -968,38 +972,38 @@ make_syslinux() {
         _no_use_config_name=splash
     fi
     for _pxe_or_sys in "sys" "pxe"; do
-        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
-        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${arch}.cfg"
+        remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+        mv "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${arch}.cfg"
     done
 
     # Set syslinux wallpaper
     if [[ -f "${channel_dir}/splash.png" ]]; then
-        cp "${channel_dir}/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+        cp "${channel_dir}/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
     else
-        cp "${script_path}/syslinux/splash.png" "${work_dir}/iso/${install_dir}/boot/syslinux"
+        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
     fi
 
     # Rename rescue config
     if [[ "${norescue_entry}" = false ]]; then
-        mv "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg" "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue_${arch}.cfg"
+        mv "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_rescue_${arch}.cfg"
     else
-        remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
+        remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
     fi
 
     # copy files
-    cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${work_dir}/iso/${install_dir}/boot/syslinux"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/lpxelinux.0" "${work_dir}/iso/${install_dir}/boot/syslinux"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/memdisk" "${work_dir}/iso/${install_dir}/boot/syslinux"
-    mkdir -p "${work_dir}/iso/${install_dir}/boot/syslinux/hdt"
-    gzip -c -9 "${work_dir}/${arch}/airootfs/usr/share/hwdata/pci.ids" > "${work_dir}/iso/${install_dir}/boot/syslinux/hdt/pciids.gz"
-    gzip -c -9 "${work_dir}/${arch}/airootfs/usr/lib/modules/${_uname_r}/modules.alias" > "${work_dir}/iso/${install_dir}/boot/syslinux/hdt/modalias.gz"
+    cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/${install_dir}/boot/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux"
+    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
+    gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
+    gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
 }
 
 make_syslinux_loadfiles() {
     local _pxe_or_sys _write_load _arch
-    remove "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_"{pxe,sys}"_load.cfg"
+    remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_"{pxe,sys}"_load.cfg"
     for _pxe_or_sys in "sys" "pxe"; do
-        _write_load() { echo -e "${@}" >> "${work_dir}/iso/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_load.cfg"; }
+        _write_load() { echo -e "${@}" >> "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_load.cfg"; }
         _write_load "INCLUDE boot/syslinux/archiso_head.cfg"
         for _arch in ${all_arch[@]}; do 
             _write_load "INCLUDE boot/syslinux/archiso_${_pxe_or_sys}_${_arch}.cfg"
@@ -1014,28 +1018,28 @@ make_syslinux_loadfiles() {
 
 # Prepare /isolinux
 make_isolinux() {
-    mkdir -p "${work_dir}/iso/isolinux"
+    mkdir -p "${isofs_dir}/isolinux"
 
     sed "s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/system/isolinux.cfg" > "${work_dir}/iso/isolinux/isolinux.cfg"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/isolinux.bin" "${work_dir}/iso/isolinux/"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/isohdpfx.bin" "${work_dir}/iso/isolinux/"
-    cp "${work_dir}/${arch}/airootfs/usr/lib/syslinux/bios/ldlinux.c32" "${work_dir}/iso/isolinux/"
+    "${script_path}/system/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
 }
 
 # Prepare /EFI
 # Todo 2020/10/13 Hayao0819: x86_64に依存しているのをなくす
 make_efi() {
-    mkdir -p "${work_dir}/iso/EFI/boot"
+    mkdir -p "${isofs_dir}/EFI/boot"
     for arch in ${all_arch[@]}; do
         (
             local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/iso/EFI/boot/${__bootfile#systemd-}"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
         )
     done
 
-    mkdir -p "${work_dir}/iso/loader/entries"
-    sed "s|%ARCH%|${all_arch[0]}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/iso/loader/loader.conf"
+    mkdir -p "${isofs_dir}/loader/entries"
+    sed "s|%ARCH%|${all_arch[0]}|g;" "${script_path}/efiboot/loader/loader.conf" > "${isofs_dir}/loader/loader.conf"
 
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1043,53 +1047,59 @@ make_efi() {
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${work_dir}/iso/loader/entries/archiso-${arch}.conf"
+        "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
     done
 
     # edk2-shell based UEFI shell
-    # shellx64.efi is picked up automatically when on /
-    #if [[ -f "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
-    #fi
+    local _efi_shell _efi_shell_arch
+    for arch in ${all_arch[@]}; do
+        for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
+            _efi_shell_arch="$(basename ${_efi_shell})"
+            cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
+title  UEFI Shell ${_efi_shell_arch}
+efi    /EFI/shell_${_efi_shell_arch}.efi
 
-    #if [[ "${arch}" = "x86_64" ]]; then
-    #    cp "${work_dir}/${arch}/airootfs/usr/share/edk2-shell/x64/Shell_Full.efi" "${work_dir}/iso/shellx64.efi"
-    #fi
-
-    local _efi_shell_arch
-    for _efi_shell_arch in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
-        cp "${_efi_shell_arch}/Shell_Full.efi" "${work_dir}/iso/shell_$(basename ${_efi_shell_arch}).efi"
+EOF
+        done
     done
-}
+    }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
-    mkdir -p "${work_dir}/iso/EFI/alteriso"
-    truncate -s 64M "${work_dir}/iso/EFI/alteriso/efiboot.img"
-    mkfs.fat -n ARCHISO_EFI "${work_dir}/iso/EFI/alteriso/efiboot.img"
+    mkdir -p "${isofs_dir}/EFI/alteriso"
+    truncate -s 128M "${isofs_dir}/EFI/alteriso/efiboot.img"
+    mkfs.fat -n ARCHISO_EFI "${isofs_dir}/EFI/alteriso/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
-    mount "${work_dir}/iso/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
+    mount "${isofs_dir}/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
 
-    mkdir -p "${work_dir}/efiboot/EFI/alteriso"
+    mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
+    for arch in ${all_arch[@]}; do
+        mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
+        cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
+        cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${work_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
+    done
 
-    cp "${work_dir}/iso/${install_dir}/boot/x86_64/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${kernel_filename}.efi"
-    cp "${work_dir}/iso/${install_dir}/boot/x86_64/archiso.img" "${work_dir}/efiboot/EFI/alteriso/archiso.img"
-
-    cp "${work_dir}/iso/${install_dir}/boot/intel_ucode.img" "${work_dir}/efiboot/EFI/alteriso/intel_ucode.img"
-    cp "${work_dir}/iso/${install_dir}/boot/amd_ucode.img" "${work_dir}/efiboot/EFI/alteriso/amd_ucode.img"
+    local _ucode_image
+    for arch in ${all_arch[@]}; do
+        for _ucode_image in "${work_dir}/${arch}/airootfs/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+            [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${work_dir}/efiboot/EFI/alteriso/"
+        done
+    done
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
 
     for arch in ${all_arch[@]}; do
         (
             local __bootfile="$(basename "$(ls "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/boot/${__bootfile#systemd-}"
+            cp "${work_dir}/${arch}/airootfs/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/EFI/boot/${__bootfile#systemd-}"
         )
     done
 
     mkdir -p "${work_dir}/efiboot/loader/entries"
-    cp "${script_path}/efiboot/loader/loader.conf" "${work_dir}/efiboot/loader/"
+    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
+    cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
     for arch in ${all_arch[@]}; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -1100,22 +1110,17 @@ make_efiboot() {
         "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
     done
 
-    # shellx64.efi is picked up automatically when on /
-    #if [[ -f "${work_dir}/iso/shellx64.efi" ]]; then
-    #    cp "${work_dir}/iso/shellx64.efi" "${work_dir}/efiboot/"
-    #fi
-
-    cp "${work_dir}/iso/shell"*".efi" "${work_dir}/efiboot/"
+    cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
     umount -d "${work_dir}/efiboot"
 }
 
 # Compress tarball
 make_tarball() {
-    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
+    cp -a -l -f "${airootfs_dir}" "${work_dir}"
 
-    if [[ -f "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh" ]]; then
-        chmod 755 "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+    if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
+        chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
         ${mkalteriso} ${mkalteriso_option} \
         -w "${work_dir}/${arch}" \
@@ -1127,7 +1132,7 @@ make_tarball() {
 
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
 
-    remove "${work_dir}/${arch}/airootfs/root/optimize_for_tarball.sh"
+    remove "${airootfs_dir}/root/optimize_for_tarball.sh"
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//' | sed "s/dual/${arch}/g").tar.xz"
 
@@ -1140,19 +1145,19 @@ make_tarball() {
 
 # Build airootfs filesystem image
 make_prepare() {
-    cp -a -l -f "${work_dir}/${arch}/airootfs" "${work_dir}"
+    cp -a -l -f "${airootfs_dir}" "${work_dir}"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
     remove "${work_dir}/airootfs"
 
     if [[ "${cleaning}" = true ]]; then
-        remove "${work_dir}/${arch}/airootfs"
+        remove "${airootfs_dir}"
     fi
 
     # iso version info
     if [[ "${include_info}" = true ]]; then
-        local _write_info_file _info_file="${work_dir}/iso/alteriso-info"
+        local _write_info_file _info_file="${isofs_dir}/alteriso-info"
         _write_info_file () {
             echo "${@}" >> "${_info_file}"
         }
@@ -1186,72 +1191,14 @@ make_iso() {
 
 # Parse files
 parse_files() {
-    #-- ロケールを解析、設定 --#
-    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
-
-    # 選択されたロケールの設定が描かれた行番号を取得
-    _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | getclm 1))
-    _get_locale_line_number() {
-        local _lang _count=0
-        for _lang in ${_locale_name_list[@]}; do
-            _count=$(( _count + 1 ))
-            if [[ "${_lang}" = "${locale_name}" ]]; then echo "${_count}"; return 0; fi
-        done
-        echo -n "failed"
-    }
-    _locale_line_number="$(_get_locale_line_number)"
-
-    # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" = "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
-
-    # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
-
-    # 抽出された行に書かれた設定をそれぞれの変数に代入
-    # ここで定義された変数のみがグローバル変数
-    locale_name="${_locale_config_line[0]}"
-    locale_gen_name="${_locale_config_line[1]}"
-    locale_version="${_locale_config_line[2]}"
-    locale_time="${_locale_config_line[3]}"
-    locale_fullname="${_locale_config_line[4]}"
-
-
-    #-- カーネルを解析、設定 --#
-    local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line _kernel_config_line
-
-    # 選択されたカーネルの設定が描かれた行番号を取得
-    _kernel_config_file="${script_path}/system/kernel-${arch}"
-    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
-    _get_kernel_line() {
-        local _kernel _count=0
-        for _kernel in ${_kernel_name_list[@]}; do
-            _count=$(( _count + 1 ))
-            if [[ "${_kernel}" = "${kernel}" ]]; then echo "${_count}"; return 0; fi
-        done
-        echo -n "failed"
-        return 0
-    }
-    _kernel_line="$(_get_kernel_line)"
-
-    # 不正なカーネル名なら終了する
-    [[ "${_kernel_line}" = "failed" ]] && msg_error "Invalid kernel ${kernel}" "1"
-
-    # カーネル設定ファイルから該当の行を抽出
-    _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
-
-    # 抽出された行に書かれた設定をそれぞれの変数に代入
-    # ここで定義された変数のみがグローバル変数
-    kernel="${_kernel_config_line[0]}"
-    kernel_filename="${_kernel_config_line[1]}"
-    kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
+    eval $(bash "${script_path}/tools/locale.sh" -a "${arch}" get "${kernel}")
+    eval $(bash "${script_path}/tools/kernel.sh" -a "${arch}" get "${kernel}")
 }
-
 
 # Parse options
 ARGUMENT="${@}"
 _opt_short="bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:"
+_opt_long="boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1378,6 +1325,10 @@ while :; do
             nochkver=true
             shift 1
             ;;
+        --noefi)
+            noefi=true
+            shift 1
+            ;;
         --channellist)
             show_channel_list
             exit 0
@@ -1449,17 +1400,13 @@ if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_v
     if [[ -d "${script_path}/.git" ]]; then
         msg_error "Please run \"git checkout alteriso-2\"" "1"
     else
-        msg_error "Please download Alter ISO 2 here."
-        msg_error "https://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
+        msg_error "Please download Alter ISO 2 here.\nhttps://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
     fi
 fi
 
-check_bool debug
-check_bool bash_debug
-check_bool nocolor
-check_bool msgdebug
-
-parse_files
+for arch in ${all_arch[@]}; do
+    parse_files
+done
 
 set -eu
 
@@ -1475,20 +1422,26 @@ for arch in ${all_arch[@]}; do
     [[ "${noaur}" = false ]] && run_arch make_packages_aur
     run_arch make_customize_airootfs
     run_arch make_setup_mkinitcpio
-    run_arch make_syslinux
-    run_arch make_boot
-    [[ "${noiso}" = false ]] && run_arch make_prepare
+    if [[ "${noiso}" = false ]]; then
+        run_arch make_syslinux
+        run_arch make_boot
+        run_arch make_prepare
+    fi
 done
-run_once make_boot_extra
-run_once make_syslinux_loadfiles
-run_once make_isolinux
-run_once make_efi
-run_once make_efiboot
+if [[ "${noiso}" = false ]]; then
+    run_once make_boot_extra
+    run_once make_syslinux_loadfiles
+    run_once make_isolinux
+    if [[ "${noefi}" = false ]]; then
+        run_once make_efi
+        run_once make_efiboot
+    fi
+    run_once make_iso
+fi
 if [[ "${tarball}" = true ]]; then
     for arch in ${all_arch[@]}; do
         run_arch make_tarball
     done
 fi
-[[ "${noiso}" = false ]] && run_once make_iso
 [[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
 exit 0
