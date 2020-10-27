@@ -1430,6 +1430,9 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
 
+# Debug mode
+if [[ "${bash_debug}" = true ]]; then set -x -v; fi
+
 set +eu
 
 # Check for a valid channel name

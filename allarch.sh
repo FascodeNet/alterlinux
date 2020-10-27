@@ -1363,6 +1363,9 @@ unset DEFAULT_ARGUMENT ARGUMENT
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
+# Debug mode
+if [[ "${bash_debug}" = true ]]; then set -x -v; fi
+
 set +eu
 
 # Check for a valid channel name
