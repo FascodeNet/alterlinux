@@ -11,9 +11,9 @@ build_arch="${machine_arch}"
 pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
 
 # 言語（en or jp)
-#lang="jp"
-lang="en"
-skip_set_lang=false
+#wizard_language="jp"
+wizard_language="en"
+skip_set_wizard_language=false
 
 
 dependence=(
@@ -42,22 +42,22 @@ dependence=(
 
 # メッセージを表示する
 # msg [日本語] [英語]
-function msg() {
-    if [[ ${lang} = "jp" ]]; then
+msg() {
+    if [[ ${wizard_language} = "jp" ]]; then
         echo "${1}"
     else
         echo "${2}"
     fi
 }
-function msg_error() {
-    if [[ ${lang} = "jp" ]]; then
+msg_error() {
+    if [[ ${wizard_language} = "jp" ]]; then
         echo "${1}" >&2
     else
         echo "${1}" >&2
     fi
 }
-function msg_n() {
-    if [[ ${lang} = "jp" ]]; then
+msg_n() {
+    if [[ ${wizard_language} = "jp" ]]; then
         echo -n "${1}"
     else
         echo -n "${2}"
@@ -96,14 +96,14 @@ while getopts 'a:xnjeh' arg; do
             msg "デバッグモードを有効化しました" "Debug mode enabled"
             ;;
         e)
-            lang="en"
+            wizard_language="en"
             echo "English is set"
-            skip_set_lang=true
+            skip_set_wizard_language=true
             ;;
         j)
-            lang="jp"
+            wizard_language="jp"
             echo "日本語が設定されました"
-            skip_set_lang=true
+            skip_set_wizard_language=true
             ;;
         h)
             _help
@@ -119,7 +119,7 @@ while getopts 'a:xnjeh' arg; do
     esac
 done
 
-function set_language () {
+Function_Global_wizard_language () {
     if [[ ${skip_set_lang} = false ]]; then
         echo "このウィザードでどちらの言語を使用しますか？"
         echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
@@ -131,21 +131,21 @@ function set_language () {
         echo "2: 日本語 Japanese"
         echo
         echo -n ": "
-        read lang
+        read wizard_language
 
-        case ${lang} in
-            1 ) lang=en ;;
-            2 ) lang=jp ;;
-            "英語" ) lang=en ;;
-            "日本語" ) lang=jp ;;
-            "English" ) lang=en ;;
-            "Japanese" ) lang=jp ;;
-            * ) set_language ;;
+        case ${wizard_language} in
+            1 ) wizard_language=en ;;
+            2 ) wizard_language=jp ;;
+            "英語" ) wizard_language=en ;;
+            "日本語" ) wizard_language=jp ;;
+            "English" ) wizard_language=en ;;
+            "Japanese" ) wizard_language=jp ;;
+            * ) Function_Global_wizard_language ;;
         esac
     fi
 }
 
-function check_files () {
+Function_Global_check_required_files () {
     local file _chkfile i error=false
     _chkfile() {
         if [[ ! -f "${1}" ]]; then
@@ -171,7 +171,7 @@ function check_files () {
 }
 
 
-function install_dependencies () {
+Function_Global_install_dependent_packages () {
     local checkpkg pkg installed_pkg installed_ver check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
@@ -208,8 +208,8 @@ function install_dependencies () {
     echo
 }
 
-function guide_generator () {
-    if [[ "${lang}"  = "jp" ]]; then
+Function_Global_guide_to_the_web () {
+    if [[ "${wizard_language}"  = "jp" ]]; then
         msg "wizard.sh ではビルドオプションの生成以外にもパッケージのインストールやキーリングのインストールなど様々なことを行います。"
         msg "もし既に環境が構築されておりそれらの操作が必要ない場合は、以下のサイトによるジェネレータも使用することができます。"
         msg "http://hayao.fascode.net/alteriso-options-generator/"
@@ -217,7 +217,7 @@ function guide_generator () {
     fi
 }
 
-function run_add_key_script () {
+Function_Global_setup_keyring () {
     local yn
     msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
     read yn
@@ -229,20 +229,20 @@ function run_add_key_script () {
         case ${yn} in
             y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
             n | N | no  | No  | NO  ) return 0                                       ;;
-            *                       ) run_add_key_script                             ;;
+            *                       ) Function_Global_setup_keyring                             ;;
         esac
     fi
 }
 
 
-function remove_dependencies () {
+Function_Global_remove_dependent_packages () {
     if [[ -n "${install}" ]]; then
         sudo pacman -Rsn --config "${pacman_conf}" ${install[@]}
     fi
 }
 
 
-function select_arch() {
+select_arch() {
     local yn
     local details
     local ask_arch
@@ -254,7 +254,7 @@ function select_arch() {
         *                       ) select_comp_type; return 0 ;;
     esac
 
-    function ask_arch () {
+    ask_arch () {
         local ask
         msg \
             "アーキテクチャを選択して下さい " \
@@ -285,7 +285,7 @@ function select_arch() {
     return 0
 }
 
-function enable_plymouth () {
+enable_plymouth () {
     local yn
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read yn
@@ -297,7 +297,7 @@ function enable_plymouth () {
 }
 
 
-function enable_japanese () {
+enable_japanese () {
     local yn
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read yn
@@ -309,7 +309,7 @@ function enable_japanese () {
 }
 
 
-function select_comp_type () {
+select_comp_type () {
     local yn
     local details
     local ask_comp_type
@@ -321,7 +321,7 @@ function select_comp_type () {
         *                       ) select_comp_type; return 0 ;;
     esac
 
-    function ask_comp_type () {
+    ask_comp_type () {
         msg \
             "圧縮方式を以下の番号から選択してください " \
             "Please select the compression method from the following numbers"
@@ -363,7 +363,7 @@ function select_comp_type () {
 }
 
 
-function set_comp_option () {
+set_comp_option () {
     local ask_comp_option
     ask_comp_option() {
         local gzip
@@ -373,9 +373,9 @@ function set_comp_option () {
         local zstd
         comp_option=""
 
-        function gzip () {
+        gzip () {
             local comp_level
-            function comp_level () {
+            comp_level () {
                 local level
                 msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
                 read level
@@ -386,7 +386,7 @@ function set_comp_option () {
                 fi
             }
             local window_size
-            function window_size () {
+            window_size () {
                 local window
                 msg_n \
                     "gzipのウィンドウサイズを入力してください。 (1~15) : " \
@@ -402,7 +402,7 @@ function set_comp_option () {
 
         }
 
-        function lz4 () {
+        lz4 () {
             local yn
             msg_n \
                 "高圧縮モードを有効化しますか？ （y/N） : " \
@@ -415,7 +415,7 @@ function set_comp_option () {
             esac
         }
 
-        function zstd () {
+        zstd () {
             local level
             msg_n \
                 "zstdの圧縮レベルを入力してください。 (1~22) : " \
@@ -428,13 +428,13 @@ function set_comp_option () {
             fi
         }
 
-        function lzo () {
+        lzo () {
             msg_error \
                 "現在lzoの詳細設定ウィザードがサポートされていません。" \
                 "The lzo Advanced Wizard is not currently supported."
         }
 
-        function xz () {
+        xz () {
             msg_error \
             "現在xzの詳細設定のウィザードがサポートされていません。" \
             "The xz Advanced Wizard is not currently supported."
@@ -473,7 +473,7 @@ function set_comp_option () {
 }
 
 
-function set_username () {
+set_username () {
     local details
     local ask_comp_type
     msg_n \
@@ -486,7 +486,7 @@ function set_username () {
         *                       ) set_username; return 0 ;;
     esac
 
-    function ask_username () {
+    ask_username () {
         msg_n "ユーザー名を入力してください : " "Please enter your username : "
         read username
         if [[ -z ${username} ]]; then
@@ -502,7 +502,7 @@ function set_username () {
 }
 
 
-function set_password () {
+set_password () {
     local details
     local ask_comp_type
     msg_n \
@@ -515,7 +515,7 @@ function set_password () {
         *                       ) set_password; return 0 ;;
     esac
 
-    function ask_password () {
+    ask_password () {
         msg_n "パスワードを入力してください。" "Please enter your password."
         read -s password
         echo
@@ -542,11 +542,11 @@ function set_password () {
 }
 
 
-function select_kernel () {
+select_kernel () {
     set +e
     local do_you_want_to_select_kernel
 
-    function do_you_want_to_select_kernel () {
+    do_you_want_to_select_kernel () {
         set +e
         local yn
         msg_n \
@@ -563,7 +563,7 @@ function select_kernel () {
 
     local what_kernel
 
-    function what_kernel () {
+    what_kernel () {
         msg \
             "使用するカーネルを以下の番号から選択してください" \
             "Please select the kernel to use from the following numbers"
@@ -623,7 +623,7 @@ function select_kernel () {
 
 
 # チャンネルの指定
-function select_channel () {
+select_channel () {
 
     local i count=1 _channel channel_list description
 
@@ -637,7 +637,7 @@ function select_channel () {
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
         else
-            if [[ "${lang}"  = "jp" ]]; then
+            if [[ "${wizard_language}"  = "jp" ]]; then
                 description="このチャンネルにはdescription.txtがありません。"
             else
                 description="This channel does not have a description.txt."
@@ -682,10 +682,10 @@ function select_channel () {
 
 
 # イメージファイルの所有者
-function set_iso_owner () {
+set_iso_owner () {
     local owner
     local user_check
-    function user_check () {
+    user_check () {
     if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
         if [[ -z $1 ]]; then
             echo -n "false"
@@ -714,7 +714,7 @@ function set_iso_owner () {
 
 
 # イメージファイルの作成先
-function set_out_dir () {
+set_out_dir () {
     msg "イメージファイルの作成先を入力して下さい。" "Enter the destination to create the image file."
     msg "デフォルトは ${script_path}/out です。" "The default is ${script_path}/out."
     echo -n ": "
@@ -744,7 +744,7 @@ function set_out_dir () {
     fi
 }
 
-function enable_tarball () {
+enable_tarball () {
     local yn
     msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
     read yn
@@ -757,7 +757,7 @@ function enable_tarball () {
 
 
 # 最終的なbuild.shのオプションを生成
-function generate_argument () {
+Function_Global_create_argument () {
     local _ADD_ARG
     _ADD_ARG () {
         argument="${argument} ${@}"
@@ -775,7 +775,7 @@ function generate_argument () {
 }
 
 # 上の質問の関数を実行
-function ask () {
+Function_Global_ask_questions () {
     enable_japanese
     select_arch
     enable_plymouth
@@ -792,7 +792,7 @@ function ask () {
 }
 
 # ビルド設定の確認
-function lastcheck () {
+lastcheck () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
@@ -817,7 +817,7 @@ function lastcheck () {
     esac
 }
 
-function start_build () {
+Function_Global_run_build.sh () {
     if [[ ${nobuild} = true ]]; then
         echo "${argument}"
     else
@@ -829,14 +829,14 @@ function start_build () {
 }
 
 
-remove_work_dir() {
+Function_Global_run_clean.sh() {
     if [[ -d "${script_path}/work/" ]]; then
         sudo rm -rf "${script_path}/work/"
     fi
 }
 
 
-change_iso_permission() {
+Function_Global_set_iso_permission() {
     if [[ -n "${owner}" ]]; then
         chown -R "${owner}" "${script_path}/out/"
         chmod -R 750 "${script_path}/out/"
@@ -844,14 +844,14 @@ change_iso_permission() {
 }
 
 # 関数を実行
-set_language
-check_files
-install_dependencies
-guide_generator
-run_add_key_script
-ask
-generate_argument
-start_build
-remove_dependencies
-remove_work_dir
-change_iso_permission
+Function_Global_wizard_language
+Function_Global_check_required_files
+Function_Global_install_dependent_packages
+Function_Global_guide_to_the_web
+Function_Global_setup_keyring
+Function_Global_ask_questions
+Function_Global_create_argument
+Function_Global_run_build.sh
+Function_Global_remove_dependent_packages
+Function_Global_run_clean.sh
+Function_Global_set_iso_permission
