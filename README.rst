@@ -35,6 +35,8 @@ custom live media, **releng** is used to create the monthly installation medium.
 They can be found below `configs/baseline/ <configs/baseline/>`_  and `configs/releng/ <configs/releng/>`_
 (respectively). Both profiles are defined by files to be placed into overlays (e.g. *airootfs* -> *the image's /*).
 
+Read `README.profile.rst <README.profile.rst>`_ to learn more about how to create profiles.
+
 Create images
 =============
 
