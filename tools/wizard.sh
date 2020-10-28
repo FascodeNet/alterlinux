@@ -119,7 +119,7 @@ while getopts 'a:xnjeh' arg; do
     esac
 done
 
-Function_Global_wizard_language () {
+Function_Global_Main_wizard_language () {
     if [[ ${skip_set_lang} = false ]]; then
         echo "このウィザードでどちらの言語を使用しますか？"
         echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
@@ -140,12 +140,12 @@ Function_Global_wizard_language () {
             "日本語" ) wizard_language=jp ;;
             "English" ) wizard_language=en ;;
             "Japanese" ) wizard_language=jp ;;
-            * ) Function_Global_wizard_language ;;
+            * ) Function_Global_Main_wizard_language ;;
         esac
     fi
 }
 
-Function_Global_check_required_files () {
+Function_Global_Main_check_required_files () {
     local file _chkfile i error=false
     _chkfile() {
         if [[ ! -f "${1}" ]]; then
@@ -171,7 +171,7 @@ Function_Global_check_required_files () {
 }
 
 
-Function_Global_install_dependent_packages () {
+Function_Global_Main_install_dependent_packages () {
     local checkpkg pkg installed_pkg installed_ver check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
@@ -208,7 +208,7 @@ Function_Global_install_dependent_packages () {
     echo
 }
 
-Function_Global_guide_to_the_web () {
+Function_Global_Main_guide_to_the_web () {
     if [[ "${wizard_language}"  = "jp" ]]; then
         msg "wizard.sh ではビルドオプションの生成以外にもパッケージのインストールやキーリングのインストールなど様々なことを行います。"
         msg "もし既に環境が構築されておりそれらの操作が必要ない場合は、以下のサイトによるジェネレータも使用することができます。"
@@ -217,7 +217,7 @@ Function_Global_guide_to_the_web () {
     fi
 }
 
-Function_Global_setup_keyring () {
+Function_Global_Main_setup_keyring () {
     local yn
     msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
     read yn
@@ -229,20 +229,20 @@ Function_Global_setup_keyring () {
         case ${yn} in
             y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
             n | N | no  | No  | NO  ) return 0                                       ;;
-            *                       ) Function_Global_setup_keyring                             ;;
+            *                       ) Function_Global_Main_setup_keyring                             ;;
         esac
     fi
 }
 
 
-Function_Global_remove_dependent_packages () {
+Function_Global_Main_remove_dependent_packages () {
     if [[ -n "${install}" ]]; then
         sudo pacman -Rsn --config "${pacman_conf}" ${install[@]}
     fi
 }
 
 
-select_arch() {
+Function_Global_Ask_build_arch() {
     local yn
     local details
     local ask_arch
@@ -251,7 +251,7 @@ select_arch() {
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true               ;;
         n | N | no  | No  | NO  ) details=false              ;;
-        *                       ) select_comp_type; return 0 ;;
+        *                       ) Function_Global_Ask_comp_type; return 0 ;;
     esac
 
     ask_arch () {
@@ -285,31 +285,31 @@ select_arch() {
     return 0
 }
 
-enable_plymouth () {
+Function_Global_Ask_plymouth () {
     local yn
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
         n | N | no  | No  | NO  ) plymouth=false  ;;
-        *                       ) enable_plymouth ;;
+        *                       ) Function_Global_Ask_plymouth ;;
     esac
 }
 
 
-enable_japanese () {
+Function_Global_Ask_japanese () {
     local yn
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
         n | N | no  | No  | NO  ) japanese=false  ;;
-        *                       ) enable_japanese ;;
+        *                       ) Function_Global_Ask_japanese ;;
     esac
 }
 
 
-select_comp_type () {
+Function_Global_Ask_comp_type () {
     local yn
     local details
     local ask_comp_type
@@ -318,7 +318,7 @@ select_comp_type () {
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true               ;;
         n | N | no  | No  | NO  ) details=false              ;;
-        *                       ) select_comp_type; return 0 ;;
+        *                       ) Function_Global_Ask_comp_type; return 0 ;;
     esac
 
     ask_comp_type () {
@@ -363,7 +363,7 @@ select_comp_type () {
 }
 
 
-set_comp_option () {
+Function_Global_Ask_comp_option () {
     local ask_comp_option
     ask_comp_option() {
         local gzip
@@ -461,7 +461,7 @@ set_comp_option () {
         case ${yn} in
             y | Y | yes | Yes | YES ) details=true              ;;
             n | N | no  | No  | NO  ) details=false             ;;
-            *                       ) set_comp_option; return 0 ;;
+            *                       ) Function_Global_Ask_comp_option; return 0 ;;
         esac
         if [[ ${details} = true ]]; then
             ask_comp_option
@@ -473,7 +473,7 @@ set_comp_option () {
 }
 
 
-set_username () {
+Function_Global_Ask_username () {
     local details
     local ask_comp_type
     msg_n \
@@ -483,7 +483,7 @@ set_username () {
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true           ;;
         n | N | no  | No  | NO  ) details=false          ;;
-        *                       ) set_username; return 0 ;;
+        *                       ) Function_Global_Ask_username; return 0 ;;
     esac
 
     ask_username () {
@@ -502,7 +502,7 @@ set_username () {
 }
 
 
-set_password () {
+Function_Global_Ask_password () {
     local details
     local ask_comp_type
     msg_n \
@@ -512,7 +512,7 @@ set_password () {
     case ${yn} in
         y | Y | yes | Yes | YES ) details=true           ;;
         n | N | no  | No  | NO  ) details=false          ;;
-        *                       ) set_password; return 0 ;;
+        *                       ) Function_Global_Ask_password; return 0 ;;
     esac
 
     ask_password () {
@@ -542,7 +542,7 @@ set_password () {
 }
 
 
-select_kernel () {
+Function_Global_Ask_kernel () {
     set +e
     local do_you_want_to_select_kernel
 
@@ -623,7 +623,7 @@ select_kernel () {
 
 
 # チャンネルの指定
-select_channel () {
+Function_Global_Ask_channel () {
 
     local i count=1 _channel channel_list description
 
@@ -661,7 +661,7 @@ select_channel () {
         # 数字である
         channel=$(( channel - 1 ))
         if [[ -z "${channel_list[${channel}]}" ]]; then
-            select_channel
+            Function_Global_Ask_channel
             return 0
         else
             channel="${channel_list[${channel}]}"
@@ -670,7 +670,7 @@ select_channel () {
         set -e
         # 数字ではない
         if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}"; echo -n ${?} ) -eq 0 ]]; then
-            select_channel
+            Function_Global_Ask_channel
             return 0
         fi
     fi
@@ -682,7 +682,7 @@ select_channel () {
 
 
 # イメージファイルの所有者
-set_iso_owner () {
+Function_Global_Ask_owner () {
     local owner
     local user_check
     user_check () {
@@ -700,11 +700,11 @@ set_iso_owner () {
     read owner
     if [[ $(user_check ${owner}) = false ]]; then
         echo "ユーザーが存在しません。"
-        set_iso_owner
+        Function_Global_Ask_owner
         return 0
     elif  [[ -z "${owner}" ]]; then
         echo "ユーザー名を入力して下さい。"
-        set_iso_owner
+        Function_Global_Ask_owner
         return 0
     elif [[ "${owner}" = root ]]; then
         echo "所有者の変更を行いません。"
@@ -714,7 +714,7 @@ set_iso_owner () {
 
 
 # イメージファイルの作成先
-set_out_dir () {
+Function_Global_Ask_out_dir () {
     msg "イメージファイルの作成先を入力して下さい。" "Enter the destination to create the image file."
     msg "デフォルトは ${script_path}/out です。" "The default is ${script_path}/out."
     echo -n ": "
@@ -726,38 +726,38 @@ set_out_dir () {
             msg_error \
                 "存在しているディレクトリを指定して下さい。" \
                 "Please specify the existing directory."
-            set_out_dir
+            Function_Global_Ask_out_dir
             return 0
         elif [[ "${out_dir}" = / ]] || [[ "${out_dir}" = /home ]]; then
             msg_error \
                 "そのディレクトリは使用できません。" \
                 "The directory is unavailable."
-            set_out_dir
+            Function_Global_Ask_out_dir
             return 0
         elif [[ -n "$(ls ${out_dir})" ]]; then
             msg_error \
                 "ディレクトリは空ではありません。" \
                 "The directory is not empty."
-            set_out_dir
+            Function_Global_Ask_out_dir
             return 0
         fi
     fi
 }
 
-enable_tarball () {
+Function_Global_Ask_tarball () {
     local yn
     msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
     read yn
     case ${yn} in
         y | Y | yes | Yes | YES ) tarball=true   ;;
         n | N | no  | No  | NO  ) tarball=false  ;;
-        *                       ) enable_tarball ;;
+        *                       ) Function_Global_Ask_tarball ;;
     esac
 }
 
 
 # 最終的なbuild.shのオプションを生成
-Function_Global_create_argument () {
+Function_Global_Main_create_argument () {
     local _ADD_ARG
     _ADD_ARG () {
         argument="${argument} ${@}"
@@ -775,24 +775,24 @@ Function_Global_create_argument () {
 }
 
 # 上の質問の関数を実行
-Function_Global_ask_questions () {
-    enable_japanese
-    select_arch
-    enable_plymouth
-    select_kernel
-    select_comp_type
-    set_comp_option
-    set_username
-    set_password
-    select_channel
-    #set_iso_owner
-    enable_tarball
-    # set_out_dir
-    lastcheck
+Function_Global_Main_ask_questions () {
+    Function_Global_Ask_japanese
+    Function_Global_Ask_build_arch
+    Function_Global_Ask_plymouth
+    Function_Global_Ask_kernel
+    Function_Global_Ask_comp_type
+    Function_Global_Ask_comp_option
+    Function_Global_Ask_username
+    Function_Global_Ask_password
+    Function_Global_Ask_channel
+    #Function_Global_Ask_owner
+    Function_Global_Ask_tarball
+    # Function_Global_Ask_out_dir
+    Function_Global_Ask_Confirm
 }
 
 # ビルド設定の確認
-lastcheck () {
+Function_Global_Ask_Confirm () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
@@ -813,11 +813,11 @@ lastcheck () {
     case ${yn} in
         y | Y | yes | Yes | YES ) :         ;;
         n | N | no  | No  | NO  ) ask       ;;
-        *                       ) lastcheck ;;
+        *                       ) Function_Global_Ask_Confirm ;;
     esac
 }
 
-Function_Global_run_build.sh () {
+Function_Global_Main_run_build.sh () {
     if [[ ${nobuild} = true ]]; then
         echo "${argument}"
     else
@@ -829,14 +829,14 @@ Function_Global_run_build.sh () {
 }
 
 
-Function_Global_run_clean.sh() {
+Function_Global_Main_run_clean.sh() {
     if [[ -d "${script_path}/work/" ]]; then
         sudo rm -rf "${script_path}/work/"
     fi
 }
 
 
-Function_Global_set_iso_permission() {
+Function_Global_Main_set_iso_permission() {
     if [[ -n "${owner}" ]]; then
         chown -R "${owner}" "${script_path}/out/"
         chmod -R 750 "${script_path}/out/"
@@ -844,14 +844,14 @@ Function_Global_set_iso_permission() {
 }
 
 # 関数を実行
-Function_Global_wizard_language
-Function_Global_check_required_files
-Function_Global_install_dependent_packages
-Function_Global_guide_to_the_web
-Function_Global_setup_keyring
-Function_Global_ask_questions
-Function_Global_create_argument
-Function_Global_run_build.sh
-Function_Global_remove_dependent_packages
-Function_Global_run_clean.sh
-Function_Global_set_iso_permission
+Function_Global_Main_wizard_language
+Function_Global_Main_check_required_files
+Function_Global_Main_install_dependent_packages
+Function_Global_Main_guide_to_the_web
+Function_Global_Main_setup_keyring
+Function_Global_Main_ask_questions
+Function_Global_Main_create_argument
+Function_Global_Main_run_build.sh
+Function_Global_Main_remove_dependent_packages
+Function_Global_Main_run_clean.sh
+Function_Global_Main_set_iso_permission
