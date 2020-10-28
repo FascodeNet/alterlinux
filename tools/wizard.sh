@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
+:<< TEXT
+変数や関数の命名規則について
+
+<< グローバル >>
+グローバル変数: Var_Global_[変数名]
+グローバル関数: Function_Global_[関数名]
+
+(Function_Global_Main_ask_questions内で使用する関数のみ)
+グローバル関数: Function_Global_Ask_[設定される変数名]
+
+<< ローカル >>
+ローカル変数: Var_Local_[変数名]
+ローカル関数: Var_Local_[関数名]
+TEXT
+
+
 nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
