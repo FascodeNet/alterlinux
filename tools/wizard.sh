@@ -441,7 +441,7 @@ Function_Global_Ask_kernel () {
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
             eval $("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )
-            echo "$(printf %02d "${Var_Local_count}"): ${Var_Global_Build_kernel} (${kernel_filename})"
+            echo "$(printf %02d "${Var_Local_count}"): ${kernel} (${kernel_filename})"
         )
         Var_Local_count=$(( Var_Local_count + 1 ))
     done
