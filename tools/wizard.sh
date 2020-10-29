@@ -410,7 +410,7 @@ Function_Global_Ask_password () {
     read -s Var_Local_password
     echo
     msg_n "もう一度入力して下さい : " "Type it again : "
-    read -s confirm
+    read -s Var_Local_password_confirm
     if [[ ! "${Var_Local_password}" = "${Var_Local_password_confirm}" ]]; then
         echo
         msg_error "同じパスワードが入力されませんでした。" "You did not enter the same password."
