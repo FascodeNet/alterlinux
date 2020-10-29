@@ -243,46 +243,25 @@ Function_Global_Main_remove_dependent_packages () {
 }
 
 
-Function_Global_Ask_Var_Global_Wizard_Option_build_arch() {
-    local yn
-    local details
-    local ask_arch
-    msg_n "アーキテクチャを指定しますか？ （y/N） : " "Do you want to specify the architecture? (y/N)"
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) details=true               ;;
-        n | N | no  | No  | NO  ) details=false              ;;
-        *                       ) Function_Global_Ask_comp_type; return 0 ;;
+Function_Global_Ask_build_arch() {
+    msg \
+        "アーキテクチャを選択して下さい " \
+        "Please select an architecture."
+    msg \
+        "注意：このウィザードでは正式にサポートされているアーキテクチャのみ選択可能です。" \
+        "Note: Only officially supported architectures can be selected in this wizard."
+    echo
+    echo "1: x86_64 (64bit)"
+    echo "2: i686 (32bit)"
+    echo -n ": "
+
+    read Var_Global_Wizard_Option_build_arch
+
+    case "${Var_Global_Wizard_Option_build_arch}" in
+        1 | "x86_64" ) Var_Global_Wizard_Option_build_arch="x86_64" ;;
+        2 | "i686"   ) Var_Global_Wizard_Option_build_arch="i686"   ;;
+        *            ) Function_Global_Ask_build_arch               ;;
     esac
-
-    ask_arch () {
-        local ask
-        msg \
-            "アーキテクチャを選択して下さい " \
-            "Please select an architecture."
-        msg \
-            "注意：このウィザードでは正式にサポートされているアーキテクチャのみ選択可能です。" \
-            "Note: Only officially supported architectures can be selected in this wizard."
-        echo
-        echo "1: x86_64 (64bit)"
-        echo "2: i686 (32bit)"
-        echo -n ": "
-
-        read ask
-
-        case "${ask}" in
-            1 | "x86_64" ) Var_Global_Wizard_Option_build_arch="x86_64" ;;
-            2 | "i686"   ) Var_Global_Wizard_Option_build_arch="i686"   ;;
-            *            ) ask_arch            ;;
-        esac
-    }
-
-    if [[ ${details} = true ]]; then
-        ask_arch
-    else
-        Var_Global_Wizard_Option_build_arch="${Var_Global_Wizard_Env_machine_arch}"
-    fi
-
     return 0
 }
 
@@ -778,7 +757,7 @@ Function_Global_Main_create_argument () {
 # 上の質問の関数を実行
 Function_Global_Main_ask_questions () {
     Function_Global_Ask_japanese
-    Function_Global_Ask_Var_Global_Wizard_Option_build_arch
+    Function_Global_Ask_build_arch
     Function_Global_Ask_plymouth
     Function_Global_Ask_kernel
     Function_Global_Ask_comp_type
