@@ -406,7 +406,7 @@ Function_Global_Ask_username () {
 Function_Global_Ask_password () {
     local Var_Local_password Var_Local_password_confirm
 
-    msg_n "パスワードを入力してください。" "Please enter your password."
+    msg_n "パスワードを入力してください : " "Please enter your password : "
     read -s Var_Local_password
     echo
     msg_n "もう一度入力して下さい : " "Type it again : "
