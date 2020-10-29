@@ -454,30 +454,12 @@ Function_Global_Ask_comp_option () {
 
 
 Function_Global_Ask_username () {
-    local details
-    local ask_comp_type
-    msg_n \
-        "デフォルトではないユーザー名を設定しますか？ （y/N） : " \
-        "Would you like to set a non-default username? （y/N） : "
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) details=true           ;;
-        n | N | no  | No  | NO  ) details=false          ;;
-        *                       ) Function_Global_Ask_username; return 0 ;;
-    esac
-
-    ask_username () {
-        msg_n "ユーザー名を入力してください : " "Please enter your username : "
-        read username
-        if [[ -z ${username} ]]; then
-            ask_username
-        fi
-    }
-
-    if [[ ${details} = true ]]; then
-        ask_username
+    msg_n "ユーザー名を入力してください : " "Please enter your username : "
+    read username
+    if [[ -z "${username}" ]]; then
+        Function_Global_Ask_username
+        return 0
     fi
-
     return 0
 }
 
