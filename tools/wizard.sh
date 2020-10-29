@@ -325,7 +325,7 @@ Function_Global_Ask_comp_option () {
                 Function_Local_gzip_level () {
                     msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
                     read Var_Local_gzip_level
-                    if ! [[ ${Var_Local_gzip_level} -lt 23 && ${Var_Local_gzip_level} -ge 4 ]]; then
+                    if ! [[ ${Var_Local_gzip_level} -lt 23 && ${Var_Local_gzip_level} -ge 1 ]]; then
                         Function_Local_gzip_level
                         return 0
                     fi
