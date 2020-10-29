@@ -167,7 +167,7 @@ Function_Global_Main_check_required_files () {
     fi
 }
 
-Function_Global_Main_load_default () {
+Function_Global_Main_load_default_config () {
     source "${script_path}/default.conf"
 }
 
@@ -266,10 +266,10 @@ Function_Global_Ask_build_arch() {
 }
 
 Function_Global_Ask_plymouth () {
-    local yn
+    local Var_Local_input_yes_or_no
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read yn
-    case ${yn} in
+    case ${Var_Local_input_yes_or_no} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
         n | N | no  | No  | NO  ) plymouth=false  ;;
         *                       ) Function_Global_Ask_plymouth ;;
@@ -278,10 +278,10 @@ Function_Global_Ask_plymouth () {
 
 
 Function_Global_Ask_japanese () {
-    local yn
+    local Var_Local_input_yes_or_no
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read yn
-    case ${yn} in
+    case ${Var_Local_input_yes_or_no} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
         n | N | no  | No  | NO  ) japanese=false  ;;
         *                       ) Function_Global_Ask_japanese ;;
@@ -290,55 +290,28 @@ Function_Global_Ask_japanese () {
 
 
 Function_Global_Ask_comp_type () {
-    local yn
-    local details
-    local ask_comp_type
-    msg_n "圧縮方式を設定しますか？[zstd]（y/N） : " "Do you want to set the compression method?[zstd](y/N)"
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) details=true               ;;
-        n | N | no  | No  | NO  ) details=false              ;;
-        *                       ) Function_Global_Ask_comp_type; return 0 ;;
+    local Var_Local_input_comp_type
+    msg \
+        "圧縮方式を以下の番号から選択してください " \
+        "Please select the compression method from the following numbers"
+    echo
+    echo "1: gzip (default)"
+    echo "2: lzma"
+    echo "3: lzo"
+    echo "4: lz4"
+    echo "5: xz"
+    echo "6: zstd"
+    echo -n ": "
+    read Var_Local_input_comp_type
+    case ${Var_Local_input_comp_type} in
+        "1" | "gzip" ) comp_type="gzip" ;;
+        "2" | "lzma" ) comp_type="lzma" ;;
+        "3" | "lzo"  ) comp_type="lzo"  ;;
+        "4" | "lz4"  ) comp_type="lz4"  ;;
+        "5" | "xz"   ) comp_type="xz"   ;;
+        "6" | "zstd" ) comp_type="zstd" ;;
+        *    ) Function_Global_Ask_comp_type    ;;
     esac
-
-    ask_comp_type () {
-        msg \
-            "圧縮方式を以下の番号から選択してください " \
-            "Please select the compression method from the following numbers"
-        echo
-        echo "1: gzip"
-        echo "2: lzma"
-        echo "3: lzo"
-        echo "4: lz4"
-        echo "5: xz"
-        echo "6: zstd (default)"
-        echo -n ": "
-
-        read yn
-
-        case ${yn} in
-            1    ) comp_type="gzip" ;;
-            2    ) comp_type="lzma" ;;
-            3    ) comp_type="lzo"  ;;
-            4    ) comp_type="lz4"  ;;
-            5    ) comp_type="xz"   ;;
-            6    ) comp_type="zstd" ;;
-            gzip ) comp_type="gzip" ;;
-            lzma ) comp_type="lzma" ;;
-            lzo  ) comp_type="lzo"  ;;
-            lz4  ) comp_type="lz4"  ;;
-            xz   ) comp_type="xz"   ;;
-            zstd ) comp_type="zstd" ;;
-            *    ) ask_comp_type    ;;
-        esac
-    }
-
-    if [[ ${details} = true ]]; then
-        ask_comp_type
-    else
-        comp_type="zstd"
-    fi
-
     return 0
 }
 
@@ -808,7 +781,7 @@ Function_Global_Main_set_iso_permission() {
 # 関数を実行
 Function_Global_Main_wizard_language
 Function_Global_Main_check_required_files
-Function_Global_Main_load_default.conf
+Function_Global_Main_load_default_config
 Function_Global_Main_install_dependent_packages
 Function_Global_Main_guide_to_the_web
 Function_Global_Main_setup_keyring
