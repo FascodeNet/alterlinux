@@ -282,8 +282,8 @@ Function_Global_Ask_japanese () {
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read Var_Local_input_yes_or_no
     case ${Var_Local_input_yes_or_no} in
-        y | Y | yes | Yes | YES ) japanese=true   ;;
-        n | N | no  | No  | NO  ) japanese=false  ;;
+        y | Y | yes | Yes | YES ) Var_Global_Build_japanese=true   ;;
+        n | N | no  | No  | NO  ) Var_Global_Build_japanese=false  ;;
         *                       ) Function_Global_Ask_japanese ;;
     esac
 }
@@ -648,7 +648,7 @@ Function_Global_Main_create_argument () {
         argument="${argument} ${@}"
     }
 
-    [[ "${japanese}" = true  ]] && _ADD_ARG "-l ja"
+    [[ "${Var_Global_Build_japanese}" = true  ]] && _ADD_ARG "-l ja"
     [[ ${plymouth} = true    ]] && _ADD_ARG "-b"
     [[ -n ${comp_type}       ]] && _ADD_ARG "-c ${comp_type}"
     [[ -n ${kernel}          ]] && _ADD_ARG "-k ${kernel}"
@@ -680,7 +680,7 @@ Function_Global_Main_ask_questions () {
 Function_Global_Ask_Confirm () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
-    [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
+    [[ -n "${Var_Global_Build_japanese}"    ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
     [[ -n "${Var_Global_Wizard_Option_build_arch}"  ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
