@@ -23,12 +23,13 @@ TEXT
 
 Var_Global_Wizard_Option_nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
+Var_Global_Wizard_Env_script_path="${Var_Global_Wizard_Env_script_path}"
 
 Var_Global_Wizard_Env_machine_arch="$(uname -m)"
 Var_Global_Wizard_Option_build_arch="${Var_Global_Wizard_Env_machine_arch}"
 
 # Pacman configuration file used only when checking packages.
-Var_Global_Wizard_Env_pacman_conf="${script_path}/system/pacman-${Var_Global_Wizard_Env_machine_arch}.conf"
+Var_Global_Wizard_Env_pacman_conf="${Var_Global_Wizard_Env_script_path}/system/pacman-${Var_Global_Wizard_Env_machine_arch}.conf"
 
 # 言語（en or jp)
 #Var_Global_Wizard_Option_language="jp"
@@ -69,7 +70,7 @@ getclm() {
 }
 
 # 使い方
-_help() {
+Function_Global_help() {
     echo "usage ${0} [options]"
     echo
     echo " General options:"
@@ -103,7 +104,7 @@ while getopts 'a:xnjeh' arg; do
             Var_Global_Wizard_Option_skip_language=true
             ;;
         h)
-            _help
+            Function_Global_help
             exit 0
             ;;
         a)
@@ -117,7 +118,7 @@ while getopts 'a:xnjeh' arg; do
 done
 
 Function_Global_Main_wizard_language () {
-    if [[ ${skip_set_lang} = false ]]; then
+    if [[ "${skip_set_lang}" = false ]]; then
         echo "このウィザードでどちらの言語を使用しますか？"
         echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
         echo
@@ -130,7 +131,7 @@ Function_Global_Main_wizard_language () {
         echo -n ": "
         read Var_Global_Wizard_Option_language
 
-        case ${Var_Global_Wizard_Option_language} in
+        case "${Var_Global_Wizard_Option_language}" in
             1 ) Var_Global_Wizard_Option_language=en ;;
             2 ) Var_Global_Wizard_Option_language=jp ;;
             "英語" ) Var_Global_Wizard_Option_language=en ;;
@@ -160,7 +161,7 @@ Function_Global_Main_check_required_files () {
     )
 
     for i in ${file[@]}; do
-        _chkfile "${script_path}/${i}"
+        _chkfile "${Var_Global_Wizard_Env_script_path}/${i}"
     done
     if [[ "${error}" = true ]]; then
         exit 1
@@ -168,7 +169,7 @@ Function_Global_Main_check_required_files () {
 }
 
 Function_Global_Main_load_default_config () {
-    source "${script_path}/default.conf"
+    source "${Var_Global_Wizard_Env_script_path}/default.conf"
 }
 
 Function_Global_Main_install_dependent_packages () {
@@ -227,8 +228,8 @@ Function_Global_Main_run_keyring.sh () {
             "${Var_Local_input_yes_or_no}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
             "You have entered ${Var_Local_input_yes_or_no}. Simulation mode is enabled and will be skipped."
     else
-        case ${Var_Local_input_yes_or_no} in
-            y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
+        case "${Var_Local_input_yes_or_no}" in
+            y | Y | yes | Yes | YES ) sudo "${Var_Global_Wizard_Env_script_path}/keyring.sh" --alter-add   ;;
             n | N | no  | No  | NO  ) return 0                                       ;;
             *                       ) Function_Global_Main_run_keyring.sh                             ;;
         esac
@@ -269,7 +270,7 @@ Function_Global_Ask_plymouth () {
     local Var_Local_input_yes_or_no
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read Var_Local_input_yes_or_no
-    case ${Var_Local_input_yes_or_no} in
+    case "${Var_Local_input_yes_or_no}" in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
         n | N | no  | No  | NO  ) plymouth=false  ;;
         *                       ) Function_Global_Ask_plymouth ;;
@@ -281,7 +282,7 @@ Function_Global_Ask_japanese () {
     local Var_Local_input_yes_or_no
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read Var_Local_input_yes_or_no
-    case ${Var_Local_input_yes_or_no} in
+    case "${Var_Local_input_yes_or_no}" in
         y | Y | yes | Yes | YES ) Var_Global_Build_japanese=true   ;;
         n | N | no  | No  | NO  ) Var_Global_Build_japanese=false  ;;
         *                       ) Function_Global_Ask_japanese ;;
@@ -303,7 +304,7 @@ Function_Global_Ask_comp_type () {
     echo "6: zstd"
     echo -n ": "
     read Var_Local_input_comp_type
-    case ${Var_Local_input_comp_type} in
+    case "${Var_Local_input_comp_type}" in
         "1" | "gzip" ) Var_Global_Build_comp_type="gzip" ;;
         "2" | "lzma" ) Var_Global_Build_comp_type="lzma" ;;
         "3" | "lzo"  ) Var_Global_Build_comp_type="lzo"  ;;
@@ -439,7 +440,7 @@ Function_Global_Ask_kernel () {
             "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : " \
             "Do you want to use a kernel other than the default (zen)? (y/N) : "
         read yn
-        case ${yn} in
+        case "${yn}" in
             y | Y | yes | Yes | YES ) return 0                               ;;
             n | N | no  | No  | NO  ) return 1                               ;;
             *                       ) do_you_want_to_select_kernel; return 0 ;;
@@ -456,7 +457,7 @@ Function_Global_Ask_kernel () {
 
 
         #カーネルの一覧を取得
-        kernel_list=($(cat ${script_path}/system/kernel_list-${Var_Global_Wizard_Option_build_arch} | grep -h -v ^'#'))
+        kernel_list=($(cat ${Var_Global_Wizard_Env_script_path}/system/kernel_list-${Var_Global_Wizard_Option_build_arch} | grep -h -v ^'#'))
 
         #選択肢の生成
         local count=1
@@ -514,14 +515,14 @@ Function_Global_Ask_channel () {
     local i count=1 _channel channel_list description
 
     # チャンネルの一覧を取得
-    channel_list=($("${script_path}/tools/channel.sh" --nobuiltin show))
+    channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
 
     # 選択肢を生成
     for _channel in ${channel_list[@]}; do
-        if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
-            description=$(cat "${script_path}/channels/${_channel}/description.txt")
+        if [[ -f "${Var_Global_Wizard_Env_script_path}/channels/${_channel}/description.txt" ]]; then
+            description=$(cat "${Var_Global_Wizard_Env_script_path}/channels/${_channel}/description.txt")
         else
             if [[ "${Var_Global_Wizard_Option_language}"  = "jp" ]]; then
                 description="このチャンネルにはdescription.txtがありません。"
@@ -601,11 +602,11 @@ Function_Global_Ask_owner () {
 # イメージファイルの作成先
 Function_Global_Ask_out_dir () {
     msg "イメージファイルの作成先を入力して下さい。" "Enter the destination to create the image file."
-    msg "デフォルトは ${script_path}/out です。" "The default is ${script_path}/out."
+    msg "デフォルトは ${Var_Global_Wizard_Env_script_path}/out です。" "The default is ${Var_Global_Wizard_Env_script_path}/out."
     echo -n ": "
     read out_dir
     if [[ -z "${out_dir}" ]]; then
-        out_dir="${script_path}/out"
+        out_dir="${Var_Global_Wizard_Env_script_path}/out"
     else
         if [[ ! -d "${out_dir}" ]]; then
             msg_error \
@@ -695,7 +696,7 @@ Function_Global_Ask_Confirm () {
         "Continue with this setting. Is it OK? (y/N) : "
     local yn
     read yn
-    case ${yn} in
+    case "${yn}" in
         y | Y | yes | Yes | YES ) :         ;;
         n | N | no  | No  | NO  ) ask       ;;
         *                       ) Function_Global_Ask_Confirm ;;
@@ -709,15 +710,15 @@ Function_Global_Main_run_build.sh () {
         # build.shの引数を表示（デバッグ用）
         # echo ${argument}
 
-        work_dir="${script_path}/work"
-        sudo bash "${script_path}/build.sh" ${argument}
+        work_dir="${Var_Global_Wizard_Env_script_path}/work"
+        sudo bash "${Var_Global_Wizard_Env_script_path}/build.sh" ${argument}
         
     fi
 }
 
 
 Function_Global_Main_run_clean.sh() {
-    sudo "${script_path}/tools/clean.sh -w ${work_dir}"
+    sudo "${Var_Global_Wizard_Env_script_path}/tools/clean.sh -w ${work_dir}"
 }
 
 
