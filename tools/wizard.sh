@@ -199,7 +199,7 @@ Function_Global_Main_install_dependent_packages () {
     echo
     for Var_Local_package in ${dependence[@]}; do
         msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
-        if [[ $(check_pkg ${Var_Local_package}) = false ]]; then
+        if [[ $(Function_Local_checkpkg ${Var_Local_package}) = false ]]; then
             Var_Global_missing_packages+=(${Var_Local_package})
         fi
     done
