@@ -219,15 +219,15 @@ Function_Global_Main_guide_to_the_web () {
 }
 
 Function_Global_Main_setup_keyring () {
-    local yn
+    local Var_Local_input_yes_or_no
     msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
-    read yn
+    read Var_Local_input_yes_or_no
     if ${Var_Global_Wizard_Option_nobuild}; then
         msg \
-            "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
-            "You have entered ${yn}. Simulation mode is enabled and will be skipped."
+            "${Var_Local_input_yes_or_no}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
+            "You have entered ${Var_Local_input_yes_or_no}. Simulation mode is enabled and will be skipped."
     else
-        case ${yn} in
+        case ${Var_Local_input_yes_or_no} in
             y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
             n | N | no  | No  | NO  ) return 0                                       ;;
             *                       ) Function_Global_Main_setup_keyring                             ;;
