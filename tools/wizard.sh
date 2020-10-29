@@ -118,7 +118,7 @@ while getopts 'a:xnjeh' arg; do
 done
 
 Function_Global_Main_wizard_language () {
-    if [[ "${skip_set_lang}" = false ]]; then
+    if [[ "${Var_Global_Wizard_Option_skip_language}" = false ]]; then
         echo "このウィザードでどちらの言語を使用しますか？"
         echo "この質問はウィザード内のみの設定であり、ビルドへの影響はありません。"
         echo
@@ -692,7 +692,6 @@ Function_Global_Main_set_iso_permission() {
 
 # 上の質問の関数を実行
 Function_Global_Main_ask_questions () {
-    Function_Global_Ask_kernel
     Function_Global_Ask_japanese
     Function_Global_Ask_build_arch
     Function_Global_Ask_plymouth
