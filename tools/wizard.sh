@@ -172,18 +172,19 @@ Function_Global_Main_load_default () {
 }
 
 Function_Global_Main_install_dependent_packages () {
-    local checkpkg pkg installed_pkg installed_ver check_pkg
+    #local pkg installed_pkg installed_ver check_pkg
+    local Function_Local_checkpkg Var_Local_package Var_Local_missing_packages
 
     msg "データベースの更新をしています..." "Updating package datebase..."
     sudo pacman -Sy --config "${Var_Global_Wizard_Env_pacman_conf}"
-    installed_pkg=($(pacman -Q | getclm 1))
-    installed_ver=($(pacman -Q | getclm 2))
 
-    check_pkg() {
-        local i
-        for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
-            if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
+    Function_Local_checkpkg () {
+        local Var_Local_package Var_Local_installed_package Var_Local_installed_version
+        Var_Local_installed_package=($(pacman -Q | getclm 1))
+        Var_Local_installed_version=($(pacman -Q | getclm 2))
+        for Var_Local_package in $(seq 0 $(( ${#Var_Local_installed_package[@]} - 1 ))); do
+            if [[ ${Var_Local_installed_package[${Var_Local_package}]} = ${1} ]]; then
+                if [[ ${Var_Local_installed_version[${Var_Local_package}]} = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -196,14 +197,14 @@ Function_Global_Main_install_dependent_packages () {
         return 0
     }
     echo
-    for pkg in ${dependence[@]}; do
-        msg "依存パッケージ ${pkg} を確認しています..." "Checking dependency package ${pkg} ..."
-        if [[ $(check_pkg ${pkg}) = false ]]; then
-            install=(${install[@]} ${pkg})
+    for Var_Local_package in ${dependence[@]}; do
+        msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
+        if [[ $(check_pkg ${Var_Local_package}) = false ]]; then
+            Var_Local_missing_packages+=(${Var_Local_package})
         fi
     done
-    if [[ -n "${install}" ]]; then
-        sudo pacman -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${install[@]}
+    if [[ -n "${Var_Local_missing_packages[*]}" ]]; then
+        sudo pacman -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Local_missing_packages[@]}
     fi
     echo
 }
