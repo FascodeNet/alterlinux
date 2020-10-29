@@ -173,7 +173,7 @@ Function_Global_Main_load_default () {
 
 Function_Global_Main_install_dependent_packages () {
     #local pkg installed_pkg installed_ver check_pkg
-    local Function_Local_checkpkg Var_Local_package Var_Local_missing_packages
+    local Function_Local_checkpkg Var_Local_package
 
     msg "データベースの更新をしています..." "Updating package datebase..."
     sudo pacman -Sy --config "${Var_Global_Wizard_Env_pacman_conf}"
@@ -200,11 +200,11 @@ Function_Global_Main_install_dependent_packages () {
     for Var_Local_package in ${dependence[@]}; do
         msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
         if [[ $(check_pkg ${Var_Local_package}) = false ]]; then
-            Var_Local_missing_packages+=(${Var_Local_package})
+            Var_Global_missing_packages+=(${Var_Local_package})
         fi
     done
-    if [[ -n "${Var_Local_missing_packages[*]}" ]]; then
-        sudo pacman -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Local_missing_packages[@]}
+    if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
+        sudo pacman -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
     fi
     echo
 }
@@ -237,8 +237,8 @@ Function_Global_Main_setup_keyring () {
 
 
 Function_Global_Main_remove_dependent_packages () {
-    if [[ -n "${install}" ]]; then
-        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" ${install[@]}
+    if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
+        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
     fi
 }
 
