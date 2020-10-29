@@ -268,7 +268,7 @@ Function_Global_Ask_build_arch() {
 Function_Global_Ask_plymouth () {
     local Var_Local_input_yes_or_no
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
-    read yn
+    read Var_Local_input_yes_or_no
     case ${Var_Local_input_yes_or_no} in
         y | Y | yes | Yes | YES ) plymouth=true   ;;
         n | N | no  | No  | NO  ) plymouth=false  ;;
@@ -280,7 +280,7 @@ Function_Global_Ask_plymouth () {
 Function_Global_Ask_japanese () {
     local Var_Local_input_yes_or_no
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
-    read yn
+    read Var_Local_input_yes_or_no
     case ${Var_Local_input_yes_or_no} in
         y | Y | yes | Yes | YES ) japanese=true   ;;
         n | N | no  | No  | NO  ) japanese=false  ;;
