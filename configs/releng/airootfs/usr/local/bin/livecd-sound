@@ -136,7 +136,7 @@ sanify_levels_on_card()
 # $1 <card ID> | "all"
 sanify_levels()
 {
-    local	ttsdml_returnstatus=0
+    local ttsdml_returnstatus=0
     local card
     case "$1" in
               all)
@@ -171,13 +171,9 @@ unmute_all_cards()
     sanify_levels all
 }
 
-nwords() {
-    echo $#
-}
-
 is_numeric() {
     local str=$1
-    expr match "$str" '[[:digit:]]\+$' > /dev/null 2>&1
+    [[ "$str" =~ ^[0-9]+$ ]]
 }
 
 set_default_card() {
@@ -197,7 +193,7 @@ pick_a_card()
 {
     set -f
     usable_cards="$(list_non_pcsp_cards)"
-    num_usable_cards=$(nwords $usable_cards)
+    num_usable_cards="$(wc -w <<< "$usable_cards")"
 
     if [ "$num_usable_cards" -eq 1 ]; then
         systemd-cat -t "livecdsound" printf "Only one sound card is detected\n"
