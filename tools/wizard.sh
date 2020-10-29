@@ -229,9 +229,9 @@ Function_Global_Main_run_keyring.sh () {
             "You have entered ${Var_Local_input_yes_or_no}. Simulation mode is enabled and will be skipped."
     else
         case "${Var_Local_input_yes_or_no}" in
-            y | Y | yes | Yes | YES ) sudo "${Var_Global_Wizard_Env_script_path}/keyring.sh" --alter-add   ;;
-            n | N | no  | No  | NO  ) return 0                                       ;;
-            *                       ) Function_Global_Main_run_keyring.sh                             ;;
+            "y" | "Y" | "yes" | "Yes" | "YES" ) sudo "${Var_Global_Wizard_Env_script_path}/keyring.sh" --alter-add   ;;
+            "n" | "N" | "no"  | "No"  | "NO"  ) return 0                                       ;;
+            *                                  Function_Global_Main_run_keyring.sh                             ;;
         esac
     fi
 }
@@ -271,9 +271,9 @@ Function_Global_Ask_plymouth () {
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
-        y | Y | yes | Yes | YES ) Var_Global_Build_plymouth=true   ;;
-        n | N | no  | No  | NO  ) Var_Global_Build_plymouth=false  ;;
-        *                       ) Function_Global_Ask_plymouth ;;
+        "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_plymouth=true   ;;
+        "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_plymouth=false  ;;
+        *                                  Function_Global_Ask_plymouth ;;
     esac
 }
 
@@ -283,9 +283,9 @@ Function_Global_Ask_japanese () {
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
     read Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
-        y | Y | yes | Yes | YES ) Var_Global_Build_japanese=true   ;;
-        n | N | no  | No  | NO  ) Var_Global_Build_japanese=false  ;;
-        *                       ) Function_Global_Ask_japanese ;;
+        "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_japanese=true   ;;
+        "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_japanese=false  ;;
+        *                                 ) Function_Global_Ask_japanese ;;
     esac
 }
 
@@ -358,9 +358,9 @@ Function_Global_Ask_comp_option () {
                     "Do you want to enable high compression mode? （y/N） : "
                 read Var_Local_lz4_high_comp
                 case "${Var_Local_lz4_high_comp}" in
-                    y | Y | yes | Yes | YES ) comp_option="-Xhc"         ;;
-                    n | N | no  | No  | NO  ) :                          ;;
-                    *                       ) Function_Local_comp_option ;;
+                    "y" | "Y" | "yes" | "Yes" | "YES" ) comp_option="-Xhc"         ;;
+                    "n" | "N" | "no"  | "No"  | "NO"  ) :                          ;;
+                    *                                  Function_Local_comp_option ;;
                 esac
             }
             ;;
@@ -612,9 +612,9 @@ Function_Global_Ask_tarball () {
     msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
     read Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
-        y | Y | yes | Yes | YES ) Var_Global_Build_tarball=true   ;;
-        n | N | no  | No  | NO  ) Var_Global_Build_tarball=false  ;;
-        *                       ) Function_Global_Ask_tarball ;;
+        "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_tarball=true   ;;
+        "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_tarball=false  ;;
+        *                                  Function_Global_Ask_tarball ;;
     esac
 }
 
@@ -658,9 +658,9 @@ Function_Global_Ask_Confirm () {
     local Var_Local_input_yes_or_no
     read Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
-        y | Y | yes | Yes | YES ) :         ;;
-        n | N | no  | No  | NO  ) ask       ;;
-        *                       ) Function_Global_Ask_Confirm ;;
+        "y" | "Y" | "yes" | "Yes" | "YES" ) :         ;;
+        "n" | "N" | "no"  | "No"  | "NO"  ) ask       ;;
+        *                                  Function_Global_Ask_Confirm ;;
     esac
 }
 
