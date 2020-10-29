@@ -643,19 +643,19 @@ Function_Global_Ask_tarball () {
 
 # 最終的なbuild.shのオプションを生成
 Function_Global_Main_create_argument () {
-    local _ADD_ARG
-    _ADD_ARG () {
+    local Function_Local_add_arg
+    Function_Local_add_arg () {
         argument="${argument} ${@}"
     }
 
-    [[ "${Var_Global_Build_japanese}" = true  ]] && _ADD_ARG "-l ja"
-    [[ ${plymouth} = true    ]] && _ADD_ARG "-b"
-    [[ -n ${Var_Global_Build_comp_type}       ]] && _ADD_ARG "-c ${Var_Global_Build_comp_type}"
-    [[ -n ${kernel}          ]] && _ADD_ARG "-k ${kernel}"
-    [[ -n "${username}"      ]] && _ADD_ARG "-u '${username}'"
-    [[ -n "${password}"      ]] && _ADD_ARG "-p '${password}'"
-    [[ -n "${out_dir}"       ]] && _ADD_ARG "-o '${out_dir}'"
-    [[ "${Var_Global_Build_tarball}" = true   ]] && _ADD_ARG "--tarball"
+    [[ "${Var_Global_Build_japanese}" = true  ]] && Function_Local_add_arg "-l ja"
+    [[ ${plymouth} = true    ]] && Function_Local_add_arg "-b"
+    [[ -n ${Var_Global_Build_comp_type}       ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
+    [[ -n ${kernel}          ]] && Function_Local_add_arg "-k ${kernel}"
+    [[ -n "${username}"      ]] && Function_Local_add_arg "-u '${username}'"
+    [[ -n "${password}"      ]] && Function_Local_add_arg "-p '${password}'"
+    [[ -n "${out_dir}"       ]] && Function_Local_add_arg "-o '${out_dir}'"
+    [[ "${Var_Global_Build_tarball}" = true   ]] && Function_Local_add_arg "--tarball"
     argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${channel}"
 }
 
