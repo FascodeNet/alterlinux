@@ -569,30 +569,29 @@ Function_Global_Ask_channel () {
 
 # イメージファイルの所有者
 Function_Global_Ask_owner () {
-    local owner
-    local user_check
-    user_check () {
-    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
-        if [[ -z $1 ]]; then
+    local Function_Local_check_user
+    Function_Local_check_user () {
+        if [[ $(getent passwd "${1}" > /dev/null ; printf "${?}") = 0 ]]; then
+            if [[ -z $1 ]]; then
+                echo -n "false"
+            fi
+            echo -n "true"
+        else
             echo -n "false"
         fi
-        echo -n "true"
-    else
-        echo -n "false"
-    fi
     }
 
     msg_n "イメージファイルの所有者を入力してください。: " "Enter the owner of the image file.: "
-    read owner
-    if [[ $(user_check ${owner}) = false ]]; then
+    read Var_Global_iso_owner
+    if [[ $(Function_Local_check_user ${Var_Global_iso_owner}) = false ]]; then
         echo "ユーザーが存在しません。"
         Function_Global_Ask_owner
         return 0
-    elif  [[ -z "${owner}" ]]; then
+    elif  [[ -z "${Var_Global_iso_owner}" ]]; then
         echo "ユーザー名を入力して下さい。"
         Function_Global_Ask_owner
         return 0
-    elif [[ "${owner}" = root ]]; then
+    elif [[ "${Var_Global_iso_owner}" = "root" ]]; then
         echo "所有者の変更を行いません。"
         return 0
     fi
@@ -606,7 +605,7 @@ Function_Global_Ask_out_dir () {
     echo -n ": "
     read out_dir
     if [[ -z "${out_dir}" ]]; then
-        out_dir=out
+        out_dir="${script_path}/out"
     else
         if [[ ! -d "${out_dir}" ]]; then
             msg_error \
@@ -723,9 +722,9 @@ Function_Global_Main_run_clean.sh() {
 
 
 Function_Global_Main_set_iso_permission() {
-    if [[ -n "${owner}" ]]; then
-        chown -R "${owner}" "${script_path}/out/"
-        chmod -R 750 "${script_path}/out/"
+    if [[ -n "${Var_Global_iso_owner}" ]]; then
+        chown -R "${Var_Global_iso_owner}" "${out_dir}"
+        chmod -R 750 "${out_dir}"
     fi
 }
 
