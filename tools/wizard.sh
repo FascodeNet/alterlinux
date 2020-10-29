@@ -227,7 +227,7 @@ Function_Global_Main_run_keyring.sh () {
         case "${Var_Local_input_yes_or_no}" in
             "y" | "Y" | "yes" | "Yes" | "YES" ) sudo "${Var_Global_Wizard_Env_script_path}/keyring.sh" --alter-add   ;;
             "n" | "N" | "no"  | "No"  | "NO"  ) return 0                                       ;;
-            *                                  Function_Global_Main_run_keyring.sh                             ;;
+            *                                 ) Function_Global_Main_run_keyring.sh            ;;
         esac
     fi
 }
@@ -269,7 +269,7 @@ Function_Global_Ask_plymouth () {
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_plymouth=true   ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_plymouth=false  ;;
-        *                                  Function_Global_Ask_plymouth ;;
+        *                                 ) Function_Global_Ask_plymouth ;;
     esac
 }
 
@@ -356,7 +356,7 @@ Function_Global_Ask_comp_option () {
                 case "${Var_Local_lz4_high_comp}" in
                     "y" | "Y" | "yes" | "Yes" | "YES" ) comp_option="-Xhc"         ;;
                     "n" | "N" | "no"  | "No"  | "NO"  ) :                          ;;
-                    *                                  Function_Local_comp_option ;;
+                    *                                 ) Function_Local_comp_option ;;
                 esac
             }
             ;;
