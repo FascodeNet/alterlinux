@@ -304,12 +304,12 @@ Function_Global_Ask_comp_type () {
     echo -n ": "
     read Var_Local_input_comp_type
     case ${Var_Local_input_comp_type} in
-        "1" | "gzip" ) comp_type="gzip" ;;
-        "2" | "lzma" ) comp_type="lzma" ;;
-        "3" | "lzo"  ) comp_type="lzo"  ;;
-        "4" | "lz4"  ) comp_type="lz4"  ;;
-        "5" | "xz"   ) comp_type="xz"   ;;
-        "6" | "zstd" ) comp_type="zstd" ;;
+        "1" | "gzip" ) Var_Global_Build_comp_type="gzip" ;;
+        "2" | "lzma" ) Var_Global_Build_comp_type="lzma" ;;
+        "3" | "lzo"  ) Var_Global_Build_comp_type="lzo"  ;;
+        "4" | "lz4"  ) Var_Global_Build_comp_type="lz4"  ;;
+        "5" | "xz"   ) Var_Global_Build_comp_type="xz"   ;;
+        "6" | "zstd" ) Var_Global_Build_comp_type="zstd" ;;
         *    ) Function_Global_Ask_comp_type    ;;
     esac
     return 0
@@ -319,7 +319,7 @@ Function_Global_Ask_comp_type () {
 Function_Global_Ask_comp_option () {
     comp_option=""
     local Function_Local_comp_option
-    case "${comp_type}" in
+    case "${Var_Global_Build_comp_type}" in
         "gzip")
             Function_Local_comp_option() {
                 local Var_Local_gzip_level Var_Local_gzip_window
@@ -385,8 +385,8 @@ Function_Global_Ask_comp_option () {
         "lzo" | "xz")
             Function_Local_comp_option () {
                 msg_error \
-                    "現在${comp_type}の詳細設定ウィザードがサポートされていません。" \
-                    "The ${comp_type} Advanced Wizard is not currently supported."
+                    "現在${Var_Global_Build_comp_type}の詳細設定ウィザードがサポートされていません。" \
+                    "The ${Var_Global_Build_comp_type} Advanced Wizard is not currently supported."
             }
             ;;
     esac
@@ -650,7 +650,7 @@ Function_Global_Main_create_argument () {
 
     [[ "${Var_Global_Build_japanese}" = true  ]] && _ADD_ARG "-l ja"
     [[ ${plymouth} = true    ]] && _ADD_ARG "-b"
-    [[ -n ${comp_type}       ]] && _ADD_ARG "-c ${comp_type}"
+    [[ -n ${Var_Global_Build_comp_type}       ]] && _ADD_ARG "-c ${Var_Global_Build_comp_type}"
     [[ -n ${kernel}          ]] && _ADD_ARG "-k ${kernel}"
     [[ -n "${username}"      ]] && _ADD_ARG "-u '${username}'"
     [[ -n "${password}"      ]] && _ADD_ARG "-p '${password}'"
@@ -684,7 +684,7 @@ Function_Global_Ask_Confirm () {
     [[ -n "${Var_Global_Wizard_Option_build_arch}"  ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
-    [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"
+    [[ -n "${Var_Global_Build_comp_type}"   ]] && echo " Compression method : ${Var_Global_Build_comp_type}"
     [[ -n "${comp_option}" ]] && echo "Compression options : ${comp_option}"
     [[ -n "${username}"    ]] && echo "           Username : ${username}"
     [[ -n "${password}"    ]] && echo "           Password : ${password}"
