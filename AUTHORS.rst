@@ -4,6 +4,7 @@ Archiso Authors
 
 * Aaron Griffin <aaron@archlinux.org>
 * Adam Purkrt <adam@purkrt.net>
+* Alexander Epaneshnikov <aarnaarn2@gmail.com>
 * Chandan Singh <cks071g2@gmail.com>
 * Charles Vejnar <ce@vejnar.org>
 * Christian Hesse <mail@eworm.de>
