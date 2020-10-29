@@ -625,6 +625,7 @@ Function_Global_Main_create_argument () {
     [[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
     [[ "${Var_Global_Build_plymouth}" = true ]] && Function_Local_add_arg "-b"
     [[ -n "${Var_Global_Build_comp_type}"    ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
+    [[ -n "${comp_option}"                   ]] && Function_Local_add_arg "-t '${comp_option}'"
     [[ -n "${Var_Global_Build_kernel}"       ]] && Function_Local_add_arg "-k ${Var_Global_Build_kernel}"
     [[ -n "${Var_Global_Build_username}"     ]] && Function_Local_add_arg "-u '${Var_Global_Build_username}'"
     [[ -n "${Var_Global_Build_password}"     ]] && Function_Local_add_arg "-p '${Var_Global_Build_password}'"
