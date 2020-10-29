@@ -630,12 +630,12 @@ Function_Global_Ask_out_dir () {
 }
 
 Function_Global_Ask_tarball () {
-    local yn
+    local Var_Local_input_yes_or_no
     msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) tarball=true   ;;
-        n | N | no  | No  | NO  ) tarball=false  ;;
+    read Var_Local_input_yes_or_no
+    case "${Var_Local_input_yes_or_no}" in
+        y | Y | yes | Yes | YES ) Var_Global_Build_tarball=true   ;;
+        n | N | no  | No  | NO  ) Var_Global_Build_tarball=false  ;;
         *                       ) Function_Global_Ask_tarball ;;
     esac
 }
@@ -655,7 +655,7 @@ Function_Global_Main_create_argument () {
     [[ -n "${username}"      ]] && _ADD_ARG "-u '${username}'"
     [[ -n "${password}"      ]] && _ADD_ARG "-p '${password}'"
     [[ -n "${out_dir}"       ]] && _ADD_ARG "-o '${out_dir}'"
-    [[ "${tarball}" = true   ]] && _ADD_ARG "--tarball"
+    [[ "${Var_Global_Build_tarball}" = true   ]] && _ADD_ARG "--tarball"
     argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${channel}"
 }
 
