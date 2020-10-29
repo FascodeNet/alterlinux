@@ -610,7 +610,7 @@ Function_Global_Ask_tarball () {
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_tarball=true   ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_tarball=false  ;;
-        *                                  Function_Global_Ask_tarball ;;
+        *                                 ) Function_Global_Ask_tarball ;;
     esac
 }
 
@@ -656,7 +656,7 @@ Function_Global_Ask_Confirm () {
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) :         ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) ask       ;;
-        *                                  Function_Global_Ask_Confirm ;;
+        *                                 ) Function_Global_Ask_Confirm ;;
     esac
 }
 
