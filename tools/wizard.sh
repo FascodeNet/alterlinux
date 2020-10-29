@@ -218,7 +218,7 @@ Function_Global_Main_guide_to_the_web () {
     fi
 }
 
-Function_Global_Main_setup_keyring () {
+Function_Global_Main_run_keyring.sh () {
     local Var_Local_input_yes_or_no
     msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
     read Var_Local_input_yes_or_no
@@ -230,7 +230,7 @@ Function_Global_Main_setup_keyring () {
         case ${Var_Local_input_yes_or_no} in
             y | Y | yes | Yes | YES ) sudo "${script_path}/keyring.sh" --alter-add   ;;
             n | N | no  | No  | NO  ) return 0                                       ;;
-            *                       ) Function_Global_Main_setup_keyring                             ;;
+            *                       ) Function_Global_Main_run_keyring.sh                             ;;
         esac
     fi
 }
@@ -708,16 +708,16 @@ Function_Global_Main_run_build.sh () {
     else
         # build.shの引数を表示（デバッグ用）
         # echo ${argument}
-        sudo ./build.sh ${argument}
-        sudo rm -rf work/
+
+        work_dir="${script_path}/work"
+        sudo bash "${script_path}/build.sh" ${argument}
+        
     fi
 }
 
 
 Function_Global_Main_run_clean.sh() {
-    if [[ -d "${script_path}/work/" ]]; then
-        sudo rm -rf "${script_path}/work/"
-    fi
+    sudo "${script_path}/tools/clean.sh -w ${work_dir}"
 }
 
 
@@ -728,16 +728,31 @@ Function_Global_Main_set_iso_permission() {
     fi
 }
 
-# 関数を実行
-Function_Global_Main_wizard_language
-Function_Global_Main_check_required_files
-Function_Global_Main_load_default_config
-Function_Global_Main_install_dependent_packages
-Function_Global_Main_guide_to_the_web
-Function_Global_Main_setup_keyring
-Function_Global_Main_ask_questions
-Function_Global_Main_create_argument
-Function_Global_Main_run_build.sh
-Function_Global_Main_remove_dependent_packages
-Function_Global_Main_run_clean.sh
-Function_Global_Main_set_iso_permission
+Function_Global_Prebuild() {
+    Function_Global_Main_wizard_language
+    Function_Global_Main_check_required_files
+    Function_Global_Main_load_default_config
+    Function_Global_Main_install_dependent_packages
+    Function_Global_Main_guide_to_the_web
+    Function_Global_Main_run_keyring.sh
+    Function_Global_Main_ask_questions
+    Function_Global_Main_create_argument
+}
+
+Function_Global_Build() {
+    Function_Global_Main_run_build.sh
+}
+
+Function_Global_PostBuild() {
+    Function_Global_Main_remove_dependent_packages
+    Function_Global_Main_run_clean.sh
+    Function_Global_Main_set_iso_permission
+}
+
+Function_Global_Run() {
+    Function_Global_Prebuild
+    Function_Global_Build
+    Function_Global_PostBuild
+}
+
+Function_Global_Run
