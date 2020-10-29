@@ -271,8 +271,8 @@ Function_Global_Ask_plymouth () {
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
     read Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
-        y | Y | yes | Yes | YES ) plymouth=true   ;;
-        n | N | no  | No  | NO  ) plymouth=false  ;;
+        y | Y | yes | Yes | YES ) Var_Global_Build_plymouth=true   ;;
+        n | N | no  | No  | NO  ) Var_Global_Build_plymouth=false  ;;
         *                       ) Function_Global_Ask_plymouth ;;
     esac
 }
@@ -398,8 +398,8 @@ Function_Global_Ask_comp_option () {
 
 Function_Global_Ask_username () {
     msg_n "ユーザー名を入力してください : " "Please enter your username : "
-    read username
-    if [[ -z "${username}" ]]; then
+    read Var_Global_Build_username
+    if [[ -z "${Var_Global_Build_username}" ]]; then
         Function_Global_Ask_username
         return 0
     fi
@@ -424,6 +424,7 @@ Function_Global_Ask_password () {
         msg_error "パスワードを入力してください。" "Please enter your password."
         Function_Global_Ask_password
     fi
+    Var_Global_Build_password="${Var_Local_password}"
     echo
     return 0
 }
@@ -444,7 +445,7 @@ Function_Global_Ask_kernel () {
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
             eval $("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )
-            echo "$(printf %02d "${Var_Local_count}"): ${kernel} (${kernel_filename})"
+            echo "$(printf %02d "${Var_Local_count}"): ${Var_Global_Build_kernel} (${kernel_filename})"
         )
         Var_Local_count=$(( Var_Local_count + 1 ))
     done
@@ -466,7 +467,8 @@ Function_Global_Ask_kernel () {
             Function_Global_Ask_kernel
             return 0
         else
-            kernel="${Var_Local_kernel_list[${Var_Local_input_kernel}]}"
+            Var_Global_Build_kernel="${Var_Local_kernel_list[${Var_Local_input_kernel}]}"
+            
         fi
     else
         set -e
@@ -476,7 +478,7 @@ Function_Global_Ask_kernel () {
             Function_Global_Ask_kernel
             return 0
         else
-            kernel="${Var_Local_input_kernel}"
+            Var_Global_Build_kernel="${Var_Local_input_kernel}"
         fi
     fi
 }
@@ -589,7 +591,7 @@ Function_Global_Ask_out_dir () {
                 "Please specify the existing directory."
             Function_Global_Ask_out_dir
             return 0
-        elif [[ "${out_dir}" = / ]] || [[ "${out_dir}" = /home ]]; then
+        elif [[ "${out_dir}" = "/" ]] || [[ "${out_dir}" = "/home" ]]; then
             msg_error \
                 "そのディレクトリは使用できません。" \
                 "The directory is unavailable."
@@ -625,11 +627,11 @@ Function_Global_Main_create_argument () {
     }
 
     [[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
-    [[ "${plymouth}" = true ]] && Function_Local_add_arg "-b"
+    [[ "${Var_Global_Build_plymouth}" = true ]] && Function_Local_add_arg "-b"
     [[ -n "${Var_Global_Build_comp_type}" ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
-    [[ -n "${kernel}" ]] && Function_Local_add_arg "-k ${kernel}"
-    [[ -n "${username}" ]] && Function_Local_add_arg "-u '${username}'"
-    [[ -n "${password}" ]] && Function_Local_add_arg "-p '${password}'"
+    [[ -n "${Var_Global_Build_kernel}" ]] && Function_Local_add_arg "-k ${Var_Global_Build_kernel}"
+    [[ -n "${Var_Global_Build_username}" ]] && Function_Local_add_arg "-u '${Var_Global_Build_username}'"
+    [[ -n "${Var_Global_Build_password}" ]] && Function_Local_add_arg "-p '${Var_Global_Build_password}'"
     [[ -n "${out_dir}" ]] && Function_Local_add_arg "-o '${out_dir}'"
     [[ "${Var_Global_Build_tarball}" = true ]] && Function_Local_add_arg "--tarball"
     argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
@@ -642,12 +644,12 @@ Function_Global_Ask_Confirm () {
     echo
     [[ -n "${Var_Global_Build_japanese}" ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
     [[ -n "${Var_Global_Wizard_Option_build_arch}" ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
-    [[ -n "${plymouth}" ]] && echo "           Plymouth : ${plymouth}"
-    [[ -n "${kernel}" ]] && echo "             kernel : ${kernel}"
+    [[ -n "${Var_Global_Build_plymouth}" ]] && echo "           Plymouth : ${Var_Global_Build_plymouth}"
+    [[ -n "${Var_Global_Build_kernel}" ]] && echo "             kernel : ${Var_Global_Build_kernel}"
     [[ -n "${Var_Global_Build_comp_type}"   ]] && echo " Compression method : ${Var_Global_Build_comp_type}"
     [[ -n "${comp_option}" ]] && echo "Compression options : ${comp_option}"
-    [[ -n "${username}" ]] && echo "           Username : ${username}"
-    [[ -n "${password}" ]] && echo "           Password : ${password}"
+    [[ -n "${Var_Global_Build_username}" ]] && echo "           Username : ${Var_Global_Build_username}"
+    [[ -n "${Var_Global_Build_password}" ]] && echo "           Password : ${Var_Global_Build_password}"
     [[ -n "${Var_Global_Build_channel}" ]] && echo "            Channel : ${Var_Global_Build_channel}"
     echo
     msg_n \
