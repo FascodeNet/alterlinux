@@ -76,6 +76,7 @@ rxvt-unicode-terminfo
 sdparm
 sg3_utils
 smartmontools
+squashfs-tools
 sudo
 syslinux
 systemd-resolvconf
@@ -83,6 +84,7 @@ tcpdump
 terminus-font
 termite-terminfo
 testdisk
+udftools
 usb_modeswitch
 usbutils
 vim
