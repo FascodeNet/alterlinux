@@ -21,6 +21,7 @@ Usage:
     run_archiso [options]
 
 Options:
+    -a              set accessibility support using brltty
     -b              set boot type to 'BIOS' (default)
     -d              set image type to hard disk instead of optical disc
     -h              print help
@@ -76,6 +77,13 @@ run_image() {
         )
     fi
 
+    if [[ "${accessibility}" == 'on' ]]; then
+        qemu_options+=(
+            '-chardev' 'braille,id=brltty'
+            '-device' 'usb-braille,id=usbbrl,chardev=brltty'
+        )
+    fi
+
     qemu-system-x86_64 \
         -boot order=d,menu=on,reboot-timeout=5000 \
         -m "size=3072,slots=0,maxmem=$((3072*1024*1024))" \
@@ -87,17 +95,15 @@ run_image() {
         -display sdl \
         -vga virtio \
         -audiodev pa,id=snd0 \
-        -chardev braille,id=brltty \
         -device ich9-intel-hda \
         -device hda-output,audiodev=snd0 \
         -device virtio-net-pci,romfile=,netdev=net0 -netdev user,id=net0 \
-        -device usb-braille,id=usbbrl,chardev=brltty \
         -machine type=q35,smm=on,accel=kvm,usb=on,pcspk-audiodev=snd0 \
         -global ICH9-LPC.disable_s3=1 \
         -enable-kvm \
         "${qemu_options[@]}" \
-        -no-reboot \
-        -serial stdio
+        -serial stdio \
+        -no-reboot
 }
 
 set_image() {
@@ -113,6 +119,7 @@ set_image() {
 }
 
 image=''
+accessibility=''
 boot_type='bios'
 mediatype='cdrom'
 secure_boot='off'
@@ -121,8 +128,11 @@ working_dir="$(mktemp -dt run_archiso.XXXXXXXXXX)"
 trap cleanup_working_dir EXIT
 
 if (( ${#@} > 0 )); then
-    while getopts 'bdhi:su' flag; do
+    while getopts 'abdhi:su' flag; do
         case "$flag" in
+            a)
+                accessibility='on'
+                ;;
             b)
                 boot_type='bios'
                 ;;
