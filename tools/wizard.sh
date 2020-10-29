@@ -23,7 +23,7 @@ TEXT
 
 Var_Global_Wizard_Option_nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-Var_Global_Wizard_Env_script_path="${Var_Global_Wizard_Env_script_path}"
+Var_Global_Wizard_Env_script_path="${script_path}"
 
 Var_Global_Wizard_Env_machine_arch="$(uname -m)"
 Var_Global_Wizard_Option_build_arch="${Var_Global_Wizard_Env_machine_arch}"
