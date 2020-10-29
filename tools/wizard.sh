@@ -307,7 +307,7 @@ Function_Global_Ask_comp_type () {
         "4" | "lz4"  ) Var_Global_Build_comp_type="lz4"  ;;
         "5" | "xz"   ) Var_Global_Build_comp_type="xz"   ;;
         "6" | "zstd" ) Var_Global_Build_comp_type="zstd" ;;
-        *    ) Function_Global_Ask_comp_type    ;;
+        *            ) Function_Global_Ask_comp_type     ;;
     esac
     return 0
 }
@@ -624,12 +624,12 @@ Function_Global_Main_create_argument () {
 
     [[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
     [[ "${Var_Global_Build_plymouth}" = true ]] && Function_Local_add_arg "-b"
-    [[ -n "${Var_Global_Build_comp_type}" ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
-    [[ -n "${Var_Global_Build_kernel}" ]] && Function_Local_add_arg "-k ${Var_Global_Build_kernel}"
-    [[ -n "${Var_Global_Build_username}" ]] && Function_Local_add_arg "-u '${Var_Global_Build_username}'"
-    [[ -n "${Var_Global_Build_password}" ]] && Function_Local_add_arg "-p '${Var_Global_Build_password}'"
-    [[ -n "${out_dir}" ]] && Function_Local_add_arg "-o '${out_dir}'"
-    [[ "${Var_Global_Build_tarball}" = true ]] && Function_Local_add_arg "--tarball"
+    [[ -n "${Var_Global_Build_comp_type}"    ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
+    [[ -n "${Var_Global_Build_kernel}"       ]] && Function_Local_add_arg "-k ${Var_Global_Build_kernel}"
+    [[ -n "${Var_Global_Build_username}"     ]] && Function_Local_add_arg "-u '${Var_Global_Build_username}'"
+    [[ -n "${Var_Global_Build_password}"     ]] && Function_Local_add_arg "-p '${Var_Global_Build_password}'"
+    [[ -n "${out_dir}"                       ]] && Function_Local_add_arg "-o '${out_dir}'"
+    [[ "${Var_Global_Build_tarball}" = true  ]] && Function_Local_add_arg "--tarball"
     argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
 }
 
@@ -638,15 +638,15 @@ Function_Global_Main_create_argument () {
 Function_Global_Ask_Confirm () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
-    [[ -n "${Var_Global_Build_japanese}" ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
+    [[ -n "${Var_Global_Build_japanese}"           ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
     [[ -n "${Var_Global_Wizard_Option_build_arch}" ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
-    [[ -n "${Var_Global_Build_plymouth}" ]] && echo "           Plymouth : ${Var_Global_Build_plymouth}"
-    [[ -n "${Var_Global_Build_kernel}" ]] && echo "             kernel : ${Var_Global_Build_kernel}"
-    [[ -n "${Var_Global_Build_comp_type}"   ]] && echo " Compression method : ${Var_Global_Build_comp_type}"
-    [[ -n "${comp_option}" ]] && echo "Compression options : ${comp_option}"
-    [[ -n "${Var_Global_Build_username}" ]] && echo "           Username : ${Var_Global_Build_username}"
-    [[ -n "${Var_Global_Build_password}" ]] && echo "           Password : ${Var_Global_Build_password}"
-    [[ -n "${Var_Global_Build_channel}" ]] && echo "            Channel : ${Var_Global_Build_channel}"
+    [[ -n "${Var_Global_Build_plymouth}"           ]] && echo "           Plymouth : ${Var_Global_Build_plymouth}"
+    [[ -n "${Var_Global_Build_kernel}"             ]] && echo "             kernel : ${Var_Global_Build_kernel}"
+    [[ -n "${Var_Global_Build_comp_type}"          ]] && echo " Compression method : ${Var_Global_Build_comp_type}"
+    [[ -n "${comp_option}"                         ]] && echo "Compression options : ${comp_option}"
+    [[ -n "${Var_Global_Build_username}"           ]] && echo "           Username : ${Var_Global_Build_username}"
+    [[ -n "${Var_Global_Build_password}"           ]] && echo "           Password : ${Var_Global_Build_password}"
+    [[ -n "${Var_Global_Build_channel}"            ]] && echo "            Channel : ${Var_Global_Build_channel}"
     echo
     msg_n \
         "この設定で続行します。よろしいですか？ (y/N) : " \
