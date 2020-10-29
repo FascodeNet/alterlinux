@@ -511,15 +511,15 @@ Function_Global_Ask_channel () {
         Var_Local_count="$(( Var_Local_count + 1 ))"
     done
     echo -n ":"
-    read channel
+    read Var_Global_Build_channel
 
     # 入力された値が数字かどうか判定する
     set +e
     expr "${Var_Global_Build_channel}" + 1 >/dev/null 2>&1
-    if [[ ${?} -lt 2 ]]; then
+    if (( ${?} == 0 )); then
         set -e
         # 数字である
-        Var_Global_Build_channel=$(( channel - 1 ))
+        Var_Global_Build_channel=$(( Var_Global_Build_channel - 1))
         if [[ -z "${Var_Local_channel_list[${Var_Global_Build_channel}]}" ]]; then
             Function_Global_Ask_channel
             return 0
@@ -704,6 +704,7 @@ Function_Global_Main_ask_questions () {
 }
 
 Function_Global_Prebuild() {
+    Function_Global_Ask_channel
     Function_Global_Main_wizard_language
     Function_Global_Main_check_required_files
     Function_Global_Main_load_default_config
