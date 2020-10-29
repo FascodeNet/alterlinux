@@ -8,8 +8,12 @@ set -e
 グローバル変数: Var_Global_[変数名]
 グローバル関数: Function_Global_[関数名]
 
-(Function_Global_Main_ask_questions内で使用する関数のみ)
+[ Function_Global_Main_ask_questions内で使用する関数のみ ]
 グローバル関数: Function_Global_Ask_[設定される変数名]
+
+[ wizard.sh用の変数 ]
+オプション用: Var_Global_Wizard_Option_
+実行環境設定: Var_Global_Wizard_Env_
 
 << ローカル >>
 ローカル変数: Var_Local_[変数名]
@@ -17,19 +21,19 @@ set -e
 TEXT
 
 
-nobuild=false
+Var_Global_Wizard_Option_nobuild=false
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
-machine_arch="$(uname -m)"
-build_arch="${machine_arch}"
+Var_Global_Wizard_Env_machine_arch="$(uname -m)"
+Var_Global_Wizard_Option_build_arch="${Var_Global_Wizard_Env_machine_arch}"
 
 # Pacman configuration file used only when checking packages.
-pacman_conf="${script_path}/system/pacman-${machine_arch}.conf"
+Var_Global_Wizard_Env_pacman_conf="${script_path}/system/pacman-${Var_Global_Wizard_Env_machine_arch}.conf"
 
 # 言語（en or jp)
-#wizard_language="jp"
-wizard_language="en"
-skip_set_wizard_language=false
+#Var_Global_Wizard_Option_language="jp"
+Var_Global_Wizard_Option_language="en"
+Var_Global_Wizard_Option_skip_language=false
 
 
 dependence=(
@@ -59,21 +63,21 @@ dependence=(
 # メッセージを表示する
 # msg [日本語] [英語]
 msg() {
-    if [[ ${wizard_language} = "jp" ]]; then
+    if [[ ${Var_Global_Wizard_Option_language} = "jp" ]]; then
         echo "${1}"
     else
         echo "${2}"
     fi
 }
 msg_error() {
-    if [[ ${wizard_language} = "jp" ]]; then
+    if [[ ${Var_Global_Wizard_Option_language} = "jp" ]]; then
         echo "${1}" >&2
     else
         echo "${1}" >&2
     fi
 }
 msg_n() {
-    if [[ ${wizard_language} = "jp" ]]; then
+    if [[ ${Var_Global_Wizard_Option_language} = "jp" ]]; then
         echo -n "${1}"
     else
         echo -n "${2}"
@@ -103,7 +107,7 @@ _help() {
 while getopts 'a:xnjeh' arg; do
     case "${arg}" in
         n)
-            nobuild=true
+            Var_Global_Wizard_Option_nobuild=true
             msg \
                 "シミュレーションモードを有効化しました" "Enabled simulation mode"
             ;;
@@ -112,21 +116,21 @@ while getopts 'a:xnjeh' arg; do
             msg "デバッグモードを有効化しました" "Debug mode enabled"
             ;;
         e)
-            wizard_language="en"
+            Var_Global_Wizard_Option_language="en"
             echo "English is set"
-            skip_set_wizard_language=true
+            Var_Global_Wizard_Option_skip_language=true
             ;;
         j)
-            wizard_language="jp"
+            Var_Global_Wizard_Option_language="jp"
             echo "日本語が設定されました"
-            skip_set_wizard_language=true
+            Var_Global_Wizard_Option_skip_language=true
             ;;
         h)
             _help
             exit 0
             ;;
         a)
-            build_arch="${OPTARG}"
+            Var_Global_Wizard_Option_build_arch="${OPTARG}"
             ;;
         *)
             _help
@@ -147,15 +151,15 @@ Function_Global_Main_wizard_language () {
         echo "2: 日本語 Japanese"
         echo
         echo -n ": "
-        read wizard_language
+        read Var_Global_Wizard_Option_language
 
-        case ${wizard_language} in
-            1 ) wizard_language=en ;;
-            2 ) wizard_language=jp ;;
-            "英語" ) wizard_language=en ;;
-            "日本語" ) wizard_language=jp ;;
-            "English" ) wizard_language=en ;;
-            "Japanese" ) wizard_language=jp ;;
+        case ${Var_Global_Wizard_Option_language} in
+            1 ) Var_Global_Wizard_Option_language=en ;;
+            2 ) Var_Global_Wizard_Option_language=jp ;;
+            "英語" ) Var_Global_Wizard_Option_language=en ;;
+            "日本語" ) Var_Global_Wizard_Option_language=jp ;;
+            "English" ) Var_Global_Wizard_Option_language=en ;;
+            "Japanese" ) Var_Global_Wizard_Option_language=jp ;;
             * ) Function_Global_Main_wizard_language ;;
         esac
     fi
@@ -191,7 +195,7 @@ Function_Global_Main_install_dependent_packages () {
     local checkpkg pkg installed_pkg installed_ver check_pkg
 
     msg "データベースの更新をしています..." "Updating package datebase..."
-    sudo pacman -Sy --config "${pacman_conf}"
+    sudo pacman -Sy --config "${Var_Global_Wizard_Env_pacman_conf}"
     installed_pkg=($(pacman -Q | getclm 1))
     installed_ver=($(pacman -Q | getclm 2))
 
@@ -199,7 +203,7 @@ Function_Global_Main_install_dependent_packages () {
         local i
         for i in $(seq 0 $(( ${#installed_pkg[@]} - 1 ))); do
             if [[ ${installed_pkg[${i}]} = ${1} ]]; then
-                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config "${pacman_conf}" ${1}) ]]; then
+                if [[ ${installed_ver[${i}]} = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -219,13 +223,13 @@ Function_Global_Main_install_dependent_packages () {
         fi
     done
     if [[ -n "${install}" ]]; then
-        sudo pacman -S --needed --config "${pacman_conf}" ${install[@]}
+        sudo pacman -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${install[@]}
     fi
     echo
 }
 
 Function_Global_Main_guide_to_the_web () {
-    if [[ "${wizard_language}"  = "jp" ]]; then
+    if [[ "${Var_Global_Wizard_Option_language}"  = "jp" ]]; then
         msg "wizard.sh ではビルドオプションの生成以外にもパッケージのインストールやキーリングのインストールなど様々なことを行います。"
         msg "もし既に環境が構築されておりそれらの操作が必要ない場合は、以下のサイトによるジェネレータも使用することができます。"
         msg "http://hayao.fascode.net/alteriso-options-generator/"
@@ -237,7 +241,7 @@ Function_Global_Main_setup_keyring () {
     local yn
     msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
     read yn
-    if ${nobuild}; then
+    if ${Var_Global_Wizard_Option_nobuild}; then
         msg \
             "${yn}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
             "You have entered ${yn}. Simulation mode is enabled and will be skipped."
@@ -253,12 +257,12 @@ Function_Global_Main_setup_keyring () {
 
 Function_Global_Main_remove_dependent_packages () {
     if [[ -n "${install}" ]]; then
-        sudo pacman -Rsn --config "${pacman_conf}" ${install[@]}
+        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" ${install[@]}
     fi
 }
 
 
-Function_Global_Ask_build_arch() {
+Function_Global_Ask_Var_Global_Wizard_Option_build_arch() {
     local yn
     local details
     local ask_arch
@@ -286,8 +290,8 @@ Function_Global_Ask_build_arch() {
         read ask
 
         case "${ask}" in
-            1 | "x86_64" ) build_arch="x86_64" ;;
-            2 | "i686"   ) build_arch="i686"   ;;
+            1 | "x86_64" ) Var_Global_Wizard_Option_build_arch="x86_64" ;;
+            2 | "i686"   ) Var_Global_Wizard_Option_build_arch="i686"   ;;
             *            ) ask_arch            ;;
         esac
     }
@@ -295,7 +299,7 @@ Function_Global_Ask_build_arch() {
     if [[ ${details} = true ]]; then
         ask_arch
     else
-        build_arch="${machine_arch}"
+        Var_Global_Wizard_Option_build_arch="${Var_Global_Wizard_Env_machine_arch}"
     fi
 
     return 0
@@ -586,7 +590,7 @@ Function_Global_Ask_kernel () {
 
 
         #カーネルの一覧を取得
-        kernel_list=($(cat ${script_path}/system/kernel_list-${build_arch} | grep -h -v ^'#'))
+        kernel_list=($(cat ${script_path}/system/kernel_list-${Var_Global_Wizard_Option_build_arch} | grep -h -v ^'#'))
 
         #選択肢の生成
         local count=1
@@ -653,7 +657,7 @@ Function_Global_Ask_channel () {
         if [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
             description=$(cat "${script_path}/channels/${_channel}/description.txt")
         else
-            if [[ "${wizard_language}"  = "jp" ]]; then
+            if [[ "${Var_Global_Wizard_Option_language}"  = "jp" ]]; then
                 description="このチャンネルにはdescription.txtがありません。"
             else
                 description="This channel does not have a description.txt."
@@ -787,13 +791,13 @@ Function_Global_Main_create_argument () {
     [[ -n "${password}"      ]] && _ADD_ARG "-p '${password}'"
     [[ -n "${out_dir}"       ]] && _ADD_ARG "-o '${out_dir}'"
     [[ "${tarball}" = true   ]] && _ADD_ARG "--tarball"
-    argument="--noconfirm -a ${build_arch} ${argument} ${channel}"
+    argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${channel}"
 }
 
 # 上の質問の関数を実行
 Function_Global_Main_ask_questions () {
     Function_Global_Ask_japanese
-    Function_Global_Ask_build_arch
+    Function_Global_Ask_Var_Global_Wizard_Option_build_arch
     Function_Global_Ask_plymouth
     Function_Global_Ask_kernel
     Function_Global_Ask_comp_type
@@ -812,7 +816,7 @@ Function_Global_Ask_Confirm () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
     [[ -n "${japanese}"    ]] && echo "           Japanese : ${japanese}"
-    [[ -n "${build_arch}"  ]] && echo "       Architecture : ${build_arch}"
+    [[ -n "${Var_Global_Wizard_Option_build_arch}"  ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
     [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
     [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
     [[ -n "${comp_type}"   ]] && echo " Compression method : ${comp_type}"
@@ -834,7 +838,7 @@ Function_Global_Ask_Confirm () {
 }
 
 Function_Global_Main_run_build.sh () {
-    if [[ ${nobuild} = true ]]; then
+    if [[ ${Var_Global_Wizard_Option_nobuild} = true ]]; then
         echo "${argument}"
     else
         # build.shの引数を表示（デバッグ用）
