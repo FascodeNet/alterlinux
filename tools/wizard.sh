@@ -513,56 +513,60 @@ Function_Global_Ask_kernel () {
 Function_Global_Ask_channel () {
 
     local i count=1 _channel channel_list description
+    local Var_Local_int Var_Local_count Var_Local_channel Var_Local_channel_list Var_Local_description
+    
+    Var_Local_count=1
 
     # チャンネルの一覧を取得
-    channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
+    local Var_Local_int Var_Local_count Var_Local_channel Var_Local_channel_list Var_Local_description
+    Var_Local_channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
 
     # 選択肢を生成
-    for _channel in ${channel_list[@]}; do
-        if [[ -f "${Var_Global_Wizard_Env_script_path}/channels/${_channel}/description.txt" ]]; then
-            description=$(cat "${Var_Global_Wizard_Env_script_path}/channels/${_channel}/description.txt")
+    for Var_Local_channel in ${Var_Local_channel_list[@]}; do
+        if [[ -f "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel}/description.txt" ]]; then
+            Var_Local_description=$(cat "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel}/description.txt")
         else
             if [[ "${Var_Global_Wizard_Option_language}"  = "jp" ]]; then
-                description="このチャンネルにはdescription.txtがありません。"
+                Var_Local_description="このチャンネルにはdescription.txtがありません。"
             else
-                description="This channel does not have a description.txt."
+                Var_Local_description="This channel does not have a description.txt."
             fi
         fi
-        echo -ne "$(printf %02d "${count}")    ${_channel}"
-        for i in $( seq 1 $(( 19 - ${#_channel} )) ); do
+        echo -ne "$(printf %02d "${Var_Local_count}")    ${Var_Local_channel}"
+        for Var_Local_int in $( seq 1 $(( 19 - ${#Var_Local_channel} )) ); do
             echo -ne " "
         done
-        echo -ne "${description}\n"
-        count="$(( count + 1 ))"
+        echo -ne "${Var_Local_description}\n"
+        Var_Local_count="$(( Var_Local_count + 1 ))"
     done
     echo -n ":"
     read channel
 
     # 入力された値が数字かどうか判定する
     set +e
-    expr "${channel}" + 1 >/dev/null 2>&1
+    expr "${Var_Global_Build_channel}" + 1 >/dev/null 2>&1
     if [[ ${?} -lt 2 ]]; then
         set -e
         # 数字である
-        channel=$(( channel - 1 ))
-        if [[ -z "${channel_list[${channel}]}" ]]; then
+        Var_Global_Build_channel=$(( channel - 1 ))
+        if [[ -z "${Var_Local_channel_list[${Var_Global_Build_channel}]}" ]]; then
             Function_Global_Ask_channel
             return 0
         else
-            channel="${channel_list[${channel}]}"
+            Var_Global_Build_channel="${Var_Local_channel_list[${Var_Global_Build_channel}]}"
         fi
     else
         set -e
         # 数字ではない
-        if [[ ! $(printf '%s\n' "${channel_list[@]}" | grep -qx "${channel}"; echo -n ${?} ) -eq 0 ]]; then
+        if [[ ! $(printf '%s\n' "${Var_Local_channel_list[@]}" | grep -qx "${Var_Global_Build_channel}"; echo -n ${?} ) -eq 0 ]]; then
             Function_Global_Ask_channel
             return 0
         fi
     fi
 
-    echo "${channel}"
+    echo "${Var_Global_Build_channel}"
 
     return 0
 }
@@ -649,15 +653,15 @@ Function_Global_Main_create_argument () {
         argument="${argument} ${@}"
     }
 
-    [[ "${Var_Global_Build_japanese}" = true  ]] && Function_Local_add_arg "-l ja"
-    [[ ${plymouth} = true    ]] && Function_Local_add_arg "-b"
-    [[ -n ${Var_Global_Build_comp_type}       ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
-    [[ -n ${kernel}          ]] && Function_Local_add_arg "-k ${kernel}"
-    [[ -n "${username}"      ]] && Function_Local_add_arg "-u '${username}'"
-    [[ -n "${password}"      ]] && Function_Local_add_arg "-p '${password}'"
-    [[ -n "${out_dir}"       ]] && Function_Local_add_arg "-o '${out_dir}'"
-    [[ "${Var_Global_Build_tarball}" = true   ]] && Function_Local_add_arg "--tarball"
-    argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${channel}"
+    [[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
+    [[ "${plymouth}" = true ]] && Function_Local_add_arg "-b"
+    [[ -n "${Var_Global_Build_comp_type}" ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
+    [[ -n "${kernel}" ]] && Function_Local_add_arg "-k ${kernel}"
+    [[ -n "${username}" ]] && Function_Local_add_arg "-u '${username}'"
+    [[ -n "${password}" ]] && Function_Local_add_arg "-p '${password}'"
+    [[ -n "${out_dir}" ]] && Function_Local_add_arg "-o '${out_dir}'"
+    [[ "${Var_Global_Build_tarball}" = true ]] && Function_Local_add_arg "--tarball"
+    argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
 }
 
 # 上の質問の関数を実行
@@ -681,22 +685,22 @@ Function_Global_Main_ask_questions () {
 Function_Global_Ask_Confirm () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
-    [[ -n "${Var_Global_Build_japanese}"    ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
-    [[ -n "${Var_Global_Wizard_Option_build_arch}"  ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
-    [[ -n "${plymouth}"    ]] && echo "           Plymouth : ${plymouth}"
-    [[ -n "${kernel}"      ]] && echo "             kernel : ${kernel}"
+    [[ -n "${Var_Global_Build_japanese}" ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
+    [[ -n "${Var_Global_Wizard_Option_build_arch}" ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
+    [[ -n "${plymouth}" ]] && echo "           Plymouth : ${plymouth}"
+    [[ -n "${kernel}" ]] && echo "             kernel : ${kernel}"
     [[ -n "${Var_Global_Build_comp_type}"   ]] && echo " Compression method : ${Var_Global_Build_comp_type}"
     [[ -n "${comp_option}" ]] && echo "Compression options : ${comp_option}"
-    [[ -n "${username}"    ]] && echo "           Username : ${username}"
-    [[ -n "${password}"    ]] && echo "           Password : ${password}"
-    [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
+    [[ -n "${username}" ]] && echo "           Username : ${username}"
+    [[ -n "${password}" ]] && echo "           Password : ${password}"
+    [[ -n "${Var_Global_Build_channel}" ]] && echo "            Channel : ${Var_Global_Build_channel}"
     echo
     msg_n \
         "この設定で続行します。よろしいですか？ (y/N) : " \
         "Continue with this setting. Is it OK? (y/N) : "
-    local yn
-    read yn
-    case "${yn}" in
+    local Var_Local_input_yes_or_no
+    read Var_Local_input_yes_or_no
+    case "${Var_Local_input_yes_or_no}" in
         y | Y | yes | Yes | YES ) :         ;;
         n | N | no  | No  | NO  ) ask       ;;
         *                       ) Function_Global_Ask_Confirm ;;
@@ -704,7 +708,7 @@ Function_Global_Ask_Confirm () {
 }
 
 Function_Global_Main_run_build.sh () {
-    if [[ ${Var_Global_Wizard_Option_nobuild} = true ]]; then
+    if [[ "${Var_Global_Wizard_Option_nobuild}" = true ]]; then
         echo "${argument}"
     else
         # build.shの引数を表示（デバッグ用）
