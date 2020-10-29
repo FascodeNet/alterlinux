@@ -144,15 +144,8 @@ Function_Global_Main_wizard_language () {
 }
 
 Function_Global_Main_check_required_files () {
-    local file _chkfile i error=false
-    _chkfile() {
-        if [[ ! -f "${1}" ]]; then
-            msg_error "${1}が見つかりませんでした。" "${1} was not found."
-            error=true
-        fi
-    }
-
-    file=(
+    local Var_Local_file_list Var_Local_file Var_Local_error=false
+    Var_Local_file_list=(
         "build.sh"
         "tools/keyring.sh"
         "system/pacman-i686.conf"
@@ -160,10 +153,13 @@ Function_Global_Main_check_required_files () {
         "default.conf"
     )
 
-    for i in ${file[@]}; do
-        _chkfile "${Var_Global_Wizard_Env_script_path}/${i}"
+    for Var_Local_file in ${Var_Local_file_list[@]}; do
+        if [[ ! -f "${Var_Local_file}" ]]; then
+            msg_error "${Var_Local_file}が見つかりませんでした。" "${Var_Local_file} was not found."
+            Var_Local_error=true
+        fi
     done
-    if [[ "${error}" = true ]]; then
+    if [[ "${Var_Local_error}" = true ]]; then
         exit 1
     fi
 }
