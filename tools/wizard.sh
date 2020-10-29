@@ -662,22 +662,6 @@ Function_Global_Main_create_argument () {
     argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
 }
 
-# 上の質問の関数を実行
-Function_Global_Main_ask_questions () {
-    Function_Global_Ask_japanese
-    Function_Global_Ask_build_arch
-    Function_Global_Ask_plymouth
-    Function_Global_Ask_kernel
-    Function_Global_Ask_comp_type
-    Function_Global_Ask_comp_option
-    Function_Global_Ask_username
-    Function_Global_Ask_password
-    Function_Global_Ask_channel
-    #Function_Global_Ask_owner
-    Function_Global_Ask_tarball
-    # Function_Global_Ask_out_dir
-    Function_Global_Ask_Confirm
-}
 
 # ビルド設定の確認
 Function_Global_Ask_Confirm () {
@@ -729,6 +713,23 @@ Function_Global_Main_set_iso_permission() {
         chown -R "${Var_Global_iso_owner}" "${out_dir}"
         chmod -R 750 "${out_dir}"
     fi
+}
+
+# 上の質問の関数を実行
+Function_Global_Main_ask_questions () {
+    Function_Global_Ask_japanese
+    Function_Global_Ask_build_arch
+    Function_Global_Ask_plymouth
+    Function_Global_Ask_kernel
+    Function_Global_Ask_comp_type
+    Function_Global_Ask_comp_option
+    Function_Global_Ask_username
+    Function_Global_Ask_password
+    Function_Global_Ask_channel
+    # Function_Global_Ask_owner
+    Function_Global_Ask_tarball
+    # Function_Global_Ask_out_dir
+    Function_Global_Ask_Confirm
 }
 
 Function_Global_Prebuild() {
