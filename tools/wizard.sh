@@ -36,29 +36,6 @@ Var_Global_Wizard_Option_language="en"
 Var_Global_Wizard_Option_skip_language=false
 
 
-dependence=(
-    "alterlinux-keyring"
-#   "archiso"
-    "arch-install-scripts"
-    "curl"
-    "cmake"
-    "dosfstools"
-    "git"
-    "libburn"
-    "libisofs"
-    "lz4"
-    "lzo"
-    "make"
-    "ninja"
-    "squashfs-tools"
-    "libisoburn"
- #  "lynx"
-    "xz"
-    "zlib"
-    "zstd"
-    "qt5-base"
-)
-
 
 # メッセージを表示する
 # msg [日本語] [英語]
@@ -190,6 +167,9 @@ Function_Global_Main_check_required_files () {
     fi
 }
 
+Function_Global_Main_load_default () {
+    source "${script_path}/default.conf"
+}
 
 Function_Global_Main_install_dependent_packages () {
     local checkpkg pkg installed_pkg installed_ver check_pkg
@@ -866,6 +846,7 @@ Function_Global_Main_set_iso_permission() {
 # 関数を実行
 Function_Global_Main_wizard_language
 Function_Global_Main_check_required_files
+Function_Global_Main_load_default.conf
 Function_Global_Main_install_dependent_packages
 Function_Global_Main_guide_to_the_web
 Function_Global_Main_setup_keyring
