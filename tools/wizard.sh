@@ -317,112 +317,81 @@ Function_Global_Ask_comp_type () {
 
 
 Function_Global_Ask_comp_option () {
-    local ask_comp_option
-    ask_comp_option() {
-        local gzip
-        local lzo
-        local lz4
-        local xz
-        local zstd
-        comp_option=""
+    comp_option=""
+    local Function_Local_comp_option
+    case "${comp_type}" in
+        "gzip")
+            Function_Local_comp_option() {
+                local Var_Local_gzip_level Var_Local_gzip_window
+                local Function_Local_gzip_level Function_Local_gzip_window
 
-        gzip () {
-            local comp_level
-            comp_level () {
-                local level
-                msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
-                read level
-                if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
-                    comp_option="-Xcompression-level ${level}"
-                else
-                    comp_level
-                fi
+                Function_Local_gzip_level () {
+                    msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
+                    read Var_Local_gzip_level
+                    if ! [[ ${Var_Local_gzip_level} -lt 23 && ${Var_Local_gzip_level} -ge 4 ]]; then
+                        Function_Local_gzip_level
+                        return 0
+                    fi
+                }
+                Function_Local_gzip_window () {
+                    msg_n \
+                        "gzipのウィンドウサイズを入力してください。 (1~15) : " \
+                        "Please enter the gzip window size. (1~15) : "
+
+                    read Var_Local_gzip_window
+                    if ! [[ ${Var_Local_gzip_window} -lt 15 && ${Var_Local_gzip_window} -ge 1 ]]; then
+                        Function_Local_gzip_window
+                        return 0
+                    fi
+                }
+                Function_Local_gzip_level
+                Function_Local_gzip_window
+                comp_option="-Xcompression-level ${Var_Local_gzip_level} -Xwindow-size ${Var_Local_gzip_window}"
             }
-            local window_size
-            window_size () {
-                local window
+            ;;
+        "lz4")
+            Function_Local_comp_option () {
+                local Var_Local_lz4_high_comp
                 msg_n \
-                    "gzipのウィンドウサイズを入力してください。 (1~15) : " \
-                    "Please enter the gzip window size. (1~15) : "
-
-                read window
-                if [[ ${window} -lt 16 && ${window} -ge 4 ]]; then
-                    comp_option="${comp_option} -Xwindow-size ${window}"
+                    "高圧縮モードを有効化しますか？ （y/N） : " \
+                    "Do you want to enable high compression mode? （y/N） : "
+                read Var_Local_lz4_high_comp
+                case "${Var_Local_lz4_high_comp}" in
+                    y | Y | yes | Yes | YES ) comp_option="-Xhc"         ;;
+                    n | N | no  | No  | NO  ) :                          ;;
+                    *                       ) Function_Local_comp_option ;;
+                esac
+            }
+            ;;
+        "zstd")
+            Function_Local_comp_option () {
+                local Var_Local_zstd_level
+                msg_n \
+                    "zstdの圧縮レベルを入力してください。 (1~22) : " \
+                    "Enter the zstd compression level. (1~22) : "
+                read Var_Local_zstd_level
+                if [[ ${Var_Local_zstd_level} -lt 23 && ${Var_Local_zstd_level} -ge 4 ]]; then
+                    comp_option="-Xcompression-level ${Var_Local_zstd_level}"
                 else
-                    window_size
+                    Function_Local_comp_option
                 fi
             }
+            ;;
+        "lx4" | *)
+            Function_Local_comp_option () {
+                :
+            }
+            ;;
+        "lzo" | "xz")
+            Function_Local_comp_option () {
+                msg_error \
+                    "現在${comp_type}の詳細設定ウィザードがサポートされていません。" \
+                    "The ${comp_type} Advanced Wizard is not currently supported."
+            }
+            ;;
+    esac
 
-        }
-
-        lz4 () {
-            local yn
-            msg_n \
-                "高圧縮モードを有効化しますか？ （y/N） : " \
-                "Do you want to enable high compression mode? （y/N） : "
-            read yn
-            case ${yn} in
-                y | Y | yes | Yes | YES ) comp_option="-Xhc" ;;
-                n | N | no  | No  | NO  ) :                  ;;
-                *                       ) lz4                ;;
-            esac
-        }
-
-        zstd () {
-            local level
-            msg_n \
-                "zstdの圧縮レベルを入力してください。 (1~22) : " \
-                "Enter the zstd compression level. (1~22) : "
-            read level
-            if [[ ${level} -lt 23 && ${level} -ge 4 ]]; then
-                comp_option="-Xcompression-level ${level}"
-            else
-                zstd
-            fi
-        }
-
-        lzo () {
-            msg_error \
-                "現在lzoの詳細設定ウィザードがサポートされていません。" \
-                "The lzo Advanced Wizard is not currently supported."
-        }
-
-        xz () {
-            msg_error \
-            "現在xzの詳細設定のウィザードがサポートされていません。" \
-            "The xz Advanced Wizard is not currently supported."
-        }
-
-        case ${comp_type} in
-            gzip ) gzip ;;
-            zstd ) zstd ;;
-            lz4  ) lz4  ;;
-            lzo  ) lzo  ;;
-            xz   ) xz   ;;
-            *    ) :    ;;
-        esac
-    }
-
-    # lzmaには詳細なオプションはありません。
-    if [[ ! ${comp_type} = "lzma" ]]; then
-        local yn
-        local details
-        msg_n \
-            "圧縮の詳細を設定しますか？ （y/N） : " \
-            "Do you want to set the compression details? （y/N） : "
-        read yn
-        case ${yn} in
-            y | Y | yes | Yes | YES ) details=true              ;;
-            n | N | no  | No  | NO  ) details=false             ;;
-            *                       ) Function_Global_Ask_comp_option; return 0 ;;
-        esac
-        if [[ ${details} = true ]]; then
-            ask_comp_option
-            return 0
-        else
-            return 0
-        fi
-    fi
+    Function_Local_comp_option
 }
 
 
