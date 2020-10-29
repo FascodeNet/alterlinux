@@ -407,41 +407,23 @@ Function_Global_Ask_username () {
 
 
 Function_Global_Ask_password () {
-    local details
-    local ask_comp_type
-    msg_n \
-        "デフォルトではないパスワードを設定しますか？ （y/N） : " \
-        "Do you want to set a non-default password? （y/N） : "
-    read yn
-    case ${yn} in
-        y | Y | yes | Yes | YES ) details=true           ;;
-        n | N | no  | No  | NO  ) details=false          ;;
-        *                       ) Function_Global_Ask_password; return 0 ;;
-    esac
+    local Var_Local_password Var_Local_password_confirm
 
-    ask_password () {
-        msg_n "パスワードを入力してください。" "Please enter your password."
-        read -s password
+    msg_n "パスワードを入力してください。" "Please enter your password."
+    read -s Var_Local_password
+    echo
+    msg_n "もう一度入力して下さい : " "Type it again : "
+    read -s confirm
+    if [[ ! "${Var_Local_password}" = "${Var_Local_password_confirm}" ]]; then
         echo
-        msg_n "Type it again : "
-        read -s confirm
-        if [[ ! $password = $confirm ]]; then
-            echo
-            msg_error "同じパスワードが入力されませんでした。" "You did not enter the same password."
-            ask_password
-        elif [[ -z $password || -z $confirm ]]; then
-            echo
-            msg_error "パスワードを入力してください。" "Please enter your password."
-            ask_password
-        fi
+        msg_error "同じパスワードが入力されませんでした。" "You did not enter the same password."
+        Function_Global_Ask_password
+    elif [[ -z "${Var_Local_password}" || -z "${Var_Local_password_confirm}" ]]; then
         echo
-        unset confirm
-    }
-
-    if [[ ${details} = true ]]; then
-        ask_password
+        msg_error "パスワードを入力してください。" "Please enter your password."
+        Function_Global_Ask_password
     fi
-
+    echo
     return 0
 }
 
