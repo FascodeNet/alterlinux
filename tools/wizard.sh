@@ -430,82 +430,55 @@ Function_Global_Ask_password () {
 
 
 Function_Global_Ask_kernel () {
+    msg \
+        "使用するカーネルを以下の番号から選択してください" \
+        "Please select the kernel to use from the following numbers"
+
+    #カーネルの一覧を取得
+    local Var_Local_kernel_list
+    Var_Local_kernel_list=($("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+
+    #選択肢の生成
+    local Var_Local_kernel Var_Local_count=1
+    for Var_Local_kernel in ${Var_Local_kernel_list[@]}; do
+        (
+            local kernel kernel_filename kernel_mkinitcpio_profile
+            eval $("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )
+            echo "$(printf %02d "${Var_Local_count}"): ${kernel} (${kernel_filename})"
+        )
+        Var_Local_count=$(( Var_Local_count + 1 ))
+    done
+
+    # 質問する
+    echo -n ": "
+    local Var_Local_input_kernel
+    read Var_Local_input_kernel
+
+    # 回答を解析する
+    # 数字かどうか判定する
     set +e
-    local do_you_want_to_select_kernel
-
-    do_you_want_to_select_kernel () {
-        set +e
-        local yn
-        msg_n \
-            "デフォルト（zen）以外のカーネルを使用しますか？ （y/N） : " \
-            "Do you want to use a kernel other than the default (zen)? (y/N) : "
-        read yn
-        case "${yn}" in
-            y | Y | yes | Yes | YES ) return 0                               ;;
-            n | N | no  | No  | NO  ) return 1                               ;;
-            *                       ) do_you_want_to_select_kernel; return 0 ;;
-        esac
-
-    }
-
-    local what_kernel
-
-    what_kernel () {
-        msg \
-            "使用するカーネルを以下の番号から選択してください" \
-            "Please select the kernel to use from the following numbers"
-
-
-        #カーネルの一覧を取得
-        kernel_list=($(cat ${Var_Global_Wizard_Env_script_path}/system/kernel_list-${Var_Global_Wizard_Option_build_arch} | grep -h -v ^'#'))
-
-        #選択肢の生成
-        local count=1
-        local i
-        echo
-        for i in ${kernel_list[@]}; do
-            echo "${count}: linux-${i}"
-            count=$(( count + 1 ))
-        done
-
-        # 質問する
-        echo -n ": "
-        local answer
-        read answer
-
-        # 回答を解析する
-        # 数字かどうか判定する
-        set +e
-        expr "${answer}" + 1 >/dev/null 2>&1
-        if [[ ${?} -lt 2 ]]; then
-            set -e
-            # 数字である
-            answer=$(( answer - 1 ))
-            if [[ -z "${kernel_list[${answer}]}" ]]; then
-                what_kernel
-                return 0
-            else
-                kernel="${kernel_list[${answer}]}"
-            fi
+    expr "${Var_Local_input_kernel}" + 1 >/dev/null 2>&1
+    if [[ ${?} -lt 2 ]]; then
+        set -e
+        # 数字である
+        Var_Local_input_kernel=$(( Var_Local_input_kernel - 1 ))
+        if [[ -z "${Var_Local_kernel_list[${Var_Local_input_kernel}]}" ]]; then
+            Function_Global_Ask_kernel
+            return 0
         else
-            set -e
-            # 数字ではない
-            # 配列に含まれるかどうか判定
-            if [[ ! $(printf '%s\n' "${kernel_list[@]}" | grep -qx "${answer#linux-}"; echo -n ${?} ) -eq 0 ]]; then
-                ask_channel
-                return 0
-            else
-                kernel="${answer#linux-}"
-            fi
+            kernel="${Var_Local_kernel_list[${Var_Local_input_kernel}]}"
         fi
-    }
-
-    do_you_want_to_select_kernel
-    exit_code=$?
-    if [[ ${exit_code} = 0 ]]; then
-        what_kernel
+    else
+        set -e
+        # 数字ではない
+        # 配列に含まれるかどうか判定
+        if [[ ! $(printf '%s\n' "${Var_Local_kernel_list[@]}" | grep -qx "${Var_Local_input_kernel}"; echo -n ${?} ) -eq 0 ]]; then
+            Function_Global_Ask_kernel
+            return 0
+        else
+            kernel="${Var_Local_input_kernel}"
+        fi
     fi
-    set -e
 }
 
 
@@ -717,6 +690,7 @@ Function_Global_Main_set_iso_permission() {
 
 # 上の質問の関数を実行
 Function_Global_Main_ask_questions () {
+    Function_Global_Ask_kernel
     Function_Global_Ask_japanese
     Function_Global_Ask_build_arch
     Function_Global_Ask_plymouth
