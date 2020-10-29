@@ -154,7 +154,7 @@ Function_Global_Main_check_required_files () {
     )
 
     for Var_Local_file in ${Var_Local_file_list[@]}; do
-        if [[ ! -f "${Var_Local_file}" ]]; then
+        if [[ ! -f "${Var_Global_Wizard_Env_script_path}/${Var_Local_file}" ]]; then
             msg_error "${Var_Local_file}が見つかりませんでした。" "${Var_Local_file} was not found."
             Var_Local_error=true
         fi
