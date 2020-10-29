@@ -511,8 +511,6 @@ Function_Global_Ask_kernel () {
 
 # チャンネルの指定
 Function_Global_Ask_channel () {
-
-    local i count=1 _channel channel_list description
     local Var_Local_int Var_Local_count Var_Local_channel Var_Local_channel_list Var_Local_description
     
     Var_Local_count=1
