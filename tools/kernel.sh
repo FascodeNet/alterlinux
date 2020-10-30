@@ -87,7 +87,11 @@ get() {
     local _kernel_config_file _kernel_name_list _kernel_line _get_kernel_line _kernel_config_line
 
     # 選択されたカーネルの設定が描かれた行番号を取得
-    _kernel_config_file="${script_path}/system/kernel-${arch}"
+    if [[ -n "${channel}" ]] && [[ -f "${script_path}/channels/${channel}/kernel-${arch}" ]]; then
+        _kernel_config_file="${script_path}/channels/${channel}/kernel-${arch}"
+    else
+        _kernel_config_file="${script_path}/system/kernel-${arch}"
+    fi
     _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
     _get_kernel_line() {
         local _kernel _count=0

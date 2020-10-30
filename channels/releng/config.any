@@ -51,11 +51,14 @@ usershell="/bin/zsh"
 # This setting cannot be changed by an argument.
 noaur=true
 
-# kernel config
-_kernel_config_line=("core" "vmlinuz-linux" "linux")
-kernel="${_kernel_config_line[0]}"
-kernel_filename="${_kernel_config_line[1]}"
-kernel_mkinitcpio_profile="${_kernel_config_line[2]}"
+#-- kernel config --#
+# Set the kernel that live session use.
+# Please don't set anything if you want to use normal kernel.
+# See help for a list of available values.
+# This setting cannot be changed by an argument.
+
+# Kernel name
+defaultkernel="core"
 
 # Use mkalteriso written in a traditional shell script
 # instead of the C ++ version of mkalteriso.
