@@ -20,6 +20,7 @@ defaultconfig="${script_path}/default.conf"
 all_arch=("x86_64" "i686")
 customized_username=false
 customized_password=false
+customized_kernel=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
 
@@ -365,7 +366,7 @@ prepare_env() {
         fi
         cd - > /dev/null 2>&1
     else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
+        mkalteriso="${script_path}/tools/mkalteriso.sh"
     fi
 
     # Load loop kernel module
@@ -439,13 +440,6 @@ configure_var() {
         iso_filename="${iso_name}-${_channel_name}-${iso_version}-dual.iso"
     fi
     msg_debug "Iso filename is ${iso_filename}"
-
-    # Set mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
 }
 
 
@@ -486,6 +480,14 @@ prepare_build() {
     # If there is config for channel. load that.
     load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+
+    # Set kernel
+    if [[ "${customized_kernel}" = false ]]; then
+        kernel="${defaultkernel}"
+    fi
+
+    eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
+    eval $(bash "${script_path}/tools/kernel.sh" -s -a "${arch}" get "${kernel}")
 
     # Set dirs
     airootfs_dir="${work_dir}/${arch}/airootfs"
@@ -1189,12 +1191,6 @@ make_iso() {
     msg_info "The password for the live user and root is ${password}."
 }
 
-# Parse files
-parse_files() {
-    eval $(bash "${script_path}/tools/locale.sh" -a "${arch}" get "${kernel}")
-    eval $(bash "${script_path}/tools/kernel.sh" -a "${arch}" get "${kernel}")
-}
-
 # Parse options
 ARGUMENT="${@}"
 _opt_short="bc:deg:hjk:l:o:p:rt:u:w:x"
@@ -1239,6 +1235,7 @@ while :; do
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
+            customized_kernel=true
             kernel="${2}"
             shift 2
             ;;
@@ -1363,6 +1360,9 @@ unset DEFAULT_ARGUMENT ARGUMENT
 msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
+# Debug mode
+if [[ "${bash_debug}" = true ]]; then set -x -v; fi
+
 set +eu
 
 # Check for a valid channel name
@@ -1403,10 +1403,6 @@ if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_v
         msg_error "Please download Alter ISO 2 here.\nhttps://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
     fi
 fi
-
-for arch in ${all_arch[@]}; do
-    parse_files
-done
 
 set -eu
 

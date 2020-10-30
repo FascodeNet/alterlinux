@@ -20,6 +20,7 @@ defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
 customized_password=false
+customized_kernel=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
 
@@ -340,7 +341,7 @@ prepare_env() {
         fi
         cd - > /dev/null 2>&1
     else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
+        mkalteriso="${script_path}/tools/mkalteriso.sh"
     fi
 
     # Load loop kernel module
@@ -476,14 +477,9 @@ prepare_rebuild() {
     _save_var defaultusername
     _save_var customized_username
     _save_var customized_password
+    _save_var customized_kernel
 
     _write_rebuild_file "\n# mkalteriso Info"
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-    else
-        mkalteriso="${script_path}/system/mkalteriso.sh"
-    fi
-
     _save_var mkalteriso
     _save_var shmkalteriso
     _save_var mkalteriso_option
@@ -512,9 +508,23 @@ prepare_build() {
             build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
         fi
 
+        # Set dirs
+        airootfs_dir="${work_dir}/${arch}/airootfs"
+        share_dir="${script_path}/channels/share"
+        isofs_dir="${work_dir}/iso"
+
         # If there is config for channel. load that.
-        load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
+        load_config "${share_dir}/config.any" "${script_path}/channels/share/config.${arch}"
         load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+
+        # Set kernel
+        if [[ "${customized_kernel}" = false ]]; then
+            kernel="${defaultkernel}"
+        fi
+
+        # Parse files
+        eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
+        eval $(bash "${script_path}/tools/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
 
         # Set username
         if [[ "${customized_username}" = false ]]; then
@@ -532,11 +542,6 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
-
-        # Set dirs
-        airootfs_dir="${work_dir}/${arch}/airootfs"
-        share_dir="${script_path}/channels/share"
-        isofs_dir="${work_dir}/iso"
 
         # Generate iso file name.
         local _channel_name
@@ -595,8 +600,9 @@ prepare_build() {
 
 
     # Check kernel for each channel
-    if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
+    #if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+    if [[ ! "$(bash "${script_path}/tools/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
+        msg_error "This kernel is currently not supported on this channel or architecture" "1"
     fi
 
     # Unmount
@@ -1248,12 +1254,6 @@ make_iso() {
     msg_info "The password for the live user and root is ${password}."
 }
 
-# Parse files
-parse_files() {
-    eval $(bash "${script_path}/tools/locale.sh" -a "${arch}" get "${kernel}")
-    eval $(bash "${script_path}/tools/kernel.sh" -a "${arch}" get "${kernel}")
-}
-
 
 # Parse options
 ARGUMENT="${@}"
@@ -1303,6 +1303,7 @@ while :; do
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
+            customized_kernel=true
             kernel="${2}"
             shift 2
             ;;
@@ -1430,6 +1431,9 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 # Set rebuild config file
 rebuildfile="${work_dir}/alteriso_config"
 
+# Debug mode
+if [[ "${bash_debug}" = true ]]; then set -x -v; fi
+
 set +eu
 
 # Check for a valid channel name
@@ -1478,8 +1482,6 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
         fi
     fi
 fi
-
-parse_files
 
 set -eu
 
