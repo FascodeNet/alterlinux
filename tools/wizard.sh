@@ -148,8 +148,15 @@ Function_Global_Main_check_required_files () {
     Var_Local_file_list=(
         "build.sh"
         "tools/keyring.sh"
+        "tools/channel.sh"
+        "tools/locale.sh"
+        "system/kernel-i686"
+        "system/kernel-x86_64"
+        "system/locale-i686"
+        "system/locale-x86_64"
         "system/pacman-i686.conf"
         "system/pacman-x86_64.conf"
+        "system/arch-pkgbuild-parser"
         "default.conf"
     )
 
