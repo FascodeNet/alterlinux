@@ -428,7 +428,7 @@ Function_Global_Ask_comp_option () {
                 fi
             }
             ;;
-        "lx4" | *)
+        "lzma" | *)
             Function_Local_comp_option () {
                 :
             }
