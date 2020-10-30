@@ -474,7 +474,7 @@ Function_Global_Ask_comp_option () {
                     Function_Local_lzo_level () {
                         msg_n "lzoの圧縮レベルを入力してください。 (1~9) : " "Enter the gzip compression level.  (1~9) : "
                         read Var_Local_lzo_level
-                        if ! [[ ${Var_Local_lzo_level} -lt 9 && ${Var_Local_lzo_level} -ge 1 ]]; then
+                        if ! [[ ${Var_Local_lzo_level} -lt 10 && ${Var_Local_lzo_level} -ge 1 ]]; then
                             Function_Local_lzo_level
                             return 0
                         fi
