@@ -472,9 +472,7 @@ Function_Global_Ask_comp_option () {
                             return 0
                             ;;
                     esac
-                    ;;
                 }
-
                 Function_Local_lzo_algorithm
                 if [[ "${Var_Local_lzo_algorithm}" = "lzo1x_999" ]]; then                
                     local Function_Local_lzo_level Var_Local_lzo_level
@@ -492,6 +490,7 @@ Function_Global_Ask_comp_option () {
                     comp_option="-Xalgorithm ${Var_Local_lzo_algorithm}"
                 fi
             }
+            ;;
         "xz")
             Function_Local_comp_option () {
                 msg_error \
