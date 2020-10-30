@@ -472,6 +472,7 @@ Function_Global_Ask_comp_option () {
                             return 0
                             ;;
                     esac
+                    ;;
                 }
 
                 Function_Local_lzo_algorithm
