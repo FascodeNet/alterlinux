@@ -20,6 +20,7 @@ defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
 customized_password=false
+customized_kernel=false
 DEFAULT_ARGUMENT=""
 alteriso_version="3.0"
 
@@ -476,6 +477,7 @@ prepare_rebuild() {
     _save_var defaultusername
     _save_var customized_username
     _save_var customized_password
+    _save_var customized_kernel
 
     _write_rebuild_file "\n# mkalteriso Info"
     _save_var mkalteriso
@@ -509,6 +511,15 @@ prepare_build() {
         # If there is config for channel. load that.
         load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
         load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+
+       # Set kernel
+        if [[ "${customized_kernel}" = false ]]; then
+            kernel="${defaultkernel}"
+        fi
+
+        # Parse files
+        eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
+        eval $(bash "${script_path}/tools/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
 
         # Set username
         if [[ "${customized_username}" = false ]]; then
@@ -590,7 +601,7 @@ prepare_build() {
 
     # Check kernel for each channel
     #if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-    if [[ ! "$(bash "${script_path}/tools/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${channel_name}")" = "correct" ]]; then
+    if [[ ! "$(bash "${script_path}/tools/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
         msg_error "This kernel is currently not supported on this channel or architecture" "1"
     fi
 
@@ -1243,12 +1254,6 @@ make_iso() {
     msg_info "The password for the live user and root is ${password}."
 }
 
-# Parse files
-parse_files() {
-    eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
-    eval $(bash "${script_path}/tools/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
-}
-
 
 # Parse options
 ARGUMENT="${@}"
@@ -1298,6 +1303,7 @@ while :; do
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
+            customized_kernel=true
             kernel="${2}"
             shift 2
             ;;
@@ -1476,8 +1482,6 @@ if [[ ! "${channel_name}" = "rebuild" ]]; then
         fi
     fi
 fi
-
-parse_files
 
 set -eu
 
