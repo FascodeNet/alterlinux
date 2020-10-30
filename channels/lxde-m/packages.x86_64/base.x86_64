@@ -10,3 +10,4 @@
 # Base packages
 
 base-devel
+mkinitcpio
