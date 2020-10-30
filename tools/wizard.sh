@@ -273,7 +273,7 @@ Function_Global_Ask_plymouth () {
     esac
 }
 
-
+# この関数はAlterISO2以前を想定したものです。現在はコメントアウトされて実行されません。
 Function_Global_Ask_japanese () {
     local Var_Local_input_yes_or_no
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
@@ -283,6 +283,53 @@ Function_Global_Ask_japanese () {
         "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_japanese=false  ;;
         *                                 ) Function_Global_Ask_japanese ;;
     esac
+}
+
+# Function_Global_Ask_japaneseの代わりにFunction_Global_Ask_localeを使用して下さい。
+Function_Global_Ask_locale() {
+    msg \
+        "ビルドする言語を以下の番号から選択して下さい " \
+        "Please select the language to build from the following numbers"
+
+    local Var_Local_locale_list Var_Local_locale Var_Local_count=1 Var_Local_input_locale
+    Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    for Var_Local_locale in ${Var_Local_locale_list[@]}; do
+        (
+            local locale_name locale_gen_name locale_version locale_time locale_fullname
+            eval $("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )
+            echo -n "$(printf %02d "${Var_Local_count}")    ${locale_name}"
+            for Var_Local_int in $( seq 1 $(( 10 - ${#kernel} )) ); do echo -ne " "; done
+            echo -ne "(${locale_fullname})\n"
+        )
+        Var_Local_count=$(( Var_Local_count + 1 ))
+    done
+    echo -n ": "
+    read Var_Local_input_locale
+
+    set +e
+    expr "${Var_Local_input_locale}" + 1 >/dev/null 2>&1
+    if [[ ${?} -lt 2 ]]; then
+        set -e
+        # 数字である
+        Var_Local_input_locale=$(( Var_Local_input_locale - 1 ))
+        if [[ -z "${Var_Local_locale_list[${Var_Local_input_locale}]}" ]]; then
+            Function_Global_Ask_locale
+            return 0
+        else
+            Var_Global_Build_locale="${Var_Local_locale_list[${Var_Local_input_locale}]}"
+            
+        fi
+    else
+        set -e
+        # 数字ではない
+        # 配列に含まれるかどうか判定
+        if [[ ! $(printf '%s\n' "${Var_Local_locale_list[@]}" | grep -qx "${Var_Local_input_locale}"; echo -n ${?} ) -eq 0 ]]; then
+            Function_Global_Ask_locale
+            return 0
+        else
+            Var_Global_Build_locale="${Var_Local_input_locale}"
+        fi
+    fi
 }
 
 
@@ -618,7 +665,8 @@ Function_Global_Main_create_argument () {
         argument="${argument} ${@}"
     }
 
-    [[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
+    #[[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
+    [[ -n "${Var_Global_Build_locale}"       ]] && Function_Local_add_arg "-l '${Var_Global_Build_locale}"
     [[ "${Var_Global_Build_plymouth}" = true ]] && Function_Local_add_arg "-b"
     [[ -n "${Var_Global_Build_comp_type}"    ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
     [[ -n "${comp_option}"                   ]] && Function_Local_add_arg "-t '${comp_option}'"
@@ -635,7 +683,8 @@ Function_Global_Main_create_argument () {
 Function_Global_Ask_Confirm () {
     msg "以下の設定でビルドを開始します。" "Start the build with the following settings."
     echo
-    [[ -n "${Var_Global_Build_japanese}"           ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
+    #[[ -n "${Var_Global_Build_japanese}"           ]] && echo "           Japanese : ${Var_Global_Build_japanese}"
+    [[ -n "${Var_Global_Build_locale}"             ]] && echo "           Language : ${Var_Global_Build_locale}"
     [[ -n "${Var_Global_Wizard_Option_build_arch}" ]] && echo "       Architecture : ${Var_Global_Wizard_Option_build_arch}"
     [[ -n "${Var_Global_Build_plymouth}"           ]] && echo "           Plymouth : ${Var_Global_Build_plymouth}"
     [[ -n "${Var_Global_Build_kernel}"             ]] && echo "             kernel : ${Var_Global_Build_kernel}"
@@ -685,7 +734,6 @@ Function_Global_Main_set_iso_permission() {
 
 # 上の質問の関数を実行
 Function_Global_Main_ask_questions () {
-    Function_Global_Ask_japanese
     Function_Global_Ask_build_arch
     Function_Global_Ask_plymouth
     Function_Global_Ask_kernel
@@ -693,6 +741,8 @@ Function_Global_Main_ask_questions () {
     Function_Global_Ask_comp_option
     Function_Global_Ask_username
     Function_Global_Ask_password
+    # Function_Global_Ask_japanese この関数はAlterISO2以前を想定されたものです。
+    Function_Global_Ask_locale
     Function_Global_Ask_channel
     # Function_Global_Ask_owner
     Function_Global_Ask_tarball
