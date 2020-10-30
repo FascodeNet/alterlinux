@@ -44,6 +44,11 @@ The image file is constructed from some of the variables in **profiledef.sh**: `
   file (e.g. `packages.x86_64`)
 * `pacman_conf`: The `pacman.conf` to use to install packages to the work directory when creating the image (defaults to
   the host's `/etc/pacman.conf`)
+* `airootfs_image_type`: The image type to create. The following options are understood (defaults to `squashfs`):
+  - `squashfs`: Create a squashfs image directly from the airootfs work directory
+  - `ext4+squashfs`: Create an ext4 partition, copy the airootfs work directory to it and create a squashfs image from it
+* `airootfs_image_tool_options`: An array of options to pass to the tool to create the airootfs image. Currently only
+  `mksquashfs` is supported - see `mksquashfs --help` for all possible options (defaults to `('-comp' 'xz')`).
 
 packages.arch
 =============

@@ -15,6 +15,7 @@ Archiso Authors
 * Dieter Plaetinck <dieter@plaetinck.be>
 * Eli Schwartz <eschwartz@archlinux.org>
 * Florian Pritz <bluewind@xinu.at>
+* Francois Dupoux <fdupoux@users.sourceforge.net>
 * Gerardo Exequiel Pozzi <vmlinuz386@gmail.com>
 * Gerhard Brauer <gerbra@archlinux.de>
 * James Sitegen <jamesm.sitegen@gmail.com>
