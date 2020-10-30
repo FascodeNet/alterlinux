@@ -421,7 +421,7 @@ Function_Global_Ask_comp_option () {
                     "zstdの圧縮レベルを入力してください。 (1~22) : " \
                     "Enter the zstd compression level. (1~22) : "
                 read Var_Local_zstd_level
-                if [[ ${Var_Local_zstd_level} -lt 23 && ${Var_Local_zstd_level} -ge 4 ]]; then
+                if [[ ${Var_Local_zstd_level} -lt 23 && ${Var_Local_zstd_level} -ge 1 ]]; then
                     comp_option="-Xcompression-level ${Var_Local_zstd_level}"
                 else
                     Function_Local_comp_option
