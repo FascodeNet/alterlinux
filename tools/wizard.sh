@@ -428,11 +428,6 @@ Function_Global_Ask_comp_option () {
                 fi
             }
             ;;
-        "lzma" | *)
-            Function_Local_comp_option () {
-                :
-            }
-            ;;
         "lzo")
             Function_Local_comp_option () {
                 local Function_Local_lzo_algorithm Var_Local_lzo_algorithm
@@ -496,6 +491,11 @@ Function_Global_Ask_comp_option () {
                 msg_error \
                     "現在${Var_Global_Build_comp_type}の詳細設定ウィザードがサポートされていません。" \
                     "The ${Var_Global_Build_comp_type} Advanced Wizard is not currently supported."
+            }
+            ;;
+        "lzma" | *)
+            Function_Local_comp_option () {
+                :
             }
             ;;
     esac
