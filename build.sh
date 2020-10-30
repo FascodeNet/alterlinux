@@ -125,7 +125,7 @@ _usage () {
     echo "    -l | --lang <lang>           Specifies the default language for the live environment"
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${kernel}"
+    echo "                                  Default: ${defaultkernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
