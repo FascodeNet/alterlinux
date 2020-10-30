@@ -508,11 +508,16 @@ prepare_build() {
             build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
         fi
 
+        # Set dirs
+        airootfs_dir="${work_dir}/${arch}/airootfs"
+        share_dir="${script_path}/channels/share"
+        isofs_dir="${work_dir}/iso"
+
         # If there is config for channel. load that.
-        load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
+        load_config "${share_dir}/config.any" "${script_path}/channels/share/config.${arch}"
         load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
-       # Set kernel
+        # Set kernel
         if [[ "${customized_kernel}" = false ]]; then
             kernel="${defaultkernel}"
         fi
@@ -537,11 +542,6 @@ prepare_build() {
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
-
-        # Set dirs
-        airootfs_dir="${work_dir}/${arch}/airootfs"
-        share_dir="${script_path}/channels/share"
-        isofs_dir="${work_dir}/iso"
 
         # Generate iso file name.
         local _channel_name
