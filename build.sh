@@ -589,8 +589,9 @@ prepare_build() {
 
 
     # Check kernel for each channel
-    if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-        msg_error "This kernel is currently not supported on this channel." "1"
+    #if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
+    if [[ ! "$(bash "${script_path}/tools/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${channel_name}")" = "correct" ]]; then
+        msg_error "This kernel is currently not supported on this channel or architecture" "1"
     fi
 
     # Unmount
@@ -1245,7 +1246,7 @@ make_iso() {
 # Parse files
 parse_files() {
     eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
-    eval $(bash "${script_path}/tools/kernel.sh" -s -a "${arch}" get "${kernel}")
+    eval $(bash "${script_path}/tools/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
 }
 
 
