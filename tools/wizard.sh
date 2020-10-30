@@ -433,7 +433,65 @@ Function_Global_Ask_comp_option () {
                 :
             }
             ;;
-        "lzo" | "xz")
+        "lzo")
+            Function_Local_comp_option () {
+                local Function_Local_lzo_algorithm Var_Local_lzo_algorithm
+                Function_Local_lzo_algorithm () {
+                    msg \
+                        "lzoの圧縮アルゴリズムを以下の番号から選択して下さい" \
+                        "Select the lzo compression algorithm from the numbers below"
+                    msg \
+                        "よく理解していない場合はlzo1x_999を選択して下さい" \
+                        "Choose lzo1x_999 if you are not familiar with it"
+                    echo
+                    echo "1: lzo1x_1"
+                    echo "2: lzo1x_1_11"
+                    echo "3: lzo1x_1_12"
+                    echo "4: lzo1x_1_15"
+                    echo "5: lzo1x_999"
+                    echo -n " : "
+                    read Var_Local_lzo_algorithm
+                    case "${Var_Local_lzo_algorithm}" in
+                        "1" | "lzo1x_1")
+                            Var_Local_lzo_algorithm="lzo1x_1"
+                            ;;
+                        "2" | "lzo1x_1_11")
+                            Var_Local_lzo_algorithm="lzo1x_1_11"
+                            ;;
+                        "3" | "lzo1x_1_12")
+                            Var_Local_lzo_algorithm="lzo1x_1_12"
+                            ;;
+                        "4" | "lzo1x_1_15")
+                            Var_Local_lzo_algorithm="lzo1x_1_15"
+                            ;;
+                        "5" | "lzo1x_999")
+                            Var_Local_lzo_algorithm="lzo1x_999"
+                            ;;
+                        *)
+                            Function_Local_lzo_algorithm
+                            return 0
+                            ;;
+                    esac
+                }
+
+                Function_Local_lzo_algorithm
+                if [[ "${Var_Local_lzo_algorithm}" = "lzo1x_999" ]]; then                
+                    local Function_Local_lzo_level Var_Local_lzo_level
+                    Function_Local_lzo_level () {
+                        msg_n "lzoの圧縮レベルを入力してください。 (1~9) : " "Enter the gzip compression level.  (1~9) : "
+                        read Var_Local_lzo_level
+                        if ! [[ ${Var_Local_lzo_level} -lt 9 && ${Var_Local_lzo_level} -ge 1 ]]; then
+                            Function_Local_lzo_level
+                            return 0
+                        fi
+                    }
+                    Function_Local_lzo_level
+                    comp_option="-Xalgorithm lzo1x_999 -Xcompression-level ${Var_Local_lzo_level}"
+                else
+                    comp_option="-Xalgorithm ${Var_Local_lzo_algorithm}"
+                fi
+            }
+        "xz")
             Function_Local_comp_option () {
                 msg_error \
                     "現在${Var_Global_Build_comp_type}の詳細設定ウィザードがサポートされていません。" \
