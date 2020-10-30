@@ -449,7 +449,7 @@ Function_Global_Ask_comp_option () {
                     echo "3: lzo1x_1_12"
                     echo "4: lzo1x_1_15"
                     echo "5: lzo1x_999"
-                    echo -n " : "
+                    echo -n ": "
                     read Var_Local_lzo_algorithm
                     case "${Var_Local_lzo_algorithm}" in
                         "1" | "lzo1x_1")
