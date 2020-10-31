@@ -13,6 +13,6 @@
 #[kernel name]               [kernel filename]               [mkinitcpio profile]
 #
 
-linux57                      vmlinuz-linux57                 linux57
-linux58                      vmlinuz-linux58                 linux58
-linux59                      vmlinuz-linux59                 linux59
+linux57                      vmlinuz-5.7-x86_64              linux57
+linux58                      vmlinuz-5.8-x86_64              linux58
+linux59                      vmlinuz-5.9-x86_64              linux59
