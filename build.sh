@@ -613,8 +613,9 @@ prepare_build() {
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
-    local _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
+    #local _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
+    #sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
+    cp "${build_pacman_conf}" "${work_dir}/pacman-${arch}.conf"
 }
 
 # Base installation (airootfs)
