@@ -125,7 +125,7 @@ _usage () {
     echo "    -l | --lang <lang>           Specifies the default language for the live environment"
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${kernel}"
+    echo "                                  Default: ${defaultkernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
@@ -613,8 +613,9 @@ prepare_build() {
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
-    local _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
+    #local _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
+    #sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
+    cp "${build_pacman_conf}" "${work_dir}/pacman-${arch}.conf"
 }
 
 # Base installation (airootfs)
