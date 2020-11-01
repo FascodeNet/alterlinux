@@ -36,15 +36,18 @@ The image file is constructed from some of the variables in **profiledef.sh**: `
   directory on the resulting image into which all files will be installed (defaults to `mkarchiso`)
 * `bootmodes`: A list of strings, that state the supported boot modes of the resulting image. Only the following are
   understood:
+
   - `bios.syslinux.mbr`: Syslinux for x86 BIOS booting from a disk
   - `bios.syslinux.eltorito`: Syslinux for x86 BIOS booting from an optical disc
   - `uefi-x64.systemd-boot.esp`: Systemd-boot for x86_64 UEFI booting from a disk
   - `uefi-x64.systemd-boot.eltorito`: Systemd-boot for x86_64 UEFI booting from an optical disc
+  Note that BIOS El Torito boot mode must always be listed before UEFI El Torito boot mode.
 * `arch`: The architecture (e.g. `x86_64`) to build the image for. This is also used to resolve the name of the packages
   file (e.g. `packages.x86_64`)
 * `pacman_conf`: The `pacman.conf` to use to install packages to the work directory when creating the image (defaults to
   the host's `/etc/pacman.conf`)
 * `airootfs_image_type`: The image type to create. The following options are understood (defaults to `squashfs`):
+
   - `squashfs`: Create a squashfs image directly from the airootfs work directory
   - `ext4+squashfs`: Create an ext4 partition, copy the airootfs work directory to it and create a squashfs image from it
 * `airootfs_image_tool_options`: An array of options to pass to the tool to create the airootfs image. Currently only

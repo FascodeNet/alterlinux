@@ -661,110 +661,100 @@ _validate_requirements_airootfs_image_type_ext4+squashfs() {
     _validate_requirements_airootfs_image_type_squashfs
 }
 
+# SYSLINUX El Torito
+_add_xorrisofs_options_bios.syslinux.eltorito() {
+    xorrisofs_options+=(
+        # El Torito boot image for x86 BIOS
+        '-eltorito-boot' 'isolinux/isolinux.bin'
+        # El Torito boot catalog file
+        '-eltorito-catalog' 'isolinux/boot.cat'
+        # Required options to boot with ISOLINUX
+        '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
+    )
+}
+
+# SYSLINUX MBR
+_add_xorrisofs_options_bios.syslinux.mbr() {
+    xorrisofs_options+=(
+        # SYSLINUX MBR bootstrap code; does not work without "-eltorito-boot isolinux/isolinux.bin"
+        '-isohybrid-mbr' "${isofs_dir}/isolinux/isohdpfx.bin"
+        # When GPT is used, create an additional partition in the MBR (besides 0xEE) for sectors 0–1 (MBR
+        # bootstrap code area) and mark it as bootable
+        # This violates the UEFI specification, but may allow booting on some systems
+        # https://wiki.archlinux.org/index.php/Partitioning#Tricking_old_BIOS_into_booting_from_GPT
+        '--mbr-force-bootable'
+        # Set the ISO 9660 partition's type to "Linux filesystem data"
+        # When only MBR is present, the partition type ID will be 0x83 "Linux" as xorriso translates all
+        # GPT partition type GUIDs except for the ESP GUID to MBR type ID 0x83
+        '-iso_mbr_part_type' '0FC63DAF-8483-4772-8E79-3D69D8477DE4'
+        # Move the first partition away from the start of the ISO to match the expectations of partition
+        # editors
+        # May allow booting on some systems
+        # https://dev.lovelyhq.com/libburnia/libisoburn/src/branch/master/doc/partition_offset.wiki
+        '-partition_offset' '16'
+    )
+}
+
+# systemd-boot in an attached EFI system partition
+_add_xorrisofs_options_uefi-x64.systemd-boot.esp() {
+    # Move the first partition away from the start of the ISO, otherwise the GPT will not be valid and ISO 9660
+    # partition will not be mountable
+    # shellcheck disable=SC2076
+    [[ " ${xorrisofs_options[*]} " =~ ' -partition_offset ' ]] || xorrisofs_options+=('-partition_offset' '16')
+    xorrisofs_options+=(
+        # Attach efiboot.img as a second partition and set its partition type to "EFI system partition"
+        '-append_partition' '2' 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B' "${work_dir}/efiboot.img"
+        # Ensure GPT is used as some systems do not support UEFI booting without it
+        '-appended_part_as_gpt'
+    )
+}
+
+# systemd-boot via El Torito
+_add_xorrisofs_options_uefi-x64.systemd-boot.eltorito() {
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
+        # systemd-boot in an attached EFI system partition via El Torito
+        xorrisofs_options+=(
+            # Start a new El Torito boot entry for UEFI
+            '-eltorito-alt-boot'
+            # Set the second partition as the El Torito UEFI boot image
+            '-e' '--interval:appended_partition_2:all::'
+            # Boot image is not emulating floppy or hard disk; required for all known boot loaders
+            '-no-emul-boot'
+        )
+    else
+        # The ISO will not contain a GPT partition table, so to be able to reference efiboot.img, place it as a
+        # file inside the ISO 9660 file system
+        install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
+        cp -a -- "${work_dir}/efiboot.img" "${isofs_dir}/EFI/archiso/efiboot.img"
+        # systemd-boot in an embedded efiboot.img via El Torito
+        xorrisofs_options+=(
+            # Start a new El Torito boot entry for UEFI
+            '-eltorito-alt-boot'
+            # Set efiboot.img as the El Torito UEFI boot image
+            '-e' 'EFI/archiso/efiboot.img'
+            # Boot image is not emulating floppy or hard disk; required for all known boot loaders
+            '-no-emul-boot'
+        )
+    fi
+    # Specify where to save the El Torito boot catalog file in case it is not already set by bios.syslinux.eltorito
+    # shellcheck disable=SC2076
+    [[ " ${bootmodes[*]} " =~ ' bios.' ]] || xorrisofs_options+=('-eltorito-catalog' 'EFI/boot.cat')
+}
+
 # Build ISO
 _build_iso() {
     local xorrisofs_options=()
+    local bootmode
 
     [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
 
     [[ "${quiet}" == "y" ]] && xorrisofs_options+=('-quiet')
 
-    # xorrisofs options for x86 BIOS booting using SYSLINUX
-    # shellcheck disable=SC2076
-    if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.' ]]; then
-
-        # SYSLINUX El Torito
-        if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.eltorito ' ]]; then
-            if [[ ! -f "${isofs_dir}/isolinux/isolinux.bin" ]]; then
-                _msg_error "The file '${isofs_dir}/isolinux/isolinux.bin' does not exist." 1
-            fi
-
-            # SYSLINUX MBR
-            if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.mbr ' ]]; then
-                if [[ ! -f "${isofs_dir}/isolinux/isohdpfx.bin" ]]; then
-                    _msg_error "The file '${isofs_dir}/isolinux/isohdpfx.bin' does not exist." 1
-                fi
-
-                xorrisofs_options+=(
-                    # SYSLINUX MBR bootstrap code; does not work without "-eltorito-boot isolinux/isolinux.bin"
-                    '-isohybrid-mbr' "${isofs_dir}/isolinux/isohdpfx.bin"
-                    # When GPT is used, create an additional partition in the MBR (besides 0xEE) for sectors 0–1 (MBR
-                    # bootstrap code area) and mark it as bootable
-                    # This violates the UEFI specification, but may allow booting on some systems
-                    # https://wiki.archlinux.org/index.php/Partitioning#Tricking_old_BIOS_into_booting_from_GPT
-                    '--mbr-force-bootable'
-                    # Set the ISO 9660 partition's type to "Linux filesystem data"
-                    # When only MBR is present, the partition type ID will be 0x83 "Linux" as xorriso translates all
-                    # GPT partition type GUIDs except for the ESP GUID to MBR type ID 0x83
-                    '-iso_mbr_part_type' '0FC63DAF-8483-4772-8E79-3D69D8477DE4'
-                    # Move the first partition away from the start of the ISO to match the expectations of partition
-                    # editors
-                    # May allow booting on some systems
-                    # https://dev.lovelyhq.com/libburnia/libisoburn/src/branch/master/doc/partition_offset.wiki
-                    '-partition_offset' '16'
-                )
-            fi
-
-            xorrisofs_options+=(
-                # El Torito boot image for x86 BIOS
-                '-eltorito-boot' 'isolinux/isolinux.bin'
-                # El Torito boot catalog file
-                '-eltorito-catalog' 'isolinux/boot.cat'
-                # Required options to boot with ISOLINUX
-                '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
-            )
-        fi
-    fi
-
-    # xorrisofs options for X64 UEFI booting using systemd-boot
-    # shellcheck disable=SC2076
-    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.' ]]; then
-        [[ -f "${work_dir}/efiboot.img" ]] || _msg_error "The file '${work_dir}/efiboot.img' does not exist." 1
-        [[ -e "${isofs_dir}/EFI/archiso" ]] && rm -rf -- "${isofs_dir}/EFI/archiso"
-
-        # systemd-boot in an attached EFI system partition
-        if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
-            # Move the first partition away from the start of the ISO, otherwise the GPT will not be valid and ISO 9660
-            # partition will not be mountable
-            [[ " ${xorrisofs_options[*]} " =~ ' -partition_offset ' ]] || xorrisofs_options+=('-partition_offset' '16')
-            xorrisofs_options+=(
-                # Attach efiboot.img as a second partition and set its partition type to "EFI system partition"
-                '-append_partition' '2' 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B' "${work_dir}/efiboot.img"
-                # Ensure GPT is used as some systems do not support UEFI booting without it
-                '-appended_part_as_gpt'
-            )
-
-            # systemd-boot in an attached EFI system partition via El Torito
-            if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
-                xorrisofs_options+=(
-                    # Start a new El Torito boot entry for UEFI
-                    '-eltorito-alt-boot'
-                    # Set the second partition as the El Torito UEFI boot image
-                    '-e' '--interval:appended_partition_2:all::'
-                    # Boot image is not emulating floppy or hard disk; required for all known boot loaders
-                    '-no-emul-boot'
-                )
-            fi
-        # systemd-boot in an embedded efiboot.img via El Torito
-        elif [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
-            # The ISO will not contain a GPT partition table, so to be able to reference efiboot.img, place it as a
-            # file inside the ISO 9660 file system
-            install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
-            cp -a -- "${work_dir}/efiboot.img" "${isofs_dir}/EFI/archiso/efiboot.img"
-
-            xorrisofs_options+=(
-                # Start a new El Torito boot entry for UEFI
-                '-eltorito-alt-boot'
-                # Set efiboot.img as the El Torito UEFI boot image
-                '-e' 'EFI/archiso/efiboot.img'
-                # Boot image is not emulating floppy or hard disk; required for all known boot loaders
-                '-no-emul-boot'
-            )
-        fi
-
-        # Specify where to save the El Torito boot catalog file in case it is not already set by bios.syslinux.eltorito
-        [[ " ${bootmodes[*]} " =~ ' bios.' ]] || xorrisofs_options+=('-eltorito-catalog' 'EFI/boot.cat')
-    fi
+    # Add required xorrisofs options for each boot mode
+    for bootmode in "${bootmodes[@]}"; do
+        typeset -f "_add_xorrisofs_options_${bootmode}" &> /dev/null && "_add_xorrisofs_options_${bootmode}"
+    done
 
     _msg_info "Creating ISO image..."
     xorriso -as mkisofs \
