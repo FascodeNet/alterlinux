@@ -25,8 +25,10 @@ espeakup
 ethtool
 exfatprogs
 f2fs-tools
+fatresize
 fsarchiver
 gnu-netcat
+gpart
 gpm
 gptfdisk
 grml-zsh-config
@@ -88,6 +90,7 @@ tcpdump
 terminus-font
 termite-terminfo
 testdisk
+tmux
 udftools
 usb_modeswitch
 usbutils
