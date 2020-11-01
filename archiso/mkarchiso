@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -12,7 +12,6 @@ export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 # mkarchiso defaults
 app_name="${0##*/}"
 pkg_list=()
-run_cmd=""
 quiet="y"
 work_dir="work"
 out_dir="out"
@@ -66,15 +65,6 @@ _msg_error() {
     fi
 }
 
-_chroot_init() {
-    install -d -m 0755 -o 0 -g 0 -- "${airootfs_dir}"
-    _pacman base syslinux
-}
-
-_chroot_run() {
-    eval -- arch-chroot "${airootfs_dir}" "${run_cmd}"
-}
-
 _mount_airootfs() {
     trap "_umount_airootfs" EXIT HUP INT TERM
     install -d -m 0755 -- "${work_dir}/mnt/airootfs"
@@ -123,8 +113,7 @@ ENDUSAGETEXT
     exit "${1}"
 }
 
-# Shows configuration according to command mode.
-# $1: build_profile | init | install | run | prepare | iso
+# Shows configuration options.
 _show_config() {
     local build_date
     build_date="$(date --utc --iso-8601=seconds -d "@${SOURCE_DATE_EPOCH}")"
@@ -143,50 +132,24 @@ _show_config() {
     _msg_info "          ISO application:   ${iso_application}"
     _msg_info "               Boot modes:   ${bootmodes[*]}"
     _msg_info "                 Packages:   ${pkg_list[*]}"
-    [[ "${quiet}" == "y" ]] || printf '\n'
-}
-
-# Install desired packages to airootfs
-_pacman() {
-    _msg_info "Installing packages to '${airootfs_dir}/'..."
-
-    if [[ "${quiet}" = "y" ]]; then
-        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@" &> /dev/null
-    else
-        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@"
-    fi
-
-    _msg_info "Done! Packages installed successfully."
 }
 
 # Cleanup airootfs
-_cleanup() {
+_cleanup_airootfs() {
     _msg_info "Cleaning up what we can on airootfs..."
 
     # Delete all files in /boot
-    if [[ -d "${airootfs_dir}/boot" ]]; then
-        find "${airootfs_dir}/boot" -mindepth 1 -delete
-    fi
+    [[ -d "${airootfs_dir}/boot" ]] && find "${airootfs_dir}/boot" -mindepth 1 -delete
     # Delete pacman database sync cache files (*.tar.gz)
-    if [[ -d "${airootfs_dir}/var/lib/pacman" ]]; then
-        find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
-    fi
+    [[ -d "${airootfs_dir}/var/lib/pacman" ]] && find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
     # Delete pacman database sync cache
-    if [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]]; then
-        find "${airootfs_dir}/var/lib/pacman/sync" -delete
-    fi
+    [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]] && find "${airootfs_dir}/var/lib/pacman/sync" -delete
     # Delete pacman package cache
-    if [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]]; then
-        find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
-    fi
+    [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]] && find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
     # Delete all log files, keeps empty dirs.
-    if [[ -d "${airootfs_dir}/var/log" ]]; then
-        find "${airootfs_dir}/var/log" -type f -delete
-    fi
+    [[ -d "${airootfs_dir}/var/log" ]] && find "${airootfs_dir}/var/log" -type f -delete
     # Delete all temporary files and dirs
-    if [[ -d "${airootfs_dir}/var/tmp" ]]; then
-        find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
-    fi
+    [[ -d "${airootfs_dir}/var/tmp" ]] && find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
     # Delete package pacman related files.
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
     # Create an empty /etc/machine-id
@@ -195,28 +158,18 @@ _cleanup() {
     _msg_info "Done!"
 }
 
-_mkairootfs_create_image() {
-    if (( $# < 1 )); then
-        _msg_error "Function '${FUNCNAME[0]}' requires at least one argument" 1
-    fi
-
-    image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
-    if [[ "${airootfs_image_type}" =~ .*squashfs ]] ; then
-        if [[ "${quiet}" == "y" ]]; then
-            mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" -no-progress > /dev/null
-        else
-            mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}"
-        fi
+_run_mksquashfs() {
+    local image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
+    if [[ "${quiet}" == "y" ]]; then
+        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" -no-progress > /dev/null
     else
-        _msg_error "Unsupported image type: '${airootfs_image_type}'" 1
+        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}"
     fi
 }
 
 # Makes a ext4 filesystem inside a SquashFS from a source directory.
-_mkairootfs_img() {
-    if [[ ! -e "${airootfs_dir}" ]]; then
-        _msg_error "The path '${airootfs_dir}' does not exist" 1
-    fi
+_mkairootfs_ext4+squashfs() {
+    [[ -e "${airootfs_dir}" ]] || _msg_error "The path '${airootfs_dir}' does not exist" 1
 
     _msg_info "Creating ext4 image of 32 GiB..."
     if [[ "${quiet}" == "y" ]]; then
@@ -234,20 +187,18 @@ _mkairootfs_img() {
     _umount_airootfs
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
-    _mkairootfs_create_image "${airootfs_dir}.img"
+    _run_mksquashfs "${airootfs_dir}.img"
     _msg_info "Done!"
     rm -- "${airootfs_dir}.img"
 }
 
 # Makes a SquashFS filesystem from a source directory.
-_mkairootfs_sfs() {
-    if [[ ! -e "${airootfs_dir}" ]]; then
-        _msg_error "The path '${airootfs_dir}' does not exist" 1
-    fi
+_mkairootfs_squashfs() {
+    [[ -e "${airootfs_dir}" ]] || _msg_error "The path '${airootfs_dir}' does not exist" 1
 
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
-    _mkairootfs_create_image "${airootfs_dir}"
+    _run_mksquashfs "${airootfs_dir}"
     _msg_info "Done!"
 }
 
@@ -334,17 +285,27 @@ _make_custom_airootfs() {
     fi
 }
 
-# Packages (airootfs)
+# Install desired packages to airootfs
 _make_packages() {
+    _msg_info "Installing packages to '${airootfs_dir}/'..."
+
     if [[ -n "${gpg_key}" ]]; then
         exec {ARCHISO_GNUPG_FD}<>"${work_dir}/pubkey.gpg"
         export ARCHISO_GNUPG_FD
     fi
-    _pacman "${pkg_list[@]}"
+
+    if [[ "${quiet}" = "y" ]]; then
+        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${pkg_list[@]}" &> /dev/null
+    else
+        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${pkg_list[@]}"
+    fi
+
     if [[ -n "${gpg_key}" ]]; then
         exec {ARCHISO_GNUPG_FD}<&-
         unset ARCHISO_GNUPG_FD
     fi
+
+    _msg_info "Done! Packages installed successfully."
 }
 
 # Customize installation (airootfs)
@@ -368,8 +329,7 @@ _make_customize_airootfs() {
     if [[ -e "${airootfs_dir}/root/customize_airootfs.sh" ]]; then
         _msg_info "Running customize_airootfs.sh in '${airootfs_dir}' chroot..."
         _msg_warning "customize_airootfs.sh is deprecated! Support for it will be removed in a future archiso version."
-        local run_cmd="/root/customize_airootfs.sh"
-        _chroot_run
+        eval -- arch-chroot "${airootfs_dir}" "/root/customize_airootfs.sh"
         rm -- "${airootfs_dir}/root/customize_airootfs.sh"
         _msg_info "Done! customize_airootfs.sh run successfully."
     fi
@@ -379,8 +339,8 @@ _make_customize_airootfs() {
 _make_bootmodes() {
     local bootmode
     for bootmode in "${bootmodes[@]}"; do
-        if typeset -f "_make_boot_${bootmode}" &> /dev/null; then
-            _run_once "_make_boot_${bootmode}"
+        if typeset -f "_make_bootmode_${bootmode}" &> /dev/null; then
+            _run_once "_make_bootmode_${bootmode}"
         else
             _msg_error "${bootmode} is not a valid boot mode" 1
         fi
@@ -388,7 +348,7 @@ _make_bootmodes() {
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/
-_make_boot_on_iso() {
+_make_boot_on_iso9660() {
     local ucode_image
     _msg_info "Preparing kernel and intramfs for the ISO 9660 file system..."
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/${arch}"
@@ -409,7 +369,7 @@ _make_boot_on_iso() {
 }
 
 # Prepare /${install_dir}/boot/syslinux
-_make_boot_bios.syslinux.mbr() {
+_make_bootmode_bios.syslinux.mbr() {
     _msg_info "Setting up SYSLINUX for BIOS booting from a disk..."
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/syslinux"
     for _cfg in "${profile}/syslinux/"*.cfg; do
@@ -425,7 +385,7 @@ _make_boot_bios.syslinux.mbr() {
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux/"
 
-    _run_once _make_boot_on_iso
+    _run_once _make_boot_on_iso9660
 
     if [[ -e "${isofs_dir}/${install_dir}/boot/syslinux/hdt.c32" ]]; then
         install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
@@ -449,7 +409,7 @@ _make_boot_bios.syslinux.mbr() {
 }
 
 # Prepare /isolinux
-_make_boot_bios.syslinux.eltorito() {
+_make_bootmode_bios.syslinux.eltorito() {
     _msg_info "Setting up SYSLINUX for BIOS booting from an optical disc..."
     install -d -m 0755 -- "${isofs_dir}/isolinux"
     for _cfg in "${profile}/isolinux/"*".cfg"; do
@@ -463,13 +423,13 @@ _make_boot_bios.syslinux.eltorito() {
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
 
     # isolinux.cfg loads syslinux.cfg
-    _run_once _make_boot_bios.syslinux.mbr
+    _run_once _make_bootmode_bios.syslinux.mbr
 
     _msg_info "Done! SYSLINUX set up for BIOS booting from an optical disc successfully."
 }
 
 # Prepare /EFI on ISO-9660
-_make_efi() {
+_make_efi_dir_on_iso9660() {
     _msg_info "Preparing an /EFI directory for the ISO 9660 file system..."
     install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
     install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
@@ -515,7 +475,7 @@ _make_boot_on_fat() {
 }
 
 # Prepare efiboot.img::/EFI for EFI boot mode
-_make_boot_uefi-x64.systemd-boot.esp() {
+_make_bootmode_uefi-x64.systemd-boot.esp() {
     local efiboot_imgsize="0"
     _msg_info "Setting up systemd-boot for UEFI booting..."
 
@@ -564,36 +524,31 @@ _make_boot_uefi-x64.systemd-boot.esp() {
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
-_make_boot_uefi-x64.systemd-boot.eltorito() {
-    _run_once _make_boot_uefi-x64.systemd-boot.esp
-    # Set up /EFI on ISO-9660
-    _run_once _make_efi
+_make_bootmode_uefi-x64.systemd-boot.eltorito() {
+    _run_once _make_bootmode_uefi-x64.systemd-boot.esp
+    # Set up /EFI on ISO-9660 to allow preparing an installation medium by manually copying files
+    _run_once _make_efi_dir_on_iso9660
 }
 
 # Build airootfs filesystem image
-_make_prepare() {
-    if [[ "${airootfs_image_type}" == "squashfs" ]]; then # prepare airootfs.sfs for overlayfs usage (default)
-        _run_once _mkairootfs_sfs
-    elif [[ "${airootfs_image_type}" == "ext4+squashfs" ]]; then # prepare airootfs.sfs for dm-snapshot usage
-        _run_once _mkairootfs_img
+_prepare_airootfs_image() {
+    if typeset -f "_mkairootfs_${airootfs_image_type}" &> /dev/null; then
+        _run_once "_mkairootfs_${airootfs_image_type}"
     else
         _msg_error "Unsupported image type: '${airootfs_image_type}'" 1
     fi
+
     _mkchecksum
-    if [[ "${gpg_key}" ]]; then
-      _mksignature
-    fi
+    [[ -n "${gpg_key}" ]] && _mksignature
 }
 
 # Build ISO
-_make_iso() {
+_build_iso() {
     local xorrisofs_options=()
 
     [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
 
-    if [[ "${quiet}" == "y" ]]; then
-        xorrisofs_options+=('-quiet')
-    fi
+    [[ "${quiet}" == "y" ]] && xorrisofs_options+=('-quiet')
 
     # xorrisofs options for x86 BIOS booting using SYSLINUX
     # shellcheck disable=SC2076
@@ -647,9 +602,7 @@ _make_iso() {
     # xorrisofs options for X64 UEFI booting using systemd-boot
     # shellcheck disable=SC2076
     if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.' ]]; then
-        if [[ ! -f "${work_dir}/efiboot.img" ]]; then
-            _msg_error "The file '${work_dir}/efiboot.img' does not exist." 1
-        fi
+        [[ -f "${work_dir}/efiboot.img" ]] || _msg_error "The file '${work_dir}/efiboot.img' does not exist." 1
         [[ -e "${isofs_dir}/EFI/archiso" ]] && rm -rf -- "${isofs_dir}/EFI/archiso"
 
         # systemd-boot in an attached EFI system partition
@@ -744,31 +697,17 @@ _read_profile() {
 
 # set overrides from mkarchiso option parameters, if present
 _set_overrides() {
-    if [[ -n "$override_iso_label" ]]; then
-        iso_label="$override_iso_label"
-    fi
-    if [[ -n "$override_iso_publisher" ]]; then
-        iso_publisher="$override_iso_publisher"
-    fi
-    if [[ -n "$override_iso_application" ]]; then
-        iso_application="$override_iso_application"
-    fi
-    if [[ -n "$override_install_dir" ]]; then
-        install_dir="$override_install_dir"
-    fi
-    if [[ -n "$override_pacman_conf" ]]; then
-        pacman_conf="$override_pacman_conf"
-    fi
-    if [[ -n "$override_gpg_key" ]]; then
-        gpg_key="$override_gpg_key"
-    fi
+    [[ -n "$override_iso_label" ]] && iso_label="$override_iso_label"
+    [[ -n "$override_iso_publisher" ]] && iso_publisher="$override_iso_publisher"
+    [[ -n "$override_iso_application" ]] && iso_application="$override_iso_application"
+    [[ -n "$override_install_dir" ]] && install_dir="$override_install_dir"
+    [[ -n "$override_pacman_conf" ]] && pacman_conf="$override_pacman_conf"
+    [[ -n "$override_gpg_key" ]] && gpg_key="$override_gpg_key"
 }
 
 
 _export_gpg_publickey() {
-    if [[ -n "${gpg_key}" ]]; then
-        gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
-    fi
+    gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
 }
 
 
@@ -794,26 +733,25 @@ _build_profile() {
         printf '%s\n' "$SOURCE_DATE_EPOCH" > "${work_dir}/build_date"
     fi
 
-    _show_config
+    [[ "${quiet}" == "n" ]] && _show_config
     _run_once _make_pacman_conf
-    _run_once _export_gpg_publickey
+    [[ -n "${gpg_key}" ]] && _run_once _export_gpg_publickey
     _run_once _make_custom_airootfs
     _run_once _make_packages
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
     _make_bootmodes
-    _run_once _cleanup
-    _run_once _make_prepare
-    _run_once _make_iso
+    _run_once _cleanup_airootfs
+    _run_once _prepare_airootfs_image
+    _run_once _build_iso
 }
 
-while getopts 'p:r:C:L:P:A:D:w:o:g:vh?' arg; do
+while getopts 'p:C:L:P:A:D:w:o:g:vh?' arg; do
     case "${arg}" in
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
             pkg_list+=("${opt_pkg_list[@]}")
             ;;
-        r) run_cmd="${OPTARG}" ;;
         C) override_pacman_conf="$(realpath -- "${OPTARG}")" ;;
         L) override_iso_label="${OPTARG}" ;;
         P) override_iso_publisher="${OPTARG}" ;;
@@ -845,9 +783,6 @@ fi
 # get the absolute path representation of the first non-option argument
 profile="$(realpath -- "${1}")"
 
-# Set directory path defaults for legacy commands
-airootfs_dir="${work_dir}/airootfs"
-isofs_dir="${work_dir}/iso"
 _read_profile
 _set_overrides
 _build_profile
