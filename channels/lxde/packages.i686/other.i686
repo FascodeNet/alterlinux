@@ -14,6 +14,7 @@ xarchiver
 
 
 #-- GVFS --#
+smbclient
 gvfs
 gvfs-smb
 
@@ -34,7 +35,7 @@ htop
 
 
 #-- pacman --#
-pamac-aur
+gnome-packagekit
 
 
 #-- printer --#
@@ -54,6 +55,7 @@ vim
 
 
 #-- other --#
-arandr
+#仮想マシンでlxrandrが使えるようになったためarandrを無効化
+# arandr
 ipad_charge
 tlpui

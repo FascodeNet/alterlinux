@@ -89,7 +89,7 @@ function remove () {
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if [[ ! "${localegen}" == "en_US\\.UTF-8\\" ]]; then
+if [[ ! "${localegen}" = "en_US\\.UTF-8\\" ]]; then
     sed -i "s/#\(${localegen})/\1/" /etc/locale.gen
 fi
 locale-gen

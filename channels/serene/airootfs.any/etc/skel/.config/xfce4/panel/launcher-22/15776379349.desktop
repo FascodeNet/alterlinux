@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Slides
+Type=Link
+URL=https://docs.google.com/presentation
+Icon=/usr/share/icons/google-app/1492616982-23-slide-show-presentation-google-file-service_83414.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/Google%20Slides.desktop

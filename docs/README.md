@@ -13,8 +13,8 @@
     <a href="https://www.archlinux.org/">
         <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
     </a>
-    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v46">
-        <img src="https://img.shields.io/badge/archiso--version-46--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
+        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
     </a>
 </p>
 <p align="center">
@@ -72,6 +72,9 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
+<h3>Gnome</h3>
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+
 <h3>Cinnamon</h3>
 <img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
 
@@ -114,9 +117,6 @@ These are a list of major branches. Other branches are temporary or used for spe
             <th>
                 <a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
             </th>
-            <th>
-                <a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
-            </th>
         </tr>
     </thead>
     <tbody>
@@ -132,9 +132,6 @@ These are a list of major branches. Other branches are temporary or used for spe
             </td>
             <td>
                 Always updated. There may be many issues left.
-            </td>
-            <td>
-                Next-generation AlterISO and new desktop environment are being developed.
             </td>
         </tr>
     </tbody>
@@ -186,7 +183,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/Pixel_3a">
     <img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
 </a>
-<a href="https://twitter.com/YangDevJP">
+<a href="https://twitter.com/yangniao23">
     <img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
 <a href="https://twitter.com/Watasuke102">

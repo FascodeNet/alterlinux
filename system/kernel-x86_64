@@ -21,7 +21,7 @@ hardened                     vmlinuz-linux-hardened          linux-hardened
 
 # Arch Linux Trusted User repository
 rt                           vmlinuz-linux-rt                linux-rt
-rt-lts                       vmlinuz-linux-rt                linux-rt
+rt-lts                       vmlinuz-linux-rt-lts            linux-rt-lts
 
 
 # AUR Unofficial kernels

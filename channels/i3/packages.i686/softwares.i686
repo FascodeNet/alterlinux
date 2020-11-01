@@ -19,7 +19,7 @@ thunar
 file-roller
 
 # software manager
-pamac-aur
+gnome-packagekit
 
 # office
 libreoffice-still

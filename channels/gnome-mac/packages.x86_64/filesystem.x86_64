@@ -11,6 +11,7 @@
 
 
 #-- mtp --#
+smbclient
 gvfs-mtp
 mtpfs
 gvfs
