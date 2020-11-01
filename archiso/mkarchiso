@@ -339,11 +339,7 @@ _make_customize_airootfs() {
 _make_bootmodes() {
     local bootmode
     for bootmode in "${bootmodes[@]}"; do
-        if typeset -f "_make_bootmode_${bootmode}" &> /dev/null; then
-            _run_once "_make_bootmode_${bootmode}"
-        else
-            _msg_error "${bootmode} is not a valid boot mode" 1
-        fi
+        _run_once "_make_bootmode_${bootmode}"
     done
 }
 
@@ -530,16 +526,139 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
     _run_once _make_efi_dir_on_iso9660
 }
 
-# Build airootfs filesystem image
-_prepare_airootfs_image() {
-    if typeset -f "_mkairootfs_${airootfs_image_type}" &> /dev/null; then
-        _run_once "_mkairootfs_${airootfs_image_type}"
-    else
-        _msg_error "Unsupported image type: '${airootfs_image_type}'" 1
+_validate_requirements_bootmode_bios.syslinux.mbr() {
+    # bios.syslinux.mbr requires bios.syslinux.eltorito
+    # shellcheck disable=SC2076
+    if [[ ! " ${bootmodes[*]} " =~ ' bios.syslinux.eltorito ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Using 'bios.syslinux.mbr' boot mode without 'bios.syslinux.eltorito' is not supported." 0
     fi
 
+    # Check if the syslinux package is in the package list
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' syslinux ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The 'syslinux' package is missing from the package list!" 0
+    fi
+
+    # Check if syslinux configuration files exist
+    if [[ ! -d "${profile}/syslinux" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The '${profile}/syslinux' directory is missing!" 0
+    else
+        local cfgfile
+        for cfgfile in "${profile}/syslinux/"*'.cfg'; do
+            if [[ -e "${cfgfile}" ]]; then
+                break
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "Validating '${bootmode}': No configuration file found in '${profile}/syslinux/'!" 0
+            fi
+        done
+    fi
+
+    # Check for optional packages
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' memtest86+ ' ]]; then
+        _msg_info "Validating '${bootmode}': 'memtest86+' is not in the package list. Memmory testing will not be available from syslinux."
+    fi
+}
+
+_validate_requirements_bootmode_bios.syslinux.eltorito() {
+    # Check if the syslinux package is in the package list
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' syslinux ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The 'syslinux' package is missing from the package list!" 0
+    fi
+
+    # Check if isolinux configuration files exist
+    if [[ ! -d "${profile}/isolinux" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The '${profile}/isolinux' directory is missing!" 0
+    else
+        local cfgfile
+        for cfgfile in "${profile}/isolinux/"*'.cfg'; do
+            if [[ -e "${cfgfile}" ]]; then
+                break
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "Validating '${bootmode}': No configuration file found in '${profile}/isolinux/'!" 0
+            fi
+        done
+    fi
+
+    # Check for optional packages
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' memtest86+ ' ]]; then
+        _msg_info "Validating '${bootmode}': 'memtest86+' is not in the package list. Memory testing will not be available from syslinux."
+    fi
+}
+
+_validate_requirements_bootmode_uefi-x64.systemd-boot.esp() {
+    # Check if mkfs.fat is available
+    if ! command -v mkfs.fat &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': mkfs.fat is not available on this host. Install 'dosfstools'!" 0
+    fi
+
+    # Check if mmd and mcopy are available
+    if ! { command -v mmd &> /dev/null && command -v mcopy &> /dev/null; }; then
+        _msg_error "Validating '${bootmode}': mmd and/or mcopy are not available on this host. Install 'mtools'!" 0
+    fi
+
+    # Check if systemd-boot configuration files exist
+    if [[ ! -d "${profile}/efiboot/loader/entries" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The '${profile}/efiboot/loader/entries' directory is missing!" 0
+    else
+        if [[ ! -e "${profile}/efiboot/loader/loader.conf" ]]; then
+            (( validation_error=validation_error+1 ))
+            _msg_error "Validating '${bootmode}': File '${profile}/efiboot/loader/loader.conf' not found!" 0
+        fi
+        local conffile
+        for conffile in "${profile}/efiboot/loader/entries/"*'.conf'; do
+            if [[ -e "${conffile}" ]]; then
+                break
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "Validating '${bootmode}': No configuration file found in '${profile}/efiboot/loader/entries/'!" 0
+            fi
+        done
+    fi
+
+    # Check for optional packages
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' edk2-shell ' ]]; then
+        _msg_info "'edk2-shell' is not in the package list. The ISO will not contain a bootable UEFI shell."
+    fi
+}
+
+_validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
+    # uefi-x64.systemd-boot.eltorito has the exact same requirements as uefi-x64.systemd-boot.esp
+    _validate_requirements_bootmode_uefi-x64.systemd-boot.esp
+}
+
+# Build airootfs filesystem image
+_prepare_airootfs_image() {
+    _run_once "_mkairootfs_${airootfs_image_type}"
     _mkchecksum
     [[ -n "${gpg_key}" ]] && _mksignature
+}
+
+_validate_requirements_airootfs_image_type_squashfs() {
+    if ! command -v mksquashfs &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${airootfs_image_type}': mksquashfs is not available on this host. Install 'squashfs-tools'!" 0
+    fi
+}
+
+_validate_requirements_airootfs_image_type_ext4+squashfs() {
+    if ! { command -v mkfs.ext4 &> /dev/null && command -v tune2fs &> /dev/null; }; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${airootfs_image_type}': mkfs.ext4 and/or tune2fs is not available on this host. Install 'e2fsprogs'!" 0
+    fi
+    _validate_requirements_airootfs_image_type_squashfs
 }
 
 # Build ISO
@@ -594,8 +713,6 @@ _build_iso() {
                 # Required options to boot with ISOLINUX
                 '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
             )
-        else
-            _msg_error "Using 'bios.syslinux.mbr' boot mode without 'bios.syslinux.eltorito' is not supported." 1
         fi
     fi
 
@@ -669,6 +786,9 @@ _build_iso() {
 
 # Read profile's values from profiledef.sh
 _read_profile() {
+    local validation_error=0
+    local bootmode
+
     if [[ -z "${profile}" ]]; then
         _msg_error "No profile specified!" 1
     fi
@@ -687,11 +807,52 @@ _read_profile() {
         packages="$(realpath -- "${profile}/packages.${arch}")"
         pacman_conf="$(realpath -- "${pacman_conf}")"
 
-        # Enumerate packages
-        [[ -e "${packages}" ]] || _msg_error "File '${packages}' does not exist!" 1
-        mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
-
         cd -- "${OLDPWD}"
+
+        # Validate profile
+        # Check if the package list file exists and read packages from it
+        if [[ -e "${packages}" ]]; then
+            mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
+            if (( ${#pkg_list} < 1 )); then
+                (( validation_error=validation_error+1 ))
+                _msg_error "No package specified in '${packages}'." 0
+            fi
+        else
+            (( validation_error=validation_error+1 ))
+            _msg_error "File '${packages}' does not exist." 0
+        fi
+        # Check if pacman configuration file exists
+        if [[ ! -e "${pacman_conf}" ]]; then
+            (( validation_error=validation_error+1 ))
+            _msg_error "File '${pacman_conf}' does not exist." 0
+        fi
+        # Check if the specified bootmodes are supported
+        for bootmode in "${bootmodes[@]}"; do
+            if typeset -f "_make_bootmode_${bootmode}" &> /dev/null; then
+                if typeset -f "_validate_requirements_bootmode_${bootmode}" &> /dev/null; then
+                    "_validate_requirements_bootmode_${bootmode}"
+                else
+                    _msg_warning "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
+                fi
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "${bootmode} is not a valid boot mode!" 0
+            fi
+        done
+        # Check if the specified airootfs_image_type is supported
+        if typeset -f "_mkairootfs_${airootfs_image_type}" &> /dev/null; then
+            if typeset -f "_validate_requirements_airootfs_image_type_${airootfs_image_type}" &> /dev/null; then
+                "_validate_requirements_airootfs_image_type_${airootfs_image_type}"
+            else
+                _msg_warning "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
+            fi
+        else
+            (( validation_error=validation_error+1 ))
+            _msg_error "Unsupported image type: '${airootfs_image_type}'" 0
+        fi
+        if (( validation_error )); then
+            _msg_error "${validation_error} errors were encountered while validating the profile. Aborting." 1
+        fi
     fi
 }
 
