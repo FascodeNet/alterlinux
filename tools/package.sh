@@ -2,7 +2,6 @@
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
-verbose=false
 script_mode=false
 
 # Show an INFO message
@@ -25,19 +24,6 @@ msg_warn() {
         shift 1
     fi
     "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
-}
-
-# Show an verbose message
-# $1: message string
-msg_verbose() {
-    if [[ "${verbose}" = true ]]; then
-        local _msg_opts="-a package.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        "${script_path}/tools/msg.sh" ${_msg_opts} verbose "${1}"
-    fi
 }
 
 # Show an ERROR message then exit with status
@@ -85,8 +71,7 @@ _help() {
     echo "Check the status of the specified package"
     echo
     echo " General options:"
-    #echo "    -v                       Enable verbose message"
-    #echo "    -s                       Enable script mode"
+    echo "    -s                       Enable script mode"
     echo "    -h                       This help message"
     echo
     echo " Script mode output:"
@@ -94,12 +79,13 @@ _help() {
     echo "    noversion                Failed to get the latest version of the package, but the package is installed"
     echo "    old                      Older version is installed"
     echo "    failed                   Package not installed"
+    echo "    error                    Wrong usage of this script"
 }
 
-while getopts "hv" arg; do
+while getopts "hs" arg; do
     case ${arg} in
-        v)
-            verbose=true
+        s)
+            script_mode=true
             ;;
         h) 
             _help
@@ -118,21 +104,55 @@ shift $((OPTIND - 1))
  _installed_pkg=($(pacman -Q | getclm 1))
  _installed_ver=($(pacman -Q | getclm 2))
 
+if [[ -z "${1}" ]]; then
+    if [[ "${script_mode}" = true ]]; then
+        echo "error"
+    else
+        msg_error "Please specify the package."
+    fi
+    exit 1
+elif [[ -n "${2}" ]]; then
+    if [[ "${script_mode}" = true ]]; then
+        echo "error"
+    else
+        msg_error "Do not specify multiple packages."
+    fi
+    exit 1
+fi
+
 for pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
     # パッケージがインストールされているかどうか
     if [[ "${_installed_pkg[${pkg}]}" = ${1} ]]; then
         ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
         if [[ "${_installed_ver[${pkg}]}" = "${ver}" ]]; then
             # パッケージが最新の場合
-            echo "latest"
+            if [[ "${script_mode}" = true ]]; then
+                echo "latest"
+            else
+                msg_info "The latest version of ${1} is installed."
+            fi
+            exit 0
         elif [[ -z "${ver}" ]]; then
             # リモートのバージョンの取得に失敗した場合
-            echo "noversion"
+            if [[ "${script_mode}" = true ]]; then
+                echo "noversion"
+            else
+                msg_warn "Failed to get the latest version of ${1}."
+            fi
+            exit 1
         else
             # リモートとローカルのバージョンが一致しない場合
-            echo "old"
+            if [[ "${script_mode}" = true ]]; then
+                echo "old"
+            else
+                msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${ver}"
+            fi
+            exit 1
         fi
     fi
 done
-[[ "${verbose}" = true ]] && echo
-msg_error "failed"
+if [[ "${script_mode}" = true ]]; then
+    echo "failed"
+else
+    msg_error "${1} is not installed."
+fi
