@@ -306,7 +306,7 @@ prepare_env() {
                     elif [[ -z ${__ver} ]]; then
                         # リモートのバージョンの取得に失敗した場合
                         [[ "${debug}" = true ]] && echo
-                        msg_warn "${1} is not a repository package."
+                        msg_warn "Failed to get the latest version of ${1}."
                         return 0
                     else
                         # リモートとローカルのバージョンが一致しない場合
