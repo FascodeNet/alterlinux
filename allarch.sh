@@ -313,44 +313,29 @@ prepare_env() {
 
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
+        local _check_failed=false _pkg _ver
         msg_info "Checking dependencies ..."
-
-        # _checl_pkg [package]
-        _check_pkg() {
-            local __pkg __ver
+        for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
-                # パッケージがインストールされているかどうか
-                if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
-                    if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
-                        # パッケージが最新の場合
-                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        return 0
-                    elif [[ -z ${__ver} ]]; then
-                        # リモートのバージョンの取得に失敗した場合
-                        [[ "${debug}" = true ]] && echo
-                        msg_warn "${1} is not a repository package."
-                        return 0
-                    else
-                        # リモートとローカルのバージョンが一致しない場合
-                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
-                        return 0
-                    fi
-                fi
-            done
-            [[ "${debug}" = true ]] && echo
-            msg_error "${_pkg} is not installed." ; _check_failed=true
-            return 0
-        }
-
-        for _pkg in ${dependence[@]}; do _check_pkg "${_pkg}"; done
-
-        if [[ "${_check_failed}" = true ]]; then
-            exit 1
-        fi
+            _ver="$(pacman -Sp --print-format '%v' ${_pkg} 2> /dev/null; :)"
+            case "$("${script_path}/tools/package.sh" -s "${_pkg}")" in
+                "latest")
+                    [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
+                    ;;
+                "noversion")
+                    msg_warn "Failed to get the latest version of ${_pkg}."
+                    ;;
+                "old")
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
+                    msg_warn "${_pkg} is not the latest package.\nLocal: $(pacman -Q ${_pkg} 2> /dev/null | getclm 2) Latest: ${_ver}"
+                    ;;
+                "failed")
+                    [[ "${debug}" = true ]] && echo
+                    msg_error "${_pkg} is not installed." ; _check_failed=true
+                    ;;
+            esac
+        done
+        if [[ "${_check_failed}" = true ]]; then exit 1; fi
     fi
 
     # Build mkalteriso
