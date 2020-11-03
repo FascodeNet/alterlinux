@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 default:
-  image: archlinux/base
+  image: archlinux:latest
   before_script:
     - pacman --noconfirm -Syu --needed base-devel shellcheck
 
