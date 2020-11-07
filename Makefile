@@ -64,7 +64,7 @@ mkalteriso:
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
 menuconfig-script/kernel_choice:system/kernel-x86_64 system/kernel-i686
-	./kernel-choice-conf-gen.sh
+	./tools/kernel-choice-conf-gen.sh
 build_option:
 	if [ -f .config ];\
 	then \
@@ -72,7 +72,7 @@ build_option:
 	else \
 		make menuconfig ;\
 	fi
-	./menuconf-to-alterconf.sh ./.build_option
+	./tools/menuconf-to-alterconf.sh ./.build_option
 clean:
 	@sudo ./${BUILD_SCRIPT} clean
 build:build_option mkalteriso
