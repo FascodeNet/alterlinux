@@ -76,7 +76,7 @@ echo build option :
     [[ -n "${channel}"     ]] && echo "            Channel : ${channel}"
 
 if [[ "${USE_CUSTOM_LANG}" = "true" ]]; then
-    argument="${argument} -g ${language}"
+    argument="${argument} -l ${language}"
 fi
 if [[ "${plymouth}" = true ]]; then
     argument="${argument} -b"
