@@ -104,6 +104,12 @@ getclm() {
     echo "$(cat -)" | cut -d " " -f "${1}"
 }
 
+# Usage: echo_blank <number>
+# 指定されたぶんの半角空白文字を出力します
+echo_blank(){
+    local _blank
+    for _local in $(seq 1 "${1}"); do echo -ne " "; done
+}
 
 _usage () {
     echo "usage ${0} [options] [channel]"
@@ -126,7 +132,7 @@ _usage () {
     echo "    -l | --lang <lang>           Specifies the default language for the live environment"
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${kernel}"
+    echo "                                  Default: ${defaultkernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
@@ -139,16 +145,14 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch _lang _list _locale_name_list kernel _dirname _channel _b
+    local blank="33" _arch  _list _dirname _channel
 
     echo " Language for each architecture:"
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do echo -ne " "; done
-        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
-        for _lang in ${_locale_name_list[@]};do echo -n "${_lang} "; done
-        echo
+        echo_blank "$(( ${blank} - 4 - ${#_arch} ))"
+        "${script_path}/tools/locale.sh" -a "${_arch}" show
     done
 
     echo
@@ -156,9 +160,8 @@ _usage () {
     for _list in ${script_path}/system/kernel-* ; do
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
-        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do echo -ne " "; done
-        for kernel in $(grep -h -v ^'#' ${_list} | getclm 1); do echo -n "${kernel} "; done
-        echo
+        echo_blank "$(( ${blank} - 5 - ${#_arch} ))"
+        "${script_path}/tools/kernel.sh" -a "${_arch}" show
     done
 
     echo
@@ -170,14 +173,8 @@ _usage () {
             _channel="${_dirname}"
         fi
         echo -ne "    ${_channel}"
-        for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
-        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-            "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
-        elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
-            echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
-        else
-            "${script_path}/tools/msg.sh" --noadjust -l 'WARN :' --noappname warn "This channel does not have a description.txt"
-        fi
+        echo_blank "$(( ${blank} - 4 - ${#_channel} ))"
+        "${script_path}/tools/channel.sh" desc "${_channel}"
     done
 
     echo
@@ -313,44 +310,29 @@ prepare_env() {
 
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _installed_pkg=($(pacman -Q | getclm 1)) _installed_ver=($(pacman -Q | getclm 2)) _check_pkg _check_failed=false _pkg
+        local _check_failed=false _pkg _ver
         msg_info "Checking dependencies ..."
-
-        # _checl_pkg [package]
-        _check_pkg() {
-            local __pkg __ver
+        for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            for __pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
-                # パッケージがインストールされているかどうか
-                if [[ "${_installed_pkg[${__pkg}]}" = ${1} ]]; then
-                    __ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
-                    if [[ "${_installed_ver[${__pkg}]}" = "${__ver}" ]]; then
-                        # パッケージが最新の場合
-                        [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        return 0
-                    elif [[ -z ${__ver} ]]; then
-                        # リモートのバージョンの取得に失敗した場合
-                        [[ "${debug}" = true ]] && echo
-                        msg_warn "${1} is not a repository package."
-                        return 0
-                    else
-                        # リモートとローカルのバージョンが一致しない場合
-                        [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${1} | getclm 2)\n"
-                        msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${__ver}"
-                        return 0
-                    fi
-                fi
-            done
-            [[ "${debug}" = true ]] && echo
-            msg_error "${_pkg} is not installed." ; _check_failed=true
-            return 0
-        }
-
-        for _pkg in ${dependence[@]}; do _check_pkg "${_pkg}"; done
-
-        if [[ "${_check_failed}" = true ]]; then
-            exit 1
-        fi
+            _ver="$(pacman -Sp --print-format '%v' ${_pkg} 2> /dev/null; :)"
+            case "$("${script_path}/tools/package.sh" -s "${_pkg}")" in
+                "latest")
+                    [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
+                    ;;
+                "noversion")
+                    msg_warn "Failed to get the latest version of ${_pkg}."
+                    ;;
+                "old")
+                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
+                    msg_warn "${_pkg} is not the latest package.\nLocal: $(pacman -Q ${_pkg} 2> /dev/null | getclm 2) Latest: ${_ver}"
+                    ;;
+                "failed")
+                    [[ "${debug}" = true ]] && echo
+                    msg_error "${_pkg} is not installed." ; _check_failed=true
+                    ;;
+            esac
+        done
+        if [[ "${_check_failed}" = true ]]; then exit 1; fi
     fi
 
     # Build mkalteriso
