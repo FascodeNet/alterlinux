@@ -104,6 +104,12 @@ getclm() {
     echo "$(cat -)" | cut -d " " -f "${1}"
 }
 
+# Usage: echo_blank <number>
+# 指定されたぶんの半角空白文字を出力します
+echo_blank(){
+    local _blank
+    for _local in $(seq 1 "${1}"); do echo -ne " "; done
+}
 
 _usage () {
     echo "usage ${0} [options] [channel]"
@@ -126,7 +132,7 @@ _usage () {
     echo "    -l | --lang <lang>           Specifies the default language for the live environment"
     echo "                                  Default: ${locale_name}"
     echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${kernel}"
+    echo "                                  Default: ${defaultkernel}"
     echo "    -o | --out <out_dir>         Set the output directory"
     echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
@@ -139,16 +145,14 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch _lang _list _locale_name_list kernel _dirname _channel _b
+    local blank="33" _arch  _list _dirname _channel
 
     echo " Language for each architecture:"
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do echo -ne " "; done
-        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | getclm 1)
-        for _lang in ${_locale_name_list[@]};do echo -n "${_lang} "; done
-        echo
+        echo_blank "$(( ${blank} - 4 - ${#_arch} ))"
+        "${script_path}/tools/locale.sh" -a "${_arch}" show
     done
 
     echo
@@ -156,9 +160,8 @@ _usage () {
     for _list in ${script_path}/system/kernel-* ; do
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
-        for i in $( seq 1 $(( ${blank} - 5 - ${#_arch} )) ); do echo -ne " "; done
-        for kernel in $(grep -h -v ^'#' ${_list} | getclm 1); do echo -n "${kernel} "; done
-        echo
+        echo_blank "$(( ${blank} - 5 - ${#_arch} ))"
+        "${script_path}/tools/kernel.sh" -a "${_arch}" show
     done
 
     echo
@@ -170,7 +173,7 @@ _usage () {
             _channel="${_dirname}"
         fi
         echo -ne "    ${_channel}"
-        for _b in $( seq 1 $(( ${blank} - 4 - ${#_channel} )) ); do echo -ne " "; done
+        echo_blank "$(( ${blank} - 4 - ${#_channel} ))"
         if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
             "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
         elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
