@@ -21,6 +21,7 @@ _help() {
     echo
     echo " General command:"
     echo "    check [name]       Returns whether the specified channel name is valid."
+    echo "    desc [name]        Display a description of the specified channel"
     echo "    show               Display a list of channels"
     echo "    help               This help message"
     echo
@@ -91,6 +92,24 @@ check() {
         fi
     else
         echo "incorrect"
+    fi
+}
+
+desc() {
+    gen_channel_list
+    if [[ ! "${#}" = "1" ]]; then
+        _help
+        exit 1
+    fi
+    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${1}")" = "correct" ]]; then
+        exit 1
+    fi
+    if [[ ! "$(cat "${script_path}/channels/${1}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${opt_nochkver}" = false ]]; then
+        "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
+    elif [[ -f "${script_path}/channels/${1}/description.txt" ]]; then
+        echo -ne "$(cat "${script_path}/channels/${1}/description.txt")\n"
+    else
+        "${script_path}/tools/msg.sh" --noadjust -l 'WARN :' --noappname warn "This channel does not have a description.txt"
     fi
 }
 
@@ -173,6 +192,7 @@ fi
 case "${mode}" in
     "check" ) check ${@}    ;;
     "show"  ) show          ;;
+    "desc"  ) desc ${@}     ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
 esac

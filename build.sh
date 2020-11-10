@@ -173,13 +173,7 @@ _usage () {
         fi
         echo -ne "    ${_channel}"
         echo_blank "$(( ${blank} - 4 - ${#_channel} ))"
-        if [[ ! "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
-            "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
-        elif [[ -f "${script_path}/channels/${_dirname}/description.txt" ]]; then
-            echo -ne "$(cat "${script_path}/channels/${_dirname}/description.txt")\n"
-        else
-            "${script_path}/tools/msg.sh" --noadjust -l 'WARN :' --noappname warn "This channel does not have a description.txt"
-        fi
+        "${script_path}/tools/channel.sh" desc "${_channel}"
     done
     echo -ne "    rebuild"
     echo_blank "$(( ${blank} - 11 ))"
@@ -582,7 +576,7 @@ prepare_build() {
     check_bool noefi
 
     # Check architecture for each channel
-    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b -m check "${channel_name}")" = "correct" ]]; then
+    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
