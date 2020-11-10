@@ -813,45 +813,6 @@ make_packages_aur() {
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
 
-    # Check PKGBUILD
-    for _pkg in ${pkglist_aur[@]}; do
-        if [[ ! -f "${airootfs_dir}/aurbuild_temp/${_pkg}/PKGBUILD" ]]; then
-            msg_error "PKGBUILD is missing. Please check if the package name ( ${_pkg} ) of AUR is correct." "1"
-        fi
-    done
-
-
-    # Install dependent packages.
-    local dependent_packages=""
-    for _aur_pkg in ${pkglist_aur[@]}; do dependent_packages="${dependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_DEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${airootfs_dir}/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
-    [[ -n "${dependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${dependent_packages}" install
-
-    # Dump packages
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_old.sh" run
-
-    # Install makedependent packages.
-    local makedependent_packages=""
-    for _aur_pkg in ${pkglist_aur[@]}; do makedependent_packages="${makedependent_packages} $("${script_path}/system/aur_scripts/PKGBUILD_MAKEDEPENDS_SANDBOX.sh" "${script_path}/system/arch-pkgbuild-parser" "$(realpath "${airootfs_dir}/aurbuild_temp/${_aur_pkg}/PKGBUILD")")"; done
-    [[ -n "${makedependent_packages}" ]] && ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${makedependent_packages}" install
-
-
-    # Dump packages
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/pacls_gen_new.sh" run
-
-    # Build the package using makepkg.
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_install.sh ${_aur_packages_ls_str}" run
-
-    # Install the built package file.
-    for _pkg in ${pkglist_aur[@]}; do
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${airootfs_dir}/aurbuild_temp/${_pkg}/*.pkg.tar.*" install_file
-    done
-
-    # Remove packages
-    delete_pkg_list=(`comm -13 --nocheck-order "${airootfs_dir}/paclist_old" "${airootfs_dir}/paclist_new" |xargs`)
-    for _dlpkg in ${delete_pkg_list[@]}; do
-        unshare --fork --pid pacman -r "${airootfs_dir}" -R --noconfirm ${_dlpkg}
-    done
-
     # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 
