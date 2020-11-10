@@ -27,6 +27,7 @@ menuconfig/build/mconf::
 		mkdir menuconfig/build ;\
 	fi
 	(cd menuconfig/build ; cmake -GNinja .. ; ninja -j4 )
+
 mkalteriso:
 	@if [ -d system/cpp-src/mkalteriso/build ];\
 	then \
@@ -38,8 +39,10 @@ mkalteriso:
 
 menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
 	menuconfig/build/mconf menuconfig-script/rootconf
+
 menuconfig-script/kernel_choice:system/kernel-x86_64 system/kernel-i686
 	${CURRENT_DIR}/tools/kernel-choice-conf-gen.sh
+
 build_option:
 	if [ -f .config ];\
 	then \
@@ -48,12 +51,18 @@ build_option:
 		make menuconfig ;\
 	fi
 	${CURRENT_DIR}/tools/menuconf-to-alterconf.sh ${CURRENT_DIR}/.build_option
+
 clean:
 	@sudo ${CURRENT_DIR}/${BUILD_SCRIPT} clean
+
 build:build_option mkalteriso
 	$(eval BUILD_OPTION := $(shell cat ${CURRENT_DIR}/.build_option))
 	sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${BUILD_OPTION}
+
 keyring::
 	sudo ${CURRENT_DIR}/tools/keyring.sh --alter-add --arch-add
+
 wizard:
-	
+	sudo ${CURRENT_DIR}/tools/wizard.sh
+
+
