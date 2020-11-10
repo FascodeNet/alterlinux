@@ -545,7 +545,7 @@ prepare_build() {
             set -x -v
             mkalteriso_option="${mkalteriso_option} -x"
         fi
-        if [[ "${noaur}" = true ]]; then
+        if [[ "${noaur}" = false ]]; then
             mkalteriso_option="${mkalteriso_option} -s tdn"
         fi
 
