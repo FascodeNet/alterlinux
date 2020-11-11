@@ -810,7 +810,7 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
 
     # Build aur packages on airootfs
-    for _file in "aur_install" "aur_prepare" "aur_remove" "pacls_gen_new" "pacls_gen_old"; do
+    for _file in "aur_prepare" "aur_remove"; do
         cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${airootfs_dir}/root/${_file}.sh"
         chmod 755 "${airootfs_dir}/root/${_file}.sh"
     done
