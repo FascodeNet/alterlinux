@@ -53,5 +53,6 @@ for _aur_pkg in ${*}; do
     #chmod 777 "/aurbuild_temp/aur_prepare.sh"
     echo "yay -S ${_aur_pkg} -y --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu" > "/aurbuild_temp/aur_prepare.sh"
     chmod 777 "/aurbuild_temp/aur_prepare.sh"
+    chmod +s /usr/bin/sudo
     sudo -u aurbuild "/aurbuild_temp/aur_prepare.sh"
 done
