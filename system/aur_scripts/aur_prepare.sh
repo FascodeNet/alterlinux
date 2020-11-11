@@ -48,4 +48,4 @@ echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Build and install
 chmod +s /usr/bin/sudo
-sudo -u aurbuild "yay -Sy  --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu ${*}"
+sudo -u aurbuild yay -Sy  --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu ${*}
