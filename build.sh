@@ -203,12 +203,13 @@ _usage () {
 umount_chroot () {
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
-        if [[ "${_mount}" != $(realpath ${work_dir})/airootfs ]]; then
+        if [[ "${_mount}" != $(realpath ${work_dir})/${arch}/airootfs ]]; then
             msg_info "Unmounting ${_mount}"
             umount -lf "${_mount}" 2> /dev/null
         fi
     done
-}# Unmount chroot dir advance
+}
+# Unmount chroot dir advance
 umount_chroot_advance () {
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
