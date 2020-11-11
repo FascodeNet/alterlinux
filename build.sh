@@ -824,7 +824,7 @@ make_packages_aur() {
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
     rm -rf "${airootfs_dir}/etc/pacman.d/gnupg/"
-    rm -rf /etc/resolv.conf "${airootfs_dir}/etc/resolv.conf"
+    rm -rf "${airootfs_dir}/etc/resolv.conf"
     # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 
@@ -833,7 +833,8 @@ make_packages_aur() {
 }
 
 # Customize installation (airootfs)
-make_customize_airootfs() {
+make_copy_airootfs() {
+
     # Overwrite airootfs with customize_airootfs.
     local _copy_airootfs
 
@@ -854,6 +855,9 @@ make_customize_airootfs() {
         cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     fi
 
+}
+
+make_customize_airootfs() {
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
@@ -1461,6 +1465,7 @@ run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
 #run_once make_packages_file
+run_once make_copy_airootfs
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
