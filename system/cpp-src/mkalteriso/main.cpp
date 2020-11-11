@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
     QTimer::singleShot(0,&m,SLOT(run()));
     int retkun= a.exec();
     m.cmd_collect.force_umount_old();
+    m.cmd_collect.force_umount();
     return retkun;
 }
 bool isroot(){

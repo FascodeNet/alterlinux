@@ -3,6 +3,7 @@
 command_collection::command_collection(QObject *parent) : QObject(parent)
 {
 umount_kun_old=false;
+umount_kun=false;
 }
 void command_collection::set_build_setting(build_setting* bss){
     bskun=bss;
@@ -57,7 +58,7 @@ int command_collection::_chroot_init(){
         dir.mkpath("airootfs");
     }
     if(bskun->get_aur()){
-
+        _create_img_sys();
     }
     if(bskun->get_wsl()){
 
@@ -222,6 +223,27 @@ int command_collection::_mount_airootfs_old(){
     return 0;
 
 }
+int command_collection::_mount_airootfs(){
+    umount_kun=true;
+    QDir dir(bskun->get_work_dir());
+    if(!dir.exists("airootfs")){
+        dir.mkpath("airootfs");
+    }
+    _msg_info("Mounting '" + bskun->get_work_dir() + "/airootfs.img' on '" + bskun->get_work_dir() + "/airootfs'");
+    //QString mount_cmd="mount \"" + bskun->get_work_dir() + "/airootfs.img\" \"" + bskun->get_work_dir() + "/airootfs\"";    //イメージのマウントコマンドの生成
+    QStringList mount_cmd_list;
+    mount_cmd_list << "mount" << bskun->get_work_dir() + "/airootfs.img" << bskun->get_work_dir() + "/airootfs";
+    _msg_infodbg(mount_cmd_list);    //デバッグ時のみ表示
+    int ret=custom_exec(mount_cmd_list);  //実行
+    if(ret != 0){   //エラー時
+        _msg_err(QString("mount airootfs\nError code : ") + QString::number(ret));
+        return 2;
+    }
+
+    _msg_success("Done!");
+    return 0;
+
+}
 void command_collection::_umount_airootfs_old(){
     _msg_info("Unmounting '" + bskun->get_work_dir() + "/mnt/airootfs'");
     QString umount_cmdrun="umount -d \"" + bskun->get_work_dir() + "/mnt/airootfs\"";
@@ -233,9 +255,71 @@ void command_collection::_umount_airootfs_old(){
     system(rmdirkun.toUtf8().data());
 
 }
+void command_collection::_umount_airootfs(){
+
+    _msg_info("Unmounting '" + bskun->get_work_dir() + "/airootfs'");
+    QStringList umount_cmdrun;
+    umount_cmdrun << "umount" << "-d" << bskun->get_work_dir() + "/airootfs";
+    _msg_info(umount_cmdrun);
+    //system(umount_cmdrun.toUtf8().data());
+    custom_exec(umount_cmdrun);
+    _msg_success("Done!");
+    QStringList rmdirkun;
+    rmdirkun << "rmdir" << "-rf" << bskun->get_work_dir() + "/airootfs";
+    custom_exec(rmdirkun);
+    QStringList rmdir_imgkun;
+    rmdir_imgkun << "rmdir" << "-rf" << bskun->get_work_dir() + "/airootfs.img";
+    custom_exec(rmdir_imgkun);
+    umount_kun=false;
+}
 void command_collection::force_umount_old(){
     if(umount_kun_old){
         _umount_airootfs_old();
+    }
+}
+void command_collection::force_umount(){
+    if(umount_kun){
+        _umount_airootfs();
+    }
+}
+int command_collection::_create_img_sys(){
+    int ret;
+
+    QDir workdirkun(bskun->get_work_dir());
+    if(!workdirkun.exists("airootfs")){
+        _msg_err("The path '" + bskun->get_work_dir() + "/airootfs' does not exist");
+        return 1;
+    }
+    _msg_info("Creating ext4 image of 32GiB...");
+    QStringList truncate_cmdstr_list;
+    truncate_cmdstr_list << "truncate" << "-s" << "32GB" << bskun->get_work_dir() + "/airootfs.img";
+    _msg_infodbg(truncate_cmdstr_list);
+    ret = custom_exec(truncate_cmdstr_list);
+    if(ret != 0){
+        _msg_err(QString("truncate ! \nError code : ") + QString::number(ret));
+        return 4;
+    }
+    QStringList mkfs_ext4_cmdstrlist;
+    mkfs_ext4_cmdstrlist << "mkfs.ext4" << "-O" << "^has_journal,^resize_inode" << "-E" << "lazy_itable_init=0" << "-m" << "0" << "-F" <<
+                         bskun->get_work_dir() + "/airootfs.img";
+    _msg_infodbg(mkfs_ext4_cmdstrlist);
+    ret=custom_exec(mkfs_ext4_cmdstrlist);
+    if(ret != 0){
+        _msg_err(QString("mkfs.ext4 ! \nError code : ") + QString::number(ret));
+        return 5;
+    }
+    QStringList tune2fs_cmdstrlist;
+    tune2fs_cmdstrlist << "tune2fs" << "-c" << "0" << "-i" << "0" << bskun->get_work_dir() + "/airootfs.img";
+    _msg_infodbg(tune2fs_cmdstrlist);
+    ret=custom_exec(tune2fs_cmdstrlist);
+    if(ret != 0){
+        _msg_err(QString("tune2fs ! \nError code : ") + QString::number(ret));
+        return 5;
+    }
+    _msg_success("Done!");
+    ret=_mount_airootfs();
+    if(ret != 0){
+        return ret;
     }
 }
 int command_collection::_mkairootfs_img_old(){
@@ -564,14 +648,26 @@ void command_collection::_checksum_common(QString sum_file){
 void command_collection::_msg_info(QString s){
     std::wcout << "[mkalteriso] INFO: " << s.toStdWString() << std::endl;
 }
+void command_collection::_msg_info(QStringList s){
+    _msg_info(qstrls_to_qstr(s));
+}
 void command_collection::_msg_infodbg(QString s){
     if(!bskun->get_quiet() || bskun->get_debug_mode()){
         std::wcout << "\e[35m[mkalteriso] DEBUG: " << s.toStdWString() << "\e[0m" << std::endl;
     }
 }
+void command_collection::_msg_infodbg(QStringList s){
+    _msg_infodbg(qstrls_to_qstr(s));
+}
 void command_collection::_msg_success(QString s){
     std::wcout << "\e[32m[mkalteriso] INFO: " << s.toStdWString() << "\e[0m" << std::endl;
 }
+void command_collection::_msg_success(QStringList s){
+    _msg_success(qstrls_to_qstr(s));
+}
 void command_collection::_msg_err(QString s){
     std::wcerr << "\e[31m[mkalteriso] ERROR: " << s.toStdWString() << "\e[0m" << std::endl;
+}
+void command_collection::_msg_err(QStringList s){
+    _msg_err(qstrls_to_qstr(s));
 }

@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "build_setting.h"
 #include "custom_system_exec.h"
+#include "qstringls_to_str.h"
 class command_collection : public QObject
 {
     Q_OBJECT
@@ -23,9 +24,12 @@ public:
     int command_tarball(QString);
     int command_iso(QString);
     void force_umount_old();
+    void force_umount();
+
 private:
     build_setting* bskun=nullptr;
     bool umount_kun_old;
+    bool umount_kun;
     enum show_config_type{
         INIT=0,
         INSTALL=1,
@@ -37,6 +41,9 @@ private:
     static void _msg_info(QString s);
     static void _msg_err(QString s);
     static void _msg_success(QString s);
+    static void _msg_info(QStringList s);
+    static void _msg_err(QStringList s);
+    static void _msg_success(QStringList s);
     int _chroot_init();
     int _chroot_run();
     int _pacman(QString );
@@ -49,13 +56,17 @@ private:
     void _mksignature();
     void _checksum_common(QString) ;
     void _msg_infodbg(QString);
+    void _msg_infodbg(QStringList);
     int _mkairootfs_img_old();
     int _mount_airootfs_old();
+    int _mount_airootfs();
     template<class... LNKUN> int max_lenkun(LNKUN... args);
     template<class... LNKUNS> int max_lenkun_QString(LNKUNS... args);
     template<class... SHOWVALKUN> void show_conf_l(int maxkun,void (*do_msgshow)(QString),SHOWVALKUN... txtargkun);
     template<class... SHOWVALKUN> void show_conf_l(void (*do_msgshow)(QString),SHOWVALKUN... txtargkun);
     void _umount_airootfs_old();
+    void _umount_airootfs();
+    int _create_img_sys();
     template<class... SHOWVALKUN> void show_conf_dkun(void (*do_msgshow)(QString),SHOWVALKUN... argkun);
     QString img_name;
     static void stubkun(QString);
