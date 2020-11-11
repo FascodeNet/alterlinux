@@ -203,6 +203,17 @@ _usage () {
 umount_chroot () {
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
+        if [[ "${_mount}" == $(realpath ${work_dir})/airootfs ]]; then
+            :
+        else
+            msg_info "Unmounting ${_mount}"
+            umount -lf "${_mount}" 2> /dev/null
+        fi
+    done
+}# Unmount chroot dir advance
+umount_chroot_advance () {
+    local _mount
+    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
         msg_info "Unmounting ${_mount}"
         umount -lf "${_mount}" 2> /dev/null
     done
@@ -240,7 +251,7 @@ remove() {
 # 強制終了時にアンマウント
 umount_trap() {
     local _status="${?}"
-    umount_chroot
+    umount_chroot_advance
     msg_error "It was killed by the user.\nThe process may not have completed successfully."
     exit "${_status}"
 }
@@ -339,7 +350,7 @@ prepare_env() {
 
     # Check work dir
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ ! "${rebuild}" = true ]]; then
-        umount_chroot
+        umount_chroot_advance
         msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
     fi

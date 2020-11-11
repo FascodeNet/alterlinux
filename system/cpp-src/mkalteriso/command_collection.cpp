@@ -197,6 +197,7 @@ int command_collection::_mkairootfs_sfs(){
             + bskun->get_sfs_comp() + "\" " + bskun->get_sfs_comp_opt();
     _msg_infodbg(mksquashfs_cmd);
     int ret=system(mksquashfs_cmd.toUtf8().data());
+    force_umount();
     if(ret != 0){
         _msg_err(QString("mksquashfs !\nError code : ") + QString::number(ret) );
         return 2;
