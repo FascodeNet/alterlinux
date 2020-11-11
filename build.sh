@@ -819,10 +819,12 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do
         _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg}"
     done
-
+    cp -rf /etc/pacman.d/gnupg/ "${airootfs_dir}/etc/pacman.d/gnupg/"
+    cp -f /etc/resolv.conf "${airootfs_dir}/etc/resolv.conf"
     # Create user to build AUR
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
-
+    rm -rf "${airootfs_dir}/etc/pacman.d/gnupg/"
+    rm -rf /etc/resolv.conf "${airootfs_dir}/etc/resolv.conf"
     # Remove the user created for the build.
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 
@@ -1152,10 +1154,20 @@ make_tarball() {
 
 # Build airootfs filesystem image
 make_prepare() {
-    cp -a -l -f "${airootfs_dir}" "${work_dir}"
+    if [[ "${noaur}" == true ]]; then
+        cp -a -l -f "${airootfs_dir}" "${work_dir}"
+    else
+        umount -fl "${airootfs_dir}"
+        mkdir -p "${work_dir}/airootfs"
+        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+    fi
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
+
+    if [[ "${noaur}" == true ]]; then
+        umount -fl "${work_dir}/airootfs"
+    fi
     remove "${work_dir}/airootfs"
 
     if [[ "${cleaning}" = true ]]; then
