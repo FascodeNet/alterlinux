@@ -546,7 +546,7 @@ prepare_build() {
             mkalteriso_option="${mkalteriso_option} -x"
         fi
         if [[ "${noaur}" = false ]]; then
-            mkalteriso_option="${mkalteriso_option} -s tdn"
+            mkalteriso_option="${mkalteriso_option} --aur"
         fi
 
         prepare_rebuild

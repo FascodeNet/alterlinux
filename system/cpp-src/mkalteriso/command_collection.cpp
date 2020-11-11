@@ -2,7 +2,7 @@
 
 command_collection::command_collection(QObject *parent) : QObject(parent)
 {
-umount_kun=false;
+umount_kun_old=false;
 }
 void command_collection::set_build_setting(build_setting* bss){
     bskun=bss;
@@ -55,6 +55,9 @@ int command_collection::_chroot_init(){
     QDir dir(bskun->get_work_dir());
     if(!dir.exists("airootfs")){
         dir.mkpath("airootfs");
+    }
+    if(bskun->get_aur()){
+
     }
     if(bskun->get_wsl()){
 
@@ -200,8 +203,8 @@ int command_collection::_mkairootfs_sfs(){
     _msg_success("Done!");
     return 0;
 }
-int command_collection::_mount_airootfs(){
-    umount_kun=true;
+int command_collection::_mount_airootfs_old(){
+    umount_kun_old=true;
     QDir workkun(bskun->get_work_dir());
     if(!workkun.exists("mnt/airootfs")){
         workkun.mkpath("mnt/airootfs");
@@ -219,7 +222,7 @@ int command_collection::_mount_airootfs(){
     return 0;
 
 }
-void command_collection::_umount_airootfs(){
+void command_collection::_umount_airootfs_old(){
     _msg_info("Unmounting '" + bskun->get_work_dir() + "/mnt/airootfs'");
     QString umount_cmdrun="umount -d \"" + bskun->get_work_dir() + "/mnt/airootfs\"";
     _msg_info(umount_cmdrun);
@@ -230,12 +233,12 @@ void command_collection::_umount_airootfs(){
     system(rmdirkun.toUtf8().data());
 
 }
-void command_collection::force_umount(){
-    if(umount_kun){
-        _umount_airootfs();
+void command_collection::force_umount_old(){
+    if(umount_kun_old){
+        _umount_airootfs_old();
     }
 }
-int command_collection::_mkairootfs_img(){
+int command_collection::_mkairootfs_img_old(){
     int ret;
     QDir workdirkun(bskun->get_work_dir());
     if(!workdirkun.exists("airootfs")){
@@ -265,7 +268,7 @@ int command_collection::_mkairootfs_img(){
         return 5;
     }
     _msg_success("Done!");
-    ret=_mount_airootfs();
+    ret=_mount_airootfs_old();
     if(ret != 0){
         return ret;
     }
@@ -286,7 +289,7 @@ int command_collection::_mkairootfs_img(){
         return 7;
     }
     _msg_success("Done!");
-    _umount_airootfs();
+    _umount_airootfs_old();
     workdirkun.mkpath("iso/" + bskun->get_install_dir() + "/" + bskun->get_architecture());
     _msg_info("Creating SquashFS image, this may take some time...");
     QString mksquashfskun="mksquashfs \"" + workdirstr + "/airootfs.img\" \"" + workdirstr + "/iso/" + bskun->get_install_dir() + "/" + bskun->get_architecture()
@@ -312,7 +315,7 @@ int command_collection::command_prepare(){
             return 2;
         }
     }else{
-        if(_mkairootfs_img()!=0){
+        if(_mkairootfs_img_old()!=0){
             return 3;
         }
     }

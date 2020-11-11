@@ -22,10 +22,10 @@ public:
     int command_pkglist();
     int command_tarball(QString);
     int command_iso(QString);
-    void force_umount();
+    void force_umount_old();
 private:
     build_setting* bskun=nullptr;
-    bool umount_kun;
+    bool umount_kun_old;
     enum show_config_type{
         INIT=0,
         INSTALL=1,
@@ -49,13 +49,13 @@ private:
     void _mksignature();
     void _checksum_common(QString) ;
     void _msg_infodbg(QString);
-    int _mkairootfs_img();
-    int _mount_airootfs();
+    int _mkairootfs_img_old();
+    int _mount_airootfs_old();
     template<class... LNKUN> int max_lenkun(LNKUN... args);
     template<class... LNKUNS> int max_lenkun_QString(LNKUNS... args);
     template<class... SHOWVALKUN> void show_conf_l(int maxkun,void (*do_msgshow)(QString),SHOWVALKUN... txtargkun);
     template<class... SHOWVALKUN> void show_conf_l(void (*do_msgshow)(QString),SHOWVALKUN... txtargkun);
-    void _umount_airootfs();
+    void _umount_airootfs_old();
     template<class... SHOWVALKUN> void show_conf_dkun(void (*do_msgshow)(QString),SHOWVALKUN... argkun);
     QString img_name;
     static void stubkun(QString);

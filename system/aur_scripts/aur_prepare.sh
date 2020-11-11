@@ -51,6 +51,7 @@ remove "/aurbuild_temp/aur_prepare.sh"
 for _aur_pkg in ${*}; do
     #echo  "cd ~ ; rm -rf "${_aur_pkg}"; git clone https://aur.archlinux.org/${_aur_pkg}.git" > "/aurbuild_temp/aur_prepare.sh"
     #chmod 777 "/aurbuild_temp/aur_prepare.sh"
-    echo "yay -S ${_aur_pkg} -y --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu"
+    echo "yay -S ${_aur_pkg} -y --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu" > "/aurbuild_temp/aur_prepare.sh"
+    chmod 777 "/aurbuild_temp/aur_prepare.sh"
     sudo -u aurbuild "/aurbuild_temp/aur_prepare.sh"
 done
