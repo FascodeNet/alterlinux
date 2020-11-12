@@ -686,7 +686,7 @@ make_packages_aur() {
     cp -f /etc/resolv.conf "${airootfs_dir}/etc/resolv.conf"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/pacman.conf"
     # Create user to build AUR
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_pkglist}" run
     rm -rf "${airootfs_dir}/etc/pacman.d/gnupg/"
     rm -rf "${airootfs_dir}/etc/resolv.conf"
     rm -rf "${airootfs_dir}/etc/pacman.conf"
