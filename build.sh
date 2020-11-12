@@ -690,7 +690,7 @@ make_packages_aur() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 
     # Remove scripts
-    remove "${airootfs_dir}/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
+    remove "${airootfs_dir}/root/"{"aur_prepare","aur_remove"}".sh"
 }
 
 # Customize installation (airootfs)
