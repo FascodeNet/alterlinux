@@ -1033,7 +1033,9 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}"
     fi
-
+    if [[ "${noaur}" != true ]]; then 
+        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
+    fi
     # iso version info
     if [[ "${include_info}" = true ]]; then
         local _write_info_file _info_file="${isofs_dir}/alteriso-info"
