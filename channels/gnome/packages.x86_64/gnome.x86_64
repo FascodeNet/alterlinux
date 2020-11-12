@@ -51,3 +51,9 @@ gdm
 #-- other --#
 gnome-bluetooth
 gnome-epub-thumbnailer
+
+#aur build
+meson
+ninja
+jq
+oniguruma
