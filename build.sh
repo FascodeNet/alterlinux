@@ -1083,7 +1083,7 @@ make_overisofs() {
 make_iso() {
 
     if [[ "${noaur}" == false ]]; then
-        umount -fl "${work_dir}/airootfs"
+        umount -fl "${work_dir}/${arch}/airootfs"
     fi
     remove "${work_dir}/airootfs"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
