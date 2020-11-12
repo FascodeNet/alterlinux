@@ -41,15 +41,15 @@ getclm() {
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -s "6" -a "pkglist.sh" -l "Error" -r "red" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" error "${1}"
 }
 
 msg_info() {
-    "${script_path}/tools/msg.sh" -s "6" -a "pkglist.sh" -l "Info" -r "green" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" error "${1}"
 }
 
 msg_debug() {
-    "${script_path}/tools/msg.sh" -s "6" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
 }
 
 

@@ -664,9 +664,9 @@ make_packages_file() {
 }
 
 make_packages_aur() {
-    local  _pkg  _pkglist
+    local  _pkg pkglist_aur
 
-    _pkglist=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
+    pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
@@ -682,11 +682,11 @@ make_packages_aur() {
     for _pkg in ${_pkglist[@]}; do
         _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg}"
     done
-    cp -rf /etc/pacman.d/gnupg/ "${airootfs_dir}/etc/pacman.d/gnupg/"
-    cp -f /etc/resolv.conf "${airootfs_dir}/etc/resolv.conf"
+    cp -rf "/etc/pacman.d/gnupg/" "${airootfs_dir}/etc/pacman.d/gnupg/"
+    cp -f "/etc/resolv.conf" "${airootfs_dir}/etc/resolv.conf"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/pacman.conf"
     # Create user to build AUR
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${_aur_packages_ls_str}" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${pkglist_aur[*]}" run
     rm -rf "${airootfs_dir}/etc/pacman.d/gnupg/"
     rm -rf "${airootfs_dir}/etc/resolv.conf"
     rm -rf "${airootfs_dir}/etc/pacman.conf"
@@ -694,7 +694,7 @@ make_packages_aur() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
 
     # Remove scripts
-    remove "${airootfs_dir}/root/"{"aur_install","aur_prepare","aur_remove","pacls_gen_new","pacls_gen_old"}".sh"
+    remove "${airootfs_dir}/root/"{"aur_prepare","aur_remove"}".sh"
 }
 
 # Customize installation (airootfs)
