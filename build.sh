@@ -1167,7 +1167,7 @@ make_prepare() {
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
 
-    if [[ "${noaur}" == true ]]; then
+    if [[ "${noaur}" == false ]]; then
         umount -fl "${work_dir}/airootfs"
     fi
     remove "${work_dir}/airootfs"
