@@ -1030,11 +1030,6 @@ make_prepare() {
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
 
-    if [[ "${noaur}" == false ]]; then
-        umount -fl "${work_dir}/airootfs"
-    fi
-    remove "${work_dir}/airootfs"
-
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}"
     fi
@@ -1084,6 +1079,11 @@ make_overisofs() {
 
 # Build ISO
 make_iso() {
+
+    if [[ "${noaur}" == false ]]; then
+        umount -fl "${work_dir}/airootfs"
+    fi
+    remove "${work_dir}/airootfs"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
     msg_info "The password for the live user and root is ${password}."
 }
