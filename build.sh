@@ -631,7 +631,7 @@ make_packages() {
     done
 
     # Install packages on airootfs
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "\"${_pkglist[*]}\"" install
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p " \" ${_pkglist[*]} \" " install
 }
 
 # Additional packages (airootfs)
