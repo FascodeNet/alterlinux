@@ -661,6 +661,7 @@ make_packages_file() {
     #else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${share_dir}/package_files.${arch}/*.pkg.*" install_file
     #fi
+    set -e
 }
 
 make_packages_aur() {
