@@ -60,8 +60,11 @@ cdback() {
 _chroot_init() {
     mkdir -p -- "${work_dir}/airootfs"
 
-    #_pacman "base base-devel syslinux" <- old code
+    if [[ "${aur}" = true ]]; then
+        _create_img_sys
+    fi
 
+    #_pacman "base base-devel syslinux" <- old code
     _pacman "base syslinux"
 }
 
@@ -524,9 +527,6 @@ _create_img_sys() {
 
 command_init() {
     _show_config init
-    if [[ "${aur}" = true ]]; then
-        _create_img_sys
-    fi
     _chroot_init
 }
 
