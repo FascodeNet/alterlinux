@@ -735,14 +735,14 @@ make_customize_airootfs() {
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
     
-    _script_list=("${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh")
+    _script_list=("/root/customize_airootfs.sh" "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh" "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh")
 
     # Script permission
     for _script in ${_script_list[@]}; do
-        if [[ -f "$_script" ]]; then
-            chmod 755 "${_script}"
+        if [[ -f "${airootfs_dir}/${_script}" ]]; then
+            chmod 755 "${airootfs_dir}/${_script}"
             ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_script} ${_airootfs_script_options}" run
-            remove "${_script}"
+            remove "${airootfs_dir}/${_script}"
         fi
     done
 
