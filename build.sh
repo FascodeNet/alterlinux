@@ -673,16 +673,16 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
 
     # prepare for yay
-    cp -r "${script_path}/system//aur_prepare.sh" "${airootfs_dir}/root/aur_prepare.sh"
-    chmod 755 "${airootfs_dir}/root/aur_prepare.sh"
+    cp -r "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    chmod 755 "${airootfs_dir}/root/aur.sh"
     cp -rf "/etc/pacman.d/gnupg/" "${airootfs_dir}/etc/pacman.d/gnupg/"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${pkglist_aur[*]}" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
 
     # Remove script
-    remove "${airootfs_dir}/root/aur_prepare.sh"
+    remove "${airootfs_dir}/root/aur.sh"
 }
 
 # Customize installation (airootfs)
