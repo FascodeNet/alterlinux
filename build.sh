@@ -675,7 +675,7 @@ make_packages_aur() {
     # prepare for yay
     cp -r "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
     chmod 755 "${airootfs_dir}/root/aur.sh"
-    cp -rf "/etc/pacman.d/gnupg/" "${airootfs_dir}/etc/pacman.d/gnupg/"
+    #cp -rf "/etc/pacman.d/gnupg/" "${airootfs_dir}/etc/pacman.d/gnupg/"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
