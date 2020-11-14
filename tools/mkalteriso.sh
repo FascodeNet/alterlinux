@@ -78,9 +78,9 @@ _umount_chroot () {
 }
 
 _chroot_run() {
-    _umount_chroot
+    #_umount_chroot
     eval -- arch-chroot "${work_dir}/airootfs" "${run_cmd}"
-    _umount_chroot
+    #_umount_chroot
 }
 
 _mount_airootfs() {
