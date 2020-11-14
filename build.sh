@@ -568,7 +568,9 @@ prepare_build() {
         # Mount airootfs.img
         if [[ "${noaur}" = false ]] && [[ -f "${work_dir}/${arch}/airootfs.img" ]]; then
             mkdir -p "${work_dir}/airootfs"
-            mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+            if ! mountpoint -q "${work_dir}/airootfs"; then
+                mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+            fi
         fi
     fi
 
