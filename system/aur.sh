@@ -48,4 +48,12 @@ echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Build and install
 chmod +s /usr/bin/sudo
-sudo -u aurbuild yay -Sy  --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu --noprovides ${*}
+sudo -u aurbuild yay -Sy  --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu --noprovides --config "/etc/alteriso-pacman.conf" ${*}
+
+
+# remove user and file
+userdel aurbuild
+remove /aurbuild_temp
+remove /etc/sudoers.d/aurbuild
+remove "/etc/pacman.d/gnupg/"
+remove "/etc/alteriso-pacman.conf"

@@ -666,36 +666,23 @@ make_packages_file() {
 
 make_packages_aur() {
     local  _pkg pkglist_aur
-
     pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
 
-    # Build aur packages on airootfs
-    for _file in "aur_prepare" "aur_remove"; do
-        cp -r "${script_path}/system/aur_scripts/${_file}.sh" "${airootfs_dir}/root/${_file}.sh"
-        chmod 755 "${airootfs_dir}/root/${_file}.sh"
-    done
-
-    local _aur_packages_ls_str=""
-    for _pkg in ${_pkglist[@]}; do
-        _aur_packages_ls_str="${_aur_packages_ls_str} ${_pkg}"
-    done
+    # prepare for yay
+    cp -r "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    chmod 755 "${airootfs_dir}/root/aur.sh"
     cp -rf "/etc/pacman.d/gnupg/" "${airootfs_dir}/etc/pacman.d/gnupg/"
-    cp -f "/etc/resolv.conf" "${airootfs_dir}/etc/resolv.conf"
-    cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/pacman.conf"
-    # Create user to build AUR
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_prepare.sh ${pkglist_aur[*]}" run
-    rm -rf "${airootfs_dir}/etc/pacman.d/gnupg/"
-    rm -rf "${airootfs_dir}/etc/resolv.conf"
-    rm -rf "${airootfs_dir}/etc/pacman.conf"
-    # Remove the user created for the build.
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur_remove.sh" run
+    cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
 
-    # Remove scripts
-    remove "${airootfs_dir}/root/"{"aur_prepare","aur_remove"}".sh"
+    # Run aur script
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
+
+    # Remove script
+    remove "${airootfs_dir}/root/aur.sh"
 }
 
 # Customize installation (airootfs)
