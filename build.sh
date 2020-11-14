@@ -685,19 +685,12 @@ make_packages_aur() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    local _copy_airootfs
-
-    _copy_airootfs() {
-        local _dir="${1%/}"
-        if [[ -d "${_dir}" ]]; then
-            cp -af "${_dir}"/* "${airootfs_dir}"
+    local _airootfs _airootfs_script_options _script _script_list
+    for _airootfs in "${share_dir}/airootfs.any" "${share_dir}/airootfs.${arch}" "${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any"; do
+        if [[ -d "${_airootfs}" ]]; then
+            cp -af "${_airootfs}"/* "${airootfs_dir}"
         fi
-    }
-
-    _copy_airootfs "${share_dir}/airootfs.any"
-    _copy_airootfs "${share_dir}/airootfs.${arch}"
-    _copy_airootfs "${channel_dir}/airootfs.any"
-    _copy_airootfs "${channel_dir}/airootfs.${arch}"
+    done
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
@@ -725,53 +718,25 @@ make_customize_airootfs() {
 
 
     # Generate options of customize_airootfs.sh.
-    local _airootfs_script_options
     _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ "${boot_splash}" = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
     [[ "${debug}" = true       ]] && _airootfs_script_options="${_airootfs_script_options} -d"
     [[ "${bash_debug}" = true  ]] && _airootfs_script_options="${_airootfs_script_options} -x"
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
-    # X permission
-    local chmod_755
-    chmod_755() {
-        for _file in ${@}; do
-            if [[ -f "$_file" ]]; then chmod 755 "${_file}" ;fi
-        done
-    }
+    
+    _script_list=("${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh")
 
-    chmod_755 "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh"
+    # Script permission
+    for _script in ${_script_list[@]}; do
+        if [[ -f "$_script" ]]; then
+            chmod 755 "${_script}"
+            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_script} ${_airootfs_script_options}" run
+            remove "${_script}"
+        fi
+    done
 
-    # Execute customize_airootfs.sh.
-    ${mkalteriso} ${mkalteriso_option} \
-    -w "${work_dir}/${arch}" \
-    -C "${work_dir}/pacman-${arch}.conf" \
-    -D "${install_dir}" \
-    -r "/root/customize_airootfs.sh ${_airootfs_script_options}" \
-    run
-
-    if [[ -f "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" ]]; then
-        ${mkalteriso} ${mkalteriso_option} \
-        -w "${work_dir}/${arch}" \
-        -C "${work_dir}/pacman-${arch}.conf" \
-        -D "${install_dir}" \
-        -r "/root/customize_airootfs_${channel_name}.sh ${_airootfs_script_options}" \
-        run
-    elif [[ -f "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh" ]]; then
-        ${mkalteriso} ${mkalteriso_option} \
-        -w "${work_dir}/${arch}" \
-        -C "${work_dir}/pacman-${arch}.conf" \
-        -D "${install_dir}" \
-        -r "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh ${_airootfs_script_options}" \
-        run
-    fi
-
-    # Delete customize_airootfs.sh.
-    remove "${airootfs_dir}/root/customize_airootfs.sh"
-    remove "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
-
-    # /root permission
-    # https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
+    # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
     chmod -f 750 "${airootfs_dir}/root"
 }
 
