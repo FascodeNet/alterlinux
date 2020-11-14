@@ -60,8 +60,11 @@ cdback() {
 _chroot_init() {
     mkdir -p -- "${work_dir}/airootfs"
 
-    #_pacman "base base-devel syslinux" <- old code
+    if [[ "${aur}" = true ]]; then
+        _create_img_sys
+    fi
 
+    #_pacman "base base-devel syslinux" <- old code
     _pacman "base syslinux"
 }
 
@@ -524,9 +527,6 @@ _create_img_sys() {
 
 command_init() {
     _show_config init
-    if [[ "${aur}" = true ]]; then
-        _create_img_sys
-    fi
     _chroot_init
 }
 
@@ -553,7 +553,6 @@ while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx-:' arg; do
         g) gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
         x) set -xv ;;
-        h|?) _usage 0 ;;
         -)
             case "${OPTARG}" in
                 "aur") aur=true ;;
@@ -563,6 +562,7 @@ while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx-:' arg; do
                     ;;
             esac
             ;;
+        h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
             _usage 1
