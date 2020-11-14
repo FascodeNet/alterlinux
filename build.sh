@@ -462,6 +462,8 @@ prepare_rebuild() {
     _save_var noaur
     _save_var gitversion
     _save_var noloopmod
+    _save_var bash_debug
+    _save_var debug
 
     _write_rebuild_file "\n# Channel Info"
     _save_var build_pacman_conf
