@@ -665,17 +665,14 @@ make_packages_file() {
 }
 
 make_packages_aur() {
-    local  _pkg pkglist_aur
-    pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
+    local _pkg pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
 
     # prepare for yay
-    cp -r "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    chmod 755 "${airootfs_dir}/root/aur.sh"
-    #cp -rf "/etc/pacman.d/gnupg/" "${airootfs_dir}/etc/pacman.d/gnupg/"
+    cp -r --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
