@@ -52,6 +52,9 @@ The image file is constructed from some of the variables in **profiledef.sh**: `
   - `ext4+squashfs`: Create an ext4 partition, copy the airootfs work directory to it and create a squashfs image from it
 * `airootfs_image_tool_options`: An array of options to pass to the tool to create the airootfs image. Currently only
   `mksquashfs` is supported - see `mksquashfs --help` for all possible options (defaults to `('-comp' 'xz')`).
+  - `file_permissions`: An associative array that lists files and/or directories who need specific ownership or
+  permissions. The array's keys contain the path and the value is a colon separated list of owner UID, owner GID and
+  access mode. E.g. `file_permissions=(["/etc/shadow"]="0:0:400")`.
 
 packages.arch
 =============
@@ -91,8 +94,9 @@ airootfs
 This - optional - directory may contain files and directories that will be copied to the work directory of the resulting
 image's root filesystem.
 The files are copied before packages are being installed to work directory location.
-Ownership of files and directories from the profile's `airootfs` directory are not preserved (permissions are currently
-the same as in the profile's `airootfs` - see `#61 <https://gitlab.archlinux.org/archlinux/archiso/-/issues/73>`_).
+Ownership and permissions of files and directories from the profile's `airootfs` directory are not preserved. The mode
+will be `644` for files and `755` for directories, all of them will be owned by root. To set custom ownership and/or
+permissions, use `file_permissions` in **profiledef.sh**.
 
 With this overlay structure it is possible to e.g. create users and set passwords for them, by providing
 `airootfs/etc/passwd`, `airootfs/etc/shadow`, `airootfs/etc/gshadow` (see `man 5 passwd`, `man 5 shadow` and `man 5
