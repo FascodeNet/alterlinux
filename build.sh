@@ -203,7 +203,7 @@ _usage () {
 umount_chroot () {
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
-        if [[ "${_mount}" != $(realpath ${work_dir})/${arch}/airootfs ]]; then
+        if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
             msg_info "Unmounting ${_mount}"
             umount -lf "${_mount}" 2> /dev/null
         fi
@@ -564,6 +564,11 @@ prepare_build() {
         # Load rebuild file
         load_config "${rebuildfile}"
         msg_debug "Iso filename is ${iso_filename}"
+
+        # Mount airootfs.img
+        if [[ "${noaur}" = false ]] && [[ -f "${work_dir}/${arch}/airootfs.img" ]]; then
+            mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+        fi
     fi
 
     # check bool
