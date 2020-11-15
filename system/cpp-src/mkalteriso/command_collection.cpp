@@ -117,6 +117,7 @@ int command_collection::command_tarball(QString tarfile_name){
         return -810;
     }
     _checksum_common(tar_filepath);
+    _umount_airootfs();
     _msg_success("Done! " + tar_filepath);
     return 0;
 }

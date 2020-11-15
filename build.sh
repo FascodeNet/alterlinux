@@ -952,7 +952,14 @@ make_efiboot() {
 
 # Compress tarball
 make_tarball() {
-    cp -a -l -f "${airootfs_dir}" "${work_dir}"
+
+    if [[ "${noaur}" == true ]]; then
+        cp -a -l -f "${airootfs_dir}" "${work_dir}"
+    else
+        umount -fl "${airootfs_dir}"
+        mkdir -p "${work_dir}/airootfs"
+        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+    fi
 
     if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
