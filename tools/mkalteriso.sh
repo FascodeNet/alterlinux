@@ -53,6 +53,22 @@ _msg_error() {
     fi
 }
 
+# Delete file only if file exists
+# remove <file1> <file2> ...
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+        echo "${_file} was deleted."
+    done
+}
+
 cdback() {
     cd - > /dev/null
 }
@@ -357,6 +373,7 @@ command_pkglist () {
     _show_config pkglist
 
     _msg_info "Creating a list of installed packages on live-enviroment..."
+    pacman-key --init
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
     _msg_info "Done!"
 
@@ -501,8 +518,8 @@ _umount_aur_airootfs() {
     _msg_info "Unmounting ${work_dir}/airootfs"
     umount -d "${work_dir}/airootfs"
     _msg_info "Done!"
-    rmdir -rf "${work_dir}/airootfs"
-    rmdir -rf "${work_dir}/airootfs.img"
+    remove "${work_dir}/airootfs"
+    remove "${work_dir}/airootfs.img"
 }
 
 _create_img_sys() {

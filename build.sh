@@ -427,6 +427,7 @@ prepare_rebuild() {
     _write_rebuild_file "\n# Environment Info"
     _save_var channel_dir
     _save_var airootfs_dir
+    _save_var share_dir
     _save_var isofs_dir
     _save_var install_dir
     _save_var work_dir
@@ -570,7 +571,7 @@ prepare_build() {
         # Mount airootfs.img
         if [[ "${noaur}" = false ]] && [[ -f "${work_dir}/${arch}/airootfs.img" ]]; then
             mkdir -p "${work_dir}/airootfs"
-            if ! mountpoint -q "${work_dir}/airootfs"; then
+            if ! mountpoint -q "${work_dir}/${arch}/airootfs"; then
                 mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
             fi
         fi
