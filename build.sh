@@ -901,15 +901,22 @@ make_efi() {
         cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
     )
 
+    local _use_config_name
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name="splash"
+    else
+        _use_config_name="nosplash"
+    fi
+
     mkdir -p "${isofs_dir}/loader/entries"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${isofs_dir}/loader/loader.conf"
+    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
 
     sed "s|%ARCHISO_LABEL%|${iso_label}|g;
          s|%OS_NAME%|${os_name}|g;
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
          s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
+    "${script_path}/efiboot/${_use_config_name}/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
 
     # edk2-shell based UEFI shell
     local _efi_shell _efi_shell_arch
@@ -948,8 +955,15 @@ make_efiboot() {
         cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/EFI/boot/${__bootfile#systemd-}"
     )
 
+    local _use_config_name
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name="splash"
+    else
+        _use_config_name="nosplash"
+    fi
+
     mkdir -p "${work_dir}/efiboot/loader/entries"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
+    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
     cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
 
@@ -958,7 +972,7 @@ make_efiboot() {
          s|%KERNEL_FILENAME%|${kernel_filename}|g;
          s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
+    "${script_path}/efiboot/${_use_config_name}/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
 
     cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
