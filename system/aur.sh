@@ -47,7 +47,8 @@ echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Setup keyring
 pacman-key --init
-eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
+#eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
+ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
 
 # Build and install
