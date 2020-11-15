@@ -972,7 +972,7 @@ make_tarball() {
         chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
         ${mkalteriso} ${mkalteriso_option} \
-        -w "${work_dir}/${arch}" \
+        -w "${work_dir}/" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
         -r "/root/optimize_for_tarball.sh" \
