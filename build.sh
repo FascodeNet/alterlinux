@@ -198,13 +198,27 @@ _usage () {
     if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
 
+# Unmount helper Usage: _umount <target>
+_umount() {
+    if mountpoint -q "${1}"; then
+        umount -lf "${1}"
+    fi
+}
+
+# Mount helper Usage: _mount <source> <target>
+_mount() {
+    if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then
+        mount "${1}" "${2}"
+    fi
+}
+
 # Unmount chroot dir
 umount_chroot () {
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
         if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
             msg_info "Unmounting ${_mount}"
-            umount -lf "${_mount}" 2> /dev/null
+            _umount "${_mount}" 2> /dev/null
         fi
     done
 }
@@ -212,15 +226,11 @@ umount_chroot () {
 # Mount airootfs on "${work_dir}/${arch}/airootfs"
 mount_airootfs () {
     mkdir -p "${work_dir}/airootfs"
-    if ! mountpoint -q "${work_dir}/${arch}/airootfs"; then
-        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
-    fi
+    _mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
 }
 
 umount_airootfs() {
-    if mountpoint -q "${work_dir}/${arch}/airootfs"; then
-        umount -lf "${work_dir}/${arch}/airootfs"
-    fi
+    _umount "${work_dir}/${arch}/airootfs"
 }
 
 umount_chroot_advance() {
@@ -971,12 +981,7 @@ make_tarball() {
     if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
-        ${mkalteriso} ${mkalteriso_option} \
-        -w "${work_dir}" \
-        -C "${work_dir}/pacman-${arch}.conf" \
-        -D "${install_dir}" \
-        -r "/root/optimize_for_tarball.sh" \
-        run
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "/root/optimize_for_tarball.sh" run
     fi
 
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
@@ -985,6 +990,7 @@ make_tarball() {
 
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
 
+    _umount "${work_dir}/airootfs"
     remove "${work_dir}/airootfs"
     if [[ "${noiso}" = true ]]; then
         msg_info "The password for the live user and root is ${password}."
