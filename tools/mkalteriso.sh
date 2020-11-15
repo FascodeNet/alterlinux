@@ -517,8 +517,8 @@ _umount_aur_airootfs() {
     _msg_info "Unmounting ${work_dir}/airootfs"
     umount -d "${work_dir}/airootfs"
     _msg_info "Done!"
-    rmdir -- "${work_dir}/airootfs"
-    rmdir -- "${work_dir}/airootfs.img"
+    remove "${work_dir}/airootfs"
+    remove "${work_dir}/airootfs.img"
 }
 
 _create_img_sys() {
