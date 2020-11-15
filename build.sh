@@ -198,7 +198,6 @@ _usage () {
     if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
 
-
 # Unmount chroot dir
 umount_chroot () {
     local _mount
@@ -209,13 +208,24 @@ umount_chroot () {
         fi
     done
 }
-# Unmount chroot dir advance
-umount_chroot_advance () {
-    local _mount
-    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
-        msg_info "Unmounting ${_mount}"
-        umount -lf "${_mount}" 2> /dev/null
-    done
+
+# Mount airootfs on "${work_dir}/${arch}/airootfs"
+mount_airootfs () {
+    mkdir -p "${work_dir}/airootfs"
+    if ! mountpoint -q "${work_dir}/${arch}/airootfs"; then
+        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
+    fi
+}
+
+umount_airootfs() {
+    if mountpoint -q "${work_dir}/${arch}/airootfs"; then
+        umount -lf "${work_dir}/${arch}/airootfs"
+    fi
+}
+
+umount_chroot_advance() {
+    umount_chroot
+    umount_airootfs
 }
 
 # Helper function to run make_*() only one time.
@@ -570,10 +580,7 @@ prepare_build() {
 
         # Mount airootfs.img
         if [[ "${noaur}" = false ]] && [[ -f "${work_dir}/${arch}/airootfs.img" ]]; then
-            mkdir -p "${work_dir}/airootfs"
-            if ! mountpoint -q "${work_dir}/${arch}/airootfs"; then
-                mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
-            fi
+            mount_airootfs
         fi
     fi
 
@@ -956,7 +963,7 @@ make_tarball() {
     if [[ "${noaur}" == true ]]; then
         cp -a -l -f "${airootfs_dir}" "${work_dir}"
     else
-        umount -fl "${airootfs_dir}"
+        umount_airootfs
         mkdir -p "${work_dir}/airootfs"
         mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
     fi
