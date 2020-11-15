@@ -201,7 +201,7 @@ _usage () {
 umount_chroot () {
     local _mount
     for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
-        if [[ "${_mount}" != $(realpath ${work_dir})/${arch}/airootfs ]]; then
+        if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
             msg_info "Unmounting ${_mount}"
             umount -lf "${_mount}" 2> /dev/null
         fi
@@ -588,7 +588,7 @@ make_packages_aur() {
     for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
 
     # prepare for yay
-    cp -r --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
@@ -642,14 +642,14 @@ make_customize_airootfs() {
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
     
-    _script_list=("${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs.sh" "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh" "${airootfs_dir}/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh")
+    _script_list=("/root/customize_airootfs.sh" "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh" "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh")
 
     # Script permission
     for _script in ${_script_list[@]}; do
-        if [[ -f "$_script" ]]; then
-            chmod 755 "${_script}"
+        if [[ -f "${airootfs_dir}/${_script}" ]]; then
+            chmod 755 "${airootfs_dir}/${_script}"
             ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_script} ${_airootfs_script_options}" run
-            remove "${_script}"
+            remove "${airootfs_dir}/${_script}"
         fi
     done
 
@@ -930,7 +930,6 @@ make_prepare() {
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
-    remove "${work_dir}/airootfs"
 
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}"
