@@ -45,10 +45,15 @@ chmod 700 -R "/aurbuild_temp"
 chown aurbuild:aurbuild -R "/aurbuild_temp"
 echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
+# Setup keyring
+pacman-key --init
+#eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
+ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
+
 
 # Build and install
 chmod +s /usr/bin/sudo
-yes | sudo -u aurbuild yay -Sy  --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu --noprovides --removemake --config "/etc/alteriso-pacman.conf" ${*}
+yes | sudo -u aurbuild yay -Sy  --noconfirm --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu --noprovides --removemake --config "/etc/alteriso-pacman.conf" ${*}
 
 
 # remove user and file
