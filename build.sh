@@ -968,18 +968,18 @@ make_tarball() {
         mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
     fi
 
-    if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
-        chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
+    if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
+        chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
         ${mkalteriso} ${mkalteriso_option} \
-        -w "${work_dir}/" \
+        -w "${work_dir}" \
         -C "${work_dir}/pacman-${arch}.conf" \
         -D "${install_dir}" \
         -r "/root/optimize_for_tarball.sh" \
         run
     fi
 
-    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
+    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
 
     remove "${airootfs_dir}/root/optimize_for_tarball.sh"
 
