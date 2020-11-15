@@ -648,9 +648,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    local  _pkg  _pkglist
-
-    _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
+    local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -693,7 +691,7 @@ make_packages_file() {
 }
 
 make_packages_aur() {
-    local _pkg pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}"))
+    local _pkg pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
