@@ -692,7 +692,7 @@ make_packages_aur() {
     # Run aur script
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
     umount "${airootfs_dir}/etc/pacman.d/gnupg"
-    rm -rf "${work_dir}/gnupg"
+    remove "${work_dir}/gnupg"
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
 }
@@ -1014,7 +1014,7 @@ make_prepare() {
         _write_info_file () {
             echo "${@}" >> "${_info_file}"
         }
-        rm -rf "${_info_file}"; touch "${_info_file}"
+        remove "${_info_file}"; touch "${_info_file}"
 
         _write_info_file "Developer      : ${iso_publisher}"
         _write_info_file "OS Name        : ${iso_application}"
