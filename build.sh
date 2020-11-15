@@ -427,6 +427,7 @@ prepare_rebuild() {
     _write_rebuild_file "\n# Environment Info"
     _save_var channel_dir
     _save_var airootfs_dir
+    _save_var share_dir
     _save_var isofs_dir
     _save_var install_dir
     _save_var work_dir
