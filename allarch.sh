@@ -470,7 +470,7 @@ prepare_build() {
     fi
 
     # If there is config for channel. load that.
-    load_config "${script_path}/channels/share/config.any" "${script_path}/channels/share/config.${arch}"
+    load_config "${share_dir}/config.any" "${share_dir}/config.${arch}"
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
     # Set kernel
@@ -571,11 +571,11 @@ make_packages_file() {
     #else
         ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${channel_dir}/package_files.${arch}/*.pkg.*" install_file
     #fi
-    #ls "${script_path}/channels/share/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
+    #ls "${share_dir}/package_files.${arch}/*.pkg.*" > /dev/null 2>&1
     #if [ $? -ne 0 ]; then
     #    :
     #else
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${script_path}/channels/share/package_files.${arch}/*.pkg.*" install_file
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${share_dir}/package_files.${arch}/*.pkg.*" install_file
     #fi
     set -e
 }
@@ -1180,6 +1180,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
 else
     channel_dir="${script_path}/channels/${channel_name}"
 fi
+share_dir="${script_path}/channels/share"
 
 # Check channel version
 msg_debug "channel path is ${channel_dir}"
