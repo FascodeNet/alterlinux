@@ -45,6 +45,10 @@ chmod 700 -R "/aurbuild_temp"
 chown aurbuild:aurbuild -R "/aurbuild_temp"
 echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
+# Setup keyring
+pacman-key --init
+eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
+
 
 # Build and install
 chmod +s /usr/bin/sudo

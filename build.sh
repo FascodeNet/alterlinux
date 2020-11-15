@@ -685,14 +685,10 @@ make_packages_aur() {
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
     cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
-    #mkdir -p "${work_dir}/pacman/gnupg/"
-    #cp -rf /etc/pacman.d/gnupg "${work_dir}/gnupg/"
-    #mkdir -p "${airootfs_dir}/etc/pacman.d/gnupg"
-    #mount --bind "${work_dir}/gnupg" "${airootfs_dir}/etc/pacman.d/gnupg"
+
     # Run aur script
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
-    #umount -lf "${airootfs_dir}/etc/pacman.d/gnupg"
-    #remove "${work_dir}/gnupg"
+
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
 }
