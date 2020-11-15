@@ -691,7 +691,7 @@ make_packages_aur() {
     mount --bind "${work_dir}/gnupg" "${airootfs_dir}/etc/pacman.d/gnupg"
     # Run aur script
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
-    umount "${airootfs_dir}/etc/pacman.d/gnupg"
+    umount -lf "${airootfs_dir}/etc/pacman.d/gnupg"
     remove "${work_dir}/gnupg"
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
