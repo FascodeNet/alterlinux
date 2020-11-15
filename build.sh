@@ -918,6 +918,15 @@ make_efi() {
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/${_use_config_name}/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
 
+    if [[ "${norescue_entry}" = false ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/efiboot/${_use_config_name}/entries/archiso-usb-rescue.conf" > "${isofs_dir}/loader/entries/archiso-${arch}-rescue.conf"
+    fi
+
     # edk2-shell based UEFI shell
     local _efi_shell _efi_shell_arch
     for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
@@ -973,6 +982,15 @@ make_efiboot() {
          s|%ARCH%|${arch}|g;
          s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/efiboot/${_use_config_name}/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
+
+    if [[ "${norescue_entry}" = false ]]; then
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+        "${script_path}/efiboot/${_use_config_name}/entries/archiso-cd-rescue.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}-rescue.conf"
+    fi
 
     cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
