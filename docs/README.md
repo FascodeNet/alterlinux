@@ -156,7 +156,6 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
 	<li><a href="en/CONFIG.md">About build configuration file</a></li>
-	<li><a href="en/arch-pkgbuild-parser.md">About arch-pkgbuild-parser</a></li>
 </ul>
 
 <h2>〈If you cannot start〉</h2>
