@@ -1005,7 +1005,7 @@ make_efiboot() {
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-        "${_efi_config}" > "${work_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|usb|${arch}|g")"
+        "${_efi_config}" > "${work_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
     done
 
     cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
