@@ -901,15 +901,39 @@ make_efi() {
         cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${isofs_dir}/EFI/boot/${__bootfile#systemd-}"
     )
 
-    mkdir -p "${isofs_dir}/loader/entries"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${isofs_dir}/loader/loader.conf"
+    local _use_config_name
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name="splash"
+    else
+        _use_config_name="nosplash"
+    fi
 
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%OS_NAME%|${os_name}|g;
-         s|%KERNEL_FILENAME%|${kernel_filename}|g;
-         s|%ARCH%|${arch}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-usb.conf" > "${isofs_dir}/loader/entries/archiso-${arch}.conf"
+    mkdir -p "${isofs_dir}/loader/entries"
+    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
+
+    local _efi_config_list=() _efi_config
+    _efi_config_list+=(
+        $(
+            ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"
+        )
+    )
+
+    if [[ "${norescue_entry}" = false ]]; then
+        _efi_config_list+=(
+            $(
+                ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"
+            )
+        )
+    fi
+
+    for _efi_config in ${_efi_config_list[@]}; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+        "${_efi_config}" > "${isofs_dir}/loader/entries/$(basename "${_efi_config}" | sed "s|usb|${arch}|g")"
+    done
 
     # edk2-shell based UEFI shell
     local _efi_shell _efi_shell_arch
@@ -948,17 +972,41 @@ make_efiboot() {
         cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${__bootfile}" "${work_dir}/efiboot/EFI/boot/${__bootfile#systemd-}"
     )
 
+    local _use_config_name
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name="splash"
+    else
+        _use_config_name="nosplash"
+    fi
+
     mkdir -p "${work_dir}/efiboot/loader/entries"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/loader/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
+    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
     cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
 
-    sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-         s|%OS_NAME%|${os_name}|g;
-         s|%KERNEL_FILENAME%|${kernel_filename}|g;
-         s|%ARCH%|${arch}|g;
-         s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/efiboot/loader/entries/archiso-cd.conf" > "${work_dir}/efiboot/loader/entries/archiso-${arch}.conf"
+    local _efi_config_list=() _efi_config
+    _efi_config_list+=(
+        $(
+            ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"
+        )
+    )
+
+    if [[ "${norescue_entry}" = false ]]; then
+        _efi_config_list+=(
+            $(
+                ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"
+            )
+        )
+    fi
+
+    for _efi_config in ${_efi_config_list[@]}; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" \
+        "${_efi_config}" > "${work_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
+    done
 
     cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
 
