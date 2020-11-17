@@ -372,33 +372,33 @@ _make_boot_on_iso9660() {
     _msg_info "Done!"
 }
 
-# Prepare /${install_dir}/boot/syslinux
+# Prepare /syslinux for booting from MBR
 _make_bootmode_bios.syslinux.mbr() {
     _msg_info "Setting up SYSLINUX for BIOS booting from a disk..."
-    install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/syslinux"
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
     for _cfg in "${profile}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
              s|%ARCH%|${arch}|g" \
-             "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
+             "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
     if [[ -e "${profile}/syslinux/splash.png" ]]; then
-        install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux/"
+        install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/syslinux/"
     fi
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/${install_dir}/boot/syslinux/"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux/"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux/"
 
     _run_once _make_boot_on_iso9660
 
-    if [[ -e "${isofs_dir}/${install_dir}/boot/syslinux/hdt.c32" ]]; then
-        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
+    if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
+        install -d -m 0755 -- "${isofs_dir}/syslinux/hdt"
         if [[ -e "${airootfs_dir}/usr/share/hwdata/pci.ids" ]]; then
             gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > \
-                "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
+                "${isofs_dir}/syslinux/hdt/pciids.gz"
         fi
         find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > \
-            "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+            "${isofs_dir}/syslinux/hdt/modalias.gz"
     fi
 
     # Add other aditional/extra files to ${install_dir}/boot/
@@ -412,21 +412,14 @@ _make_bootmode_bios.syslinux.mbr() {
     _msg_info "Done! SYSLINUX set up for BIOS booting from a disk successfully."
 }
 
-# Prepare /isolinux
+# Prepare /syslinux for El-Torito booting
 _make_bootmode_bios.syslinux.eltorito() {
     _msg_info "Setting up SYSLINUX for BIOS booting from an optical disc..."
-    install -d -m 0755 -- "${isofs_dir}/isolinux"
-    for _cfg in "${profile}/isolinux/"*".cfg"; do
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%INSTALL_DIR%|${install_dir}|g;
-             s|%ARCH%|${arch}|g" \
-             "${_cfg}" > "${isofs_dir}/isolinux/${_cfg##*/}"
-    done
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
 
-    # isolinux.cfg loads syslinux.cfg
+    # ISOLINUX and SYSLINUX installation is shared
     _run_once _make_bootmode_bios.syslinux.mbr
 
     _msg_info "Done! SYSLINUX set up for BIOS booting from an optical disc successfully."
@@ -573,34 +566,7 @@ _validate_requirements_bootmode_bios.syslinux.mbr() {
 }
 
 _validate_requirements_bootmode_bios.syslinux.eltorito() {
-    # Check if the syslinux package is in the package list
-    # shellcheck disable=SC2076
-    if [[ ! " ${pkg_list[*]} " =~ ' syslinux ' ]]; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Validating '${bootmode}': The 'syslinux' package is missing from the package list!" 0
-    fi
-
-    # Check if isolinux configuration files exist
-    if [[ ! -d "${profile}/isolinux" ]]; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Validating '${bootmode}': The '${profile}/isolinux' directory is missing!" 0
-    else
-        local cfgfile
-        for cfgfile in "${profile}/isolinux/"*'.cfg'; do
-            if [[ -e "${cfgfile}" ]]; then
-                break
-            else
-                (( validation_error=validation_error+1 ))
-                _msg_error "Validating '${bootmode}': No configuration file found in '${profile}/isolinux/'!" 0
-            fi
-        done
-    fi
-
-    # Check for optional packages
-    # shellcheck disable=SC2076
-    if [[ ! " ${pkg_list[*]} " =~ ' memtest86+ ' ]]; then
-        _msg_info "Validating '${bootmode}': 'memtest86+' is not in the package list. Memory testing will not be available from syslinux."
-    fi
+    _validate_requirements_bootmode_bios.syslinux.mbr
 }
 
 _validate_requirements_bootmode_uefi-x64.systemd-boot.esp() {
@@ -675,9 +641,9 @@ _validate_requirements_airootfs_image_type_ext4+squashfs() {
 _add_xorrisofs_options_bios.syslinux.eltorito() {
     xorrisofs_options+=(
         # El Torito boot image for x86 BIOS
-        '-eltorito-boot' 'isolinux/isolinux.bin'
+        '-eltorito-boot' 'syslinux/isolinux.bin'
         # El Torito boot catalog file
-        '-eltorito-catalog' 'isolinux/boot.cat'
+        '-eltorito-catalog' 'syslinux/boot.cat'
         # Required options to boot with ISOLINUX
         '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
     )
@@ -686,8 +652,8 @@ _add_xorrisofs_options_bios.syslinux.eltorito() {
 # SYSLINUX MBR
 _add_xorrisofs_options_bios.syslinux.mbr() {
     xorrisofs_options+=(
-        # SYSLINUX MBR bootstrap code; does not work without "-eltorito-boot isolinux/isolinux.bin"
-        '-isohybrid-mbr' "${isofs_dir}/isolinux/isohdpfx.bin"
+        # SYSLINUX MBR bootstrap code; does not work without "-eltorito-boot syslinux/isolinux.bin"
+        '-isohybrid-mbr' "${isofs_dir}/syslinux/isohdpfx.bin"
         # When GPT is used, create an additional partition in the MBR (besides 0xEE) for sectors 0–1 (MBR
         # bootstrap code area) and mark it as bootable
         # This violates the UEFI specification, but may allow booting on some systems

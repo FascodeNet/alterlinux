@@ -9,7 +9,6 @@ An archiso profile consists of several configuration files and a directory for f
     profile
     |- airootfs/
     |- efiboot/
-    |- isolinux/
     |- syslinux/
     |- packages.arch
     |- pacman.conf
@@ -133,21 +132,13 @@ selected in **profiledef.sh**. It contains configuration for `systemd-boot
 The *custom template identifiers* are **only** understood in the boot loader entry `.conf` files (i.e. **not** in
 `loader.conf`).
 
-isolinux
---------
-
-This directory is mandatory when the `bios.syslinux.eltorito` bootmode is selected in **profiledef.sh**.
-It contains configuration for `isolinux <https://wiki.syslinux.org/wiki/index.php?title=ISOLINUX>`_ used in the resuling
-image.
-
-The *custom template identifiers* are understood in all `.cfg` files in this directory.
-
 syslinux
 --------
 
 This directory is mandatory when the `bios.syslinux.mbr` or the `bios.syslinux.eltorito` bootmodes are selected in
 **profiledef.sh**.
-It contains configuration files for `syslinux <https://wiki.syslinux.org/wiki/index.php?title=SYSLINUX>`_ or `pxelinux
+It contains configuration files for `syslinux <https://wiki.syslinux.org/wiki/index.php?title=SYSLINUX>`_ or `isolinux
+<https://wiki.syslinux.org/wiki/index.php?title=ISOLINUX>`_ , or `pxelinux
 <https://wiki.syslinux.org/wiki/index.php?title=PXELINUX>`_ used in the resuling image.
 
 The *custom template identifiers* are understood in all `.cfg` files in this directory.
