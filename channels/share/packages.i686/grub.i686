@@ -16,3 +16,4 @@ os-prober
 
 # EFI
 efibootmgr
+efitools
