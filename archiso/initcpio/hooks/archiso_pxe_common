@@ -67,10 +67,11 @@ run_latehook () {
         # shellcheck disable=SC2154
         # defined via initcpio's parse_cmdline()
         if [ "${copytoram}" = "y" ]; then
-            if [ -n "${bootif_dev}" ]; then
-                ip addr flush dev "${bootif_dev}"
-                ip link set "${bootif_dev}" down
-            fi
+            for curif in /sys/class/net/*; do
+                netdev=${curif#/sys/class/net/}
+                ip addr flush dev "${netdev}"
+                ip link set "${netdev}" down
+            done
         elif [ "${copy_resolvconf}" != "n" ] && [ -f /etc/resolv.conf ]; then
             cp /etc/resolv.conf /new_root/etc/resolv.conf
         fi
