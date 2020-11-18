@@ -643,7 +643,9 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
 _prepare_airootfs_image() {
     _run_once "_mkairootfs_${airootfs_image_type}"
     _mkchecksum
-    [[ -n "${gpg_key}" ]] && _mksignature
+    if [[ -n "${gpg_key}" ]]; then
+        _mksignature
+    fi
 }
 
 _validate_requirements_airootfs_image_type_squashfs() {
@@ -779,6 +781,7 @@ _read_profile() {
     local validation_error=0
     local bootmode
 
+    _msg_info "Reading profile..."
     if [[ -z "${profile}" ]]; then
         _msg_error "No profile specified!" 1
     fi
@@ -844,16 +847,20 @@ _read_profile() {
             _msg_error "${validation_error} errors were encountered while validating the profile. Aborting." 1
         fi
     fi
+    _msg_info "Done!"
 }
 
 # set overrides from mkarchiso option parameters, if present
 _set_overrides() {
+    _msg_info "Setting overrides..."
     [[ -n "$override_iso_label" ]] && iso_label="$override_iso_label"
     [[ -n "$override_iso_publisher" ]] && iso_publisher="$override_iso_publisher"
     [[ -n "$override_iso_application" ]] && iso_application="$override_iso_application"
     [[ -n "$override_install_dir" ]] && install_dir="$override_install_dir"
     [[ -n "$override_pacman_conf" ]] && pacman_conf="$override_pacman_conf"
     [[ -n "$override_gpg_key" ]] && gpg_key="$override_gpg_key"
+    # NOTE: the call to _msg_info() conveniently guards this function from evaluating to false
+    _msg_info "Done!"
 }
 
 
