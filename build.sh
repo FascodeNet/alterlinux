@@ -1363,12 +1363,12 @@ if [[ "${noiso}" = false ]]; then
     run_once make_isolinux
     run_once make_boot
     run_once make_boot_extra
-    run_once make_prepare
-    run_once make_overisofs
     if [[ "${noefi}" = false ]]; then
         run_once make_efi
         run_once make_efiboot
     fi
+    run_once make_prepare
+    run_once make_overisofs
     run_once make_iso
 fi
 [[ "${tarball}" = true ]] && run_once make_tarball
