@@ -264,7 +264,9 @@ sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
 
 
 # Enable root login with SSH.
-sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
+if [[ -f "/etc/ssh/sshd_config" ]]; then
+    sed -i 's/#\(PermitRootLogin \).\+/\1yes/' "/etc/ssh/sshd_config"
+fi
 
 # Un comment the mirror list.
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
