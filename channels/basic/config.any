@@ -17,4 +17,4 @@ usershell="/bin/zsh"
 
 # Do not install the AUR package.
 # Change the default behavior of "--noaur".
-noaur=true
+#noaur=true

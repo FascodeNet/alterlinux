@@ -166,3 +166,9 @@ Please do not define any local variables in the script. The definition of global
 ## architecture
 
 A list of architectures available on that channel. `#` Is treated as a comment.
+
+## over_isofs
+
+Files in iso filesystem will be overwritten by all files of `over_isofs`
+Similar to airootfs, but over_isofs allows you to work directly with the files in the built image file.  
+Please note that if you overwrite the existing file, you may not be able to boot.

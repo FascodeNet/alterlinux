@@ -69,6 +69,9 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
+<h3>Gnome</h3>
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+
 <h3>Cinnamon</h3>
 <img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
 
@@ -155,7 +158,6 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 	<li><a href="jp/KERNEL.md">新しいカーネルを追加する方法</a></li>
 	<li><a href="jp/CONFIG.md">ビルドの設定ファイルについて</a></li>
 	<li><a href="jp/CHANNEL_2_to_3.md">AlterISO2のチャンネルを3に対応させる</a></li>
-	<li><a href="ja/arch-pkgbuild-parser.md">arch-pkgbuild-parserについて</a></li>
 </ul>
 
 

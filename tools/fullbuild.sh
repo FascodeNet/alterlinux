@@ -30,7 +30,7 @@ all_channel=false
 # Show an INFO message
 # $1: message string
 msg_info() {
-    local _msg_opts="-a fullbuild.sh"
+    local _msg_opts="-a fullbuilid -s 5"
     if [[ "${1}" = "-n" ]]; then
         _msg_opts="${_msg_opts} -o -n"
         shift 1
@@ -41,7 +41,7 @@ msg_info() {
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    local _msg_opts="-a fullbuild.sh"
+    local _msg_opts="-a fullbuilid -s 5"
     if [[ "${1}" = "-n" ]]; then
         _msg_opts="${_msg_opts} -o -n"
         shift 1
@@ -53,7 +53,7 @@ msg_warn() {
 # $1: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a fullbuild.sh"
+        local _msg_opts="-a fullbuilid -s 5"
         if [[ "${1}" = "-n" ]]; then
             _msg_opts="${_msg_opts} -o -n"
             shift 1
@@ -66,7 +66,7 @@ msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a fullbuild.sh"
+    local _msg_opts="-a fullbuilid -s 5"
     if [[ "${1}" = "-n" ]]; then
         _msg_opts="${_msg_opts} -o -n"
         shift 1
