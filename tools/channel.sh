@@ -9,6 +9,7 @@ opt_nochkver=false
 opt_nobuiltin=false
 opt_allarch=false
 opt_fullpath=false
+opt_nocheck=false
 alteriso_version="3.0"
 mode=""
 arch="all"
@@ -36,6 +37,8 @@ _help() {
     echo "    -o | --only-add           Only additional channels"
     echo "    -v | --version [ver]      Specifies the AlterISO version"
     echo "    -h | --help               This help message"
+    echo
+    echo "         --nocheck            Do not check the channel with desc command.This option helps speed up."
 }
 
 gen_channel_list() {
@@ -96,12 +99,12 @@ check() {
 }
 
 desc() {
-    gen_channel_list
+    #gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
         _help
         exit 1
     fi
-    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${1}")" = "correct" ]]; then
+    if [[ "${opt_nocheck}" = false ]] && [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${1}")" = "correct" ]]; then
         exit 1
     fi
     local _channel
@@ -130,7 +133,7 @@ show() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bdfk:mnov:h"
-_opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,multi,only-add,nochkver,version:,help"
+_opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,multi,only-add,nochkver,version:,help,nocheck"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -178,6 +181,10 @@ while true; do
         -h | --help)
             _help
             exit 0
+            ;;
+        --nocheck)
+            opt_nocheck=true
+            shift 1
             ;;
         --)
             shift 1

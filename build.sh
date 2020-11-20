@@ -173,7 +173,7 @@ _usage () {
         fi
         echo -ne "    ${_channel}"
         echo_blank "$(( ${blank} - 4 - ${#_channel} ))"
-        "${script_path}/tools/channel.sh" desc "${_channel}"
+        "${script_path}/tools/channel.sh" --nocheck desc "${_channel}"
     done
     echo -ne "    rebuild"
     echo_blank "$(( ${blank} - 11 ))"
