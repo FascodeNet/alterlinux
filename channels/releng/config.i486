@@ -12,7 +12,7 @@
 # This configuration file follows the bash syntax.
 #
 
-# Does not build the ISO image file.
-# Be sure to set the tarball to true if you want this to be true.
-# Change the default behavior of "--noiso".
-noiso=true
+# Do not include file about efi
+# Change the default behavior of "--noefi".
+# If noiso is true, it will be enabled automatically.
+noefi=true
