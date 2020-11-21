@@ -20,7 +20,7 @@
       <property name="length-adjust" type="bool" value="true"/>
       <property name="mode" type="uint" value="0"/>
       <property name="plugin-ids" type="array">
-        <value type="int" value="45"/>
+        <value type="int" value="3"/>
         <value type="int" value="28"/>
         <value type="int" value="54"/>
         <value type="int" value="52"/>
@@ -37,6 +37,12 @@
       <property name="position" type="string" value="p=11;x=148;y=21"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="size" type="uint" value="30"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.306397"/>
+      </property>
     </property>
     <property name="panel-3" type="empty">
       <property name="autohide-behavior" type="uint" value="1"/>
@@ -64,6 +70,14 @@
       <property name="position" type="string" value="p=10;x=649;y=751"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="size" type="uint" value="42"/>
+      <property name="background-rgba" type="array">
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.306397"/>
+      </property>
+      <property name="leave-opacity" type="uint" value="100"/>
+      <property name="enter-opacity" type="uint" value="100"/>
     </property>
   </property>
   <property name="plugins" type="empty">
@@ -127,15 +141,17 @@
         <value type="string" value="-separator"/>
         <value type="string" value="+shutdown"/>
         <value type="string" value="+suspend"/>
-        <value type="string" value="-hibernate"/>
+        <value type="string" value="+hibernate"/>
         <value type="string" value="+restart"/>
-        <value type="string" value="-switch-user"/>
+        <value type="string" value="+switch-user"/>
         <value type="string" value="+logout"/>
         <value type="string" value="-separator"/>
         <value type="string" value="-lock-screen"/>
         <value type="string" value="-logout-dialog"/>
         <value type="string" value="-separator"/>
+        <value type="string" value="-hybrid-sleep"/>
       </property>
+      <property name="invert-orientation" type="bool" value="false"/>
     </property>
     <property name="plugin-45" type="string" value="whiskermenu"/>
     <property name="plugin-46" type="string" value="thunar-tpa"/>
