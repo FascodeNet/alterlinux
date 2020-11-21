@@ -41,6 +41,6 @@ thunar-media-tags-plugin
 # thunar-vcs-plugin
 xfce4-calculator-plugin
 xfce4-clipman-plugin
-xfce4-docklike-plugin-git
+# xfce4-docklike-plugin-git
 xfce4-pulseaudio-plugin
 xfce4-whiskermenu-plugin

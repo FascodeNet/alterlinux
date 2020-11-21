@@ -32,6 +32,7 @@ sfs_mode="sfs"
 sfs_comp="zstd"
 sfs_comp_opt=""
 gpg_key=""
+aur=false
 
 # Show an INFO message
 # $1: message string
@@ -52,6 +53,22 @@ _msg_error() {
     fi
 }
 
+# Delete file only if file exists
+# remove <file1> <file2> ...
+function remove () {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+    for _file in "${_list[@]}"; do
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+        echo "${_file} was deleted."
+    done
+}
+
 cdback() {
     cd - > /dev/null
 }
@@ -59,8 +76,11 @@ cdback() {
 _chroot_init() {
     mkdir -p -- "${work_dir}/airootfs"
 
-    #_pacman "base base-devel syslinux" <- old code
+    if [[ "${aur}" = true ]]; then
+        _create_img_sys
+    fi
 
+    #_pacman "base base-devel syslinux" <- old code
     _pacman "base syslinux"
 }
 
@@ -74,9 +94,9 @@ _umount_chroot () {
 }
 
 _chroot_run() {
-    _umount_chroot
+    #_umount_chroot
     eval -- arch-chroot "${work_dir}/airootfs" "${run_cmd}"
-    _umount_chroot
+    #_umount_chroot
 }
 
 _mount_airootfs() {
@@ -353,6 +373,7 @@ command_pkglist () {
     _show_config pkglist
 
     _msg_info "Creating a list of installed packages on live-enviroment..."
+    pacman-key --init
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/iso/${install_dir}/pkglist.${arch}.txt"
     _msg_info "Done!"
 
@@ -448,6 +469,9 @@ command_prepare () {
     if [[ ${gpg_key} ]]; then
       _mksignature
     fi
+    if [[ "${aur}" = true ]]; then
+        _umount_aur_airootfs
+    fi
 }
 
 # Install packages on airootfs.
@@ -490,6 +514,34 @@ command_install_file () {
     _pacman_file "${pkg_list}"
 }
 
+_umount_aur_airootfs() {
+    _msg_info "Unmounting ${work_dir}/airootfs"
+    umount -d "${work_dir}/airootfs"
+    _msg_info "Done!"
+    remove "${work_dir}/airootfs"
+    remove "${work_dir}/airootfs.img"
+}
+
+_create_img_sys() {
+    if [[ ! -e "${work_dir}/airootfs" ]]; then
+        _msg_error "The path '${work_dir}/airootfs' does not exist" 1
+    fi
+    _msg_info "Creating ext4 image of 32GiB..."
+    truncate -s 32G -- "${work_dir}/airootfs.img"
+    if [[ ${quiet} = "y" ]]; then
+        mkfs.ext4 -q -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
+    else
+        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
+    fi
+    tune2fs -c "0" -i "0" "${work_dir}/airootfs.img"
+    _msg_info "Done!"
+
+    #_msg_info "Mounting ${work_dir}/airootfs.img on ${work_dir}/airootfs"
+    mount "${work_dir}/airootfs.img" "${work_dir}/airootfs"
+    _msg_info "Done!"
+
+}
+
 command_init() {
     _show_config init
     _chroot_init
@@ -500,7 +552,7 @@ command_run() {
     _chroot_run
 }
 
-while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
+while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx-:' arg; do
     case "${arg}" in
         a) arch="${OPTARG}" ;;
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
@@ -518,6 +570,15 @@ while getopts 'a:p:r:C:L:P:A:D:w:o:s:c:g:t:vhx' arg; do
         g) gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
         x) set -xv ;;
+        -)
+            case "${OPTARG}" in
+                "aur") aur=true ;;
+                "*") 
+                    _msg_error "Invalid argument '${arg}'" 0
+                    _usage 1
+                    ;;
+            esac
+            ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0

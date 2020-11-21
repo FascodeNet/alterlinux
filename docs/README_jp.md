@@ -158,7 +158,6 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 	<li><a href="jp/KERNEL.md">新しいカーネルを追加する方法</a></li>
 	<li><a href="jp/CONFIG.md">ビルドの設定ファイルについて</a></li>
 	<li><a href="jp/CHANNEL_2_to_3.md">AlterISO2のチャンネルを3に対応させる</a></li>
-	<li><a href="ja/arch-pkgbuild-parser.md">arch-pkgbuild-parserについて</a></li>
 </ul>
 
 
@@ -207,4 +206,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 </a>
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
+</a>
+<a href="https://twitter.com/s29kt_Tsukkun">
+    <img src="https://avatars2.githubusercontent.com/u/74809846" width="100px">
 </a>

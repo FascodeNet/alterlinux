@@ -156,7 +156,6 @@ If you find a typographical error or a notation that isn't the case, please repo
 	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
 	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
 	<li><a href="en/CONFIG.md">About build configuration file</a></li>
-	<li><a href="en/arch-pkgbuild-parser.md">About arch-pkgbuild-parser</a></li>
 </ul>
 
 <h2>〈If you cannot start〉</h2>
@@ -203,4 +202,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 </a>
 <a href="https://twitter.com/naoko1010hh">
     <img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
+</a>
+<a href="https://twitter.com/s29kt_Tsukkun">
+    <img src="https://avatars2.githubusercontent.com/u/74809846" width="100px">
 </a>

@@ -100,10 +100,6 @@ done
 
 shift $((OPTIND - 1))
 
-
- _installed_pkg=($(pacman -Q | getclm 1))
- _installed_ver=($(pacman -Q | getclm 2))
-
 if [[ -z "${1}" ]]; then
     if [[ "${script_mode}" = true ]]; then
         echo "error"
@@ -120,39 +116,38 @@ elif [[ -n "${2}" ]]; then
     exit 1
 fi
 
-for pkg in $(seq 0 $(( ${#_installed_pkg[@]} - 1 ))); do
-    # パッケージがインストールされているかどうか
-    if [[ "${_installed_pkg[${pkg}]}" = ${1} ]]; then
-        ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
-        if [[ "${_installed_ver[${pkg}]}" = "${ver}" ]]; then
-            # パッケージが最新の場合
-            if [[ "${script_mode}" = true ]]; then
-                echo "latest"
-            else
-                msg_info "The latest version of ${1} is installed."
-            fi
-            exit 0
-        elif [[ -z "${ver}" ]]; then
-            # リモートのバージョンの取得に失敗した場合
-            if [[ "${script_mode}" = true ]]; then
-                echo "noversion"
-            else
-                msg_warn "Failed to get the latest version of ${1}."
-            fi
-            exit 1
+latest_ver="$(pacman -Sp --print-format '%v' ${1} 2> /dev/null; :)"
+local_ver="$( (pacman -Q ${1} | getclm 2) 2> /dev/null; :)"
+if pacman -Q "${1}" 2> "/dev/null" 1>&2; then
+    if [[ "${latest_ver}" = "${local_ver}" ]]; then
+        # パッケージが最新の場合
+        if [[ "${script_mode}" = true ]]; then
+            echo "latest"
         else
-            # リモートとローカルのバージョンが一致しない場合
-            if [[ "${script_mode}" = true ]]; then
-                echo "old"
-            else
-                msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${ver}"
-            fi
-            exit 1
+            msg_info "The latest version of ${1} is installed."
         fi
+        exit 0
+    elif [[ -z "${latest_ver}" ]]; then
+        # リモートのバージョンの取得に失敗した場合
+        if [[ "${script_mode}" = true ]]; then
+            echo "noversion"
+        else
+            msg_warn "Failed to get the latest version of ${1}."
+        fi
+        exit 1
+    else
+        # リモートとローカルのバージョンが一致しない場合
+        if [[ "${script_mode}" = true ]]; then
+            echo "old"
+        else
+            msg_warn "${1} is not the latest package.\nLocal: $(pacman -Q ${1} 2> /dev/null | getclm 2) Latest: ${latest_ver}"
+        fi
+        exit 1
     fi
-done
-if [[ "${script_mode}" = true ]]; then
-    echo "failed"
 else
-    msg_error "${1} is not installed."
+    if [[ "${script_mode}" = true ]]; then
+        echo "failed"
+    else
+        msg_error "${1} is not installed."
+    fi
 fi
