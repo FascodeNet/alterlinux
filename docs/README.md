@@ -203,3 +203,6 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/naoko1010hh">
     <img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
 </a>
+<a href="https://twitter.com/s29kt_Tsukkun">
+    <img src="https://avatars2.githubusercontent.com/u/74809846" width="100px">
+</a>
