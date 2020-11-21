@@ -325,7 +325,7 @@ prepare_env() {
                     [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
                     ;;
                 "noversion")
-                    msg_warn "Failed to get the latest version of ${_pkg}."
+                    echo; msg_warn "Failed to get the latest version of ${_pkg}."
                     ;;
                 "old")
                     [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
