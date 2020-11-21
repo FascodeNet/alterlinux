@@ -20,7 +20,7 @@
       <property name="length-adjust" type="bool" value="true"/>
       <property name="mode" type="uint" value="0"/>
       <property name="plugin-ids" type="array">
-        <value type="int" value="3"/>
+        <value type="int" value="45"/>
         <value type="int" value="28"/>
         <value type="int" value="54"/>
         <value type="int" value="52"/>
@@ -194,5 +194,6 @@
         <value type="string" value="15578375958.desktop"/>
       </property>
     </property>
+    <property name="plugin-45" type="string" value="whiskermenu"/>
   </property>
 </channel>
