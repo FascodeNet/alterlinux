@@ -721,8 +721,10 @@ make_customize_airootfs() {
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
         cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+    else
+        cp "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     fi
-
+    
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
