@@ -207,6 +207,8 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <a href="https://twitter.com/naoko1010hh">
 	<img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
 </a>
+
+<h3>Special Thanks</h3>
 <a href="https://twitter.com/s29kt_Tsukkun">
     <img src="https://avatars2.githubusercontent.com/u/74809846" width="100px">
 </a>
