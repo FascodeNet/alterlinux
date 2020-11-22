@@ -299,3 +299,7 @@ systemctl disable reflector.service
 systemctl enable tlp.service
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
+
+# Enable  accessibility tools
+systemctl enable livecd-talk.service 
+systemctl enable livecd-alsa-unmuter.service
