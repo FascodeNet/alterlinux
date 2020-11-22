@@ -315,25 +315,29 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _ver
+        local _check_failed=false _pkg _result
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            _ver="$(pacman -Sp --print-format '%v' ${_pkg} 2> /dev/null; :)"
-            case "$("${script_path}/tools/package.sh" -s "${_pkg}")" in
+            _result=( $("${script_path}/tools/package.py" -s "${_pkg}") )
+            case "${_result[0]}" in
                 "latest")
-                    [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
+                    [[ ${debug} = true ]] && echo -ne " ${_result[1]}\n"
                     ;;
                 "noversion")
                     echo; msg_warn "Failed to get the latest version of ${_pkg}."
                     ;;
-                "old")
-                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
-                    msg_warn "${_pkg} is not the latest package.\nLocal: $(pacman -Q ${_pkg} 2> /dev/null | getclm 2) Latest: ${_ver}"
+                "nomatch")
+                    [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
+                    msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_result[1]} Latest: ${_result[2]}"
                     ;;
                 "failed")
                     [[ "${debug}" = true ]] && echo
                     msg_error "${_pkg} is not installed." ; _check_failed=true
+                    ;;
+                "error")
+                    [[ "${debug}" = true ]] && echo
+                    msg_error "pyalpm is not installed." ; exit 1
                     ;;
             esac
         done
