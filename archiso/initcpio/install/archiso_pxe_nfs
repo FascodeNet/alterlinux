@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+build() {
+    add_module "nfs"
+
+    add_runscript
+
+    add_binary /usr/lib/initcpio/nfsmount /bin/nfsmount
+}
+
+help() {
+    cat <<HELPEOF
+  This hook loads the necessary modules for boot via PXE and NFS.
+HELPEOF
+}

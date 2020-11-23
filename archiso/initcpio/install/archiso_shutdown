@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+build() {
+    add_binary cp
+
+    add_runscript
+
+    add_file /usr/lib/initcpio/archiso_shutdown /shutdown
+}
+
+help() {
+    cat <<HELPEOF
+This hook will create a shutdown initramfs in /run/initramfs
+that we can pivot to on shutdown in order to unmount / and
+and other mount points, dm-snapshot and loopback devices.
+Mostly useful for persistent dm-snapshot.
+HELPEOF
+}

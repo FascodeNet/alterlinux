@@ -1,0 +1,133 @@
+INDEX
+-----
+
+* Transfer ISO file to target medium (configs/releng)
+  * To -> CD / DVD / BD
+  * To -> USB-key / SD / HDD / SSD
+    * PC-BIOS (MBR)
+    * PC-BIOS (ISOHYBRID-MBR)
+    * PC-EFI (GPT) [x86_64 only]
+    * PC-EFI (ISOHYBRID-GPT) [x86_64 only]
+
+
+
+*** Transfer ISO image to target medium (configs/releng)
+
+ISO images names consist of: archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
+
+Where:
+    <YYYY> Year
+    <MM> Month
+    <DD> Day
+
+
+** To -> CD / DVD / BD
+
+Note: All ISO images are booteable on a PC-BIOS via "El Torito" in no-emulation mode,
+      All x86_64 ISO images are booteable on a PC-EFI via "El Torito" in no-emulation mode.
+
+Nomeclature:
+    <B> scsibus number
+    <T> target number
+    <L> lun number
+    (Note: see cdrecord -scanbus, for these numbers)
+
+
+1) Write it directly using your favorite recording program.
+# cdrecord dev=<B>,<T>,<L> -dao archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
+
+
+** To -> USB Flash Drive (USB-key) / Memory card (SD) /
+         Hard-Disk Drive (HDD) / Solid-State Drive (SSD)
+
+Note: These steps are the general workflow, you can skip some of them,
+      using another filesystem if your bootloader supports it,
+      installing to another directory than "arch/" or using more than
+      one partition. Just ensure that main boot params options
+      (archisolabel= and archisobasedir=) are set correctly according to your setup.
+
+Nomeclature:
+<DEV-TARGET>:   Device node of the drive where ISO contents should be copied
+                (example: /dev/sdx)
+<DEV-TARGET-N>: Device node of the partition on <DEV-TARGET>
+                (example: /dev/sdx1)
+<MNT-TARGET-N>: Mount point path where <DEV-TARGET-N> is mounted
+                (example: /mnt/sdx/1)
+<ISO-SOURCE>:   Path to the ISO file archlinux-<YYYY>.<MM>.<DD>-x86_64.iso
+                (example: ~/archlinux-2017.03.01-x86_64.iso)
+<FS-LABEL>:     Represents the filesystem label of the <ISO-SOURCE>
+                (example: ARCH_201703)
+
+
+* PC-BIOS (MBR):
+
+Note: Using here a MBR partition mode as example, but GPT should also works
+      if machine firmware is not broken.
+      Just ensure that partition is set with attribute "2: legacy BIOS bootable"
+      and use gptmbr.bin instead of mbr.bin for syslinux.
+
+1) Create one partition entry in MBR and mark it as "active" (booteable).
+Note: Type "b" for FAT32, "83" for EXTFS or "7" for NTFS.
+# fdisk <DEV-TARGET>
+
+2) Create a FAT32, EXTFS or NTFS filesystem on such partition and setup a label.
+Note: COW is not supported on NTFS.
+# mkfs.fat -F 32 -n <FS-LABEL> <DEV-TARGET-N>
+# mkfs.ext4 -L <FS-LABEL> <DEV-TARGET-N>
+# mkfs.ntfs -L <FS-LABEL> <DEV-TARGET-N>
+
+3) Mount target filesystem.
+# mount <DEV-TARGET-N> <MNT-TARGET-N>
+
+4) Extract ISO image on target filesystem.
+# bsdtar -x --exclude=isolinux/ --exclude=EFI/ --exclude=loader/ -f <ISO-SOURCE> -C <MNT-TARGET-N>
+
+5) Install syslinux bootloader on target filesystem.
+# extlinux -i <MNT-TARGET-N>/arch/boot/syslinux
+
+6) Unmount target filesystem.
+# umount <MNT-TARGET-N>
+
+7) Install syslinux MBR boot code on target drive.
+# dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/bios/mbr.bin of=<DEV-TARGET>
+
+
+* PC-BIOS (ISOHYBRID-MBR):
+
+Note: This method is the most easily, quick and dirty, but is the most limited
+      if you want to use your target medium for other purposes.
+      If using this does not work, use PC-BIOS (MBR) method instead.
+
+1) Dump ISO file to target medium.
+# dd if=<ISO-SOURCE> of=<DEV-TARGET>
+
+
+* PC-EFI (GPT) [x86_64 only]
+
+Note: Using here a GPT partition mode as example, but MBR should also works
+      if machine firmware is not broken.
+
+1) Create one partition entry in GPT (of type "ef00")
+# gdisk <DEV-TARGET>
+
+2) Create a FAT32 filesystem on such partition and setup a label.
+# mkfs.fat -F 32 -n <FS-LABEL> <DEV-TARGET-N>
+
+3) Mount target filesystem.
+# mount <DEV-TARGET-N> <MNT-TARGET-N>
+
+4) Extract ISO image on target filesystem.
+# bsdtar -x --exclude=isolinux/ --exclude=EFI/archiso/ --exclude=arch/boot/syslinux/ -f <ISO-SOURCE> -C <MNT-TARGET-N>
+
+5) Unmount target filesystem.
+# umount <MNT-TARGET-N>
+
+
+* PC-EFI (ISOHYBRID-GPT) [x86_64 only]
+
+Note: This method is the most easily, quick and dirty, but is the most limited
+      if you want to use your target medium for other purposes.
+      If using this does not work, use PC-EFI (GPT) method instead.
+
+1) Dump ISO file to target medium.
+# dd if=<ISO-SOURCE> of=<DEV-TARGET>
