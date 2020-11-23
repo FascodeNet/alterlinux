@@ -55,3 +55,14 @@ void _msg_debug(String msg_con){
     FascodeUtil::msg mskun;
     mskun.print(FascodeUtil::DEBUG,app_name,msg_con);
 }
+void parse_channel(){
+    Vector<String> argskun;
+    argskun.push_back(realpath("./archiso/get_profile_def.sh"));
+    argskun.push_back("-s");
+    argskun.push_back(realpath("./archiso/json_template.json"));
+    argskun.push_back("-p");
+    argskun.push_back(realpath(profile + "/profiledef.sh"));
+    argskun.push_back("-o");
+    argskun.push_back(realpath("./.cache_channel_json.json"));
+    FascodeUtil::custom_exec_v(argskun);
+}

@@ -13,11 +13,13 @@
 #define String std::string
 #define Vector std::vector
 #include "message.hpp"
+#include "custom_exec.hpp"
 void _msg_error(String);
 void _msg_info(String);
 void _msg_warn(String);
 void _msg_debug(String);
 void parse_channel();
+
 String app_name="mkalteriso";
 String install_dir=app_name;
 String iso_label="mkalteriso";
