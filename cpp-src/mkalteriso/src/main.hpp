@@ -2,13 +2,16 @@
 #include <iostream>
 #include "cmdline.h"
 #include <string>
-std::string app_name="mkalteriso";
-std::string install_dir=app_name;
-std::string iso_label="mkalteriso";
-std::string iso_publisher="Fascode Network";
-std::string gpg_key="";
-std::string out_dir="out";
-std::string aditional_packages="";
-std::string work_dir="work";
-std::string pacman_conf="/etc/pacman.conf";
-std::string run_cmd="";
+#include <vector>
+#define String std::string
+#define Vector std::vector
+String app_name="mkalteriso";
+String install_dir=app_name;
+String iso_label="mkalteriso";
+String iso_publisher="Fascode Network";
+String gpg_key="";
+String out_dir="out";
+String aditional_packages="";
+String work_dir="work";
+String pacman_conf="/etc/pacman.conf";
+String run_cmd="";
