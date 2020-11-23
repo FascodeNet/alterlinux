@@ -28,5 +28,30 @@ int main(int argc,char* argv[]){
     aditional_packages=p.get<String>("packages");
     work_dir=p.get<String>("work");
     run_cmd=p.get<String>("run_cmd");
+    Vector<String> cmd_ls=p.rest();
+    if(cmd_ls.size()==0){
+        _msg_error("No profile specified");
+        return 0;
+    }
+    profile=realpath(cmd_ls.at(0));
+    airootfs_dir=work_dir + "/airootfs";
+    isofs_dir=work_dir+"/iso";
+    
     return 0;
+}
+void _msg_error(String msg_con){
+    FascodeUtil::msg mskun;
+    mskun.print(FascodeUtil::ERR,app_name,msg_con);
+}
+void _msg_info(String msg_con){
+    FascodeUtil::msg mskun;
+    mskun.print(FascodeUtil::INFO,app_name,msg_con);
+}
+void _msg_warn(String msg_con){
+    FascodeUtil::msg mskun;
+    mskun.print(FascodeUtil::WARN,app_name,msg_con);
+}
+void _msg_debug(String msg_con){
+    FascodeUtil::msg mskun;
+    mskun.print(FascodeUtil::DEBUG,app_name,msg_con);
 }
