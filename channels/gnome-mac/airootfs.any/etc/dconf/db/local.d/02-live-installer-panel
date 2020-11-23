@@ -1,2 +1,0 @@
-[org/gnome/shell]
-favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'pamac-updater.desktop', 'gnome-control-center.desktop', 'calamares.desktop']

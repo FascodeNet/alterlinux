@@ -1,1 +1,0 @@
-Build ArchLinux as is. Boot splash etc. cannot be used.

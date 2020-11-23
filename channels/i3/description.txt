@@ -1,1 +1,0 @@
-using i3, a dynamic tiling window manager inspired by wmii.

@@ -1,3 +1,0 @@
-#
-# ~/.zsh_profile
-#
