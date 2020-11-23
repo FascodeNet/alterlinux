@@ -9,10 +9,10 @@
 *.log.*
 *.sig
 .build_option
-system/mkalteriso
-system/cpp-src/mkalteriso/build/
+#system/mkalteriso
+#system/cpp-src/mkalteriso/build/
 pkg/
-src/
+#src/
 out/
 work/
 *.ignore*
@@ -20,6 +20,6 @@ work/
 *.add*
 temp/
 .config.old
-system/cpp-src/mkalteriso/CMakeLists.txt.user
+#system/cpp-src/mkalteriso/CMakeLists.txt.user
 menuconfig-script/kernel_choice_*
 /custom.conf
