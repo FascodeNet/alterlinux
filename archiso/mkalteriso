@@ -13,7 +13,6 @@ export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 app_name="${0##*/}"
 pkg_list=()
 run_cmd=""
-quiet="y"
 work_dir="work"
 out_dir="out"
 img_name="${app_name}.iso"
@@ -44,7 +43,7 @@ airootfs_image_tool_options=('-comp' 'xz')
 # $1: message string
 _msg_info() {
     local _msg="${1}"
-    [[ "${quiet}" == "y" ]] || printf '[%s] INFO: %s\n' "${app_name}" "${_msg}"
+    printf '[%s] INFO: %s\n' "${app_name}" "${_msg}"
 }
 
 # Show a WARNING message
@@ -143,19 +142,12 @@ _show_config() {
     _msg_info "          ISO application:   ${iso_application}"
     _msg_info "               Boot modes:   ${bootmodes[*]}"
     _msg_info "                 Packages:   ${pkg_list[*]}"
-    [[ "${quiet}" == "y" ]] || printf '\n'
 }
 
 # Install desired packages to airootfs
 _pacman() {
     _msg_info "Installing packages to '${airootfs_dir}/'..."
-
-    if [[ "${quiet}" = "y" ]]; then
-        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@" &> /dev/null
-    else
-        pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@"
-    fi
-
+    pacstrap -C "${work_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "$@"
     _msg_info "Done! Packages installed successfully."
 }
 
@@ -202,11 +194,7 @@ _mkairootfs_create_image() {
 
     image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
     if [[ "${airootfs_image_type}" =~ .*squashfs ]] ; then
-        if [[ "${quiet}" == "y" ]]; then
-            mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" -no-progress > /dev/null
-        else
-            mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}"
-        fi
+        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}"
     else
         _msg_error "Unsupported image type: '${airootfs_image_type}'" 1
     fi
@@ -219,11 +207,7 @@ _mkairootfs_img() {
     fi
 
     _msg_info "Creating ext4 image of 32 GiB..."
-    if [[ "${quiet}" == "y" ]]; then
-        mkfs.ext4 -q -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
-    else
-        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
-    fi
+    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
     tune2fs -c 0 -i 0 -- "${airootfs_dir}.img" > /dev/null
     _msg_info "Done!"
     _mount_airootfs
@@ -591,10 +575,6 @@ _make_iso() {
 
     [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
 
-    if [[ "${quiet}" == "y" ]]; then
-        xorrisofs_options+=('-quiet')
-    fi
-
     # xorrisofs options for x86 BIOS booting using SYSLINUX
     # shellcheck disable=SC2076
     if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.' ]]; then
@@ -822,7 +802,6 @@ while getopts 'p:r:C:L:P:A:D:w:o:g:vh?' arg; do
         w) work_dir="$(realpath -- "${OPTARG}")" ;;
         o) out_dir="$(realpath -- "${OPTARG}")" ;;
         g) override_gpg_key="${OPTARG}" ;;
-        v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
