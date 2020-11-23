@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 PROFILE_FILE=""
-SECTION_NAME=""
+SOURCE_FILE=""
 usage_exit() {
-        echo "Usage: $0 -p [PROFILEDEF PATH] -s [SECTION NAME]" 1>&2
+        echo "Usage: $0 -p [PROFILEDEF PATH] -s [SOURCE FILE NAME]" 1>&2
         exit 1
 }
 
@@ -11,7 +11,7 @@ do
     case $OPT in
         p)  PROFILE_FILE=$OPTARG
             ;;
-        s)  SECTION_NAME=$OPTARG
+        s)  SOURCE_FILE=$OPTARG
             ;;
         h)  usage_exit
             ;;
@@ -21,6 +21,13 @@ do
 done
 
 shift $((OPTIND - 1))
-
-source "${PROFILE_FILE}"
-eval echo "\${${SECTION_NAME}}"
+source ${PROFILE_FILE}
+bootmodes_js="stub"
+for pf in ${bootmodes[@]}
+do
+    bootmodes_js="${bootmodes_js},\"${pf}\""
+done
+bootmodes_js=$(echo ${bootmodes_js} | sed "s/stub,//g")
+cat ${SOURCE_FILE} | sed "s|ISONAME|${iso_name}|g" | sed "s|ISOLABEL|${iso_label}|g" | sed "s|ISOPUB|${iso_publisher}|g" | \
+sed "s|ISOAPP|${iso_application}|g" | sed "s|ISOVER|${iso_version}|g" | sed "s|INSTALLDIR|${install_dir}|g" | sed "s|ARCH|${arch}|g" \
+| sed "s|PACMANCONF|${pacman_conf}|g" | sed "s|\"BOOTMODES\"|${bootmodes_js}|g"

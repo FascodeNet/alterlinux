@@ -1,0 +1,11 @@
+{
+    "iso_name":"ISONAME",
+    "iso_label":"ISOLABEL",
+    "iso_publisher":"ISOPUB",
+    "iso_application":"ISOAPP",
+    "iso_version":"ISOVER",
+    "install_dir":"INSTALLDIR",
+    "bootmodes":["BOOTMODES"],
+    "arch":"ARCH",
+    "pacman_conf":"PACMANCONF"
+} 

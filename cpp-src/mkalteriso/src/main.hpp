@@ -17,7 +17,6 @@ void _msg_error(String);
 void _msg_info(String);
 void _msg_warn(String);
 void _msg_debug(String);
-int popen2(int *fd_r, int *fd_w,Vector<String> args);
 void parse_channel();
 String app_name="mkalteriso";
 String install_dir=app_name;
