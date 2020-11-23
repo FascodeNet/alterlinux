@@ -1,4 +1,5 @@
 #include "main.hpp"
+using namespace std;
 int main(int argc,char* argv[]){
     cmdline::parser p;
     p.add<std::string>("application",'A',"Set an application name for the ISO",false,app_name);
@@ -13,9 +14,20 @@ int main(int argc,char* argv[]){
     p.add<std::string>("packages",'p',"Package(s) to install, can be used multiple times",false,aditional_packages);
     p.add("verbose",'v',"Enable verbose output");
     p.add<std::string>("work",'w',"Set the working directory",false,work_dir);
+    p.add<std::string>("run_cmd",'r',"run command");
     if (!p.parse(argc, argv)||p.exist("help")){
         std::cout<<p.error_full()<<p.usage();
         return 0;
     }
+    app_name=p.get<string>("application");
+    pacman_conf=p.get<string>("pacman_config");
+    install_dir=p.get<string>("install_dir");
+    iso_label=p.get<string>("iso_label");
+    iso_publisher=p.get<string>("iso_pub");
+    gpg_key=p.get<string>("gpg-key");
+    out_dir=p.get<string>("out_dir");
+    aditional_packages=p.get<string>("packages");
+    work_dir=p.get<string>("work");
+    run_cmd=p.get<string>("run_cmd");
     return 0;
 }

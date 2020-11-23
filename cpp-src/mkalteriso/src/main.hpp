@@ -11,3 +11,4 @@ std::string out_dir="out";
 std::string aditional_packages="";
 std::string work_dir="work";
 std::string pacman_conf="/etc/pacman.conf";
+std::string run_cmd="";
