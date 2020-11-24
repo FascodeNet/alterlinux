@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <fstream>
+#include <time.h>
 
 #define READ  (0)
 #define WRITE (1)

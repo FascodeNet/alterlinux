@@ -29,6 +29,12 @@ int main(int argc,char* argv[]){
     bp.aditional_packages=p.get<String>("packages");
     bp.work_dir=p.get<String>("work");
     bp.run_cmd=p.get<String>("run_cmd");
+    time_t timer;
+    struct tm *date;
+    char str[256];
+    timer=time(NULL);
+    bp.SOURCE_DATE_EPOCH=std::to_string(timer);
+    
     Vector<String> cmd_ls=p.rest();
     if(cmd_ls.size()==0){
         _msg_error("No profile specified");
