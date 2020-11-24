@@ -37,6 +37,14 @@ int main(int argc,char* argv[]){
     profile=realpath(cmd_ls.at(0));
     airootfs_dir=work_dir + "/airootfs";
     isofs_dir=work_dir+"/iso";
+    parse_channel();
+    for(String bootmodekun:bootmodes){
+        _msg_debug("bootmode : " + bootmodekun);
+    }
+    _msg_debug("pacman_conf : " + pacman_conf);
+    for(String package_name:packages_vector){
+        _msg_debug("package : " + package_name);
+    }
     return 0;
 }
 void _msg_error(String msg_con){
@@ -65,4 +73,49 @@ void parse_channel(){
     argskun.push_back("-o");
     argskun.push_back(realpath("./.cache_channel_json.json"));
     FascodeUtil::custom_exec_v(argskun);
+    std::ifstream json_stream(realpath("./.cache_channel_json.json"));
+    remove(realpath("./.cache_channel_json.json").c_str());
+    String json_data=String(std::istreambuf_iterator<char>(json_stream),
+                            std::istreambuf_iterator<char>());
+    nlohmann::json json_obj=nlohmann::json::parse(json_data);
+    iso_name=json_obj["iso_name"].get<String>();
+    iso_label=json_obj["iso_label"].get<String>();
+    iso_publisher=json_obj["iso_publisher"].get<String>();
+    iso_application=json_obj["iso_application"].get<String>();
+    iso_version=json_obj["iso_version"].get<String>();
+    install_dir=json_obj["install_dir"].get<String>();
+    bootmodes=json_obj["bootmodes"].get<Vector<String>>();
+    arch=json_obj["arch"].get<String>();
+    char pathname[512];
+    memset(pathname, '\0', 512); 
+    getcwd(pathname,512);
+    chdir(realpath(profile).c_str());
+    String packages_str=realpath("packages." + arch);
+    pacman_conf=realpath(json_obj["pacman_conf"].get<String>());
+    chdir(pathname);
+    packages_vector=parse_packages(packages_str);
+
+}
+Vector<String> parse_packages(String packages_file_path){
+    Vector<String> return_collection;
+    std::ifstream package_file_stream(packages_file_path);
+    String line_buf;
+    while(getline(package_file_stream,line_buf)){
+        String replaced_space=std::regex_replace(line_buf,std::regex(" "),"");
+        if(replaced_space.substr(0,1) != "#"){
+            return_collection.push_back(replaced_space);
+        }
+    }
+    return return_collection;
+}
+Vector<String> parse_packages(Vector<String> base_vector,String packages_file_path){
+    std::ifstream package_file_stream(packages_file_path);
+    String line_buf;
+    while(getline(package_file_stream,line_buf)){
+        String replaced_space=std::regex_replace(line_buf,std::regex(" "),"");
+        if(replaced_space.substr(0,1) != "#"){
+            base_vector.push_back(replaced_space);
+        }
+    }
+    return base_vector;
 }
