@@ -17,12 +17,15 @@
 #include "custom_exec.hpp"
 #include "json.hpp"
 #include <regex>
+#include <filesystem>
 void _msg_error(String);
 void _msg_info(String);
 void _msg_warn(String);
 void _msg_debug(String);
 void parse_channel();
 Vector<String> parse_packages(String packages_file_path);
+Vector<String> parse_packages_folder(String packages_folder_path);
+Vector<String> parse_packages_folder(Vector<String> base_vect,String packages_folder_path);
 Vector<String> parse_packages(Vector<String> base_vector,String packages_file_path);
 
 String app_name="mkalteriso";
@@ -43,5 +46,6 @@ Vector<String> bootmodes;
 String iso_application="";
 String iso_version="";
 String arch="x86_64";
+bool isreleng=false;
 Vector<String> packages_vector;
 Vector<String> aur_packages_vector;

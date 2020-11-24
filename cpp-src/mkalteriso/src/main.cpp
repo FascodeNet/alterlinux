@@ -34,7 +34,10 @@ int main(int argc,char* argv[]){
         _msg_error("No profile specified");
         return 0;
     }
-    profile=realpath(cmd_ls.at(0));
+    profile=realpath("./channels/" + cmd_ls.at(0));
+    if(cmd_ls.at(0) == "releng"){
+        isreleng=true;
+    }
     airootfs_dir=work_dir + "/airootfs";
     isofs_dir=work_dir+"/iso";
     parse_channel();
@@ -90,10 +93,13 @@ void parse_channel(){
     memset(pathname, '\0', 512); 
     getcwd(pathname,512);
     chdir(realpath(profile).c_str());
-    String packages_str=realpath("packages." + arch);
+    packages_vector=parse_packages_folder("./packages." + arch);
     pacman_conf=realpath(json_obj["pacman_conf"].get<String>());
+    chdir("../");
+    if(!isreleng){
+        packages_vector=parse_packages_folder(packages_vector,"./share/packages." + arch);
+    }
     chdir(pathname);
-    packages_vector=parse_packages(packages_str);
 
 }
 Vector<String> parse_packages(String packages_file_path){
@@ -103,7 +109,9 @@ Vector<String> parse_packages(String packages_file_path){
     while(getline(package_file_stream,line_buf)){
         String replaced_space=std::regex_replace(line_buf,std::regex(" "),"");
         if(replaced_space.substr(0,1) != "#"){
-            return_collection.push_back(replaced_space);
+            if(replaced_space != ""){
+                return_collection.push_back(replaced_space);
+            }
         }
     }
     return return_collection;
@@ -114,8 +122,47 @@ Vector<String> parse_packages(Vector<String> base_vector,String packages_file_pa
     while(getline(package_file_stream,line_buf)){
         String replaced_space=std::regex_replace(line_buf,std::regex(" "),"");
         if(replaced_space.substr(0,1) != "#"){
-            base_vector.push_back(replaced_space);
+            if(replaced_space != ""){
+                base_vector.push_back(replaced_space);
+            }
         }
     }
     return base_vector;
+}
+bool ends_with(const std::string& str, const std::string& suffix) {
+    size_t len1 = str.size();
+    size_t len2 = suffix.size();
+    return len1 >= len2 && str.compare(len1 - len2, len2, suffix) == 0;
+}
+
+Vector<String> parse_packages_folder(String packages_folder_path){
+    Vector<String> return_object;
+    std::filesystem::directory_iterator iter(packages_folder_path),end;
+    std::error_code err;
+    for(;iter != end && !err;iter.increment(err)){
+        const std::filesystem::directory_entry entry=*iter;
+        String fnamekun=entry.path().string();
+        if(ends_with(fnamekun,arch)){
+            return_object=parse_packages(return_object,fnamekun);
+        }
+    }
+    if(err){
+        _msg_error(err.message());
+    }
+    return return_object;
+}
+Vector<String> parse_packages_folder(Vector<String> base_vect,String packages_folder_path){
+    std::filesystem::directory_iterator iter(packages_folder_path),end;
+    std::error_code err;
+    for(;iter != end && !err;iter.increment(err)){
+        const std::filesystem::directory_entry entry=*iter;
+        String fnamekun=entry.path().string();
+        if(ends_with(fnamekun,arch)){
+            base_vect=parse_packages(base_vect,fnamekun);
+        }
+    }
+    if(err){
+        _msg_error(err.message());
+    }
+    return base_vect;
 }
