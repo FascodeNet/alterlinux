@@ -1,70 +1,56 @@
 #include "main.hpp"
-
+build_option bp;
 int main(int argc,char* argv[]){
     cmdline::parser p;
-    p.add<String>("application",'A',"Set an application name for the ISO",false,app_name);
-    p.add<String>("pacman_config",'C',"pacman configuration file.",false,pacman_conf);
+    p.add<String>("application",'A',"Set an application name for the ISO",false,bp.app_name);
+    p.add<String>("pacman_config",'C',"pacman configuration file.",false,bp.pacman_conf);
     p.add("help", 'h', "This message");
     p.add<String>("install_dir",'D',"Set an install_dir. All files will by located here.\n\t\t\t NOTE: Max 8 characters, use only [a-z0-9]",
-    false,install_dir);
-    p.add<String>("iso_label",'L',"Set the ISO volume label",false,iso_label);
-    p.add<String>("iso_pub",'P',"Set the ISO publisher",false,iso_publisher);
+    false,bp.install_dir);
+    p.add<String>("iso_label",'L',"Set the ISO volume label",false,bp.iso_label);
+    p.add<String>("iso_pub",'P',"Set the ISO publisher",false,bp.iso_publisher);
     p.add<String>("gpg-key",'g',"Set the GPG key to be used for signing the sqashfs image",false,"");
-    p.add<String>("out_dir",'O',"Set the output directory",false,out_dir);
-    p.add<String>("packages",'p',"Package(s) to install, can be used multiple times",false,aditional_packages);
+    p.add<String>("out_dir",'O',"Set the output directory",false,bp.out_dir);
+    p.add<String>("packages",'p',"Package(s) to install, can be used multiple times",false,bp.aditional_packages);
     p.add("verbose",'v',"Enable verbose output");
-    p.add<String>("work",'w',"Set the working directory",false,work_dir);
+    p.add<String>("work",'w',"Set the working directory",false,bp.work_dir);
     p.add<String>("run_cmd",'r',"run command");
     if (!p.parse(argc, argv)||p.exist("help")){
         std::cout<<p.error_full()<<p.usage();
         return 0;
     }
-    app_name=p.get<String>("application");
-    pacman_conf=p.get<String>("pacman_config");
-    install_dir=p.get<String>("install_dir");
-    iso_label=p.get<String>("iso_label");
-    iso_publisher=p.get<String>("iso_pub");
-    gpg_key=p.get<String>("gpg-key");
-    out_dir=p.get<String>("out_dir");
-    aditional_packages=p.get<String>("packages");
-    work_dir=p.get<String>("work");
-    run_cmd=p.get<String>("run_cmd");
+    bp.app_name=p.get<String>("application");
+    bp.pacman_conf=p.get<String>("pacman_config");
+    bp.install_dir=p.get<String>("install_dir");
+    bp.iso_label=p.get<String>("iso_label");
+    bp.iso_publisher=p.get<String>("iso_pub");
+    bp.gpg_key=p.get<String>("gpg-key");
+    bp.out_dir=p.get<String>("out_dir");
+    bp.aditional_packages=p.get<String>("packages");
+    bp.work_dir=p.get<String>("work");
+    bp.run_cmd=p.get<String>("run_cmd");
     Vector<String> cmd_ls=p.rest();
     if(cmd_ls.size()==0){
         _msg_error("No profile specified");
         return 0;
     }
-    profile=realpath("./channels/" + cmd_ls.at(0));
+    bp.profile=realpath("./channels/" + cmd_ls.at(0));
     if(cmd_ls.at(0) == "releng"){
-        isreleng=true;
+        bp.isreleng=true;
     }
-    airootfs_dir=work_dir + "/airootfs";
-    isofs_dir=work_dir+"/iso";
+    bp.airootfs_dir=bp.work_dir + "/airootfs";
+    bp.isofs_dir=bp.work_dir+"/iso";
     parse_channel();
-    for(String bootmodekun:bootmodes){
+    for(String bootmodekun:bp.bootmodes){
         _msg_debug("bootmode : " + bootmodekun);
     }
-    _msg_debug("pacman_conf : " + pacman_conf);
-    for(String package_name:packages_vector){
+    _msg_debug("pacman_conf : " + bp.pacman_conf);
+    for(String package_name:bp.packages_vector){
         _msg_debug("package : " + package_name);
     }
+    setup(bp);
+    test_conf();
     return 0;
-}
-void _msg_error(String msg_con){
-    FascodeUtil::msg mskun;
-    mskun.print(FascodeUtil::ERR,app_name,msg_con);
-}
-void _msg_info(String msg_con){
-    FascodeUtil::msg mskun;
-    mskun.print(FascodeUtil::INFO,app_name,msg_con);
-}
-void _msg_warn(String msg_con){
-    FascodeUtil::msg mskun;
-    mskun.print(FascodeUtil::WARN,app_name,msg_con);
-}
-void _msg_debug(String msg_con){
-    FascodeUtil::msg mskun;
-    mskun.print(FascodeUtil::DEBUG,app_name,msg_con);
 }
 void parse_channel(){
     Vector<String> argskun;
@@ -72,7 +58,7 @@ void parse_channel(){
     argskun.push_back("-s");
     argskun.push_back(realpath("./archiso/json_template.json"));
     argskun.push_back("-p");
-    argskun.push_back(realpath(profile + "/profiledef.sh"));
+    argskun.push_back(realpath(bp.profile + "/profiledef.sh"));
     argskun.push_back("-o");
     argskun.push_back(realpath("./.cache_channel_json.json"));
     FascodeUtil::custom_exec_v(argskun);
@@ -81,23 +67,23 @@ void parse_channel(){
     String json_data=String(std::istreambuf_iterator<char>(json_stream),
                             std::istreambuf_iterator<char>());
     nlohmann::json json_obj=nlohmann::json::parse(json_data);
-    iso_name=json_obj["iso_name"].get<String>();
-    iso_label=json_obj["iso_label"].get<String>();
-    iso_publisher=json_obj["iso_publisher"].get<String>();
-    iso_application=json_obj["iso_application"].get<String>();
-    iso_version=json_obj["iso_version"].get<String>();
-    install_dir=json_obj["install_dir"].get<String>();
-    bootmodes=json_obj["bootmodes"].get<Vector<String>>();
-    arch=json_obj["arch"].get<String>();
+    bp.iso_name=json_obj["iso_name"].get<String>();
+    bp.iso_label=json_obj["iso_label"].get<String>();
+    bp.iso_publisher=json_obj["iso_publisher"].get<String>();
+    bp.iso_application=json_obj["iso_application"].get<String>();
+    bp.iso_version=json_obj["iso_version"].get<String>();
+    bp.install_dir=json_obj["install_dir"].get<String>();
+    bp.bootmodes=json_obj["bootmodes"].get<Vector<String>>();
+    bp.arch=json_obj["arch"].get<String>();
     char pathname[512];
     memset(pathname, '\0', 512); 
     getcwd(pathname,512);
-    chdir(realpath(profile).c_str());
-    packages_vector=parse_packages_folder("./packages." + arch);
-    pacman_conf=realpath(json_obj["pacman_conf"].get<String>());
+    chdir(realpath(bp.profile).c_str());
+    bp.packages_vector=parse_packages_folder("./packages." + bp.arch);
+    bp.pacman_conf=realpath(json_obj["pacman_conf"].get<String>());
     chdir("../");
-    if(!isreleng){
-        packages_vector=parse_packages_folder(packages_vector,"./share/packages." + arch);
+    if(!bp.isreleng){
+        bp.packages_vector=parse_packages_folder(bp.packages_vector,"./share/packages." + bp.arch);
     }
     chdir(pathname);
 
@@ -142,7 +128,7 @@ Vector<String> parse_packages_folder(String packages_folder_path){
     for(;iter != end && !err;iter.increment(err)){
         const std::filesystem::directory_entry entry=*iter;
         String fnamekun=entry.path().string();
-        if(ends_with(fnamekun,arch)){
+        if(ends_with(fnamekun,bp.arch)){
             return_object=parse_packages(return_object,fnamekun);
         }
     }
@@ -157,7 +143,7 @@ Vector<String> parse_packages_folder(Vector<String> base_vect,String packages_fo
     for(;iter != end && !err;iter.increment(err)){
         const std::filesystem::directory_entry entry=*iter;
         String fnamekun=entry.path().string();
-        if(ends_with(fnamekun,arch)){
+        if(ends_with(fnamekun,bp.arch)){
             base_vect=parse_packages(base_vect,fnamekun);
         }
     }
