@@ -24,6 +24,9 @@ do
 done
 
 shift $((OPTIND - 1))
+if [[ ! -f ${PROFILE_FILE} ]]; then
+    exit 810
+fi
 source ${PROFILE_FILE}
 bootmodes_js="stub"
 for pf in ${bootmodes[@]}

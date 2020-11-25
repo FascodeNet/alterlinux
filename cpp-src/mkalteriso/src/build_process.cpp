@@ -86,3 +86,8 @@ void _build_profile(){
     _show_config();
     
 }
+template<class Fn> void _run_once(Fn func,String name){
+    if(!dir_exist(bp2.work_dir + "/build." + name)){
+        func();
+    }
+}

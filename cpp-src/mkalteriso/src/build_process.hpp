@@ -46,3 +46,4 @@ struct build_option{
 
 void setup(build_option);
 void _build_profile();
+template<class Fn> void _run_once(Fn,String);

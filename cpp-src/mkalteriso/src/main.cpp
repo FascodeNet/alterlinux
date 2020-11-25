@@ -60,7 +60,13 @@ void parse_channel(){
     argskun.push_back(realpath(bp.profile + "/profiledef.sh"));
     argskun.push_back("-o");
     argskun.push_back(realpath("./.cache_channel_json.json"));
-    FascodeUtil::custom_exec_v(argskun);
+    int get_profile_result = FascodeUtil::custom_exec_v(argskun);
+    if(get_profile_result != 0){
+
+                _msg_error("NOT FOUND CHANNEL!");
+                _exit(819);
+                return;
+    }
     std::ifstream json_stream(realpath("./.cache_channel_json.json"));
     remove(realpath("./.cache_channel_json.json").c_str());
     String json_data=String(std::istreambuf_iterator<char>(json_stream),
@@ -68,8 +74,8 @@ void parse_channel(){
     nlohmann::json json_obj;
     try{
         json_obj=nlohmann::json::parse(json_data);
-    }catch(std::exception msg){
-        _msg_error("Error ! ");
+    }catch(nlohmann::json::parse_error msg){
+        _msg_error(String(msg.what()));
         _exit(810);
         return;
     }
