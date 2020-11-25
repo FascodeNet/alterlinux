@@ -36,19 +36,53 @@ bool dir_exist(String dir_name){
         return false;
     }
 }
+void _show_config(){
+    struct tm *ptm;
+    ptm=localtime(&bp2.SOURCE_DATE_EPOCH);
+    char build_date[256] = {'\0'};
+    try{
+        strftime(build_date,sizeof(build_date),"%Y-%m-%dT%H:%M:%S%z",ptm);
+    }catch (char* e){
+        _msg_error("Error " + String(e));
+        return;
+    }
+    _msg_info(bp2.app_name + " configuration settings");
+    _msg_info("             Architecture:   " + bp2.arch);
+    _msg_info("        Working directory:   " + bp2.work_dir);
+    _msg_info("   Installation directory:   " + bp2.install_dir);
+    _msg_info("               Build date:   " + String(build_date));
+    _msg_info("         Output directory:   " + bp2.out_dir);
+    _msg_info("                  Channel:   " + bp2.profile);
+    _msg_info("Pacman configuration file:   " + bp2.pacman_conf);
+    _msg_info("          Image file name:   " + bp2.img_name);
+    _msg_info("         ISO volume label:   " + bp2.iso_label);
+    _msg_info("            ISO publisher:   " + bp2.iso_publisher);
+    _msg_info("          ISO application:   " + bp2.iso_application);
+
+    _msg_info("               Boot modes:   ");
+    for(String bootm:bp2.bootmodes){
+        _msg_info("                             " + bootm);
+    }
+    _msg_info("                 Packages:   ");
+    for(String pkgkun:bp2.packages_vector){
+        _msg_info("                             " + pkgkun);
+    }
+
+
+}
 void _build_profile(){
     bp2.airootfs_dir=bp2.work_dir + "/" + bp2.arch + "/airootfs";
     bp2.isofs_dir=bp2.work_dir + "/iso";
-    bp2.iso_name=bp2.iso_name + "-" + bp2.iso_version + "-" + bp2.arch + ".iso";
+    bp2.img_name=bp2.iso_name + "-" + bp2.iso_version + "-" + bp2.arch + ".iso";
     if(!dir_exist(bp2.work_dir)){
         str_mkdir(bp2.work_dir,S_IREAD | S_IWRITE);
     }
     {
         std::ofstream build_date_stream(bp2.work_dir + "/build_date");
-        build_date_stream << bp2.SOURCE_DATE_EPOCH;
+        build_date_stream << std::to_string(bp2.SOURCE_DATE_EPOCH);
         build_date_stream.close();
 
     }
-    
+    _show_config();
     
 }

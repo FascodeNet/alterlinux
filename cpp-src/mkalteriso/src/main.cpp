@@ -33,7 +33,7 @@ int main(int argc,char* argv[]){
     struct tm *date;
     char str[256];
     timer=time(NULL);
-    bp.SOURCE_DATE_EPOCH=std::to_string(timer);
+    bp.SOURCE_DATE_EPOCH=timer;
     
     Vector<String> cmd_ls=p.rest();
     if(cmd_ls.size()==0){
@@ -47,15 +47,8 @@ int main(int argc,char* argv[]){
     bp.airootfs_dir=bp.work_dir + "/airootfs";
     bp.isofs_dir=bp.work_dir+"/iso";
     parse_channel();
-    for(String bootmodekun:bp.bootmodes){
-        _msg_debug("bootmode : " + bootmodekun);
-    }
-    _msg_debug("pacman_conf : " + bp.pacman_conf);
-    for(String package_name:bp.packages_vector){
-        _msg_debug("package : " + package_name);
-    }
     setup(bp);
-    test_conf();
+    _build_profile();
     return 0;
 }
 void parse_channel(){
@@ -72,7 +65,14 @@ void parse_channel(){
     remove(realpath("./.cache_channel_json.json").c_str());
     String json_data=String(std::istreambuf_iterator<char>(json_stream),
                             std::istreambuf_iterator<char>());
-    nlohmann::json json_obj=nlohmann::json::parse(json_data);
+    nlohmann::json json_obj;
+    try{
+        json_obj=nlohmann::json::parse(json_data);
+    }catch(std::exception msg){
+        _msg_error("Error ! ");
+        _exit(810);
+        return;
+    }
     bp.iso_name=json_obj["iso_name"].get<String>();
     bp.iso_label=json_obj["iso_label"].get<String>();
     bp.iso_publisher=json_obj["iso_publisher"].get<String>();
@@ -81,6 +81,7 @@ void parse_channel(){
     bp.install_dir=json_obj["install_dir"].get<String>();
     bp.bootmodes=json_obj["bootmodes"].get<Vector<String>>();
     bp.arch=json_obj["arch"].get<String>();
+    bp.img_name=bp.app_name + ".iso";
     char pathname[512];
     memset(pathname, '\0', 512); 
     getcwd(pathname,512);

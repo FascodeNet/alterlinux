@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <fstream>
 #include <filesystem>
+#include <time.h>
 #define String std::string
 #define Vector std::vector
 void _msg_error(String);
@@ -14,6 +15,7 @@ void _msg_info(String);
 void _msg_warn(String);
 void _msg_debug(String);
 void test_conf();
+void _show_config();
 bool dir_exist(String dir_name);
 int str_mkdir(String,unsigned short);
 struct build_option{
@@ -38,7 +40,8 @@ struct build_option{
     bool isreleng=false;
     Vector<String> packages_vector;
     Vector<String> aur_packages_vector;
-    String SOURCE_DATE_EPOCH;
+    time_t SOURCE_DATE_EPOCH;
+    String img_name=".iso";
 };
 
 void setup(build_option);
