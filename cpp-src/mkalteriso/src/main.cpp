@@ -62,10 +62,9 @@ void parse_channel(){
     argskun.push_back(realpath("./.cache_channel_json.json"));
     int get_profile_result = FascodeUtil::custom_exec_v(argskun);
     if(get_profile_result != 0){
-
-                _msg_error("NOT FOUND CHANNEL!");
-                _exit(819);
-                return;
+        _msg_error("NOT FOUND CHANNEL!");
+        _exit(819);
+        return;
     }
     std::ifstream json_stream(realpath("./.cache_channel_json.json"));
     remove(realpath("./.cache_channel_json.json").c_str());

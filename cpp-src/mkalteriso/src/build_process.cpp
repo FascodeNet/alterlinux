@@ -70,6 +70,25 @@ void _show_config(){
 
 
 }
+void _make_pacman_conf(){
+    String _system_cache_dirs=popen_auto("pacman-conf CacheDir| tr '\\n' ' '");
+    String _profile_cache_dirs=popen_auto("pacman-conf --config \"" + bp2.pacman_conf + "\" CacheDir| tr '\\n' ' '");
+    _msg_debug("system cache dir:" + _system_cache_dirs);
+    _msg_debug("profile cache dir:" + _profile_cache_dirs);
+    return;
+}
+String popen_auto(String cmd_str){
+    char s[1024];
+    FILE *fpin;
+    fpin=popen(cmd_str.c_str(),"r");
+    String result_str;
+    while(fgets(s,sizeof(s),fpin) != NULL){
+        result_str=result_str+s;
+    }
+    pclose(fpin);
+    return result_str;
+
+}
 void _build_profile(){
     bp2.airootfs_dir=bp2.work_dir + "/" + bp2.arch + "/airootfs";
     bp2.isofs_dir=bp2.work_dir + "/iso";
@@ -84,6 +103,7 @@ void _build_profile(){
 
     }
     _show_config();
+    _run_once(_make_pacman_conf,"_make_pacman_conf");
     
 }
 template<class Fn> void _run_once(Fn func,String name){
