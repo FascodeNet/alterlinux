@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <fstream>
 #include <filesystem>
+#include "custom_exec.hpp"
+#include "path_lib.hpp"
 #include <time.h>
 #define String std::string
 #define Vector std::vector

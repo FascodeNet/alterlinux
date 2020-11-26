@@ -75,6 +75,20 @@ void _make_pacman_conf(){
     String _profile_cache_dirs=popen_auto("pacman-conf --config \"" + bp2.pacman_conf + "\" CacheDir| tr '\\n' ' '");
     _msg_debug("system cache dir:" + _system_cache_dirs);
     _msg_debug("profile cache dir:" + _profile_cache_dirs);
+    String _cache_dirs;
+    if(_profile_cache_dirs != "/var/cache/pacman/pkg" && _system_cache_dirs != _profile_cache_dirs){
+        _cache_dirs=_profile_cache_dirs;
+    }else{
+        _cache_dirs=_system_cache_dirs;
+    }
+    _msg_info("Copying custom pacman.conf to work directory...");
+    Vector<String> pacman_conf_args;
+    pacman_conf_args.push_back("bash");
+    pacman_conf_args.push_back("-c");
+    pacman_conf_args.push_back("pacman-conf --config \"" + realpath(bp2.pacman_conf)
+    + "\" | sed '/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d' > " + realpath(bp2.work_dir) + "/pacman.conf");
+    FascodeUtil::custom_exec_v(pacman_conf_args);
+
     return;
 }
 String popen_auto(String cmd_str){
