@@ -88,7 +88,13 @@ void _make_pacman_conf(){
     pacman_conf_args.push_back("pacman-conf --config \"" + realpath(bp2.pacman_conf)
     + "\" | sed '/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d' > \"" + realpath(bp2.work_dir) + "/pacman.conf\"");
     FascodeUtil::custom_exec_v(pacman_conf_args);
-
+    _msg_info("Using pacman CacheDir: "+ _cache_dirs);
+    Vector<String> sed_args;
+    sed_args.push_back("sed");
+    sed_args.push_back("/[options]/a CacheDir = " + _cache_dirs + "\n/[options]/a HookDir = " + bp2.airootfs_dir + "/etc/pacman.d/hooks/");
+    sed_args.push_back("-i");
+    sed_args.push_back(bp2.work_dir + "/pacman.conf");
+    FascodeUtil::custom_exec_v(sed_args);
     return;
 }
 String popen_auto(String cmd_str){
@@ -104,8 +110,6 @@ String popen_auto(String cmd_str){
 
 }
 void _build_profile(){
-    bp2.airootfs_dir=bp2.work_dir + "/" + bp2.arch + "/airootfs";
-    bp2.isofs_dir=bp2.work_dir + "/iso";
     bp2.img_name=bp2.iso_name + "-" + bp2.iso_version + "-" + bp2.arch + ".iso";
     if(!dir_exist(bp2.work_dir)){
         _msg_debug("mkdir result : " + std::to_string(str_mkdir(bp2.work_dir,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH | S_IEXEC )));
@@ -116,6 +120,9 @@ void _build_profile(){
         build_date_stream.close();
 
     }
+
+    bp2.isofs_dir=realpath(bp2.work_dir) + "/iso";
+    bp2.airootfs_dir=realpath(bp2.work_dir) + "/" + bp2.arch + "/airootfs";
     _show_config();
     _run_once(_make_pacman_conf,"_make_pacman_conf");
     
