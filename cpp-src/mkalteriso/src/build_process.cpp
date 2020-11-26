@@ -86,7 +86,7 @@ void _make_pacman_conf(){
     pacman_conf_args.push_back("bash");
     pacman_conf_args.push_back("-c");
     pacman_conf_args.push_back("pacman-conf --config \"" + realpath(bp2.pacman_conf)
-    + "\" | sed '/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d' > " + realpath(bp2.work_dir) + "/pacman.conf");
+    + "\" | sed '/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d' > \"" + realpath(bp2.work_dir) + "/pacman.conf\"");
     FascodeUtil::custom_exec_v(pacman_conf_args);
 
     return;
@@ -108,7 +108,7 @@ void _build_profile(){
     bp2.isofs_dir=bp2.work_dir + "/iso";
     bp2.img_name=bp2.iso_name + "-" + bp2.iso_version + "-" + bp2.arch + ".iso";
     if(!dir_exist(bp2.work_dir)){
-        str_mkdir(bp2.work_dir,S_IREAD | S_IWRITE);
+        _msg_debug("mkdir result : " + std::to_string(str_mkdir(bp2.work_dir,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH | S_IEXEC )));
     }
     {
         std::ofstream build_date_stream(bp2.work_dir + "/build_date");
