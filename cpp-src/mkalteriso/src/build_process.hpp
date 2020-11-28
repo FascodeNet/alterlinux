@@ -50,4 +50,5 @@ void setup(build_option);
 void _build_profile();
 template<class Fn> void _run_once(Fn,String);
 void _make_pacman_conf();
+void _make_custom_airootfs();
 String popen_auto(String cmd_str);

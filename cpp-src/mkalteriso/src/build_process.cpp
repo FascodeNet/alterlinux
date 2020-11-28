@@ -125,10 +125,36 @@ void _build_profile(){
     bp2.airootfs_dir=realpath(bp2.work_dir) + "/" + bp2.arch + "/airootfs";
     _show_config();
     _run_once(_make_pacman_conf,"_make_pacman_conf");
+    _run_once(_make_custom_airootfs,"_make_custom_airootfs");
     
 }
 template<class Fn> void _run_once(Fn func,String name){
     if(!dir_exist(bp2.work_dir + "/build." + name)){
         func();
+    }
+}
+void _make_custom_airootfs(){
+    Vector<String> install_airootfs_vect;
+    install_airootfs_vect.push_back("install");
+    install_airootfs_vect.push_back("-d");
+    install_airootfs_vect.push_back("-m");
+    install_airootfs_vect.push_back("0755");
+    install_airootfs_vect.push_back("-o");
+    install_airootfs_vect.push_back("0");
+    install_airootfs_vect.push_back("-g");
+    install_airootfs_vect.push_back("0");
+    install_airootfs_vect.push_back("--");
+    install_airootfs_vect.push_back(bp2.airootfs_dir);
+    FascodeUtil::custom_exec_v(install_airootfs_vect);
+    if(dir_exist(realpath(bp2.profile).c_str())){
+        _msg_info("Copying custom airootfs files and setting up user home directories...");
+        Vector<String> cp_airootfs;
+        cp_airootfs.push_back("cp");
+        cp_airootfs.push_back("-af");
+        cp_airootfs.push_back("--no-preserve=ownership");
+        cp_airootfs.push_back("--");
+        cp_airootfs.push_back(bp2.profile + "/airootfs/.");
+        cp_airootfs.push_back(bp2.airootfs_dir);
+        FascodeUtil::custom_exec_v(cp_airootfs);
     }
 }
