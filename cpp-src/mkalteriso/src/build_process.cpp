@@ -343,10 +343,16 @@ void _make_aur_packages(){
     FascodeUtil::custom_exec_v(cp_aur_sh);
     Vector<String> aurkun;
     aurkun.push_back("/root/aur.sh");
-
+    
     for(String pkgk:bp2.aur_packages_vector){
         aurkun.push_back(pkgk);
     }
+    Vector<String> chmodkun;
+    chmodkun.push_back("chmod");
+    chmodkun.push_back("-f");
+    chmodkun.push_back("+x");
+    chmodkun.push_back(bp2.airootfs_dir + "/root/aur.sh");
+    FascodeUtil::custom_exec_v(chmodkun);
     run_cmd_on_chroot(aurkun);
     Vector<String> rmdirkun;
     rmdirkun.push_back("rm");
