@@ -44,6 +44,7 @@ struct build_option{
     Vector<String> aur_packages_vector;
     time_t SOURCE_DATE_EPOCH;
     String img_name=".iso";
+    int airootfs_mb=4096;
 };
 
 void setup(build_option);
@@ -52,3 +53,7 @@ template<class Fn> void _run_once(Fn,String);
 void _make_pacman_conf();
 void _make_custom_airootfs();
 String popen_auto(String cmd_str);
+void force_umount();
+int exit_force(int);
+void _make_and_mount_airootfs_folder();
+int truncate_str(String,off_t);

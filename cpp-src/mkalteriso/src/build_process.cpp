@@ -126,26 +126,16 @@ void _build_profile(){
     _show_config();
     _run_once(_make_pacman_conf,"_make_pacman_conf");
     _run_once(_make_custom_airootfs,"_make_custom_airootfs");
-    
+    exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
     if(!dir_exist(bp2.work_dir + "/build." + name)){
+        std::ofstream(bp2.work_dir + "/build." + name);
         func();
     }
 }
 void _make_custom_airootfs(){
-    Vector<String> install_airootfs_vect;
-    install_airootfs_vect.push_back("install");
-    install_airootfs_vect.push_back("-d");
-    install_airootfs_vect.push_back("-m");
-    install_airootfs_vect.push_back("0755");
-    install_airootfs_vect.push_back("-o");
-    install_airootfs_vect.push_back("0");
-    install_airootfs_vect.push_back("-g");
-    install_airootfs_vect.push_back("0");
-    install_airootfs_vect.push_back("--");
-    install_airootfs_vect.push_back(bp2.airootfs_dir);
-    FascodeUtil::custom_exec_v(install_airootfs_vect);
+
     if(dir_exist(realpath(bp2.profile).c_str())){
         _msg_info("Copying custom airootfs files and setting up user home directories...");
         Vector<String> cp_airootfs;
@@ -157,4 +147,53 @@ void _make_custom_airootfs(){
         cp_airootfs.push_back(bp2.airootfs_dir);
         FascodeUtil::custom_exec_v(cp_airootfs);
     }
+    if(dir_exist(realpath(bp2.profile + "../share/airootfs").c_str())){
+        _msg_info("Copying custom airootfs files and setting up user home directories...");
+        Vector<String> cp_airootfs;
+        cp_airootfs.push_back("cp");
+        cp_airootfs.push_back("-af");
+        cp_airootfs.push_back("--no-preserve=ownership");
+        cp_airootfs.push_back("--");
+        cp_airootfs.push_back(bp2.profile + "../share/airootfs/.");
+        cp_airootfs.push_back(bp2.airootfs_dir);
+        FascodeUtil::custom_exec_v(cp_airootfs);
+    }
+}
+void force_umount(){
+    _msg_info("Unmount work dir..");
+    Vector<String> umount_vector;
+    umount_vector.push_back("umount");
+    umount_vector.push_back("-l");
+    umount_vector.push_back("-R");
+    umount_vector.push_back("-f");
+    umount_vector.push_back(realpath(bp2.work_dir));
+    FascodeUtil::custom_exec_v(umount_vector);    
+    _msg_info("Unmounted!");
+
+}
+int exit_force(int c){
+    force_umount();
+    return c;
+}
+void _make_and_mount_airootfs_folder(){
+    _msg_info("airootfs.img gen...");
+    _msg_info("size : " + std::to_string(bp2.airootfs_mb) + "MB");
+    Vector<String> mkfs_ext4_args;
+    mkfs_ext4_args.push_back("mkfs.ext4");
+    mkfs_ext4_args.push_back("-O");
+    mkfs_ext4_args.push_back("^has_journal,^resize_inode");
+    mkfs_ext4_args.push_back("-E");
+    mkfs_ext4_args.push_back("lazy_itable_init=0");
+    mkfs_ext4_args.push_back("-m");
+    mkfs_ext4_args.push_back("0");
+    mkfs_ext4_args.push_back("-F");
+    mkfs_ext4_args.push_back("--");
+    mkfs_ext4_args.push_back(realpath(bp2.work_dir) + "/airootfs.img");
+    mkfs_ext4_args.push_back(std::to_string(bp2.airootfs_mb) + "M");
+    FascodeUtil::custom_exec_v(mkfs_ext4_args);
+    _msg_info("Generated airootfs.img");
+
+}
+int truncate_str(String pathkun,off_t lenghtkun){
+    return truncate(pathkun.c_str(),lenghtkun);
 }

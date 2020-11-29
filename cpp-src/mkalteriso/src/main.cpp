@@ -1,6 +1,13 @@
 #include "main.hpp"
 build_option bp;
 int main(int argc,char* argv[]){
+    uid_t euid;
+    euid=geteuid();
+    if(euid != 0){
+        _msg_error("You're not root!");
+        _msg_error("Please run this program on root!");
+        return -810;
+    }
     umask(S_IWGRP | S_IWOTH );
     cmdline::parser p;
     p.add<String>("application",'A',"Set an application name for the ISO",false,bp.app_name);
