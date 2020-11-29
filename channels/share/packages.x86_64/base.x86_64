@@ -10,7 +10,7 @@
 # Base packages
 
 base-devel
-
+git
 bash
 haveged
 intel-ucode
