@@ -341,11 +341,13 @@ void _make_aur_packages(){
     cp_aur_sh.push_back(realpath("archiso/aur.sh"));
     cp_aur_sh.push_back(bp2.airootfs_dir + "/root/aur.sh");
     FascodeUtil::custom_exec_v(cp_aur_sh);
-    String pkg_str_argskun;
+    Vector<String> aurkun;
+    aurkun.push_back("/root/aur.sh");
+
     for(String pkgk:bp2.aur_packages_vector){
-        pkg_str_argskun = pkg_str_argskun + pkgk + " " ;
+        aurkun.push_back(pkgk);
     }
-    run_cmd_on_chroot("/root/aur.sh " + pkg_str_argskun);
+    run_cmd_on_chroot(aurkun);
     Vector<String> rmdirkun;
     rmdirkun.push_back("rm");
     rmdirkun.push_back("-rf");
@@ -357,10 +359,12 @@ void _make_aur_packages(){
     _msg_info("Done!");
 }
 
-void run_cmd_on_chroot(String commands){
+void run_cmd_on_chroot(Vector<String> commands){
     Vector<String> arch_chroot_args;
     arch_chroot_args.push_back("arch-chroot");
     arch_chroot_args.push_back(realpath(bp2.airootfs_dir));
-    arch_chroot_args.push_back(commands);
+    for(String arg:commands){
+        arch_chroot_args.push_back(arg);
+    }
     FascodeUtil::custom_exec_v(arch_chroot_args);
 }
