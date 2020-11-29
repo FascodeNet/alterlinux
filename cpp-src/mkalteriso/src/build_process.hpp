@@ -57,3 +57,6 @@ void force_umount();
 int exit_force(int);
 void _make_and_mount_airootfs_folder();
 int truncate_str(String,off_t);
+void _make_packages();
+void _make_packages_aur();
+void _pacman(Vector<String>);

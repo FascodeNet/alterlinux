@@ -91,7 +91,7 @@ void _make_pacman_conf(){
     _msg_info("Using pacman CacheDir: "+ _cache_dirs);
     Vector<String> sed_args;
     sed_args.push_back("sed");
-    sed_args.push_back("/[options]/a CacheDir = " + _cache_dirs + "\n/[options]/a HookDir = " + bp2.airootfs_dir + "/etc/pacman.d/hooks/");
+    sed_args.push_back("/\\[options\\]/a CacheDir = " + _cache_dirs + "\n\t\t/\\[options\\]/a HookDir = " + bp2.airootfs_dir + "/etc/pacman.d/hooks/");
     sed_args.push_back("-i");
     sed_args.push_back(bp2.work_dir + "/pacman.conf");
     FascodeUtil::custom_exec_v(sed_args);
@@ -128,6 +128,7 @@ void _build_profile(){
     _run_once(_make_pacman_conf,"_make_pacman_conf");
     _run_once(_make_and_mount_airootfs_folder,"_make_and_mount_airootfs_folder");
     _run_once(_make_custom_airootfs,"_make_custom_airootfs");
+    _run_once(_make_packages,"_make_packages");
     exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
@@ -165,12 +166,15 @@ void force_umount(){
     _msg_info("Unmount work dir..");
     Vector<String> umount_vector;
     umount_vector.push_back("umount");
-    umount_vector.push_back("-l");
-    umount_vector.push_back("-R");
-    umount_vector.push_back("-f");
+    umount_vector.push_back("-d");
+    umount_vector.push_back("--");
     umount_vector.push_back(realpath(bp2.airootfs_dir));
     FascodeUtil::custom_exec_v(umount_vector);    
     _msg_info("Unmounted!");
+    Vector<String> rmdir_vect;
+    rmdir_vect.push_back("rmdir");
+    rmdir_vect.push_back("--");
+    rmdir_vect.push_back(realpath(bp2.airootfs_dir));
 
 }
 int exit_force(int c){
@@ -226,4 +230,24 @@ void _make_and_mount_airootfs_folder(){
 }
 int truncate_str(String pathkun,off_t lenghtkun){
     return truncate(pathkun.c_str(),lenghtkun);
+}
+void _make_packages(){
+    _pacman(bp2.packages_vector);
+}
+void _pacman(Vector<String> packages){
+    _msg_info("Installing packages to " + bp2.airootfs_dir + "/...");
+    Vector<String> pacstrap_args;
+    pacstrap_args.push_back("pacstrap");
+    pacstrap_args.push_back("-C");
+    pacstrap_args.push_back(realpath(bp2.work_dir + "/pacman.conf"));
+    pacstrap_args.push_back("-c");
+    pacstrap_args.push_back("-G");
+    pacstrap_args.push_back("-M");
+    pacstrap_args.push_back("--");
+    pacstrap_args.push_back(realpath(bp2.airootfs_dir));
+    for(String pkgkun:packages){
+        pacstrap_args.push_back(pkgkun);
+    }
+    FascodeUtil::custom_exec_v(pacstrap_args);
+    _msg_info("Done! Packages installed successfully.");
 }
