@@ -124,7 +124,9 @@ void _build_profile(){
     bp2.isofs_dir=realpath(bp2.work_dir) + "/iso";
     bp2.airootfs_dir=realpath(bp2.work_dir) + "/" + bp2.arch + "/airootfs";
     _show_config();
+
     _run_once(_make_pacman_conf,"_make_pacman_conf");
+    _run_once(_make_and_mount_airootfs_folder,"_make_and_mount_airootfs_folder");
     _run_once(_make_custom_airootfs,"_make_custom_airootfs");
     exit_force(0);
 }
@@ -166,7 +168,7 @@ void force_umount(){
     umount_vector.push_back("-l");
     umount_vector.push_back("-R");
     umount_vector.push_back("-f");
-    umount_vector.push_back(realpath(bp2.work_dir));
+    umount_vector.push_back(realpath(bp2.airootfs_dir));
     FascodeUtil::custom_exec_v(umount_vector);    
     _msg_info("Unmounted!");
 
@@ -192,6 +194,34 @@ void _make_and_mount_airootfs_folder(){
     mkfs_ext4_args.push_back(std::to_string(bp2.airootfs_mb) + "M");
     FascodeUtil::custom_exec_v(mkfs_ext4_args);
     _msg_info("Generated airootfs.img");
+    _msg_info("tune2fs...");
+    Vector<String> tune2fs_args;
+    tune2fs_args.push_back("tune2fs");
+    tune2fs_args.push_back("-c");
+    tune2fs_args.push_back("0");
+    tune2fs_args.push_back("-i");
+    tune2fs_args.push_back("0");
+    tune2fs_args.push_back("--");
+    tune2fs_args.push_back(realpath(bp2.work_dir) + "/airootfs.img");
+    FascodeUtil::custom_exec_v(tune2fs_args);
+    _msg_info("Done!");
+    _msg_info("mount airootfs.img...");
+    Vector<String> install_airoofs;
+    install_airoofs.push_back("install");
+    install_airoofs.push_back("-d");
+    install_airoofs.push_back("-m");
+    install_airoofs.push_back("0755");
+    install_airoofs.push_back("--");
+    install_airoofs.push_back(bp2.airootfs_dir);
+    FascodeUtil::custom_exec_v(install_airoofs);
+    _msg_info("Mounting " + realpath(bp2.work_dir) + "/airootfs.img" + " on " + bp2.airootfs_dir +  "...");
+    Vector<String> mount_args;
+    mount_args.push_back("mount");
+    mount_args.push_back("--");
+    mount_args.push_back(realpath(bp2.work_dir) + "/airootfs.img");
+    mount_args.push_back(bp2.airootfs_dir);
+    FascodeUtil::custom_exec_v(mount_args);
+    _msg_info("Done!");
 
 }
 int truncate_str(String pathkun,off_t lenghtkun){
