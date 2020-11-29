@@ -100,10 +100,12 @@ void parse_channel(){
     getcwd(pathname,512);
     chdir(realpath(bp.profile).c_str());
     bp.packages_vector=parse_packages_folder("./packages." + bp.arch);
+    bp.aur_packages_vector=parse_packages_folder("./packages_aur." + bp.arch);
     bp.pacman_conf=realpath(json_obj["pacman_conf"].get<String>());
     chdir("../");
     if(!bp.isreleng){
         bp.packages_vector=parse_packages_folder(bp.packages_vector,"./share/packages." + bp.arch);
+        bp.aur_packages_vector=parse_packages_folder(bp.aur_packages_vector,"./share/packages_aur." + bp.arch);
     }
     chdir(pathname);
 

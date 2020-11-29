@@ -129,6 +129,7 @@ void _build_profile(){
     _run_once(_make_and_mount_airootfs_folder,"_make_and_mount_airootfs_folder");
     _run_once(_make_custom_airootfs,"_make_custom_airootfs");
     _run_once(_make_packages,"_make_packages");
+    _run_once(_make_aur_packages,"_make_aur_packages");
     exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
@@ -324,4 +325,42 @@ void trap_handler(int signo){
     if(signo==SIGTERM || signo == SIGHUP || signo == SIGINT || signo == SIGKILL){
         force_umount();
     }
+}
+void _make_aur_packages(){
+    _msg_info("Installinh aur packages...");
+    Vector<String> cp_pacman_conf_args;
+    cp_pacman_conf_args.push_back("cp");
+    cp_pacman_conf_args.push_back("-f");
+    cp_pacman_conf_args.push_back(realpath(bp2.work_dir + "/pacman.conf"));
+    cp_pacman_conf_args.push_back(bp2.airootfs_dir + "/etc/alteriso-pacman.conf");
+    FascodeUtil::custom_exec_v(cp_pacman_conf_args);
+    Vector<String> cp_aur_sh;
+    cp_aur_sh.push_back("cp");
+    cp_aur_sh.push_back("-rf");
+    cp_aur_sh.push_back("--preserve=mode");
+    cp_aur_sh.push_back(realpath("archiso/aur.sh"));
+    cp_aur_sh.push_back(bp2.airootfs_dir + "/root/aur.sh");
+    FascodeUtil::custom_exec_v(cp_aur_sh);
+    String pkg_str_argskun;
+    for(String pkgk:bp2.aur_packages_vector){
+        pkg_str_argskun = pkg_str_argskun + pkgk + " " ;
+    }
+    run_cmd_on_chroot("/root/aur.sh " + pkg_str_argskun);
+    Vector<String> rmdirkun;
+    rmdirkun.push_back("rm");
+    rmdirkun.push_back("-rf");
+    rmdirkun.push_back(bp2.airootfs_dir + "/root/aur.sh");
+    if(dir_exist(bp2.airootfs_dir + "/root/aur.sh")){
+        FascodeUtil::custom_exec_v(rmdirkun);
+    }
+    
+    _msg_info("Done!");
+}
+
+void run_cmd_on_chroot(String commands){
+    Vector<String> arch_chroot_args;
+    arch_chroot_args.push_back("arch-chroot");
+    arch_chroot_args.push_back(realpath(bp2.airootfs_dir));
+    arch_chroot_args.push_back(commands);
+    FascodeUtil::custom_exec_v(arch_chroot_args);
 }

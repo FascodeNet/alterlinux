@@ -66,3 +66,5 @@ void _pacman(Vector<String>);
 Vector<String> split_passwd(String);
 void trap_handler(int signo);
 void nothing_handler(int);
+void _make_aur_packages();
+void run_cmd_on_chroot(String commands);
