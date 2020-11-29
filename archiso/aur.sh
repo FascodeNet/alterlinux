@@ -56,7 +56,9 @@ chmod +s /usr/bin/sudo
 mkdir yay-bin
 cd yay-bin
 curl "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=yay-bin" > PKGBUILD
-makepkg -cs
+chown -R aurbuild:aurbuild .
+chmod -R 777 .
+sudo -u aurbuild makepkg -cs
 yes | sudo pacman -U *.pkg.* 
 cd ..
 sudo rm -rf yay-bin
