@@ -10,6 +10,9 @@
 #include "custom_exec.hpp"
 #include "path_lib.hpp"
 #include <time.h>
+#include <signal.h>
+#include <errno.h>
+#include <unistd.h>
 #define String std::string
 #define Vector std::vector
 void _msg_error(String);
@@ -60,3 +63,6 @@ int truncate_str(String,off_t);
 void _make_packages();
 void _make_packages_aur();
 void _pacman(Vector<String>);
+Vector<String> split_passwd(String);
+void trap_handler(int signo);
+void nothing_handler(int);

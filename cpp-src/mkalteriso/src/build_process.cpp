@@ -161,6 +161,56 @@ void _make_custom_airootfs(){
         cp_airootfs.push_back(bp2.airootfs_dir);
         FascodeUtil::custom_exec_v(cp_airootfs);
     }
+    if(dir_exist(realpath(bp2.airootfs_dir + "/etc/shadow"))){
+        chmod(realpath(bp2.airootfs_dir + "/etc/shadow").c_str(),0400);
+    }
+    if(dir_exist(realpath(bp2.airootfs_dir + "/etc/gshadow"))){
+        chmod(realpath(bp2.airootfs_dir + "/etc/gshadow").c_str(),0400);
+    }
+    if(dir_exist(realpath(bp2.airootfs_dir + "/etc/passwd"))){
+        std::ifstream passwd_stream(realpath(bp2.airootfs_dir + "/etc/passwd"));
+        if(!passwd_stream.is_open()){
+            _msg_error("Can't open " + realpath(bp2.airootfs_dir + "/etc/passwd"));
+            return;
+        }
+        String line;
+        while(getline(passwd_stream,line)){
+            Vector<String> passwd=split_passwd(line);
+            if(passwd.at(5) == "/") continue;
+            if(passwd.at(5) == "") continue;
+            if(dir_exist(bp2.airootfs_dir + "/" + passwd.at(5))){
+                Vector<String> chown_args;
+                chown_args.push_back("chown");
+                chown_args.push_back("-hR");
+                chown_args.push_back("--");
+                chown_args.push_back(passwd.at(2) + ":" + passwd.at(3));
+                chown_args.push_back(bp2.airootfs_dir + "/" + passwd.at(5));
+                FascodeUtil::custom_exec_v(chown_args);
+                Vector<String> chmod_args;
+                chmod_args.push_back("chmod");
+                chmod_args.push_back("-f");
+                chmod_args.push_back("0750");
+                chmod_args.push_back("--");
+                chmod_args.push_back(bp2.airootfs_dir + "/" + passwd.at(5));
+                FascodeUtil::custom_exec_v(chmod_args);
+            }else{
+                Vector<String> install_args;
+                install_args.push_back("install");
+                install_args.push_back("-d");
+                install_args.push_back("-m");
+                install_args.push_back("0750");
+                install_args.push_back("-o");
+                install_args.push_back(passwd.at(2));
+                install_args.push_back("-g");
+                install_args.push_back(passwd.at(3));
+                install_args.push_back("--");
+                install_args.push_back(bp2.airootfs_dir + "/" + passwd.at(5));
+                FascodeUtil::custom_exec_v(install_args);
+            }
+        }
+        passwd_stream.close();
+    }
+    _msg_info("Done!");
 }
 void force_umount(){
     _msg_info("Unmount work dir..");
@@ -175,7 +225,13 @@ void force_umount(){
     rmdir_vect.push_back("rmdir");
     rmdir_vect.push_back("--");
     rmdir_vect.push_back(realpath(bp2.airootfs_dir));
-
+    signal(SIGHUP, nothing_handler);
+    signal(SIGINT, nothing_handler);
+    signal(SIGTERM, nothing_handler);
+    signal(SIGKILL, nothing_handler);
+}
+void nothing_handler(int a){
+    //nothing to do
 }
 int exit_force(int c){
     force_umount();
@@ -210,6 +266,10 @@ void _make_and_mount_airootfs_folder(){
     FascodeUtil::custom_exec_v(tune2fs_args);
     _msg_info("Done!");
     _msg_info("mount airootfs.img...");
+    signal(SIGHUP, trap_handler);
+    signal(SIGINT, trap_handler);
+    signal(SIGTERM, trap_handler);
+    signal(SIGKILL, trap_handler);
     Vector<String> install_airoofs;
     install_airoofs.push_back("install");
     install_airoofs.push_back("-d");
@@ -250,4 +310,18 @@ void _pacman(Vector<String> packages){
     }
     FascodeUtil::custom_exec_v(pacstrap_args);
     _msg_info("Done! Packages installed successfully.");
+}
+Vector<String> split_passwd(String src){
+    std::stringstream linekun{src};
+    std::string buf;
+    Vector<String> return_vect;
+    while(std::getline(linekun,buf,':')){
+        return_vect.push_back(buf);
+    }
+    return return_vect;
+}
+void trap_handler(int signo){
+    if(signo==SIGTERM || signo == SIGHUP || signo == SIGINT || signo == SIGKILL){
+        force_umount();
+    }
 }
