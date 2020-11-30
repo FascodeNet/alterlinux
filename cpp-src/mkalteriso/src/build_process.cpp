@@ -489,7 +489,67 @@ void _make_boot(){
 }
 void _make_boot_efi(){
     _make_boot_efi_esp();
+    _make_efi();
 }
+void _make_efi(){
+    _msg_info("Preparing an /EFI directory for the ISO 9660 file system...");
+    Vector<String> Install_1_args;
+    Install_1_args.push_back("install");
+    Install_1_args.push_back("-d");
+    Install_1_args.push_back("-m");
+    Install_1_args.push_back("0755");
+    Install_1_args.push_back("--");
+    Install_1_args.push_back(bp2.isofs_dir + "/EFI/BOOT");
+    FascodeUtil::custom_exec_v(Install_1_args);
+    Vector<String> Install_2_args;
+    Install_2_args.push_back("install");
+    Install_2_args.push_back("-m");
+    Install_2_args.push_back("0644");
+    Install_2_args.push_back("--");
+    Install_2_args.push_back(bp2.airootfs_dir + "/usr/lib/systemd/boot/efi/systemd-bootx64.efi");
+    Install_2_args.push_back(bp2.isofs_dir + "/EFI/BOOT/BOOTx64.EFI");
+    FascodeUtil::custom_exec_v(Install_2_args);
+    Vector<String> Install_3_args;
+    Install_3_args.push_back("install");
+    Install_3_args.push_back("-d");
+    Install_3_args.push_back("-m");
+    Install_3_args.push_back("0755");
+    Install_3_args.push_back("--");
+    Install_3_args.push_back(bp2.isofs_dir + "/loader/entries");
+    FascodeUtil::custom_exec_v(Install_3_args);
+    Vector<String> Install_4_args;
+    Install_4_args.push_back("install");
+    Install_4_args.push_back("-m");
+    Install_4_args.push_back("0644");
+    Install_4_args.push_back("--");
+    Install_4_args.push_back(bp2.profile + "/efiboot/loader/loader.conf");
+    Install_4_args.push_back(bp2.isofs_dir + "/loader/");
+
+    for(const std::filesystem::directory_entry &i:std::filesystem::directory_iterator(bp2.profile + "/efiboot/loader/entries/")){
+        std::ifstream ifs(i.path().string());
+        String buf_path= bp2.isofs_dir + "/loader/entries/" + i.path().filename().string();
+        std::ofstream ofs(buf_path);
+        std::string buf;
+        while (getline(ifs, buf)) {
+            String dest_str=replace(replace(replace(buf,"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
+            ofs << dest_str << "\n";
+        }
+        ifs.close();
+        ofs.close();
+    }
+    if(dir_exist(bp2.airootfs_dir + "/usr/share/edk2-shell/x64/Shell_Full.efi")){
+        Vector<String> install_argskun;
+        install_argskun.push_back("install");
+        install_argskun.push_back("-m");
+        install_argskun.push_back("0644");
+        install_argskun.push_back("--");
+        install_argskun.push_back(bp2.airootfs_dir + "/usr/share/edk2-shell/x64/Shell_Full.efi");
+        install_argskun.push_back(bp2.isofs_dir + "/shellx64.efi");
+        FascodeUtil::custom_exec_v(install_argskun);
+    }
+    _msg_info("Done!");
+
+}   
 void _make_boot_efi_esp(){
     String img_path=bp2.work_dir + "/efiboot.img";
     if(dir_exist(img_path)){
