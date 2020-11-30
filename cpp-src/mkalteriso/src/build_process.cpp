@@ -857,17 +857,9 @@ void _mkairootfs_create_image(String src_name){
     mksquashfs_args.push_back(src_name);
     mksquashfs_args.push_back(image_path);
     mksquashfs_args.push_back("-noappend");
-    bool bkun=true;
-    String buf_str="";
     for(String optkun:bp2.airootfs_image_tool_options){
-        if(bkun){
-            buf_str = optkun;
-            bkun=false;
-        }else{
-            buf_str= buf_str + " " + optkun;
-        }
+        mksquashfs_args.push_back(optkun);
     }
-    mksquashfs_args.push_back(buf_str);
     FascodeUtil::custom_exec_v(mksquashfs_args);
 }
 void _mkchecksum(){
