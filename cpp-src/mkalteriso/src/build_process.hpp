@@ -68,3 +68,4 @@ void trap_handler(int signo);
 void nothing_handler(int);
 void _make_aur_packages();
 void run_cmd_on_chroot(Vector<String> );
+void _make_customize_airootfs();

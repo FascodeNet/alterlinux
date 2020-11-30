@@ -130,6 +130,7 @@ void _build_profile(){
     _run_once(_make_custom_airootfs,"_make_custom_airootfs");
     _run_once(_make_packages,"_make_packages");
     _run_once(_make_aur_packages,"_make_aur_packages");
+    _run_once(_make_customize_airootfs,"_make_customize_airootfs");
     exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
@@ -373,4 +374,56 @@ void run_cmd_on_chroot(Vector<String> commands){
         arch_chroot_args.push_back(arg);
     }
     FascodeUtil::custom_exec_v(arch_chroot_args);
+}
+void _make_customize_airootfs(){
+    if(dir_exist(bp2.profile + "/airootfs/etc/passwd")) {
+        _msg_info("Copying /etc/skel/* to user homes...");
+
+        std::ifstream passwd_stream(realpath(bp2.profile + "/airootfs/etc/passwd"));
+        if(!passwd_stream.is_open()){
+            _msg_error("Can't open " + realpath(bp2.profile + "/airootfs/etc/passwd"));
+            return;
+        }
+        String line;
+        while(getline(passwd_stream,line)){
+            Vector<String> passwd=split_passwd(line);
+            if(std::atoi(passwd.at(2).c_str()) >= 1000 && std::atoi(passwd.at(2).c_str()) < 60000) continue;
+            if(passwd.at(5) == "/" || passwd.at(5) == "") continue;
+            Vector<String> cp_args;
+            cp_args.push_back("cp");
+            cp_args.push_back("-dnRT");
+            cp_args.push_back("--preserve=mode,timestamps,links");
+            cp_args.push_back("--");
+            cp_args.push_back(bp2.airootfs_dir + "/etc/skel");
+            cp_args.push_back(bp2.airootfs_dir + passwd.at(5));
+            FascodeUtil::custom_exec_v(cp_args);
+            Vector<String> chmod_args;
+            chmod_args.push_back("chmod");
+            chmod_args.push_back("-f");
+            chmod_args.push_back("0750");
+            chmod_args.push_back("--");
+            chmod_args.push_back(bp2.airootfs_dir + passwd.at(5));
+            FascodeUtil::custom_exec_v(chmod_args);
+            Vector<String> chown_args;
+            chown_args.push_back("chown");
+            chown_args.push_back("-hR");
+            chown_args.push_back("--");
+            chown_args.push_back(passwd.at(2) + ":" + passwd.at(3));
+            chown_args.push_back(bp2.airootfs_dir + passwd.at(5));
+            FascodeUtil::custom_exec_v(chown_args);
+        }
+        _msg_info("Done!");
+    }
+    if(dir_exist(bp2.airootfs_dir + "/root/customize_airootfs.sh")){
+        _msg_info("Running customize_airootfs.sh in " + realpath(bp2.airootfs_dir + "/root/customize_airootfs.sh") + "chroot...");
+        Vector<String> run_cmdS;
+        run_cmdS.push_back("/root/customize_airootfs.sh");
+        run_cmd_on_chroot(run_cmdS);
+        Vector<String> run_rmdir;
+        run_rmdir.push_back("rm");
+        run_rmdir.push_back("--");
+        run_rmdir.push_back(bp2.airootfs_dir + "/root/customize_airootfs.sh");
+        FascodeUtil::custom_exec_v(run_rmdir);
+        _msg_info("Done! customize_airootfs.sh run successfully.");
+    }
 }
