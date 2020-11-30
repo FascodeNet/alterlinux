@@ -454,40 +454,32 @@ void _make_boot_efi(){
     _make_boot_efi_esp();
 }
 void _make_boot_efi_esp(){
-    get_efiboot_imgsize();
-    uintmax_t img_kb=bp2.efiimg_all_size /1024 + 1024;
     String img_path=bp2.work_dir + "/efiboot.img";
     if(dir_exist(img_path)){
         rmdir(img_path.c_str());
     }
+    FILE *fp;
+    String cmdline="airootfs_dir=" + bp2.airootfs_dir + " profile=" + bp2.profile + "du -bc \"${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi\" " + 
+        "\"${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi\" " + 
+        "\"${profile}/efiboot/\" " + 
+        "\"${airootfs_dir}/boot/vmlinuz-\"* " +
+        "\"${airootfs_dir}/boot/initramfs-\"*\".img\" " +
+        "\"${airootfs_dir}/boot/\"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio} " +
+        "2>/dev/null | awk 'function ceil(x){return int(x)+(x>int(x))}" + 
+        "function byte_to_kib(x){return x/1024}" + 
+        "function mib_to_kib(x){return x*1024}" + 
+        "END {print mib_to_kib(ceil((byte_to_kib($1)+1024)/1024))}'";
+    if((fp = popen(cmdline.c_str(),"r")) == NULL){
+        _msg_error("Can't open pipe");
+        exit(exit_force(-819));
+    }
+    char buf[256];
+    long img_kb=0;
+    while (!feof(fp)) {
+        fgets(buf, sizeof(buf), fp);
+        img_kb=std::atol(buf) / 1024;
+    }
+    (void) pclose(fp);
     _msg_info("Creating FAT image of size: " + std::to_string(img_kb) + "Kib...");
 
-}
-void get_efiboot_imgsize(){
-    bp2.efiimg_all_size = std::filesystem::file_size(bp2.airootfs_dir + "/usr/lib/systemd/boot/efi/systemd-bootx64.efi");
-    bp2.efiimg_all_size += std::filesystem::file_size(bp2.airootfs_dir + "/usr/share/edk2-shell/x64/Shell_Full.efi");
-    add_img_size(bp2.profile + "/efiboot/");
-    add_img_size_boot();
-}
-void add_img_size(String dir_path){
-    for(const std::filesystem::directory_entry &i:std::filesystem::recursive_directory_iterator(dir_path)){
-        if(!i.is_directory()){
-            bp2.efiimg_all_size += i.file_size();
-        }
-    }
-}
-void add_img_size_boot(){
-    for(const std::filesystem::directory_entry &i:std::filesystem::recursive_directory_iterator(bp2.airootfs_dir + "/boot/")){
-        if(!i.is_directory()){
-            String fkun=i.path().filename().string();
-            if(fkun.substr(0,8) == "vmlinuz-"){
-                bp2.efiimg_all_size += i.file_size();
-            }else if(fkun.substr(0,10) == "initramfs-" && fkun.substr(fkun.length() - 4) == ".img"){
-                bp2.efiimg_all_size += i.file_size();
-            }else if(fkun =="intel-uc.img" || fkun == "intel-ucode.img" || fkun == "amd-uc.img" || fkun == "amd-ucode.img" ||
-            fkun == "early_ucode.cpio" || fkun == "microcode.cpio"){
-                bp2.efiimg_all_size += i.file_size();
-            }
-        }
-    }
 }
