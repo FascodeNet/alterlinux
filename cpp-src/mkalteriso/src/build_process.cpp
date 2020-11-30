@@ -1,4 +1,41 @@
 #include "build_process.hpp"
+template<class T, class U> std::string replace(std::string s, const T& target, const U& replacement, bool replace_first = 0, bool replace_empty = 0) {
+  using S = std::string;
+  using C = std::string::value_type;
+  using N = std::string::size_type;
+  struct {
+    auto len(const S& s) { return s.size(); }
+    auto len(const C* p) { return std::char_traits<C>::length(p); }
+    auto len(const C  c) { return 1; }
+    auto sub(S* s, const S& t, N pos, N len) { s->replace(pos, len, t); }
+    auto sub(S* s, const C* t, N pos, N len) { s->replace(pos, len, t); }
+    auto sub(S* s, const C  t, N pos, N len) { s->replace(pos, len, 1, t); }
+    auto ins(S* s, const S& t, N pos) { s->insert(pos, t); }
+    auto ins(S* s, const C* t, N pos) { s->insert(pos, t); }
+    auto ins(S* s, const C  t, N pos) { s->insert(pos, 1, t); }
+  } util;
+  
+  N target_length      = util.len(target);
+  N replacement_length = util.len(replacement);
+  if (target_length == 0) {
+    if (!replace_empty || replacement_length == 0) return s;
+    N n = s.size() + replacement_length * (1 + s.size());
+    s.reserve(!replace_first ? n: s.size() + replacement_length );
+    for (N i = 0; i < n; i += 1 + replacement_length ) {
+      util.ins(&s, replacement, i);
+      if (replace_first) break;
+    }
+    return s;
+  }
+  
+  N pos = 0;
+  while ((pos = s.find(target, pos)) != std::string::npos) {
+    util.sub(&s, replacement, pos, target_length);
+    if (replace_first) return s;
+    pos += replacement_length;
+  }
+  return s;
+}
 build_option bp2;
 void setup(build_option bpkun){
     bp2=bpkun;
@@ -468,4 +505,103 @@ void _make_boot_efi_esp(){
     mkfs_fat_args.push_back(img_path);
     mkfs_fat_args.push_back(std::to_string(img_kb));
     FascodeUtil::custom_exec_v(mkfs_fat_args);
+    Vector<String> mmd_1_args;
+    mmd_1_args.push_back("mmd");
+    mmd_1_args.push_back("-i");
+    mmd_1_args.push_back(img_path);
+    mmd_1_args.push_back("::/EFI");
+    mmd_1_args.push_back("::/EFI/BOOT");
+    FascodeUtil::custom_exec_v(mmd_1_args);
+    Vector<String> mcopy_1_args;
+    mcopy_1_args.push_back("mcopy");
+    mcopy_1_args.push_back("-i");
+    mcopy_1_args.push_back(img_path);
+    mcopy_1_args.push_back(bp2.airootfs_dir + "/usr/lib/systemd/boot/efi/systemd-bootx64.efi");
+    mcopy_1_args.push_back("::/EFI/BOOT/BOOTx64.EFI") ;
+    FascodeUtil::custom_exec_v(mcopy_1_args);
+
+    Vector<String> mmd_2_args;
+    mmd_2_args.push_back("mmd");
+    mmd_2_args.push_back("-i");
+    mmd_2_args.push_back(img_path);
+    mmd_2_args.push_back("::/loader");
+    mmd_2_args.push_back("::/loader/entries");
+    FascodeUtil::custom_exec_v(mmd_2_args);
+
+    Vector<String> mcopy_2_args;
+    mcopy_2_args.push_back("mcopy");
+    mcopy_2_args.push_back("-i");
+    mcopy_2_args.push_back(img_path);
+    mcopy_2_args.push_back(bp2.profile + "/efiboot/loader/loader.conf");
+    mcopy_2_args.push_back("::/loader/") ;
+    FascodeUtil::custom_exec_v(mcopy_2_args);
+    for(const std::filesystem::directory_entry &i:std::filesystem::directory_iterator(bp2.profile + "/efiboot/loader/entries/")){
+        std::ifstream ifs(i.path().string());
+        String buf_path= bp2.work_dir + "/entries_tmp";
+        std::ofstream ofs(buf_path);
+        std::string buf;
+        while (getline(ifs, buf)) {
+            String dest_str=replace(replace(replace(buf,"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
+            ofs << dest_str << "\n";
+        }
+        ifs.close();
+        ofs.close();
+        Vector<String> mcopykun_args;
+        mcopykun_args.push_back("mcopy");
+        mcopykun_args.push_back("-i");
+        mcopykun_args.push_back(img_path);
+        mcopykun_args.push_back(buf_path);
+        mcopykun_args.push_back("::/loader/entries/" + i.path().filename().string());
+        FascodeUtil::custom_exec_v(mcopykun_args);
+        rmdir(buf_path.c_str());
+    }
+    if(dir_exist(bp2.airootfs_dir + "/usr/share/edk2-shell/x64/Shell_Full.efi")){
+        Vector<String> mcopy_shell;
+        mcopy_shell.push_back("mcopy");
+        mcopy_shell.push_back("-i");
+        mcopy_shell.push_back(img_path);
+        mcopy_shell.push_back(bp2.airootfs_dir + "/usr/share/edk2-shell/x64/Shell_Full.efi");
+        mcopy_shell.push_back("::/shellx64.efi");
+        FascodeUtil::custom_exec_v(mcopy_shell);
+    }
+    _make_boot_on_fat();
+    _msg_info("Done! systemd-boot set up for UEFI booting successfully.");
+}
+void _make_boot_on_fat(){
+    _msg_info("Preparing kernel and intramfs for the FAT file system...");
+    String img_path=bp2.work_dir + "/efiboot.img";
+    Vector<String> mmd_args;
+    mmd_args.push_back("mmd");
+    mmd_args.push_back("-i");
+    mmd_args.push_back(img_path);
+    mmd_args.push_back("::/" + bp2.install_dir);
+    mmd_args.push_back("::/" + bp2.install_dir + "/boot");
+    mmd_args.push_back("::/" + bp2.install_dir + "/boot/" + bp2.arch);
+    FascodeUtil::custom_exec_v(mmd_args);
+    Vector<String> mcopy_bash;
+    mcopy_bash.push_back("bash");
+    mcopy_bash.push_back("-c");
+    mcopy_bash.push_back("mcopy -i \"" + img_path + "\" \"" + bp2.airootfs_dir + "/boot/vmlinuz-\"* \"" + bp2.airootfs_dir + 
+    "/boot/initramfs-\"*\".img\" \"::/" + bp2.install_dir + "/boot/" + bp2.arch + "/\"");
+    FascodeUtil::custom_exec_v(mcopy_bash);
+    Vector<String> all_ucode_images;
+    Vector<String> ucode_imageskun={"intel-uc.img","intel-ucode.img","amd-uc.img","amd-ucode.img","early_ucode.cpio","microcode.cpio"};
+    for(String ucode_img : ucode_imageskun){
+        if(dir_exist(bp2.airootfs_dir + "/boot/" + ucode_img)){
+            all_ucode_images.push_back(bp2.airootfs_dir + "/boot/" + ucode_img);
+        }
+    }
+    if(all_ucode_images.size() > 0){
+        Vector<String> mcopy_args;
+        mcopy_args.push_back("mcopy");
+        mcopy_args.push_back("-i");
+        mcopy_args.push_back(img_path);
+        for(String imgkun:all_ucode_images){
+            mcopy_args.push_back(imgkun);
+        }
+        mcopy_args.push_back("::/" + bp2.install_dir + "/boot/");
+        FascodeUtil::custom_exec_v(mcopy_args);
+    }
+    _msg_info("Done!");
+
 }

@@ -73,3 +73,4 @@ void _make_pkglist();
 void _make_boot();
 void _make_boot_efi();
 void _make_boot_efi_esp();
+void _make_boot_on_fat();
