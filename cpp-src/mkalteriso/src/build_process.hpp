@@ -48,6 +48,7 @@ struct build_option{
     time_t SOURCE_DATE_EPOCH;
     String img_name=".iso";
     int airootfs_mb=4096;
+    std::uintmax_t efiimg_all_size=0;
 };
 
 void setup(build_option);
@@ -70,3 +71,9 @@ void _make_aur_packages();
 void run_cmd_on_chroot(Vector<String> );
 void _make_customize_airootfs();
 void _make_pkglist();
+void _make_boot();
+void _make_boot_efi();
+void _make_boot_efi_esp();
+void add_img_size(String dir_path);
+void get_efiboot_imgsize();
+void add_img_size_boot();
