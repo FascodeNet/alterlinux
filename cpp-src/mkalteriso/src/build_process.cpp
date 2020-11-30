@@ -171,6 +171,8 @@ void _build_profile(){
     _run_once(_make_pkglist,"_make_pkglist");
     _make_boot();
     _run_once(_cleanup,"_cleanup");
+    _run_once(_make_prepare,"_make_prepare");
+    _run_once(_make_iso,"_make_iso");
     exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
@@ -783,4 +785,100 @@ void _cleanup(){
     std::ofstream ofkuns(bp2.airootfs_dir + "/etc/machine-id",std::ios_base::out | std::ios_base::trunc);
     ofkuns.close();
     _msg_info("Done!");
+}
+void _make_prepare(){
+    _run_once(_mkairootfs_img,"_mkairootfs_img");
+    _mkchecksum();
+}
+void _mkairootfs_img(){
+    if(!dir_exist(bp2.airootfs_dir)){
+        _msg_error("NOT FOUND airootfs!");
+        force_umount();
+        _exit(-910);
+    }
+    force_umount();
+    Vector<String> install_iso_dir;
+    install_iso_dir.push_back("install");
+    install_iso_dir.push_back("-d");
+    install_iso_dir.push_back("-m");
+    install_iso_dir.push_back("0755");
+    install_iso_dir.push_back("--");
+    install_iso_dir.push_back(bp2.isofs_dir + "/" + bp2.install_dir + "/" + bp2.arch);
+    _msg_info("Creating SquashFS image, this may take some time...");
+    _mkairootfs_create_image(realpath(bp2.work_dir) + "/airootfs.img");
+    _msg_info("Done!");
+    Vector<String> rmdir_args;
+    rmdir_args.push_back("rm");
+    rmdir_args.push_back("--");
+    rmdir_args.push_back(realpath(bp2.work_dir) + "/airootfs.img");
+    FascodeUtil::custom_exec_v(rmdir_args);
+
+}
+
+void sha256_hash_string (unsigned char hash[SHA256_DIGEST_LENGTH], char outputBuffer[65])
+{
+    int i = 0;
+
+    for(i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        sprintf(outputBuffer + (i * 2), "%02x", hash[i]);
+    }
+
+    outputBuffer[64] = 0;
+}
+
+int sha256_file(String path, char outputBuffer[65])
+{
+    FILE *file = fopen(path.c_str(), "rb");
+    if(!file) return -534;
+
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    const int bufSize = 32768;
+    unsigned char *buffer = (unsigned char*)malloc(bufSize);
+    int bytesRead = 0;
+    if(!buffer) return ENOMEM;
+    while((bytesRead = fread(buffer, 1, bufSize, file)))
+    {
+        SHA256_Update(&sha256, buffer, bytesRead);
+    }
+    SHA256_Final(hash, &sha256);
+
+    sha256_hash_string(hash, outputBuffer);
+    fclose(file);
+    free(buffer);
+    return 0;
+}
+void _mkairootfs_create_image(String src_name){
+    String image_path=bp2.isofs_dir + "/" + bp2.install_dir + "/" + bp2.arch + "/airootfs.sfs";
+    Vector<String> mksquashfs_args;
+    mksquashfs_args.push_back("mksquashfs");
+    mksquashfs_args.push_back(src_name);
+    mksquashfs_args.push_back(image_path);
+    mksquashfs_args.push_back("-noappend");
+    bool bkun=true;
+    String buf_str="";
+    for(String optkun:bp2.airootfs_image_tool_options){
+        if(bkun){
+            buf_str = optkun;
+            bkun=false;
+        }else{
+            buf_str= buf_str + " " + optkun;
+        }
+    }
+    mksquashfs_args.push_back(buf_str);
+    FascodeUtil::custom_exec_v(mksquashfs_args);
+}
+void _mkchecksum(){
+    _msg_info("Creating checksum file for self-test...");
+    char buffer[65];
+    sha256_file(bp2.isofs_dir + "/" + bp2.install_dir + "/" + bp2.arch + "/airootfs.sfs",buffer);
+    std::ofstream outkun(bp2.isofs_dir + "/" + bp2.install_dir + "/" + bp2.arch + "/airootfs.sha256");
+    outkun << buffer;
+    outkun.close();
+    _msg_info("Done!");
+}
+void _make_iso(){
+    
 }

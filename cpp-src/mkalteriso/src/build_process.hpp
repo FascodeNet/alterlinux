@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
+#include <openssl/sha.h>
 #define String std::string
 #define Vector std::vector
 
@@ -49,6 +50,7 @@ struct build_option{
     time_t SOURCE_DATE_EPOCH;
     String img_name=".iso";
     int airootfs_mb=4096;
+    Vector<String> airootfs_image_tool_options;
 };
 
 void setup(build_option);
@@ -78,3 +80,8 @@ void _make_boot_on_fat();
 void _make_efi();
 void _make_boot_on_iso();
 void _cleanup();
+void _make_prepare();
+void _mkairootfs_img();
+void _mkairootfs_create_image(String);
+void _mkchecksum();
+void _make_iso();
