@@ -804,6 +804,7 @@ void _mkairootfs_img(){
     install_iso_dir.push_back("0755");
     install_iso_dir.push_back("--");
     install_iso_dir.push_back(bp2.isofs_dir + "/" + bp2.install_dir + "/" + bp2.arch);
+    FascodeUtil::custom_exec_v(install_iso_dir);
     _msg_info("Creating SquashFS image, this may take some time...");
     _mkairootfs_create_image(realpath(bp2.work_dir) + "/airootfs.img");
     _msg_info("Done!");
@@ -860,7 +861,12 @@ void _mkairootfs_create_image(String src_name){
     for(String optkun:bp2.airootfs_image_tool_options){
         mksquashfs_args.push_back(optkun);
     }
+    for(String laaa:mksquashfs_args){
+        std::cout << laaa << " ";
+    }
+    std::cout << std::endl;
     FascodeUtil::custom_exec_v(mksquashfs_args);
+    
 }
 void _mkchecksum(){
     _msg_info("Creating checksum file for self-test...");
