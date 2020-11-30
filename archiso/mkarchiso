@@ -268,11 +268,15 @@ _make_custom_airootfs() {
         # Set ownership and mode for files and directories
         for filename in "${!file_permissions[@]}"; do
             IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
-            if [[ -e "${airootfs_dir}${filename}" ]]; then
-                chown -fh -- "${permissions[0]}:${permissions[1]}" "${airootfs_dir}${filename}"
-                chmod -f -- "${permissions[2]}" "${airootfs_dir}${filename}"
-            else
+            # Prevent file path traversal outside of $airootfs_dir
+            if [[ "$(realpath -q -- "${airootfs_dir}${filename}")" != "${airootfs_dir}"* ]]; then
+                _msg_error "Failed to set permissions on '${airootfs_dir}${filename}'. Outside of valid path." 1
+            # Warn if the file does not exist
+            elif [[ ! -e "${airootfs_dir}${filename}" ]]; then
                 _msg_warning "Cannot change permissions of '${airootfs_dir}${filename}'. The file or directory does not exist."
+            else
+                echo chown -fh -- "${permissions[0]}:${permissions[1]}" "${airootfs_dir}${filename}"
+                echo chmod -f -- "${permissions[2]}" "${airootfs_dir}${filename}"
             fi
         done
         _msg_info "Done!"
@@ -309,15 +313,22 @@ _make_customize_airootfs() {
     if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
         _msg_info "Copying /etc/skel/* to user homes..."
         while IFS=':' read -a passwd -r; do
+            # Only operate on UIDs in range 1000–59999
             (( passwd[2] >= 1000 && passwd[2] < 60000 )) || continue
+            # Skip invalid home directories
             [[ "${passwd[5]}" == '/' ]] && continue
             [[ -z "${passwd[5]}" ]] && continue
-            if [[ ! -d "${airootfs_dir}${passwd[5]}" ]]; then
-                install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${airootfs_dir}${passwd[5]}"
+            # Prevent path traversal outside of $airootfs_dir
+            if [[ "$(realpath -q -- "${airootfs_dir}${passwd[5]}")" == "${airootfs_dir}"* ]]; then
+                if [[ ! -d "${airootfs_dir}${passwd[5]}" ]]; then
+                    install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${airootfs_dir}${passwd[5]}"
+                fi
+                cp -dnRT --preserve=mode,timestamps,links -- "${airootfs_dir}/etc/skel/." "${airootfs_dir}${passwd[5]}"
+                chmod -f 0750 -- "${airootfs_dir}${passwd[5]}"
+                chown -hR -- "${passwd[2]}:${passwd[3]}" "${airootfs_dir}${passwd[5]}"
+            else
+                _msg_error "Failed to set permissions on '${airootfs_dir}${passwd[5]}'. Outside of valid path." 1
             fi
-            cp -dnRT --preserve=mode,timestamps,links -- "${airootfs_dir}/etc/skel/." "${airootfs_dir}${passwd[5]}"
-            chmod -f 0750 -- "${airootfs_dir}${passwd[5]}"
-            chown -hR -- "${passwd[2]}:${passwd[3]}" "${airootfs_dir}${passwd[5]}"
         done < "${profile}/airootfs/etc/passwd"
         _msg_info "Done!"
     fi
