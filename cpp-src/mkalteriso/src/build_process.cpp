@@ -131,6 +131,7 @@ void _build_profile(){
     _run_once(_make_packages,"_make_packages");
     _run_once(_make_aur_packages,"_make_aur_packages");
     _run_once(_make_customize_airootfs,"_make_customize_airootfs");
+    _run_once(_make_pkglist,"_make_pkglist");
     exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
@@ -325,6 +326,7 @@ Vector<String> split_passwd(String src){
 void trap_handler(int signo){
     if(signo==SIGTERM || signo == SIGHUP || signo == SIGINT || signo == SIGKILL){
         force_umount();
+        exit(-8);
     }
 }
 void _make_aur_packages(){
@@ -426,4 +428,21 @@ void _make_customize_airootfs(){
         FascodeUtil::custom_exec_v(run_rmdir);
         _msg_info("Done! customize_airootfs.sh run successfully.");
     }
+}
+void _make_pkglist(){
+    Vector<String> install_args;
+    install_args.push_back("install");
+    install_args.push_back("-d");
+    install_args.push_back("-m");
+    install_args.push_back("0755");
+    install_args.push_back("--");
+    install_args.push_back(bp2.isofs_dir + "/" + bp2.install_dir);
+    FascodeUtil::custom_exec_v(install_args);
+    _msg_info("Creating a list of installed packages on live-enviroment...");
+    Vector<String> bash_args;
+    bash_args.push_back("bash");
+    bash_args.push_back("-c");
+    bash_args.push_back("pacman -Q --sysroot \"" + bp2.airootfs_dir + "\" > \"" + bp2.isofs_dir + "/" + bp2.install_dir + "/pkglist." + bp2.arch + ".txt\"");
+    FascodeUtil::custom_exec_v(bash_args);
+    _msg_info("Done!");
 }

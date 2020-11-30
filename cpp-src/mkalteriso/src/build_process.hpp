@@ -69,3 +69,4 @@ void nothing_handler(int);
 void _make_aur_packages();
 void run_cmd_on_chroot(Vector<String> );
 void _make_customize_airootfs();
+void _make_pkglist();
