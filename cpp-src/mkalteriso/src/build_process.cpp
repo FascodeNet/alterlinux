@@ -170,6 +170,7 @@ void _build_profile(){
     _run_once(_make_customize_airootfs,"_make_customize_airootfs");
     _run_once(_make_pkglist,"_make_pkglist");
     _make_boot();
+    _run_once(_cleanup,"_cleanup");
     exit_force(0);
 }
 template<class Fn> void _run_once(Fn func,String name){
@@ -485,6 +486,7 @@ void _make_pkglist(){
     _msg_info("Done!");
 }
 void _make_boot(){
+    _make_boot_on_iso();
     _make_boot_efi();
 }
 void _make_boot_efi(){
@@ -664,4 +666,121 @@ void _make_boot_on_fat(){
     }
     _msg_info("Done!");
 
+}
+void _make_boot_on_iso(){
+
+    Vector<String> install_mkdir;
+    install_mkdir.push_back("install");
+    install_mkdir.push_back("-d");
+    install_mkdir.push_back("-m");
+    install_mkdir.push_back("0755");
+    install_mkdir.push_back("--");
+    install_mkdir.push_back(bp2.isofs_dir +  "/" + bp2.install_dir +  "/boot/" + bp2.arch);
+    FascodeUtil::custom_exec_v(install_mkdir);
+    Vector<String> install_bash;
+    install_bash.push_back("bash");
+    install_bash.push_back("-c");
+    install_bash.push_back("install -m 0644 -- \"" + bp2.airootfs_dir + "/boot/vmlinuz-\"* \"" + bp2.isofs_dir + "/" + bp2.install_dir + "/boot/" + bp2.arch + "/\"");
+    FascodeUtil::custom_exec_v(install_bash);    
+    Vector<String> install_bash2;
+    install_bash2.push_back("bash");
+    install_bash2.push_back("-c");
+    install_bash2.push_back("install -m 0644 -- \"" + bp2.airootfs_dir + "/boot/initramfs-\"*\".img\" \"" + bp2.isofs_dir + "/" + bp2.install_dir + "/boot/" + bp2.arch + "/\"");
+    FascodeUtil::custom_exec_v(install_bash2);
+    Vector<String> all_ucode_images;
+    Vector<String> ucode_imageskun={"intel-uc.img","intel-ucode.img","amd-uc.img","amd-ucode.img","early_ucode.cpio","microcode.cpio"};
+    for(String ucode_img : ucode_imageskun){
+        if(dir_exist(bp2.airootfs_dir + "/boot/" + ucode_img)){
+            all_ucode_images.push_back(bp2.airootfs_dir + "/boot/" + ucode_img);
+        }
+    }
+    if(all_ucode_images.size() > 0){
+        for(String imgkun:all_ucode_images){
+            Vector<String> install_args;
+            install_args.push_back("install");
+            install_args.push_back("-m");
+            install_args.push_back("0644");
+            install_args.push_back("--");
+            install_args.push_back(imgkun);
+            install_args.push_back(bp2.isofs_dir + "/" + bp2.install_dir + "/boot/");
+            FascodeUtil::custom_exec_v(install_args);
+        }
+    }
+    _msg_info("Done!");
+}
+void _cleanup(){
+    _msg_info("Cleaning up what we can on airootfs...");
+    if(dir_exist(bp2.airootfs_dir + "/boot")){
+        Vector<String> find_args;
+        find_args.push_back("find");
+        find_args.push_back(bp2.airootfs_dir + "/boot");
+        find_args.push_back("-mindepth");
+        find_args.push_back("1");
+        find_args.push_back("-delete");
+        FascodeUtil::custom_exec_v(find_args);
+    }
+    if(dir_exist(bp2.airootfs_dir + "/var/lib/pacman")){
+        Vector<String> find_args;
+        find_args.push_back("find");
+        find_args.push_back(bp2.airootfs_dir + "/var/lib/pacman");
+        find_args.push_back("-maxdepth");
+        find_args.push_back("1");
+        find_args.push_back("-type");
+        find_args.push_back("f");
+        find_args.push_back("-delete");
+        FascodeUtil::custom_exec_v(find_args);
+    }
+    if(dir_exist(bp2.airootfs_dir + "/var/lib/pacman/sync")){
+        Vector<String> find_args;
+        find_args.push_back("find");
+        find_args.push_back(bp2.airootfs_dir + "/var/lib/pacman/sync");
+        find_args.push_back("-delete");
+        FascodeUtil::custom_exec_v(find_args);
+    }
+    if(dir_exist(bp2.airootfs_dir + "/var/cache/pacman/pkg")){
+        Vector<String> find_args;
+        find_args.push_back("find");
+        find_args.push_back(bp2.airootfs_dir + "/var/cache/pacman/pkg");
+        find_args.push_back("-type");
+        find_args.push_back("f");
+        find_args.push_back("-delete");
+        FascodeUtil::custom_exec_v(find_args);
+    }
+    if(dir_exist(bp2.airootfs_dir + "/var/log")){
+        Vector<String> find_args;
+        find_args.push_back("find");
+        find_args.push_back(bp2.airootfs_dir + "/var/log");
+        find_args.push_back("-type");
+        find_args.push_back("f");
+        find_args.push_back("-delete");
+        FascodeUtil::custom_exec_v(find_args);
+    }
+    if(dir_exist(bp2.airootfs_dir + "/var/tmp")){
+        Vector<String> find_args;
+        find_args.push_back("find");
+        find_args.push_back(bp2.airootfs_dir + "/var/tmp");
+        find_args.push_back("-mindepth");
+        find_args.push_back("1");
+        find_args.push_back("-delete");
+        FascodeUtil::custom_exec_v(find_args);
+    }
+    // Delete package pacman related files.
+    Vector<String> find_pkg_args;
+    find_pkg_args.push_back("find");
+    find_pkg_args.push_back(bp2.work_dir);
+    find_pkg_args.push_back("(");
+    find_pkg_args.push_back("-name");
+    find_pkg_args.push_back("*.pacnew");
+    find_pkg_args.push_back("-o");
+    find_pkg_args.push_back("-name");
+    find_pkg_args.push_back("*.pacsave");
+    find_pkg_args.push_back("-o");
+    find_pkg_args.push_back("-name");
+    find_pkg_args.push_back("*.pacorig");
+    find_pkg_args.push_back(")");
+    find_pkg_args.push_back("-delete");
+    FascodeUtil::custom_exec_v(find_pkg_args);
+    std::ofstream ofkuns(bp2.airootfs_dir + "/etc/machine-id",std::ios_base::out | std::ios_base::trunc);
+    ofkuns.close();
+    _msg_info("Done!");
 }

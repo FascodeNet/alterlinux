@@ -15,7 +15,7 @@
 #include <unistd.h>
 #define String std::string
 #define Vector std::vector
-using namespace std::string_literals;
+
 void _msg_error(String);
 void _msg_info(String);
 void _msg_warn(String);
@@ -76,3 +76,5 @@ void _make_boot_efi();
 void _make_boot_efi_esp();
 void _make_boot_on_fat();
 void _make_efi();
+void _make_boot_on_iso();
+void _cleanup();
