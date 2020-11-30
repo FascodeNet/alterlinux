@@ -458,28 +458,14 @@ void _make_boot_efi_esp(){
     if(dir_exist(img_path)){
         rmdir(img_path.c_str());
     }
-    FILE *fp;
-    String cmdline="airootfs_dir=" + bp2.airootfs_dir + " profile=" + bp2.profile + "du -bc \"${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi\" " + 
-        "\"${airootfs_dir}/usr/share/edk2-shell/x64/Shell_Full.efi\" " + 
-        "\"${profile}/efiboot/\" " + 
-        "\"${airootfs_dir}/boot/vmlinuz-\"* " +
-        "\"${airootfs_dir}/boot/initramfs-\"*\".img\" " +
-        "\"${airootfs_dir}/boot/\"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio} " +
-        "2>/dev/null | awk 'function ceil(x){return int(x)+(x>int(x))}" + 
-        "function byte_to_kib(x){return x/1024}" + 
-        "function mib_to_kib(x){return x*1024}" + 
-        "END {print mib_to_kib(ceil((byte_to_kib($1)+1024)/1024))}'";
-    if((fp = popen(cmdline.c_str(),"r")) == NULL){
-        _msg_error("Can't open pipe");
-        exit(exit_force(-819));
-    }
-    char buf[256];
-    long img_kb=0;
-    while (!feof(fp)) {
-        fgets(buf, sizeof(buf), fp);
-        img_kb=std::atol(buf) / 1024;
-    }
-    (void) pclose(fp);
+    long img_kb=1024*1024;
     _msg_info("Creating FAT image of size: " + std::to_string(img_kb) + "Kib...");
-
+    Vector<String> mkfs_fat_args;
+    mkfs_fat_args.push_back("mkfs.fat");
+    mkfs_fat_args.push_back("-C");
+    mkfs_fat_args.push_back("-n");
+    mkfs_fat_args.push_back("ARCHISO_EFI");
+    mkfs_fat_args.push_back(img_path);
+    mkfs_fat_args.push_back(std::to_string(img_kb));
+    FascodeUtil::custom_exec_v(mkfs_fat_args);
 }
