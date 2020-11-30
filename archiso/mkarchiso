@@ -269,14 +269,14 @@ _make_custom_airootfs() {
         for filename in "${!file_permissions[@]}"; do
             IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
             # Prevent file path traversal outside of $airootfs_dir
-            if [[ "$(realpath -q -- "${airootfs_dir}${filename}")" != "${airootfs_dir}"* ]]; then
+            if [[ "$(realpath -q -- "${airootfs_dir}${filename}")" != "$(realpath -q -- "${airootfs_dir}")"* ]]; then
                 _msg_error "Failed to set permissions on '${airootfs_dir}${filename}'. Outside of valid path." 1
             # Warn if the file does not exist
             elif [[ ! -e "${airootfs_dir}${filename}" ]]; then
                 _msg_warning "Cannot change permissions of '${airootfs_dir}${filename}'. The file or directory does not exist."
             else
-                echo chown -fh -- "${permissions[0]}:${permissions[1]}" "${airootfs_dir}${filename}"
-                echo chmod -f -- "${permissions[2]}" "${airootfs_dir}${filename}"
+                chown -fh -- "${permissions[0]}:${permissions[1]}" "${airootfs_dir}${filename}"
+                chmod -f -- "${permissions[2]}" "${airootfs_dir}${filename}"
             fi
         done
         _msg_info "Done!"
