@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <openssl/sha.h>
+#include <algorithm>
 #define String std::string
 #define Vector std::vector
 

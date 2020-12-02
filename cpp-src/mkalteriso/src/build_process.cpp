@@ -878,5 +878,9 @@ void _mkchecksum(){
     _msg_info("Done!");
 }
 void _make_iso(){
-    
+    Vector<String> xorrisofs_options;
+    if(!dir_exist(bp2.out_dir)) mkdir(bp2.out_dir.c_str(),644);
+    if(std::find(bp2.bootmodes.begin(),bp2.bootmodes.end(),"uefi-x64") != bp2.bootmodes.end()){
+
+    }
 }
