@@ -880,7 +880,69 @@ void _mkchecksum(){
 void _make_iso(){
     Vector<String> xorrisofs_options;
     if(!dir_exist(bp2.out_dir)) mkdir(bp2.out_dir.c_str(),644);
-    if(std::find(bp2.bootmodes.begin(),bp2.bootmodes.end(),"uefi-x64") != bp2.bootmodes.end()){
+    /*if(std::find(bp2.bootmodes.begin(),bp2.bootmodes.end(),"uefi-x64") != bp2.bootmodes.end()){
+        _msg_debug("Found EFI!");
 
+    }*/
+    if(!dir_exist(bp2.work_dir + "/efiboot.img")){
+        _msg_error("The file " + bp2.work_dir + "/efiboot.img' does not exist.");
+        exit_force(8);
+        exit(88);
     }
+    if(dir_exist(bp2.isofs_dir + "/EFI/archiso" )){
+        Vector<String> rm_args;
+        rm_args.push_back("rm");
+        rm_args.push_back("-rf");
+        rm_args.push_back("--");
+        rm_args.push_back(bp2.isofs_dir + "/EFI/archiso");
+        FascodeUtil::custom_exec_v(rm_args);
+    }
+    //for EFI USB?
+    xorrisofs_options.push_back("-partition_offset");
+    xorrisofs_options.push_back("16");
+    xorrisofs_options.push_back("-append_partition");
+    xorrisofs_options.push_back("2");
+    xorrisofs_options.push_back("C12A7328-F81F-11D2-BA4B-00A0C93EC93B");
+    xorrisofs_options.push_back(bp2.work_dir + "/efiboot.img");
+    xorrisofs_options.push_back("-appended_part_as_gpt");
+    //for EFI CDROM?
+    xorrisofs_options.push_back("-eltorito-alt-boot");
+    xorrisofs_options.push_back("-e");
+    xorrisofs_options.push_back("--interval:appended_partition_2:all::");
+    xorrisofs_options.push_back("-no-emul-boot");
+    //iso create
+    _msg_info("Creating ISO image...");
+    Vector<String> xorrisofs_args;
+    xorrisofs_args.push_back("xorriso");
+    xorrisofs_args.push_back("-as");
+    xorrisofs_args.push_back("mkisofs");
+    xorrisofs_args.push_back("-iso-level");
+    xorrisofs_args.push_back("3");
+    xorrisofs_args.push_back("-full-iso9660-filenames");
+    xorrisofs_args.push_back("-joliet");
+    xorrisofs_args.push_back("-joliet-long");
+    xorrisofs_args.push_back("-rational-rock");
+    xorrisofs_args.push_back("-volid");
+    xorrisofs_args.push_back(bp2.iso_label);
+    xorrisofs_args.push_back("-appid");
+    xorrisofs_args.push_back(bp2.iso_application);
+    xorrisofs_args.push_back("-publisher");
+    xorrisofs_args.push_back(bp2.iso_publisher);
+    xorrisofs_args.push_back("-preparer");
+    xorrisofs_args.push_back("prepared by " + bp2.app_name);
+    for(String inkun : xorrisofs_options){
+        xorrisofs_args.push_back(inkun);
+    }
+    xorrisofs_args.push_back("-output");
+    xorrisofs_args.push_back(bp2.out_dir + "/" + bp2.img_name);
+    xorrisofs_args.push_back(bp2.isofs_dir + "/");
+    FascodeUtil::custom_exec_v(xorrisofs_args);
+    Vector<String> du_args;
+    du_args.push_back("du");
+    du_args.push_back("-h");
+    du_args.push_back("--");
+    du_args.push_back(bp2.out_dir + "/" + bp2.img_name);
+    _msg_info("Done!");
+    FascodeUtil::custom_exec_v(du_args);
+
 }
