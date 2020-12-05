@@ -56,7 +56,6 @@ dex
 
 # Qt config
 qt5ct
-qt5-styleplugins
 
 # Theme
 adapta-gtk-theme

@@ -7,17 +7,5 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# look and feel
 
-
-# icon
-papirus-icon-theme
-
-
-# theme
-#adapta-gtk-theme
-adapta-gtk-theme-colorpack
-
-
-# Qt config
-qt5ct
+qt5-styleplugins
