@@ -7,20 +7,5 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Media
 
-
-#-- audio --#
-pavucontrol
-pulseaudio
-
-
-#-- bluetooth --#
-blueman
-bluez
-bluez-utils
-
-
-#-- media player --#
-viewnior
-vlc
+pulseaudio-modules-bt
