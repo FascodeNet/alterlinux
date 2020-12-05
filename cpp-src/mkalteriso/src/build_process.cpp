@@ -95,6 +95,9 @@ void _show_config(){
     _msg_info("         ISO volume label:   " + bp2.iso_label);
     _msg_info("            ISO publisher:   " + bp2.iso_publisher);
     _msg_info("          ISO application:   " + bp2.iso_application);
+    _msg_info("                     Lang:   " + bp2.lang.name);
+    _msg_info("                localegen:   " + bp2.lang.locale_gen);
+    _msg_info("                 timezone:   " + bp2.lang.timezone);
 
     _msg_info("               Boot modes:   ");
     for(String bootm:bp2.bootmodes){

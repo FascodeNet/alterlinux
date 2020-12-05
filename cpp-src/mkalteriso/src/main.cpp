@@ -23,6 +23,7 @@ int main(int argc,char* argv[]){
     p.add("verbose",'v',"Enable verbose output");
     p.add("nodepends",0,"No depends check");
     p.add<String>("work",'w',"Set the working directory",false,bp.work_dir);
+    p.add<String>("lang",'l',"Set Language",false,"en");
     p.add<String>("run_cmd",'r',"run command");
     if (!p.parse(argc, argv)||p.exist("help")){
         std::cout<<p.error_full()<<p.usage();
@@ -38,6 +39,7 @@ int main(int argc,char* argv[]){
     bp.aditional_packages=p.get<String>("packages");
     bp.work_dir=p.get<String>("work");
     bp.run_cmd=p.get<String>("run_cmd");
+    String language_id=p.get<String>("lang");
     time_t timer;
     struct tm *date;
     char str[256];
@@ -63,10 +65,30 @@ int main(int argc,char* argv[]){
             return 810;
         }
     }
+
     parse_channel();
+    set_lang(language_id);
     setup(bp);
     _build_profile();
     return 0;
+}
+lang_info gen_lang_list(String lang_name,String locale_gen,String timezonekun,String long_name){
+    lang_info langi;
+    langi.locale_gen=locale_gen;
+    langi.name=lang_name;
+    langi.timezone=timezonekun;
+    langi.fullname=long_name;
+    return langi;
+}
+void set_lang(String lang_id){
+    Vector<lang_info> lang_lists;
+    lang_lists.push_back(gen_lang_list("gl","en_US.UTF-8","UTC","global"));
+    lang_lists.push_back(gen_lang_list("ja","ja_JP.UTF-8","Asia/Tokyo","japanese"));
+    for(lang_info lkun:lang_lists){
+        if(lkun.name == lang_id){
+            bp.lang=lkun;
+        }
+    }
 }
 void parse_channel(){
     Vector<String> argskun;

@@ -26,6 +26,12 @@ void test_conf();
 void _show_config();
 bool dir_exist(String dir_name);
 int str_mkdir(String,unsigned short);
+struct lang_info{
+    String locale_gen;
+    String timezone;
+    String fullname;
+    String name;
+};
 struct build_option{
     String app_name="mkalteriso";
     String install_dir=app_name;
@@ -52,6 +58,9 @@ struct build_option{
     String img_name=".iso";
     int airootfs_mb=4096;
     Vector<String> airootfs_image_tool_options;
+    String password="alter";
+    String username="alter";
+    lang_info lang;
 };
 
 void setup(build_option);
