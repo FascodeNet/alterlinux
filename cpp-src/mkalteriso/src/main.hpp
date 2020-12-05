@@ -17,6 +17,7 @@
 #include <regex>
 #include <filesystem>
 #include "build_process.hpp"
+#include "check_depends.hpp"
 void parse_channel();
 Vector<String> parse_packages(String packages_file_path);
 Vector<String> parse_packages_folder(String packages_folder_path);

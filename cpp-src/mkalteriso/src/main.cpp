@@ -56,6 +56,10 @@ int main(int argc,char* argv[]){
     bp.isofs_dir=bp.work_dir+"/iso";
     bp.airootfs_image_tool_options.push_back("-comp");
     bp.airootfs_image_tool_options.push_back("xz");
+    check_depends_class check_d;
+    if(!check_d.check_depends()){
+        return 810;
+    }
     parse_channel();
     setup(bp);
     _build_profile();
