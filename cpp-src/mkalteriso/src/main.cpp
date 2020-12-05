@@ -21,6 +21,7 @@ int main(int argc,char* argv[]){
     p.add<String>("out_dir",'O',"Set the output directory",false,bp.out_dir);
     p.add<String>("packages",'p',"Package(s) to install, can be used multiple times",false,bp.aditional_packages);
     p.add("verbose",'v',"Enable verbose output");
+    p.add("nodepends",0,"No depends check");
     p.add<String>("work",'w',"Set the working directory",false,bp.work_dir);
     p.add<String>("run_cmd",'r',"run command");
     if (!p.parse(argc, argv)||p.exist("help")){
@@ -56,9 +57,11 @@ int main(int argc,char* argv[]){
     bp.isofs_dir=bp.work_dir+"/iso";
     bp.airootfs_image_tool_options.push_back("-comp");
     bp.airootfs_image_tool_options.push_back("xz");
-    check_depends_class check_d;
-    if(!check_d.check_depends()){
-        return 810;
+    if(!p.exist("nodepends")){
+        check_depends_class check_d;
+        if(!check_d.check_depends()){
+            return 810;
+        }
     }
     parse_channel();
     setup(bp);

@@ -89,6 +89,7 @@ bool check_depends_class::compare(String pkgname){
         _msg_info("latest : " + pkgname);
         return true;
     }else{
-        return false;
+        _msg_warn("Version old or newer : " + pkgname);
+        return true;
     }
 }
