@@ -34,11 +34,6 @@ gnome-system-monitor
 htop
 
 
-#-- pacman --#
-archlinux-appstream-data-pamac
-pamac-aur
-
-
 #-- printer --#
 system-config-printer
 

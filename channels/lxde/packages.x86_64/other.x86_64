@@ -35,11 +35,6 @@ cpu-x
 htop
 
 
-#-- pacman --#
-archlinux-appstream-data-pamac
-pamac-aur
-
-
 #-- printer --#
 system-config-printer
 

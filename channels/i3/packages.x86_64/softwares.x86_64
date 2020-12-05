@@ -18,10 +18,6 @@ thunderbird
 thunar
 file-roller
 
-# software manager
-archlinux-appstream-data-pamac
-pamac-aur
-
 # office
 libreoffice-still
 
