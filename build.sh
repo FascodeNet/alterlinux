@@ -944,7 +944,11 @@ make_efi() {
     local _efi_shell _efi_shell_arch
     for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
         _efi_shell_arch="$(basename ${_efi_shell})"
-        cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+        if [[ "${_efi_shell_arch}" == 'aarch64' ]]; then
+            cp "${_efi_shell}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+        else
+            cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+        fi
         cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
 title  UEFI Shell ${_efi_shell_arch}
 efi    /EFI/shell_${_efi_shell_arch}.efi
