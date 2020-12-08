@@ -9,14 +9,8 @@
 #
 # look and feel
 
+# theme
+adapta-gtk-theme-colorpack
 
 # icon
-papirus-icon-theme
-
-
-# theme
-#adapta-gtk-theme
-
-
-# Qt config
-qt5ct
+inverse-icon-theme-blue-git

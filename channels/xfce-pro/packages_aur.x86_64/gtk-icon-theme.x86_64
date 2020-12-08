@@ -9,14 +9,6 @@
 #
 # look and feel
 
-
 # icon
-papirus-icon-theme
+inverse-icon-theme-blue-git
 
-
-# theme
-#adapta-gtk-theme
-
-
-# Qt config
-qt5ct

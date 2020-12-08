@@ -9,14 +9,5 @@
 #
 # look and feel
 
-
-# icon
-papirus-icon-theme
-
-
 # theme
-#adapta-gtk-theme
-
-
-# Qt config
-qt5ct
+adapta-gtk-theme-colorpack
