@@ -9,11 +9,6 @@
 #
 # Xfce4 Desktop Environment
 
-
-#-- Compiz --#
-compiz
-
-
 #-- Terminal --#
 guake
 
