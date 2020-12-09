@@ -29,7 +29,6 @@ jstest-gtk-git
 
 
 #-- system monitor --#
-cpu-x
 gnome-system-monitor
 htop
 

@@ -40,10 +40,6 @@ linux-atm
 linux-firmware
 
 
-#-- system monitor --#
-cpu-x
-
-
 #-- printer --#
 system-config-printer
 

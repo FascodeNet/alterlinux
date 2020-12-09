@@ -22,7 +22,6 @@ man-pages
 
 #-- system monitor --#
 ksysguard
-cpu-x
 
 
 #-- scripts --#
