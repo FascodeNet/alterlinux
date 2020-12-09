@@ -7,23 +7,6 @@
 #
 # (c) 2019-2020 Fascode Network.
 #
-# Archives
 
-
-arj
-binutils
-bzip2
-cpio
-gzip
-lha
-lrzip
-lz4
-lzip
-lzop
-p7zip
-tar
-unarj
-unrar
-xz
-zip
-zstd
+#-- archiver --#
+unzip-iconv
