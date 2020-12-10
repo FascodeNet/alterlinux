@@ -240,6 +240,7 @@ umount_chroot_advance() {
 
 # Helper function to run make_*() only one time.
 run_once() {
+    set -eu
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
         msg_debug "Running $1 ..."
         "$1"
