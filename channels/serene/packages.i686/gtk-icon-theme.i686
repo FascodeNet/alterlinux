@@ -9,11 +9,6 @@
 #
 # look and feel
 
-
-# icon
-paper-icon-theme
-
-
 # theme
 #arc-gtk-theme
 numix-blue-gtk-theme-bin
