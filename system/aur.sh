@@ -56,6 +56,7 @@ chmod +s /usr/bin/sudo
 yes | sudo -u aurbuild \
     yay -Sy \
         --mflags "-AcC" \
+        --aur \
         --noconfirm \
         --nocleanmenu \
         --nodiffmenu \
