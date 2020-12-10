@@ -1,0 +1,16 @@
+[Compositing]
+Enabled=true
+OpenGLIsUnsafe=false
+
+[Desktops]
+Id_1=9406aea8-1cf2-4cb0-b1fe-0ae1c456a174
+Id_2=c0b8b6a5-3f16-4f45-a4a6-22cdd2007e23
+
+[Script-closewindowaction]
+BorderActivate=
+
+[Script-runcommandaction]
+BorderActivate=
+
+[deepin-chameleon]
+theme=dark/deepin

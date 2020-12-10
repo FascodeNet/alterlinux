@@ -1,0 +1,28 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascone.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Disk management
+
+
+baobab
+clonezilla
+ddrescue
+dmraid
+fsarchiver
+gnome-disk-utility
+gptfdisk
+hdparm
+lvm2
+mdadm
+partclone
+parted
+partimage
+sdparm
+smartmontools
+testdisk
