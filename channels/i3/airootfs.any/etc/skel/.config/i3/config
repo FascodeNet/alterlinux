@@ -18,7 +18,7 @@ font pango:Noto Sans 9
 
 # gaps each window
 gaps outer 2
-gaps inner 15
+gaps inner 7
 smart_gaps on
 
 
