@@ -53,7 +53,18 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Build and install
 chmod +s /usr/bin/sudo
-yes | sudo -u aurbuild yay -Sy  --noconfirm --nocleanmenu --nodiffmenu --noeditmenu --noupgrademenu --noprovides --removemake --config "/etc/alteriso-pacman.conf" ${*}
+yes | sudo -u aurbuild \
+    yay -Sy \
+        --mflags "-AcC" \
+        --noconfirm \
+        --nocleanmenu \
+        --nodiffmenu \
+        --noeditmenu \
+        --noupgrademenu \
+        --noprovides \
+        --removemake \
+        --config "/etc/alteriso-pacman.conf" \
+        ${*}
 
 
 # remove user and file
