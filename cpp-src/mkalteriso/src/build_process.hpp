@@ -44,6 +44,7 @@ struct build_option{
     String pacman_conf="/etc/pacman.conf";
     String run_cmd="";
     String profile="";
+    String profile_name="base";
     String airootfs_dir="";
     String isofs_dir="";
     String iso_name="";

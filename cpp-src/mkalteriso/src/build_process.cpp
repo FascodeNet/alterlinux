@@ -464,6 +464,20 @@ void _make_customize_airootfs(){
         _msg_info("Running customize_airootfs.sh in " + realpath(bp2.airootfs_dir + "/root/customize_airootfs.sh") + "chroot...");
         Vector<String> run_cmdS;
         run_cmdS.push_back("/root/customize_airootfs.sh");
+        run_cmdS.push_back("-p");
+        run_cmdS.push_back(bp2.password);
+        run_cmdS.push_back("-k");
+        run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
+        run_cmdS.push_back("-u");
+        run_cmdS.push_back(bp2.username);
+        run_cmdS.push_back("-i");
+        run_cmdS.push_back(bp2.install_dir);
+        run_cmdS.push_back("-g");
+        run_cmdS.push_back(bp2.lang.locale_gen);
+        run_cmdS.push_back("-z");
+        run_cmdS.push_back(bp2.lang.timezone);
+        run_cmdS.push_back("-l");
+        run_cmdS.push_back(bp2.lang.name);
         run_cmd_on_chroot(run_cmdS);
         Vector<String> run_rmdir;
         run_rmdir.push_back("rm");
@@ -471,6 +485,32 @@ void _make_customize_airootfs(){
         run_rmdir.push_back(bp2.airootfs_dir + "/root/customize_airootfs.sh");
         FascodeUtil::custom_exec_v(run_rmdir);
         _msg_info("Done! customize_airootfs.sh run successfully.");
+    }
+    if(dir_exist(bp2.airootfs_dir + "/root/customize_airootfs_" + bp2.profile_name + ".sh")){
+        _msg_info("Running customize_airootfs.sh in " + realpath(bp2.airootfs_dir + "/root/customize_airootfs_" + bp2.profile_name + ".sh") + "chroot...");
+        Vector<String> run_cmdS;
+        run_cmdS.push_back("/root/customize_airootfs_" + bp2.profile_name + ".sh");
+        run_cmdS.push_back("-p");
+        run_cmdS.push_back(bp2.password);
+        run_cmdS.push_back("-k");
+        run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
+        run_cmdS.push_back("-u");
+        run_cmdS.push_back(bp2.username);
+        run_cmdS.push_back("-i");
+        run_cmdS.push_back(bp2.install_dir);
+        run_cmdS.push_back("-g");
+        run_cmdS.push_back(bp2.lang.locale_gen);
+        run_cmdS.push_back("-z");
+        run_cmdS.push_back(bp2.lang.timezone);
+        run_cmdS.push_back("-l");
+        run_cmdS.push_back(bp2.lang.name);
+        run_cmd_on_chroot(run_cmdS);
+        Vector<String> run_rmdir;
+        run_rmdir.push_back("rm");
+        run_rmdir.push_back("--");
+        run_rmdir.push_back(bp2.airootfs_dir + "/root/customize_airootfs_" + bp2.profile_name + ".sh");
+        FascodeUtil::custom_exec_v(run_rmdir);
+        _msg_info("Done! customize_airootfs_" + bp2.profile_name +  ".sh run successfully.");
     }
 }
 void _make_pkglist(){

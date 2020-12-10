@@ -52,6 +52,7 @@ int main(int argc,char* argv[]){
         return 0;
     }
     bp.profile=realpath("./channels/" + cmd_ls.at(0));
+    bp.profile_name=cmd_ls.at(0);
     if(cmd_ls.at(0) == "releng"){
         bp.isreleng=true;
     }
