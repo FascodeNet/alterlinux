@@ -11,3 +11,6 @@
 
 #-- Compiz --#
 compiz
+
+#-- plugin --#
+xfce4-calculator-plugin

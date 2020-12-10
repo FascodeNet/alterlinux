@@ -38,7 +38,6 @@ alterlinux-xfce-conf
 #-- xfce4 plugins --#
 thunar-archive-plugin
 thunar-media-tags-plugin
-xfce4-calculator-plugin
 xfce4-clipman-plugin
 xfce4-pulseaudio-plugin
 xfce4-whiskermenu-plugin
