@@ -263,7 +263,7 @@ void force_umount(){
     _msg_info("Unmount work dir..");
     Vector<String> umount_vector;
     umount_vector.push_back("umount");
-    umount_vector.push_back("-d");
+    umount_vector.push_back("-fld");
     umount_vector.push_back("--");
     umount_vector.push_back(realpath(bp2.airootfs_dir));
     FascodeUtil::custom_exec_v(umount_vector);    
