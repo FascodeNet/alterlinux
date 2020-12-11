@@ -195,6 +195,9 @@ _usage () {
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
+    echo
+    echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
+    echo
     if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
 
