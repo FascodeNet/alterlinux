@@ -47,7 +47,3 @@ alterlinux-welcome-page
 #-- text editor --#
 nano
 vim
-
-
-#-- other --#
-tlpui
