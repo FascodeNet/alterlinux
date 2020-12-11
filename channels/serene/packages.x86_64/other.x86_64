@@ -30,10 +30,6 @@ man-db
 man-pages
 
 
-#-- game pad --#
-jstest-gtk-git
-
-
 #-- system monitor --#
 gnome-system-monitor
 htop
