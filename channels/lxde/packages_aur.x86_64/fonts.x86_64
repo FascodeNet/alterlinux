@@ -11,7 +11,5 @@
 
 
 # font
-#adobe-source-code-pro-fonts
-noto-fonts
-noto-fonts-cjk
-noto-fonts-emoji
+
+nerd-fonts-source-code-pro
