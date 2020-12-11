@@ -24,9 +24,6 @@ gnome-packagekit
 # office
 libreoffice-still
 
-# editor
-medit
-
 # audio
 pavucontrol
 pulseaudio

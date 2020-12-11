@@ -54,7 +54,6 @@ alterlinux-welcome-page
 
 
 #-- text editor --#
-medit
 nano
 vim
 
