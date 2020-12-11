@@ -11,3 +11,8 @@
 #-- system monitor --#
 cpu-x
 snapd
+
+#-- other --#
+ipad_charge
+tlpui
+
