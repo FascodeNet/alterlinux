@@ -374,7 +374,7 @@ void trap_handler(int signo){
     }
 }
 void _make_aur_packages(){
-    _msg_info("Installinh aur packages...");
+    _msg_info("Installing aur packages...");
     Vector<String> cp_pacman_conf_args;
     cp_pacman_conf_args.push_back("cp");
     cp_pacman_conf_args.push_back("-f");
