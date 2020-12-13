@@ -1,0 +1,7 @@
+{
+    "name":"linux-lts",
+    "package":"linux-lts",
+    "vmlinuz_name":"vmlinuz-linux-lts",
+    "description":"lts kernel",
+    "initramfs_name":"initramfs-linux-lts.img"
+}

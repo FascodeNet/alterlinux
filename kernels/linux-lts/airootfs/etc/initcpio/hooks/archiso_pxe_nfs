@@ -1,0 +1,44 @@
+#!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+run_hook() {
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
+    if [ -n "${ip}" ] && [ -n "${archiso_nfs_srv}" ]; then
+
+        archiso_nfs_srv=$(eval echo "${archiso_nfs_srv}")
+
+        export mount_handler="archiso_nfs_mount_handler"
+    fi
+}
+
+archiso_nfs_mount_handler() {
+    local mount_status
+    newroot="${1}"
+    mkdir -p "/run/archiso/bootmnt"
+    msg ":: Mounting '${archiso_nfs_srv}'"
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
+    if [ -n "${archiso_nfs_opt}" ]; then
+        nfsmount -o "${archiso_nfs_opt}" "${archiso_nfs_srv}" "/run/archiso/bootmnt"
+        mount_status=$?
+    else
+        nfsmount "${archiso_nfs_srv}" "/run/archiso/bootmnt"
+        mount_status=$?
+    fi
+    if [ $mount_status -gt 0 ]; then
+        echo "ERROR: Mounting '${archiso_nfs_srv}'"
+        echo "   Falling back to interactive prompt"
+        echo "   You can try to fix the problem manually, log out when you are finished"
+        launch_interactive_shell
+    fi
+
+    if [ "${copytoram}" != "n" ]; then
+        copytoram="y"
+    fi
+
+    archiso_mount_handler "${newroot}"
+}
+
+# vim: set ft=sh:
