@@ -190,6 +190,7 @@ _usage () {
     echo "         --nocolor               No output colored output"
     echo "         --noconfirm             No check the settings before building"
     echo "         --nochkver              No check the version of the channel"
+    echo "         --nodebug               No debug message"
     echo "         --noefi                 No efi boot"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
@@ -1140,7 +1141,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1270,6 +1271,12 @@ while :; do
             ;;
         --nochkver)
             nochkver=true
+            shift 1
+            ;;
+        --nodebug)
+            debug=false
+            msgdebug=false
+            bash_debug=false
             shift 1
             ;;
         --noefi)
