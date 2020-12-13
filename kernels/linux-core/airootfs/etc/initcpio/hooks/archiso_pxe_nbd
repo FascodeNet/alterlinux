@@ -1,0 +1,53 @@
+#!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+run_earlyhook() {
+    # shellcheck disable=SC2154
+    # defined via initcpio's parse_cmdline()
+    if [ -n "${ip}" ] && [ -n "${archiso_nbd_srv}" ]; then
+        # Module autoloading like with loop devices does not work, doing manually...
+        modprobe nbd 2> /dev/null
+    fi
+}
+
+run_hook() {
+    if [ -n "${ip}" ] && [ -n "${archiso_nbd_srv}" ]; then
+
+        archiso_nbd_srv=$(eval echo "${archiso_nbd_srv}")
+        [ -z "${archiso_nbd_name}" ] && archiso_nbd_name="archiso"
+
+        export mount_handler="archiso_pxe_nbd_mount_handler"
+    fi
+}
+
+archiso_pxe_nbd_mount_handler () {
+    newroot="${1}"
+
+    msg ":: Waiting for boot device..."
+    while ! poll_device /dev/nbd0 30; do
+        echo "ERROR: boot device didn't show up after 30 seconds..."
+        echo "   Falling back to interactive prompt"
+        echo "   You can try to fix the problem manually, log out when you are finished"
+        launch_interactive_shell
+    done
+
+    msg ":: Setup NBD from ${archiso_nbd_srv} at /dev/nbd0"
+    if [ "${copytoram}" != "n" ]; then
+        nbd-client "${archiso_nbd_srv}" -N "${archiso_nbd_name}" /dev/nbd0
+        copytoram="y"
+    else
+        nbd-client "${archiso_nbd_srv}" -N "${archiso_nbd_name}" -systemd-mark -persist /dev/nbd0
+    fi
+
+    export archisodevice=/dev/nbd0
+
+    archiso_mount_handler "${newroot}"
+
+    if [ "${copytoram}" = "y" ]; then
+        msg ":: Disconnect NBD from ${archiso_nbd_srv} at /dev/nbd0"
+        nbd-client -d /dev/nbd0
+    fi
+}
+
+# vim: set ft=sh:

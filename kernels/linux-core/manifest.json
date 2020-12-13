@@ -1,0 +1,7 @@
+{
+    "name":"linux-core",
+    "package":"linux",
+    "vmlinuz_name":"vmlinuz-linux",
+    "description":"normal kernel",
+    "initramfs_name":"initramfs-linux.img"
+}
