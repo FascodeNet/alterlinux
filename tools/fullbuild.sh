@@ -132,7 +132,7 @@ _help() {
     echo
     echo "Run \"build.sh -h\" for channel details."
     echo -n " Channel: "
-    "${script_path}/build.sh" --channellist
+    "${script_path}/tools/channel.sh" show
 }
 
 
