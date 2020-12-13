@@ -4,11 +4,11 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 channnels=(
     "xfce"
-    "xfce-pro"
+#   "xfce-pro"
     "lxde"
     "cinnamon"
     "i3"
-    "gnome"
+#   "gnome"
 )
 
 architectures=(
