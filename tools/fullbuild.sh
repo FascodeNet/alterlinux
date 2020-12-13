@@ -168,7 +168,7 @@ if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
         msg_error "Do not specify the channel." "1"
     else
-        channnels=($("${script_path}/build.sh" --channellist))
+        channnels=($("${script_path}/tools/channel.sh" -b show))
     fi
 elif [[ -n "${*}" ]]; then
     channnels=(${@})
