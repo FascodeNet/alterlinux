@@ -15,8 +15,10 @@
 #include <unistd.h>
 #include <openssl/sha.h>
 #include <algorithm>
-#define String std::string
-#define Vector std::vector
+#include "kernel_tool.hpp"
+typedef std::string String;
+template <typename T>
+using Vector=std::vector<T>;
 
 void _msg_error(String);
 void _msg_info(String);
