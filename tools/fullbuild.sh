@@ -106,7 +106,10 @@ build() {
             fi
         fi
     fi
-    sudo pacman -Sccc --noconfirm > /dev/null 2>&1
+
+    if [[ "${simulation}" = false ]]; then
+        sudo pacman -Sccc --noconfirm > /dev/null 2>&1
+    fi
 }
 
 _help() {
@@ -187,6 +190,11 @@ trap 'trap_exit' 1 2 3 15
 
 if [[ ! -d "${work_dir}" ]]; then
     mkdir -p "${work_dir}"
+fi
+
+if [[ "${simulation}" = false ]]; then
+    msg_info "Update the package database."
+    sudo pacman -Syy
 fi
 
 for cha in ${channnels[@]}; do
