@@ -8,6 +8,9 @@
 #
 set -e -u
 
+aur_username="aurbuild"
+
+
 # Delete file only if file exists
 # remove <file1> <file2> ...
 function remove () {
@@ -37,13 +40,13 @@ function user_check () {
 }
 
 # Creating a aur user.
-if [[ $(user_check aurbuild) = false ]]; then
-    useradd -m -d "/aurbuild_temp" aurbuild
+if [[ $(user_check ${aur_username}) = false ]]; then
+    useradd -m -d "/aurbuild_temp" "${aur_username}"
 fi
 mkdir -p "/aurbuild_temp"
 chmod 700 -R "/aurbuild_temp"
-chown aurbuild:aurbuild -R "/aurbuild_temp"
-echo "aurbuild ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
+chown ${aur_username}:${aur_username} -R "/aurbuild_temp"
+echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Setup keyring
 pacman-key --init
