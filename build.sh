@@ -985,9 +985,9 @@ make_efiboot() {
 
     # PreLoader.efiがefitoolsのi686版に存在しません。この行を有効化するとi686ビルドに失敗します
     # PreLoader.efiの役割がわかりません誰かたすけてください（archiso v43で使用されていた）
-    #cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
+    #cp "${airootfs_dir}/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
 
-    cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
+    cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${work_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
@@ -1080,9 +1080,7 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}"
     fi
-    if [[ "${noaur}" != true ]]; then 
-        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
-    fi
+
     # iso version info
     if [[ "${include_info}" = true ]]; then
         local _write_info_file _info_file="${isofs_dir}/alteriso-info"
@@ -1128,10 +1126,6 @@ make_overisofs() {
 
 # Build ISO
 make_iso() {
-
-    if [[ "${noaur}" == false ]]; then
-        umount -fl "${work_dir}/${arch}/airootfs"
-    fi
     remove "${work_dir}/airootfs"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
     msg_info "The password for the live user and root is ${password}."
