@@ -42,7 +42,7 @@ if [[ -f "/etc/systemd/journald.conf" ]]; then
     sed -i 's/Storage=volatile/#Storage=volatile/g' "/etc/systemd/journald.conf"
 fi
 
-remove /etc/udev/rules.d/81-dhcpcd.rules
+
 remove /etc/systemd/system/{choose-mirror.service,etc-pacman.d-gnupg.mount,getty@tty1.service.d}
 
 # Disabled auto login
