@@ -290,7 +290,8 @@ _systemd_service(){
     local _command="${1}"
     shift 1
     for _service in "${@}"; do
-        if [[ -f "$(systemctl cat "${_service}" 2> "/dev/null" | head -n 1 | tail | sed 's|# ||g')" ]]; then
+        #if [[ -f "$(systemctl cat "${_service}" 2> "/dev/null" | head -n 1 | tail | sed 's|# ||g')" ]]; then
+        if systemctl cat "${_service}" 1>&2 2>/dev/null; then
             systemctl ${_command} "${_service}"
         fi
     done
