@@ -282,20 +282,34 @@ sed -i -r  "s/(GRUB_DISTRIBUTOR=).*/\1\"${grub_os_name}\"/g" "/etc/default/grub"
 run_additional_command "gtk-update-icon-cache" "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 
 
+# systemctl helper
+# Execute the subcommand only when the specified unit is available.
+# Usage: _systemd_service <systemctl subcommand> <service1> <service2> ...
+_systemd_service(){
+    local _service
+    local _command="${1}"
+    shift 1
+    for _service in "${@}"; do
+        if [[ -f "$(systemctl cat "${_service}" 2> "/dev/null" | head -n 1 | tail | sed 's|# ||g')" ]]; then
+            systemctl ${_command} "${_service}"
+        fi
+    done
+}
+
 # Enable graphical.
-systemctl set-default graphical.target
+_systemd_service set-default graphical.target
 
 
 # Enable services.
-systemctl enable pacman-init.service
-systemctl enable org.cups.cupsd.service
-systemctl enable NetworkManager.service
-systemctl enable alteriso-reflector.service
-systemctl disable reflector.service
+_systemd_service enable pacman-init.service
+_systemd_service enable cups.service
+_systemd_service enable NetworkManager.service
+_systemd_service enable alteriso-reflector.service
+_systemd_service disable reflector.service
 
 
 # TLP
 # See ArchWiki for details.
-systemctl enable tlp.service
-systemctl mask systemd-rfkill.service
-systemctl mask systemd-rfkill.socket
+_systemd_service enable tlp.service
+_systemd_service mask systemd-rfkill.service
+_systemd_service mask systemd-rfkill.socket
