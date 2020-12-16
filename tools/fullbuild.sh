@@ -120,7 +120,7 @@ _help() {
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion"
-    echo "    -h                 This help message"
+    echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
     echo "    -m <architecture>  Set the architecture to build"
     echo "    -r <interer>       Set the number of retries"
@@ -142,29 +142,75 @@ _help() {
 share_options="--noconfirm"
 default_options="--boot-splash --cleanup --user alter --password alter"
 
-while getopts 'a:dghr:sctm:l:' arg; do
-    case "${arg}" in
-        a) share_options="${share_options} ${OPTARG}" ;;
-        c) all_channel=true ;;
-        d) share_options="${share_options} ${default_options}" ;;
-        m) architectures=(${OPTARG}) ;;
-        g)
+
+# Parse options
+ARGUMENT="${@}"
+_opt_short="a:dghr:sctm:l:"
+_opt_long="help"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+[[ ${?} != 0 ]] && exit 1
+
+eval set -- "${OPT}"
+unset OPT _opt_short _opt_long
+
+while true; do
+    case ${1} in
+        -a)
+            share_options="${share_options} ${2}"
+            shift 2
+            ;;
+        -c)
+            all_channel=true
+            shift 1
+            ;;
+        -d)
+            share_options="${share_options} ${default_options}"
+            shift 1
+            ;;
+        -m)
+            architectures=(${2})
+            shift 2
+            ;;
+        -g)
             if [[ ! -d "${script_path}/.git" ]]; then
                 msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
             else
                 share_options="${share_options} --gitversion"
             fi
+            shift 1
             ;;
-        s) simulation=true;;
-        r) retry="${OPTARG}" ;;
-        t) share_options="${share_options} --tarball" ;;
-        l) locale_list=(${OPTARG});;
-        h) _help ; exit 0 ;;
-        *) _help ; exit 1 ;;
+        -s)
+            simulation=true
+            shift 1
+            ;;
+        -r)
+            retry="${2}"
+            shift 2
+            ;;
+        -t)
+            share_options="${share_options} --tarball"
+            ;;
+        -l)
+            locale_list=(${2})
+            shift 2
+            ;;
+        -h | --help)
+            shift 1
+            _help
+            exit 0
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            shift 1
+            _help
+            exit 1 
+            ;;
     esac
 done
-shift $((OPTIND - 1))
 
 
 if [[ "${all_channel}" = true  ]]; then
