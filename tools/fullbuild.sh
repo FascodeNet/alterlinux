@@ -149,7 +149,7 @@ default_options="--boot-splash --cleanup --user alter --password alter"
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:dghr:sctm:l:"
-_opt_long="help.remove-cache"
+_opt_long="help,remove-cache"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
