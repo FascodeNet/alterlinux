@@ -25,6 +25,7 @@ work_dir="${script_path}/temp"
 simulation=false
 retry=5
 
+remove_cache=false
 all_channel=false
 
 # Show an INFO message
@@ -91,6 +92,10 @@ build() {
 
     options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
 
+    if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
+        sudo pacman -Sccc --noconfirm
+    fi
+
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
@@ -105,10 +110,6 @@ build() {
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
         fi
-    fi
-
-    if [[ "${simulation}" = false ]]; then
-        sudo pacman -Sccc --noconfirm > /dev/null 2>&1
     fi
 }
 
@@ -128,6 +129,8 @@ _help() {
     echo "    -s                 Enable simulation mode"
     echo "    -t                 Build the tarball as well"
     echo
+    echo "    --remove-cache     Clear cache for all packages on every build"
+    echo
     echo " !! WARNING !!"
     echo " Do not set channel or architecture with -a."
     echo " Be sure to enclose the build.sh argument with '' to avoid mixing it with the fullbuild.sh argument."
@@ -146,7 +149,7 @@ default_options="--boot-splash --cleanup --user alter --password alter"
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:dghr:sctm:l:"
-_opt_long="help"
+_opt_long="help.remove-cache"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -199,6 +202,10 @@ while true; do
             shift 1
             _help
             exit 0
+            ;;
+        --remove-cache)
+            remove_cache=true
+            shift 1
             ;;
         --)
             shift 1
