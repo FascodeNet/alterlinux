@@ -195,6 +195,7 @@ _usage () {
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
+    echo "         --pacman-debug          Enable pacman debug mode"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
@@ -624,6 +625,7 @@ prepare_build() {
     check_bool nocolor
     check_bool msgdebug
     check_bool noefi
+    check_bool pacman_debug
 
     # Check architecture for each channel
     if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -1135,7 +1137,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,pacman-debug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1283,8 +1285,12 @@ while :; do
             ;;
         --config)
             source "${2}"
-             shift 2
-             ;;
+            shift 2
+            ;;
+        --pacman-debug)
+            pacman_debug=true
+            shift 1
+            ;;
         --)
             shift
             break
