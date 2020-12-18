@@ -22,7 +22,6 @@ man-pages
 
 #-- system monitor --#
 ksysguard
-cpu-x
 
 
 #-- scripts --#
@@ -39,6 +38,4 @@ vim
 
 #-- other --#
 htop
-ipad_charge
-snapd
 packagekit-qt5

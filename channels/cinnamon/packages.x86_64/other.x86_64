@@ -30,19 +30,9 @@ man-db
 man-pages
 
 
-#-- game pad --#
-jstest-gtk-git
-
-
 #-- system monitor --#
-cpu-x
 gnome-system-monitor
 htop
-
-
-#-- pacman --#
-archlinux-appstream-data-pamac
-pamac-aur
 
 
 #-- printer --#
@@ -55,7 +45,6 @@ alterlinux-welcome-page
 
 
 #-- text editor --#
-medit
 nano
 vim
 
@@ -63,7 +52,4 @@ vim
 #-- other --#
 # etcher-bin
 dconf-editor
-ipad_charge
 libreoffice-still
-snapd
-tlpui

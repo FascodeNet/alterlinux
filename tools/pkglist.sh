@@ -163,8 +163,11 @@ done
 #-- Read exclude list --#
 # Exclude packages from the share exclusion list
 _excludefile=(
-    "${share_dir}/${pkgdir_name}.${arch}/exclude"
-    "${channel_dir}/${pkgdir_name}.${arch}/exclude"
+    "${share_dir}/packages.${arch}/exclude"
+    "${share_dir}/packages_aur.${arch}/exclude"
+
+    "${channel_dir}/packages.${arch}/exclude"
+    "${channel_dir}/packages_aur.${arch}/exclude"
 )
 
 for _file in ${_excludefile[@]}; do
