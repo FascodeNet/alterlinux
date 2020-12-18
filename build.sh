@@ -190,11 +190,15 @@ _usage () {
     echo "         --nocolor               No output colored output"
     echo "         --noconfirm             No check the settings before building"
     echo "         --nochkver              No check the version of the channel"
+    echo "         --nodebug               No debug message"
     echo "         --noefi                 No efi boot"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --shmkalteriso          Use the shell script version of mkalteriso"
+    echo
+    echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
+    echo
     if [[ -n "${1:-}" ]]; then exit "${1}"; fi
 }
 
@@ -240,6 +244,7 @@ umount_chroot_advance() {
 
 # Helper function to run make_*() only one time.
 run_once() {
+    set -eu
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
         msg_debug "Running $1 ..."
         "$1"
@@ -315,25 +320,29 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _ver
+        local _check_failed=false _pkg _result
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            _ver="$(pacman -Sp --print-format '%v' ${_pkg} 2> /dev/null; :)"
-            case "$("${script_path}/tools/package.sh" -s "${_pkg}")" in
+            _result=( $("${script_path}/tools/package.py" -s "${_pkg}") )
+            case "${_result[0]}" in
                 "latest")
-                    [[ ${debug} = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
+                    [[ ${debug} = true ]] && echo -ne " ${_result[1]}\n"
                     ;;
                 "noversion")
                     echo; msg_warn "Failed to get the latest version of ${_pkg}."
                     ;;
-                "old")
-                    [[ "${debug}" = true ]] && echo -ne " $(pacman -Q ${_pkg} | getclm 2)\n"
-                    msg_warn "${_pkg} is not the latest package.\nLocal: $(pacman -Q ${_pkg} 2> /dev/null | getclm 2) Latest: ${_ver}"
+                "nomatch")
+                    [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
+                    msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_result[1]} Latest: ${_result[2]}"
                     ;;
                 "failed")
                     [[ "${debug}" = true ]] && echo
                     msg_error "${_pkg} is not installed." ; _check_failed=true
+                    ;;
+                "error")
+                    [[ "${debug}" = true ]] && echo
+                    msg_error "pyalpm is not installed." ; exit 1
                     ;;
             esac
         done
@@ -699,7 +708,8 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
+    #cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
+    sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
@@ -720,9 +730,11 @@ make_customize_airootfs() {
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
-        cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+        cp -f "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+    else
+        cp -f "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     fi
-
+    
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
@@ -938,7 +950,11 @@ make_efi() {
     local _efi_shell _efi_shell_arch
     for _efi_shell in "${work_dir}"/${arch}/airootfs/usr/share/edk2-shell/*; do
         _efi_shell_arch="$(basename ${_efi_shell})"
-        cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+        if [[ "${_efi_shell_arch}" == 'aarch64' ]]; then
+            cp "${_efi_shell}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+        else
+            cp "${_efi_shell}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+        fi
         cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
 title  UEFI Shell ${_efi_shell_arch}
 efi    /EFI/shell_${_efi_shell_arch}.efi
@@ -969,9 +985,9 @@ make_efiboot() {
 
     # PreLoader.efiがefitoolsのi686版に存在しません。この行を有効化するとi686ビルドに失敗します
     # PreLoader.efiの役割がわかりません誰かたすけてください（archiso v43で使用されていた）
-    #cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
+    #cp "${airootfs_dir}/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
 
-    cp "${work_dir}/${arch}/airootfs/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
+    cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${work_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
@@ -1064,9 +1080,7 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}"
     fi
-    if [[ "${noaur}" != true ]]; then 
-        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
-    fi
+
     # iso version info
     if [[ "${include_info}" = true ]]; then
         local _write_info_file _info_file="${isofs_dir}/alteriso-info"
@@ -1112,10 +1126,6 @@ make_overisofs() {
 
 # Build ISO
 make_iso() {
-
-    if [[ "${noaur}" == false ]]; then
-        umount -fl "${work_dir}/${arch}/airootfs"
-    fi
     remove "${work_dir}/airootfs"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
     msg_info "The password for the live user and root is ${password}."
@@ -1125,7 +1135,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi"
+_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1255,6 +1265,12 @@ while :; do
             ;;
         --nochkver)
             nochkver=true
+            shift 1
+            ;;
+        --nodebug)
+            debug=false
+            msgdebug=false
+            bash_debug=false
             shift 1
             ;;
         --noefi)

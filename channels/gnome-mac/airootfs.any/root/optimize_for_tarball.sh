@@ -40,7 +40,7 @@ remove /etc/initcpio
 remove /etc/systemd/journald.conf.d/volatile-storage.conf
 remove /airootfs.any/etc/systemd/logind.conf.d/do-not-suspend.conf
 
-remove /etc/udev/rules.d/81-dhcpcd.rules
+
 remove /etc/systemd/system/{choose-mirror.service,getty@tty1.service.d}
 remove /boot/archiso.img
 

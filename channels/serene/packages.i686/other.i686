@@ -30,10 +30,6 @@ man-db
 man-pages
 
 
-#-- game pad --#
-jstest-gtk-git
-
-
 #-- system monitor --#
 gnome-system-monitor
 htop
@@ -54,13 +50,9 @@ alterlinux-welcome-page
 
 
 #-- text editor --#
-medit
 nano
 vim
 
 
 #-- other --#
-# etcher-bin
-ipad_charge
 libreoffice-still
-tlpui

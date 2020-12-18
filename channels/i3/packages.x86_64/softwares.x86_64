@@ -18,15 +18,8 @@ thunderbird
 thunar
 file-roller
 
-# software manager
-archlinux-appstream-data-pamac
-pamac-aur
-
 # office
 libreoffice-still
-
-# editor
-medit
 
 # audio
 pavucontrol
@@ -45,7 +38,6 @@ xfce4-screenshooter
 # system
 gparted
 grub-customizer
-cpu-x
 
 # for sysmenu
 arandr
