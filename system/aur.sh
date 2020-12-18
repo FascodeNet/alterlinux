@@ -39,6 +39,35 @@ function user_check () {
     fi
 }
 
+_help() {
+    echo "usage ${0} [option] [packages]"
+    echo
+    echo "Run yay in airootfs" 
+    echo
+    echo " General options:"
+    echo "    -d                       Enable pacman debug"
+    echo "    -h                       This help message"
+}
+
+while getopts "dh" arg; do
+    case ${arg} in
+        d)
+            pacman_debug=true
+            ;;
+        h)
+            _help
+            exit 0
+            ;;
+        *)
+            _help
+            exit 1
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+
 # Creating a aur user.
 if [[ $(user_check ${aur_username}) = false ]]; then
     useradd -m -d "/aurbuild_temp" "${aur_username}"
@@ -67,9 +96,13 @@ yes | sudo -u aurbuild \
         --noupgrademenu \
         --noprovides \
         --removemake \
+        $( 
+            if [[ "${pacman_debug}" = true ]]; then
+                echo -n "--debug"
+            fi
+        ) \
         --config "/etc/alteriso-pacman.conf" \
         ${*}
-
 
 # remove user and file
 userdel aurbuild
