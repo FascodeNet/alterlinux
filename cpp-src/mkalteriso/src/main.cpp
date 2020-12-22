@@ -9,9 +9,8 @@ int main(int argc,char* argv[]){
         return -810;
     }
     umask(S_IWGRP | S_IWOTH );
-    /*get_kernel_list("kernels");
-    return 0;
-    */
+    std::vector<kernel_opt> kernel_lists;
+    kernel_lists=get_kernel_list("kernels");
     cmdline::parser p;
     p.add<String>("application",'A',"Set an application name for the ISO",false,bp.app_name);
     p.add<String>("pacman_config",'C',"pacman configuration file.",false,bp.pacman_conf);
@@ -27,9 +26,15 @@ int main(int argc,char* argv[]){
     p.add("nodepends",0,"No depends check");
     p.add<String>("work",'w',"Set the working directory",false,bp.work_dir);
     p.add<String>("lang",'l',"Set Language",false,"en");
+    p.add<String>("kernel",'k',"Set kernel",false,"linux-core");
     p.add<String>("run_cmd",'r',"run command");
     if (!p.parse(argc, argv)||p.exist("help")){
         std::cout<<p.error_full()<<p.usage();
+        _msg_info("kernel list");
+        for(kernel_opt kopt:kernel_lists){
+            _msg_info("\t" + kopt.kernel_name);
+            _msg_info("\t\t\t desc : " + kopt.description);
+        }
         return 0;
     }
     bp.app_name=p.get<String>("application");
