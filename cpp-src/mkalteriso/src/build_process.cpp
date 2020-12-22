@@ -357,11 +357,6 @@ void _install_kernel(){
     cp_airootfs.push_back(bp2.kernel_dir + "/" + bp2.current_kernel.kernel_name + "/airootfs/.");
     cp_airootfs.push_back(bp2.airootfs_dir);
     FascodeUtil::custom_exec_v(cp_airootfs);
-    Vector<String> mkinitcpiokun;
-    mkinitcpiokun.push_back("mkinitcpio");
-    mkinitcpiokun.push_back("-p");
-    mkinitcpiokun.push_back(bp2.current_kernel.preset_name);
-    run_cmd_on_chroot(mkinitcpiokun);
 
 }
 void _make_packages(){
@@ -563,6 +558,11 @@ void _make_pkglist(){
     _msg_info("Done!");
 }
 void _make_boot(){
+    Vector<String> mkinitcpiokun;
+    mkinitcpiokun.push_back("mkinitcpio");
+    mkinitcpiokun.push_back("-p");
+    mkinitcpiokun.push_back(bp2.current_kernel.preset_name);
+    run_cmd_on_chroot(mkinitcpiokun);
     _make_boot_on_iso();
     _make_boot_efi();
 }
