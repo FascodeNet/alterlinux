@@ -3,5 +3,6 @@
     "package":"linux",
     "vmlinuz_name":"vmlinuz-linux",
     "description":"normal kernel",
-    "initramfs_name":"initramfs-linux.img"
+    "initramfs_name":"initramfs-linux.img",
+    "preset_name":"linux"
 }

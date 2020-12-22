@@ -338,7 +338,38 @@ void _make_and_mount_airootfs_folder(){
 int truncate_str(String pathkun,off_t lenghtkun){
     return truncate(pathkun.c_str(),lenghtkun);
 }
+void _install_kernel(){
+    String kernel_package=bp2.current_kernel.package_name;
+    Vector<String> pkgs;
+    pkgs.push_back(kernel_package);
+    _pacman(pkgs);
+    Vector<String> cp_args_archiso;
+    cp_args_archiso.push_back("cp");
+    cp_args_archiso.push_back("-f");
+    cp_args_archiso.push_back(bp2.kernel_dir + "/" + bp2.current_kernel.kernel_name + "/mkinitcpio-archiso.conf");
+    cp_args_archiso.push_back(bp2.airootfs_dir + "/etc/mkinitcpio.conf");
+    FascodeUtil::custom_exec_v(cp_args_archiso);
+    Vector<String> cp_airootfs;
+    cp_airootfs.push_back("cp");
+    cp_airootfs.push_back("-af");
+    cp_airootfs.push_back("--no-preserve=ownership");
+    cp_airootfs.push_back("--");
+    cp_airootfs.push_back(bp2.kernel_dir + "/" + bp2.current_kernel.kernel_name + "/airootfs/.");
+    cp_airootfs.push_back(bp2.airootfs_dir);
+    FascodeUtil::custom_exec_v(cp_airootfs);
+    Vector<String> mkinitcpiokun;
+    mkinitcpiokun.push_back("mkinitcpio");
+    mkinitcpiokun.push_back("-p");
+    mkinitcpiokun.push_back(bp2.current_kernel.preset_name);
+    run_cmd_on_chroot(mkinitcpiokun);
+
+}
 void _make_packages(){
+    Vector<String> base_packages;
+    base_packages.push_back("base");
+    base_packages.push_back("base-devel");
+    _pacman(base_packages);
+    _install_kernel();
     _pacman(bp2.packages_vector);
 }
 void _pacman(Vector<String> packages){
@@ -467,7 +498,8 @@ void _make_customize_airootfs(){
         run_cmdS.push_back("-p");
         run_cmdS.push_back(bp2.password);
         run_cmdS.push_back("-k");
-        run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
+        //run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
+        run_cmdS.push_back("\"" + bp2.current_kernel.kernel_name + "\" \"" + bp2.current_kernel.vmlinuz_name + "\" \"" + bp2.current_kernel.package_name + "\"");
         run_cmdS.push_back("-u");
         run_cmdS.push_back(bp2.username);
         run_cmdS.push_back("-i");
@@ -493,7 +525,7 @@ void _make_customize_airootfs(){
         run_cmdS.push_back("-p");
         run_cmdS.push_back(bp2.password);
         run_cmdS.push_back("-k");
-        run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
+        run_cmdS.push_back("\"" + bp2.current_kernel.kernel_name + "\" \"" + bp2.current_kernel.vmlinuz_name + "\" \"" + bp2.current_kernel.package_name + "\"");
         run_cmdS.push_back("-u");
         run_cmdS.push_back(bp2.username);
         run_cmdS.push_back("-i");
@@ -578,7 +610,20 @@ void _make_efi(){
         std::ofstream ofs(buf_path);
         std::string buf;
         while (getline(ifs, buf)) {
-            String dest_str=replace(replace(replace(buf,"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
+            String dest_str=replace(replace(replace(replace(replace(buf,"%VM_LINUZ%",bp2.current_kernel.vmlinuz_name),"%INITRAMFS%",bp2.current_kernel.initramfs_name),"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
+            ofs << dest_str << "\n";
+        }
+        ifs.close();
+        ofs.close();
+    }
+
+    for(const std::filesystem::directory_entry &i:std::filesystem::directory_iterator(bp2.profile + "/efiboot/loader/entries/")){
+        std::ifstream ifs(i.path().string());
+        String buf_path= bp2.isofs_dir + "/loader/entries/" + i.path().filename().string();
+        std::ofstream ofs(buf_path);
+        std::string buf;
+        while (getline(ifs, buf)) {
+            String dest_str=replace(replace(replace(replace(replace(buf,"%INITRAMFS%",bp2.current_kernel.initramfs_name),"%VM_LINUZ%",bp2.current_kernel.vmlinuz_name),"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
             ofs << dest_str << "\n";
         }
         ifs.close();
@@ -684,13 +729,21 @@ void _make_boot_on_fat(){
     mmd_args.push_back("::/" + bp2.install_dir);
     mmd_args.push_back("::/" + bp2.install_dir + "/boot");
     mmd_args.push_back("::/" + bp2.install_dir + "/boot/" + bp2.arch);
-    FascodeUtil::custom_exec_v(mmd_args);
+    FascodeUtil::custom_exec_v(mmd_args);/*
     Vector<String> mcopy_bash;
     mcopy_bash.push_back("bash");
     mcopy_bash.push_back("-c");
     mcopy_bash.push_back("mcopy -i \"" + img_path + "\" \"" + bp2.airootfs_dir + "/boot/vmlinuz-\"* \"" + bp2.airootfs_dir + 
     "/boot/initramfs-\"*\".img\" \"::/" + bp2.install_dir + "/boot/" + bp2.arch + "/\"");
-    FascodeUtil::custom_exec_v(mcopy_bash);
+    FascodeUtil::custom_exec_v(mcopy_bash);*/
+    Vector<String> mcopy_linuz;
+    mcopy_linuz.push_back("mcopy");
+    mcopy_linuz.push_back("-i");
+    mcopy_linuz.push_back(img_path);
+    mcopy_linuz.push_back(bp2.airootfs_dir + "/boot/" + bp2.current_kernel.vmlinuz_name);
+    mcopy_linuz.push_back(bp2.airootfs_dir + "/boot/" + bp2.current_kernel.initramfs_name);
+    mcopy_linuz.push_back("::/" + bp2.install_dir + "/boot/" + bp2.arch + "/");
+    FascodeUtil::custom_exec_v(mcopy_linuz);
     Vector<String> all_ucode_images;
     Vector<String> ucode_imageskun={"intel-uc.img","intel-ucode.img","amd-uc.img","amd-ucode.img","early_ucode.cpio","microcode.cpio"};
     for(String ucode_img : ucode_imageskun){

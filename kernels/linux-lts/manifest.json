@@ -3,5 +3,6 @@
     "package":"linux-lts",
     "vmlinuz_name":"vmlinuz-linux-lts",
     "description":"lts kernel",
-    "initramfs_name":"initramfs-linux-lts.img"
+    "initramfs_name":"initramfs-linux-lts.img",
+    "preset_name":"linux-lts"
 }

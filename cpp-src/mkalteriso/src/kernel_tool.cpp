@@ -31,6 +31,7 @@ std::vector<kernel_opt> get_kernel_list(std::string kernel_dir){
                 kernelkun.vmlinuz_name=json_obj["vmlinuz_name"].get<std::string>();
                 kernelkun.initramfs_name=json_obj["initramfs_name"].get<std::string>();
                 kernelkun.description=json_obj["description"].get<std::string>();
+                kernelkun.preset_name=json_obj["preset_name"].get<std::string>();
                 kernel_vect.push_back(kernelkun);
             }
         }

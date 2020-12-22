@@ -47,6 +47,22 @@ int main(int argc,char* argv[]){
     bp.aditional_packages=p.get<String>("packages");
     bp.work_dir=p.get<String>("work");
     bp.run_cmd=p.get<String>("run_cmd");
+    bool kernel_disable=true;
+    for(kernel_opt kern:kernel_lists){
+        if(p.get<String>("kernel") == kern.kernel_name){
+            bp.current_kernel=kern;
+            kernel_disable=false;
+        }
+    }
+    if(kernel_disable){
+        _msg_error(p.get<String>("kernel") + " is not found! ");
+        _msg_info("kernel list");
+        for(kernel_opt kopt:kernel_lists){
+            _msg_info("\t" + kopt.kernel_name);
+            _msg_info("\t\t\t desc : " + kopt.description);
+        }
+        return 106;
+    }
     String language_id=p.get<String>("lang");
     time_t timer;
     struct tm *date;
@@ -135,6 +151,7 @@ void parse_channel(){
     bp.bootmodes=json_obj["bootmodes"].get<Vector<String>>();
     bp.arch=json_obj["arch"].get<String>();
     bp.img_name=bp.app_name + ".iso";
+    bp.kernel_dir=realpath("kernels");
     char pathname[512];
     memset(pathname, '\0', 512); 
     getcwd(pathname,512);

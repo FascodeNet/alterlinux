@@ -64,6 +64,8 @@ struct build_option{
     String password="alter";
     String username="alter";
     lang_info lang;
+    kernel_opt current_kernel;
+    String kernel_dir;
 };
 
 void setup(build_option);
@@ -79,6 +81,7 @@ int truncate_str(String,off_t);
 void _make_packages();
 void _make_packages_aur();
 void _pacman(Vector<String>);
+void _install_kernel();
 Vector<String> split_passwd(String);
 void trap_handler(int signo);
 void nothing_handler(int);
