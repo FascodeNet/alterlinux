@@ -16,8 +16,6 @@
     <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
         <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-</p>
-<p align="center">
 	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
 		<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
 	</a>
@@ -30,8 +28,6 @@
 	<a href="https://github.com/FascodeNet/alterlinux/network/members">
 		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=flat-square">
 	</a>
-</p>
-<p align="center">
 	<a href="https://github.com/FascodeNet/alterlinux/releases">
 		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
 	</a>
