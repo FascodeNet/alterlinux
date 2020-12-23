@@ -111,7 +111,7 @@ void set_lang(String lang_id){
     lang_lists.push_back(gen_lang_list("ja","ja_JP.UTF-8","Asia/Tokyo","japanese"));
     for(lang_info lkun:lang_lists){
         if(lkun.name == lang_id){
-            bp.lang=lkun;
+            bp.lang=lang_info(lkun);
         }
     }
 }

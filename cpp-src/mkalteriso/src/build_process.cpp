@@ -98,6 +98,8 @@ void _show_config(){
     _msg_info("                     Lang:   " + bp2.lang.name);
     _msg_info("                localegen:   " + bp2.lang.locale_gen);
     _msg_info("                 timezone:   " + bp2.lang.timezone);
+    _msg_info("                 password:   " + bp2.password);
+    _msg_info("                 username:   " + bp2.username);
 
     _msg_info("               Boot modes:   ");
     for(String bootm:bp2.bootmodes){
@@ -494,7 +496,11 @@ void _make_customize_airootfs(){
         run_cmdS.push_back(bp2.password);
         run_cmdS.push_back("-k");
         //run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
-        run_cmdS.push_back("\"" + bp2.current_kernel.kernel_name + "\" \"" + bp2.current_kernel.vmlinuz_name + "\" \"" + bp2.current_kernel.package_name + "\"");
+        run_cmdS.push_back(bp2.current_kernel.kernel_name);
+        run_cmdS.push_back("-v");
+        run_cmdS.push_back(bp2.current_kernel.vmlinuz_name);
+        run_cmdS.push_back("-c");
+        run_cmdS.push_back(bp2.current_kernel.package_name);
         run_cmdS.push_back("-u");
         run_cmdS.push_back(bp2.username);
         run_cmdS.push_back("-i");
@@ -520,7 +526,12 @@ void _make_customize_airootfs(){
         run_cmdS.push_back("-p");
         run_cmdS.push_back(bp2.password);
         run_cmdS.push_back("-k");
-        run_cmdS.push_back("\"" + bp2.current_kernel.kernel_name + "\" \"" + bp2.current_kernel.vmlinuz_name + "\" \"" + bp2.current_kernel.package_name + "\"");
+        //run_cmdS.push_back("\"core\" \"vmlinuz-linux\" \"linux\"");
+        run_cmdS.push_back(bp2.current_kernel.kernel_name);
+        run_cmdS.push_back("-v");
+        run_cmdS.push_back(bp2.current_kernel.vmlinuz_name);
+        run_cmdS.push_back("-c");
+        run_cmdS.push_back(bp2.current_kernel.package_name);
         run_cmdS.push_back("-u");
         run_cmdS.push_back(bp2.username);
         run_cmdS.push_back("-i");

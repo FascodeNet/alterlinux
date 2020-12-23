@@ -14,7 +14,9 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
+kernel_name="zen" 
+vmlinuz_name="vmlinuz-linux-zen"
+kernel_pkg="linux-zen"
 theme_name=alter-logo
 rebuild=false
 username='alter'
@@ -28,12 +30,12 @@ language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
+while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:v:c:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
+        k) kernel_name="${OPTARG}" ;;
         r) rebuild=true ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
@@ -45,14 +47,16 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
         l) language="${OPTARG}" ;;
+        v) vmlinuz_name="${OPTARG}" ;;
+        c) kernel_pkg="${OPTARG}" ;;
     esac
 done
 
 
 # Parse kernel
-kernel="${kernel_config_line[0]}"
-kernel_filename="${kernel_config_line[1]}"
-kernel_mkinitcpio_profile="${kernel_config_line[2]}"
+kernel="${kernel_name}"
+kernel_filename="${vmlinuz_name}"
+kernel_mkinitcpio_profile="${kernel_pkg}"
 
 # Delete file only if file exists
 # remove <file1> <file2> ...
