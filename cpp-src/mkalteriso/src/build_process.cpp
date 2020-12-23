@@ -616,19 +616,6 @@ void _make_efi(){
         ifs.close();
         ofs.close();
     }
-
-    for(const std::filesystem::directory_entry &i:std::filesystem::directory_iterator(bp2.profile + "/efiboot/loader/entries/")){
-        std::ifstream ifs(i.path().string());
-        String buf_path= bp2.isofs_dir + "/loader/entries/" + i.path().filename().string();
-        std::ofstream ofs(buf_path);
-        std::string buf;
-        while (getline(ifs, buf)) {
-            String dest_str=replace(replace(replace(replace(replace(buf,"%INITRAMFS%",bp2.current_kernel.initramfs_name),"%VM_LINUZ%",bp2.current_kernel.vmlinuz_name),"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
-            ofs << dest_str << "\n";
-        }
-        ifs.close();
-        ofs.close();
-    }
     if(dir_exist(bp2.airootfs_dir + "/usr/share/edk2-shell/x64/Shell_Full.efi")){
         Vector<String> install_argskun;
         install_argskun.push_back("install");
@@ -693,7 +680,7 @@ void _make_boot_efi_esp(){
         std::ofstream ofs(buf_path);
         std::string buf;
         while (getline(ifs, buf)) {
-            String dest_str=replace(replace(replace(buf,"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
+            String dest_str=replace(replace(replace(replace(replace(buf,"%VM_LINUZ%",bp2.current_kernel.vmlinuz_name),"%INITRAMFS%",bp2.current_kernel.initramfs_name),"%ARCHISO_LABEL%",bp2.iso_label),"%INSTALL_DIR%",bp2.install_dir),"%ARCH%",bp2.arch);
             ofs << dest_str << "\n";
         }
         ifs.close();
