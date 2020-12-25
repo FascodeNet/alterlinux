@@ -16,27 +16,30 @@
     <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
         <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-		<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/issues">
-		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
-		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=flat-square&logo=github">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/network/members">
-		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=flat-square">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/releases">
-		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
-	</a>
-	<a href="https://fascode.net/en/projects/linux/alter/downloads/">
-		<img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=flat-square">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/commits/">
-		<img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
-	</a>
+    <a href="https://travis-ci.com/github/FascodeNet/alterlinux">
+        <img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/issues">
+        <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/stargazers">
+        <img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=flat-square&logo=github">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/network/members">
+        <img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/releases">
+        <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
+    </a>
+    <a href="https://fascode.net/en/projects/linux/alter/downloads/">
+        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/commits/">
+        <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/fascodeNet/alterlinux/">
+        <img src="https://img.shields.io/github/repo-size/fascodenet/alterlinux?style=flat-square">
+    </a>
 </p>
 
 <table>
@@ -145,13 +148,13 @@ Some documents may have outdated information or only some languages.<br>
 All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
-	<li><a href="en/BUILD.md">Build Alter Linux</a></li>
-	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
-	<li><a href="en/CHANNEL.md">Channel specifications</a></li>
-	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
-	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
-	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
-	<li><a href="en/CONFIG.md">About build configuration file</a></li>
+    <li><a href="en/BUILD.md">Build Alter Linux</a></li>
+    <li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
+    <li><a href="en/CHANNEL.md">Channel specifications</a></li>
+    <li><a href="en/PACKAGE.md">Notes on package list</a></li>
+    <li><a href="en/DOCKER.md">How to build on Docker</a></li>
+    <li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+    <li><a href="en/CONFIG.md">About build configuration file</a></li>
 </ul>
 
 <h2>〈If you cannot start〉</h2>
