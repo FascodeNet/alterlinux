@@ -67,6 +67,7 @@ yes | sudo -u aurbuild \
         --noupgrademenu \
         --noprovides \
         --removemake \
+        --useask \
         --config "/etc/alteriso-pacman.conf" \
         ${*}
 
