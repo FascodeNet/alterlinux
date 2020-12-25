@@ -10,4 +10,5 @@
 # Xfce4 Desktop Environment
 
 #-- plugin --#
-xfce4-calculator-plugin
+#xfce4-calculator-plugin
+xfce4-docklike-plugin-git
