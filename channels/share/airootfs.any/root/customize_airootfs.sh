@@ -99,9 +99,6 @@ locale-gen
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 
 
-# Set os name
-sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
-
 # Create Calamares Entry
 if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then
     cp -a "/etc/skel/Desktop/calamares.desktop" "/usr/share/applications/calamares.desktop"
