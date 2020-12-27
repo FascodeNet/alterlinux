@@ -34,7 +34,7 @@ system-config-printer
 
 #-- scripts --#
 alterlinux-gtk-bookmarks
-alterlinux-live-tools
+alterlinux-desktop-file
 alterlinux-welcome-page
 
 
