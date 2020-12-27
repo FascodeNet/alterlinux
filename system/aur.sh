@@ -69,7 +69,7 @@ yes | sudo -u aurbuild \
         --removemake \
         --useask \
         --config "/etc/alteriso-pacman.conf" \
-        --cache "/vae/cache/pacman/pkg/" \
+        --cachedir "/vae/cache/pacman/pkg/" \
         ${*}
 
 
