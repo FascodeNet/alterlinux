@@ -69,7 +69,7 @@ yes | sudo -u aurbuild \
         --removemake \
         --useask \
         --config "/etc/alteriso-pacman.conf" \
-        --cachedir "/vae/cache/pacman/pkg/" \
+        --cachedir "/var/cache/pacman/pkg/" \
         ${*}
 
 
@@ -77,9 +77,8 @@ yes | sudo -u aurbuild \
 userdel aurbuild
 remove /aurbuild_temp
 remove /etc/sudoers.d/aurbuild
-remove "/etc/pacman.d/gnupg/"
 remove "/etc/alteriso-pacman.conf"
-remove "/vae/cache/pacman/pkg/"
+remove "/var/cache/pacman/pkg/"
 
 yay -Sccc --noconfirm
 yay -Syy
