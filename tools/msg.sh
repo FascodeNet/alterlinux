@@ -54,10 +54,10 @@ msg_error() {
 
 
 # Parse options
-ARGUMENT="${@}"
+ARGUMENT="${*}"
 _opt_short="a:c:l:no:r:s:xh"
 _opt_long="nocolor,bash-debug,help,nolabel,noappname,noadjust"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+OPT=$(getopt -uo ${_opt_short} -l ${_opt_long} -- "${ARGUMENT}")
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
