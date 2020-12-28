@@ -54,14 +54,13 @@ msg_error() {
 
 
 # Parse options
-ARGUMENT="${*}"
-_opt_short="a:c:l:no:r:s:xh"
-_opt_long="nocolor,bash-debug,help,nolabel,noappname,noadjust,appname:,adjust-chr:,label:,echo-opts:,label-color:,label-space:"
-OPT=$(getopt -uo ${_opt_short} -l ${_opt_long} -- "${ARGUMENT}")
+opt_short="a:c:l:no:r:s:xh"
+opt_long="nocolor,bash-debug,help,nolabel,noappname,noadjust,appname:,adjust-chr:,label:,echo-opts:,label-color:,label-space:"
+OPT="$(getopt -uo ${opt_short} -l ${opt_long} -- "${@}")"
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while true; do
     case "${1}" in
