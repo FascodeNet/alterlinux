@@ -26,25 +26,25 @@ _help() {
     echo "Display a message with a colored app name and message type label"
     echo
     echo " General type:"
-    echo "    info                      General message"
-    echo "    warn                      Warning message"
-    echo "    error                     Error message"
-    echo "    debug                     Debug message"
+    echo "    info                             General message"
+    echo "    warn                             Warning message"
+    echo "    error                            Error message"
+    echo "    debug                            Debug message"
     echo
     echo " General options:"
-    echo "    -a [name]                 Specify the app name"
-    echo "    -c [character]            Specify the character to adjust the label"
-    echo "    -l [label]                Specify the label."
-    echo "    -n | --nocolor            No output colored output"
-    echo "    -o [option]               Specify echo options"
-    echo "    -r [color]                Specify the color of label"
-    echo "    -s [number]               Specifies the label space."
-    echo "    -x | --bash-debug         Enables output bash debugging"
-    echo "    -h | --help               This help message"
+    echo "    -a | --appname     [name]        Specify the app name"
+    echo "    -c | --adjust-chr  [character]   Specify the character to adjust the label"
+    echo "    -l | --label       [label]       Specify the label."
+    echo "    -n | --nocolor                   No output colored output"
+    echo "    -o | --echo-opts   [option]      Specify echo options"
+    echo "    -r | --label-color [color]       Specify the color of label"
+    echo "    -s | --label-space [number]      Specifies the label space."
+    echo "    -x | --bash-debug                Enables output bash debugging"
+    echo "    -h | --help                      This help message"
     echo
-    echo "         --nolabel            Do not output label"
-    echo "         --noappname          Do not output app name"
-    echo "         --noadjust           Do not adjust the width of the label"
+    echo "         --nolabel                   Do not output label"
+    echo "         --noappname                 Do not output app name"
+    echo "         --noadjust                  Do not adjust the width of the label"
 }
 
 # Message functions
@@ -56,7 +56,7 @@ msg_error() {
 # Parse options
 ARGUMENT="${*}"
 _opt_short="a:c:l:no:r:s:xh"
-_opt_long="nocolor,bash-debug,help,nolabel,noappname,noadjust"
+_opt_long="nocolor,bash-debug,help,nolabel,noappname,noadjust,appname:,adjust-chr:,label:,echo-opts:,label-color:,label-space:"
 OPT=$(getopt -uo ${_opt_short} -l ${_opt_long} -- "${ARGUMENT}")
 [[ ${?} != 0 ]] && exit 1
 
@@ -65,28 +65,28 @@ unset OPT _opt_short _opt_long
 
 while true; do
     case "${1}" in
-        -a)
+        -a | --appname)
             appname="${2}"
             shift 2
             ;;
-        -c)
+        -c | --adjust-chr)
             adjust_chr="${2}"
             shift 2
             ;;
-        -l) 
+        -l | --label)
             customized_label=true
             msg_label="${2}"
             shift 2
             ;;
-        -n)
+        -n | --nocolor)
             nocolor=true
             shift 1
             ;;
-        -o)
+        -o | --echo-opts)
             echo_opts="${2}"
             shift 2
             ;;
-        -r)
+        -r | --label-color)
             customized_label_color=true
             case "${2}" in
                 "black")
@@ -120,7 +120,7 @@ while true; do
             esac
             shift 2
             ;;
-        -s) 
+        -s | --label-space)
             label_space="${2}"
             shift 2
             ;;
