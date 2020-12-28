@@ -139,6 +139,7 @@ while true; do
             break
             ;;
         *)
+            msg_error "Invalid argument '${1}'"
             shift 1
             _help
             exit 1 
