@@ -53,19 +53,42 @@ msg_error() {
 }
 
 
-while getopts "a:c:l:no:r:s:xh-:" arg; do
-  case ${arg} in
-        a) appname="${OPTARG}" ;;
-        c) adjust_chr="${OPTARG}" ;;
-        l) 
-            customized_label=true
-            msg_label="${OPTARG}"
+# Parse options
+ARGUMENT="${@}"
+_opt_short="a:c:l:no:r:s:xh"
+_opt_long="nocolor,bash-debug,help,nolabel,noappname,noadjust"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+[[ ${?} != 0 ]] && exit 1
+
+eval set -- "${OPT}"
+unset OPT _opt_short _opt_long
+
+while true; do
+    case "${1}" in
+        -a)
+            appname="${2}"
+            shift 2
             ;;
-        n) nocolor=true ;;
-        o) echo_opts="${OPTARG}" ;;
-        r)
+        -c)
+            adjust_chr="${2}"
+            shift 2
+            ;;
+        -l) 
+            customized_label=true
+            msg_label="${2}"
+            shift 2
+            ;;
+        -n)
+            nocolor=true
+            shift 1
+            ;;
+        -o)
+            echo_opts="${2}"
+            shift 2
+            ;;
+        -r)
             customized_label_color=true
-            case ${OPTARG} in
+            case "${2}" in
                 "black")
                     labelcolor="30"
                     ;;
@@ -95,40 +118,33 @@ while getopts "a:c:l:no:r:s:xh-:" arg; do
                     exit 1
                     ;;
             esac
+            shift 2
             ;;
-        s) label_space="${OPTARG}" ;;
-        x)
+        -s) 
+            label_space="${2}"
+            shift 2
+            ;;
+        -x | --bash-debug)
             bash_debug=true
             set -xv
+            shift 1
             ;;
-        h)
+        -h | --help)
             _help
             shift 1
             exit 0
             ;;
-        -)
-            case "${OPTARG}" in
-                "nocolor") nocolor=true ;;
-                "bash-debug")
-                    bash_debug=true
-                    set -xv
-                    ;;
-                "help") 
-                    _help
-                    exit 0
-                    ;;
-                "nolabel") nolabel=true ;;
-                "noappname") noappname=true ;;
-                "noadjust") noadjust=true ;;
-                *)
-                    _help
-                    exit 1
-                    ;;
-            esac
-  esac
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            shift 1
+            _help
+            exit 1 
+            ;;
+    esac
 done
-
-shift $((OPTIND - 1))
 
 # Color echo
 #
