@@ -1,6 +1,6 @@
 ## Alter Linuxをビルドする
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
-Dockerでビルドする方法は[この手順](jp/DOCKER.md)を参照してください。  
+Dockerでビルドする方法は[この手順](DOCKER.md)を参照してください。  
   
 実機でビルドする場合は、必ずOSがArch LinuxかAlter Linuxでなければなりません。  
 以下では実機でビルドする方法を解説します。  
