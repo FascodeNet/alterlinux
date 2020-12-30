@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+alias ls='ls --color=auto'
+alias htop='htop -d 5'

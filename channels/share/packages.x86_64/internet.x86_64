@@ -16,7 +16,6 @@ irssi
 
 #-- connection --#
 dhclient
-dhcpcd
 dnsutils
 ndisc6
 networkmanager
@@ -46,6 +45,7 @@ wpa_supplicant
 
 
 #-- vpn --#
+networkmanager-openvpn
 openconnect
 openvpn
 vpnc

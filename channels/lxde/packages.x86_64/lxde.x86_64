@@ -22,7 +22,7 @@ lxinput
 lxlauncher
 # lxmusic  VLCがインストールされているため（Issues #51）
 lxpanel
-# lxrandr  arandrで代用 仮想マシンで使えないため arandrはother.x86_64に記述
+lxrandr
 lxsession
 lxtask
 lxterminal
@@ -40,4 +40,3 @@ alterlinux-wallpapers
 
 # Qt config
 qt5ct
-qt5-styleplugins

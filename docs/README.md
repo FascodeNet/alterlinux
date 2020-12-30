@@ -5,41 +5,40 @@
 </p>
 <p align="center">
     <a href="https://fascode.net/en/projects/linux/alter/">
-        <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+        <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=flat-square">
     </a>
     <a href="../LICENSE">
-        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=for-the-badge" alt="License: GPLv3.0">
+        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square" alt="License: GPLv3.0">
     </a>
     <a href="https://www.archlinux.org/">
-        <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
+        <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=flat-square&logo=arch-linux" alt="Base">
     </a>
-    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v46">
-        <img src="https://img.shields.io/badge/archiso--version-46--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
+        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-</p>
-<p align="center">
-  	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-	    	<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=for-the-badge">
+    <a href="https://travis-ci.com/github/FascodeNet/alterlinux">
+        <img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/issues">
-        <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
+        <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/stargazers">
-        <img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
+        <img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=flat-square&logo=github">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/network/members">
-        <img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
+        <img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=flat-square">
     </a>
-</p>
-<p align="center">
     <a href="https://github.com/FascodeNet/alterlinux/releases">
-        <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
+        <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
     </a>
     <a href="https://fascode.net/en/projects/linux/alter/downloads/">
-        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
+        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=flat-square">
     </a>
-    <a href="">
-        <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
+    <a href="https://github.com/FascodeNet/alterlinux/commits/">
+        <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/fascodeNet/alterlinux/">
+        <img src="https://img.shields.io/github/repo-size/fascodenet/alterlinux?style=flat-square">
     </a>
 </p>
 
@@ -71,6 +70,9 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
+
+<h3>Gnome</h3>
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
 
 <h3>Cinnamon</h3>
 <img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
@@ -114,9 +116,6 @@ These are a list of major branches. Other branches are temporary or used for spe
             <th>
                 <a href="https://github.com/FascodeNet/alterlinux/tree/dev">dev</a>
             </th>
-            <th>
-                <a href="https://github.com/FascodeNet/alterlinux/tree/alteriso-3-mainline">alteriso-3-mainline</a>
-            </th>
         </tr>
     </thead>
     <tbody>
@@ -132,9 +131,6 @@ These are a list of major branches. Other branches are temporary or used for spe
             </td>
             <td>
                 Always updated. There may be many issues left.
-            </td>
-            <td>
-                Next-generation AlterISO and new desktop environment are being developed.
             </td>
         </tr>
     </tbody>
@@ -185,7 +181,7 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 <a href="https://twitter.com/Pixel_3a">
     <img src="https://avatars0.githubusercontent.com/u/48173871" width="100px">
 </a>
-<a href="https://twitter.com/YangDevJP">
+<a href="https://twitter.com/yangniao23">
     <img src="https://avatars0.githubusercontent.com/u/47053316" width="100px">
 </a>
 <a href="https://twitter.com/Watasuke102">
@@ -205,4 +201,12 @@ We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linu
 </a>
 <a href="https://twitter.com/naoko1010hh">
     <img src="https://avatars1.githubusercontent.com/u/50263013" width="100px">
+</a>
+
+<h3>Special Thanks</h3>
+<a href="https://twitter.com/s29kt_Tsukkun">
+    <img src="https://avatars2.githubusercontent.com/u/74809846" width="100px">
+</a>
+<a href="https://twitter.com/sunset09160306">
+    <img src="https://avatars1.githubusercontent.com/u/61398531" width="100px">
 </a>

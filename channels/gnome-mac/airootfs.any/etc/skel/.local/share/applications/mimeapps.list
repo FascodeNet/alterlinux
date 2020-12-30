@@ -1,0 +1,7 @@
+[Default Applications]
+inode/directory=pantheon-files.desktop
+x-scheme-handler/trash=pantheon-files.desktop
+
+[Added Associations]
+inode/directory=pantheon-files.desktop;
+x-scheme-handler/trash=pantheon-files.desktop;

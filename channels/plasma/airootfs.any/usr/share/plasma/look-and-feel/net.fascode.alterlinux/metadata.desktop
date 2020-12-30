@@ -1,0 +1,16 @@
+[Desktop Entry]
+Comment=AlterLinux default theme
+
+Encoding=UTF-8
+
+Name=AlterLinux
+X-KDE-PluginInfo-Author=FascodeNetwork
+X-KDE-PluginInfo-Category=Plasma Look And Feel
+X-KDE-PluginInfo-Email=development@fascode.net
+X-KDE-PluginInfo-EnabledByDefault=true
+X-KDE-PluginInfo-License=GPL 3+
+X-Plasma-MainScript=defaults
+X-KDE-PluginInfo-Name=net.fascode.alterlinux
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=https://fascode.net/projects/alterlinux
+X-KDE-ServiceTypes=Plasma/LookAndFeel

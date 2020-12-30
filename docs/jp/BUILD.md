@@ -1,6 +1,6 @@
 ## Alter Linuxをビルドする
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
-Dockerでビルドする方法は[この手順](jp/DOCKER.md)を参照してください。  
+Dockerでビルドする方法は[この手順](DOCKER.md)を参照してください。  
   
 実機でビルドする場合は、必ずOSがArch LinuxかAlter Linuxでなければなりません。  
 以下では実機でビルドする方法を解説します。  
@@ -19,13 +19,13 @@ cd alterlinux
 Alter Linuxのリポジトリを利用するための鍵を追加します。  
 
 ```bash
-sudo ./keyring.sh --alter-add --arch32-add
+sudo ./tools/keyring.sh --alter-add --arch32-add
 ```
 
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
 ```
 
 ### TUIを使用する
@@ -71,7 +71,7 @@ sudo ./build.sh [options] [channel]
 カーネルを変える | -k [kernel]
 ユーザ名を変える | -u [username]
 パスワードを変更する | -p [password]
-日本語にする | -j
+日本語にする | -l ja
 圧縮方式を変更する | -c [comp type]
 圧縮のオプションを設定する | -t [comp option]
 出力先ディレクトリを指定する| -o [dir]
@@ -102,13 +102,16 @@ sudo ./build.sh [options] [channel]
 
 名前 | 目的
 --- | ---
+basic | 様々なチャンネルの基礎となるGUIの無いチャンネル
 cinnamon | 多くのアプリケーションを備えた豪華なシナモンデスクトップのチャンネル
+gnome | カスタマイズされたGnomeデスクトップ環境のチャンネル
 i3 | i3とカスタマイズ可能なpolybarを搭載したrelengを除いて最も軽量なチャンネル
 lxde | LXDEと最小限のアプリケーションのみが入っている軽量なチャンネル
 plasma | PlasmaとQtアプリを搭載した現在開発中のチャンネル
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドできるチャンネル
-rebuild | 作業ディレクトリにある設定を利用して再ビルドを行う特殊なチャンネル
 xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
+xfce-pro | xfceチャンネルのウィンドウマネージャを変更し、多くのソフトを追加したチャンネル
+rebuild | 作業ディレクトリにある設定を利用して再ビルドを行う特殊なチャンネル
 
 
 #### カーネルについて

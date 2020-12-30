@@ -1,0 +1,18 @@
+[General]
+ColorScheme=MateriaDark
+Name=Materia Dark
+shadeSortColumn=true
+widgetStyle=Breeze
+
+[Icons]
+Theme=Papirus-Dark
+
+[KDE]
+ColorScheme=Breeze
+LookAndFeelPackage=net.fascode.alterlinux
+SingleClick=false
+contrast=4
+widgetStyle=kvantum
+
+[Directories]
+dir_pixmap=/usr/share/pixmaps

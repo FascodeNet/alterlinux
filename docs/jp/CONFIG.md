@@ -12,13 +12,14 @@ alterisoではビルドに様々な設定が存在しています。
 設定を別ファイルにコピーして変更する際はそのコメントも一緒にコピーすることを推奨します。  
 
 # 読み込まれるファイル一覧
-上から順番に読み込まれます。`<architecture>`と`<channel_name>`はそれぞれアーキテクチャとチャンネル名に置き換えてください。 
+上から順番に読み込まれます。`<arch>`と`<ch_name>`はそれぞれアーキテクチャとチャンネル名に置き換えてください。 
 同じ変数が設定されていた場合、設定ファイルが読み込まれるごとに上書きされます。
   
 ファイルパス | 備考
 --- | ---
 default.conf | 全ての値がここで設定されます（必須）
 channels/share/config.any | 
-channels/share/config.<architecture> | 
-channels/<channel_name>/config.any | 
-channels/<channel_name>/config.<architecture> | 
+channels/share/config.<arch> | 
+channels/<ch_name>/config.any | 
+channels/<ch_name>/config.<arch> | 
+work/build_options | `rebuild`や`retry`時に読み込まれます
