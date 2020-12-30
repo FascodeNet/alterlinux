@@ -11,12 +11,7 @@
 
 
 #-- cli frontend --#
-aptpac
-yay-bin
-
-
-#-- gui frontend--#
-eg-installer
+yay
 
 
 #-- keyring --#

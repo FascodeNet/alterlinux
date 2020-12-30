@@ -35,7 +35,7 @@ htop
 
 
 #-- pacman --#
-pamac-aur
+gnome-packagekit
 
 
 #-- printer --#
@@ -44,17 +44,10 @@ system-config-printer
 
 #-- scripts --#
 alterlinux-gtk-bookmarks
-alterlinux-live-tools
+alterlinux-desktop-file
 alterlinux-welcome-page
 
 
 #-- text editor --#
-medit
 nano
 vim
-
-
-#-- other --#
-arandr
-ipad_charge
-tlpui

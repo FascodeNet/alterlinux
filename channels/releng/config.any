@@ -40,15 +40,64 @@ boot_splash=false
 sfs_comp="xz"
 sfs_comp_opt=""
 
-# Set the kernel that live session use.
-# Please don't set anything if you want to use normal kernel.
-# As of February 23, 2020, the available kernels are lts, zen, ck, , rt and lqx.
-kernel=core
-
-# Set the Japanese mode.
-# When this is enabled, the packages in the japanese package list will be installed.
-# A file for Japanese input is added.
-japanese=false
+# Sets the default locale for the live environment.
+# You can also place a package list for that locale name and install packages specific to that locale.
+locale_name="en"
 
 # Set the user's default shell.
 usershell="/bin/zsh"
+
+# Do not install the AUR package.
+# This setting cannot be changed by an argument.
+noaur=true
+
+#-- kernel config --#
+# Set the kernel that live session use.
+# Please don't set anything if you want to use normal kernel.
+# See help for a list of available values.
+# This setting cannot be changed by an argument.
+
+# Kernel name
+defaultkernel="core"
+
+# Use mkalteriso written in a traditional shell script
+# instead of the C ++ version of mkalteriso.
+# Change the default behavior of "--shmkalteriso".
+shmkalteriso=true
+
+# Do not add rescue mode launch items
+# If true, do not add items such as "without GUI" or "Safe graphics".
+# This setting cannot be changed by an argument.
+norescue_entry=true
+
+# If set to true, include alteriso_info in iso root.
+# This setting cannot be changed by an argument.
+include_info=false
+
+# Do not include the channel name in the filename of the image file.
+# This setting cannot be changed by an argument.
+nochname=true
+
+# List of packages required for build
+# The following packages are checked to see if they are installed before running build.sh
+# Also, wizard.sh will install it automatically.
+dependence=(
+#   "alterlinux-keyring"
+#   "archiso"
+    "arch-install-scripts"
+    "curl"
+    "dosfstools"
+    "edk2-shell"
+    "git"
+    "libburn"
+    "libisofs"
+    "lz4"
+    "lzo"
+    "make"
+    "squashfs-tools"
+    "libisoburn"
+ #  "lynx"
+    "xz"
+    "zlib"
+    "zstd"
+)

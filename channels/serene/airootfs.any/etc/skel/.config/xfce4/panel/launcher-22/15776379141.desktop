@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google
+Type=Link
+URL=https://www.google.com
+Icon=/usr/share/icons/google-app/google_icon-icons.com_62736.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/google.desktop

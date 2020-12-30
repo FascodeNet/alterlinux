@@ -27,6 +27,7 @@
 - 関数内でしか使用しない変数は必ず`local`で宣言する
 - コマンド置き換えは`` `echo hoge` ``ではなく`$(echo hoge)`を使用する
 - 算術式展開は`$(( m + n ))`を使用する
+- ローカル変数、関数は名前を`_`から始める
 
 ### if、for、test、case、while
 
@@ -105,6 +106,7 @@ Issueを送る際は以下の情報を記述して下さい。
 - Declare variables that are used only in the function by `local`
 - Command substitution does not use a `` `echo hoge` `` but uses `$(echo hoge)`
 - Arithmetic expansion uses `$(( m + n ))`
+- Local variables, functions start their names with `_`
 
 ### if, for, test, case, while
 

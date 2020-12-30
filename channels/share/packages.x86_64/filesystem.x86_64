@@ -12,7 +12,8 @@
 
 btrfs-progs
 dosfstools
-exfat-utils
+# exfat-utils archiso v47で exfatprogs に置き換えられました
+exfatprogs
 f2fs-tools
 jfsutils
 mtools

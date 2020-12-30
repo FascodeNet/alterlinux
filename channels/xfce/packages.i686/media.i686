@@ -19,8 +19,6 @@ pulseaudio
 blueman
 bluez
 bluez-utils
-# pulseaudio-bluetooth
-pulseaudio-modules-bt
 
 
 #-- media player --#

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=XFCE Volume Daemon (Pulseaudio)
+Comment=Daemon managing the volume multimedia keys and displaying volume notifications for Pulseaudio
+Exec=xfce4-volumed
+OnlyShowIn=XFCE;LXDE;

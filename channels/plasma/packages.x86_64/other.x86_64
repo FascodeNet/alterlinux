@@ -22,12 +22,11 @@ man-pages
 
 #-- system monitor --#
 ksysguard
-cpu-x
 
 
 #-- scripts --#
 alterlinux-gtk-bookmarks
-alterlinux-live-tools
+alterlinux-desktop-file
 alterlinux-welcome-page
 
 
@@ -39,6 +38,4 @@ vim
 
 #-- other --#
 htop
-ipad_charge
-snapd
 packagekit-qt5
