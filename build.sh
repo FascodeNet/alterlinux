@@ -541,7 +541,7 @@ prepare_build() {
         isofs_dir="${work_dir}/iso"
 
         # If there is config for channel. load that.
-        load_config "${share_dir}/config.any" "${script_path}/channels/share/config.${arch}"
+        load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
         load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
         # Set kernel
