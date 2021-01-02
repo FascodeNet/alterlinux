@@ -4,10 +4,12 @@ set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 share_dir="${script_path}/channels/share"
+extra_dir="${script_path}/channels/share-extra"
 
 boot_splash=false
 aur=false
 pkgdir_name="packages"
+extra=false
 
 arch=""
 channel_dir=""
@@ -27,8 +29,10 @@ _help() {
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -b | --boot-splash        Enable boot splash"
-    echo "    -c | --channel            Specify the channel directory"
-    echo "    -k | --kernel             Specify the kernel"
+    echo "    -c | --channel [dir]      Specify the channel directory"
+    echo "    -e | --extra              Include extra packages"
+    echo "    -k | --kernel [kernel]    Specify the kernel"
+    echo "    -l | --locale [locale]    Specify the locale"
     echo "    -h | --help               This help message"
     echo "         --aur                AUR packages"
 }
@@ -55,8 +59,8 @@ msg_debug() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bc:k:l:h"
-_opt_long="arch:,boot-splash,channel:,kernel:,locale:,aur,help"
+_opt_short="a:bc:ek:l:h"
+_opt_long="arch:,boot-splash,channel:,extra,kernel:,locale:,aur,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -76,6 +80,10 @@ while true; do
         -c | --channel)
             channel_dir="${2}"
             shift 2
+            ;;
+        -e | --extra)
+            extra=true
+            shift 1
             ;;
         -k | --kernel)
             kernel="${2}"
@@ -129,16 +137,22 @@ set +e
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
 _loadfilelist=(
-    # share packages
+    #-- share packages --#
     $(ls ${share_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+    # lang
     "${share_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
 
-    # channel packages
+    # kernel
+    "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+
+    #-- channel packages --#
     $(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+    # lang
     "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
 
-    # kernel packages
-    "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+    # kernel
     "${channel_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
 )
 
@@ -147,6 +161,19 @@ if [[ "${boot_splash}" = true ]]; then
     _loadfilelist+=(
         $(ls ${share_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
         $(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+    )
+fi
+
+# share-extra package list
+if [[ "${extra}" = true ]]; then
+    _loadfilelist+=(
+        $(ls ${extra_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+        # lang
+        "${extra_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel
+        "${extra_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
     )
 fi
 
@@ -169,6 +196,13 @@ _excludefile=(
     "${channel_dir}/packages.${arch}/exclude"
     "${channel_dir}/packages_aur.${arch}/exclude"
 )
+
+if [[ "${extra}" = true ]];then
+    _excludefile+=(
+        "${extra_dir}/packages.${arch}/exclude"
+        "${extra_dir}/packages_aur.${arch}/exclude"
+    )
+fi
 
 for _file in ${_excludefile[@]}; do
     if [[ -f "${_file}" ]]; then
