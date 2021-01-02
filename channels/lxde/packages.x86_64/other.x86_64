@@ -31,13 +31,7 @@ man-pages
 
 
 #-- system monitor --#
-cpu-x
 htop
-
-
-#-- pacman --#
-archlinux-appstream-data-pamac
-pamac-aur
 
 
 #-- printer --#
@@ -46,19 +40,10 @@ system-config-printer
 
 #-- scripts --#
 alterlinux-gtk-bookmarks
-alterlinux-live-tools
+alterlinux-desktop-file
 alterlinux-welcome-page
 
 
 #-- text editor --#
-medit
 nano
 vim
-
-
-#-- other --#
-#仮想マシンでlxrandrが使えるようになったためarandrを無効化
-# arandr
-ipad_charge
-snapd
-tlpui

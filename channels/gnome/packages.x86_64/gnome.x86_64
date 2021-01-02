@@ -41,8 +41,6 @@ gnome-tweaks
 
 #-- extentions --#
 chrome-gnome-shell
-gnome-shell-extension-extensions-git
-gnome-shell-extension-topicons-redux
 
 
 #-- Display manager --#

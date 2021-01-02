@@ -9,16 +9,5 @@
 #
 # look and feel
 
-
-# icon
-#inverse-icon-theme-blue-git
-paper-icon-theme
-
-
-# theme
-#arc-gtk-theme
-numix-blue-gtk-theme-bin
-
 # Qt config
 qt5ct
-qt5-styleplugins

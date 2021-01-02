@@ -16,7 +16,6 @@ irssi
 
 #-- connection --#
 dhclient
-dhcpcd
 dnsutils
 ndisc6
 networkmanager

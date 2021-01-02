@@ -7,7 +7,6 @@ bzip2
 cpio
 cups
 cups-pdf
-eg-installer
 efibootmgr
 gzip
 lha
@@ -29,7 +28,6 @@ unzip-iconv
 xdg-user-dirs
 xz
 yay
-yay-bin
 zip
 zstd
 

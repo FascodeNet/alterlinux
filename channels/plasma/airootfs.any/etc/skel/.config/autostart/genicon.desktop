@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=AlterLinux Installer Icon
+Comment=Generates calamares icon
+Icon=utilities-terminal
+Exec=/usr/bin/alterlinux-desktop-file -l -f --alterlive
+X-GNOME-Autostart-enabled=true
+Type=Application
+RunHook=0
+StartupNotify=false
+Terminal=false
+Hidden=false
