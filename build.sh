@@ -1100,17 +1100,20 @@ make_prepare() {
 
 # Add files to the root of isofs
 make_overisofs() {
-    local _copy_isofs
+    local _over_isofs_list _isofs
 
-    _copy_isofs() {
-        local _dir="${1%/}"
-        if [[ -d "${_dir}" ]]; then cp -af "${_dir}"/* "${isofs_dir}"; fi
-    }
+    _over_isofs_list=(
+        "${share_dir}/over_isofs.any"
+        "${share_dir}/over_isofs.${arch}"
+        "${extra_dir}/over_isofs.any"
+        "${extra_dir}/over_isofs.${arch}"
+        "${channel_dir}/over_isofs.any"
+        "${channel_dir}/over_isofs.${arch}"
+    )
 
-    _copy_isofs "${share_dir}/over_isofs.any"
-    _copy_isofs "${share_dir}/over_isofs.${arch}"
-    _copy_isofs "${channel_dir}/over_isofs.any"
-    _copy_isofs "${channel_dir}/over_isofs.${arch}"
+    for _isofs in ${_over_isofs_list[@]}; do
+        if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
+    done
 }
 
 # Build ISO
