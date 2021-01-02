@@ -695,8 +695,23 @@ make_packages_aur() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    local _airootfs _airootfs_script_options _script _script_list
-    for _airootfs in "${share_dir}/airootfs.any" "${share_dir}/airootfs.${arch}" "${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any"; do
+    local _airootfs _airootfs_script_options _script _script_list _airootfs_list
+
+    _airootfs_list=(
+        "${share_dir}/airootfs.any"
+        "${share_dir}/airootfs.${arch}"
+        "${channel_dir}/airootfs.${arch}"
+        "${channel_dir}/airootfs.any"
+    )
+
+    if [[ "${include_extra}" = true ]]; then
+        _airootfs_list+=(
+            "${extra_dir}/airootfs.any"
+            "${extra_dir}/airootfs.${arch}"
+        )
+    fi
+
+    for _airootfs in ${_airootfs_list[@]};do
         if [[ -d "${_airootfs}" ]]; then
             cp -af "${_airootfs}"/* "${airootfs_dir}"
         fi
