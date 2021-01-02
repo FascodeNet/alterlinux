@@ -457,6 +457,7 @@ prepare_rebuild() {
     _save_var channel_dir
     _save_var airootfs_dir
     _save_var share_dir
+    _save_var extra_dir
     _save_var isofs_dir
     _save_var install_dir
     _save_var work_dir
@@ -498,6 +499,7 @@ prepare_rebuild() {
     _write_rebuild_file "\n# Channel Info"
     _save_var build_pacman_conf
     _save_var defaultconfig
+    _save_var include_extra
     _save_var defaultusername
     _save_var customized_username
     _save_var customized_password
@@ -535,6 +537,7 @@ prepare_build() {
         # Set dirs
         airootfs_dir="${work_dir}/${arch}/airootfs"
         share_dir="${script_path}/channels/share"
+        extra_dir="${script_path}/channels/share-extra"
         isofs_dir="${work_dir}/iso"
 
         # If there is config for channel. load that.
@@ -624,6 +627,7 @@ prepare_build() {
     check_bool nocolor
     check_bool msgdebug
     check_bool noefi
+    check_bool include_extra
 
     # Check architecture for each channel
     if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
