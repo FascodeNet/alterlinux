@@ -112,8 +112,17 @@ _msg_error() {
 _mount_airootfs() {
     trap "_umount_airootfs" EXIT HUP INT TERM
     install -d -m 0755 -- "${work_dir}/mnt/airootfs"
-    _msg_info "Mounting '${airootfs_dir}.img' on '${work_dir}/mnt/airootfs'..."
+    _msg_info "Mounting 'airootfs.img' on '${work_dir}/mnt/airootfs'..."
     mount -- "${airootfs_dir}.img" "${work_dir}/mnt/airootfs"
+    _msg_info "Done!"
+}
+
+_mount_airootfs_aur() {
+    trap "_umount_airootfs_aur" EXIT HUP INT TERM
+    _msg_info "Create Mount Point for airootfs folder"
+    install -d -m 0755 -- "${airootfs_dir}"
+    _msg_info "Mounting '${work_dir}/airootfs.img' on '${airootfs_dir}'..."
+    mount -- "${work_dir}/airootfs.img" "${airootfs_dir}"
     _msg_info "Done!"
 }
 
@@ -122,6 +131,13 @@ _umount_airootfs() {
     umount -d -- "${work_dir}/mnt/airootfs"
     _msg_info "Done!"
     rmdir -- "${work_dir}/mnt/airootfs"
+    trap - EXIT HUP INT TERM
+}
+_umount_airootfs_aur() {
+    _msg_info "Unmounting '${airootfs_dir}'..."
+    umount -d -- "${airootfs_dir}"
+    _msg_info "Done!"
+    umount -d -- "${airootfs_dir}"
     trap - EXIT HUP INT TERM
 }
 
@@ -270,6 +286,16 @@ _run_once() {
         touch "${work_dir}/build.${1}"
     fi
 }
+_create_airootfs_img() {
+    _msg_info "Creating ext4 image of 32GiB..."
+    truncate -s 32GB "${work_dir}/airootfs.img"
+    _msg_info "Format block image..."
+    mkfs.ext4 -O "^has_journal,^resize_inode" -E "lazy_itable_init=0" -m 0 -F "${work_dir}/airootfs.img"
+    _msg_info "tune2fs.."
+    tune2fs -c 0 -i 0 "${work_dir}/airootfs.img"
+    _mount_airootfs_aur
+    
+}
 
 # Set up custom pacman.conf with custom cache and pacman hook directories
 _make_pacman_conf() {
@@ -303,8 +329,7 @@ _make_pacman_conf() {
 _make_custom_airootfs() {
     local passwd=()
     local filename permissions
-
-    install -d -m 0755 -o 0 -g 0 -- "${airootfs_dir}"
+    [[ "${noaur}" == "true" ]] && install -d -m 0755 -o 0 -g 0 -- "${airootfs_dir}"
 
     if [[ -d "${profile}/airootfs" ]]; then
         _msg_info "Copying custom airootfs files..."
@@ -660,6 +685,10 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
 # Build airootfs filesystem image
 _prepare_airootfs_image() {
     _run_once "_mkairootfs_${airootfs_image_type}"
+    if [[ "${noaur}" == "false" ]]; then
+        _umount_airootfs_aur
+        rm -f "${work_dir}/airootfs.img"
+    fi
     _mkchecksum
     if [[ -n "${gpg_key}" ]]; then
         _mksignature
@@ -912,6 +941,7 @@ _build_profile() {
     [[ "${quiet}" == "n" ]] && _show_config
     _run_once _make_pacman_conf
     [[ -n "${gpg_key}" ]] && _run_once _export_gpg_publickey
+    [[ "${noaur}" == "false" ]] && _run_once _create_airootfs_img
     _run_once _make_custom_airootfs
     _run_once _make_packages
     _run_once _make_customize_airootfs
