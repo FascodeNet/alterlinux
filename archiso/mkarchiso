@@ -21,6 +21,15 @@ gpg_key=""
 override_gpg_key=""
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
+# If set to true, enable message debag.
+# This option previously debugged the message output in build.sh, but now it debugs msg.sh.
+# Change the default behavior of "--msgdebug".
+msgdebug=false
+
+# When set to true, colored output will not be performed.
+# Change the default behavior of "--nocolor".
+nocolor=false
+
 # profile defaults
 profile=""
 iso_name="${app_name}"
