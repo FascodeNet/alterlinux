@@ -29,6 +29,8 @@ msgdebug=false
 # When set to true, colored output will not be performed.
 # Change the default behavior of "--nocolor".
 nocolor=false
+# For AUR
+noaur=false
 
 # profile defaults
 profile=""
