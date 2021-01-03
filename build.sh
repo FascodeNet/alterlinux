@@ -662,7 +662,16 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "${arch}" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local _pkg _pkglist_args="-a '${arch}' -k '${kernel}' -c '${channel_dir}' -l '${locale_name}'"
+
+    # get pkglist
+    if [[ "${boot_splash}" = true ]]; then
+        _pkglist_args+=" -b"
+    fi
+    if [[ "${include_extra}" = true ]]; then
+        _pkglist_args+=" -e"
+    fi
+    local _pkglist=($("${script_path}/tools/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -675,7 +684,16 @@ make_packages() {
 }
 
 make_packages_aur() {
-    local _pkg pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "${arch}" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local _pkg _pkglist_args="--aur -a '${arch}' -k '${kernel}' -c '${channel_dir}' -l '${locale_name}'"
+
+    # get pkglist
+    if [[ "${boot_splash}" = true ]]; then
+        _pkglist_args+=" -b"
+    fi
+    if [[ "${include_extra}" = true ]]; then
+        _pkglist_args+=" -e"
+    fi
+    local _pkglist=($("${script_path}/tools/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
