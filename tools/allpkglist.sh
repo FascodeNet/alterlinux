@@ -18,7 +18,7 @@ out_dir=""
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="oh"
+_opt_short="o:h"
 _opt_long="out:,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
