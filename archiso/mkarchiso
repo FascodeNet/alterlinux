@@ -31,6 +31,9 @@ msgdebug=false
 nocolor=false
 # For AUR
 noaur=false
+# For channel
+noshare=true
+share_dir=""
 
 # profile defaults
 profile=""
@@ -162,6 +165,7 @@ usage: ${app_name} [options] <profile_dir>
      -o <out_dir>     Set the output directory
                       Default: '${out_dir}'
      -p PACKAGE(S)    Package(s) to install, can be used multiple times
+     -s <SHARE DIR>   share channel dir
      -v               Enable verbose output
      -w <work_dir>    Set the working directory
                       Default: '${work_dir}'
@@ -191,7 +195,12 @@ _show_config() {
     _msg_info "          ISO application:   ${iso_application}"
     _msg_info "               Boot modes:   ${bootmodes[*]}"
     _msg_info "                 Packages:   ${pkg_list[*]}"
+    if [[ "${noaur}" == "false" ]]; then
     _msg_info "             AUR Packages:   ${pkg_list_aur[*]}"
+    fi
+    if [[ "${noshare}" == "false" ]]; then
+    _msg_info "          Share Directory:   ${share_dir}"
+    fi
 }
 
 # Cleanup airootfs
@@ -951,7 +960,7 @@ _build_profile() {
     _run_once _build_iso
 }
 
-while getopts 'p:C:L:P:A:D:w:o:g:vh?' arg; do
+while getopts 'p:C:L:P:A:D:w:o:g:vs:h?' arg; do
     case "${arg}" in
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
@@ -966,6 +975,10 @@ while getopts 'p:C:L:P:A:D:w:o:g:vh?' arg; do
         o) out_dir="$(realpath -- "${OPTARG}")" ;;
         g) override_gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
+        s) 
+            share_dir="${OPTARG}"
+            noshare=false
+            ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
