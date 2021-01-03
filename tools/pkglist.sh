@@ -10,6 +10,7 @@ boot_splash=false
 aur=false
 pkgdir_name="packages"
 extra=false
+line=false
 
 arch=""
 channel_dir=""
@@ -35,6 +36,7 @@ _help() {
     echo "    -l | --locale [locale]    Specify the locale"
     echo "    -h | --help               This help message"
     echo "         --aur                AUR packages"
+    echo "         --line               Line break the output"
 }
 
 # Usage: getclm <number>
@@ -60,7 +62,7 @@ msg_debug() {
 # Parse options
 ARGUMENT="${@}"
 _opt_short="a:bc:ek:l:h"
-_opt_long="arch:,boot-splash,channel:,extra,kernel:,locale:,aur,help"
+_opt_long="arch:,boot-splash,channel:,extra,kernel:,locale:,aur,help,line"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -95,6 +97,10 @@ while true; do
             ;;
         --aur)
             aur=true
+            shift 1
+            ;;
+        --line)
+            line=true
             shift 1
             ;;
         -h | --help)
@@ -231,4 +237,10 @@ fi
 # Sort the list of packages in abc order.
 _pkglist=($(for _pkg in ${_pkglist[@]}; do echo "${_pkg}"; done | sort | perl -pe 's/\n/ /g'))
 
-echo "${_pkglist[@]}" >&1
+OLD_IFS="${IFS}"
+if [[ "${line}" = true ]]; then
+    IFS=$'\n'
+fi
+
+echo "${_pkglist[*]}" >&1
+IFS="${OLD_IFS}"
