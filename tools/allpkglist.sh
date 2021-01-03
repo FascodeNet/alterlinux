@@ -50,6 +50,6 @@ fi
 
 for arch in "x86_64" "i686" "i486"; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
-        "${tools_dir}/pkglist.sh" -a "${arch}" -b -c "${channel}" -k zen -l en --line 1> "${out_dir}/$(basename "${channel}").${arch}"
+        "${tools_dir}/pkglist.sh" -a "${arch}" -b -c "${channel%/}" -k zen -l en --line 1> "${out_dir}/$(basename "${channel}").${arch}"
     done
 done
