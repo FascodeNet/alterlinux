@@ -190,6 +190,8 @@ for _file in ${_loadfilelist[@]}; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
         _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+    else
+        msg_debug "The file was not found ${_file}"
     fi
 done
 
