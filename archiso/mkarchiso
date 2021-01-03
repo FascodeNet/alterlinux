@@ -137,7 +137,6 @@ _umount_airootfs_aur() {
     _msg_info "Unmounting '${airootfs_dir}'..."
     umount -d -- "${airootfs_dir}"
     _msg_info "Done!"
-    umount -d -- "${airootfs_dir}"
     trap - EXIT HUP INT TERM
 }
 
