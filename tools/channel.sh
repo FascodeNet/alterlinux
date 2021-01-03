@@ -7,7 +7,6 @@ opt_only_add=false
 opt_dir_name=false
 opt_nochkver=false
 opt_nobuiltin=false
-opt_allarch=false
 opt_fullpath=false
 opt_nocheck=false
 alteriso_version="3.0"
@@ -32,7 +31,6 @@ _help() {
     echo "    -d | --dirname            Display directory names of all channel as it is"
     echo "    -f | --fullpath           Display the full path of the channel (Use with -db)"
     echo "    -k | --kernel [name]      Specify the supported kernel"
-    echo "    -m | --multi              Only channels supported by allarch.sh"
     echo "    -n | --nochkver           Ignore channel version"
     echo "    -o | --only-add           Only additional channels"
     echo "    -v | --version [ver]      Specifies the AlterISO version"
@@ -71,9 +69,7 @@ gen_channel_list() {
         fi
     done
     if [[ "${opt_nobuiltin}" = false ]]; then
-        if [[ "${opt_allarch}" = false ]]; then
-            channellist+=("rebuild")
-        fi
+        channellist+=("rebuild")
         channellist+=("clean")
     fi
 }
@@ -132,8 +128,8 @@ show() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bdfk:mnov:h"
-_opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,multi,only-add,nochkver,version:,help,nocheck"
+_opt_short="a:bdfk:nov:h"
+_opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -161,10 +157,6 @@ while true; do
         -k | --kernel)
             kernel="${2}"
             shift 2
-            ;;
-        -m | --multi)
-            opt_allarch=true
-            shift 1
             ;;
         -n | --nochkver)
             opt_nochkver=true
