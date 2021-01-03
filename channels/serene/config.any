@@ -56,6 +56,12 @@ include_info=true
 customized_syslinux=true
 
 
+# Add extra files
+# Include files of share-extra channel
+# This setting cannot be changed by an argument.
+include_extra=true
+
+
 #-- Live environment user --#
 
 # Set the default live environment user name
