@@ -170,6 +170,8 @@ usage: ${app_name} [options] <profile_dir>
      -p PACKAGE(S)    Package(s) to install, can be used multiple times
      -s <SHARE DIR>   share channel dir
      -v               Enable verbose output
+     -n               No AUR
+     -b               Use bootsplash
      -w <work_dir>    Set the working directory
                       Default: '${work_dir}'
 
@@ -968,7 +970,7 @@ _build_profile() {
     _run_once _build_iso
 }
 
-while getopts 'p:C:L:P:A:D:w:o:g:vs:h?' arg; do
+while getopts 'p:C:L:P:A:D:w:o:g:vbns:h?' arg; do
     case "${arg}" in
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
@@ -983,6 +985,8 @@ while getopts 'p:C:L:P:A:D:w:o:g:vs:h?' arg; do
         o) out_dir="$(realpath -- "${OPTARG}")" ;;
         g) override_gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
+        b) boot_splash="true" ;;
+        n) noaur="true" ;;
         s) 
             share_dir="${OPTARG}"
             noshare=false
