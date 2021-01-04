@@ -40,10 +40,12 @@ while getopts 'p:C:L:P:A:D:w:o:g:vbnh?' arg; do
         n) mkarchiso_argskun="${mkarchiso_argskun} -n" ;;
         h|?) 
             "${script_path}/archiso/mkarchiso" -h | sed -e "s/profile_dir/channel_dir/g"
+            exit 0
             ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
             "${script_path}/archiso/mkarchiso" -m | sed -e "s/profile_dir/channel_dir/g"
+            exit -1
             ;;
     esac
 done
