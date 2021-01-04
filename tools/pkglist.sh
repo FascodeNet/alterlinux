@@ -168,6 +168,12 @@ if [[ "${boot_splash}" = true ]]; then
         $(ls ${share_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
         $(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
     )
+
+    if [[ "${extra}" = true ]]; then
+        _loadfilelist+=(
+            $(ls ${extra_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
 fi
 
 # share-extra package list
