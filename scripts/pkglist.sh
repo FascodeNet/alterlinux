@@ -3,14 +3,15 @@
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-share_dir="${script_path}/channels/share"
+share_dir=""
+noshare="true"
 
 boot_splash=false
 aur=false
 pkgdir_name="packages"
 
 arch=""
-channel_dir=""
+profile_dir=""
 kernel=""
 locale_name=""
 
@@ -22,12 +23,13 @@ locale_name=""
 _help() {
     echo "usage ${0} [options] [command]"
     echo
-    echo "Get a list of packages to install on that channel"
+    echo "Get a list of packages to install on that profile"
     echo
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -b | --boot-splash        Enable boot splash"
-    echo "    -c | --channel            Specify the channel directory"
+    echo "    -p | --profile            Specify the profile directory"
+    echo "    -s | --share              Specify the share profile directory"
     echo "    -k | --kernel             Specify the kernel"
     echo "    -h | --help               This help message"
     echo "         --aur                AUR packages"
@@ -41,22 +43,22 @@ getclm() {
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" error "${1}"
+    "${script_path}/scripts/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" error "${1}"
 }
 
 msg_info() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" error "${1}"
+    "${script_path}/scripts/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" error "${1}"
 }
 
 msg_debug() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
+    "${script_path}/scripts/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
 }
 
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bc:k:l:h"
-_opt_long="arch:,boot-splash,channel:,kernel:,locale:,aur,help"
+_opt_short="a:bp:s:k:l:h"
+_opt_long="arch:,boot-splash,profile:,share:,kernel:,locale:,aur,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -73,8 +75,13 @@ while true; do
             boot_splash=true
             shift 1
             ;;
-        -c | --channel)
-            channel_dir="${2}"
+        -p | --profile)
+            profile_dir="${2}"
+            shift 2
+            ;;
+        -s | --share)
+            share_dir="${2}"
+            noshare="false"
             shift 2
             ;;
         -k | --kernel)
@@ -105,8 +112,8 @@ done
 if [[ -z "${arch}" ]]; then
     msg_error "Architecture not specified"
     exit 1
-elif [[ -z "${channel_dir}" ]]; then
-    msg_error "Channel directory not specified"
+elif [[ -z "${profile_dir}" ]]; then
+    msg_error "Profile directory not specified"
     exit 1
 elif [[ -z "${kernel}" ]]; then
     msg_error "kernel not specified"
@@ -127,27 +134,43 @@ set +e
 
 
 #-- Detect package list to load --#
-# Add the files for each channel to the list of files to read.
-_loadfilelist=(
-    # share packages
-    $(ls ${share_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
-    "${share_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
+# Add the files for each profile to the list of files to read.
 
-    # channel packages
-    $(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
-    "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
-
-    # kernel packages
-    "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
-    "${channel_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
-)
+if [[ "${noshare}" = "false" ]]; then
+    
+    _loadfilelist=(
+        # share packages
+        $(ls ${share_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+        "${share_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
+        # profile packages
+        $(ls ${profile_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+        "${profile_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
+        # kernel packages
+        "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+        "${profile_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+    )
+else    
+    _loadfilelist=(
+        # profile packages
+        $(ls ${profile_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+        "${profile_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
+        # kernel packages
+        "${profile_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+    )
+fi
 
 # Plymouth package list
 if [[ "${boot_splash}" = true ]]; then
-    _loadfilelist+=(
-        $(ls ${share_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
-        $(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
-    )
+    if [[ "${noshare}" = "false" ]]; then
+        _loadfilelist+=(
+            $(ls ${share_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+            $(ls ${profile_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    else
+        _loadfilelist+=(
+            $(ls ${profile_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+        )
+    fi
 fi
 
 
@@ -162,13 +185,19 @@ done
 
 #-- Read exclude list --#
 # Exclude packages from the share exclusion list
-_excludefile=(
-    "${share_dir}/packages.${arch}/exclude"
-    "${share_dir}/packages_aur.${arch}/exclude"
-
-    "${channel_dir}/packages.${arch}/exclude"
-    "${channel_dir}/packages_aur.${arch}/exclude"
-)
+if [[ "${noshare}" = "false" ]]; then
+    _excludefile=(
+        "${share_dir}/packages.${arch}/exclude"
+        "${share_dir}/packages_aur.${arch}/exclude"
+        "${profile_dir}/packages.${arch}/exclude"
+        "${profile_dir}/packages_aur.${arch}/exclude"
+    )
+else
+    _excludefile=(
+        "${profile_dir}/packages.${arch}/exclude"
+        "${profile_dir}/packages_aur.${arch}/exclude"
+    )
+fi
 
 for _file in ${_excludefile[@]}; do
     if [[ -f "${_file}" ]]; then

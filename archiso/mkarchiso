@@ -34,7 +34,10 @@ noaur=false
 # For channel
 noshare=true
 share_dir=""
-
+# STUB
+kernel="core"
+locale_name="en"
+boot_splash=false
 # profile defaults
 profile=""
 iso_name="${app_name}"
@@ -693,7 +696,7 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
 # Build airootfs filesystem image
 _prepare_airootfs_image() {
     _run_once "_mkairootfs_${airootfs_image_type}"
-    if [[ "${noaur}" == "false" ]]; then
+    if [[ "${noaur}" = "false" ]]; then
         _umount_airootfs_aur
         rm -f "${work_dir}/airootfs.img"
     fi
@@ -852,23 +855,28 @@ _read_profile() {
         . "${profile}/profiledef.sh"
 
         # Resolve paths
-        packages="$(realpath -- "${profile}/packages.${arch}")"
+        # packages="$(realpath -- "${profile}/packages.${arch}")"
         pacman_conf="$(realpath -- "${pacman_conf}")"
 
         cd -- "${OLDPWD}"
 
         # Validate profile
         # Check if the package list file exists and read packages from it
-        if [[ -e "${packages}" ]]; then
-            mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
+        #if [[ -e "${packages}" ]]; then
+            #mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
+            if [[ "${noshare}" = "false" ]]; then
+                pkg_list=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" -s "${share_dir}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            else
+                pkg_list=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            fi
             if (( ${#pkg_list} < 1 )); then
                 (( validation_error=validation_error+1 ))
                 _msg_error "No package specified in '${packages}'." 0
             fi
-        else
-            (( validation_error=validation_error+1 ))
-            _msg_error "File '${packages}' does not exist." 0
-        fi
+        #else
+        #    (( validation_error=validation_error+1 ))
+        #    _msg_error "File '${packages}' does not exist." 0
+        #fi
         # Check if pacman configuration file exists
         if [[ ! -e "${pacman_conf}" ]]; then
             (( validation_error=validation_error+1 ))
