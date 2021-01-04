@@ -387,7 +387,16 @@ _make_packages() {
 
     _msg_info "Done! Packages installed successfully."
 }
-
+_make_aur_packages() {
+    if [[ "${noaur}" == "false" ]]; then
+        if (( ${#pkg_list_aur} > 0 )); then
+            sed "s|https|http|g" "${work_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+            cp -rf --preserve=mode "${script_path}/../system/aur.sh" "${airootfs_dir}/root/aur.sh"
+            eval -- arch-chroot "${airootfs_dir}" /root/aur.sh ${pkg_list_aur[*]}
+            rm -- "${airootfs_dir}/root/aur.sh"
+        fi
+    fi
+}
 # Customize installation (airootfs)
 _make_customize_airootfs() {
     local passwd=()
@@ -870,6 +879,11 @@ _read_profile() {
                 pkg_list=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" -s "${share_dir}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
             else
                 pkg_list=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            fi
+            if [[ "${noshare}" = "false" ]]; then
+                pkg_list_aur=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" --aur -s "${share_dir}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            else
+                pkg_list_aur=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" --aur $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
             fi
             if (( ${#pkg_list} < 1 )); then
                 (( validation_error=validation_error+1 ))

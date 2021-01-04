@@ -45,6 +45,16 @@ if [[ $(user_check ${aur_username}) = false ]]; then
 fi
 mkdir -p "/aurbuild_temp"
 chmod 700 -R "/aurbuild_temp"
+cat <<EOF >/aurbuild_temp/setup_yay.sh
+#!/usr/bin/env bash
+cd /aurbuild_temp
+git clone --depth 1 https://aur.archlinux.org/yay-bin.git
+cd yay-bin
+makepkg -cs
+yes | sudo pacman -U *.pkg.*
+
+EOF
+chmod 777 /aurbuild_temp/setup_yay.sh
 chown ${aur_username}:${aur_username} -R "/aurbuild_temp"
 echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
@@ -56,6 +66,7 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Build and install
 chmod +s /usr/bin/sudo
+sudo -u aurbuild /aurbuild_temp/setup_yay.sh
 yes | sudo -u aurbuild \
     yay -Sy \
         --mflags "-AcC" \
