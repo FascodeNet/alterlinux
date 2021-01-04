@@ -1,0 +1,60 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2020 Fascode Network.
+#
+# Internet
+
+
+#-- chat --#
+irssi
+
+
+#-- connection --#
+dhclient
+dnsutils
+ndisc6
+networkmanager
+ppp
+pptpclient
+rp-pppoe
+wvdial
+
+
+#-- client --#
+openssh
+wget
+
+
+#-- server --#
+darkhttpd
+dnsmasq
+
+
+
+#-- wireless --#
+crda
+iwd
+wireless-regdb
+wireless_tools
+wpa_supplicant
+
+
+#-- vpn --#
+networkmanager-openvpn
+openconnect
+openvpn
+vpnc
+xl2tpd
+
+
+#-- other tools --#
+ethtool
+gnu-netcat
+# nmap
+rsync
+tcpdump
