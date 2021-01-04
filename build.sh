@@ -15,7 +15,7 @@ set -eu
 
 # Internal config
 # Do not change these values.
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
+script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
@@ -40,7 +40,7 @@ fi
 umask 0022
 
 # Show an INFO message
-# $1: message string
+# ${1}: message string
 msg_info() {
     local _msg_opts="-a build.sh"
     if [[ "${1}" = "-n" ]]; then
@@ -53,7 +53,7 @@ msg_info() {
 }
 
 # Show an Warning message
-# $1: message string
+# ${1}: message string
 msg_warn() {
     local _msg_opts="-a build.sh"
     if [[ "${1}" = "-n" ]]; then
@@ -66,7 +66,7 @@ msg_warn() {
 }
 
 # Show an debug message
-# $1: message string
+# ${1}: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
         local _msg_opts="-a build.sh"
@@ -81,8 +81,8 @@ msg_debug() {
 }
 
 # Show an ERROR message then exit with status
-# $1: message string
-# $2: exit code number (with 0 does not exit)
+# ${1}: message string
+# ${2}: exit code number (with 0 does not exit)
 msg_error() {
     local _msg_opts="-a build.sh"
     if [[ "${1}" = "-n" ]]; then
@@ -246,8 +246,8 @@ umount_chroot_advance() {
 run_once() {
     set -eu
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
-        msg_debug "Running $1 ..."
-        "$1"
+        msg_debug "Running ${1} ..."
+        "${1}"
         touch "${work_dir}/build.${1}_${arch}"
         umount_chroot
     else
@@ -261,7 +261,7 @@ run_once() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "$@")) _file
+    local _list=($(echo "${@}")) _file
     for _file in "${_list[@]}"; do
         msg_debug "Removing ${_file}"
         if [[ -f "${_file}" ]]; then    
@@ -568,14 +568,14 @@ prepare_build() {
 
         # gitversion
         if [[ "${gitversion}" = true ]]; then
-            cd ${script_path}
+            cd "${script_path}"
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
 
         # Generate iso file name.
         local _channel_name
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        if [[ "$(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/')" = "add" ]]; then
             _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
         else
             _channel_name="${channel_name}-${locale_version}"
@@ -1182,7 +1182,7 @@ while :; do
             shift 1
             ;;
         -g | --gpgkey)
-            gpg_key="$2"
+            gpg_key="${2}"
             shift 2
             ;;
         -h | --help)
