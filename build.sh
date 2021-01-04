@@ -542,8 +542,10 @@ prepare_build() {
 
         # If there is config for channel. load that.
         load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
-        load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
         load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+        if [[ "${include_extra}" = true ]]; then
+            load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
+        fi
 
         # Set kernel
         if [[ "${customized_kernel}" = false ]]; then
