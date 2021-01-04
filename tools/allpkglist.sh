@@ -2,6 +2,15 @@
 
 set -e
 
+load_config() {
+    local _file
+    for _file in ${@}; do
+        if [[ -f "${_file}" ]]; then
+            source "${_file}"
+        fi
+    done
+}
+
 _help() {
     echo "usage ${0} [options]"
     echo
@@ -50,6 +59,23 @@ fi
 
 for arch in "x86_64" "i686" "i486"; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
-        "${tools_dir}/pkglist.sh" -a "${arch}" -b -c "${channel%/}" -k zen -l en --line 1> "${out_dir}/$(basename "${channel}").${arch}"
+        include_extra=$(
+            share_dir="${script_path}/channels/share"
+            extra_dir="${script_path}/channels/share-extra"
+            load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
+            load_config "${channel}/config.any" "${channel}/config.${arch}"
+            if [[ "${include_extra}" = true ]]; then
+                load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
+            fi
+            echo ${include_extra}
+        )
+
+        pkglist_opts="-a "${arch}" -b -c "${channel%/}" -k zen -l en --line"
+
+        if [[ "${include_extra}" = true ]]; then
+            pkglist_opts+=" -e"
+        fi
+
+        "${tools_dir}/pkglist.sh" ${pkglist_opts} 1> "${out_dir}/$(basename "${channel}").${arch}"
     done
 done
