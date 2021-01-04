@@ -976,6 +976,7 @@ _build_profile() {
     [[ "${noaur}" == "false" ]] && _run_once _create_airootfs_img
     _run_once _make_custom_airootfs
     _run_once _make_packages
+    _run_once _make_aur_packages
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
     _make_bootmodes
