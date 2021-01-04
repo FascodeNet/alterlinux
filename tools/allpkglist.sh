@@ -52,17 +52,14 @@ while true; do
     esac
 done
 
-if [[ -z "${out_dir}" ]]; then  
-    echo "Please specify the output destination directory." >&2
-    exit 1
-fi
+
+share_dir="${script_path}/channels/share"
+extra_dir="${script_path}/channels/share-extra"
 
 for arch in "x86_64" "i686" "i486"; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
     #for channel in "${script_path}/channels/releng"; do
         include_extra=$(
-            share_dir="${script_path}/channels/share"
-            extra_dir="${script_path}/channels/share-extra"
             load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
             load_config "${channel}/config.any" "${channel}/config.${arch}"
             if [[ "${include_extra}" = true ]]; then
@@ -77,6 +74,11 @@ for arch in "x86_64" "i686" "i486"; do
             pkglist_opts+=" -e"
         fi
 
-        "${tools_dir}/pkglist.sh" ${pkglist_opts} 1> "${out_dir}/$(basename "${channel}").${arch}"
+        if [[ -z "${out_dir}" ]]; then  
+            "${tools_dir}/pkglist.sh" ${pkglist_opts}
+        else
+            "${tools_dir}/pkglist.sh" ${pkglist_opts} 1> "${out_dir}/$(basename "${channel}").${arch}"
+        fi
+        
     done
 done
