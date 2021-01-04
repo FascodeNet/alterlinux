@@ -1,6 +1,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 base
+base-devel
+sudo
 linux
 mkinitcpio
 mkinitcpio-archiso
