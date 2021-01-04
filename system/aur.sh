@@ -68,6 +68,7 @@ yes | sudo -u aurbuild \
         --noprovides \
         --removemake \
         --useask \
+        --color always \
         --config "/etc/alteriso-pacman.conf" \
         --cachedir "/var/cache/pacman/pkg/" \
         ${*}
