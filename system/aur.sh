@@ -56,6 +56,9 @@ yes | sudo pacman -U *.pkg.*
 EOF
 chmod 777 /aurbuild_temp/setup_yay.sh
 chown ${aur_username}:${aur_username} -R "/aurbuild_temp"
+if [ ! -d /etc/sudoers.d ]; then
+    mkdir -p /etc/sudoers.d
+fi
 echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Setup keyring
