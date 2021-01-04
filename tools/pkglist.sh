@@ -220,7 +220,7 @@ fi
 
 for _file in ${_excludefile[@]}; do
     if [[ -f "${_file}" ]]; then
-        _excludelist=( ${_excludelist[@]} $(grep -h -v ^'#' "${_file}") )
+        _excludelist+=($(grep -h -v ^'#' "${_file}") )
     fi
 done
 
@@ -231,7 +231,7 @@ unset _pkglist
 for _pkg in ${_subpkglist[@]}; do
     # もし変数_pkgの値が配列_excludelistに含まれていなかったらpkglistに追加する
     if [[ ! $(printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-        _pkglist=(${_pkglist[@]} "${_pkg}")
+        _pkglist+=("${_pkg}")
     fi
 done
 unset _subpkglist
