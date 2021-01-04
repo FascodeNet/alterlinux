@@ -25,16 +25,16 @@ mkarchiso_argskun=""
 while getopts 'p:C:L:P:A:D:w:o:g:vbnh?' arg; do
     case "${arg}" in
         p)
-            mkarchiso_argskun = "${mkarchiso_argskun} -p \"${OPTARG}\""
+            mkarchiso_argskun = "${mkarchiso_argskun} -p ${OPTARG}"
             ;;
-        C) mkarchiso_argskun = "${mkarchiso_argskun} -C \"${OPTARG}\"" ;;
-        L) mkarchiso_argskun="${mkarchiso_argskun} -L \"${OPTARG}\"" ;;
-        P) mkarchiso_argskun="${mkarchiso_argskun} -P \"${OPTARG}\"" ;;
-        A) mkarchiso_argskun="${mkarchiso_argskun} -A \"${OPTARG}\"" ;;
-        D) mkarchiso_argskun="${mkarchiso_argskun} -D \"${OPTARG}\"" ;;
-        w) mkarchiso_argskun="${mkarchiso_argskun} -w \"${OPTARG}\"" ;;
-        o) mkarchiso_argskun="${mkarchiso_argskun} -o \"${OPTARG}\"" ;;
-        g) mkarchiso_argskun="${mkarchiso_argskun} -g \"${OPTARG}\"" ;;
+        C) mkarchiso_argskun = "${mkarchiso_argskun} -C ${OPTARG}" ;;
+        L) mkarchiso_argskun="${mkarchiso_argskun} -L ${OPTARG}" ;;
+        P) mkarchiso_argskun="${mkarchiso_argskun} -P ${OPTARG}" ;;
+        A) mkarchiso_argskun="${mkarchiso_argskun} -A ${OPTARG}" ;;
+        D) mkarchiso_argskun="${mkarchiso_argskun} -D ${OPTARG}" ;;
+        w) mkarchiso_argskun="${mkarchiso_argskun} -w ${OPTARG}" ;;
+        o) mkarchiso_argskun="${mkarchiso_argskun} -o ${OPTARG}" ;;
+        g) mkarchiso_argskun="${mkarchiso_argskun} -g ${OPTARG}" ;;
         v) mkarchiso_argskun="${mkarchiso_argskun} -v" ;;
         b) mkarchiso_argskun="${mkarchiso_argskun} -b" ;;
         n) mkarchiso_argskun="${mkarchiso_argskun} -n" ;;
@@ -64,5 +64,5 @@ fi
 # get the absolute path representation of the first non-option argument
 channel="$(realpath -- "${script_path}/channels/${1}")" 
 share_dir="$(realpath -- "${script_path}/channels/share")" 
-mkarchiso_argskun="${mkarchiso_argskun} -s \"${share_dir}\" \"${channel}\""
+mkarchiso_argskun="${mkarchiso_argskun} -s ${share_dir} ${channel}"
 "${script_path}/archiso/mkarchiso" ${mkarchiso_argskun}
