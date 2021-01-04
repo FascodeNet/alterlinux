@@ -664,7 +664,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    local _pkg _pkglist_args="-a '${arch}' -k '${kernel}' -c '${channel_dir}' -l '${locale_name}'"
+    local _pkg _pkglist_args="--aur -a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
 
     # get pkglist
     if [[ "${boot_splash}" = true ]]; then
@@ -686,7 +686,7 @@ make_packages() {
 }
 
 make_packages_aur() {
-    local _pkg _pkglist_args="--aur -a '${arch}' -k '${kernel}' -c '${channel_dir}' -l '${locale_name}'"
+    local _pkg _pkglist_args="--aur -a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
 
     # get pkglist
     if [[ "${boot_splash}" = true ]]; then
