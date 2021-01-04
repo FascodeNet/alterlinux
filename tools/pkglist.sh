@@ -4,10 +4,13 @@ set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 share_dir="${script_path}/channels/share"
+extra_dir="${script_path}/channels/share-extra"
 
 boot_splash=false
 aur=false
 pkgdir_name="packages"
+extra=false
+line=false
 
 arch=""
 channel_dir=""
@@ -27,10 +30,13 @@ _help() {
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -b | --boot-splash        Enable boot splash"
-    echo "    -c | --channel            Specify the channel directory"
-    echo "    -k | --kernel             Specify the kernel"
+    echo "    -c | --channel [dir]      Specify the channel directory"
+    echo "    -e | --extra              Include extra packages"
+    echo "    -k | --kernel [kernel]    Specify the kernel"
+    echo "    -l | --locale [locale]    Specify the locale"
     echo "    -h | --help               This help message"
     echo "         --aur                AUR packages"
+    echo "         --line               Line break the output"
 }
 
 # Usage: getclm <number>
@@ -55,8 +61,8 @@ msg_debug() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bc:k:l:h"
-_opt_long="arch:,boot-splash,channel:,kernel:,locale:,aur,help"
+_opt_short="a:bc:ek:l:h"
+_opt_long="arch:,boot-splash,channel:,extra,kernel:,locale:,aur,help,line"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -77,6 +83,10 @@ while true; do
             channel_dir="${2}"
             shift 2
             ;;
+        -e | --extra)
+            extra=true
+            shift 1
+            ;;
         -k | --kernel)
             kernel="${2}"
             shift 2
@@ -87,6 +97,10 @@ while true; do
             ;;
         --aur)
             aur=true
+            shift 1
+            ;;
+        --line)
+            line=true
             shift 1
             ;;
         -h | --help)
@@ -129,16 +143,22 @@ set +e
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
 _loadfilelist=(
-    # share packages
+    #-- share packages --#
     $(ls ${share_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+    # lang
     "${share_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
 
-    # channel packages
+    # kernel
+    "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+
+    #-- channel packages --#
     $(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+    # lang
     "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
 
-    # kernel packages
-    "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+    # kernel
     "${channel_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
 )
 
@@ -150,6 +170,19 @@ if [[ "${boot_splash}" = true ]]; then
     )
 fi
 
+# share-extra package list
+if [[ "${extra}" = true ]]; then
+    _loadfilelist+=(
+        $(ls ${extra_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+        # lang
+        "${extra_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
+
+        # kernel
+        "${extra_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
+    )
+fi
+
 
 #-- Read package list --#
 # Read the file and remove comments starting with # and add it to the list of packages to install.
@@ -157,6 +190,8 @@ for _file in ${_loadfilelist[@]}; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
         _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+    else
+        msg_debug "The file was not found ${_file}"
     fi
 done
 
@@ -169,6 +204,13 @@ _excludefile=(
     "${channel_dir}/packages.${arch}/exclude"
     "${channel_dir}/packages_aur.${arch}/exclude"
 )
+
+if [[ "${extra}" = true ]];then
+    _excludefile+=(
+        "${extra_dir}/packages.${arch}/exclude"
+        "${extra_dir}/packages_aur.${arch}/exclude"
+    )
+fi
 
 for _file in ${_excludefile[@]}; do
     if [[ -f "${_file}" ]]; then
@@ -197,4 +239,13 @@ fi
 # Sort the list of packages in abc order.
 _pkglist=($(for _pkg in ${_pkglist[@]}; do echo "${_pkg}"; done | sort | perl -pe 's/\n/ /g'))
 
-echo "${_pkglist[@]}" >&1
+# 重複してるものを削除
+_pkglist=($( echo "${_pkglist[@]}" | uniq ))
+
+OLD_IFS="${IFS}"
+if [[ "${line}" = true ]]; then
+    IFS=$'\n'
+fi
+
+echo "${_pkglist[*]}" >&1
+IFS="${OLD_IFS}"

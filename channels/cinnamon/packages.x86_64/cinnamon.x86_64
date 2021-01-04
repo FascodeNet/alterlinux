@@ -13,3 +13,7 @@
 #-- Cinnamon --#
 cinnamon
 cinnamon-translations
+
+#-- Tools --#
+dconf-editor
+gnome-terminal

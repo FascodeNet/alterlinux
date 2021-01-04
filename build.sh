@@ -15,7 +15,7 @@ set -eu
 
 # Internal config
 # Do not change these values.
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
+script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 rebuild=false
 customized_username=false
@@ -40,7 +40,7 @@ fi
 umask 0022
 
 # Show an INFO message
-# $1: message string
+# ${1}: message string
 msg_info() {
     local _msg_opts="-a build.sh"
     if [[ "${1}" = "-n" ]]; then
@@ -53,7 +53,7 @@ msg_info() {
 }
 
 # Show an Warning message
-# $1: message string
+# ${1}: message string
 msg_warn() {
     local _msg_opts="-a build.sh"
     if [[ "${1}" = "-n" ]]; then
@@ -66,7 +66,7 @@ msg_warn() {
 }
 
 # Show an debug message
-# $1: message string
+# ${1}: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
         local _msg_opts="-a build.sh"
@@ -81,8 +81,8 @@ msg_debug() {
 }
 
 # Show an ERROR message then exit with status
-# $1: message string
-# $2: exit code number (with 0 does not exit)
+# ${1}: message string
+# ${2}: exit code number (with 0 does not exit)
 msg_error() {
     local _msg_opts="-a build.sh"
     if [[ "${1}" = "-n" ]]; then
@@ -246,8 +246,8 @@ umount_chroot_advance() {
 run_once() {
     set -eu
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
-        msg_debug "Running $1 ..."
-        "$1"
+        msg_debug "Running ${1} ..."
+        "${1}"
         touch "${work_dir}/build.${1}_${arch}"
         umount_chroot
     else
@@ -261,7 +261,7 @@ run_once() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "$@")) _file
+    local _list=($(echo "${@}")) _file
     for _file in "${_list[@]}"; do
         msg_debug "Removing ${_file}"
         if [[ -f "${_file}" ]]; then    
@@ -457,6 +457,7 @@ prepare_rebuild() {
     _save_var channel_dir
     _save_var airootfs_dir
     _save_var share_dir
+    _save_var extra_dir
     _save_var isofs_dir
     _save_var install_dir
     _save_var work_dir
@@ -498,6 +499,7 @@ prepare_rebuild() {
     _write_rebuild_file "\n# Channel Info"
     _save_var build_pacman_conf
     _save_var defaultconfig
+    _save_var include_extra
     _save_var defaultusername
     _save_var customized_username
     _save_var customized_password
@@ -535,11 +537,15 @@ prepare_build() {
         # Set dirs
         airootfs_dir="${work_dir}/${arch}/airootfs"
         share_dir="${script_path}/channels/share"
+        extra_dir="${script_path}/channels/share-extra"
         isofs_dir="${work_dir}/iso"
 
         # If there is config for channel. load that.
-        load_config "${share_dir}/config.any" "${script_path}/channels/share/config.${arch}"
+        load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
         load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+        if [[ "${include_extra}" = true ]]; then
+            load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
+        fi
 
         # Set kernel
         if [[ "${customized_kernel}" = false ]]; then
@@ -562,14 +568,14 @@ prepare_build() {
 
         # gitversion
         if [[ "${gitversion}" = true ]]; then
-            cd ${script_path}
+            cd "${script_path}"
             iso_version=${iso_version}-$(git rev-parse --short HEAD)
             cd - > /dev/null 2>&1
         fi
 
         # Generate iso file name.
         local _channel_name
-        if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
+        if [[ "$(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/')" = "add" ]]; then
             _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
         else
             _channel_name="${channel_name}-${locale_version}"
@@ -624,6 +630,7 @@ prepare_build() {
     check_bool nocolor
     check_bool msgdebug
     check_bool noefi
+    check_bool include_extra
 
     # Check architecture for each channel
     if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -657,7 +664,16 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages() {
-    local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "${arch}" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local _pkg _pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
+
+    # get pkglist
+    if [[ "${boot_splash}" = true ]]; then
+        _pkglist_args+=" -b"
+    fi
+    if [[ "${include_extra}" = true ]]; then
+        _pkglist_args+=" -e"
+    fi
+    local _pkglist=($("${script_path}/tools/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -670,11 +686,20 @@ make_packages() {
 }
 
 make_packages_aur() {
-    local _pkg pkglist_aur=($("${script_path}/tools/pkglist.sh" --aur -a "${arch}" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local _pkg _pkglist_args="--aur -a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
+
+    # get pkglist
+    if [[ "${boot_splash}" = true ]]; then
+        _pkglist_args+=" -b"
+    fi
+    if [[ "${include_extra}" = true ]]; then
+        _pkglist_args+=" -e"
+    fi
+    local _pkglist_aur=($("${script_path}/tools/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    for _pkg in ${pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    for _pkg in ${_pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
@@ -682,7 +707,7 @@ make_packages_aur() {
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "/root/aur.sh ${pkglist_aur[*]}" run
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}" run
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
@@ -691,8 +716,23 @@ make_packages_aur() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    local _airootfs _airootfs_script_options _script _script_list
-    for _airootfs in "${share_dir}/airootfs.any" "${share_dir}/airootfs.${arch}" "${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any"; do
+    local _airootfs _airootfs_script_options _script _script_list _airootfs_list
+
+    _airootfs_list=(
+        "${share_dir}/airootfs.any"
+        "${share_dir}/airootfs.${arch}"
+        "${channel_dir}/airootfs.${arch}"
+        "${channel_dir}/airootfs.any"
+    )
+
+    if [[ "${include_extra}" = true ]]; then
+        _airootfs_list+=(
+            "${extra_dir}/airootfs.any"
+            "${extra_dir}/airootfs.${arch}"
+        )
+    fi
+
+    for _airootfs in ${_airootfs_list[@]};do
         if [[ -d "${_airootfs}" ]]; then
             cp -af "${_airootfs}"/* "${airootfs_dir}"
         fi
@@ -1081,17 +1121,20 @@ make_prepare() {
 
 # Add files to the root of isofs
 make_overisofs() {
-    local _copy_isofs
+    local _over_isofs_list _isofs
 
-    _copy_isofs() {
-        local _dir="${1%/}"
-        if [[ -d "${_dir}" ]]; then cp -af "${_dir}"/* "${isofs_dir}"; fi
-    }
+    _over_isofs_list=(
+        "${share_dir}/over_isofs.any"
+        "${share_dir}/over_isofs.${arch}"
+        "${extra_dir}/over_isofs.any"
+        "${extra_dir}/over_isofs.${arch}"
+        "${channel_dir}/over_isofs.any"
+        "${channel_dir}/over_isofs.${arch}"
+    )
 
-    _copy_isofs "${share_dir}/over_isofs.any"
-    _copy_isofs "${share_dir}/over_isofs.${arch}"
-    _copy_isofs "${channel_dir}/over_isofs.any"
-    _copy_isofs "${channel_dir}/over_isofs.${arch}"
+    for _isofs in ${_over_isofs_list[@]}; do
+        if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
+    done
 }
 
 # Build ISO
@@ -1139,7 +1182,7 @@ while :; do
             shift 1
             ;;
         -g | --gpgkey)
-            gpg_key="$2"
+            gpg_key="${2}"
             shift 2
             ;;
         -h | --help)

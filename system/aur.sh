@@ -80,5 +80,4 @@ remove /etc/sudoers.d/aurbuild
 remove "/etc/alteriso-pacman.conf"
 remove "/var/cache/pacman/pkg/"
 
-yay -Sccc --noconfirm
-yay -Syy
+yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
