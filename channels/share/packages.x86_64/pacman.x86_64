@@ -10,9 +10,6 @@
 # package management
 
 
-#-- cli frontend --#
-yay
-
 
 #-- keyring --#
 alterlinux-keyring
