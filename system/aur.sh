@@ -93,6 +93,3 @@ remove /aurbuild_temp
 remove /etc/sudoers.d/aurbuild
 remove "/etc/alteriso-pacman.conf"
 remove "/var/cache/pacman/pkg/"
-
-yay -Sccc --noconfirm
-yay -Syy
