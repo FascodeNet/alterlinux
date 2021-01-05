@@ -1,8 +1,63 @@
 ## Todo
 
-- PKGBUILDのビルドに対応
-  - PKGBUILDを解析するスクリプトを作成
-  - リポジトリのPKGBUILDを移行
-  - リポジトリを完全に廃止
-- `share-extra`と重複してるパッケージリストやファイルを削除
+- [ ] PKGBUILDのビルドに対応
+  - [ ] PKGBUILDを解析するスクリプトを作成
+  - [ ] リポジトリのPKGBUILDを移行
+  - [ ] リポジトリを完全に廃止
 - 完全な（全てのチャンネルで共通して動作する）`final-process`を開発
+- `share-extra`と重複してるパッケージリストやファイルを削除
+  - [ ] cinnamon
+    - [ ] x86_64
+      - [x] en
+      - [ ] ja
+    - [ ] i686
+      - [ ] en
+      - [ ] ja
+  - [ ] gnome
+    - [ ] x86_64
+    - [ ] en
+    - [ ] ja
+  - [ ] gnome-mac
+    - [ ] x86_64
+    - [ ] en
+    - [ ] ja
+  - [ ] i3
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
+    - [ ] i686
+      - [ ] en
+      - [ ] ja
+  - [ ] lxde
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
+    - [ ] i686
+      - [ ] en
+      - [ ] ja
+  - [ ] lxde-m
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
+  - [ ] plasma
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
+  - [ ] serene
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
+    - [ ] i686
+      - [ ] en
+      - [ ] ja
+  - [ ] xfce
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
+    - [ ] i686
+      - [ ] en
+      - [ ] ja
+  - [ ] xfce-pro
+    - [ ] x86_64
+      - [ ] en
+      - [ ] ja
