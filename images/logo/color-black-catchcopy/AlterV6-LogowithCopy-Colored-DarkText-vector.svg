@@ -91,7 +91,7 @@
     <path
        id="path948"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
-       d="m 125.41454,52.086876 v -0.917462 h -5.64171 v 0.917462 h 2.31419 v 9.202015 h 1.01332 v -9.202015 z" />
+       d="m 125.41454,52.086876 v -0.917462 h -5.64171 v 0.917462 h 2.31419 v 9.202115 h 1.01332 v -9.202115 z" />
     <path
        id="path950"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
@@ -111,7 +111,7 @@
     <path
        id="path958"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
-       d="m 172.42958,54.42846 c 0,-2.108795 -1.17763,-3.259046 -4.35452,-3.259046 h -2.50591 v 10.119477 h 1.01332 v -9.202015 h 1.42412 c 2.35528,0 3.39598,0.616207 3.39598,2.300504 0,1.821232 -0.95854,2.314197 -3.79309,2.314197 l 3.40968,4.587314 h 1.2598 l -2.83455,-3.779399 c 1.94447,-0.205402 2.98517,-1.287186 2.98517,-3.081032 z" />
+       d="m 172.42958,54.42846 c 0,-2.108795 -1.17763,-3.259046 -4.35452,-3.259046 h -2.50591 v 10.119477 h 1.01332 v -9.202115 h 1.42412 c 2.35528,0 3.39598,0.616207 3.39598,2.300504 0,1.821232 -0.95854,2.314197 -3.79309,2.314197 l 3.40968,4.587314 h 1.2598 l -2.83455,-3.779399 c 1.94447,-0.205402 2.98517,-1.287186 2.98517,-3.081032 z" />
     <path
        id="path960"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
@@ -123,7 +123,7 @@
     <path
        id="path964"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
-       d="m 194.70823,54.42846 c 0,-2.108795 -1.17764,-3.259046 -4.35453,-3.259046 h -2.50591 v 10.119477 h 1.01332 v -9.202015 h 1.42412 c 2.35528,0 3.39598,0.616207 3.39598,2.300504 0,1.821232 -0.95854,2.314197 -3.79309,2.314197 l 3.40968,4.587314 h 1.2598 l -2.83455,-3.779399 c 1.94447,-0.205402 2.98518,-1.287186 2.98518,-3.081032 z" />
+       d="m 194.70823,54.42846 c 0,-2.108795 -1.17764,-3.259046 -4.35453,-3.259046 h -2.50591 v 10.119477 h 1.01332 v -9.202115 h 1.42412 c 2.35528,0 3.39598,0.616207 3.39598,2.300504 0,1.821232 -0.95854,2.314197 -3.79309,2.314197 l 3.40968,4.587314 h 1.2598 l -2.83455,-3.779399 c 1.94447,-0.205402 2.98518,-1.287186 2.98518,-3.081032 z" />
     <path
        id="path966"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
@@ -135,6 +135,6 @@
     <path
        id="path970"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#464646;fill-opacity:1;stroke-width:0.34233689"
-       d="m 222.90031,52.086876 v -0.917462 h -5.64171 v 0.917462 h 2.31419 v 9.202015 h 1.01332 v -9.202015 z" />
+       d="m 222.90031,52.086876 v -0.917462 h -5.64171 v 0.917462 h 2.31419 v 9.202115 h 1.01332 v -9.202115 z" />
   </g>
 </svg>

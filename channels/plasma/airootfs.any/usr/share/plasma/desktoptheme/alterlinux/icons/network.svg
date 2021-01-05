@@ -1444,7 +1444,7 @@
    <path id="path2016" style="fill:#ffffff" d="m 114.49995,-76.0005 c -1.5,3e-6 -2.5,1.000003 -2.5,2 v 2.000498 h -1 v 0.75 V -68 h 0.75 5.5 0.75 v -4.000002 h -1 V -74.0005 c 0,-0.999997 -1,-2 -2.5,-2 z m 0,1.000003 c 0.5,0 1.5,0 1.5,1.374997 v 1.625498 h -3 V -73.6255 c 0,-1.374997 1.01912,-1.374997 1.5,-1.374997 z"/>
   </g>
   <g id="g2028">
-   <rect id="rect2020" style="opacity:0.2" width="12" height="9" x="4" y="23" rx="2" ry="2"/>
+   <rect id="rect2021" style="opacity:0.2" width="12" height="9" x="4" y="23" rx="2" ry="2"/>
    <rect id="rect2022" style="fill:#4671e6" width="12" height="9" x="4" y="22" rx="2" ry="2"/>
    <rect id="rect2024" style="fill:#ffffff" width="3" height="1" x="6" y="26"/>
    <rect id="rect2026" style="fill:#ffffff" width="3" height="1" x="11" y="26"/>

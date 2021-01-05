@@ -253,4 +253,4 @@ Feel free to ask by DM or reply to Twitter [(@Fascode_SPT)](https://twitter.com/
 		Watasuke
 		Twitter: @Watasuke102
 		Email  : Watasuke102@gmail.com
-		(c) 2020 Fascode Network.
+		(c) 2021 Fascode Network.

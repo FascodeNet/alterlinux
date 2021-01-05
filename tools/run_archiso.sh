@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2020 David Runge <dvzrv@archlinux.org>
+# Copyright (C) 2021 David Runge <dvzrv@archlinux.org>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -30,7 +30,7 @@ Options:
 
 Example:
     Run an image using UEFI:
-    $ run_archiso -u -i archiso-2020.05.23-x86_64.iso
+    $ run_archiso -u -i archiso-2021.05.23-x86_64.iso
 EOF
     printf '%s' "${usagetext}"
 }

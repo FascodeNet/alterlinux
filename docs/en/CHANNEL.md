@@ -4,7 +4,7 @@ Channel is an Alter Linux original mechanism that is made so that you can easily
 This mechanism allows you to easily create an AlterOS derivative OS.  
 Initially, it was only possible to switch packages, but now the specifications have changed significantly and various changes can be made for each channel.  
 
-The following are channel specifications as of May 13, 2020.  
+The following are channel specifications as of May 13, 2021.  
 
 # Let the script recognize the channel
 
