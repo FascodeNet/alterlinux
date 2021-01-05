@@ -3,7 +3,7 @@
 
 iso_name="archlinux"
 iso_label="ARCH_$(date +%Y%m)"
-iso_publisher="Arch Linux <https://www.archlinux.org>"
+iso_publisher="Arch Linux <https://archlinux.org>"
 iso_application="Arch Linux Live/Rescue CD"
 iso_version="$(date +%Y.%m.%d)"
 install_dir="arch"
