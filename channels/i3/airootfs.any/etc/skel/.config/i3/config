@@ -12,16 +12,13 @@
 # ---------------------
 # Appearance
 
-# wallpaper
-exec --no-startup-id "feh --bg-fill /usr/share/backgrounds/alter-jiju.png"
-
 # font
 font pango:Noto Sans 9
 
 
 # gaps each window
 gaps outer 2
-gaps inner 15
+gaps inner 7
 smart_gaps on
 
 
@@ -32,13 +29,13 @@ for_window [class="^.*"] border pixel 2
 # automatic-startup
 exec_always --no-startup-id /usr/lib/mate-polkit/polkit-mate-authentication-agent-1
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+exec_always --no-startup-id nitrogen --restore
+exec_always --no-startup-id dunst
 exec_always --no-startup-id light-locker
-exec_always --no-startup-id compton
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
-exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-clipman
 exec --no-startup-id dex -ae i3
-exec --no-startup-id dunst
+exec --no-startup-id nm-applet
+exec --no-startup-id compton
 exec --no-startup-id conky
 exec --no-startup-id fcitx
 
@@ -53,7 +50,7 @@ for_window [class="pavucontrol"] floating enable
 set $mod Mod4
 
 # start calamares (installer)
-bindsym $mod+i exec --no-startup-id sudo calamares
+bindsym $mod+i exec --no-startup-id sudo -E calamares
 
 # start a terminal
 bindsym $mod+Return exec --no-startup-id sakura

@@ -17,4 +17,9 @@ usershell="/bin/zsh"
 
 # Do not install the AUR package.
 # Change the default behavior of "--noaur".
-noaur=true
+#noaur=true
+
+# Add extra files
+# Include files of share-extra channel
+# This setting cannot be changed by an argument.
+include_extra=true

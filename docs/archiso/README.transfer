@@ -117,7 +117,7 @@ Note: Using here a GPT partition mode as example, but MBR should also works
 # mount <DEV-TARGET-N> <MNT-TARGET-N>
 
 4) Extract ISO image on target filesystem.
-# bsdtar -x --exclude=isolinux/ --exclude=EFI/archiso/ --exclude=arch/boot/syslinux/ -f <ISO-SOURCE> -C <MNT-TARGET-N>
+# bsdtar -x --exclude=isolinux/ --exclude=EFI/alteriso/ --exclude=arch/boot/syslinux/ -f <ISO-SOURCE> -C <MNT-TARGET-N>
 
 5) Unmount target filesystem.
 # umount <MNT-TARGET-N>

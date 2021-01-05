@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>DOCUMENT.md</title>
+<title>README.md</title>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 
 <style>
@@ -369,327 +369,13 @@ code {
 <p>This document will show how to use Alter Linux i3 Edition.<br>
 このドキュメントでは、Alter Linux i3エディションの使い方を紹介します。</p>
 <ol>
-<li>日本語</li>
-<li>English</li>
-</ol>
-<hr>
-<h2 id="%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88%E3%82%AD%E3%83%BC">ショートカットキー</h2>
-<p>i3wmには多数の便利なショートカットがあります。ショートカットは[mod]と呼ばれるキーとの組み合わせであることがほとんどです。<br>
-ここでは、ショートカットの一部を紹介します。</p>
-<h3 id="%E3%82%AD%E3%83%BC%E3%81%AE%E5%AE%9A%E7%BE%A9">キーの定義</h3>
-<ul>
-<li>mod : super (Windowsキー)</li>
-<li>Arrow : ←[ j ], ↓[ k ], ↑[ l ], →[ ; ]キー (カッコ内キーで代用可)</li>
-</ul>
-<h3 id="%E9%87%8D%E8%A6%81%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88">重要ショートカット</h3>
-<table>
-<thead>
-<tr>
-<th>ショートカット</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>mod+Enter</td>
-<td>ターミナルを開く</td>
-</tr>
-<tr>
-<td>mod+Shift+Q</td>
-<td>アクティブウィンドウを閉じる</td>
-</tr>
-<tr>
-<td>mod+D</td>
-<td>ランチャーの表示</td>
-</tr>
-<tr>
-<td>super+Esc</td>
-<td>画面のロック</td>
-</tr>
-<tr>
-<td>mod+Shift+E</td>
-<td>電源メニュー</td>
-</tr>
-<tr>
-<td></td>
-<td>(電源メニュー時)</td>
-</tr>
-<tr>
-<td>S</td>
-<td>シャットダウン</td>
-</tr>
-<tr>
-<td>R</td>
-<td>再起動</td>
-</tr>
-<tr>
-<td>O</td>
-<td>ログアウト</td>
-</tr>
-<tr>
-<td>L</td>
-<td>ロック</td>
-</tr>
-<tr>
-<td>Q, Esc, Enter</td>
-<td>キャンセル</td>
-</tr>
-</tbody>
-</table>
-<h3 id="%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%B9%E3%83%9A%E3%83%BC%E3%82%B9%E3%83%BB%E3%82%A6%E3%82%A3%E3%83%B3%E3%83%89%E3%82%A6">ワークスペース・ウィンドウ</h3>
-<table>
-<thead>
-<tr>
-<th>ショートカット</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>mod+0-9</td>
-<td>ワークスペースの変更</td>
-</tr>
-<tr>
-<td>mod+R</td>
-<td>リサイズモード (リサイズモード中に押すとキャンセル)</td>
-</tr>
-<tr>
-<td>mod+Shift+0-9</td>
-<td>アクティブウィンドウを他のワークスペースに移動する</td>
-</tr>
-<tr>
-<td>mod+Arrow</td>
-<td>アクティブウィンドウの切り替え</td>
-</tr>
-<tr>
-<td>mod+Shift+Arrow</td>
-<td>アクティブウィンドウの移動</td>
-</tr>
-<tr>
-<td>mod+h</td>
-<td>新規ウィンドウの作成位置を水平 (横) 方向にする</td>
-</tr>
-<tr>
-<td>mod+v</td>
-<td>新規ウィンドウの作成位置を垂直 (縦) 方向にする</td>
-</tr>
-<tr>
-<td>mod+Shift+R</td>
-<td>i3wmの再読込</td>
-</tr>
-</tbody>
-</table>
-<h3 id="%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2">ソフトウェア</h3>
-<table>
-<thead>
-<tr>
-<th>ショートカット</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>mod+Shift+S</td>
-<td>テーママネージャ (パネルの見た目変更)</td>
-</tr>
-<tr>
-<td>mod+B</td>
-<td>システム設定マネージャ</td>
-</tr>
-</tbody>
-</table>
-<p>この他にも多数の便利なショートカットがあります。</p>
-<h2 id="%E8%A8%AD%E5%AE%9A%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%97%E3%81%9F%E3%81%84">設定を変更したい</h2>
-<p>カスタマイズを加えたい場合は、この項目を参考にしてください。</p>
-<ul>
-<li>パネルを変えたい<br>
-後述のテーママネージャを使用してください</li>
-<li>画面の解像度など、システムの設定を変更したい<br>
-後述のbmenu (設定マネージャ) を使用してください</li>
-<li>壁紙を変えたい<br>
-<code>~/.config/i3/config</code> を編集し、16行目 <code>exec --no-startup-id &quot;feh --bg-fill ***</code> の***の位置に、壁紙のパスを記述してください</li>
-<li>操作方法が表示されたウィンドウを非表示にしたい<br>
-<code>~/.config/conky</code> を削除する、もしくは <code>~/.config/i3/config</code> を編集し、42行目 (<code>exec --no-startup-id conky</code>) を削除することで無効に出来ます</li>
-</ul>
-<h2 id="%E3%83%86%E3%83%BC%E3%83%9E%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">テーママネージャについて</h2>
-<p>mod+Shift+S で、Alter Linux i3独自のテーママネージャを起動できます。<br>
-このテーママネージャでは、画面の上 (デフォルト) にあるパネルの見た目、位置などを変更することが出来ます。</p>
-<h2 id="bmenu-%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E8%A8%AD%E5%AE%9A%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3-%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">bmenu (システム設定マネージャ) について</h2>
-<p>mod+Bで、システム設定マネージャを起動できます。<br>
-このショートカットを押すと、新規ターミナル上でbmenuが起動します。変更したい設定に該当するカテゴリの数字を入力し、設定を変更してください。</p>
-<h2 id="qa">Q&amp;A</h2>
-<ul>
-<li>わからないことがある<br>
-Twitter <a href="https://twitter.com/Fascode_SPT">(@Fascode_SPT)</a> へのDMや返信等で気軽に聞いてください。</li>
-</ul>
-<hr>
-<h2 id="shortcut-keys">Shortcut keys</h2>
-<p>i3wm has many useful shortcut keys. Most of the shortcuts are in combination with a key called [mod].<br>
-Here are some of them.</p>
-<h3 id="key-definitions">Key Definitions</h3>
-<ul>
-<li>mod : super (Windows key)</li>
-<li>Arrow : ←[ j ], ↓[ k ], ↑[ l ], →[ ; ] key (you can substitute the key in parentheses)</li>
-</ul>
-<h3 id="most-important-shortcut">Most important shortcut</h3>
-<table>
-<thead>
-<tr>
-<th>Shortcuts</th>
-<th>Contents</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>mod+Enter</td>
-<td>Open a new terminal</td>
-</tr>
-<tr>
-<td>mod+Shift+Q</td>
-<td>Kill active window</td>
-</tr>
-<tr>
-<td>mod+D</td>
-<td>Software launcher</td>
-</tr>
-<tr>
-<td>super+Esc</td>
-<td>Screen lock</td>
-</tr>
-<tr>
-<td>mod+Shift+E</td>
-<td>Power menu</td>
-</tr>
-<tr>
-<td></td>
-<td>(on the power menu)</td>
-</tr>
-<tr>
-<td>S</td>
-<td>Shutdown</td>
-</tr>
-<tr>
-<td>R</td>
-<td>Reboot</td>
-</tr>
-<tr>
-<td>O</td>
-<td>logOut</td>
-</tr>
-<tr>
-<td>L</td>
-<td>Lock</td>
-</tr>
-<tr>
-<td>Q, Esc, Enter</td>
-<td>Canncel</td>
-</tr>
-</tbody>
-</table>
-<h3 id="workspace-window">Workspace, window</h3>
-<table>
-<thead>
-<tr>
-<th>Shortcuts</th>
-<th>Contents</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>mod+0-9</td>
-<td>Switch workspaces</td>
-</tr>
-<tr>
-<td>mod+R</td>
-<td>Resize mode (Canncel when )</td>
-</tr>
-<tr>
-<td>mod+Shift+0-9</td>
-<td>Move active window to other workspace</td>
-</tr>
-<tr>
-<td>mod+Arrow</td>
-<td>Switch active window</td>
-</tr>
-<tr>
-<td>mod+Shift+Arrow</td>
-<td>Move active window</td>
-</tr>
-<tr>
-<td>mod+h</td>
-<td>Change the new window position horizontally</td>
-</tr>
-<tr>
-<td>mod+v</td>
-<td>Change the new window position horizontally</td>
-</tr>
-<tr>
-<td>mod+Shift+R</td>
-<td>Reload i3wm</td>
-</tr>
-</tbody>
-</table>
-<h3 id="softwares">Softwares</h3>
-<table>
-<thead>
-<tr>
-<th>Shortcuts</th>
-<th>Contents</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>mod+Shift+S</td>
-<td>Theme Manager (change the look of the panel )</td>
-</tr>
-<tr>
-<td>mod+B</td>
-<td>System setting manager</td>
-</tr>
-</tbody>
-</table>
-<p>There are many other useful shortcuts.</p>
-<h2 id="i-want-to-change-settings">I want to change settings</h2>
-<p>If you want to add some customization, please refer to this section.</p>
-<ul>
-<li>Change the panel<br>
-Use the Theme Manager described below</li>
-<li>Change the system settings, such as screen resolution, etc.<br>
-Use bmenu (setting manager) as described below</li>
-<li>Change the wallpaper.<br>
-Edit <code>~/.config/i3/config</code> , and add line 16 <code>exec --no- startup-id &quot;feh --bg-fill ***</code> with the path to the wallpaper in the *** position.</li>
-<li>Hide the window with the operating instructions.<br>
-Remove <code>~/.config/conky</code> , or edit <code>~/.config/i3/config</code> and remove line 42 (<code>exec --no-startup-id conky </code>)</li>
-</ul>
-<h2 id="about-the-theme-manager">About the Theme Manager</h2>
-<p>You can use mod+Shift+S to launch Alter Linux i3's own theme manager.<br>
-The theme manager allows you to change the appearance, position, etc. of the panel at the top of the screen (by default).<br>
-This theme manager allows you to change the appearance, position, etc. of the panels at the top of the screen (the default) You can do.</p>
-<h2 id="about-bmenu-system-setting-manager">About bmenu (System setting manager)</h2>
-<p>You can use mod+B to start the System Configuration Manager.<br>
-Pressing this shortcut will launch bmenu in a new terminal. Enter the number of the category that corresponds to the setting you want to change.</p>
-<h2 id="qa">Q&amp;A</h2>
-<ul>
-<li>There's something I don't understand<br>
-Feel free to ask by DM or reply to Twitter <a href="https://twitter.com/Fascode_SPT">(@Fascode_SPT)</a>.</li>
-</ul>
-<hr>
-<pre><code>	Alter Linux i3 edition help document
-	Watasuke
-	Twitter: @Watasuke102
-	Email  : Watasuke102@gmail.com
-	(c) 2020 Fascode Network.</code></pre>
-
-<h1 id="thank-you-for-try-alter-linux-i3-edition">Thank you for try Alter Linux i3 Edition</h1>
-<p>This document will show how to use Alter Linux i3 Edition.<br>
-このドキュメントでは、Alter Linux i3エディションの使い方を紹介します。</p>
-<ol>
 <li><a href="#%E7%9B%AE%E6%AC%A1">日本語</a></li>
 <li><a href="#table-of-contents">English</a></li>
 </ol>
 <hr>
 <h2 id="%E7%9B%AE%E6%AC%A1">目次</h2>
 <ol>
+<li><a href="%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8Bi3wm%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">インストールされているi3wmについて</a></li>
 <li><a href="#%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E4%BD%BF%E3%81%84%E6%96%B9">基本的な使い方</a>
 <ol>
 <li><a href="#%E3%82%BD%E3%83%95%E3%83%88%E3%82%92%E8%B5%B7%E5%8B%95%E3%81%99%E3%82%8B">ソフトを起動する</a></li>
@@ -712,6 +398,10 @@ Feel free to ask by DM or reply to Twitter <a href="https://twitter.com/Fascode_
 <li><a href="#%E8%A8%AD%E5%AE%9A%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%97%E3%81%9F%E3%81%84">設定を変更したい</a></li>
 <li><a href="#%E3%81%9D%E3%81%AE%E4%BB%96">その他</a></li>
 </ol>
+<h2 id="%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8Bi3wm%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">インストールされているi3wmについて</h2>
+<p>Alter Linuxでは，ウィンドウマネージャとしてi3wmからフォークされたi3-gapsがインストールされています。<br>
+これはオリジナルのi3wmに，ウィンドウの間を空ける機能などが搭載されたものです。<br>
+以降はi3-gapsをi3wmとして解説します。</p>
 <h2 id="%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E4%BD%BF%E3%81%84%E6%96%B9">基本的な使い方</h2>
 <p>i3wmはタイル型ウィンドウマネージャです。ウィンドウが増えるたびに、i3wmは自動でウィンドウをリサイズし、整列させます。<br>
 基本的な操作はショートカットで行います。ショートカットについては、<a href="#%E3%82%B7%E3%83%A7%E3%83%BC%E3%83%88%E3%82%AB%E3%83%83%E3%83%88%E3%82%AD%E3%83%BC">こちら</a>を参考にしてください。<br>
@@ -884,7 +574,8 @@ mod(Windowsキー)+Dでランチャーを起動し、上下キーでソフトを
 <li>画面の解像度など、システムの設定を変更したい<br>
 前述の設定マネージャを使用してください</li>
 <li>壁紙を変えたい<br>
-<code>~/.config/i3/config</code> を編集し、16行目 <code>exec --no-startup-id &quot;feh --bg-fill ***</code> の***の位置に、壁紙のパスを記述してください</li>
+ランチャーなどからnitrogenを起動し，お好みの画像に変更してください<br>
+壁紙を追加したい場合は右下のボタンから設定を開き，壁紙があるフォルダを追加してください</li>
 <li>操作方法が表示されたウィンドウを非表示にしたい<br>
 <code>~/.config/conky</code> を削除する、もしくは <code>~/.config/i3/config</code> を編集し、42行目 (<code>exec --no-startup-id conky</code>) を削除することで無効に出来ます</li>
 </ul>
@@ -918,6 +609,10 @@ Twitter <a href="https://twitter.com/Fascode_SPT">(@Fascode_SPT)</a> へのDMや
 <li><a href="#how-to-change-the-settings">How to change the settings</a></li>
 <li><a href="#qa">Q&amp;A</a></li>
 </ol>
+<h2 id="about-installed-i3wm">About installed i3wm</h2>
+<p>Alter Linux installed i3-gaps forked from i3wm as a window manager.<br>
+i3-gaps added gaps between window to original i3wm.<br>
+This document will explain i3-gaps as i3wm.</p>
 <h2 id="basic-usage">Basic Usage</h2>
 <p>i3wm is a tiling window manager. Each time you add more windows, i3wm will automatically resize and align them.<br>
 The basic operations are done using shortcuts. See <a href="#Shortcut-keys">Shortcut keys</a> for more information on shortcuts.<br>
@@ -1065,9 +760,10 @@ Here are some of them.</p>
 Use the Theme Manager described above</li>
 <li>Change the system settings, such as screen resolution, etc.<br>
 Use system manager as described above</li>
-<li>Change the wallpaper.<br>
-Edit <code>~/.config/i3/config</code> , and add line 16 <code>exec --no- startup-id &quot;feh --bg-fill ***</code> with the path to the wallpaper in the *** position.</li>
-<li>Hide the window with the operating instructions.<br>
+<li>Change the wallpaper<br>
+Run <code>nitrogen</code> from the launcher or terminal, and select the image to one you like.<br>
+If you want to add a wallpaper, click the button on bottom right to open the settings window, and add the folder where the wallpaper is located.</li>
+<li>Hide the window with the operating instructions<br>
 Remove <code>~/.config/conky</code> , or edit <code>~/.config/i3/config</code> and remove line 42 (<code>exec --no-startup-id conky </code>)</li>
 </ul>
 <h2 id="qa">Q&amp;A</h2>

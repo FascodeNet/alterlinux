@@ -1,4 +1,6 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # /oldroot depends on things inside /oldroot/run/archiso...
 mkdir /oldrun

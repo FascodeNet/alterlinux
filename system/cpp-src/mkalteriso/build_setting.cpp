@@ -119,3 +119,9 @@ bool build_setting::get_wsl(){
 void build_setting::set_wsl(bool blkun){
     enable_wsl=blkun;
 }
+bool build_setting::get_aur(){
+    return enable_aur;
+}
+void build_setting::set_aur(bool bl){
+    enable_aur=bl;
+}

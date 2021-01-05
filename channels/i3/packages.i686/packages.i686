@@ -16,7 +16,6 @@ dmraid
 fsarchiver
 gpm
 gptfdisk
-grml-zsh-config
 hdparm
 lvm2
 mdadm
@@ -29,6 +28,7 @@ smartmontools
 testdisk
 vim-minimal
 grub-theme-vimix
+smbclient
 gvfs-smb
 gvfs
 sshfs

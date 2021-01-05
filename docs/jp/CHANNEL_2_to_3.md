@@ -10,7 +10,7 @@ AlterISO3では様々な新機能が追加されました。そしてそれと�
 
 ## 1. バージョンファイルを作成する
 
-`<ch_name>/alteriso`ファイルを作成し、中に`alteriso=3`と記述して下さい。  
+`<ch_name>/alteriso`ファイルを作成し、中に`alteriso=3.0`と記述して下さい。  
 
 このファイルが存在しないと以前のバージョン用のチャンネルと解釈され、ビルドできません。  
 
@@ -18,9 +18,14 @@ AlterISO3では様々な新機能が追加されました。そしてそれと�
 
 ### config.<arch>
 
-以前の`japanese`変数は意味を成しません。  
+以前の`japanese`変数は意味を成しません。AlterISO3では言語名を`locale_name`変数で行っています。  
+特定の言語を強制的に使用させたい場合は、`-l`オプションで指定する言語名を`locale_name`変数で指定して下さい。  
 
-〜現在これ以降は仕様が確定していないため後から追記します。〜  
+#### 詳細設定を行う
+AlterISO3は`locale_name`の値を元にいくつかの変数を`system/locale-<arch>`から参照します。  
+チャンネルの`config`ファイルでは変数を上書きできるので、これらを詳細に書き換えることができます。  
+`locale.gen`の値は`locale_gen_name`変数、タイムゾーンは`locale_time`変数で設定できます。  
+詳細は[releng](/channels/releng/config.any)を参考にして下さい。  
 
 ### customize_airootfs_<ch_name>.sh
 
@@ -72,10 +77,11 @@ done
 
 ```bash
 # Default value
+# Default value
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel_config_line=("zen" "linux-zen" "linux-zen-beaders" "vmlinuz-linux-zen" "linux-zen")
+kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
 rebuild=false
 username='alter'
@@ -112,10 +118,8 @@ done
 
 # Parse kernel
 kernel="${kernel_config_line[0]}"
-kernel_package="${kernel_config_line[1]}"
-kernel_headers_packages="${kernel_config_line[2]}"
-kernel_filename="${kernel_config_line[3]}"
-kernel_mkinitcpio_profile="${kernel_config_line[4]}"
+kernel_filename="${kernel_config_line[1]}"
+kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 ```
 
 #### 日本語用処理部分
