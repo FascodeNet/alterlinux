@@ -250,8 +250,8 @@ if [[ "${simulation}" = false ]]; then
     sudo pacman -Syy
 fi
 
-for cha in ${channnels[@]}; do
-    for arch in ${architectures[@]}; do
+for arch in ${architectures[@]}; do
+    for cha in ${channnels[@]}; do
         for lang in ${locale_list[@]}; do
             for i in $(seq 1 ${retry}); do
                 if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
