@@ -4,11 +4,15 @@ addons:
   apt:
     packages:
       - ninja
+      - cmake
+      - clang
 script:
   - bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
   - cd system/cpp-src/mkalteriso
-  - sudo -E env "PATH=$PATH" cmake -GNinja
-  - sudo -E env "PATH=$PATH" ninja
+  - mkdir -p build
+  - cd build
+  - cmake -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+  - ninja -j4
   
 git:
   submodules: false
