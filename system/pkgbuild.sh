@@ -78,13 +78,11 @@ fi
 cd "${1}"
 makedepends=() depends=()
 for _dir in *; do
-    srcinfo="${_dir}/.SRCINFO"
     cd "${_dir}"
-    makepkg --printsrcinfo > "${srcinfo}"
+    makepkg --printsrcinfo > ".SRCINFO"
+    makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
+    depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
     cd - >/dev/null
-
-    makedepends+=($(get_srcinfo_data "${srcinfo}" ".makedepends[]?"))
-    depends+=($(get_srcinfo_data "${srcinfo}" ".depends[]?"))
 done
 
 # Build and install
