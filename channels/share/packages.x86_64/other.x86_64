@@ -14,7 +14,9 @@
 arch-install-scripts
 bash-completion
 git
+jq
 mc
+python-srcinfo
 
 
 #-- utility --#
