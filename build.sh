@@ -714,36 +714,29 @@ make_packages_aur() {
 }
 
 make_pkgbuild() {
-    set +eu
     #-- PKGBUILDが入ってるディレクトリの一覧 --#
     local _pkgbuild_dirs=(
-        $(ls "${share_dir}/pkgbuild.any" 2>/dev/null)
-        $(ls "${share_dir}/pkgbuild.${arch}" 2>/dev/null)
-
-        $(ls "${channel_dir}/pkgbuild.any" 2>/dev/null)
-        $(ls "${channel_dir}/pkgbuild.${arch}" 2>/dev/null)
+        "${share_dir}/pkgbuild.any"
+        "${share_dir}/pkgbuild.${arch}"
+        "${channel_dir}/pkgbuild.any"
+        "${channel_dir}/pkgbuild.${arch}"
     )
 
     if [[ "${include_extra}" = true ]]; then
         _pkgbuild_dirs+=(
-            $(ls "${extra_dir}/pkgbuild.any" 2>/dev/null)
-            $(ls "${extra_dir}/pkgbuild.${arch}" 2>/dev/null)
+            "${extra_dir}/pkgbuild.any"
+            "${extra_dir}/pkgbuild.${arch}"
         )
     fi
-    set -eu
 
     #-- PKGBUILDの一覧 --#
     # _pkgbuild_dirs: PKGBUILDが入っているディレクトリの一覧
-    local _dir _pkgbuild_list=() _pkgbuild __pkgbuild_dirs=(${_pkgbuild_dirs[@]})
+    local _dir __pkgbuild_dirs=(${_pkgbuild_dirs[@]})
     unset _pkgbuild_dirs
     for _dir in ${__pkgbuild_dirs[@]}; do
-        _pkgbuild="${_dir}/PKGBUILD"
-        if [[ -f "${_pkgbuild}" ]]; then
-            _pkgbuild_dirs+=("${_dir}")
-        fi
-        unset _pkgbuild
+        _pkgbuild_dirs+=($(find "${_dir}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f))
     done
-    unset _dir _pkgbuild __pkgbuild_dirs
+    unset _dir __pkgbuild_dirs
 
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
