@@ -714,6 +714,7 @@ make_packages_aur() {
 }
 
 make_pkgbuild() {
+    set +eu
     #-- PKGBUILDが入ってるディレクトリの一覧 --#
     local _pkgbuild_dirs=(
         $(ls "${share_dir}/pkgbuild.any" 2>/dev/null)
@@ -729,6 +730,7 @@ make_pkgbuild() {
             $(ls "${extra_dir}/pkgbuild.${arch}" 2>/dev/null)
         )
     fi
+    set -eu
 
     #-- PKGBUILDの一覧 --#
     # _pkgbuild_dirs: PKGBUILDが入っているディレクトリの一覧
