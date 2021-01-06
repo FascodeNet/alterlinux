@@ -77,7 +77,7 @@ if [[ -z "${1}" ]]; then
 fi
 cd "${1}"
 makedepends=() depends=()
-for _dir in $(ls 2>/dev/null); do
+for _dir in *; do
     srcinfo="${_dir}/.SRCINFO"
     cd "${_dir}"
     makepkg --printsrcinfo > "${srcinfo}"
@@ -106,7 +106,7 @@ yes | sudo -u "${build_username}" \
         --cachedir "/var/cache/pacman/pkg/" \
         ${makedepends[*]} ${depends[*]}
 
-for _dir in $(ls 2>/dev/null); do
+for _dir in *; do
     cd "${_dir}"
     sudo -u "${build_username}" makepkg -iAcC
     cd - >/dev/null
