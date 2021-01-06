@@ -713,6 +713,64 @@ make_packages_aur() {
     remove "${airootfs_dir}/root/aur.sh"
 }
 
+make_pkgbuild() {
+    #-- PKGBUILDが入ってるディレクトリの一覧 --#
+    local _pkgbuild_dirs=(
+        $(ls "${share_dir}/pkgbuild.any" 2>/dev/null)
+        $(ls "${share_dir}/pkgbuild.${arch}" 2>/dev/null)
+
+        $(ls "${channel_dir}/pkgbuild.any" 2>/dev/null)
+        $(ls "${channel_dir}/pkgbuild.${arch}" 2>/dev/null)
+    )
+
+    if [[ "${include_extra}" = true ]]; then
+        _pkgbuild_dirs+=(
+            $(ls "${extra_dir}/pkgbuild.any" 2>/dev/null)
+            $(ls "${extra_dir}/pkgbuild.${arch}" 2>/dev/null)
+        )
+    fi
+
+    #-- PKGBUILDの一覧 --#
+    # _pkgbuild_dirs: PKGBUILDが入っているディレクトリの一覧
+    local _dir _pkgbuild_list=() _pkgbuild __pkgbuild_dirs=(${_pkgbuild_dirs[@]})
+    unset _pkgbuild_dirs
+    for _dir in ${__pkgbuild_dirs[@]}; do
+        _pkgbuild="${_dir}/PKGBUILD"
+        if [[ -f "${_pkgbuild}" ]]; then
+            _pkgbuild_dirs+=("${_dir}")
+        fi
+        unset _pkgbuild
+    done
+    unset _dir _pkgbuild __pkgbuild_dirs
+
+
+    #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
+    local __pkgbuild_dirs=(${_pkgbuild_dirs[@]})
+    unset _pkgbuild_dirs
+    for _dir in ${__pkgbuild_dirs[@]}; do
+        mkdir -p "${airootfs_dir}/pkgbuilds/"
+        cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
+        _pkgbuild_dirs+=("${airootfs_dir}/pkgbuilds/$(basename "${_dir}")")
+    done
+    unset __pkgbuild_dirs
+
+
+    #-- SRCINFOの生成と一覧 --#
+    local _srcinfo _srcinfo_list=()
+    for _dir in ${_pkgbuild_dirs[@]}; do
+        _srcinfo="${_dir}/.SRCINFO"
+        if [[ ! -f "${_srcinfo}" ]]; then
+            cd "${_dir}"
+            makepkg --printsrcinfo > "${srcinfo}"
+            cd - >/dev/null
+        fi
+        _srcinfo_list+=("${_srcinfo}")
+    done
+
+    # 依存関係のインストールとmakepkgの実行はまだ未実装
+
+}
+
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
@@ -1388,6 +1446,7 @@ run_once make_pacman_conf
 run_once make_basefs
 run_once make_packages
 [[ "${noaur}" = false ]] && run_once make_packages_aur
+run_once make_pkgbuild
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 if [[ "${noiso}" = false ]]; then
