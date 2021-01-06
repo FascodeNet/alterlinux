@@ -762,7 +762,17 @@ make_pkgbuild() {
         _srcinfo_list+=("${_srcinfo}")
     done
 
-    # 依存関係のインストールとmakepkgの実行はまだ未実装
+    #-- ビルドスクリプトの実行 --#
+    # prepare for yay
+    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
+    #cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
+    sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+
+    # Run aur script
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds" run
+
+    # Remove script
+    remove "${airootfs_dir}/root/pkgbuild.sh"
 
 }
 
