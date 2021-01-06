@@ -108,11 +108,11 @@ yes | sudo -u "${build_username}" \
 
 for _dir in *; do
     cd "${_dir}"
-    sudo -u "${build_username}" makepkg -iAcC
+    sudo -u "${build_username}" makepkg -iAcC --noconfirm 
     cd - >/dev/null
 done
 
-pacman -Rsnc $(pacman -Qtdq)
+pacman -Rsnc --noconfirm $(pacman -Qtdq)
 
 yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
