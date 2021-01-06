@@ -75,6 +75,8 @@ if [[ -z "${1}" ]]; then
     echo "Please specify the directory that contains PKGBUILD." >&2
     exit 1
 fi
+chown "${build_username}" -R "${1}"
+chmod 775 -R "${1}"
 cd "${1}"
 makedepends=() depends=()
 for _dir in *; do
