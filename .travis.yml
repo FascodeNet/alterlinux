@@ -13,8 +13,8 @@ script:
   - cd system/cpp-src/mkalteriso
   - mkdir -p build
   - cd build
-  - sudo cmake -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-  - sudo ninja -j4
+  - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+  - make
   
 git:
   submodules: false
