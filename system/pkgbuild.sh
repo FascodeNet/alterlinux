@@ -79,7 +79,7 @@ cd "${1}"
 makedepends=() depends=()
 for _dir in *; do
     cd "${_dir}"
-    makepkg --printsrcinfo > ".SRCINFO"
+    sudo -u "${build_username}" bash -c "makepkg --printsrcinfo > .SRCINFO"
     makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
     depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
     cd - >/dev/null
