@@ -748,20 +748,7 @@ make_pkgbuild() {
         _pkgbuild_dirs+=("${airootfs_dir}/pkgbuilds/$(basename "${_dir}")")
     done
     unset __pkgbuild_dirs
-
-
-    #-- SRCINFOの生成と一覧 --#
-    local _srcinfo _srcinfo_list=()
-    for _dir in ${_pkgbuild_dirs[@]}; do
-        _srcinfo="${_dir}/.SRCINFO"
-        if [[ ! -f "${_srcinfo}" ]]; then
-            cd "${_dir}"
-            makepkg --printsrcinfo > "${srcinfo}"
-            cd - >/dev/null
-        fi
-        _srcinfo_list+=("${_srcinfo}")
-    done
-
+    
     #-- ビルドスクリプトの実行 --#
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
