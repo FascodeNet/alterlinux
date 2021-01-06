@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Drive
+Type=Link
+URL=https://drive.google.com/drive/my-drive
+Icon=/usr/share/icons/google-app/1492616974-19-google-drive-data-document-file-safe_83422.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/Google%20Drive.desktop

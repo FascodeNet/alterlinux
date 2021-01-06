@@ -41,8 +41,6 @@ gnome-tweaks
 
 #-- extentions --#
 chrome-gnome-shell
-gnome-shell-extension-extensions-git
-gnome-shell-extension-topicons-redux
 
 
 #-- Display manager --#
@@ -51,3 +49,9 @@ gdm
 #-- other --#
 gnome-bluetooth
 gnome-epub-thumbnailer
+
+#aur build
+meson
+ninja
+jq
+oniguruma

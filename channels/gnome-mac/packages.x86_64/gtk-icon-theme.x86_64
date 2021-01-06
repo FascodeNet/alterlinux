@@ -15,4 +15,8 @@ papirus-icon-theme
 
 
 # theme
-adapta-gtk-theme
+#adapta-gtk-theme
+
+
+# Qt config
+qt5ct

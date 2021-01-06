@@ -7,6 +7,7 @@ This document will show how to use Alter Linux i3 Edition.
 
 ---
 ## 目次
+1. [インストールされているi3wmについて](インストールされているi3wmについて)
 1. [基本的な使い方](#基本的な使い方)
 	1. [ソフトを起動する](#ソフトを起動する)
 	1. [ウィンドウの簡易的な操作](#ウィンドウの簡易的な操作)
@@ -22,6 +23,11 @@ This document will show how to use Alter Linux i3 Edition.
 	1. [ソフトウェア](#ソフトウェア)
 1. [設定を変更したい](#設定を変更したい)
 1. [その他](#その他)
+
+## インストールされているi3wmについて
+Alter Linuxでは，ウィンドウマネージャとしてi3wmからフォークされたi3-gapsがインストールされています。  
+これはオリジナルのi3wmに，ウィンドウの間を空ける機能などが搭載されたものです。  
+以降はi3-gapsをi3wmとして解説します。  
 
 ## 基本的な使い方
 i3wmはタイル型ウィンドウマネージャです。ウィンドウが増えるたびに、i3wmは自動でウィンドウをリサイズし、整列させます。  
@@ -112,7 +118,8 @@ i3wmには多数の便利なショートカットがあります。ショート�
 - 画面の解像度など、システムの設定を変更したい  
 前述の設定マネージャを使用してください
 - 壁紙を変えたい  
-`~/.config/i3/config` を編集し、16行目 `exec --no-startup-id "feh --bg-fill ***` の***の位置に、壁紙のパスを記述してください
+ランチャーなどからnitrogenを起動し，お好みの画像に変更してください  
+壁紙を追加したい場合は右下のボタンから設定を開き，壁紙があるフォルダを追加してください
 - 操作方法が表示されたウィンドウを非表示にしたい  
 `~/.config/conky` を削除する、もしくは `~/.config/i3/config` を編集し、42行目 (`exec --no-startup-id conky`) を削除することで無効に出来ます
 
@@ -141,6 +148,11 @@ Twitter [(@Fascode_SPT)](https://twitter.com/Fascode_SPT) へのDMや返信等�
 	1. [Softwares](#softwares)
 1. [How to change the settings](#how-to-change-the-settings)
 1. [Q&A](#qa)
+
+## About installed i3wm
+Alter Linux installed i3-gaps forked from i3wm as a window manager.  
+i3-gaps added gaps between window to original i3wm.  
+This document will explain i3-gaps as i3wm.  
 
 ## Basic Usage
 i3wm is a tiling window manager. Each time you add more windows, i3wm will automatically resize and align them.  
@@ -223,9 +235,10 @@ If you want to add some customization, please refer to this section.
 Use the Theme Manager described above
 - Change the system settings, such as screen resolution, etc.  
 Use system manager as described above
-- Change the wallpaper.  
-Edit `~/.config/i3/config` , and add line 16 `exec --no- startup-id "feh --bg-fill ***` with the path to the wallpaper in the *** position.
-- Hide the window with the operating instructions.  
+- Change the wallpaper  
+Run `nitrogen` from the launcher or terminal, and select the image to one you like.  
+If you want to add a wallpaper, click the button on bottom right to open the settings window, and add the folder where the wallpaper is located.
+- Hide the window with the operating instructions  
 Remove `~/.config/conky` , or edit `~/.config/i3/config` and remove line 42 (`exec --no-startup-id conky `)
 
 

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Gmail
+Type=Link
+URL=https://mail.google.com/mail/
+Icon=/usr/share/icons/google-app/Gmail_29991.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/Gmail.desktop

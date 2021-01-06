@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/.."
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 channnels=(
     "xfce"
-    "xfce-pro"
+#   "xfce-pro"
     "lxde"
     "cinnamon"
     "i3"
-    "gnome"
+#   "gnome"
 )
 
 architectures=(
@@ -25,146 +25,64 @@ work_dir="${script_path}/temp"
 simulation=false
 retry=5
 
+remove_cache=false
 all_channel=false
-
-# Color echo
-# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
-#
-# Text Color
-# 30 => Black
-# 31 => Red
-# 32 => Green
-# 33 => Yellow
-# 34 => Blue
-# 35 => Magenta
-# 36 => Cyan
-# 37 => White
-#
-# Background color
-# 40 => Black
-# 41 => Red
-# 42 => Green
-# 43 => Yellow
-# 44 => Blue
-# 45 => Magenta
-# 46 => Cyan
-# 47 => White
-#
-# Text decoration
-# You can specify multiple decorations with ;.
-# 0 => All attributs off (ノーマル)
-# 1 => Bold on (太字)
-# 4 => Underscore (下線)
-# 5 => Blink on (点滅)
-# 7 => Reverse video on (色反転)
-# 8 => Concealed on
-
-echo_color() {
-    local backcolor
-    local textcolor
-    local decotypes
-    local echo_opts
-    local arg
-    local OPTIND
-    local OPT
-
-    echo_opts="-e"
-
-    while getopts 'b:t:d:n' arg; do
-        case "${arg}" in
-            b) backcolor="${OPTARG}" ;;
-            t) textcolor="${OPTARG}" ;;
-            d) decotypes="${OPTARG}" ;;
-            n) echo_opts="-n -e"     ;;
-        esac
-    done
-
-    shift $((OPTIND - 1))
-
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
-}
-
 
 # Show an INFO message
 # $1: message string
-_msg_info() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')    $( echo_color -t '32' 'Info') ${*}"
+msg_info() {
+    local _msg_opts="-a fullbuilid -s 5"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
 }
-
 
 # Show an Warning message
 # $1: message string
-_msg_warn() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]') $( echo_color -t '33' 'Warning') ${*}" >&2
+msg_warn() {
+    local _msg_opts="-a fullbuilid -s 5"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
 }
-
 
 # Show an debug message
 # $1: message string
-_msg_debug() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    if [[ ${debug} = true ]]; then
-        echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '35' 'Debug') ${*}"
+msg_debug() {
+    if [[ "${debug}" = true ]]; then
+        local _msg_opts="-a fullbuilid -s 5"
+        if [[ "${1}" = "-n" ]]; then
+            _msg_opts="${_msg_opts} -o -n"
+            shift 1
+        fi
+        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
     fi
 }
-
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
-_msg_error() {
-    local echo_opts="-e"
-    local arg
-    local OPTIND
-    local OPT
-    local OPTARG
-    while getopts 'n' arg; do
-        case "${arg}" in
-            n) echo_opts="${echo_opts} -n" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo ${echo_opts} "$( echo_color -t '36' '[fullbuild.sh]')   $( echo_color -t '31' 'Error') ${1}" >&2
+msg_error() {
+    local _msg_opts="-a fullbuilid -s 5"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit ${2}
     fi
 }
 
 
-
 trap_exit() {
     local status=${?}
     echo
-    _msg_error "fullbuild.sh has been killed by the user."
+    msg_error "fullbuild.sh has been killed by the user."
     exit ${status}
 }
 
@@ -174,22 +92,25 @@ build() {
 
     options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
 
+    if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
+        sudo pacman -Sccc --noconfirm
+    fi
+
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
             _exit_code="${?}"
         else
-            _msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
+            msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash ${script_path}/build.sh ${options}
             _exit_code="${?}"
-            if [[ "${_exit_code}" == 0 ]]; then
+            if [[ "${_exit_code}" = 0 ]]; then
                 touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
             else
-                _msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
+                msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
         fi
     fi
-    sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
 
 _help() {
@@ -199,13 +120,16 @@ _help() {
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
-    echo "    -g                 Use gitversion."
-    echo "    -h                 This help message."
-    echo "    -m <architecture>  Set the architecture to build."
-    echo "    -r <interer>       Set the number of retries."
+    echo "    -g                 Use gitversion"
+    echo "    -h | --help        This help message"
+    echo "    -l <locale>        Set the locale to build"
+    echo "    -m <architecture>  Set the architecture to build"
+    echo "    -r <interer>       Set the number of retries"
     echo "                       Defalut: ${retry}"
-    echo "    -s                 Enable simulation mode."
-    echo "    -t                 Build the tarball as well."
+    echo "    -s                 Enable simulation mode"
+    echo "    -t                 Build the tarball as well"
+    echo
+    echo "    --remove-cache     Clear cache for all packages on every build"
     echo
     echo " !! WARNING !!"
     echo " Do not set channel or architecture with -a."
@@ -214,42 +138,93 @@ _help() {
     echo
     echo "Run \"build.sh -h\" for channel details."
     echo -n " Channel: "
-    "${script_path}/build.sh" --channellist
+    "${script_path}/tools/channel.sh" show
 }
 
 
 share_options="--noconfirm"
 default_options="--boot-splash --cleanup --user alter --password alter"
 
-while getopts 'a:dghr:sctm:' arg; do
-    case "${arg}" in
-        a) share_options="${share_options} ${OPTARG}" ;;
-        c) all_channel=true ;;
-        d) share_options="${share_options} ${default_options}" ;;
-        m) architectures=(${OPTARG}) ;;
-        g)
+
+# Parse options
+ARGUMENT="${@}"
+_opt_short="a:dghr:sctm:l:"
+_opt_long="help,remove-cache"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+[[ ${?} != 0 ]] && exit 1
+
+eval set -- "${OPT}"
+unset OPT _opt_short _opt_long
+
+while true; do
+    case ${1} in
+        -a)
+            share_options="${share_options} ${2}"
+            shift 2
+            ;;
+        -c)
+            all_channel=true
+            shift 1
+            ;;
+        -d)
+            share_options="${share_options} ${default_options}"
+            shift 1
+            ;;
+        -m)
+            architectures=(${2})
+            shift 2
+            ;;
+        -g)
             if [[ ! -d "${script_path}/.git" ]]; then
-                _msg_error "There is no git directory. You need to use git clone to use this feature."
+                msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
             else
                 share_options="${share_options} --gitversion"
             fi
+            shift 1
             ;;
-        s) simulation=true;;
-        r) retry="${OPTARG}" ;;
-        t) share_options="${share_options} --tarball" ;;
-        h) _help ; exit 0 ;;
-        *) _help ; exit 1 ;;
+        -s)
+            simulation=true
+            shift 1
+            ;;
+        -r)
+            retry="${2}"
+            shift 2
+            ;;
+        -t)
+            share_options="${share_options} --tarball"
+            ;;
+        -l)
+            locale_list=(${2})
+            shift 2
+            ;;
+        -h | --help)
+            shift 1
+            _help
+            exit 0
+            ;;
+        --remove-cache)
+            remove_cache=true
+            shift 1
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            shift 1
+            _help
+            exit 1 
+            ;;
     esac
 done
-shift $((OPTIND - 1))
 
 
 if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
-        _msg_error "Do not specify the channel." "1"
+        msg_error "Do not specify the channel." "1"
     else
-        channnels=($("${script_path}/build.sh" --channellist))
+        channnels=($("${script_path}/tools/channel.sh" -b show))
     fi
 elif [[ -n "${*}" ]]; then
     channnels=(${@})
@@ -259,8 +234,8 @@ if [[ "${simulation}" = true ]]; then
     retry=1
 fi
 
-_msg_info "Options: ${share_options}"
-_msg_info "Press Enter to continue or Ctrl + C to cancel."
+msg_info "Options: ${share_options}"
+msg_info "Press Enter to continue or Ctrl + C to cancel."
 read
 
 
@@ -268,6 +243,11 @@ trap 'trap_exit' 1 2 3 15
 
 if [[ ! -d "${work_dir}" ]]; then
     mkdir -p "${work_dir}"
+fi
+
+if [[ "${simulation}" = false ]]; then
+    msg_info "Update the package database."
+    sudo pacman -Syy
 fi
 
 for cha in ${channnels[@]}; do
@@ -284,5 +264,5 @@ done
 
 
 if [[ "${simulation}" = false ]]; then
-    _msg_info "All editions have been built"
+    msg_info "All editions have been built"
 fi

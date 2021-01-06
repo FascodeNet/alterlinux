@@ -11,8 +11,7 @@
 
 
 #-- cli frontend --#
-aptpac
-yay-bin
+yay
 
 
 #-- keyring --#

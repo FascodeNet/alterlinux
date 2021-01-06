@@ -1,0 +1,10 @@
+[General]
+ShowCopyMoveMenu=true
+ShowFullPath=true
+ShowSpaceInfo=true
+
+[IconsMode]
+IconSize=64
+
+[DetailsMode]
+ExpandableFolders=true

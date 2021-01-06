@@ -1,0 +1,57 @@
+# ---------------------------------------------
+#  Alter Linux i3wm edition
+#  dunst config file
+#
+#  Watasuke
+#  Twitter: @Watasuke102
+#  Email  : Watasuke102@gmail.com
+#
+#  (c) 2020 Fascode Network.
+# ---------------------------------------------
+
+[global]
+monitor         = 0
+follow          = mouse
+sort            = yes
+indicate_hidden = yes
+word_wrap       = yes # multi line
+
+# don't show URL and action
+show_indicators = no
+
+# format
+markup = full
+format = "<b>%a - %s</b>\n%b\n%p"
+
+# icon
+icon_path     = /usr/share/icons/Inverse-blue-dark/16/devices;/usr/share/icons/Inverse-blue-dark/16/status;/usr/share/icons/Inverse-blue-dark/32/status
+icon_position = left
+max_icon_size = 64
+
+# appearance
+padding            = 10
+horizontal_padding = 15
+separator_height   = 5
+transparency       = 10
+geometry           = "350x5-30+40"
+font               = Noto Sans 9
+
+[urgency_low]
+background = "#292929"
+foreground = "#ffffff"
+timeout    = 10
+
+[urgency_normal]
+background = "#292929"
+foreground = "#ffffff"
+timeout    = 10
+
+[urgency_critical]
+background = "#992929"
+foreground = "#ffffff"
+timeout    = 10
+
+# shortcut
+[shortcuts]
+close     = ctrl+space
+close_all = ctrl+shift+space

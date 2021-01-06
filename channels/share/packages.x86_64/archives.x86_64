@@ -24,7 +24,6 @@ p7zip
 tar
 unarj
 unrar
-unzip-iconv
 xz
 zip
 zstd

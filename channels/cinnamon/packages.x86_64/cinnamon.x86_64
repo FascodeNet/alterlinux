@@ -14,5 +14,6 @@
 cinnamon
 cinnamon-translations
 
-#-- panel theme --#
-adara-theme-git
+#-- Tools --#
+dconf-editor
+gnome-terminal

@@ -18,6 +18,7 @@ mc
 
 
 #-- utility --#
+neofetch
 sudo
 tlp
 xdg-user-dirs

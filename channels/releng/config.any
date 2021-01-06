@@ -51,17 +51,32 @@ usershell="/bin/zsh"
 # This setting cannot be changed by an argument.
 noaur=true
 
-# kernel config
-kernel_config_line="core linux linux-headers vmlinuz-linux linux"
-kernel_package=$(echo ${kernel_config_line} | awk '{print $2}')
-kernel_headers_packages=$(echo ${kernel_config_line} | awk '{print $3}')
-kernel_filename=$(echo ${kernel_config_line} | awk '{print $4}')
-kernel_mkinitcpio_profile=$(echo ${kernel_config_line} | awk '{print $5}')
+#-- kernel config --#
+# Set the kernel that live session use.
+# Please don't set anything if you want to use normal kernel.
+# See help for a list of available values.
+# This setting cannot be changed by an argument.
+
+# Kernel name
+defaultkernel="core"
 
 # Use mkalteriso written in a traditional shell script
 # instead of the C ++ version of mkalteriso.
 # Change the default behavior of "--shmkalteriso".
 shmkalteriso=true
+
+# Do not add rescue mode launch items
+# If true, do not add items such as "without GUI" or "Safe graphics".
+# This setting cannot be changed by an argument.
+norescue_entry=true
+
+# If set to true, include alteriso_info in iso root.
+# This setting cannot be changed by an argument.
+include_info=false
+
+# Do not include the channel name in the filename of the image file.
+# This setting cannot be changed by an argument.
+nochname=true
 
 # List of packages required for build
 # The following packages are checked to see if they are installed before running build.sh

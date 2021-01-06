@@ -6,11 +6,13 @@
 # (c) 2019-2020 Fascode Network.
 #
 #
-# kernel list
+# kernel list for i686
 #
-#<kernel name>  <kernel package>         <headers package>              <kernel filename>              <mkinitcpio profile>
+# Enter the kernel package and header package name in the kernel package list.
+#
+#[kernel name]               [kernel filename]               [mkinitcpio profile]
 #
 
-core            linux                    linux-headers                  vmlinuz-linux                  linux
-lts             linux-lts                linux-lts-headers              vmlinuz-linux-lts              linux-lts
-zen             linux-zen                linux-zen-headers              vmlinuz-linux-zen              linux-zen
+core                         vmlinuz-linux                   linux
+lts                          vmlinuz-linux-lts               linux-lts
+zen                          vmlinuz-linux-zen               linux-zen

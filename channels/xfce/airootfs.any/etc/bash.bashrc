@@ -14,3 +14,4 @@ PS1='\u@\h:\w\$ '
 [[ -f /etc/bash_functions ]] && source /etc/bash_functions
 
 export EDITOR=nano
+export QT_QPA_PLATFORMTHEME=qt5ct

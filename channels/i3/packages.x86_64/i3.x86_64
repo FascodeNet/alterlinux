@@ -37,15 +37,13 @@ xf86-input-elographics
 
 # i3wm
 i3-gaps
-i3lock-color
-feh
+nitrogen
 picom
 polybar
 conky
 
 # launcher
 rofi
-inverse-icon-theme-blue-git
 
 # terminal emulator
 sakura
@@ -55,3 +53,9 @@ alterlinux-i3-manager
 
 # autostart
 dex
+
+# Qt config
+qt5ct
+
+# Theme
+adapta-gtk-theme

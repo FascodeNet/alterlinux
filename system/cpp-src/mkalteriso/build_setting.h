@@ -47,6 +47,8 @@ public:
     bool get_debug_mode();
     void set_wsl(bool);
     bool get_wsl();
+    void set_aur(bool);
+    bool get_aur();
 private:
     bool quiet;
     QString architecture;
@@ -68,6 +70,7 @@ private:
     QStringList command_args;
     bool debug_mode;
     bool enable_wsl;
+    bool enable_aur;
 signals:
 
 };

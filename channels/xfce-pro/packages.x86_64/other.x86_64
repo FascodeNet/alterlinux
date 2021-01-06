@@ -14,6 +14,7 @@ xarchiver
 
 
 #-- GVFS --#
+smbclient
 gvfs
 gvfs-smb
 
@@ -29,18 +30,9 @@ man-db
 man-pages
 
 
-#-- game pad --#
-jstest-gtk-git
-
-
 #-- system monitor --#
-cpu-x
 gnome-system-monitor
 htop
-
-
-#-- pacman --#
-pamac-aur
 
 
 #-- printer --#
@@ -49,19 +41,14 @@ system-config-printer
 
 #-- scripts --#
 alterlinux-gtk-bookmarks
-alterlinux-live-tools
+alterlinux-desktop-file
 alterlinux-welcome-page
 
 
 #-- text editor --#
-medit
 nano
 vim
 
 
 #-- other --#
-# etcher-bin
-ipad_charge
 libreoffice-still
-snapd
-tlpui

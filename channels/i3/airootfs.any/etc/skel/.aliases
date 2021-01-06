@@ -9,8 +9,6 @@
 #
 
 # Alias
-unalias lsd
-unalias ls
 alias lsd='/usr/bin/lsd'
 
 

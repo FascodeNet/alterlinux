@@ -14,7 +14,7 @@ set -e -u
 # All values can be changed by arguments.
 password=alter
 boot_splash=false
-kernel_config_line=("zen" "linux-zen" "linux-zen-beaders" "vmlinuz-linux-zen" "linux-zen")
+kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
 rebuild=false
 username='alter'
@@ -51,10 +51,8 @@ done
 
 # Parse kernel
 kernel="${kernel_config_line[0]}"
-kernel_package="${kernel_config_line[1]}"
-kernel_headers_packages="${kernel_config_line[2]}"
-kernel_filename="${kernel_config_line[3]}"
-kernel_mkinitcpio_profile="${kernel_config_line[4]}"
+kernel_filename="${kernel_config_line[1]}"
+kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
 
 # Delete file only if file exists
@@ -75,7 +73,7 @@ function remove () {
 
 
 # Delete icon cache
-[[ -f /home/${username}/.cache/icon-cache.kcache ]] && rm /home/${username}/.cache/icon-cache.kcache
+remove "/home/${username}/.cache/icon-cache.kcache"
 
 
 if [[ "${arch}" = "x86_64" ]]; then
@@ -91,13 +89,23 @@ if [[ "${arch}" = "x86_64" ]]; then
 fi
 
 
-# Disable services.
-# To disable start up of sddm.
-# If it is enable, Users have to enter password.
-#systemctl disable sddm
-#if [[ ${boot_splash} = true ]]; then
-#    systemctl disable sddm-plymouth.service
-#fi
+# Bluetooth
+rfkill unblock all
+systemctl enable bluetooth
+
+# Update system datebase
+dconf update
+
+# Enable SDDM to auto login in live session
+if [[ "${boot_splash}" = true ]]; then
+    systemctl enable sddm-plymouth.service
+    systemctl disable sddm.service
+else
+    systemctl enable sddm.service
+fi
+
+echo -e "\nremove /etc/sddm.conf.d/autologin.conf" >> "/usr/share/calamares/final-process"
+sed -i "s|%USERNAME%|${username}|g" "/etc/sddm.conf.d/autologin.conf"
 
 
 # ntp

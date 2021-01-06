@@ -1,0 +1,21 @@
+[Desktop Entry]
+Version=1.0
+Name=Xfce Dropdown Terminal
+Name[en_AU]=Xfce Dropdown Terminal
+Name[en_GB]=Xfce Dropdown Terminal
+Name[ja]=Xfce Dropdown Terminal
+Comment=Terminal Emulator
+Comment[en_AU]=Terminal Emulator like Guake
+Comment[en_GB]=Terminal Emulator like Guake
+Comment[ja]=Guake風のターミナルエミュレーター
+GenericName=Terminal Emulator
+GenericName[en_AU]=Terminal Emulator
+GenericName[en_GB]=Terminal Emulator
+GenericName[ja]=ターミナルエミュレーター
+Exec=xfce4-terminal --drop-down
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=GTK;System;TerminalEmulator;
+StartupNotify=true
+Actions=preferences;

@@ -1,11 +1,12 @@
 ## Build Alter Linux
+
 There are two ways to build, one is to use the actual Arch Linux and the other is to build on Docker.  
 Please refer to [This procedure] (DOCKER.md) for how to build with Docker.  
-  
+
 When building on a real machine, the OS must be Arch Linux or Alter Linux.
 The following explains how to build on a real machine.  
-  
-TWhen building directly on Arch or Alter, there are several ways to build.  
+
+When building directly on Arch or Alter, there are several ways to build.  
 
 ### Preparation
 
@@ -19,23 +20,17 @@ cd alterlinux
 Add a key to use Alter Linux repository.
 
 ```bash
-sudo ./keyring.sh --alter-add --arch32-add
+sudo ./tools/keyring.sh --alter-add --arch32-add
 ```
 
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
-```
-
-#### Install the dependencies
-Install the packages required for building.  
-
-```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso ninja cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
 ```
 
 ### Use the TUI
+
 You can configure and build using `menuconfig`.  
 
 ```bash
@@ -43,6 +38,7 @@ make menuconfig
 ```
 
 ### Use the GUI
+
 You can configure and build with the GUI.
 
 ```bash
@@ -53,9 +49,10 @@ python ./build-wizard.py
 
 ```bash
 ./build.sh <options> <channel>
-``` 
+```
 
 #### option
+
 Run `./build.sh -h` for full options and usage.  
 
  Purpose | Usage
@@ -71,9 +68,11 @@ Run `./build.sh -h` for full options and usage.
  Specify working directory | -w [dir]
 
 ##### Note
+
 All options described after the channel name are ignored. Be sure to put the option before the channel name. 
 
 #### An example
+
 Do this to build under the following conditions.
 
 - Enable Plymouth
@@ -88,6 +87,7 @@ Do this to build under the following conditions.
 ### Notes
 
 #### About channel
+
 Channels switch between packages to install and files to include.  
 This mechanism makes it possible to build various versions of Alter Linux.  
 The following channels are supported as of August 17, 2020.  
@@ -106,26 +106,26 @@ xfce | Use Xfce4 for desktop environment.
 xfce-pro | Pro Edition with some software added to Xfce and replaced with Compiz
 rebuild | Build from the point where it left off using the previous build settings.
 
-
-
 #### About the kernel
+
 Both the `i686` architecture and the` x86_64` architecture support the official ArchLinux kernels `linux`,` linux-lts`, and `linux-zen`.  
 In addition to the official kernel, `x86_64` also supports the following kernels.  
 The description of the kernel is taken from the [ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB).
 
-Name | Characteristic
---- | ---
-ck | linux-ck contains patches to improve system responsiveness
-lts | Long term support (LTS) Linux kernel and modules in the core repository
-lqx | Distro kernel replacement built with Debian settings and ZEN kernel source for desktop multimedia games
-rt | This patch will allow you to run almost all of your kernel in real time
-zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (Alter Linux specific)
+| Name         | Characteristic                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| ck           | linux-ck contains patches to improve system responsiveness                                              |
+| lts          | Long term support (LTS) Linux kernel and modules in the core repository                                 |
+| lqx          | Distro kernel replacement built with Debian settings and ZEN kernel source for desktop multimedia games |
+| rt           | This patch will allow you to run almost all of your kernel in real time                                 |
+| zen-letsnote | A `linux-zen` kernel patched to prevent suspend issues with Let's Note (Alter Linux specific)           |
 
 ##### Note
+
 Be sure to put only the `foo` part of` linux-foo` in the `-k` option. For example, in the case of `linux-lts`,` lts` will be entered.  
 
-
 #### About compression method
+
 See the `mksquashfs` help for compression methods and more options.  
 As of February 12, 2019, the methods and options supported by `mksquashfs` are as follows.  
 
