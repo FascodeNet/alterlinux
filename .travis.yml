@@ -6,14 +6,15 @@ addons:
       - ninja
       - cmake
       - clang
+      - qtbase5-dev
 script:
   - bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
   - bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error tools/*.{sh,ksh,bash}'
   - cd system/cpp-src/mkalteriso
   - mkdir -p build
   - cd build
-  - cmake -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-  - ninja -j4
+  - sudo cmake -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+  - sudo ninja -j4
   
 git:
   submodules: false
