@@ -1171,7 +1171,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug"
+opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -1319,8 +1319,12 @@ while :; do
             ;;
         --config)
             source "${2}"
-             shift 2
-             ;;
+            shift 2
+            ;;
+        --nosigcheck)
+            nosigcheck=true
+            shift 1
+            ;;
         --)
             shift
             break
