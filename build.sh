@@ -1019,18 +1019,10 @@ make_efiboot() {
 
 
     local _efi_config_list=() _efi_config
-    _efi_config_list+=(
-        $(
-            ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"
-        )
-    )
+    _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
 
     if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list+=(
-            $(
-                ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"
-            )
-        )
+        _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
     fi
 
     for _efi_config in ${_efi_config_list[@]}; do
@@ -1043,14 +1035,12 @@ make_efiboot() {
     done
 
     cp "${isofs_dir}/EFI/shell"*".efi" "${work_dir}/efiboot/EFI/"
-
     umount -d "${work_dir}/efiboot"
 }
 
 # Compress tarball
 make_tarball() {
-
-    if [[ "${noaur}" == true ]]; then
+    if [[ "${noaur}" = true ]]; then
         cp -a -l -f "${airootfs_dir}" "${work_dir}"
     else
         umount_airootfs
@@ -1109,7 +1099,7 @@ make_prepare() {
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
         else
-        _write_info_file "Version        : ${iso_version}"
+            _write_info_file "Version        : ${iso_version}"
         fi
         _write_info_file "Channel   name : ${channel_name}"
         _write_info_file "Live user name : ${username}"
@@ -1126,7 +1116,6 @@ make_prepare() {
 # Add files to the root of isofs
 make_overisofs() {
     local _over_isofs_list _isofs
-
     _over_isofs_list=(
         "${share_dir}/over_isofs.any"
         "${share_dir}/over_isofs.${arch}"
@@ -1135,7 +1124,6 @@ make_overisofs() {
         "${channel_dir}/over_isofs.any"
         "${channel_dir}/over_isofs.${arch}"
     )
-
     for _isofs in ${_over_isofs_list[@]}; do
         if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
     done
@@ -1161,7 +1149,7 @@ msg_debug "Argument: ${OPT}"
 unset OPT _opt_short _opt_long
 
 while :; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -1315,7 +1303,7 @@ done
 
 
 # Check root.
-if [[ ${EUID} -ne 0 ]]; then
+if $(( "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
     msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
