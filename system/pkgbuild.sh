@@ -60,13 +60,21 @@ function run_user () {
     sudo -u "${build_username}" ${@}
 }
 
+# 引数を確認
+if [[ -z "${1}" ]]; then
+    echo "Please specify the directory that contains PKGBUILD." >&2
+    exit 1
+else
+    pkgbuild_dir="${1}"
+fi
+
 # Creating a user for makepkg
 if [[ $(user_check ${build_username}) = false ]]; then
-    useradd -m -d "/pkgbuild_temp" "${build_username}"
+    useradd -m -d "${pkgbuild_dir}" "${build_username}"
 fi
-mkdir -p "/pkgbuild_temp"
-chmod 700 -R "/pkgbuild_temp"
-chown ${build_username}:${build_username} -R "/pkgbuild_temp"
+mkdir -p "${pkgbuild_dir}"
+chmod 700 -R "${pkgbuild_dir}"
+chown ${build_username}:${build_username} -R "${pkgbuild_dir}"
 echo "${build_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/pkgbuild"
 
 # Setup keyring
@@ -76,13 +84,7 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 
 # Parse SRCINFO
-if [[ -z "${1}" ]]; then
-    echo "Please specify the directory that contains PKGBUILD." >&2
-    exit 1
-fi
-chown "${build_username}" -R "${1}"
-chmod 775 -R "${1}"
-cd "${1}"
+cd "${pkgbuild_dir}"
 makedepends=() depends=()
 for _dir in *; do
     cd "${_dir}"
@@ -123,9 +125,7 @@ run_user yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
 # remove user and file
 userdel "${build_username}"
-remove "/pkgbuild_temp"
+remove "${pkgbuild_dir}"
 remove "/etc/sudoers.d/pkgbuild"
 remove "/etc/alteriso-pacman.conf"
 remove "/var/cache/pacman/pkg/"
-
-
