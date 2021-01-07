@@ -729,30 +729,15 @@ make_pkgbuild() {
         )
     fi
 
-    #-- PKGBUILDの一覧 --#
-    # _pkgbuild_dirs: PKGBUILDが入っているディレクトリの一覧
-    local _dir __pkgbuild_dirs=(${_pkgbuild_dirs[@]})
-    unset _pkgbuild_dirs
-    for _dir in ${__pkgbuild_dirs[@]}; do
-        _pkgbuild_dirs+=($(find "${_dir}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f))
-    done
-    unset _dir __pkgbuild_dirs
-
-
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
-    local __pkgbuild_dirs=(${_pkgbuild_dirs[@]})
-    unset _pkgbuild_dirs
-    for _dir in ${__pkgbuild_dirs[@]}; do
+    for _dir in $(find "${_dir}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
         mkdir -p "${airootfs_dir}/pkgbuilds/"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
-        _pkgbuild_dirs+=("${airootfs_dir}/pkgbuilds/$(basename "${_dir}")")
     done
-    unset __pkgbuild_dirs
     
     #-- ビルドスクリプトの実行 --#
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
-    #cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
