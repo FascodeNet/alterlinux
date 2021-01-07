@@ -17,7 +17,7 @@ set -eu
 # Do not change these values.
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
-tools_dir="${tools_dir}"
+tools_dir="${script_path}/tools"
 rebuild=false
 customized_username=false
 customized_password=false
