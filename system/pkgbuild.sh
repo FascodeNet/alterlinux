@@ -41,7 +41,7 @@ function user_check () {
 
 # Usage: get_srcinfo_data <path> <var>
 # 参考: https://qiita.com/withelmo/items/b0e1ffba639dd3ae18c0
-get_srcinfo_data() {
+function get_srcinfo_data() {
     local _srcinfo="${1}" _ver="${2}"
     local _srcinfo_json=$(python << EOF
 from srcinfo.parse import parse_srcinfo; import json
@@ -53,6 +53,11 @@ print(json.dumps(parsed))
 EOF
 )
     echo "${_srcinfo_json}" | jq -rc "${2}" | tr '\n' ' '
+}
+
+# 一般ユーザーで実行します
+function run_user () {
+    sudo -u "${build_username}" ${@}
 }
 
 # Creating a user for makepkg
@@ -81,7 +86,7 @@ cd "${1}"
 makedepends=() depends=()
 for _dir in *; do
     cd "${_dir}"
-    sudo -u "${build_username}" bash -c "makepkg --printsrcinfo > .SRCINFO"
+    run_user bash -c "makepkg --printsrcinfo > .SRCINFO"
     makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
     depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
     cd - >/dev/null
@@ -89,7 +94,7 @@ done
 
 # Build and install
 chmod +s /usr/bin/sudo
-yes | sudo -u "${build_username}" \
+yes | run_user \
     yay -Sy \
         --mflags "-AcC" \
         --asdeps \
@@ -108,13 +113,13 @@ yes | sudo -u "${build_username}" \
 
 for _dir in *; do
     cd "${_dir}"
-    sudo -u "${build_username}" makepkg -iAcC --noconfirm 
+    run_user makepkg -iAcC --noconfirm 
     cd - >/dev/null
 done
 
-pacman -Rsnc --noconfirm $(pacman -Qtdq)
+pacman -Rsnc --noconfirm $(pacman -Qtdq) --config "/etc/alteriso-pacman.conf"
 
-yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
+run_user yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
 # remove user and file
 userdel "${build_username}"
