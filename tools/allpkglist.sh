@@ -27,12 +27,12 @@ out_dir=""
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="o:h"
-_opt_long="out:,help"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+opt_short="o:h"
+opt_long="out:,help"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while true; do
     case "${1}" in
