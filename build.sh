@@ -576,12 +576,7 @@ prepare_build() {
         fi
 
         # Generate iso file name.
-        local _channel_name
-        if [[ "$(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/')" = "add" ]]; then
-            _channel_name="$(echo ${channel_name} | sed 's/\.[^\.]*$//')-${locale_version}"
-        else
-            _channel_name="${channel_name}-${locale_version}"
-        fi
+        local _channel_name="${channel_name%.add}-${locale_version}"
         if [[ "${nochname}" = true ]]; then
             iso_filename="${iso_name}-${iso_version}-${arch}.iso"
         else
@@ -668,7 +663,7 @@ make_basefs() {
 }
 
 # Additional packages (airootfs)
-make_packages() {
+make_packages_repo() {
     local _pkg _pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
 
     # get pkglist
@@ -716,6 +711,41 @@ make_packages_aur() {
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
+}
+
+make_pkgbuild() {
+    #-- PKGBUILDが入ってるディレクトリの一覧 --#
+    local _pkgbuild_dirs=(
+        "${share_dir}/pkgbuild.any"
+        "${share_dir}/pkgbuild.${arch}"
+        "${channel_dir}/pkgbuild.any"
+        "${channel_dir}/pkgbuild.${arch}"
+    )
+
+    if [[ "${include_extra}" = true ]]; then
+        _pkgbuild_dirs+=(
+            "${extra_dir}/pkgbuild.any"
+            "${extra_dir}/pkgbuild.${arch}"
+        )
+    fi
+
+    #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
+    for _dir in $(find "${_dir}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
+        mkdir -p "${airootfs_dir}/pkgbuilds/"
+        cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
+    done
+    
+    #-- ビルドスクリプトの実行 --#
+    # prepare for yay
+    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
+    sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+
+    # Run aur script
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds" run
+
+    # Remove script
+    remove "${airootfs_dir}/root/pkgbuild.sh"
+
 }
 
 # Customize installation (airootfs)
@@ -778,7 +808,7 @@ make_customize_airootfs() {
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
     
-    _script_list=("/root/customize_airootfs.sh" "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh" "/root/customize_airootfs_$(echo ${channel_name} | sed 's/\.[^\.]*$//').sh")
+    _script_list=("/root/customize_airootfs.sh" "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh" "/root/customize_airootfs_${channel_name%.add}.sh")
 
     # Script permission
     for _script in ${_script_list[@]}; do
@@ -1059,7 +1089,7 @@ make_tarball() {
 
     remove "${airootfs_dir}/root/optimize_for_tarball.sh"
 
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "$(echo ${iso_filename} | sed 's/\.[^\.]*$//').tar.xz"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "${iso_filename%.iso}.tar.xz"
 
     _umount "${work_dir}/airootfs"
     remove "${work_dir}/airootfs"
@@ -1140,14 +1170,14 @@ make_iso() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
+opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
+opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while :; do
     case "${1}" in
@@ -1379,8 +1409,9 @@ prepare_build
 show_settings
 run_once make_pacman_conf
 run_once make_basefs
-run_once make_packages
+run_once make_packages_repo
 [[ "${noaur}" = false ]] && run_once make_packages_aur
+run_once make_pkgbuild
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 if [[ "${noiso}" = false ]]; then

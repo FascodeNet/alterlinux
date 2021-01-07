@@ -128,13 +128,13 @@ show() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bdfk:nov:h"
-_opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+opt_short="a:bdfk:nov:h"
+opt_long="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while true; do
     case ${1} in

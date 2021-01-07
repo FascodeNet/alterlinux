@@ -127,13 +127,13 @@ EOF
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:c:hs"
-_opt_long="arch:,channel:,help,script"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+opt_short="a:c:hs"
+opt_long="arch:,channel:,help,script"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while true; do
     case ${1} in

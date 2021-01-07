@@ -148,13 +148,13 @@ default_options="--boot-splash --cleanup --user alter --password alter"
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:dghr:sctm:l:"
-_opt_long="help,remove-cache"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+opt_short="a:dghr:sctm:l:"
+opt_long="help,remove-cache"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while true; do
     case ${1} in
