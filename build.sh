@@ -1334,7 +1334,7 @@ done
 
 
 # Check root.
-if $(( "${EUID}" == 0 )); then
+if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
     msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
