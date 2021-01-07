@@ -658,7 +658,7 @@ make_basefs() {
 }
 
 # Additional packages (airootfs)
-make_packages() {
+make_packages_repo() {
     local _pkg _pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
 
     # get pkglist
@@ -1416,7 +1416,7 @@ prepare_build
 show_settings
 run_once make_pacman_conf
 run_once make_basefs
-run_once make_packages
+run_once make_packages_repo
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_pkgbuild
 run_once make_customize_airootfs
