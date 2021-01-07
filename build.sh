@@ -495,6 +495,7 @@ prepare_rebuild() {
     _save_var noloopmod
     _save_var bash_debug
     _save_var debug
+    _save_var nosigcheck
 
     _write_rebuild_file "\n# Channel Info"
     _save_var build_pacman_conf
@@ -631,6 +632,7 @@ prepare_build() {
     check_bool msgdebug
     check_bool noefi
     check_bool include_extra
+    check_bool nosigcheck
 
     # Check architecture for each channel
     if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -652,9 +654,11 @@ prepare_build() {
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
-    #local _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-    #sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
-    cp "${build_pacman_conf}" "${work_dir}/pacman-${arch}.conf"
+    if [[ "${nosigcheck}" = true ]]; then
+        sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
+    else
+        cp "${build_pacman_conf}" "${work_dir}/pacman-${arch}.conf"
+    fi
 }
 
 # Base installation (airootfs)
