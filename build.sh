@@ -17,6 +17,7 @@ set -eu
 # Do not change these values.
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
+tools_dir="${tools_dir}"
 rebuild=false
 customized_username=false
 customized_password=false
@@ -28,7 +29,7 @@ alteriso_version="3.0"
 if [[ -f "${defaultconfig}" ]]; then
     source "${defaultconfig}"
 else
-    "${script_path}/tools/msg.sh" -a 'build.sh' error "${defaultconfig} was not found."
+    "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found."
     exit 1
 fi
 
@@ -49,7 +50,7 @@ msg_info() {
     fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
+    "${tools_dir}/msg.sh" ${_msg_opts} info "${1}"
 }
 
 # Show an Warning message
@@ -62,7 +63,7 @@ msg_warn() {
     fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
+    "${tools_dir}/msg.sh" ${_msg_opts} warn "${1}"
 }
 
 # Show an debug message
@@ -76,7 +77,7 @@ msg_debug() {
         fi
         [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
         [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
+        "${tools_dir}/msg.sh" ${_msg_opts} debug "${1}"
     fi
 }
 
@@ -91,7 +92,7 @@ msg_error() {
     fi
     [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
     [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
+    "${tools_dir}/msg.sh" ${_msg_opts} error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit ${2}
     fi
@@ -151,7 +152,7 @@ _usage () {
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
         echo_blank "$(( ${blank} - 4 - ${#_arch} ))"
-        "${script_path}/tools/locale.sh" -a "${_arch}" show
+        "${tools_dir}/locale.sh" -a "${_arch}" show
     done
 
     echo
@@ -160,12 +161,12 @@ _usage () {
         _arch="${_list#${script_path}/system/kernel-}"
         echo -n "    ${_arch} "
         echo_blank "$(( ${blank} - 5 - ${#_arch} ))"
-        "${script_path}/tools/kernel.sh" -a "${_arch}" show
+        "${tools_dir}/kernel.sh" -a "${_arch}" show
     done
 
     echo
     echo " Channel:"
-    for _dirname in $(bash "${script_path}/tools/channel.sh" -d -b -n show); do
+    for _dirname in $(bash "${tools_dir}/channel.sh" -d -b -n show); do
         if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
             _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
         else
@@ -173,7 +174,7 @@ _usage () {
         fi
         echo -ne "    ${_channel}"
         echo_blank "$(( ${blank} - 4 - ${#_channel} ))"
-        "${script_path}/tools/channel.sh" --nocheck desc "${_channel}"
+        "${tools_dir}/channel.sh" --nocheck desc "${_channel}"
     done
     echo -ne "    rebuild"
     echo_blank "$(( ${blank} - 11 ))"
@@ -295,9 +296,9 @@ load_config() {
 # Display channel list
 show_channel_list() {
     if [[ "${nochkver}" = true ]]; then
-        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" -n show
+        bash "${tools_dir}/channel.sh" -v "${alteriso_version}" -n show
     else
-        bash "${script_path}/tools/channel.sh" -v "${alteriso_version}" show
+        bash "${tools_dir}/channel.sh" -v "${alteriso_version}" show
     fi
 }
 
@@ -324,7 +325,7 @@ prepare_env() {
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            _result=( $("${script_path}/tools/package.py" -s "${_pkg}") )
+            _result=( $("${tools_dir}/package.py" -s "${_pkg}") )
             case "${_result[0]}" in
                 "latest")
                     [[ ${debug} = true ]] && echo -ne " ${_result[1]}\n"
@@ -362,7 +363,7 @@ prepare_env() {
         fi
         cd - > /dev/null 2>&1
     else
-        mkalteriso="${script_path}/tools/mkalteriso.sh"
+        mkalteriso="${tools_dir}/mkalteriso.sh"
     fi
 
     # Load loop kernel module
@@ -388,7 +389,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         echo
-        "${script_path}/tools/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+        "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
@@ -554,8 +555,8 @@ prepare_build() {
         fi
 
         # Parse files
-        eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
-        eval $(bash "${script_path}/tools/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
+        eval $(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")
+        eval $(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
 
         # Set username
         if [[ "${customized_username}" = false ]]; then
@@ -635,14 +636,14 @@ prepare_build() {
     check_bool nosigcheck
 
     # Check architecture for each channel
-    if [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
+    if [[ ! "$(bash "${tools_dir}/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
 
     # Check kernel for each channel
     #if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
-    if [[ ! "$(bash "${script_path}/tools/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
+    if [[ ! "$(bash "${tools_dir}/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
         msg_error "This kernel is currently not supported on this channel or architecture" "1"
     fi
 
@@ -677,7 +678,7 @@ make_packages() {
     if [[ "${include_extra}" = true ]]; then
         _pkglist_args+=" -e"
     fi
-    local _pkglist=($("${script_path}/tools/pkglist.sh" ${_pkglist_args}))
+    local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -699,7 +700,7 @@ make_packages_aur() {
     if [[ "${include_extra}" = true ]]; then
         _pkglist_args+=" -e"
     fi
-    local _pkglist_aur=($("${script_path}/tools/pkglist.sh" ${_pkglist_args}))
+    local _pkglist_aur=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
@@ -1326,7 +1327,7 @@ set +eu
 
 # Check for a valid channel name
 if [[ -n "${1}" ]]; then
-    case "$(bash "${script_path}/tools/channel.sh" -n check "${1}")" in
+    case "$(bash "${tools_dir}/channel.sh" -n check "${1}")" in
         "incorrect")
             msg_error "Invalid channel ${1}" "1"
             ;;
@@ -1352,7 +1353,7 @@ elif [[ "${channel_name}" = "rebuild" ]]; then
         msg_error "The previous build information is not in the working directory." "1"
     fi
 elif [[ "${channel_name}" = "clean" ]]; then
-   "${script_path}/tools/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+   "${tools_dir}/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
 else
     channel_dir="${script_path}/channels/${channel_name}"
@@ -1396,6 +1397,6 @@ if [[ "${noiso}" = false ]]; then
     run_once make_iso
 fi
 [[ "${tarball}" = true ]] && run_once make_tarball
-[[ "${cleaning}" = true ]] && "${script_path}/tools/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
+[[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
 
 exit 0
