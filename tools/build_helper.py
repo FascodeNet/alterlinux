@@ -147,6 +147,15 @@ class MainWindow(Gtk.Window):
         password_box.pack_start(password_label, True, True, 0)
         password_box.pack_start(self.password_entry, True, True, 0)
         password_box.pack_start(self.password_button, True, True, 0)
+
+        # extra_option
+        extra_option_label = Gtk.Label(label="Extra build options")
+        self.extra_option_entry = Gtk.Entry()
+        self.extra_option_entry.set_text("")
+        extra_option_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        extra_option_box.set_homogeneous(True)
+        extra_option_box.pack_start(extra_option_label, True, True, 0)
+        extra_option_box.pack_start(self.extra_option_entry, True, True, 0)
         
         # reset
         reset_button = Gtk.Button.new_with_label("Reset")
@@ -178,10 +187,18 @@ class MainWindow(Gtk.Window):
         layout_2.attach(username_box, 2, 0, 1, 2)
         layout_2.attach(password_box, 3, 0, 1, 3)
 
+        # layout 3
+        layout_3 = Gtk.Grid()
+        layout_3.set_column_spacing(5)
+        layout_3.set_column_homogeneous(True)
+        layout_3.attach(extra_option_box, 4, 0, 1, 3)
+
+
         # sub layout
         sub_layout = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         sub_layout.pack_start(layout_1, True, True, 5)
         sub_layout.pack_start(layout_2, True, True, 5)
+        sub_layout.pack_start(layout_3, True, True, 5)
         sub_layout.pack_start(util_box,  True, True, 5)
         
         # main layout
@@ -208,6 +225,7 @@ class MainWindow(Gtk.Window):
         comp = self.comp_combo.get_model()[self.comp_combo.get_active_iter()][1]
         username = self.username_entry.get_text()
         password = self.password_entry.get_text()
+        extra_option = self.extra_option_entry.get_text()
 
         if kernel == "linux":
             kernel = "core"
@@ -217,7 +235,7 @@ class MainWindow(Gtk.Window):
         display = os.environ["DISPLAY"]
         xauthority = os.environ["XAUTHORITY"]
 
-        command = "pkexec env DISPLAY={} XAUTHORITY={} {}/build.sh --noconfirm --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(display, xauthority, root_dir, arch, kernel, locale, comp, username, password)
+        command = "pkexec env DISPLAY={} XAUTHORITY={} {}/build.sh --noconfirm --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {} {}".format(display, xauthority, root_dir, arch, kernel, locale, comp, username, password, extra_option)
         
         if self.boot_splash_button_enable.get_active():
             command = "{} --boot-splash".format(command)
