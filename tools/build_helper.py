@@ -9,7 +9,8 @@ class MainWindow(Gtk.Window):
         Gtk.Window.__init__(self, title="AlterISO GUI Helper")
 
         #-- Set window icon --#
-        self.set_icon_from_file(os.path.join(root_dir,"images/icon/color/AlterV5-Icon-Colored-vector.svg"))
+        _window_icon = "images/icon/color/AlterV5-Icon-Colored-vector.svg"
+        self.set_icon_from_file(os.path.join(root_dir, _window_icon))
 
         #-- Create Dict --#
         self.dict = {}
