@@ -135,7 +135,7 @@ while getopts "a:c:l:no:p:r:s:t:xh-:" arg; do
         c)
             adjust_chr="${OPTARG}"
             ;;
-        l) 
+        l)
             customized_label=true
             msg_label="${OPTARG}"
             ;;
@@ -194,7 +194,7 @@ while getopts "a:c:l:no:p:r:s:t:xh-:" arg; do
                     bash_debug=true
                     set -xv
                     ;;
-                "help") 
+                "help")
                     _help
                     exit 0
                     ;;
