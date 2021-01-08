@@ -67,7 +67,7 @@ _help() {
 # -b: 太字, -f: 点滅, -l: 下線
 text() {
     local OPTIND OPTARG _arg _textcolor _decotypes="" _message
-    while getopts "c:bfl" _arg; do
+    while getopts "c:bfln" _arg; do
         case "${_arg}" in
             c)
                 case "${OPTARG}" in
@@ -108,6 +108,9 @@ text() {
                 ;;
             l)
                 _decotypes="${_decotypes};4"
+                ;;
+            n)
+                _decotypes="${_decotypes};0"
                 ;;
         esac
     done
@@ -310,7 +313,11 @@ echo_appname() {
 
 # echo_message <message>
 echo_message() {
-    text -c "${textcolor}" "${1}"
+    if [[ "${textcolor}" = "white" ]]; then
+        text -n "${1}"
+    else
+        text -c "${textcolor}" "${1}"
+    fi
 }
 
 for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
