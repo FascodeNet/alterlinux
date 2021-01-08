@@ -47,6 +47,64 @@ _help() {
     echo "         --noadjust           Do not adjust the width of the label"
 }
 
+# text [-b/-c color/-f/-l/]
+# -b: 太字, -f: 点滅, -l: 下線
+text() {
+    local OPTIND OPTARG _arg _textcolor _decotypes="" _message
+    while getopts "c:bfl" _arg; do
+        case "${_arg}" in
+            c)
+                case "${OPTARG}" in
+                    "black")
+                        _textcolor="30"
+                        ;;
+                    "red")
+                        _textcolor="31"
+                        ;;
+                    "green")
+                        _textcolor="32"
+                        ;;
+                    "yellow")
+                        _textcolor="33"
+                        ;;
+                    "blue")
+                        _textcolor="34"
+                        ;;
+                    "magenta")
+                        _textcolor="35"
+                        ;;
+                    "cyan")
+                        _textcolor="36"
+                        ;;
+                    "white")
+                        _textcolor="37"
+                        ;;
+                    *)
+                        return 1
+                        ;;
+                esac
+                ;;
+            b)
+                _decotypes="${_decotypes};1"
+                ;;
+            f)
+                _decotypes="${_decotypes};5"
+                ;;
+            l)
+                _decotypes="${_decotypes};4"
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+
+    _message="${@}"
+    if [[ "${nocolor}" = true ]]; then
+        echo -ne "${@}"
+    else
+        echo -ne "\e[$([[ -v _textcolor ]] && echo -n ";${_textcolor}"; [[ -v _decotypes ]] && echo -n "${_decotypes}")m${_message}\e[m"
+    fi
+}
+
 # Message functions
 msg_error() {
     "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
@@ -54,41 +112,28 @@ msg_error() {
 
 
 while getopts "a:c:l:no:r:s:xh-:" arg; do
-  case ${arg} in
-        a) appname="${OPTARG}" ;;
-        c) adjust_chr="${OPTARG}" ;;
+  case "${arg}" in
+        a)
+            appname="${OPTARG}"
+            ;;
+        c)
+            adjust_chr="${OPTARG}"
+            ;;
         l) 
             customized_label=true
             msg_label="${OPTARG}"
             ;;
-        n) nocolor=true ;;
-        o) echo_opts="${OPTARG}" ;;
+        n)
+            nocolor=true
+            ;;
+        o)
+            echo_opts="${OPTARG}"
+            ;;
         r)
             customized_label_color=true
-            case ${OPTARG} in
-                "black")
-                    labelcolor="30"
-                    ;;
-                "red")
-                    labelcolor="31"
-                    ;;
-                "green")
-                    labelcolor="32"
-                    ;;
-                "yellow")
-                    labelcolor="33"
-                    ;;
-                "blue")
-                    labelcolor="34"
-                    ;;
-                "magenta")
-                    labelcolor="35"
-                    ;;
-                "cyan")
-                    labelcolor="36"
-                    ;;
-                "white")
-                    labelcolor="37"
+            case "${OPTARG}" in
+                "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
+                    labelcolor="${OPTARG}"
                     ;;
                 *)
                     msg_error "The wrong color."
@@ -96,7 +141,9 @@ while getopts "a:c:l:no:r:s:xh-:" arg; do
                     ;;
             esac
             ;;
-        s) label_space="${OPTARG}" ;;
+        s)
+            label_space="${OPTARG}"
+            ;;
         x)
             bash_debug=true
             set -xv
@@ -108,7 +155,9 @@ while getopts "a:c:l:no:r:s:xh-:" arg; do
             ;;
         -)
             case "${OPTARG}" in
-                "nocolor") nocolor=true ;;
+                "nocolor")
+                    nocolor=true
+                    ;;
                 "bash-debug")
                     bash_debug=true
                     set -xv
@@ -117,9 +166,15 @@ while getopts "a:c:l:no:r:s:xh-:" arg; do
                     _help
                     exit 0
                     ;;
-                "nolabel") nolabel=true ;;
-                "noappname") noappname=true ;;
-                "noadjust") noadjust=true ;;
+                "nolabel")
+                    nolabel=true
+                    ;;
+                "noappname")
+                    noappname=true
+                    ;;
+                "noadjust")
+                    noadjust=true
+                    ;;
                 *)
                     _help
                     exit 1
@@ -128,7 +183,7 @@ while getopts "a:c:l:no:r:s:xh-:" arg; do
   esac
 done
 
-shift $((OPTIND - 1))
+shift "$((OPTIND - 1))"
 
 # Color echo
 #
@@ -165,28 +220,28 @@ case ${1} in
     "info")
         msg_type="type"
         output="stdout"
-        [[ "${customized_label_color}" = false ]] && labelcolor="32"
+        [[ "${customized_label_color}" = false ]] && labelcolor="green"
         [[ "${customized_label}"       = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
         msg_type="warn"
         output="stdout"
-        [[ "${customized_label_color}" = false ]] && labelcolor="33"
+        [[ "${customized_label_color}" = false ]] && labelcolor="yellow"
         [[ "${customized_label}"       = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
         msg_type="debug"
         output="stdout"
-        [[ "${customized_label_color}" = false ]] && labelcolor="35"
+        [[ "${customized_label_color}" = false ]] && labelcolor="magenta"
         [[ "${customized_label}"       = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
         msg_type="error"
         output="stderr"
-        [[ "${customized_label_color}" = false ]] && labelcolor="31"
+        [[ "${customized_label_color}" = false ]] && labelcolor="red"
         [[ "${customized_label}"       = false ]] && msg_label="Error"
         shift 1
         ;;
@@ -206,14 +261,14 @@ message="${@}"
 echo_type() {
     if [[ "${nolabel}" = false ]]; then
         if [[ "${noadjust}" = false ]]; then
-            for i in $( seq 1 $(( ${label_space} - ${word_count})) ); do
+            for i in $( seq 1 "$(( label_space - word_count))" ); do
                 echo -ne "${adjust_chr}"
             done
         fi
         if [[ "${nocolor}" = false ]]; then
-            echo -ne "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v labelcolor ]] && echo -n ";${labelcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${msg_label}\e[m "
+            text -c "${labelcolor}" "${msg_label}"
         else
-            echo -ne "${msg_label} "
+            echo -ne "${msg_label}"
         fi
     fi
 }
@@ -221,7 +276,7 @@ echo_type() {
 echo_appname() {
     if [[ "${noappname}" = false ]]; then
         if [[ "${nocolor}" = false ]]; then
-            echo -ne "\e[36m[${appname}]\e[m "
+            text -c "cyan" "[${appname}]"
         else
             echo -ne "[${appname}] "
         fi
@@ -231,7 +286,7 @@ echo_appname() {
 
 for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
     echo_message=$(echo -ne "${message}\n" |head -n "${count}" | tail -n 1 )
-    full_message="$(echo_appname)$(echo_type)${echo_message}"
+    full_message="$(echo_appname)$(echo_type) ${echo_message}"
     case "${output}" in
         "stdout")
             echo ${echo_opts} "${full_message}" >&1
