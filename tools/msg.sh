@@ -15,10 +15,13 @@ label_space="7"
 adjust_chr=" "
 customized_label=false
 customized_label_color=false
+customized_text_color=false
 nolabel=false
 noappname=false
 noadjust=false
 output="stdout"
+labelcolor=""
+textcolor="white"
 
 _help() {
     echo "usage ${0} [option] [type] [message]"
@@ -34,11 +37,12 @@ _help() {
     echo " General options:"
     echo "    -a [name]                 Specify the app name"
     echo "    -c [character]            Specify the character to adjust the label"
-    echo "    -l [label]                Specify the label."
+    echo "    -l [label]                Specify the label"
     echo "    -n | --nocolor            No output colored output"
     echo "    -o [option]               Specify echo options"
     echo "    -r [color]                Specify the color of label"
-    echo "    -s [number]               Specifies the label space."
+    echo "    -s [number]               Specifies the label space"
+    echo "    -t [color]                Specify the color of text"
     echo "    -x | --bash-debug         Enables output bash debugging"
     echo "    -h | --help               This help message"
     echo
@@ -111,7 +115,7 @@ msg_error() {
 }
 
 
-while getopts "a:c:l:no:r:s:xh-:" arg; do
+while getopts "a:c:l:no:r:s:t:xh-:" arg; do
   case "${arg}" in
         a)
             appname="${OPTARG}"
@@ -143,6 +147,18 @@ while getopts "a:c:l:no:r:s:xh-:" arg; do
             ;;
         s)
             label_space="${OPTARG}"
+            ;;
+        t)
+            customized_text_color=true
+            case "${OPTARG}" in
+                "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
+                    textcolor="${OPTARG}"
+                    ;;
+                *)
+                    msg_error "The wrong color."
+                    exit 1
+                    ;;
+            esac
             ;;
         x)
             bash_debug=true
@@ -265,28 +281,24 @@ echo_type() {
                 echo -ne "${adjust_chr}"
             done
         fi
-        if [[ "${nocolor}" = false ]]; then
-            text -c "${labelcolor}" "${msg_label}"
-        else
-            echo -ne "${msg_label}"
-        fi
+        text -c "${labelcolor}" "${msg_label}"
     fi
 }
 
 echo_appname() {
     if [[ "${noappname}" = false ]]; then
-        if [[ "${nocolor}" = false ]]; then
-            text -c "cyan" "[${appname}]"
-        else
-            echo -ne "[${appname}] "
-        fi
+        text -c "cyan" "[${appname}]"
     fi
 }
 
+# echo_message <message>
+echo_message() {
+    text -c "${textcolor}" "${1}"
+}
 
 for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
-    echo_message=$(echo -ne "${message}\n" |head -n "${count}" | tail -n 1 )
-    full_message="$(echo_appname)$(echo_type) ${echo_message}"
+    _message=$(echo -ne "${message}\n" |head -n "${count}" | tail -n 1 )
+    full_message="$(echo_appname)$(echo_type) $(echo_message "${_message}")"
     case "${output}" in
         "stdout")
             echo ${echo_opts} "${full_message}" >&1
@@ -298,4 +310,5 @@ for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
             echo ${echo_opts} "${full_message}" > ${output}
             ;;
     esac
+    unset _message
 done
