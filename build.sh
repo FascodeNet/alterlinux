@@ -145,7 +145,7 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch  _list _dirname _channel
+    local blank="33" _arch  _list _dirname
 
     echo " Language for each architecture:"
     for _list in ${script_path}/system/locale-* ; do
@@ -167,14 +167,9 @@ _usage () {
     echo
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" -d -b -n show); do
-        if [[ $(echo "${_dirname}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-            _channel="$(echo ${_dirname} | sed 's/\.[^\.]*$//')"
-        else
-            _channel="${_dirname}"
-        fi
-        echo -ne "    ${_channel}"
-        echo_blank "$(( ${blank} - 4 - ${#_channel} ))"
-        "${tools_dir}/channel.sh" --nocheck desc "${_channel}"
+        echo -ne "    ${_dirname%.add}"
+        echo_blank "$(( ${blank} - 3 - $(echo ${_dirname%.add} | wc -m) ))"
+        "${tools_dir}/channel.sh" --nocheck desc "${_dirname%.add}"
     done
     echo -ne "    rebuild"
     echo_blank "$(( ${blank} - 11 ))"
