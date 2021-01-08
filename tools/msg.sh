@@ -4,24 +4,33 @@ set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
-appname="msg.sh"
+msg_type="info"
+echo_opts=""
 bash_debug=false
 nocolor=false
-echo_opts=""
+
+
+# appname
+appname="msg.sh"
+noappname=false
+
+# main text
 message=""
-msg_type="info"
+textcolor="white"
+customized_text_color=false
+output="stdout"
+customized_output=false
+
+# label
 msg_label=""
 label_space="7"
-adjust_chr=" "
+nolabel=false
 customized_label=false
 customized_label_color=false
-customized_text_color=false
-nolabel=false
-noappname=false
-noadjust=false
-output="stdout"
 labelcolor=""
-textcolor="white"
+adjust_chr=" "
+noadjust=false
+
 
 _help() {
     echo "usage ${0} [option] [type] [message]"
@@ -40,6 +49,9 @@ _help() {
     echo "    -l [label]                Specify the label"
     echo "    -n | --nocolor            No output colored output"
     echo "    -o [option]               Specify echo options"
+    echo "    -p [output]               Specify the output destination"
+    echo "                              standard output: stdout"
+    echo "                              error output   : stderr"
     echo "    -r [color]                Specify the color of label"
     echo "    -s [number]               Specifies the label space"
     echo "    -t [color]                Specify the color of text"
@@ -111,11 +123,11 @@ text() {
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
+    bash "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
 }
 
 
-while getopts "a:c:l:no:r:s:t:xh-:" arg; do
+while getopts "a:c:l:no:p:r:s:t:xh-:" arg; do
   case "${arg}" in
         a)
             appname="${OPTARG}"
@@ -132,6 +144,10 @@ while getopts "a:c:l:no:r:s:t:xh-:" arg; do
             ;;
         o)
             echo_opts="${OPTARG}"
+            ;;
+        p)
+            output="${OPTARG}"
+            customized_output=true
             ;;
         r)
             customized_label_color=true
@@ -232,31 +248,31 @@ shift "$((OPTIND - 1))"
 # 7 => Reverse video on (色反転)
 # 8 => Concealed on
 
-case ${1} in
+case "${1}" in
     "info")
         msg_type="type"
-        output="stdout"
+        [[ "${customized_output}"      = false ]] && output="stdout"
         [[ "${customized_label_color}" = false ]] && labelcolor="green"
         [[ "${customized_label}"       = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
         msg_type="warn"
-        output="stdout"
+        [[ "${customized_output}"      = false ]] && output="stdout"
         [[ "${customized_label_color}" = false ]] && labelcolor="yellow"
         [[ "${customized_label}"       = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
         msg_type="debug"
-        output="stdout"
+        [[ "${customized_output}"      = false ]] && output="stdout"
         [[ "${customized_label_color}" = false ]] && labelcolor="magenta"
         [[ "${customized_label}"       = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
         msg_type="error"
-        output="stderr"
+        [[ "${customized_output}"      = false ]] && output="stderr"
         [[ "${customized_label_color}" = false ]] && labelcolor="red"
         [[ "${customized_label}"       = false ]] && msg_label="Error"
         shift 1
@@ -275,6 +291,7 @@ word_count="${#msg_label}"
 message="${@}"
 
 echo_type() {
+    local i
     if [[ "${nolabel}" = false ]]; then
         if [[ "${noadjust}" = false ]]; then
             for i in $( seq 1 "$(( label_space - word_count))" ); do
@@ -297,7 +314,7 @@ echo_message() {
 }
 
 for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
-    _message=$(echo -ne "${message}\n" |head -n "${count}" | tail -n 1 )
+    _message="$(echo -ne "${message}\n" | head -n "${count}" | tail -n 1 )"
     full_message="$(echo_appname)$(echo_type) $(echo_message "${_message}")"
     case "${output}" in
         "stdout")
