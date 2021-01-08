@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import gi, os, shlex, subprocess
+import gi, os, shlex, subprocess, sys
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
@@ -165,10 +165,16 @@ class MainWindow(Gtk.Window):
         build_button = Gtk.Button.new_with_label("Build")
         build_button.connect("clicked", self.on_build_clicked)
 
+        # exit
+        exit_button = Gtk.Button.new_with_label("Exit")
+        exit_button.connect("clicked", self.on_exit_clicked)
+
         util_box = Gtk.Box(spacing=5)
         util_box.set_homogeneous(True)
         util_box.pack_start(reset_button, True, True, 0)
         util_box.pack_start(build_button, True, True, 0)
+        util_box.pack_start(exit_button, True, True, 0)
+
         
         #-- Create Layout --#
         # layout 1
@@ -216,6 +222,9 @@ class MainWindow(Gtk.Window):
         else:
             self.password_entry.set_visibility(True)
             self.password_button.set_label("Hide Password")
+
+    def on_exit_clicked(self, button):
+        sys.exit()
 
     def on_build_clicked(self, button):
         arch = self.arch_combo.get_model()[self.arch_combo.get_active_iter()][1]
