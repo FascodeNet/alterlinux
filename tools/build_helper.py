@@ -217,7 +217,7 @@ class MainWindow(Gtk.Window):
         display = os.environ["DISPLAY"]
         xauthority = os.environ["XAUTHORITY"]
 
-        command = "pkexec env DISPLAY={} XAUTHORITY={} {}/build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(display, xauthority, root_dir, arch, kernel, locale, comp, username, password)
+        command = "pkexec env DISPLAY={} XAUTHORITY={} {}/build.sh --noconfirm --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(display, xauthority, root_dir, arch, kernel, locale, comp, username, password)
         
         if self.boot_splash_button_enable.get_active():
             command = "{} --boot-splash".format(command)
