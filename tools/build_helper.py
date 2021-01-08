@@ -8,6 +8,9 @@ class MainWindow(Gtk.Window):
         #-- Create Window --#
         Gtk.Window.__init__(self, title="AlterISO GUI Helper")
 
+        #-- Set window icon --#
+        self.set_icon_from_file(os.path.join(root_dir,"images/icon/color/AlterV5-Icon-Colored-vector.svg"))
+
         #-- Create Dict --#
         self.dict = {}
         arch_list = Gtk.ListStore(int, str)
@@ -149,7 +152,7 @@ class MainWindow(Gtk.Window):
         password_box.pack_start(self.password_button, True, True, 0)
 
         # extra_option
-        extra_option_label = Gtk.Label(label="Extra build options")
+        extra_option_label = Gtk.Label(label="Extra build options: Additional command line options")
         self.extra_option_entry = Gtk.Entry()
         self.extra_option_entry.set_text("")
         extra_option_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
