@@ -5,6 +5,13 @@ from gi.repository import Gtk
 
 class MainWindow(Gtk.Window):
     def __init__(self):
+
+        #-- Check gtk --#
+        if not Gtk.init_check()[0]:
+            script_name = os.path.basename(__file__)
+            print("[{}]: Failed to initialize gtk".format(script_name))
+            sys.exit()
+
         #-- Create Window --#
         Gtk.Window.__init__(self, title="AlterISO GUI Helper")
 
