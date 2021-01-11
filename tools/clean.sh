@@ -5,6 +5,26 @@ work_dir="${script_path}/work"
 debug=false
 only_work=false
 
+
+# 設定ファイルを読み込む
+# load_config [file1] [file2] ...
+load_config() {
+    local _file
+    for _file in ${@}; do
+        if [[ -f "${_file}" ]]; then
+            source "${_file}"
+        fi
+    done
+}
+
+work_dir="$(
+    load_config "${script_path}/default.conf"
+    load_config "${script_path}/custom.conf"
+    cd "${script_path}"
+    echo "$(realpath "${work_dir}")"
+)"
+
+
 # Show an INFO message
 # $1: message string
 msg_info() {

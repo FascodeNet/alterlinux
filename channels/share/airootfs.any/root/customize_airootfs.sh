@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 
 set -e -u
@@ -99,11 +99,10 @@ locale-gen
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 
 
-# Set os name
-sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
-
 # Create Calamares Entry
-cp /etc/skel/Desktop/calamares.desktop usr/share/applications/calamares.desktop
+if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then
+    cp -a "/etc/skel/Desktop/calamares.desktop" "/usr/share/applications/calamares.desktop"
+fi
 
 
 # Creating a root user.
@@ -195,19 +194,19 @@ if [[ $boot_splash = true ]]; then
     # Edit calamares settings for Plymouth.
 
     # Use lightdm-plymouth instead of lightdm.
-    remove /usr/share/calamares/modules/services.conf
-    mv /usr/share/calamares/modules/services-plymouth.conf /usr/share/calamares/modules/services.conf
+    remove "/usr/share/calamares/modules/services.conf"
+    mv "/usr/share/calamares/modules/services-plymouth.conf" "/usr/share/calamares/modules/services.conf"
 
     # Back up default plymouth settings.
     # cp /usr/share/calamares/modules/plymouthcfg.conf /usr/share/calamares/modules/plymouthcfg.conf.org
 
     # Override theme settings.
-    remove /usr/share/calamares/modules/plymouthcfg.conf
-    echo '---' > /usr/share/calamares/modules/plymouthcfg.conf
-    echo "plymouth_theme: ${theme_name}" >> /usr/share/calamares/modules/plymouthcfg.conf
+    remove "/usr/share/calamares/modules/plymouthcfg.conf"
+    echo '---' > "/usr/share/calamares/modules/plymouthcfg.conf"
+    echo "plymouth_theme: ${theme_name}" >> "/usr/share/calamares/modules/plymouthcfg.conf"
 
     # Override plymouth settings.
-    sed -i s/%PLYMOUTH_THEME%/"${theme_name}"/g /etc/plymouth/plymouthd.conf
+    sed -i "s/%PLYMOUTH_THEME%/${theme_name}/g" "/etc/plymouth/plymouthd.conf"
 
     # Apply plymouth theme settings.
     plymouth-set-default-theme ${theme_name}
@@ -240,34 +239,36 @@ sed -i "s/%MKINITCPIO_PROFILE%/${kernel_mkinitcpio_profile}/g" /usr/share/calama
 sed -i "s|%KERNEL_FILENAME%|${kernel_filename}|g" /usr/share/calamares/modules/unpackfs.conf
 
 # Remove configuration files for other kernels.
-remove /usr/share/calamares/modules/initcpio/
-remove /usr/share/calamares/modules/unpackfs/
+remove "/usr/share/calamares/modules/initcpio/"
+remove "/usr/share/calamares/modules/unpackfs/"
 
 # Set up calamares removeuser
-sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+sed -i "s/%USERNAME%/${username}/g" "/usr/share/calamares/modules/removeuser.conf"
 
 # Set user shell
-sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
+sed -i "s|%USERSHELL%|${usershell}|g" "/usr/share/calamares/modules/users.conf"
 
 # Set INSTALL_DIR
-sed -i s/%INSTALL_DIR%/"${install_dir}"/g /usr/share/calamares/modules/unpackfs.conf
+sed -i "s/%INSTALL_DIR%/${install_dir}/g" "/usr/share/calamares/modules/unpackfs.conf"
 
 # Set ARCH
-sed -i s/%ARCH%/"${arch}"/g /usr/share/calamares/modules/unpackfs.conf
+sed -i "s/%ARCH%/${arch}/g" "/usr/share/calamares/modules/unpackfs.conf"
 
 # Add disabling of sudo setting
-echo -e "\nremove \"/etc/sudoers.d/alterlive\"" >> /usr/share/calamares/final-process
+echo -e "\nremove \"/etc/sudoers.d/alterlive\"" >> "/usr/share/calamares/final-process"
 
 
 # Set os name
-sed -i s/%OS_NAME%/"${os_name}"/g /usr/lib/os-release
+sed -i "s/%OS_NAME%/${os_name}/g" "/usr/lib/os-release"
 
 
 # Enable root login with SSH.
-sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
+if [[ -f "/etc/ssh/sshd_config" ]]; then
+    sed -i 's/#\(PermitRootLogin \).\+/\1yes/' "/etc/ssh/sshd_config"
+fi
 
 # Un comment the mirror list.
-sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
+sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
 # Set the os name to grub
 grub_os_name="${os_name%' Linux'}"
@@ -278,20 +279,35 @@ sed -i -r  "s/(GRUB_DISTRIBUTOR=).*/\1\"${grub_os_name}\"/g" "/etc/default/grub"
 run_additional_command "gtk-update-icon-cache" "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 
 
+# systemctl helper
+# Execute the subcommand only when the specified unit is available.
+# Usage: _systemd_service <systemctl subcommand> <service1> <service2> ...
+_systemd_service(){
+    local _service
+    local _command="${1}"
+    shift 1
+    for _service in "${@}"; do
+        #if [[ -f "$(systemctl cat "${_service}" 2> "/dev/null" | head -n 1 | tail | sed 's|# ||g')" ]]; then
+        if systemctl cat "${_service}" 1>&2 2>/dev/null; then
+            systemctl ${_command} "${_service}"
+        fi
+    done
+}
+
 # Enable graphical.
-systemctl set-default graphical.target
+_systemd_service set-default graphical.target
 
 
 # Enable services.
-systemctl enable pacman-init.service
-systemctl enable org.cups.cupsd.service
-systemctl enable NetworkManager.service
-systemctl enable alteriso-reflector.service
-systemctl disable reflector.service
+_systemd_service enable pacman-init.service
+_systemd_service enable cups.service
+_systemd_service enable NetworkManager.service
+_systemd_service enable alteriso-reflector.service
+_systemd_service disable reflector.service
 
 
 # TLP
 # See ArchWiki for details.
-systemctl enable tlp.service
-systemctl mask systemd-rfkill.service
-systemctl mask systemd-rfkill.socket
+_systemd_service enable tlp.service
+_systemd_service mask systemd-rfkill.service
+_systemd_service mask systemd-rfkill.socket

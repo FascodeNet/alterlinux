@@ -5,9 +5,11 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # icon theme
 
 #korla-icon-theme
-#numix-blue-gtk-theme-bin
+
+numix-blue-gtk-theme-bin
+paper-icon-theme

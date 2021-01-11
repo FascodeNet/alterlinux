@@ -73,7 +73,7 @@ while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
 done
 ```
 
-##### AlterISO3のコード（2020年7月31日現在）
+##### AlterISO3のコード（2021年7月31日現在）
 
 ```bash
 # Default value

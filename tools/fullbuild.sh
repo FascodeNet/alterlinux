@@ -4,11 +4,11 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 channnels=(
     "xfce"
-    "xfce-pro"
+#   "xfce-pro"
     "lxde"
     "cinnamon"
     "i3"
-    "gnome"
+#   "gnome"
 )
 
 architectures=(
@@ -25,12 +25,13 @@ work_dir="${script_path}/temp"
 simulation=false
 retry=5
 
+remove_cache=false
 all_channel=false
 
 # Show an INFO message
 # $1: message string
 msg_info() {
-    local _msg_opts="-a fullbuild.sh"
+    local _msg_opts="-a fullbuilid -s 5"
     if [[ "${1}" = "-n" ]]; then
         _msg_opts="${_msg_opts} -o -n"
         shift 1
@@ -41,7 +42,7 @@ msg_info() {
 # Show an Warning message
 # $1: message string
 msg_warn() {
-    local _msg_opts="-a fullbuild.sh"
+    local _msg_opts="-a fullbuilid -s 5"
     if [[ "${1}" = "-n" ]]; then
         _msg_opts="${_msg_opts} -o -n"
         shift 1
@@ -53,7 +54,7 @@ msg_warn() {
 # $1: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a fullbuild.sh"
+        local _msg_opts="-a fullbuilid -s 5"
         if [[ "${1}" = "-n" ]]; then
             _msg_opts="${_msg_opts} -o -n"
             shift 1
@@ -66,7 +67,7 @@ msg_debug() {
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a fullbuild.sh"
+    local _msg_opts="-a fullbuilid -s 5"
     if [[ "${1}" = "-n" ]]; then
         _msg_opts="${_msg_opts} -o -n"
         shift 1
@@ -91,6 +92,10 @@ build() {
 
     options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
 
+    if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
+        sudo pacman -Sccc --noconfirm
+    fi
+
     if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
@@ -106,7 +111,6 @@ build() {
             fi
         fi
     fi
-    sudo pacman -Sccc --noconfirm > /dev/null 2>&1
 }
 
 _help() {
@@ -117,13 +121,15 @@ _help() {
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options})"
     echo "    -g                 Use gitversion"
-    echo "    -h                 This help message"
+    echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
     echo "    -m <architecture>  Set the architecture to build"
     echo "    -r <interer>       Set the number of retries"
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode"
     echo "    -t                 Build the tarball as well"
+    echo
+    echo "    --remove-cache     Clear cache for all packages on every build"
     echo
     echo " !! WARNING !!"
     echo " Do not set channel or architecture with -a."
@@ -132,43 +138,93 @@ _help() {
     echo
     echo "Run \"build.sh -h\" for channel details."
     echo -n " Channel: "
-    "${script_path}/build.sh" --channellist
+    "${script_path}/tools/channel.sh" show
 }
 
 
 share_options="--noconfirm"
 default_options="--boot-splash --cleanup --user alter --password alter"
 
-while getopts 'a:dghr:sctm:l:' arg; do
-    case "${arg}" in
-        a) share_options="${share_options} ${OPTARG}" ;;
-        c) all_channel=true ;;
-        d) share_options="${share_options} ${default_options}" ;;
-        m) architectures=(${OPTARG}) ;;
-        g)
+
+# Parse options
+ARGUMENT="${@}"
+opt_short="a:dghr:sctm:l:"
+opt_long="help,remove-cache"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
+[[ ${?} != 0 ]] && exit 1
+
+eval set -- "${OPT}"
+unset OPT opt_short opt_long
+
+while true; do
+    case ${1} in
+        -a)
+            share_options="${share_options} ${2}"
+            shift 2
+            ;;
+        -c)
+            all_channel=true
+            shift 1
+            ;;
+        -d)
+            share_options="${share_options} ${default_options}"
+            shift 1
+            ;;
+        -m)
+            architectures=(${2})
+            shift 2
+            ;;
+        -g)
             if [[ ! -d "${script_path}/.git" ]]; then
                 msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
             else
                 share_options="${share_options} --gitversion"
             fi
+            shift 1
             ;;
-        s) simulation=true;;
-        r) retry="${OPTARG}" ;;
-        t) share_options="${share_options} --tarball" ;;
-        l) locale_list=(${OPTARG});;
-        h) _help ; exit 0 ;;
-        *) _help ; exit 1 ;;
+        -s)
+            simulation=true
+            shift 1
+            ;;
+        -r)
+            retry="${2}"
+            shift 2
+            ;;
+        -t)
+            share_options="${share_options} --tarball"
+            ;;
+        -l)
+            locale_list=(${2})
+            shift 2
+            ;;
+        -h | --help)
+            shift 1
+            _help
+            exit 0
+            ;;
+        --remove-cache)
+            remove_cache=true
+            shift 1
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            shift 1
+            _help
+            exit 1 
+            ;;
     esac
 done
-shift $((OPTIND - 1))
 
 
 if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
         msg_error "Do not specify the channel." "1"
     else
-        channnels=($("${script_path}/build.sh" --channellist))
+        channnels=($("${script_path}/tools/channel.sh" -b show))
     fi
 elif [[ -n "${*}" ]]; then
     channnels=(${@})
@@ -189,8 +245,13 @@ if [[ ! -d "${work_dir}" ]]; then
     mkdir -p "${work_dir}"
 fi
 
-for cha in ${channnels[@]}; do
-    for arch in ${architectures[@]}; do
+if [[ "${simulation}" = false ]]; then
+    msg_info "Update the package database."
+    sudo pacman -Syy
+fi
+
+for arch in ${architectures[@]}; do
+    for cha in ${channnels[@]}; do
         for lang in ${locale_list[@]}; do
             for i in $(seq 1 ${retry}); do
                 if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then

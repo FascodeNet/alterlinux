@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     AppMain m(0,&a);
     QTimer::singleShot(0,&m,SLOT(run()));
     int retkun= a.exec();
-    m.cmd_collect.force_umount();
+    m.cmd_collect.force_umount_old();
     return retkun;
 }
 bool isroot(){
@@ -51,6 +51,7 @@ void AppMain::run()
     build_setting_obj.set_quiet(true);
     build_setting_obj.set_use_gpg_key(false);
     build_setting_obj.set_wsl(false);
+    build_setting_obj.set_aur(false);
     time_t     now;
     struct tm  *ts;
     char       buf[80];
@@ -79,13 +80,14 @@ void AppMain::run()
     QCommandLineOption option_verbose("v","verbose");
     QCommandLineOption option_debug("d","debug");
     QCommandLineOption option_x("x","x");
+    QCommandLineOption option_aur(QStringList() << "aur","Enable aur");
     QCommandLineOption option_wsl(QStringList() << "wsl","for wsl");
     QCommandLineOption option_gpg_key("g","gpg key","gpg key");
     QCommandLineOption option_help1(QStringList() << "h" << "help" << "?","help");
 
     parser.addOptions({option_Architecture,option_PACKAGE,option_command,option_file_pacman,option_work_dir
                       ,option_out_dir,option_sfs_mode,option_sfs_comp,option_sfs_special_option,option_iso_label,option_iso_publisher,option_iso_application,option_install_dir
-                      ,option_gpg_key});
+                      ,option_gpg_key,option_aur});
     parser.addOption(option_verbose);
     parser.addOption(option_x);
     parser.addOption(option_commands);
@@ -135,6 +137,9 @@ void AppMain::run()
     }
     if(parser.isSet(option_wsl)){
         build_setting_obj.set_wsl(true);
+    }
+    if(parser.isSet(option_aur)){
+        build_setting_obj.set_aur(true);
     }
     build_setting_obj.set_command_args(parser.positionalArguments());
     cmd_collect.set_build_setting(&build_setting_obj);
