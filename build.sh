@@ -622,12 +622,9 @@ prepare_build() {
     check_bool nocolor
     check_bool msgdebug
     check_bool noefi
-<<<<<<< HEAD
     check_bool pacman_debug
-=======
     check_bool include_extra
     check_bool nosigcheck
->>>>>>> dev
 
     # Check architecture for each channel
     if [[ ! "$(bash "${tools_dir}/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -1169,13 +1166,8 @@ make_iso() {
 
 # Parse options
 ARGUMENT="${@}"
-<<<<<<< HEAD
-_opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-_opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,pacman-debug"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
-=======
 opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
+opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,pacman-debug"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
 >>>>>>> dev
 [[ ${?} != 0 ]] && exit 1
@@ -1326,13 +1318,12 @@ while :; do
             source "${2}"
             shift 2
             ;;
-<<<<<<< HEAD
         --pacman-debug)
             pacman_debug=true
-=======
+            shift 1
+            ;;
         --nosigcheck)
             nosigcheck=true
->>>>>>> dev
             shift 1
             ;;
         --)
