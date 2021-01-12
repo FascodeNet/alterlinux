@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 
 set -e -u
@@ -98,9 +98,6 @@ locale-gen
 # Setting the time zone.
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 
-
-# Set os name
-sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 
 # Create Calamares Entry
 if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then

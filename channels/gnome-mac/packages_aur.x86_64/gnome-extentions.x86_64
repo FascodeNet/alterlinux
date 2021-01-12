@@ -5,7 +5,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # Gnome extensions
 
@@ -14,5 +14,5 @@ gnome-shell-extension-clipboard-indicator
 gnome-shell-extension-coverflow-alt-tab
 gnome-shell-extension-dash-to-dock
 gnome-shell-extension-desktop-icons-ng
-gnome-shell-extension-extensions-git
+gnome-shell-extension-extensions
 gnome-shell-extension-topicons-redux

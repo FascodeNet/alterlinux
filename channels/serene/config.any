@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # config
 #
@@ -54,6 +54,12 @@ include_info=true
 # Use this setting for debugging only.
 # # This setting cannot be changed by an argument.
 customized_syslinux=true
+
+
+# Add extra files
+# Include files of share-extra channel
+# This setting cannot be changed by an argument.
+include_extra=true
 
 
 #-- Live environment user --#

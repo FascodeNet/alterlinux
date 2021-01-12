@@ -20,5 +20,5 @@ The following packages are installed depending on the situation, and should not 
 - broadcom-wl
 - broadcom-wl-dkms
   
-Starting May 28, 2020, base-devel is no longer installed by default.  
+Starting May 28, 2021, base-devel is no longer installed by default.  
 You need to install it as a package for each channel.  
