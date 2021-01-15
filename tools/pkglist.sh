@@ -243,10 +243,10 @@ if [[ -n "${_excludelist[*]}" ]]; then
 fi
 
 # Sort the list of packages in abc order.
-_pkglist=($(for _pkg in ${_pkglist[@]}; do echo "${_pkg}"; done | sort | perl -pe 's/\n/ /g'))
+_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | perl -pe 's/\n/ /g'))
 
 # 重複してるものを削除
-_pkglist=($( echo "${_pkglist[@]}" | uniq ))
+_pkglist=($(printf "%s\n" "${_pkglist[@]}" | uniq))
 
 OLD_IFS="${IFS}"
 if [[ "${line}" = true ]]; then
