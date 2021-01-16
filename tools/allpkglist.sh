@@ -56,6 +56,8 @@ done
 share_dir="${script_path}/channels/share"
 extra_dir="${script_path}/channels/share-extra"
 
+mkdir -p "${out_dir}"
+
 for arch in "x86_64" "i686" "i486"; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
     #for channel in "${script_path}/channels/releng"; do
