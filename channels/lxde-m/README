@@ -1,0 +1,16 @@
+Alter Linux LXDE
+===========
+
+Japanese:
+Alter Linux LXDEはGUIを搭載した中では最も軽量です。
+システム設定ツールと最小限のGTKソフトウェアをが入っています。
+LXDEはAlter Linux独自のカスタマイズがされています。
+GTKテーマとしてAdapta、アイコンテーマとしてPapirusが使用されています。
+チャンネル名は lxde です。
+
+English:
+Alter Linux LXDE is the lightest GUI built-in.
+Contains system configuration tools and minimal GTK software.
+LXDE is customized for Alter Linux.
+Adapta is used as the GTK theme and Papirus is used as the icon theme.
+The channel name is lxde.
