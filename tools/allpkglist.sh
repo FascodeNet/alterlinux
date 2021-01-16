@@ -18,17 +18,19 @@ _help() {
     echo
     echo " General options:"
     echo "    -o | --out                Specify the output dir"
+    echo "    -s | --stdout             Output to stdout (Ignore -o)"
     echo "    -h | --help               This help message"
 }
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 tools_dir="${script_path}/tools"
 out_dir=""
+stdout=false
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="o:h"
-opt_long="out:,help"
+opt_short="o:hs"
+opt_long="out:,help,stdout"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 eval set -- "${OPT}"
@@ -39,6 +41,10 @@ while true; do
         -o | --out)
             out_dir="${2}"
             shift 2
+            ;;
+        -s | --stdout)
+            stdout=true
+            shift 1
             ;;
         -h | --help)
             _help
@@ -56,7 +62,11 @@ done
 share_dir="${script_path}/channels/share"
 extra_dir="${script_path}/channels/share-extra"
 
-mkdir -p "${out_dir}"
+if [[ -z "${out_dir}" ]] || [[ "${stdout}" = true ]]; then
+    stdout=true
+else
+    mkdir -p "${out_dir}"
+fi
 
 for arch in "x86_64" "i686" "i486"; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
@@ -76,11 +86,16 @@ for arch in "x86_64" "i686" "i486"; do
             pkglist_opts+=" -e"
         fi
 
-        if [[ -z "${out_dir}" ]]; then  
-            "${tools_dir}/pkglist.sh" ${pkglist_opts}
+        if [[ "${stdout}" = true ]]; then
+            pkglist+=($("${tools_dir}/pkglist.sh" ${pkglist_opts}))
         else
-            "${tools_dir}/pkglist.sh" ${pkglist_opts} 1> "${out_dir}/$(basename "${channel}").${arch}"
+            "${tools_dir}/pkglist.sh" -d ${pkglist_opts} 1> "${out_dir}/$(basename "${channel}").${arch}"
         fi
         
     done
 done
+
+if [[ "${stdout}" = true ]]; then
+    pkglist=($(printf "%s\n" "${pkglist[@]}" | sort |uniq))
+    printf "%s\n" "${pkglist[@]}"
+fi
