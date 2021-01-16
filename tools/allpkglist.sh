@@ -17,6 +17,7 @@ _help() {
     echo "Outputs the package list of all channels in one file"
     echo
     echo " General options:"
+    echo "    -a | --arch               Specify the architecture"
     echo "    -o | --out                Specify the output dir"
     echo "    -s | --stdout             Output to stdout (Ignore -o)"
     echo "    -h | --help               This help message"
@@ -25,12 +26,13 @@ _help() {
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 tools_dir="${script_path}/tools"
 out_dir=""
+archs=("x86_64" "i686" "i486")
 stdout=false
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="o:hs"
-opt_long="out:,help,stdout"
+opt_short="a:o:hs"
+opt_long="arch:,out:,help,stdout"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 eval set -- "${OPT}"
@@ -38,6 +40,10 @@ unset OPT opt_short opt_long
 
 while true; do
     case "${1}" in
+        -a | --arch)
+            archs=(${2})
+            shift 2
+            ;;
         -o | --out)
             out_dir="${2}"
             shift 2
@@ -68,7 +74,7 @@ else
     mkdir -p "${out_dir}"
 fi
 
-for arch in "x86_64" "i686" "i486"; do
+for arch in ${archs[@]}; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
     #for channel in "${script_path}/channels/releng"; do
         include_extra=$(
