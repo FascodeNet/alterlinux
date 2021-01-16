@@ -20,4 +20,4 @@ defaultkernel="linux58"
 # Add extra files
 # Include files of share-extra channel
 # This setting cannot be changed by an argument.
-include_extra=true
+include_extra=false
