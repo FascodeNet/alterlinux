@@ -11,6 +11,7 @@ aur=false
 pkgdir_name="packages"
 extra=false
 line=false
+debug=false
 
 arch=""
 channel_dir=""
@@ -31,6 +32,7 @@ _help() {
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -b | --boot-splash        Enable boot splash"
     echo "    -c | --channel [dir]      Specify the channel directory"
+    echo "    -d | --debug              Enable debug message"
     echo "    -e | --extra              Include extra packages"
     echo "    -k | --kernel [kernel]    Specify the kernel"
     echo "    -l | --locale [locale]    Specify the locale"
@@ -55,14 +57,16 @@ msg_info() {
 }
 
 msg_debug() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
+    if [[ "${debug}" = true ]]; then
+        "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
+    fi
 }
 
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:bc:ek:l:h"
-opt_long="arch:,boot-splash,channel:,extra,kernel:,locale:,aur,help,line"
+opt_short="a:bc:dek:l:h"
+opt_long="arch:,boot-splash,channel:,debug,extra,kernel:,locale:,aur,help,line"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -70,7 +74,7 @@ eval set -- "${OPT}"
 unset OPT opt_short opt_long
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -82,6 +86,10 @@ while true; do
         -c | --channel)
             channel_dir="${2}"
             shift 2
+            ;;
+        -d | --debug)
+            debug=true
+            shift 1
             ;;
         -e | --extra)
             extra=true
