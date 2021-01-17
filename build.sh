@@ -751,7 +751,7 @@ make_pkgbuild() {
 # Customize installation (airootfs)
 make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
-    local _airootfs _airootfs_script_options _script _script_list _airootfs_list
+    local _airootfs _airootfs_script_options _script _script_list _airootfs_list _main_script
 
     _airootfs_list=(
         "${share_dir}/airootfs.any"
@@ -808,27 +808,29 @@ make_customize_airootfs() {
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
     
+    _main_script="root/customize_airootfs.sh"
+
     _script_list=(
-        "/root/customize_airootfs.sh"
-        "/root/customize_airootfs.sh"
-        "/root/customize_airootfs_${channel_name}.sh"
-        "/root/customize_airootfs_${channel_name%.add}.sh"
+        "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
+        "${airootfs_dir}/root/customize_airootfs_${channel_name%.add}.sh"
     )
 
     if [[ "${include_extra}" = true ]]; then
-        _script_list+=(
-            "/root/customize_airootfs_share-extra.sh"
-        )
+        _script_list=(${_script_list[@]} "${airootfs_dir}/root/customize_airootfs_share-extra.sh")
     fi
 
-    # Script permission
+    # Create script
     for _script in ${_script_list[@]}; do
-        if [[ -f "${airootfs_dir}/${_script}" ]]; then
-            chmod 755 "${airootfs_dir}/${_script}"
-            ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_script} ${_airootfs_script_options}" run
-            remove "${airootfs_dir}/${_script}"
+        if [[ -f "${_script}" ]]; then
+            echo -e "\n" >> "${airootfs_dir}/${_main_script}"
+            cat "${_script}" >> "${airootfs_dir}/${_main_script}"
+            remove "${_script}"
         fi
     done
+
+    chmod 755 "${airootfs_dir}/${_main_script}"
+    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_main_script} ${_airootfs_script_options}" run
+    remove "${airootfs_dir}/${_main_script}"
 
     # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
     chmod -f 750 "${airootfs_dir}/root"
@@ -1121,6 +1123,7 @@ make_prepare() {
     fi
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
+    remove "${work_dir}/airootfs/root/optimize_for_tarball.sh"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
 
     if [[ "${cleaning}" = true ]]; then
