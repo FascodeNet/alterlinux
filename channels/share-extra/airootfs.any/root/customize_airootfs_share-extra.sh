@@ -71,39 +71,44 @@ function remove () {
     done
 }
 
+function installedpkg () {
+    if pacman -Qq "${1}" 1>/dev/null 2>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
 
-# Replace wallpaper.
-:<<DISABLED
-if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
-    remove /usr/share/backgrounds/xfce/xfce-stripes.png
-    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-fi
-[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
-DISABLED
+# Bluetooth
+rfkill unblock all
+systemctl enable bluetooth
 
-
-# Replace right menu
-:<< DISABLED
-if [[ "${language}" = "ja" ]]; then
-    remove "/etc/skel/.config/Thunar/uca.xml"
-    remove "/home/${username}/.config/Thunar/uca.xml"
-
-    mv "/etc/skel/.config/Thunar/uca.xml.jp" "/etc/skel/.config/Thunar/uca.xml"
-    mv "/home/${username}/.config/Thunar/uca.xml.jp" "/home/${username}/.config/Thunar/uca.xml"
-else
-    remove "/etc/skel/.config/Thunar/uca.xml.jp"
-    remove "/home/${username}/.config/Thunar/uca.xml.jp"
-fi
-DISABLED
-
-
-# Enable LightDM to auto login
-if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable lightdm-plymouth.service
-else
-    systemctl enable lightdm.service
+# Snap
+if [[ "${arch}" = "x86_64" ]]; then
+    systemctl enable snapd.apparmor.service
+    systemctl enable apparmor.service
+    systemctl enable snapd.socket
+    systemctl enable snapd.service
 fi
 
 
-# Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+# firewalld
+if installedpkg firewalld; then
+    systemctl enable firewalld.service
+fi
+
+
+# Added autologin group to auto login
+groupadd autologin
+usermod -aG autologin ${username}
+
+
+# ntp
+systemctl enable systemd-timesyncd.service
+
+
+# Update system datebase
+if type -p dconf 1>/dev/null 2>/dev/null; then
+    dconf update
+fi
+

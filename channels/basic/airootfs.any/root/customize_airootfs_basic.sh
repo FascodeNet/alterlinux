@@ -73,5 +73,3 @@ function remove () {
 # Update system datebase
 #dconf update
 
-# Replace link
-remove "/etc/skel/Desktop/"

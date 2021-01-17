@@ -72,12 +72,6 @@ function remove () {
     done
 }
 
-
-# Bluetooth
-rfkill unblock all
-systemctl enable bluetooth
-
-
 # Replace panel config
 if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/lxpanel/LXDE/panels/panel"
@@ -89,28 +83,6 @@ else
     remove "/etc/skel/.config/lxpanel/LXDE/panels/panel-jp"
     remove "/home/${username}/.config/lxpanel/LXDE/panels/panel-jp"
 fi
-
-
-# Update system datebase
-dconf update
-
-
-# Snap
-if [[ "${arch}" = "x86_64" ]]; then
-    systemctl enable snapd.apparmor.service
-    systemctl enable apparmor.service
-    systemctl enable snapd.socket
-    systemctl enable snapd.service
-fi
-
-
-# firewalld
-systemctl enable firewalld.service
-
-
-# Added autologin group to auto login
-groupadd autologin
-usermod -aG autologin ${username}
 
 
 # Enable LightDM to auto login
@@ -137,9 +109,3 @@ fi
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
-
-# Set script permission
-chmod 755 /usr/bin/alterlinux-gtk-bookmarks
-
-# ntp
-systemctl enable systemd-timesyncd.service

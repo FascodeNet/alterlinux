@@ -808,7 +808,18 @@ make_customize_airootfs() {
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
     
-    _script_list=("/root/customize_airootfs.sh" "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh" "/root/customize_airootfs_${channel_name%.add}.sh")
+    _script_list=(
+        "/root/customize_airootfs.sh"
+        "/root/customize_airootfs.sh"
+        "/root/customize_airootfs_${channel_name}.sh"
+        "/root/customize_airootfs_${channel_name%.add}.sh"
+    )
+
+    if [[ "${include_extra}" = true ]]; then
+        _script_list+=(
+            "/root/customize_airootfs_share-extra.sh"
+        )
+    fi
 
     # Script permission
     for _script in ${_script_list[@]}; do

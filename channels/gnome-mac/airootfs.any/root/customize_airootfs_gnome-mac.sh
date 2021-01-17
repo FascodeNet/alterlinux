@@ -72,42 +72,6 @@ function remove () {
 }
 
 
-# Replace wallpaper.
-if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
-    remove /usr/share/backgrounds/xfce/xfce-stripes.png
-    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-fi
-[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
-
-
-# Bluetooth
-rfkill unblock all
-systemctl enable bluetooth
-
-# Snap
-if [[ "${arch}" = "x86_64" ]]; then
-    systemctl enable snapd.apparmor.service
-    systemctl enable apparmor.service
-    systemctl enable snapd.socket
-    systemctl enable snapd.service
-fi
-
-
-# Update system datebase
-dconf update
-
-
-# firewalld
-systemctl enable firewalld.service
-
-
-# Added autologin group to auto login
-groupadd autologin
-usermod -aG autologin ${username}
-
-# ntp
-systemctl enable systemd-timesyncd.service
-
 # Enable gdm to auto login
 if [[ "${boot_splash}" =  true ]]; then
     systemctl enable gdm-plymouth.service
@@ -115,9 +79,6 @@ else
     systemctl enable gdm.service
 fi
 
-
-# Set script permission
-chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/gdm/custom.conf
@@ -144,5 +105,9 @@ fi
 
 
 # Remove shortcuts
-remove "/etc/skel/Desktop/calamares.desktop"
-remove "/home/${username}/Desktop/calamares.desktop"
+function remove_userfile() {
+    remove "/home/${username}/${1#/}"
+    remove "/etc/skel/${1#/}"
+}
+remove_userfile "Desktop/calamares.desktop"
+remove_userfile ".config/autostart/genicon.desktop"

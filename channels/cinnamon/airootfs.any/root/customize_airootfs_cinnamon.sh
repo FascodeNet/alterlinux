@@ -54,60 +54,12 @@ kernel="${kernel_config_line[0]}"
 kernel_filename="${kernel_config_line[1]}"
 kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
-
-# Delete file only if file exists
-# remove <file1> <file2> ...
-function remove () {
-    local _list
-    local _file
-    _list=($(echo "$@"))
-    for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            rm -rf "${_file}"
-        fi
-        echo "${_file} was deleted."
-    done
-}
-
-
-# Bluetooth
-rfkill unblock all
-systemctl enable bluetooth
-
-# Snap
-if [[ "${arch}" = "x86_64" ]]; then
-    systemctl enable snapd.apparmor.service
-    systemctl enable apparmor.service
-    systemctl enable snapd.socket
-    systemctl enable snapd.service
-fi
-
-
-# firewalld
-systemctl enable firewalld.service
-
-
-# Added autologin group to auto login
-groupadd autologin
-usermod -aG autologin ${username}
-
-
-# ntp
-systemctl enable systemd-timesyncd.service
-
-
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
     systemctl enable lightdm-plymouth.service
 else
     systemctl enable lightdm.service
 fi
-
-
-# Set script permission
-chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
@@ -117,3 +69,4 @@ sed -i s/%PASSWORD%/${password}/g "/etc/dconf/db/local.d/02-disable-lock"
 
 # Update system datebase
 dconf update
+

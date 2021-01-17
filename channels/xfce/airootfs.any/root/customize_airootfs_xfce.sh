@@ -80,27 +80,6 @@ fi
 [[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
 
 
-# Bluetooth
-rfkill unblock all
-systemctl enable bluetooth
-
-# Snap
-if [[ "${arch}" = "x86_64" ]]; then
-    systemctl enable snapd.apparmor.service
-    systemctl enable apparmor.service
-    systemctl enable snapd.socket
-    systemctl enable snapd.service
-fi
-
-
-# Update system datebase
-dconf update
-
-
-# firewalld
-systemctl enable firewalld.service
-
-
 # Replace right menu
 if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/Thunar/uca.xml"
@@ -113,13 +92,6 @@ else
     remove "/home/${username}/.config/Thunar/uca.xml.jp"
 fi
 
-# Added autologin group to auto login
-groupadd autologin
-usermod -aG autologin ${username}
-
-# ntp
-systemctl enable systemd-timesyncd.service
-
 
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
@@ -128,9 +100,6 @@ else
     systemctl enable lightdm.service
 fi
 
-
-# Set script permission
-chmod 755 /usr/bin/alterlinux-gtk-bookmarks
 
 # Replace auto login user
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
