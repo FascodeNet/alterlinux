@@ -55,6 +55,9 @@ kernel="${kernel_config_line[0]}"
 kernel_filename="${kernel_config_line[1]}"
 kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
+# Make it compatible with previous code
+unset OPTIND OPTARG arg
+
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
