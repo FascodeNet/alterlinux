@@ -808,7 +808,7 @@ make_customize_airootfs() {
     [[ "${rebuild}" = true     ]] && _airootfs_script_options="${_airootfs_script_options} -r"
 
     
-    _main_script="/root/customize_airootfs.sh"
+    _main_script="root/customize_airootfs.sh"
 
     _script_list=(
         "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
