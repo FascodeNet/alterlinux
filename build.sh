@@ -816,7 +816,7 @@ make_customize_airootfs() {
     )
 
     if [[ "${include_extra}" = true ]]; then
-        _script_list+=("${airootfs_dir}/root/customize_airootfs_share-extra.sh")
+        _script_list=(${_script_list[@]} "${airootfs_dir}/root/customize_airootfs_share-extra.sh")
     fi
 
     # Create script
