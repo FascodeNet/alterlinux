@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 
 set -e -u
@@ -55,6 +55,9 @@ kernel="${kernel_config_line[0]}"
 kernel_filename="${kernel_config_line[1]}"
 kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
+# Make it compatible with previous code
+unset OPTIND OPTARG arg
+
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
@@ -86,6 +89,14 @@ function remove () {
     done
 }
 
+
+function installedpkg () {
+    if pacman -Qq "${1}" 1>/dev/null 2>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen

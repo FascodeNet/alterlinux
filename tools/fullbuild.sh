@@ -148,13 +148,13 @@ default_options="--boot-splash --cleanup --user alter --password alter"
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:dghr:sctm:l:"
-_opt_long="help,remove-cache"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
+opt_short="a:dghr:sctm:l:"
+opt_long="help,remove-cache"
+OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
 eval set -- "${OPT}"
-unset OPT _opt_short _opt_long
+unset OPT opt_short opt_long
 
 while true; do
     case ${1} in
@@ -250,8 +250,8 @@ if [[ "${simulation}" = false ]]; then
     sudo pacman -Syy
 fi
 
-for cha in ${channnels[@]}; do
-    for arch in ${architectures[@]}; do
+for arch in ${architectures[@]}; do
+    for cha in ${channnels[@]}; do
         for lang in ${locale_list[@]}; do
             for i in $(seq 1 ${retry}); do
                 if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then

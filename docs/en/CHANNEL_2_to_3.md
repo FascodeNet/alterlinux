@@ -17,9 +17,9 @@ Previous`japanese`variable not working.
 
 ### customize_airootfs_<ch_name>.sh
 
-#### Argument analysis
-Argument analysis part has a big change. Please rewrite below instruction.   
-Rewrite directly and DON'T change source-code.
+The argument parsing part is no longer needed. Please delete the relevant part.
+Also, function definitions such as remove are no longer required.
+See [share/customize_airootfs.sh](https://github.com/FascodeNet/alterlinux/blob/dev/channels/share/airootfs.any/root/customize_airootfs.sh) for available variables and functions.
 
 ##### Previous code
 
@@ -59,53 +59,6 @@ while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
 done
 ```
 
-##### AlterISO3's code (at July 31,2020)
-
-```bash
-# Default value
-# All values can be changed by arguments.
-password=alter
-boot_splash=false
-kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
-theme_name=alter-logo
-rebuild=false
-username='alter'
-os_name="Alter Linux"
-install_dir="alter"
-usershell="/bin/bash"
-debug=false
-timezone="UTC"
-localegen="en_US\\.UTF-8\\"
-language="en"
-
-
-# Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
-    case "${arg}" in
-        p) password="${OPTARG}" ;;
-        b) boot_splash=true ;;
-        t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
-        r) rebuild=true ;;
-        u) username="${OPTARG}" ;;
-        o) os_name="${OPTARG}" ;;
-        i) install_dir="${OPTARG}" ;;
-        s) usershell="${OPTARG}" ;;
-        d) debug=true ;;
-        x) debug=true; set -xv ;;
-        a) arch="${OPTARG}" ;;
-        g) localegen="${OPTARG/./\\.}\\" ;;
-        z) timezone="${OPTARG}" ;;
-        l) language="${OPTARG}" ;;
-    esac
-done
-
-
-# Parse kernel
-kernel="${kernel_config_line[0]}"
-kernel_filename="${kernel_config_line[1]}"
-kernel_mkinitcpio_profile="${kernel_config_line[2]}"
-```
 
 #### Japanize process part
 In the past, the `japanese` variable was separated by `true` or `false`for Japanizing.
