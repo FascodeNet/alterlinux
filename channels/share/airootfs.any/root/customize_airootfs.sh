@@ -87,6 +87,14 @@ function remove () {
 }
 
 
+function installedpkg () {
+    if pacman -Qq "${1}" 1>/dev/null 2>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
 if [[ ! "${localegen}" = "en_US\\.UTF-8\\" ]]; then
