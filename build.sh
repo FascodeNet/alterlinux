@@ -1123,6 +1123,7 @@ make_prepare() {
     fi
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
+    remove "${work_dir}/airootfs/root/optimize_for_tarball.sh"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
 
     if [[ "${cleaning}" = true ]]; then
