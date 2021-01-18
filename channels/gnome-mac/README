@@ -1,0 +1,14 @@
+Alter Linux Gnome-Mac
+===========
+
+Japanese:
+初心者向けに多くのパッケージを搭載してカスタマイズされたGnomeです。
+Gnomeチャンネルと違ってmacOSのようにカスタマイズされています。
+このエディションではGDMを採用しています。
+x86_64のみをサポートしており、チャンネル名は gnome-mac です。
+
+English:
+A customized Gnome with many packages for beginners.
+Unlike the Gnome channel, it is customized like macOS.
+This edition uses GDM.
+It only supports x86_64 and the channel name is gnome-mac.

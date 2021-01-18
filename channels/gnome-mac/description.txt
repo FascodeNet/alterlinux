@@ -1,0 +1,1 @@
+Gnome edition with a macOS-like UI
