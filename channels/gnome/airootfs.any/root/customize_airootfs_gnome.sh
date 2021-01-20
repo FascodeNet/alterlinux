@@ -46,4 +46,4 @@ function remove_userfile() {
     remove "/etc/skel/${1#/}"
 }
 remove_userfile "Desktop/calamares.desktop"
-remove_userfile ".config/autostart/genicon.desktop"
+#remove_userfile ".config/autostart/genicon.desktop"
