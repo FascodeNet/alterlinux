@@ -26,6 +26,7 @@ exfatprogs
 f2fs-tools
 fatresize
 fsarchiver
+git
 gnu-netcat
 gpart
 gpm
