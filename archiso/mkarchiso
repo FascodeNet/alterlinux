@@ -870,7 +870,7 @@ _read_profile() {
         # shellcheck source=configs/releng/profiledef.sh
         . "${profile}/profiledef.sh"
         eval $(bash "${script_path}/../scripts/locale.sh" -s -a "${arch}" get "${locale_name}")
-        eval $(bash "${script_path}/../scripts/kernel.sh" -s -p "${profile}" get "${kernel}")
+        eval $(bash "${script_path}/../scripts/kernel.sh" -s -a "${arch}" -p "${profile}" get "${kernel}")
         # Resolve paths
         # packages="$(realpath -- "${profile}/packages.${arch}")"
         pacman_conf="$(realpath -- "${pacman_conf}")"
