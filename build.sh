@@ -869,10 +869,19 @@ make_syslinux() {
         cp "${script_path}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
     fi
 
-    # Remove rescue config
+    # remove config
+    local _remove_config
+    function _remove_config() {
+        remove "${isofs_dir}/${install_dir}/boot/syslinux/${1}"
+        sed -i "s|$(cat "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+    }
+
     if [[ "${norescue_entry}" = true ]]; then
-        remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
-        sed -i "s|$(cat "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "archiso_sys_rescue")||g" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+        _remove_config archiso_sys_rescue.cfg
+    fi
+
+    if [[ "${memtest86}" = false ]]; then
+        _remove_config memtest86.cfg
     fi
 
     # copy files
