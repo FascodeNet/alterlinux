@@ -38,6 +38,8 @@ share_dir=""
 kernel="core"
 locale_name="en"
 boot_splash=false
+liveuser_name="alter"
+liveuser_password="alter"
 # profile defaults
 profile=""
 iso_name="${app_name}"
@@ -428,7 +430,10 @@ _make_customize_airootfs() {
         _msg_info "Running customize_airootfs.sh in '${airootfs_dir}' chroot..."
         _msg_warning "customize_airootfs.sh is deprecated! Support for it will be removed in a future archiso version."
         chmod -f -- +x "${airootfs_dir}/root/customize_airootfs.sh"
-        eval -- arch-chroot "${airootfs_dir}" "/root/customize_airootfs.sh"
+        local customize_airootfs_args
+        customize_airootfs_args="${customize_airootfs_args} -u '${liveuser_name}' -p '${liveuser_password}' "
+        customize_airootfs_args="${customize_airootfs_args} -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile} "
+        eval -- arch-chroot "${airootfs_dir}" "/root/customize_airootfs.sh" ${customize_airootfs_args}
         rm -- "${airootfs_dir}/root/customize_airootfs.sh"
         _msg_info "Done! customize_airootfs.sh run successfully."
     fi
