@@ -370,7 +370,7 @@ _make_custom_airootfs() {
 
     if [[ -d "${script_path}/../initcpios/${kernel}/airootfs.${arch}" ]]; then
         _msg_info "Copying mkinitcpio airootfs files..."
-        cp -af --no-preserve=ownership,mode -- "${script_path}/../initcpios/${kernel}/airootfs.${arch}" "${airootfs_dir}"
+        cp -af --no-preserve=ownership,mode -- "${script_path}/../initcpios/${kernel}/airootfs.${arch}/." "${airootfs_dir}"
         # Set ownership and mode for files and directories
         for filename in "${!file_permissions[@]}"; do
             IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
