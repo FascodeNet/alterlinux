@@ -438,74 +438,34 @@ prepare_rebuild() {
     _write_rebuild_file "# Build options are stored here."
 
     _write_rebuild_file "\n# OS Info"
-    _save_var arch
-    _save_var os_name
-    _save_var iso_name
-    _save_var iso_label
-    _save_var iso_publisher
-    _save_var iso_application
-    _save_var iso_version
-    _save_var iso_filename
-    _save_var channel_name
+    _save_var arch os_name iso_name iso_label iso_publisher iso_application iso_version iso_filename channel_name
 
     _write_rebuild_file "\n# Environment Info"
-    _save_var channel_dir
-    _save_var airootfs_dir
-    _save_var share_dir
-    _save_var extra_dir
-    _save_var isofs_dir
-    _save_var install_dir
-    _save_var work_dir
-    _save_var out_dir
-    _save_var gpg_key
+    _save_var channel_dir airootfs_dir share_dir extra_dir isofs_dir install_dir work_dir out_dir gpg_key
 
     _write_rebuild_file "\n# Live User Info"
-    _save_var username
-    _save_var password
-    _save_var usershell
+    _save_var username password usershell
 
     _write_rebuild_file "\n# Plymouth Info"
-    _save_var boot_splash
-    _save_var theme_name
+    _save_var boot_splash theme_name
 
     _write_rebuild_file "\n# Language Info"
-    _save_var locale_name
-    _save_var locale_gen_name
-    _save_var locale_version
-    _save_var locale_time
-    _save_var locale_fullname
+    _save_var locale_name locale_gen_name locale_version locale_time locale_fullname
 
     _write_rebuild_file "\n# Kernel Info"
-    _save_var kernel
-    _save_var kernel_filename
-    _save_var kernel_mkinitcpio_profile
+    _save_var kernel kernel_filename kernel_mkinitcpio_profile
 
     _write_rebuild_file "\n# Squashfs Info"
-    _save_var sfs_comp
-    _save_var sfs_comp_opt
+    _save_var sfs_comp sfs_comp_opt
 
     _write_rebuild_file "\n# Debug Info"
-    _save_var noaur
-    _save_var gitversion
-    _save_var noloopmod
-    _save_var bash_debug
-    _save_var debug
-    _save_var nosigcheck
+    _save_var noaur gitversion noloopmod bash_debug debug nosigcheck
 
     _write_rebuild_file "\n# Channel Info"
-    _save_var build_pacman_conf
-    _save_var defaultconfig
-    _save_var include_extra
-    _save_var defaultusername
-    _save_var customized_username
-    _save_var customized_password
-    _save_var customized_kernel
+    _save_var build_pacman_conf defaultconfig include_extra defaultusername customized_username customized_password customized_kernel
 
     _write_rebuild_file "\n# mkalteriso Info"
-    _save_var mkalteriso
-    _save_var shmkalteriso
-    _save_var mkalteriso_option
-    _save_var tarball
+    _save_var mkalteriso shmkalteriso mkalteriso_option tarball
 
     _write_rebuild_file "\n# depend package"
     _write_rebuild_file "dependence=(${dependence[*]})"
