@@ -25,6 +25,7 @@ espeakup
 ethtool
 exfatprogs
 f2fs-tools
+fakeroot
 fatresize
 fsarchiver
 git
