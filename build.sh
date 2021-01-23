@@ -616,9 +616,8 @@ make_packages_repo() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    for _pkg in ${_pkglist[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
-    done
+    #for _pkg in ${_pkglist[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    printf "%s\n" "${_pkglist[@]}" >> "${work_dir}/packages.list"
 
     # Install packages on airootfs
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${_pkglist[*]}" install
@@ -641,7 +640,8 @@ make_packages_aur() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    for _pkg in ${_pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    #for _pkg in ${_pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    printf "%s\n" "${_pkglist_aur[@]}" >> "${work_dir}/packages.list"
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
@@ -657,18 +657,10 @@ make_packages_aur() {
 
 make_pkgbuild() {
     #-- PKGBUILDが入ってるディレクトリの一覧 --#
-    local _pkgbuild_dirs=(
-        "${share_dir}/pkgbuild.any"
-        "${share_dir}/pkgbuild.${arch}"
-        "${channel_dir}/pkgbuild.any"
-        "${channel_dir}/pkgbuild.${arch}"
-    )
+    local _pkgbuild_dirs=("${share_dir}/pkgbuild.any" "${share_dir}/pkgbuild.${arch}" "${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
 
     if [[ "${include_extra}" = true ]]; then
-        _pkgbuild_dirs+=(
-            "${extra_dir}/pkgbuild.any"
-            "${extra_dir}/pkgbuild.${arch}"
-        )
+        _pkgbuild_dirs+=("${extra_dir}/pkgbuild.any" "${extra_dir}/pkgbuild.${arch}")
     fi
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
@@ -687,7 +679,6 @@ make_pkgbuild() {
 
     # Remove script
     remove "${airootfs_dir}/root/pkgbuild.sh"
-
 }
 
 # Customize installation (airootfs)
@@ -695,18 +686,10 @@ make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
     local _airootfs _airootfs_script_options _script _script_list _airootfs_list _main_script
 
-    _airootfs_list=(
-        "${share_dir}/airootfs.any"
-        "${share_dir}/airootfs.${arch}"
-        "${channel_dir}/airootfs.${arch}"
-        "${channel_dir}/airootfs.any"
-    )
+    _airootfs_list=("${share_dir}/airootfs.any" "${share_dir}/airootfs.${arch}" "${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any")
 
     if [[ "${include_extra}" = true ]]; then
-        _airootfs_list+=(
-            "${extra_dir}/airootfs.any"
-            "${extra_dir}/airootfs.${arch}"
-        )
+        _airootfs_list+=("${extra_dir}/airootfs.any" "${extra_dir}/airootfs.${arch}")
     fi
 
     for _airootfs in ${_airootfs_list[@]};do
