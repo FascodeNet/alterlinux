@@ -4,7 +4,6 @@ base
 base-devel
 git
 sudo
-linux
 mkinitcpio
 mkinitcpio-archiso
 syslinux
