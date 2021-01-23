@@ -613,6 +613,9 @@ make_packages_repo() {
     if [[ "${debug}" = true ]]; then
         _pkglist_args+=" -d"
     fi
+    if [[ "${memtest86}" = true ]]; then
+        _pkglist_args+=" -m"
+    fi
     local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
@@ -636,6 +639,9 @@ make_packages_aur() {
     fi
     if [[ "${debug}" = true ]]; then
         _pkglist_args+=" -d"
+    fi
+    if [[ "${memtest86}" = true ]]; then
+        _pkglist_args+=" -m"
     fi
     local _pkglist_aur=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
