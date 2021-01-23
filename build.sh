@@ -298,16 +298,19 @@ show_channel_list() {
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
-    local _value="$(eval echo '$'${1})"
-    msg_debug -n "Checking ${1}..."
-    if [[ "${debug}" = true ]]; then
-        echo -e " ${_value}"
-    fi
-    if [[ ! -v "${1}" ]]; then
-        echo; msg_error "The variable name ${1} is empty." "1"
-    elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-        echo; msg_error "The variable name ${1} is not of bool type." "1"
-    fi
+    local _value _variable
+    for _variable in ${@}; do
+        _value="$(eval echo '$'${_variable})"
+        msg_debug -n "Checking ${_variable}..."
+        if [[ "${debug}" = true ]]; then
+            echo -e " ${_value}"
+        fi
+        if [[ ! -v "${1}" ]]; then
+            echo; msg_error "The variable name ${_variable} is empty." "1"
+        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+            echo; msg_error "The variable name ${_variable} is not of bool type." "1"
+        fi
+    done
 }
 
 
@@ -561,28 +564,7 @@ prepare_build() {
     fi
 
     # check bool
-    check_bool boot_splash
-    check_bool cleaning
-    check_bool noconfirm
-    check_bool nodepend
-    check_bool shmkalteriso
-    check_bool customized_username
-    check_bool customized_password
-    check_bool noloopmod
-    check_bool nochname
-    check_bool tarball
-    check_bool noiso
-    check_bool noaur
-    check_bool customized_syslinux
-    check_bool norescue_entry
-    check_bool rebuild
-    check_bool debug
-    check_bool bash_debug
-    check_bool nocolor
-    check_bool msgdebug
-    check_bool noefi
-    check_bool include_extra
-    check_bool nosigcheck
+    check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry rebuild debug bash_debug nocolor msgdebug noefi include_extra nosigcheck
 
     # Check architecture for each channel
     if [[ ! "$(bash "${tools_dir}/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
