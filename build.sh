@@ -298,16 +298,19 @@ show_channel_list() {
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
-    local _value="$(eval echo '$'${1})"
-    msg_debug -n "Checking ${1}..."
-    if [[ "${debug}" = true ]]; then
-        echo -e " ${_value}"
-    fi
-    if [[ ! -v "${1}" ]]; then
-        echo; msg_error "The variable name ${1} is empty." "1"
-    elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-        echo; msg_error "The variable name ${1} is not of bool type." "1"
-    fi
+    local _value _variable
+    for _variable in ${@}; do
+        _value="$(eval echo '$'${_variable})"
+        msg_debug -n "Checking ${_variable}..."
+        if [[ "${debug}" = true ]]; then
+            echo -e " ${_value}"
+        fi
+        if [[ ! -v "${1}" ]]; then
+            echo; msg_error "The variable name ${_variable} is empty." "1"
+        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+            echo; msg_error "The variable name ${_variable} is not of bool type." "1"
+        fi
+    done
 }
 
 
@@ -438,75 +441,35 @@ prepare_rebuild() {
     _write_rebuild_file "# Build options are stored here."
 
     _write_rebuild_file "\n# OS Info"
-    _save_var arch
-    _save_var os_name
-    _save_var iso_name
-    _save_var iso_label
-    _save_var iso_publisher
-    _save_var iso_application
-    _save_var iso_version
-    _save_var iso_filename
-    _save_var channel_name
+    _save_var arch os_name iso_name iso_label iso_publisher iso_application iso_version iso_filename channel_name
 
     _write_rebuild_file "\n# Environment Info"
-    _save_var channel_dir
-    _save_var airootfs_dir
-    _save_var share_dir
-    _save_var extra_dir
-    _save_var isofs_dir
-    _save_var install_dir
-    _save_var work_dir
-    _save_var out_dir
-    _save_var gpg_key
+    _save_var channel_dir airootfs_dir share_dir extra_dir isofs_dir install_dir work_dir out_dir gpg_key
 
     _write_rebuild_file "\n# Live User Info"
-    _save_var username
-    _save_var password
-    _save_var usershell
+    _save_var username password usershell
 
     _write_rebuild_file "\n# Plymouth Info"
-    _save_var boot_splash
-    _save_var theme_name
+    _save_var boot_splash theme_name
 
     _write_rebuild_file "\n# Language Info"
-    _save_var locale_name
-    _save_var locale_gen_name
-    _save_var locale_version
-    _save_var locale_time
-    _save_var locale_fullname
+    _save_var locale_name locale_gen_name locale_version locale_time locale_fullname
 
     _write_rebuild_file "\n# Kernel Info"
-    _save_var kernel
-    _save_var kernel_filename
-    _save_var kernel_mkinitcpio_profile
+    _save_var kernel kernel_filename kernel_mkinitcpio_profile
 
     _write_rebuild_file "\n# Squashfs Info"
-    _save_var sfs_comp
-    _save_var sfs_comp_opt
+    _save_var sfs_comp sfs_comp_opt
 
     _write_rebuild_file "\n# Debug Info"
-    _save_var noaur
-    _save_var gitversion
-    _save_var noloopmod
-    _save_var bash_debug
-    _save_var debug
-    _save_var nosigcheck
+    _save_var noaur gitversion noloopmod bash_debug debug nosigcheck
 
     _write_rebuild_file "\n# Channel Info"
-    _save_var build_pacman_conf
-    _save_var defaultconfig
-    _save_var include_extra
-    _save_var defaultusername
-    _save_var customized_username
-    _save_var customized_password
-    _save_var customized_kernel
+    _save_var build_pacman_conf defaultconfig include_extra defaultusername customized_username customized_password customized_kernel
     _save_var memtest86
 
     _write_rebuild_file "\n# mkalteriso Info"
-    _save_var mkalteriso
-    _save_var shmkalteriso
-    _save_var mkalteriso_option
-    _save_var tarball
+    _save_var mkalteriso shmkalteriso mkalteriso_option tarball
 
     _write_rebuild_file "\n# depend package"
     _write_rebuild_file "dependence=(${dependence[*]})"
@@ -602,29 +565,7 @@ prepare_build() {
     fi
 
     # check bool
-    check_bool boot_splash
-    check_bool cleaning
-    check_bool noconfirm
-    check_bool nodepend
-    check_bool shmkalteriso
-    check_bool customized_username
-    check_bool customized_password
-    check_bool noloopmod
-    check_bool nochname
-    check_bool tarball
-    check_bool noiso
-    check_bool noaur
-    check_bool customized_syslinux
-    check_bool norescue_entry
-    check_bool rebuild
-    check_bool debug
-    check_bool bash_debug
-    check_bool nocolor
-    check_bool msgdebug
-    check_bool noefi
-    check_bool include_extra
-    check_bool nosigcheck
-    check_bool memtest86
+    check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry rebuild debug bash_debug nocolor msgdebug noefi include_extra nosigcheck
 
     # Check architecture for each channel
     if [[ ! "$(bash "${tools_dir}/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -676,9 +617,8 @@ make_packages_repo() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    for _pkg in ${_pkglist[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
-    done
+    #for _pkg in ${_pkglist[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    printf "%s\n" "${_pkglist[@]}" >> "${work_dir}/packages.list"
 
     # Install packages on airootfs
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${_pkglist[*]}" install
@@ -701,7 +641,8 @@ make_packages_aur() {
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    for _pkg in ${_pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    #for _pkg in ${_pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
+    printf "%s\n" "${_pkglist_aur[@]}" >> "${work_dir}/packages.list"
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
@@ -717,18 +658,10 @@ make_packages_aur() {
 
 make_pkgbuild() {
     #-- PKGBUILDが入ってるディレクトリの一覧 --#
-    local _pkgbuild_dirs=(
-        "${share_dir}/pkgbuild.any"
-        "${share_dir}/pkgbuild.${arch}"
-        "${channel_dir}/pkgbuild.any"
-        "${channel_dir}/pkgbuild.${arch}"
-    )
+    local _pkgbuild_dirs=("${share_dir}/pkgbuild.any" "${share_dir}/pkgbuild.${arch}" "${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
 
     if [[ "${include_extra}" = true ]]; then
-        _pkgbuild_dirs+=(
-            "${extra_dir}/pkgbuild.any"
-            "${extra_dir}/pkgbuild.${arch}"
-        )
+        _pkgbuild_dirs+=("${extra_dir}/pkgbuild.any" "${extra_dir}/pkgbuild.${arch}")
     fi
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
@@ -747,7 +680,6 @@ make_pkgbuild() {
 
     # Remove script
     remove "${airootfs_dir}/root/pkgbuild.sh"
-
 }
 
 # Customize installation (airootfs)
@@ -755,18 +687,10 @@ make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
     local _airootfs _airootfs_script_options _script _script_list _airootfs_list _main_script
 
-    _airootfs_list=(
-        "${share_dir}/airootfs.any"
-        "${share_dir}/airootfs.${arch}"
-        "${channel_dir}/airootfs.${arch}"
-        "${channel_dir}/airootfs.any"
-    )
+    _airootfs_list=("${share_dir}/airootfs.any" "${share_dir}/airootfs.${arch}" "${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any")
 
     if [[ "${include_extra}" = true ]]; then
-        _airootfs_list+=(
-            "${extra_dir}/airootfs.any"
-            "${extra_dir}/airootfs.${arch}"
-        )
+        _airootfs_list+=("${extra_dir}/airootfs.any" "${extra_dir}/airootfs.${arch}")
     fi
 
     for _airootfs in ${_airootfs_list[@]};do
