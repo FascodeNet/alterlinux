@@ -10,7 +10,7 @@ install_dir="arch"
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
 arch="x86_64"
 pacman_conf="pacman.conf"
-noshare="true"
+noshare="false"
 file_permissions=(
   ["/etc/shadow"]="0:0:400"
 )
