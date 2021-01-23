@@ -475,6 +475,8 @@ _make_bootmode_bios.syslinux.mbr() {
     for _cfg in "${profile}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
+             s|%VMLINUZ_NAME%|${kernel_filename}|g;
+             s|%INITRAMFS_PROFILE%|${kernel_mkinitcpio_profile}|g;
              s|%ARCH%|${arch}|g" \
              "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
@@ -534,6 +536,8 @@ _make_efi_dir_on_iso9660() {
     for _conf in "${profile}/efiboot/loader/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
+             s|%VMLINUZ_NAME%|${kernel_filename}|g;
+             s|%INITRAMFS_PROFILE%|${kernel_mkinitcpio_profile}|g;
              s|%ARCH%|${arch}|g" \
             "${_conf}" > "${isofs_dir}/loader/entries/${_conf##*/}"
     done
@@ -600,6 +604,8 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
     for _conf in "${profile}/efiboot/loader/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
+             s|%VMLINUZ_NAME%|${kernel_filename}|g;
+             s|%INITRAMFS_PROFILE%|${kernel_mkinitcpio_profile}|g;
              s|%ARCH%|${arch}|g" \
             "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
     done
