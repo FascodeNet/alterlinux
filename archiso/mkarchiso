@@ -166,6 +166,8 @@ usage: ${app_name} [options] <profile_dir>
      -P <publisher>   Set the ISO publisher
                       Default: '${iso_publisher}'
      -g <gpg_key>     Set the GPG key to be used for signing the sqashfs image
+     -k <kernel>      Set special kernel type.See below for available kernels
+                      Default: '${kernel}'
      -h               This message
      -o <out_dir>     Set the output directory
                       Default: '${out_dir}'
@@ -997,7 +999,7 @@ _build_profile() {
     _run_once _build_iso
 }
 
-while getopts 'p:C:L:P:A:D:w:o:g:vbns:h?' arg; do
+while getopts 'p:C:L:P:A:D:w:o:g:vbns:k:h?' arg; do
     case "${arg}" in
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
@@ -1017,6 +1019,9 @@ while getopts 'p:C:L:P:A:D:w:o:g:vbns:h?' arg; do
         s) 
             share_dir="${OPTARG}"
             noshare=false
+            ;;
+        k)
+            kernel="${OPTARG}"
             ;;
         h|?) _usage 0 ;;
         *)

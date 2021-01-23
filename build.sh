@@ -22,7 +22,7 @@ _msg_error() {
     fi
 }
 mkarchiso_argskun=""
-while getopts 'p:C:L:P:A:D:w:o:g:vbnh?' arg; do
+while getopts 'p:C:L:P:A:D:w:o:g:k:vbnh?' arg; do
     case "${arg}" in
         p)
             mkarchiso_argskun = "${mkarchiso_argskun} -p ${OPTARG}"
@@ -35,6 +35,7 @@ while getopts 'p:C:L:P:A:D:w:o:g:vbnh?' arg; do
         w) mkarchiso_argskun="${mkarchiso_argskun} -w ${OPTARG}" ;;
         o) mkarchiso_argskun="${mkarchiso_argskun} -o ${OPTARG}" ;;
         g) mkarchiso_argskun="${mkarchiso_argskun} -g ${OPTARG}" ;;
+        k) mkarchiso_argskun="${mkarchiso_argskun} -k ${OPTARG}" ;;
         v) mkarchiso_argskun="${mkarchiso_argskun} -v" ;;
         b) mkarchiso_argskun="${mkarchiso_argskun} -b" ;;
         n) mkarchiso_argskun="${mkarchiso_argskun} -n" ;;
