@@ -12,16 +12,13 @@ pkgdir_name="packages"
 extra=false
 line=false
 debug=false
+memtest86=false
 
 arch=""
 channel_dir=""
 kernel=""
 locale_name=""
 
-#arch="x86_64"
-#channel_dir="${script_path}/channels/xfce"
-#kernel="zen"
-#locale_name="en"
 
 _help() {
     echo "usage ${0} [options] [command]"
@@ -36,6 +33,7 @@ _help() {
     echo "    -e | --extra              Include extra packages"
     echo "    -k | --kernel [kernel]    Specify the kernel"
     echo "    -l | --locale [locale]    Specify the locale"
+    echo "    -m | --memtest86          Enable memtest86 package"
     echo "    -h | --help               This help message"
     echo "         --aur                AUR packages"
     echo "         --line               Line break the output"
@@ -65,8 +63,8 @@ msg_debug() {
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:bc:dek:l:h"
-opt_long="arch:,boot-splash,channel:,debug,extra,kernel:,locale:,aur,help,line"
+opt_short="a:bc:dek:l:mh"
+opt_long="arch:,boot-splash,channel:,debug,extra,kernel:,locale:,memtest86,aur,help,line"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -102,6 +100,10 @@ while true; do
         -l | --locale)
             locale_name="${2}"
             shift 2
+            ;;
+        -m | --memtest86)
+            memtest86=true
+            shift 1
             ;;
         --aur)
             aur=true
@@ -197,6 +199,19 @@ if [[ "${extra}" = true ]]; then
     )
 fi
 
+# memtest86 package list
+if [[ "${memtest86}" = true ]]; then
+    _loadfilelist+=(
+        $(ls ${share_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+        $(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+    )
+
+    if [[ "${extra}" = true ]]; then
+        _loadfilelist+=(
+            $(ls ${extra_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+        )
+    fi
+fi
 
 #-- Read package list --#
 # Read the file and remove comments starting with # and add it to the list of packages to install.

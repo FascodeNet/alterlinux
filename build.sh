@@ -466,6 +466,7 @@ prepare_rebuild() {
 
     _write_rebuild_file "\n# Channel Info"
     _save_var build_pacman_conf defaultconfig include_extra defaultusername customized_username customized_password customized_kernel
+    _save_var memtest86
 
     _write_rebuild_file "\n# mkalteriso Info"
     _save_var mkalteriso shmkalteriso mkalteriso_option tarball
@@ -612,6 +613,9 @@ make_packages_repo() {
     if [[ "${debug}" = true ]]; then
         _pkglist_args+=" -d"
     fi
+    if [[ "${memtest86}" = true ]]; then
+        _pkglist_args+=" -m"
+    fi
     local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
@@ -635,6 +639,9 @@ make_packages_aur() {
     fi
     if [[ "${debug}" = true ]]; then
         _pkglist_args+=" -d"
+    fi
+    if [[ "${memtest86}" = true ]]; then
+        _pkglist_args+=" -m"
     fi
     local _pkglist_aur=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
@@ -862,10 +869,19 @@ make_syslinux() {
         cp "${script_path}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
     fi
 
-    # Remove rescue config
+    # remove config
+    local _remove_config
+    function _remove_config() {
+        remove "${isofs_dir}/${install_dir}/boot/syslinux/${1}"
+        sed -i "s|$(cat "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+    }
+
     if [[ "${norescue_entry}" = true ]]; then
-        remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_rescue.cfg"
-        sed -i "s|$(cat "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "archiso_sys_rescue")||g" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+        _remove_config archiso_sys_rescue.cfg
+    fi
+
+    if [[ "${memtest86}" = false ]]; then
+        _remove_config memtest86.cfg
     fi
 
     # copy files
