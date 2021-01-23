@@ -500,6 +500,7 @@ prepare_rebuild() {
     _save_var customized_username
     _save_var customized_password
     _save_var customized_kernel
+    _save_var memtest86
 
     _write_rebuild_file "\n# mkalteriso Info"
     _save_var mkalteriso
@@ -623,6 +624,7 @@ prepare_build() {
     check_bool noefi
     check_bool include_extra
     check_bool nosigcheck
+    check_bool memtest86
 
     # Check architecture for each channel
     if [[ ! "$(bash "${tools_dir}/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
