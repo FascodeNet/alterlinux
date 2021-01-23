@@ -2,3 +2,4 @@
 archiso-*.tar.gz*
 configs/*/work
 configs/*/out
+out/

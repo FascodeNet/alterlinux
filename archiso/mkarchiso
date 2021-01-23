@@ -12,13 +12,32 @@ export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 # mkarchiso defaults
 app_name="${0##*/}"
 pkg_list=()
+pkg_list_aur=()
 quiet="y"
 work_dir="work"
 out_dir="out"
 img_name="${app_name}.iso"
 gpg_key=""
 override_gpg_key=""
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )"
 
+# If set to true, enable message debag.
+# This option previously debugged the message output in build.sh, but now it debugs msg.sh.
+# Change the default behavior of "--msgdebug".
+msgdebug=false
+
+# When set to true, colored output will not be performed.
+# Change the default behavior of "--nocolor".
+nocolor=false
+# For AUR
+noaur=false
+# For channel
+noshare=true
+share_dir=""
+# STUB
+kernel="core"
+locale_name="en"
+boot_splash=false
 # profile defaults
 profile=""
 iso_name="${app_name}"
@@ -43,34 +62,73 @@ declare -A file_permissions=()
 # Show an INFO message
 # $1: message string
 _msg_info() {
-    local _msg="${1}"
-    [[ "${quiet}" == "y" ]] || printf '[%s] INFO: %s\n' "${app_name}" "${_msg}"
+    #local _msg="${1}"
+    #[[ "${quiet}" == "y" ]] || printf '[%s] INFO: %s\n' "${app_name}" "${_msg}"
+
+    local _msg_opts="-a mkarchiso"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/../scripts/msg.sh" ${_msg_opts} info "${1}"
 }
 
 # Show a WARNING message
 # $1: message string
 _msg_warning() {
-    local _msg="${1}"
-    printf '[%s] WARNING: %s\n' "${app_name}" "${_msg}" >&2
+    #local _msg="${1}"
+    #printf '[%s] WARNING: %s\n' "${app_name}" "${_msg}" >&2
+
+    local _msg_opts="-a mkarchiso"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/../scripts/msg.sh" ${_msg_opts} warn "${1}"
 }
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
-    local _msg="${1}"
-    local _error=${2}
-    printf '[%s] ERROR: %s\n' "${app_name}" "${_msg}" >&2
-    if (( _error > 0 )); then
-        exit "${_error}"
+    #local _msg="${1}"
+    #local _error=${2}
+    #printf '[%s] ERROR: %s\n' "${app_name}" "${_msg}" >&2
+    #if (( _error > 0 )); then
+    #    exit "${_error}"
+    #fi
+
+    local _msg_opts="-a mkarchiso"
+    if [[ "${1}" = "-n" ]]; then
+        _msg_opts="${_msg_opts} -o -n"
+        shift 1
+    fi
+    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
+    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
+    "${script_path}/../scripts/msg.sh" ${_msg_opts} error "${1}"
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
     fi
 }
 
 _mount_airootfs() {
     trap "_umount_airootfs" EXIT HUP INT TERM
     install -d -m 0755 -- "${work_dir}/mnt/airootfs"
-    _msg_info "Mounting '${airootfs_dir}.img' on '${work_dir}/mnt/airootfs'..."
+    _msg_info "Mounting 'airootfs.img' on '${work_dir}/mnt/airootfs'..."
     mount -- "${airootfs_dir}.img" "${work_dir}/mnt/airootfs"
+    _msg_info "Done!"
+}
+
+_mount_airootfs_aur() {
+    trap "_umount_airootfs_aur" EXIT HUP INT TERM
+    _msg_info "Create Mount Point for airootfs folder"
+    install -d -m 0755 -- "${airootfs_dir}"
+    _msg_info "Mounting '${work_dir}/airootfs.img' on '${airootfs_dir}'..."
+    mount -- "${work_dir}/airootfs.img" "${airootfs_dir}"
     _msg_info "Done!"
 }
 
@@ -79,6 +137,12 @@ _umount_airootfs() {
     umount -d -- "${work_dir}/mnt/airootfs"
     _msg_info "Done!"
     rmdir -- "${work_dir}/mnt/airootfs"
+    trap - EXIT HUP INT TERM
+}
+_umount_airootfs_aur() {
+    _msg_info "Unmounting '${airootfs_dir}'..."
+    umount -d -- "${airootfs_dir}"
+    _msg_info "Done!"
     trap - EXIT HUP INT TERM
 }
 
@@ -104,7 +168,10 @@ usage: ${app_name} [options] <profile_dir>
      -o <out_dir>     Set the output directory
                       Default: '${out_dir}'
      -p PACKAGE(S)    Package(s) to install, can be used multiple times
+     -s <SHARE DIR>   share channel dir
      -v               Enable verbose output
+     -n               No AUR
+     -b               Use bootsplash
      -w <work_dir>    Set the working directory
                       Default: '${work_dir}'
 
@@ -133,6 +200,12 @@ _show_config() {
     _msg_info "          ISO application:   ${iso_application}"
     _msg_info "               Boot modes:   ${bootmodes[*]}"
     _msg_info "                 Packages:   ${pkg_list[*]}"
+    if [[ "${noaur}" == "false" ]]; then
+    _msg_info "             AUR Packages:   ${pkg_list_aur[*]}"
+    fi
+    if [[ "${noshare}" == "false" ]]; then
+    _msg_info "          Share Directory:   ${share_dir}"
+    fi
 }
 
 # Cleanup airootfs
@@ -226,6 +299,16 @@ _run_once() {
         touch "${work_dir}/build.${1}"
     fi
 }
+_create_airootfs_img() {
+    _msg_info "Creating ext4 image of 32GiB..."
+    truncate -s 32GB "${work_dir}/airootfs.img"
+    _msg_info "Format block image..."
+    mkfs.ext4 -O "^has_journal,^resize_inode" -E "lazy_itable_init=0" -m 0 -F "${work_dir}/airootfs.img"
+    _msg_info "tune2fs.."
+    tune2fs -c 0 -i 0 "${work_dir}/airootfs.img"
+    _mount_airootfs_aur
+    
+}
 
 # Set up custom pacman.conf with custom cache and pacman hook directories
 _make_pacman_conf() {
@@ -259,8 +342,7 @@ _make_pacman_conf() {
 _make_custom_airootfs() {
     local passwd=()
     local filename permissions
-
-    install -d -m 0755 -o 0 -g 0 -- "${airootfs_dir}"
+    [[ "${noaur}" == "true" ]] && install -d -m 0755 -o 0 -g 0 -- "${airootfs_dir}"
 
     if [[ -d "${profile}/airootfs" ]]; then
         _msg_info "Copying custom airootfs files..."
@@ -305,7 +387,16 @@ _make_packages() {
 
     _msg_info "Done! Packages installed successfully."
 }
-
+_make_aur_packages() {
+    if [[ "${noaur}" == "false" ]]; then
+        if (( ${#pkg_list_aur} > 0 )); then
+            sed "s|https|http|g" "${work_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+            cp -rf --preserve=mode "${script_path}/../system/aur.sh" "${airootfs_dir}/root/aur.sh"
+            eval -- arch-chroot "${airootfs_dir}" /root/aur.sh ${pkg_list_aur[*]}
+            rm -- "${airootfs_dir}/root/aur.sh"
+        fi
+    fi
+}
 # Customize installation (airootfs)
 _make_customize_airootfs() {
     local passwd=()
@@ -616,6 +707,10 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
 # Build airootfs filesystem image
 _prepare_airootfs_image() {
     _run_once "_mkairootfs_${airootfs_image_type}"
+    if [[ "${noaur}" = "false" ]]; then
+        _umount_airootfs_aur
+        rm -f "${work_dir}/airootfs.img"
+    fi
     _mkchecksum
     if [[ -n "${gpg_key}" ]]; then
         _mksignature
@@ -771,23 +866,33 @@ _read_profile() {
         . "${profile}/profiledef.sh"
 
         # Resolve paths
-        packages="$(realpath -- "${profile}/packages.${arch}")"
+        # packages="$(realpath -- "${profile}/packages.${arch}")"
         pacman_conf="$(realpath -- "${pacman_conf}")"
 
         cd -- "${OLDPWD}"
 
         # Validate profile
         # Check if the package list file exists and read packages from it
-        if [[ -e "${packages}" ]]; then
-            mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
+        #if [[ -e "${packages}" ]]; then
+            #mapfile -t pkg_list < <(sed '/^[[:blank:]]*#.*/d;s/#.*//;/^[[:blank:]]*$/d' "${packages}")
+            if [[ "${noshare}" = "false" ]]; then
+                pkg_list=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" -s "${share_dir}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            else
+                pkg_list=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            fi
+            if [[ "${noshare}" = "false" ]]; then
+                pkg_list_aur=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" --aur -s "${share_dir}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            else
+                pkg_list_aur=($("${script_path}/../scripts/pkglist.sh" -a "${arch}" -k "${kernel}" -p "${profile}" -l "${locale_name}" --aur $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+            fi
             if (( ${#pkg_list} < 1 )); then
                 (( validation_error=validation_error+1 ))
                 _msg_error "No package specified in '${packages}'." 0
             fi
-        else
-            (( validation_error=validation_error+1 ))
-            _msg_error "File '${packages}' does not exist." 0
-        fi
+        #else
+        #    (( validation_error=validation_error+1 ))
+        #    _msg_error "File '${packages}' does not exist." 0
+        #fi
         # Check if pacman configuration file exists
         if [[ ! -e "${pacman_conf}" ]]; then
             (( validation_error=validation_error+1 ))
@@ -868,8 +973,10 @@ _build_profile() {
     [[ "${quiet}" == "n" ]] && _show_config
     _run_once _make_pacman_conf
     [[ -n "${gpg_key}" ]] && _run_once _export_gpg_publickey
+    [[ "${noaur}" == "false" ]] && _run_once _create_airootfs_img
     _run_once _make_custom_airootfs
     _run_once _make_packages
+    _run_once _make_aur_packages
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
     _make_bootmodes
@@ -878,7 +985,7 @@ _build_profile() {
     _run_once _build_iso
 }
 
-while getopts 'p:C:L:P:A:D:w:o:g:vh?' arg; do
+while getopts 'p:C:L:P:A:D:w:o:g:vbns:h?' arg; do
     case "${arg}" in
         p)
             read -r -a opt_pkg_list <<< "${OPTARG}"
@@ -893,6 +1000,12 @@ while getopts 'p:C:L:P:A:D:w:o:g:vh?' arg; do
         o) out_dir="$(realpath -- "${OPTARG}")" ;;
         g) override_gpg_key="${OPTARG}" ;;
         v) quiet="n" ;;
+        b) boot_splash="true" ;;
+        n) noaur="true" ;;
+        s) 
+            share_dir="${OPTARG}"
+            noshare=false
+            ;;
         h|?) _usage 0 ;;
         *)
             _msg_error "Invalid argument '${arg}'" 0
