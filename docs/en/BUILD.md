@@ -104,7 +104,6 @@ plasma | Uses KDE and Qt software.
 releng | Build ArchLinux as is. Boot splash etc. cannot be used.
 xfce | Use Xfce4 for desktop environment.
 xfce-pro | Pro Edition with some software added to Xfce and replaced with Compiz
-rebuild | Build from the point where it left off using the previous build settings.
 
 #### About the kernel
 

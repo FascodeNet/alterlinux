@@ -17,7 +17,6 @@ password=alter
 boot_splash=false
 kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
-rebuild=false
 username='alter'
 os_name="Alter Linux"
 install_dir="alter"
@@ -35,7 +34,6 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel_config_line=(${OPTARG}) ;;
-        r) rebuild=true ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
@@ -69,7 +67,6 @@ function check_bool() {
 }
 
 check_bool boot_splash
-check_bool rebuild
 check_bool debug
 
 
