@@ -1261,7 +1261,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "clean" ]]; then
-   "${tools_dir}/clean.sh" -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+   "${tools_dir}/clean.sh" -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
 else
     channel_dir="${script_path}/channels/${channel_name}"
