@@ -67,10 +67,6 @@ Run `./build.sh -h` for full options and usage.
  Specify output destination directory | -o [dir]
  Specify working directory | -w [dir]
 
-##### Note
-
-All options described after the channel name are ignored. Be sure to put the option before the channel name. 
-
 #### An example
 
 Do this to build under the following conditions.
