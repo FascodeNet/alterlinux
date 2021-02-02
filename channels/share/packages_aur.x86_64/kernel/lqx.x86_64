@@ -8,4 +8,5 @@
 # (c) 2019-2021 Fascode Network.
 #
 
-broadcom-wl-dkms
+linux-lqx
+linux-lqx-headers

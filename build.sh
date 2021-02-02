@@ -600,13 +600,13 @@ make_pkgbuild() {
     fi
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
-    for _dir in $(find "${_dir}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
+    for _dir in $(find "${_pkgbuild_dirs}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
         mkdir -p "${airootfs_dir}/pkgbuilds/"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
     #-- ビルドスクリプトの実行 --#
-    # prepare for yay
+    # prepare for makepkg
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
