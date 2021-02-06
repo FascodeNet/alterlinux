@@ -1001,29 +1001,12 @@ make_prepare() {
 
     # iso version info
     if [[ "${include_info}" = true ]]; then
-        local _write_info_file _info_file="${isofs_dir}/alteriso-info"
-        _write_info_file () {
-            echo "${@}" >> "${_info_file}"
-        }
+        local _info_file="${isofs_dir}/alteriso-info" _version="${iso_version}"
         remove "${_info_file}"; touch "${_info_file}"
-
-        _write_info_file "Developer      : ${iso_publisher}"
-        _write_info_file "OS Name        : ${iso_application}"
-        _write_info_file "Architecture   : ${arch}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
-            _write_info_file "Version        : ${iso_version}-$(git rev-parse --short HEAD)"
-        else
-            _write_info_file "Version        : ${iso_version}"
+            _version="${iso_version}-$(git rev-parse --short HEAD)"
         fi
-        _write_info_file "Channel   name : ${channel_name}"
-        _write_info_file "Live user name : ${username}"
-        _write_info_file "Live user pass : ${password}"
-        _write_info_file "Kernel    name : ${kernel}"
-        if [[ "${boot_splash}" = true ]]; then
-            _write_info_file "Plymouth       : Yes"
-        else
-            _write_info_file "Plymouth       : No"
-        fi
+        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}"
     fi
 }
 
