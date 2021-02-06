@@ -2,7 +2,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # channels/share/packages/exclude
 #
@@ -12,5 +12,3 @@
 # because they are automatically detected
 # and installed by the build script.
 #
-
-memtest86+

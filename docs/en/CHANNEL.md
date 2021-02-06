@@ -46,9 +46,7 @@ Add here basic packages and common files that will be installed on all channels.
 
 ## rebuild
 
-This channel is visible in the help, but it is not a directory entity. This channel is embedded in the script.  
-This channel is a channel to read the file which saved the build option generated in the working directory and rebuild.  
-This channel is embedded in the script.  
+Rebuild is obsolete in AlterISO3. 
 
 # Specifications of each channel
 
@@ -166,3 +164,9 @@ Please do not define any local variables in the script. The definition of global
 ## architecture
 
 A list of architectures available on that channel. `#` Is treated as a comment.
+
+## over_isofs
+
+Files in iso filesystem will be overwritten by all files of `over_isofs`
+Similar to airootfs, but over_isofs allows you to work directly with the files in the built image file.  
+Please note that if you overwrite the existing file, you may not be able to boot.

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- -*- xml -*- -->
 <moo-prefs version="1.0">
   <Prefs>
-    <item name="Editor/color_scheme" type="string">cobalt</item>
+    <item name="Editor/color_scheme" type="string">arc</item>
+    <item name="Editor/font" type="string">SauceCodePro Nerd Font 10</item>
     <item name="Editor/highlight_current_line" type="bool">FALSE</item>
     <item name="Editor/indent_width" type="int">4</item>
     <item name="Editor/open_dialog_follows_doc" type="bool">TRUE</item>

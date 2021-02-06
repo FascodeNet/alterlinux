@@ -5,13 +5,11 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # look and feel
 
 
-# icon
-inverse-icon-theme-blue-git
 
 
 # theme
@@ -20,4 +18,3 @@ arc-gtk-theme
 
 # Qt configs
 qt5ct
-qt5-styleplugins

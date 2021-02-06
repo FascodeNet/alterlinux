@@ -3,7 +3,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 #
 # kernel list for i686
@@ -33,3 +33,10 @@ xanmod-lts                   vmlinuz-linux-xanmod-lts        linux-xanmod-lts
 
 # Alter Linux original packages
 zen-letsnote                 vmlinuz-linux-zen-letsnote      linux-zen-letsnote
+
+
+# Old version kernels (You have to compile the kernel from yay)
+lts414                       vmlinuz-linux-lts414            linux-lts414
+lts419                       vmlinuz-linux-lts419            linux-lts419
+lts44                        vmlinuz-linux-lts44             linux-lts44
+
