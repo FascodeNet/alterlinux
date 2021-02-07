@@ -58,7 +58,7 @@ remove /airootfs.any/etc/systemd/logind.conf.d/do-not-suspend.conf
 if [[ -f "/etc/gdm/custom.conf" ]]; then
     sed -i "s/Automatic*/#Automatic/g" "/etc/gdm/custom.conf"
 fi
-if [[ "/etc/lightdm/lightdm.conf" ]]; then
+if [[ -f "/etc/lightdm/lightdm.conf" ]]; then
     sed -i "s/^autologin/#autologin/g" "/etc/lightdm/lightdm.conf"
 fi
 
