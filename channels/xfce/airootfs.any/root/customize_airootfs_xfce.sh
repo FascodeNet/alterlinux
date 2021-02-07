@@ -37,4 +37,4 @@ fi
 
 
 # Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.conf"

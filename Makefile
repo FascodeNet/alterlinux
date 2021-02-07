@@ -1,7 +1,7 @@
 
 BUILD_SCRIPT := build.sh
 KERNEL       := zen
-SHARE_OPTION := --boot-splash --comp-type "xz" --user "alter" --password "alter" --kernel "${KERNEL}" --debug
+SHARE_OPTION := --boot-splash --comp-type "xz" --user "alter" --password "alter" --kernel "${KERNEL}" --debug --noconfirm
 ARCH_x86_64  := --arch x86_64
 ARCH_i686    := --arch i686
 CURRENT_DIR  := ${shell dirname $(dir $(abspath $(lastword $(MAKEFILE_LIST))))}/${shell basename $(dir $(abspath $(lastword $(MAKEFILE_LIST))))}
@@ -10,7 +10,7 @@ full:mkalteriso
 	@sudo ${CURRENT_DIR}/tools/fullbuild.sh -d
 	@make clean
 
-xfce-64 xfce-32 lxde-64 lxde-32 plasma-64 releng-32 releng-64 cinnamon-64 cinnamon-32 deepin-64 gnome-64 gnomemac-64 i3-64 i3-32:mkalteriso
+basic-64 basic-32  cinnamon-64 cinnamon-32 gnome-64 i3-64 i3-32 lxde-64 lxde-32 plasma-64 releng-32 releng-64 serene-64 serene-32 xfce-64 xfce-32 xfce-pro-64:mkalteriso
 	$(eval CHANNEL=${shell echo ${@} | cut -d '-' -f 1})
 	$(eval ARCHITECTURE=${shell echo ${@} | cut -d '-' -f 2})
 	@case ${ARCHITECTURE} in\

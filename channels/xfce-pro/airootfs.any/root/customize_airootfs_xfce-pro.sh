@@ -37,7 +37,7 @@ fi
 
 
 # Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.conf"
 
 # Remove remmina session
 remove /usr/share/xsessions/remmina-gnome.desktop

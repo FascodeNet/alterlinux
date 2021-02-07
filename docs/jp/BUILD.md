@@ -25,7 +25,7 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake pyalpm
 ```
 
 ### TUIを使用する
@@ -47,7 +47,7 @@ python ./build-wizard.py
 下記の鍵の追加や依存関係のインストールなどを全て自動で行います。  
 bashで書かれていますのでターミナルから実行してください。  
 「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
-ウィザードの使い方の詳細は[公式ブログ](https://blog.fascode.net/2021/04/17/build-alterlinux/)で紹介しています。  
+ウィザードの使い方の詳細は[公式ブログ](https://blog.fascode.net/2020/04/17/build-alterlinux/)で紹介しています。  
 
 ```bash
 ./wizard.sh
@@ -77,9 +77,6 @@ sudo ./build.sh [options] [channel]
 出力先ディレクトリを指定する| -o [dir]
 作業ディレクトリを指定する | -w [dir]
 
-##### 注意
-チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
-
 #### 例
 以下の条件でビルドするにはこのようにします。
 
@@ -97,7 +94,7 @@ sudo ./build.sh [options] [channel]
 #### チャンネルについて
 チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
 この仕組みにより様々なバージョンのAlter Linuxをビルドすることが可能になります。  
-2021年8月17日現在でサポートされているチャンネルは以下のとおりです。  
+2020年8月17日現在でサポートされているチャンネルは以下のとおりです。  
 完全なチャンネルの一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 目的
@@ -111,7 +108,6 @@ plasma | PlasmaとQtアプリを搭載した現在開発中のチャンネル
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドできるチャンネル
 xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
 xfce-pro | xfceチャンネルのウィンドウマネージャを変更し、多くのソフトを追加したチャンネル
-rebuild | 作業ディレクトリにある設定を利用して再ビルドを行う特殊なチャンネル
 
 
 #### カーネルについて

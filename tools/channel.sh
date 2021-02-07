@@ -69,7 +69,6 @@ gen_channel_list() {
         fi
     done
     if [[ "${opt_nobuiltin}" = false ]]; then
-        channellist+=("rebuild")
         channellist+=("clean")
     fi
 }

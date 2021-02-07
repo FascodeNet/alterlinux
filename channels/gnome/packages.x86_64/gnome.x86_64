@@ -55,3 +55,7 @@ meson
 ninja
 jq
 oniguruma
+
+# libinput
+xf86-input-libinput
+
