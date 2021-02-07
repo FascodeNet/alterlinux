@@ -964,7 +964,7 @@ make_tarball() {
     if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "/root/optimize_for_tarball.sh" run
+        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "/root/optimize_for_tarball.sh -u ${username}" run
     fi
 
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
