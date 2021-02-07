@@ -54,6 +54,9 @@ remove /etc/systemd/system/alteriso-reflector.service
 if [[ -f "/etc/lightdm/lightdm.conf" ]]; then
     sed -i "s/^autologin/#autologin/g" "/etc/lightdm/lightdm.conf"
 fi
+if [[ -f "/etc/lightdm/lightdm.conf.d/02-autologin.conf" ]]; then
+    sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.conf"
+fi
 
 # Disabled auto login for GDM
 if [[ -f "/etc/gdm/custom.conf" ]]; then

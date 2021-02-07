@@ -15,7 +15,7 @@ else
 fi
 
 # Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.conf"
 
 # Replace password for screensaver comment
 sed -i s/%PASSWORD%/${password}/g "/etc/dconf/db/local.d/02-disable-lock"
