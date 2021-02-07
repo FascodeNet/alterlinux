@@ -19,8 +19,8 @@ function remove () {
 }
 
 function remove_user_file(){
-    remove "/etc/skel/${@}"
-    remove "/home/${user}/${@}"
+    remove "/etc/skel/${*}"
+    remove "/home/${user}/${*}"
 }
 
 while getopts 'u:' arg; do
