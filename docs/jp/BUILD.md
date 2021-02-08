@@ -25,7 +25,7 @@ sudo ./keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso
+sudo pacman -S --needed git make arch-install-scripts squashfs-tools libisoburn dosfstools lynx archiso python-pytest python-setuptools
 ```
 
 ### TUIを使用する
