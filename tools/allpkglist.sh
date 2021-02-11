@@ -21,6 +21,7 @@ _help() {
     echo "    -o | --out                Specify the output dir"
     echo "    -s | --stdout             Output to stdout (Ignore -o)"
     echo "    -h | --help               This help message"
+    echo "         --aur                Include aur package to the list"
 }
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
@@ -28,11 +29,12 @@ tools_dir="${script_path}/tools"
 out_dir=""
 archs=("x86_64" "i686" "i486")
 stdout=false
+include_aur=false
 
 # Parse options
 ARGUMENT="${@}"
 opt_short="a:o:hs"
-opt_long="arch:,out:,help,stdout"
+opt_long="arch:,out:,help,stdout,aur"
 OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 eval set -- "${OPT}"
@@ -55,6 +57,10 @@ while true; do
         -h | --help)
             _help
             exit 0
+            ;;
+        --aur)
+            include_aur=true
+            shift 1
             ;;
         --)
             shift 1
@@ -94,8 +100,16 @@ for arch in ${archs[@]}; do
 
         if [[ "${stdout}" = true ]]; then
             pkglist+=($("${tools_dir}/pkglist.sh" ${pkglist_opts}))
+            if [[ "${include_aur}" = true ]]; then
+                pkglist+=($("${tools_dir}/pkglist.sh" --aur ${pkglist_opts}))
+            fi
         else
-            "${tools_dir}/pkglist.sh" -d ${pkglist_opts} 1> "${out_dir}/$(basename "${channel}").${arch}"
+            (
+                "${tools_dir}/pkglist.sh" -d ${pkglist_opts}
+                if [[ "${include_aur}" = true ]]; then
+                    "${tools_dir}/pkglist.sh" --aur -d ${pkglist_opts}
+                fi
+            ) 1> "${out_dir}/$(basename "${channel}").${arch}"
         fi
         
     done
