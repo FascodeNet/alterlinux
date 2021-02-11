@@ -9,27 +9,7 @@
 #
 # extra packages
 
-clonezilla
-ddrescue
 diffutils
-dmraid
-fsarchiver
-gpm
-gptfdisk
-hdparm
-lvm2
-mdadm
-nano
-partclone
-parted
-partimage
-sdparm
-smartmontools
-testdisk
 vim-minimal
-grub-theme-vimix
-smbclient
-gvfs-smb
-gvfs
 sshfs
 mate-polkit

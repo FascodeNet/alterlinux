@@ -7,10 +7,6 @@
 # (c) 2019-2021 Fascode Network.
 #
 
-# Bluetooth
-#rfkill unblock all
-#systemctl enable bluetooth
-
 # Replace shortcut list config
 if [[ "${language}" = "ja" ]]; then
     remove "/etc/skel/.config/conky/conky.conf"
@@ -42,30 +38,11 @@ sed -i "/light/s/^/# /g" /home/${username}/.config/i3/config
 # disable auto screen lock
 rm /etc/xdg/autostart/light-locker.desktop
 
-# Snap
-#if [[ "${arch}" = "x86_64" ]]; then
-#    systemctl enable snapd.apparmor.service
-#    systemctl enable apparmor.service
-#    systemctl enable snapd.socket
-#    systemctl enable snapd.service
-#fi
-
-
 # Update system datebase
 dconf update
 
-
-# firewalld
-#systemctl enable firewalld.service
-
 # ntp
 systemctl enable systemd-timesyncd.service
-
-
-# Added autologin group to auto login
-groupadd autologin
-usermod -aG autologin ${username}
-
 
 # Enable LightDM to auto login
 if [[ "${boot_splash}" =  true ]]; then
@@ -74,9 +51,5 @@ else
     systemctl enable lightdm.service
 fi
 
-
-# Set script permission
-#chmod 755 /usr/bin/alterlinux-gtk-bookmarks
-
 # Replace auto login user
-sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.conf"
