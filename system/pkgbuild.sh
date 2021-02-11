@@ -73,7 +73,7 @@ if user_check "${build_username}"; then
 fi
 mkdir -p "${pkgbuild_dir}"
 chmod 700 -R "${pkgbuild_dir}"
-chown ${build_username}:${build_username} -R "${pkgbuild_dir}"
+chown ${build_username} -R "${pkgbuild_dir}"
 echo "${build_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/pkgbuild"
 
 # Setup keyring
