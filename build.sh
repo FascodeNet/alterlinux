@@ -1252,7 +1252,7 @@ fi
 
 # Check channel version
 msg_debug "channel path is ${channel_dir}"
-if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]] && [[ "${nochkver}" = false ]]; then
+if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]] && [[ "${nochkver}" = false ]]; then
     msg_error "This channel does not support Alter ISO 3."
     if [[ -d "${script_path}/.git" ]]; then
         msg_error "Please run \"git checkout alteriso-2\"" "1"
