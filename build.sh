@@ -22,7 +22,7 @@ customized_username=false
 customized_password=false
 customized_kernel=false
 DEFAULT_ARGUMENT=""
-alteriso_version="3.0"
+alteriso_version="3.1"
 
 # Load config file
 if [[ -f "${defaultconfig}" ]]; then
