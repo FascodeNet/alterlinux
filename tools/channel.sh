@@ -73,6 +73,30 @@ gen_channel_list() {
     fi
 }
 
+# check?alteriso_version <channel dir>
+check_alteriso_version(){
+    local _channel
+    if [[ ! -d "${script_path}/channels/${1}" ]]; then
+        _channel="${script_path}/channels/${1}.add"
+    else
+        _channel="${script_path}/channels/${1}"
+    fi
+    if [[ ! -d "${_channel}" ]]; then
+        echo "${1} was not found." >&2
+        exit 1
+    fi
+    if [[ ! -f "${_channel}/alteriso" ]]; then
+        if (( $(find ./ -maxdepth 1 -mindepth 1 -name "*.x86_64" -o -name ".i686" -o -name "*.any" 2> /dev/null | wc -l) == 0 )); then
+            echo "2.0"
+        fi
+    else
+        echo "$(
+            source "${_channel}/alteriso"
+            echo "${alteriso}"
+        )"
+    fi
+}
+
 check() {
     gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
@@ -194,9 +218,10 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}    ;;
-    "show"  ) show          ;;
-    "desc"  ) desc ${@}     ;;
-    "help"  ) _help; exit 0 ;;
-    *       ) _help; exit 1 ;;
+    "check" ) check ${@}                  ;;
+    "show"  ) show                        ;;
+    "desc"  ) desc ${@}                   ;;
+    "ver"   ) check_alteriso_version ${@} ;;
+    "help"  ) _help; exit 0               ;;
+    *       ) _help; exit 1               ;;
 esac
