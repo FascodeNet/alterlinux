@@ -9,7 +9,7 @@ opt_nochkver=false
 opt_nobuiltin=false
 opt_fullpath=false
 opt_nocheck=false
-alteriso_version="3.0"
+alteriso_version="3.1"
 mode=""
 arch="all"
 kernel="all"
@@ -23,6 +23,7 @@ _help() {
     echo "    check [name]       Returns whether the specified channel name is valid."
     echo "    desc [name]        Display a description of the specified channel"
     echo "    show               Display a list of channels"
+    echo "    ver                Display a version declared on the channel"
     echo "    help               This help message"
     echo
     echo " General options:"
@@ -42,7 +43,7 @@ _help() {
 gen_channel_list() {
     local _dirname
     for _dirname in $(ls -l "${script_path}"/channels/ | awk '$1 ~ /d/ {print $9}'); do
-        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
+        if [[ -n $(ls "${script_path}"/channels/${_dirname}) ]] && check_alteriso_version "${_dirname}/" || [[ "${opt_nochkver}" = true ]]; then
             if [[  ! "${arch}" = "all" ]] && [[ -z "$(cat "${script_path}/channels/${_dirname}/architecture" 2> /dev/null | grep -h -v ^'#' | grep -x "${arch}")" ]] || [[ "${_dirname}" = "share" ]] || [[ "${_dirname}" = "share-extra" ]]; then
                 continue
             elif [[ ! "${kernel}" = "all" ]] && [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $( ( cat "${script_path}/channels/${_dirname}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" ) 2> /dev/null) ]]; then
@@ -74,7 +75,7 @@ gen_channel_list() {
 }
 
 # check?alteriso_version <channel dir>
-check_alteriso_version(){
+get_alteriso_version(){
     local _channel
     if [[ ! -d "${script_path}/channels/${1}" ]]; then
         _channel="${script_path}/channels/${1}.add"
@@ -97,6 +98,15 @@ check_alteriso_version(){
     fi
 }
 
+check_alteriso_version(){
+    #if [[ "$(get_alteriso_version "${1%.add}")" = "${alteriso_version}" ]]; then
+    if [[ "$(get_alteriso_version "${1%.add}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 check() {
     gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
@@ -107,7 +117,7 @@ check() {
         echo "correct"
     elif [[ -d "${1}" ]] && [[ -n $(ls "${1}") ]] && [[ ! "$(basename "${1%/}")" = "share" ]] && [[ ! "$(basename "${1%/}")" = "share-extra" ]]; then
         local _channel_name="$(basename "${1%/}")"
-        if [[ "$(cat "${script_path}/channels/${_dirname}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] || [[ "${opt_nochkver}" = true ]]; then
+        if ! check_alteriso_version "${_channel}" || [[ "${opt_nochkver}" = true ]]; then
             echo "directory"
         else
             echo "incorrect"
@@ -132,7 +142,7 @@ desc() {
     else
         _channel="${1}"
     fi
-    if [[ ! "$(cat "${script_path}/channels/${_channel}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${opt_nochkver}" = false ]]; then
+    if ! check_alteriso_version "${_channel}" && [[ "${opt_nochkver}" = false ]]; then
         "${script_path}/tools/msg.sh" --noadjust -l 'ERROR:' --noappname error "Not compatible with AlterISO3"
     elif [[ -f "${script_path}/channels/${_channel}/description.txt" ]]; then
         echo -ne "$(cat "${script_path}/channels/${_channel}/description.txt")\n"
@@ -221,7 +231,7 @@ case "${mode}" in
     "check" ) check ${@}                  ;;
     "show"  ) show                        ;;
     "desc"  ) desc ${@}                   ;;
-    "ver"   ) check_alteriso_version ${@} ;;
+    "ver"   ) get_alteriso_version ${@} ;;
     "help"  ) _help; exit 0               ;;
     *       ) _help; exit 1               ;;
 esac

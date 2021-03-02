@@ -164,10 +164,10 @@ _usage () {
 
     echo
     echo " Channel:"
-    for _dirname in $(bash "${tools_dir}/channel.sh" -d -b -n show); do
+    for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n show); do
         echo -ne "    ${_dirname%.add}"
         echo_blank "$(( ${blank} - 3 - $(echo ${_dirname%.add} | wc -m) ))"
-        "${tools_dir}/channel.sh" --nocheck desc "${_dirname%.add}"
+        "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname%.add}"
     done
 
     echo
@@ -497,7 +497,7 @@ prepare_build() {
     check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi include_extra nosigcheck
 
     # Check architecture for each channel
-    if [[ ! "$(bash "${tools_dir}/channel.sh" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
+    if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
@@ -1223,7 +1223,7 @@ if [[ "${bash_debug}" = true ]]; then set -x -v; fi
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
-    case "$(bash "${tools_dir}/channel.sh" -n check "${1}")" in
+    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}")" in
         "incorrect")
             msg_error "Invalid channel ${1}" "1"
             ;;
@@ -1252,12 +1252,12 @@ fi
 
 # Check channel version
 msg_debug "channel path is ${channel_dir}"
-if [[ ! "$(cat "${channel_dir}/alteriso" 2> /dev/null)" = "alteriso=${alteriso_version}" ]] && [[ "${nochkver}" = false ]]; then
+if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]] && [[ "${nochkver}" = false ]]; then
     msg_error "This channel does not support Alter ISO 3."
     if [[ -d "${script_path}/.git" ]]; then
         msg_error "Please run \"git checkout alteriso-2\"" "1"
     else
-        msg_error "Please download Alter ISO 2 here.\nhttps://github.com/FascodeNet/alterlinux/archive/alteriso-2.zip" "1"
+        msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
 
