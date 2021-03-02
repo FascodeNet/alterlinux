@@ -65,8 +65,9 @@ msg_debug() {
 ARGUMENT="${@}"
 opt_short="a:bc:dek:l:mh"
 opt_long="arch:,boot-splash,channel:,debug,extra,kernel:,locale:,memtest86,aur,help,line"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
+if ! OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT}); then
+    exit 1
+fi
 
 eval set -- "${OPT}"
 unset OPT opt_short opt_long

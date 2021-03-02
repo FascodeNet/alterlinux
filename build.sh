@@ -1036,10 +1036,11 @@ make_iso() {
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-opt_long="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${DEFAULT_ARGUMENT} ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
+OPT_S="a:bc:deg:hjk:l:o:p:rt:u:w:x"
+OPT_L="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
+if ! OPT=$(getopt -o ${OPT_S} -l ${OPT_L} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
+    exit 1
+fi
 
 eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
@@ -1220,10 +1221,8 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 # Debug mode
 if [[ "${bash_debug}" = true ]]; then set -x -v; fi
 
-set +eu
-
 # Check for a valid channel name
-if [[ -n "${1}" ]]; then
+if [[ -n "${1+SET}" ]]; then
     case "$(bash "${tools_dir}/channel.sh" -n check "${1}")" in
         "incorrect")
             msg_error "Invalid channel ${1}" "1"
@@ -1237,6 +1236,9 @@ if [[ -n "${1}" ]]; then
             channel_name="${1}"
             ;;
     esac
+else
+    channel_dir="${script_path}/channels/${channel_name}"
+
 fi
 
 # Set for special channels
@@ -1246,8 +1248,6 @@ if [[ -d "${channel_dir}.add" ]]; then
 elif [[ "${channel_name}" = "clean" ]]; then
    "${tools_dir}/clean.sh" -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
     exit 0
-else
-    channel_dir="${script_path}/channels/${channel_name}"
 fi
 
 # Check channel version
