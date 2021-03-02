@@ -19,3 +19,10 @@ usershell="/bin/zsh"
 # Include files of share-extra channel
 # This setting cannot be changed by an argument.
 include_extra=true
+
+# Modules to include
+# This setting cannot be changed by an argument.
+include=(
+    "share"
+    "share-extra"
+)
