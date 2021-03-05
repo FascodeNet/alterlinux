@@ -62,6 +62,7 @@ customized_syslinux=true
 modules=(
     "share-extra"
     "lightdm"
+    "qtongtk"
 )
 
 

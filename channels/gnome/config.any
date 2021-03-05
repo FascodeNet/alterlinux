@@ -23,4 +23,5 @@ noaur=false
 # This setting cannot be changed by an argument.
 modules=(
     "share-extra"
+    "qtongtk"
 )
