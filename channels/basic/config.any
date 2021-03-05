@@ -19,7 +19,10 @@ usershell="/bin/zsh"
 # Change the default behavior of "--noaur".
 #noaur=true
 
-# Add extra files
-# Include files of share-extra channel
+# Modules to include
+# An array of module directory names to include.
 # This setting cannot be changed by an argument.
-include_extra=true
+modules=(
+    "share-extra"
+    #"lightdm"
+)
