@@ -18,6 +18,7 @@ set -eu
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
 tools_dir="${script_path}/tools"
+module_dir="${script_path}/modules"
 customized_username=false
 customized_password=false
 customized_kernel=false
@@ -292,6 +293,16 @@ show_channel_list() {
     fi
 }
 
+# Execute command for each module
+# It will be executed with {} replaced with the module name.
+# for_module <command>
+for_module(){
+    local module
+    for module in ${modules[@]}; do
+        eval $(echo ${@} | sed "s|{}|${module}|g")
+    done
+}
+
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value _variable
@@ -300,10 +311,10 @@ check_bool() {
         eval ': ${'${_variable}':=""}'
         _value="$(eval echo '$'${_variable})"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
-            echo; msg_error "The variable name ${_variable} is empty." "1"
+            if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is empty." "1"
         fi
         if [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-            echo; msg_error "The variable name ${_variable} is not of bool type." "1"
+            if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is not of bool type." "1"
         elif [[ "${debug}" = true ]]; then
             echo -e " ${_value}"
         fi
@@ -437,16 +448,11 @@ prepare_build() {
 
     # Set dirs
     airootfs_dir="${work_dir}/${arch}/airootfs"
-    share_dir="${script_path}/channels/share"
-    extra_dir="${script_path}/channels/share-extra"
     isofs_dir="${work_dir}/iso"
 
-    # If there is config for channel. load that.
-    load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
+    # Load configs
+    for_module load_config "${module_dir}/config.any" "${module_dir}/config.${arch}"
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
-    if [[ "${include_extra}" = true ]]; then
-        load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
-    fi
 
     # Set kernel
     if [[ "${customized_kernel}" = false ]]; then
@@ -495,7 +501,7 @@ prepare_build() {
 
 
     # check bool
-    check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi include_extra nosigcheck
+    check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
 
     # Check architecture for each channel
     if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -534,23 +540,15 @@ make_packages_repo() {
     local _pkg _pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
 
     # get pkglist
-    if [[ "${boot_splash}" = true ]]; then
-        _pkglist_args+=" -b"
-    fi
-    if [[ "${include_extra}" = true ]]; then
-        _pkglist_args+=" -e"
-    fi
-    if [[ "${debug}" = true ]]; then
-        _pkglist_args+=" -d"
-    fi
-    if [[ "${memtest86}" = true ]]; then
-        _pkglist_args+=" -m"
-    fi
+    if [[ "${boot_splash}"   = true ]]; then _pkglist_args+=" -b"; fi
+    if [[ "${include_extra}" = true ]]; then _pkglist_args+=" -e"; fi
+    if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
+    if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
+
     local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    #for _pkg in ${_pkglist[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
     printf "%s\n" "${_pkglist[@]}" >> "${work_dir}/packages.list"
 
     # Install packages on airootfs
@@ -594,11 +592,8 @@ make_packages_aur() {
 
 make_pkgbuild() {
     #-- PKGBUILDが入ってるディレクトリの一覧 --#
-    local _pkgbuild_dirs=("${share_dir}/pkgbuild.any" "${share_dir}/pkgbuild.${arch}" "${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
-
-    if [[ "${include_extra}" = true ]]; then
-        _pkgbuild_dirs+=("${extra_dir}/pkgbuild.any" "${extra_dir}/pkgbuild.${arch}")
-    fi
+    local _pkgbuild_dirs=("${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
+    for_module _pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
     for _dir in $(find "${_pkgbuild_dirs}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
@@ -623,11 +618,8 @@ make_customize_airootfs() {
     # Overwrite airootfs with customize_airootfs.
     local _airootfs _airootfs_script_options _script _script_list _airootfs_list _main_script
 
-    _airootfs_list=("${share_dir}/airootfs.any" "${share_dir}/airootfs.${arch}" "${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any")
-
-    if [[ "${include_extra}" = true ]]; then
-        _airootfs_list+=("${extra_dir}/airootfs.any" "${extra_dir}/airootfs.${arch}")
-    fi
+    _airootfs_list=("${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any")
+    for_module _airootfs_list+=("${module_dir}/{}/airootfs.${arch}" "${module_dir}/{}/airootfs.any")
 
     for _airootfs in ${_airootfs_list[@]};do
         if [[ -d "${_airootfs}" ]]; then
@@ -676,9 +668,7 @@ make_customize_airootfs() {
         "${airootfs_dir}/root/customize_airootfs_${channel_name%.add}.sh"
     )
 
-    if [[ "${include_extra}" = true ]]; then
-        _script_list=(${_script_list[@]} "${airootfs_dir}/root/customize_airootfs_share-extra.sh")
-    fi
+    for_module _script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")
 
     # Create script
     for _script in ${_script_list[@]}; do
@@ -1014,14 +1004,8 @@ make_prepare() {
 # Add files to the root of isofs
 make_overisofs() {
     local _over_isofs_list _isofs
-    _over_isofs_list=(
-        "${share_dir}/over_isofs.any"
-        "${share_dir}/over_isofs.${arch}"
-        "${extra_dir}/over_isofs.any"
-        "${extra_dir}/over_isofs.${arch}"
-        "${channel_dir}/over_isofs.any"
-        "${channel_dir}/over_isofs.${arch}"
-    )
+    _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
+    for_module _over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")
     for _isofs in ${_over_isofs_list[@]}; do
         if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
     done
