@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# config
+#
+# Overwrites the first to read and set the build script
+# This configuration file follows the bash syntax.
+#
+
+# Modules to include
+# An array of module directory names to include.
+# This setting cannot be changed by an argument.
+modules+=(
+    "share-extra"
+)
