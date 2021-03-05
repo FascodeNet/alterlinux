@@ -594,7 +594,7 @@ make_packages_aur() {
 make_pkgbuild() {
     #-- PKGBUILDが入ってるディレクトリの一覧 --#
     local _pkgbuild_dirs=("${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
-    for_module _pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")
+    for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
     for _dir in $(find "${_pkgbuild_dirs}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
@@ -620,7 +620,7 @@ make_customize_airootfs() {
     local _airootfs _airootfs_script_options _script _script_list _airootfs_list _main_script
 
     _airootfs_list=("${channel_dir}/airootfs.${arch}" "${channel_dir}/airootfs.any")
-    for_module _airootfs_list+=("${module_dir}/{}/airootfs.${arch}" "${module_dir}/{}/airootfs.any")
+    for_module '_airootfs_list+=("${module_dir}/{}/airootfs.${arch}" "${module_dir}/{}/airootfs.any")'
 
     for _airootfs in ${_airootfs_list[@]};do
         if [[ -d "${_airootfs}" ]]; then
@@ -669,7 +669,7 @@ make_customize_airootfs() {
         "${airootfs_dir}/root/customize_airootfs_${channel_name%.add}.sh"
     )
 
-    for_module _script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")
+    for_module '_script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")'
 
     # Create script
     for _script in ${_script_list[@]}; do
@@ -1006,7 +1006,7 @@ make_prepare() {
 make_overisofs() {
     local _over_isofs_list _isofs
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
-    for_module _over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")
+    for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
     for _isofs in ${_over_isofs_list[@]}; do
         if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
     done
