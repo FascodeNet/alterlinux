@@ -543,7 +543,7 @@ make_packages_repo() {
     if [[ "${boot_splash}"   = true ]]; then _pkglist_args+=" -b"; fi
     if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
     if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
-    _pkgbuild_dirs+=" ${modules[*]}"
+    _pkglist_args+=" ${modules[*]}"
 
     local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
@@ -559,15 +559,12 @@ make_packages_aur() {
     local _pkg _pkglist_args="--aur -a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
 
     # get pkglist
-    if [[ "${boot_splash}" = true ]]; then
-        _pkglist_args+=" -b"
-    fi
-    if [[ "${debug}" = true ]]; then
-        _pkglist_args+=" -d"
-    fi
-    if [[ "${memtest86}" = true ]]; then
-        _pkglist_args+=" -m"
-    fi
+    # get pkglist
+    if [[ "${boot_splash}"   = true ]]; then _pkglist_args+=" -b"; fi
+    if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
+    if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
+    _pkglist_args+=" ${modules[*]}"
+
     local _pkglist_aur=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
