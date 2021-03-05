@@ -9,7 +9,6 @@ modules=()
 boot_splash=false
 aur=false
 pkgdir_name="packages"
-extra=false
 line=false
 debug=false
 memtest86=false
@@ -30,7 +29,6 @@ _help() {
     echo "    -b | --boot-splash        Enable boot splash"
     echo "    -c | --channel [dir]      Specify the channel directory"
     echo "    -d | --debug              Enable debug message"
-    echo "    -e | --extra              Include extra packages"
     echo "    -k | --kernel [kernel]    Specify the kernel"
     echo "    -l | --locale [locale]    Specify the locale"
     echo "    -m | --memtest86          Enable memtest86 package"
@@ -73,8 +71,8 @@ msg_debug() {
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:bc:dek:l:mh"
-opt_long="arch:,boot-splash,channel:,debug,extra,kernel:,locale:,memtest86,aur,help,line"
+opt_short="a:bc:dk:l:mh"
+opt_long="arch:,boot-splash,channel:,debug,kernel:,locale:,memtest86,aur,help,line"
 if ! OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT}); then
     exit 1
 fi
@@ -98,10 +96,6 @@ while true; do
             ;;
         -d | --debug)
             debug=true
-            shift 1
-            ;;
-        -e | --extra)
-            extra=true
             shift 1
             ;;
         -k | --kernel)
@@ -179,26 +173,15 @@ for_module '_loadfilelist+=(${module_dir}/{}/${pkgdir_name}.${arch}/kernel/${ker
 
 # Plymouth package list
 if [[ "${boot_splash}" = true ]]; then
-    _loadfilelist+=(
-        $(ls ${share_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
-        $(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
-    )
-
+    _loadfilelist+=($(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))'
 fi
 
 # memtest86 package list
 if [[ "${memtest86}" = true ]]; then
-    _loadfilelist+=(
-        $(ls ${share_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
-        $(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
-    )
+    _loadfilelist+=($(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))
 
-    if [[ "${extra}" = true ]]; then
-        _loadfilelist+=(
-            $(ls ${extra_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
-        )
-    fi
+    for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))'
 fi
 
 #-- Read package list --#

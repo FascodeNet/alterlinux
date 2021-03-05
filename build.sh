@@ -541,7 +541,6 @@ make_packages_repo() {
 
     # get pkglist
     if [[ "${boot_splash}"   = true ]]; then _pkglist_args+=" -b"; fi
-    if [[ "${include_extra}" = true ]]; then _pkglist_args+=" -e"; fi
     if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
     if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
     _pkgbuild_dirs+=" ${modules[*]}"
@@ -562,9 +561,6 @@ make_packages_aur() {
     # get pkglist
     if [[ "${boot_splash}" = true ]]; then
         _pkglist_args+=" -b"
-    fi
-    if [[ "${include_extra}" = true ]]; then
-        _pkglist_args+=" -e"
     fi
     if [[ "${debug}" = true ]]; then
         _pkglist_args+=" -d"
