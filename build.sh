@@ -544,6 +544,7 @@ make_packages_repo() {
     if [[ "${include_extra}" = true ]]; then _pkglist_args+=" -e"; fi
     if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
     if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
+    _pkgbuild_dirs+=" ${modules[*]}"
 
     local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
 

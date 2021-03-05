@@ -3,8 +3,8 @@
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-share_dir="${script_path}/channels/share"
-extra_dir="${script_path}/channels/share-extra"
+module_dir="${script_path}/modules"
+modules=()
 
 boot_splash=false
 aur=false
@@ -21,7 +21,7 @@ locale_name=""
 
 
 _help() {
-    echo "usage ${0} [options] [command]"
+    echo "usage ${0} [options] [module 1] [module 2]..."
     echo
     echo "Get a list of packages to install on that channel"
     echo
@@ -43,6 +43,16 @@ _help() {
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
 getclm() {
     echo "$(cat -)" | cut -d " " -f "${1}"
+}
+
+# Execute command for each module
+# It will be executed with {} replaced with the module name.
+# for_module <command>
+for_module(){
+    local module
+    for module in ${modules[@]}; do
+        eval $(echo ${@} | sed "s|{}|${module}|g")
+    done
 }
 
 # Message functions
@@ -126,17 +136,19 @@ while true; do
     esac
 done
 
+modules=("${@}")
 
-if [[ -z "${arch}" ]]; then
+
+if [[ -z "${arch}" ]] || [[ "${arch}" = "" ]]; then
     msg_error "Architecture not specified"
     exit 1
-elif [[ -z "${channel_dir}" ]]; then
+elif [[ -z "${channel_dir}" ]] || [[ "${channel_dir}" = "" ]]; then
     msg_error "Channel directory not specified"
     exit 1
-elif [[ -z "${kernel}" ]]; then
+elif [[ -z "${kernel}" ]] || [[ "${kernel}" = "" ]]; then
     msg_error "kernel not specified"
     exit 1
-elif [[ -z "${locale_name}" ]]; then
+elif [[ -z "${locale_name}" ]] || [[ "${locale_name}" = "" ]]; then
     msg_error "Locale not specified"
     exit 1
 fi
@@ -154,24 +166,16 @@ set +e
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
 _loadfilelist=(
-    #-- share packages --#
-    $(ls ${share_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
-
-    # lang
-    "${share_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
-
-    # kernel
-    "${share_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
-
     #-- channel packages --#
     $(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
-
-    # lang
     "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
-
-    # kernel
     "${channel_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
 )
+
+# module package list
+for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null))'
+for_module '_loadfilelist+=(${module_dir}/{}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch})'
+for_module '_loadfilelist+=(${module_dir}/{}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch})'
 
 # Plymouth package list
 if [[ "${boot_splash}" = true ]]; then
@@ -180,24 +184,7 @@ if [[ "${boot_splash}" = true ]]; then
         $(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
     )
 
-    if [[ "${extra}" = true ]]; then
-        _loadfilelist+=(
-            $(ls ${extra_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
-        )
-    fi
-fi
-
-# share-extra package list
-if [[ "${extra}" = true ]]; then
-    _loadfilelist+=(
-        $(ls ${extra_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
-
-        # lang
-        "${extra_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
-
-        # kernel
-        "${extra_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
-    )
+    for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))'
 fi
 
 # memtest86 package list
@@ -227,20 +214,8 @@ done
 
 #-- Read exclude list --#
 # Exclude packages from the share exclusion list
-_excludefile=(
-    "${share_dir}/packages.${arch}/exclude"
-    "${share_dir}/packages_aur.${arch}/exclude"
-
-    "${channel_dir}/packages.${arch}/exclude"
-    "${channel_dir}/packages_aur.${arch}/exclude"
-)
-
-if [[ "${extra}" = true ]];then
-    _excludefile+=(
-        "${extra_dir}/packages.${arch}/exclude"
-        "${extra_dir}/packages_aur.${arch}/exclude"
-    )
-fi
+_excludefile=("${channel_dir}/packages.${arch}/exclude" "${channel_dir}/packages_aur.${arch}/exclude")
+for_module '_excludefile+=("${module_dir}/{}/packages.${arch}/exclude" "${module_dir}/{}/packages_aur.${arch}/exclude")'
 
 for _file in ${_excludefile[@]}; do
     if [[ -f "${_file}" ]]; then
