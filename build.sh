@@ -296,15 +296,16 @@ show_channel_list() {
 check_bool() {
     local _value _variable
     for _variable in ${@}; do
-        _value="$(eval echo '$'${_variable})"
         msg_debug -n "Checking ${_variable}..."
-        if [[ "${debug}" = true ]]; then
-            echo -e " ${_value}"
-        fi
-        if [[ ! -v "${1}" ]]; then
+        eval ': ${'${_variable}':=""}'
+        _value="$(eval echo '$'${_variable})"
+        if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
             echo; msg_error "The variable name ${_variable} is empty." "1"
-        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+        fi
+        if [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
             echo; msg_error "The variable name ${_variable} is not of bool type." "1"
+        elif [[ "${debug}" = true ]]; then
+            echo -e " ${_value}"
         fi
     done
 }
