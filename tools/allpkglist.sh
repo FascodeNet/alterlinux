@@ -71,32 +71,53 @@ while true; do
 done
 
 
-share_dir="${script_path}/channels/share"
-extra_dir="${script_path}/channels/share-extra"
-
 if [[ -z "${out_dir}" ]] || [[ "${stdout}" = true ]]; then
     stdout=true
 else
     mkdir -p "${out_dir}"
 fi
 
+load_config() {
+    local _file
+    for _file in ${@}; do
+        if [[ -f "${_file}" ]]; then
+            source "${_file}"
+        fi
+    done
+}
+
+for_module(){
+    local module
+    for module in ${modules[@]}; do
+        eval $(echo ${@} | sed "s|{}|${module}|g")
+    done
+}
+
 for arch in ${archs[@]}; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
-    #for channel in "${script_path}/channels/releng"; do
-        include_extra=$(
-            load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
-            load_config "${channel}/config.any" "${channel}/config.${arch}"
-            if [[ "${include_extra}" = true ]]; then
-                load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
+        modules=($(
+            load_config "${script_path}/default.conf" "${script_path}/custom.conf"
+            load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+            if [[ ! -z "${include_extra+SET}" ]]; then
+                if [[ "${include_extra}" = true ]]; then
+                    modules=("share" "share-extra")
+                else
+                    modules=("share")
+                fi
             fi
-            echo ${include_extra}
-        )
+            for module in ${modules[@]}; do
+                dependent="${module_dir}/${module}/dependent"
+                if [[ -f "${dependent}" ]]; then
+                    modules+=($(grep -h -v ^'#' "${dependent}" | tr -d "\n" ))
+                fi
+            done
+            unset module dependent
+            modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
+            for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
+            echo "${modules[@]}"
+        ))
 
-        pkglist_opts="-a "${arch}" -b -c "${channel%/}" -k zen -l en --line"
-
-        if [[ "${include_extra}" = true ]]; then
-            pkglist_opts+=" -e"
-        fi
+        pkglist_opts="-a ${arch} -b -c ${channel%/} -k zen -l en --line ${modules[*]}"
 
         if [[ "${stdout}" = true ]]; then
             pkglist+=($("${tools_dir}/pkglist.sh" ${pkglist_opts}))
