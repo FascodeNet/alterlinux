@@ -451,8 +451,19 @@ prepare_build() {
     isofs_dir="${work_dir}/iso"
 
     # Load configs
-    for_module load_config "${module_dir}/config.any" "${module_dir}/config.${arch}"
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+
+    local module i dependent
+    for module in ${modules[@]}; do
+        dependent="${module_dir}/${module}/dependent"
+        if [[ -f "${dependent}" ]]; then
+            modules+=($(grep -h -v ^'#' "${dependent}" | tr -d "\n" ))
+        fi
+    done
+    modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
+    for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
+    msg_debug "Loaded modules: ${modules[*]}"
+    unset module i dependent
 
     # Set kernel
     if [[ "${customized_kernel}" = false ]]; then
