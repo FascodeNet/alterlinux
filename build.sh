@@ -516,7 +516,7 @@ prepare_build() {
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        if [[ ! -z "${include_extra+SET}" ]] ||  ; then
+        if [[ ! -z "${include_extra+SET}" ]]; then
             if [[ "${include_extra}" = true ]]; then
                 modules=("share" "share-extra")
             else
