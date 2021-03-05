@@ -499,7 +499,6 @@ prepare_build() {
         mkalteriso_option="${mkalteriso_option} --aur"
     fi
 
-
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
 
@@ -508,11 +507,22 @@ prepare_build() {
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
-
     # Check kernel for each channel
     #if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
     if [[ ! "$(bash "${tools_dir}/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
         msg_error "This kernel is currently not supported on this channel or architecture" "1"
+    fi
+
+    # Legacy mode
+    if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
+        msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
+        if [[ ! -z "${include_extra+SET}" ]] ||  ; then
+            if [[ "${include_extra}" = true ]]; then
+                modules=("share" "share-extra")
+            else
+                modules=("share")
+            fi
+        fi
     fi
 
     # Unmount
