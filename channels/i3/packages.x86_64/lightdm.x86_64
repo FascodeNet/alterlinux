@@ -9,8 +9,6 @@
 #
 # LightDM and theme packages
 
-
-lightdm
 light-locker
 lightdm-webkit2-greeter
 lightdm-webkit2-theme-alter
