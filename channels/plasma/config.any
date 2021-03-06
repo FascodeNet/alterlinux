@@ -19,6 +19,5 @@ usershell="/bin/zsh"
 # An array of module directory names to include.
 # This setting cannot be changed by an argument.
 modules=(
-    "share-extra"
-    "qtongtk"
+    "share"
 )
