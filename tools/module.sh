@@ -13,6 +13,8 @@
 
 set -e
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
+module_dir="${script_path}/modules"
+alteriso_version="3.1"
 
 _help() {
     echo "usage ${0} [options] [command]"
@@ -21,21 +23,73 @@ _help() {
     echo
     echo " General command:"
     echo "    check [name]              Determine if the locale is available"
-    echo "    show                      Shows a list of available locales"
+    echo "    show                      Shows a list of available modules"
     echo "    depend [name]             Shows the modules that the module depends on"
     echo "    help                      This help message"
     echo
     echo " General options:"
+    echo "    -v | --version [ver]      Specifies the AlterISO version"
     echo "    -h | --help               This help message"
 }
 
+check(){
+    if (( "${#}" == 0 )) || (( "${#}" >= 2 ));then
+        _help
+        exit 1
+    fi
+    local _version
+    if [[ -f "${module_dir}/${1}/alteriso" ]]; then
+        _version="$(
+            source "${module_dir}/${1}/alteriso"
+            echo "${alteriso}"
+            unset alteriso
+        )"
+        if (( "$(echo "${_version}" | cut -d "." -f 1)" == "$(echo "${alteriso_version}" | cut -d "." -f 1)" )); then
+            echo "correct"
+        fi
+    else
+        echo "incorrect"
+    fi
+}
 
+depend(){
+    if (( "${#}" == 0 )) || (( "${#}" >= 2 ));then
+        _help
+        exit 1
+    fi
+    if [[ ! -f "${module_dir}/${1}/dependent" ]]; then
+        exit 1
+    elif [[ ! "$(check "${1}")" = "correct" ]]; then
+        exit 1
+    else
+        printf "%s\n" $(grep -h -v ^'#' "${module_dir}/${1}/dependent") | tr "\n" " "
+        echo
+        exit 0
+    fi
+}
 
+show(){
+    local _module _name _version _list=()
+    while read -r _module; do
+        _name="$(basename "$(dirname "${_module}")")"
+        _version="$(
+            source "${_module}"
+            echo "${alteriso}"
+            unset alteriso
+        )"
+        if (( "$(echo "${_version}" | cut -d "." -f 1)" == "$(echo "${alteriso_version}" | cut -d "." -f 1)" )); then
+            _list+=("${_name}")
+        else
+            continue
+        fi
+    done < <(find "${module_dir}" -maxdepth 2 -mindepth 2 -type f -name "alteriso")
+    echo "${_list[@]}"
+}
 
 # Parse options
 ARGUMENT="${@}"
-OPTS="h"
-OPTL="help"
+OPTS="hv:"
+OPTL="help,version:"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
     exit 1
 fi
@@ -48,6 +102,10 @@ while true; do
         -h | --help)
             _help
             exit 0
+            ;;
+        -v | --version)
+            alteriso_version="${2}"
+            shift 2
             ;;
         --)
             shift 1
@@ -66,6 +124,9 @@ else
 fi
 
 case "${COMMAND}" in
+    "check" ) check "${@}"  ;;
+    "depend") depend "${@}" ;;
+    "show"  ) show          ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
 esac

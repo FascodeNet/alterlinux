@@ -457,7 +457,7 @@ prepare_build() {
     for module in ${modules[@]}; do
         dependent="${module_dir}/${module}/dependent"
         if [[ -f "${dependent}" ]]; then
-            modules+=($(grep -h -v ^'#' "${dependent}" | tr -d "\n" ))
+            modules+=($(printf "%s\n" $(grep -h -v ^'#' "${dependent}") | tr "\n" " "))
         fi
     done
     modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
