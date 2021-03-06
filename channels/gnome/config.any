@@ -24,4 +24,5 @@ noaur=false
 modules=(
     "share-extra"
     "qtongtk"
+    "gdm"
 )
