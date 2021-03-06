@@ -455,23 +455,24 @@ prepare_build() {
 
     local module dependent module_err module_check
     module_check(){
-        msg_debug "Checking module ${1}..."
         if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
             msg_error "Module ${1} is not available." "1";
         fi
     }
     for module in ${modules[@]}; do
         module_check "${module}"
-        while read -r dependent; do
-            if [[ ! "${module}" = " " ]] || [[ ! "${module}" = "" ]] ; then continue; fi
+        for dependent in $(bash "${tools_dir}/module.sh" depend "${module}"); do
             module_check "${dependent}"
             modules+=("${dependent}")
-        done < <(bash "${tools_dir}/module.sh" depend "${module}" | tr " " "\n")
+        done
     done
     modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
     unset module i dependent
+    if ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1; then
+        msg_warn "The share module is not loaded."
+    fi
 
     # Set kernel
     if [[ "${customized_kernel}" = false ]]; then
