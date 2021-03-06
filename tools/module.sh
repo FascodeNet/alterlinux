@@ -57,10 +57,10 @@ depend(){
         _help
         exit 1
     fi
-    if [[ ! -f "${module_dir}/${1}/dependent" ]]; then
+    if [[ ! "$(check "${1}")" = "correct" ]]; then
         exit 1
-    elif [[ ! "$(check "${1}")" = "correct" ]]; then
-        exit 1
+    elif [[ ! -f "${module_dir}/${1}/dependent" ]]; then
+        exit 0
     else
         printf "%s\n" $(grep -h -v ^'#' "${module_dir}/${1}/dependent") | tr "\n" " "
         echo
