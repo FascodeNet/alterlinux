@@ -453,12 +453,20 @@ prepare_build() {
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
-    local module i dependent
-    for module in ${modules[@]}; do
-        dependent="${module_dir}/${module}/dependent"
-        if [[ -f "${dependent}" ]]; then
-            modules+=($(printf "%s\n" $(grep -h -v ^'#' "${dependent}") | tr "\n" " "))
+    local module dependent module_err module_check
+    module_check(){
+        msg_debug "Checking module ${1}..."
+        if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
+            msg_error "Module ${1} is not available." "1";
         fi
+    }
+    for module in ${modules[@]}; do
+        module_check "${module}"
+        while read -r dependent; do
+            if [[ ! "${module}" = " " ]] || [[ ! "${module}" = "" ]] ; then continue; fi
+            module_check "${dependent}"
+            modules+=("${dependent}")
+        done < <(bash "${tools_dir}/module.sh" depend "${module}" | tr " " "\n")
     done
     modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
