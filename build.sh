@@ -187,7 +187,6 @@ _usage () {
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
-    echo "         --shmkalteriso          Use the shell script version of mkalteriso"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
@@ -355,21 +354,8 @@ prepare_env() {
         if [[ "${_check_failed}" = true ]]; then exit 1; fi
     fi
 
-    # Build mkalteriso
-    if [[ "${shmkalteriso}" = false ]]; then
-        mkalteriso="${script_path}/system/mkalteriso"
-        cd "${script_path}"
-        msg_info "Building mkalteriso..."
-        if [[ "${debug}" = true ]]; then
-            make mkalteriso
-            echo
-        else
-            make mkalteriso > /dev/null 2>&1
-        fi
-        cd - > /dev/null 2>&1
-    else
-        mkalteriso="${tools_dir}/mkalteriso.sh"
-    fi
+    # Set mkalteriso path
+    mkalteriso="${tools_dir}/mkalteriso.sh"
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
@@ -403,7 +389,6 @@ prepare_env() {
 
 # Show settings.
 show_settings() {
-    msg_debug "mkalteriso path is ${mkalteriso}"
     if [[ "${boot_splash}" = true ]]; then
         msg_info "Boot splash is enabled."
         msg_info "Theme is used ${theme_name}."
@@ -520,7 +505,7 @@ prepare_build() {
     fi
 
     # check bool
-    check_bool boot_splash cleaning noconfirm nodepend shmkalteriso customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
+    check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
 
     # Check architecture for each channel
     if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
@@ -1038,7 +1023,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
@@ -1147,10 +1132,6 @@ while :; do
             fi
             shift 1
             ;;
-        --shmkalteriso)
-            shmkalteriso=true
-            shift 1
-         ;;
         --msgdebug)
             msgdebug=true;
             shift 1
