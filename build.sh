@@ -221,11 +221,12 @@ umount_chroot () {
 # Mount airootfs on "${work_dir}/${arch}/airootfs"
 mount_airootfs () {
     mkdir -p "${work_dir}/airootfs"
-    _mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
+    #_mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
+    _mount "${work_dir}/${arch}/airootfs.img" "${airootfs_dir}"
 }
 
 umount_airootfs() {
-    _umount "${work_dir}/${arch}/airootfs"
+    _umount "${airootfs_dir}"
 }
 
 umount_chroot_advance() {
@@ -300,6 +301,13 @@ for_module(){
     for module in ${modules[@]}; do
         eval $(echo ${@} | sed "s|{}|${module}|g")
     done
+}
+
+# パッケージをインストールする
+_pacman(){
+    msg_info "Installing packages to '${work_dir}/airootfs/'..."
+    pacstrap -C "${work_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
+    _msg_info "Packages installed successfully!"
 }
 
 # Check the value of a variable that can only be set to true or false.
@@ -547,7 +555,8 @@ make_pacman_conf() {
 
 # Base installation (airootfs)
 make_basefs() {
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
+    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
+    _pacman "base" "syslinux"
 }
 
 # Additional packages (airootfs)
