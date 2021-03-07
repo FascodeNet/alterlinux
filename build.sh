@@ -945,7 +945,6 @@ make_efiboot() {
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
     cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
-
     local _efi_config_list=() _efi_config
     _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
 
@@ -1045,15 +1044,15 @@ make_iso() {
 
 # Parse options
 ARGUMENT="${@}"
-OPT_S="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPT_L="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
-if ! OPT=$(getopt -o ${OPT_S} -l ${OPT_L} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
+OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
 
 eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while :; do
     case "${1}" in
@@ -1247,7 +1246,6 @@ if [[ -n "${1+SET}" ]]; then
     esac
 else
     channel_dir="${script_path}/channels/${channel_name}"
-
 fi
 
 # Set for special channels
@@ -1269,7 +1267,6 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
         msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
-
 
 set -eu
 

@@ -33,12 +33,13 @@ include_aur=false
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:o:hs"
-opt_long="arch:,out:,help,stdout,aur"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
+OPTS="a:o:hs"
+OPTL="arch:,out:,help,stdout,aur"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+    exit 1
+fi
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
     case "${1}" in

@@ -71,14 +71,14 @@ msg_debug() {
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:bc:dk:l:mh"
-opt_long="arch:,boot-splash,channel:,debug,kernel:,locale:,memtest86,aur,help,line"
-if ! OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT}); then
+OPTS="a:bc:dk:l:mh"
+OPTL="arch:,boot-splash,channel:,debug,kernel:,locale:,memtest86,aur,help,line"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
     exit 1
 fi
 
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
     case "${1}" in
