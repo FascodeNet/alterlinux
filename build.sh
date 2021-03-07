@@ -849,34 +849,25 @@ make_isolinux() {
 
 # Prepare /EFI
 make_efi() {
-    mkdir -p "${isofs_dir}/EFI/boot"
+    install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
+    #cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
 
-    local _use_config_name
+    local _use_config_name="nosplash"
     if [[ "${boot_splash}" = true ]]; then
         _use_config_name="splash"
-    else
-        _use_config_name="nosplash"
     fi
 
-    mkdir -p "${isofs_dir}/loader/entries"
+    install -d -m 0755 -- "${isofs_dir}/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
 
     local _efi_config_list=() _efi_config
-    _efi_config_list+=(
-        $(
-            ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"
-        )
-    )
+    _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
 
     if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list+=(
-            $(
-                ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"
-            )
-        )
+        _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
     fi
 
     for _efi_config in ${_efi_config_list[@]}; do
@@ -1012,7 +1003,9 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}"
     fi
+}
 
+make_alteriso_info(){
     # iso version info
     if [[ "${include_info}" = true ]]; then
         local _info_file="${isofs_dir}/alteriso-info" _version="${iso_version}"
@@ -1289,6 +1282,7 @@ if [[ "${noiso}" = false ]]; then
         run_once make_efi
         run_once make_efiboot
     fi
+    run_once make_alteriso_info
     run_once make_prepare
     run_once make_overisofs
     run_once make_iso
