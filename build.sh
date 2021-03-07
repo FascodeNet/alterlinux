@@ -555,6 +555,10 @@ make_pacman_conf() {
 
 # Base installation (airootfs)
 make_basefs() {
+    mkdir -p "${airootfs_dir}"
+
+    # ここにmkalterisoの_create_img_sysを実装する
+
     #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
     _pacman "base" "syslinux"
 }
