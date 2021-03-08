@@ -226,7 +226,9 @@ mount_airootfs () {
 }
 
 umount_airootfs() {
-    _umount "${airootfs_dir}"
+    if [[ -v airootfs_dir ]]; then
+        _umount "${airootfs_dir}"
+    fi
 }
 
 umount_chroot_advance() {
