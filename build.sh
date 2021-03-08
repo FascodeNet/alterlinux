@@ -307,7 +307,7 @@ for_module(){
 _pacman(){
     msg_info "Installing packages to '${work_dir}/airootfs/'..."
     pacstrap -C "${work_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
-    _msg_info "Packages installed successfully!"
+    msg_info "Packages installed successfully!"
 }
 
 # コマンドをchrootで実行する
