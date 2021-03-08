@@ -310,6 +310,14 @@ _pacman(){
     _msg_info "Packages installed successfully!"
 }
 
+# コマンドをchrootで実行する
+_chroot_run() {
+    msg_debug "Run command in chroot"
+    msg_debug "Command: ${@}"
+    eval -- arch-chroot "${airootfs_dir}" ${@}
+}
+
+
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value _variable
@@ -606,7 +614,8 @@ make_packages_aur() {
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}" run
+    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}" run
+    _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
@@ -702,7 +711,8 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_main_script} ${_airootfs_script_options}" run
+    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_main_script} ${_airootfs_script_options}" run
+    _chroot_run "${_main_script} ${_airootfs_script_options}"
     remove "${airootfs_dir}/${_main_script}"
 
     # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
@@ -732,7 +742,8 @@ make_setup_mkinitcpio() {
       exec 17<>"${work_dir}/gpgkey"
     fi
 
-    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img" run
+    #ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img" run
+    _chroot_run "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img"
 
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
@@ -967,7 +978,8 @@ make_tarball() {
     if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
-        ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "/root/optimize_for_tarball.sh -u ${username}" run
+        #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "/root/optimize_for_tarball.sh -u ${username}" run
+        _chroot_run "/root/optimize_for_tarball.sh -u ${username}"
     fi
 
     ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
