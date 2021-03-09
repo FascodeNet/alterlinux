@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Sheets
+Comment=A spreadsheet program included as part of a free, web-based software office suite.
+Type=Link
+URL=https://docs.google.com/spreadsheets
+Icon=/usr/share/icons/google-app/xofficespreadsheet_92797.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///usr/share/applications/Google%20Sheets.desktop

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Forms
+Comment=A tool that allows collecting information from users via a personalized survey or quiz.
+Type=Link
+URL=https://docs.google.com/forms
+Icon=/usr/share/icons/google-app/1492616969-6-forms-google-data-document-file_83409.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///usr/share/applications/Google%20Forms.desktop

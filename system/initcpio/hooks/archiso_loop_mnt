@@ -1,4 +1,6 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 run_hook () {
     # shellcheck disable=SC2154

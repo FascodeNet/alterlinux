@@ -5,32 +5,13 @@
 # Twitter: @Watasuke102
 # Email  : Watasuke102@gmail.com
 #
-# (c) 2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # some softwares
-
-# internet
-chromium
-# firefox
-thunderbird
 
 # file manager
 thunar
 file-roller
-
-# software manager
-pamac-aur
-
-# office
-libreoffice-still
-
-# editor
-medit
-
-# audio
-pavucontrol
-pulseaudio
-vlc
 
 # notification daemon
 dunst
@@ -41,11 +22,6 @@ xfce4-clipman-plugin
 # screenshot
 xfce4-screenshooter
 
-# system
-gparted
-grub-customizer
-cpu-x
-
 # for sysmenu
 arandr
-htop
+

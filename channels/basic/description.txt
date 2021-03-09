@@ -1,0 +1,2 @@
+A template for channels that use share-extra
+                                 Do not build this channel alone

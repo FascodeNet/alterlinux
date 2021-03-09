@@ -19,5 +19,9 @@ add_executable(mkalteriso
   build_setting.h
   command_collection.cpp
   command_collection.h
+  custom_system_exec.h
+  custom_system_exec.cpp
+  qstringls_to_str.h
+  qstringls_to_str.cpp
 )
 target_link_libraries(mkalteriso Qt5::Core)

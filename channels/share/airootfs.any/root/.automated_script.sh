@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 
 script_cmdline ()
@@ -36,6 +36,6 @@ automated_script ()
     fi
 }
 
-if [[ $(tty) == "/dev/tty1" ]]; then
+if [[ "$(tty)" = "/dev/tty1" ]]; then
     automated_script
 fi

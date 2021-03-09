@@ -1,0 +1,16 @@
+#
+# Alter Linux i3wm edition package list
+#
+# Watasuke
+# Twitter: @Watasuke102
+# Email  : Watasuke102@gmail.com
+#
+# (c) 2019-2021 Fascode Network.
+#
+# This package list will only be installed if the Japanese option is enabled.
+#
+# Japanese package
+
+# language pack
+thunderbird-i18n-ja
+

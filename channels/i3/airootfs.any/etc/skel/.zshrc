@@ -6,11 +6,11 @@
 # Twitter: @Watasuke102
 # Email  : Watasuke102@gmail.com
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 
 
 #-- Alias --#
@@ -121,3 +121,5 @@ else
 
     install_powerline_precmd
 fi
+
+export TERMINAL=/usr/bin/sakura
