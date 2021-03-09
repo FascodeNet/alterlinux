@@ -567,7 +567,15 @@ make_pacman_conf() {
 make_basefs() {
     mkdir -p "${airootfs_dir}"
 
-    # ここにmkalterisoの_create_img_sysを実装する
+    msg_info "Creating ext4 image of 32GiB..."
+    truncate -s 32G -- "${work_dir}/${arch}/airootfs.img"
+    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
+    tune2fs -c "0" -i "0" "${work_dir}/${arch}/airootfs.img"
+    msg_info "Done!"
+
+    msg_info "Mounting ${work_dir}/airootfs.img on ${work_dir}/airootfs"
+    mount_airootfs
+    msg_info "Done!"
 
     #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
     _pacman "base" "syslinux"
