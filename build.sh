@@ -518,9 +518,6 @@ prepare_build() {
         set -x -v
         mkalteriso_option="${mkalteriso_option} -x"
     fi
-    if [[ "${noaur}" = false ]]; then
-        mkalteriso_option="${mkalteriso_option} --aur"
-    fi
 
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
@@ -979,13 +976,9 @@ make_efiboot() {
 
 # Compress tarball
 make_tarball() {
-    if [[ "${noaur}" = true ]]; then
-        cp -a -l -f "${airootfs_dir}" "${work_dir}"
-    else
-        umount_airootfs
-        mkdir -p "${work_dir}/airootfs"
-        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
-    fi
+    umount_airootfs
+    mkdir -p "${work_dir}/airootfs"
+    mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
 
     if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
@@ -1010,13 +1003,10 @@ make_tarball() {
 
 # Build airootfs filesystem image
 make_prepare() {
-    if [[ "${noaur}" == true ]]; then
-        cp -a -l -f "${airootfs_dir}" "${work_dir}"
-    else
-        umount -fl "${airootfs_dir}"
-        mkdir -p "${work_dir}/airootfs"
-        mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
-    fi
+    umount_airootfs
+    mkdir -p "${work_dir}/airootfs"
+    mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
     pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     remove "${work_dir}/airootfs/root/optimize_for_tarball.sh"
