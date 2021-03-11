@@ -1009,8 +1009,13 @@ make_prepare() {
     mkdir -p "${work_dir}/airootfs"
     mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
 
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
-    pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
+    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    msg_info "Creating a list of installed packages on live-enviroment..."
+    pacman-key --init
+
+    #pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
+    pacman -Q --sysroot "${work_dir}/airootfs" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${work_dir}/packages-full.list" > /dev/null
+
     remove "${work_dir}/airootfs/root/optimize_for_tarball.sh"
     ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
 
