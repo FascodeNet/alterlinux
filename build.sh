@@ -329,11 +329,13 @@ _chroot_run() {
 _cleanup_common () {
     msg_info "Cleaning up what we can on airootfs..."
 
-    remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
+    #remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
+    remove_find "${work_dir}/airootfs/var/lib/pacman" "${work_dir}/airootfs/var/lib/pacman/sync" "${work_dir}/airootfs/var/cache/pacman/pkg" "${work_dir}/airootfs/var/log" "${work_dir}/airootfs/var/tmp"
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
 
     # Create an empty /etc/machine-id
-    printf '' > "${airootfs_dir}/etc/machine-id"
+    #printf '' > "${airootfs_dir}/etc/machine-id"
+    printf '' > "${work_dir}/airootfs/etc/machine-id"
 
     msg_info "Done!"
 }
@@ -1051,7 +1053,7 @@ make_prepare() {
     msg_info "Creating checksum file for self-test..."
     cd -- "${isofs_dir}/${install_dir}/${arch}"
     sha512sum airootfs.sfs > airootfs.sha512
-    cd -- "${OLDOWD}"
+    cd -- "${OLDPWD}"
     msg_info "Done!"
 
     # Sign with gpg
