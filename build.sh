@@ -456,6 +456,9 @@ prepare_build() {
     airootfs_dir="${work_dir}/${arch}/airootfs"
     isofs_dir="${work_dir}/iso"
 
+    # Create dir
+    mkdir -p "${airootfs_dir}"
+
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
@@ -565,8 +568,6 @@ make_pacman_conf() {
 
 # Base installation (airootfs)
 make_basefs() {
-    mkdir -p "${airootfs_dir}"
-
     msg_info "Creating ext4 image of 32GiB..."
     mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
     tune2fs -c "0" -i "0" "${airootfs_dir}.img"
