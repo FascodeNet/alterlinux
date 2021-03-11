@@ -1006,7 +1006,7 @@ make_prepare() {
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _version="${iso_version}-$(git rev-parse --short HEAD)"
         fi
-        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}"
+        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" > "${_info_file}"
     fi
 }
 
