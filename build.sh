@@ -187,6 +187,7 @@ _usage () {
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
+    echo "         --normwork              No remove working dir"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
@@ -387,7 +388,7 @@ prepare_env() {
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
 
     # Check work dir
-    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]]; then
+    if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ "${normwork}" = false ]]; then
         umount_chroot_advance
         msg_info "Deleting the contents of ${work_dir}..."
         remove "${work_dir%/}"/*
@@ -397,8 +398,10 @@ prepare_env() {
     local _trap_remove_work
     _trap_remove_work() {
         local status=${?}
-        echo
-        "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+        if [[ "${normwork}" = false ]]; then
+            echo
+            "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+        fi
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
@@ -866,7 +869,7 @@ make_isolinux() {
 
 # Prepare /EFI
 make_efi() {
-    install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
+    install -d -m 0755 -- "${isofs_dir}/EFI/boot"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     #cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
@@ -1024,7 +1027,7 @@ make_alteriso_info(){
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
             _version="${iso_version}-$(git rev-parse --short HEAD)"
         fi
-        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}"
+        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" > "${_info_file}"
     fi
 }
 
@@ -1049,7 +1052,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
@@ -1198,6 +1201,10 @@ while :; do
             ;;
         --nosigcheck)
             nosigcheck=true
+            shift 1
+            ;;
+        --normwork)
+            normwork=true
             shift 1
             ;;
         --)
