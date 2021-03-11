@@ -565,12 +565,11 @@ make_basefs() {
     mkdir -p "${airootfs_dir}"
 
     msg_info "Creating ext4 image of 32GiB..."
-    truncate -s 32G -- "${work_dir}/${arch}/airootfs.img"
-    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/airootfs.img"
-    tune2fs -c "0" -i "0" "${work_dir}/${arch}/airootfs.img"
+    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
+    tune2fs -c "0" -i "0" "${airootfs_dir}.img"
     msg_info "Done!"
 
-    msg_info "Mounting ${work_dir}/airootfs.img on ${work_dir}/airootfs"
+    msg_info "Mounting ${airootfs_dir}.img on ${airootfs_dir}"
     mount_airootfs
     msg_info "Done!"
 
