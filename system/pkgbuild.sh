@@ -68,7 +68,7 @@ else
 fi
 
 # Creating a user for makepkg
-if user_check "${build_username}"; then
+if ! user_check "${build_username}"; then
     useradd -m -d "${pkgbuild_dir}" "${build_username}"
 fi
 mkdir -p "${pkgbuild_dir}"
