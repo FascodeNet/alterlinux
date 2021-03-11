@@ -211,7 +211,7 @@ _mount() {
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
+    for _mount in $(cat /proc/mounts | getclm 2 | grep $(realpath ${work_dir}) | tac); do
         if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
