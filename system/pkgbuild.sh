@@ -85,38 +85,40 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
 makedepends=() depends=()
-for _dir in *; do
-    cd "${_dir}"
-    run_user bash -c "makepkg --printsrcinfo > .SRCINFO"
-    makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
-    depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
-    cd - >/dev/null
-done
+if (( "$(find "${pkgbuild_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
+    for _dir in *; do
+        cd "${_dir}"
+        run_user bash -c "makepkg --printsrcinfo > .SRCINFO"
+        makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
+        depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
+        cd - >/dev/null
+    done
 
-# Build and install
-chmod +s /usr/bin/sudo
-yes | run_user \
-    yay -Sy \
-        --mflags "-AcC" \
-        --asdeps \
-        --noconfirm \
-        --nocleanmenu \
-        --nodiffmenu \
-        --noeditmenu \
-        --noupgrademenu \
-        --noprovides \
-        --removemake \
-        --useask \
-        --color always \
-        --config "/etc/alteriso-pacman.conf" \
-        --cachedir "/var/cache/pacman/pkg/" \
-        ${makedepends[*]} ${depends[*]}
+    # Build and install
+    chmod +s /usr/bin/sudo
+    yes | run_user \
+        yay -Sy \
+            --mflags "-AcC" \
+            --asdeps \
+            --noconfirm \
+            --nocleanmenu \
+            --nodiffmenu \
+            --noeditmenu \
+            --noupgrademenu \
+            --noprovides \
+            --removemake \
+            --useask \
+            --color always \
+            --config "/etc/alteriso-pacman.conf" \
+            --cachedir "/var/cache/pacman/pkg/" \
+            ${makedepends[*]} ${depends[*]}
 
-for _dir in *; do
-    cd "${_dir}"
-    run_user makepkg -iAcC --noconfirm 
-    cd - >/dev/null
-done
+    for _dir in *; do
+        cd "${_dir}"
+        run_user makepkg -iAcC --noconfirm 
+        cd - >/dev/null
+    done
+fi
 
 pacman -Rsnc --noconfirm $(pacman -Qtdq) --config "/etc/alteriso-pacman.conf"
 
