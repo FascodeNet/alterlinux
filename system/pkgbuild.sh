@@ -84,9 +84,9 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
-makedepends=() depends=()
-if (( "$(find "${pkgbuild_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
-    for _dir in *; do
+makedepends=() depends=() pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
+if (( "${#pkgbuild_dirs[@]}" != 0 )); then
+    for _dir in ${pkgbuild_dirs[@]}; do
         cd "${_dir}"
         run_user bash -c "makepkg --printsrcinfo > .SRCINFO"
         makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
@@ -113,14 +113,16 @@ if (( "$(find "${pkgbuild_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
             --cachedir "/var/cache/pacman/pkg/" \
             ${makedepends[*]} ${depends[*]}
 
-    for _dir in *; do
+    for _dir in ${pkgbuild_dirs[@]}; do
         cd "${_dir}"
         run_user makepkg -iAcC --noconfirm 
         cd - >/dev/null
     done
 fi
 
-pacman -Rsnc --noconfirm $(pacman -Qtdq) --config "/etc/alteriso-pacman.conf"
+if deletepkg=($(pacman -Qtdq)) &&  (( "${#deletepkg[@]}" != 0 )); then
+    pacman -Rsnc --noconfirm "${deletepkg[@]}" --config "/etc/alteriso-pacman.conf"
+fi
 
 run_user yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
