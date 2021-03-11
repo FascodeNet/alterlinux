@@ -256,13 +256,19 @@ run_once() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "${@}")) _file
-    for _file in "${_list[@]}"; do
+    local _file
+    for _file in "${@}"; do
         msg_debug "Removing ${_file}"
-        if [[ -f "${_file}" ]]; then    
-            rm -f "${_file}"
-        elif [[ -d "${_file}" ]]; then
-            rm -rf "${_file}"
+        rm -rf "${_file}"
+    done
+}
+
+remove_find(){
+    local _dir
+    for _dir in "${@}"; do
+        if [[ -d "${_dir}" ]]; then
+            msg_debug "Removing ${_dir}"
+            find "${_dir}" -mindepth 1 -delete
         fi
     done
 }
@@ -320,6 +326,22 @@ _chroot_run() {
     eval -- arch-chroot "${airootfs_dir}" ${@}
 }
 
+_cleanup_common () {
+    msg_info "Cleaning up what we can on airootfs..."
+
+    remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
+    find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
+
+    # Create an empty /etc/machine-id
+    printf '' > "${airootfs_dir}/etc/machine-id"
+
+    msg_info "Done!"
+}
+
+_cleanup_airootfs(){
+    _cleanup_common
+    remove_find "${airootfs_dir}/boot"
+}
 
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
@@ -1009,18 +1031,42 @@ make_prepare() {
     mkdir -p "${work_dir}/airootfs"
     mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
 
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" pkglist
+    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
+
+    # Create packages list
     msg_info "Creating a list of installed packages on live-enviroment..."
     pacman-key --init
-
-    #pacman -Q --sysroot "${work_dir}/airootfs" > "${work_dir}/packages-full.list"
     pacman -Q --sysroot "${work_dir}/airootfs" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${work_dir}/packages-full.list" > /dev/null
 
+    # Cleanup
     remove "${work_dir}/airootfs/root/optimize_for_tarball.sh"
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
+    _cleanup_airootfs
+
+    # Create squashfs
+    mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
+    msg_info "Creating SquashFS image, this may take some time..."
+    mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" ${sfs_comp_opt}
+
+    # Create checksum
+    msg_info "Creating checksum file for self-test..."
+    cd -- "${isofs_dir}/${install_dir}/${arch}"
+    sha512sum airootfs.sfs > airootfs.sha512
+    cd -- "${OLDOWD}"
+    msg_info "Done!"
+
+    # Sign with gpg
+    if [[ -v gpg_key ]] && (( "${#gpg_key}" != 0 )); then
+        msg_info "Creating signature file ($gpg_key) ..."
+        cd -- "${isofs_dir}/${install_dir}/${arch}"
+        gpg --detach-sign --default-key "${gpg_key}" "airootfs.sfs"
+        cd -- "${OLDPWD}"
+        msg_info "Done!"
+    fi
+
+    umount_chroot_advance
 
     if [[ "${cleaning}" = true ]]; then
-        remove "${airootfs_dir}"
+        remove "${airootfs_dir}" "${airootfs_dir}.img"
     fi
 }
 
