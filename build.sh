@@ -391,7 +391,7 @@ prepare_env() {
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ "${normwork}" = false ]]; then
         umount_chroot_advance
         msg_info "Deleting the contents of ${work_dir}..."
-        remove "${work_dir%/}"/*
+        "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
     fi
 
     # 強制終了時に作業ディレクトリを削除する
