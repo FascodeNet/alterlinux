@@ -316,7 +316,7 @@ _pacman(){
 # コマンドをchrootで実行する
 _chroot_run() {
     msg_debug "Run command in chroot"
-    msg_debug "Command: ${@}"
+    msg_debug "Command: ${*}"
     eval -- arch-chroot "${airootfs_dir}" ${@}
 }
 
