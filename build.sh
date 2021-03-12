@@ -750,7 +750,7 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    cp "${airootfs_dir}/${_main_script}" "${work_dir}/${_main_script}"
+    cp "${airootfs_dir}/${_main_script}" "${work_dir}/$(basename ${_main_script})"
     _chroot_run "${_main_script} ${_airootfs_script_options}"
     remove "${airootfs_dir}/${_main_script}"
 
