@@ -302,8 +302,7 @@ show_channel_list() {
     fi
 }
 
-# Execute command for each module
-# It will be executed with {} replaced with the module name.
+# Execute command for each module. It will be executed with {} replaced with the module name.
 # for_module <command>
 for_module(){
     local module
@@ -342,7 +341,18 @@ _cleanup_common () {
 
 _cleanup_airootfs(){
     _cleanup_common
-    remove_find "${airootfs_dir}/boot"
+    #remove_find "${airootfs_dir}/boot"
+    remove_find "${work_dir}/airootfs/boot"
+}
+
+_mkchecksum() {
+    local name="${1}"
+    cd -- "${out_dir}"
+    _msg_info "Creating md5 checksum ..."
+    md5sum "${1}" > "${1}.md5"
+    _msg_info "Creating sha256 checksum ..."
+    sha256sum "${1}" > "${1}.sha256"
+    cd -- "${OLDPWD}"
 }
 
 # Check the value of a variable that can only be set to true or false.
@@ -601,7 +611,6 @@ make_basefs() {
     mount_airootfs
     msg_info "Done!"
 
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" init
     _pacman "base" "syslinux"
 }
 
@@ -622,7 +631,6 @@ make_packages_repo() {
     printf "%s\n" "${_pkglist[@]}" >> "${work_dir}/packages.list"
 
     # Install packages on airootfs
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -p "${_pkglist[*]}" install
     _pacman "${_pkglist[@]}"
 }
 
@@ -649,7 +657,7 @@ make_packages_aur() {
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}"  -D "${install_dir}" -r "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}" run
+
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
 
     # Remove script
@@ -746,7 +754,6 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "${_main_script} ${_airootfs_script_options}" run
     _chroot_run "${_main_script} ${_airootfs_script_options}"
     remove "${airootfs_dir}/${_main_script}"
 
@@ -777,7 +784,6 @@ make_setup_mkinitcpio() {
       exec 17<>"${work_dir}/gpgkey"
     fi
 
-    #ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}/${arch}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img" run
     _chroot_run "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img"
 
     if [[ "${gpg_key}" ]]; then
@@ -1006,18 +1012,29 @@ make_tarball() {
     mkdir -p "${work_dir}/airootfs"
     mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
 
+    # Run script
     if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
-        #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "/root/optimize_for_tarball.sh -u ${username}" run
         _chroot_run "/root/optimize_for_tarball.sh -u ${username}"
     fi
 
-    ARCHISO_GNUPG_FD=${gpg_key:+17} ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -C "${work_dir}/pacman-${arch}.conf" -D "${install_dir}" -r "mkinitcpio -p ${kernel_mkinitcpio_profile}" run
+    _cleanup_airootfs
+    _chroot_run "mkinitcpio -P"
 
     remove "${airootfs_dir}/root/optimize_for_tarball.sh"
 
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "${iso_filename%.iso}.tar.xz"
+    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "${iso_filename%.iso}.tar.xz"
+
+    mkdir -p "${out_dir}"
+    _msg_info "Creating tarball..."
+    local tar_path="$(realpath ${out_dir})/${${iso_filename%.iso}.tar.xz}"
+    cd -- "${work_dir}/airootfs"
+    tar -J -p -c -f "${tar_path}" ./*
+    cd -- "${OLDPWD}"
+
+    _mkchecksum "${tar_path}"
+    _msg_info "Done! | $(ls -sh ${tar_path})"
 
     _umount "${work_dir}/airootfs"
     remove "${work_dir}/airootfs"
@@ -1032,8 +1049,6 @@ make_prepare() {
     umount_airootfs
     mkdir -p "${work_dir}/airootfs"
     mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
-
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" ${gpg_key:+-g ${gpg_key}} -c "${sfs_comp}" -t "${sfs_comp_opt}" prepare
 
     # Create packages list
     msg_info "Creating a list of installed packages on live-enviroment..."
@@ -1097,7 +1112,44 @@ make_overisofs() {
 # Build ISO
 make_iso() {
     remove "${work_dir}/airootfs"
-    ${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" iso "${iso_filename}"
+
+    if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
+         _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
+    fi
+    if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
+         _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
+    fi
+
+    # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
+    if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
+        _iso_efi_boot_args="-eltorito-alt-boot
+                            -e EFI/alteriso/efiboot.img
+                            -no-emul-boot
+                            -isohybrid-gpt-basdat"
+    fi
+
+    mkdir -p -- "${out_dir}"
+    _msg_info "Creating ISO image..."
+    xorriso -as mkisofs \
+        -iso-level 3 \
+        -full-iso9660-filenames \
+        -joliet \
+        -joliet-long \
+        -rational-rock \
+        -volid "${iso_label}" \
+        -appid "${iso_application}" \
+        -publisher "${iso_publisher}" \
+        -preparer "prepared by mkalteriso" \
+        -eltorito-boot isolinux/isolinux.bin \
+        -eltorito-catalog isolinux/boot.cat \
+        -no-emul-boot -boot-load-size 4 -boot-info-table \
+        -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+        ${_iso_efi_boot_args} \
+        -output "${out_dir}/${img_name}" \
+        "${work_dir}/iso/"
+    _mkisochecksum
+    _msg_info "Done! | $(ls -sh -- "${out_dir}/${img_name}")"
+
     msg_info "The password for the live user and root is ${password}."
 }
 
