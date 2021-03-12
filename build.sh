@@ -754,6 +754,7 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
+    cp "${airootfs_dir}/${_main_script}" "${work_dir}/${_main_script}"
     _chroot_run "${_main_script} ${_airootfs_script_options}"
     remove "${airootfs_dir}/${_main_script}"
 
@@ -778,7 +779,6 @@ make_setup_mkinitcpio() {
     else
         cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
     fi
-    gnupg_fd=
     if [[ "${gpg_key}" ]]; then
       gpg --export "${gpg_key}" >"${work_dir}/gpgkey"
       exec 17<>"${work_dir}/gpgkey"
