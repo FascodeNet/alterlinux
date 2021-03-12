@@ -348,9 +348,9 @@ _cleanup_airootfs(){
 _mkchecksum() {
     local name="${1}"
     cd -- "${out_dir}"
-    _msg_info "Creating md5 checksum ..."
+    msg_info "Creating md5 checksum ..."
     md5sum "${1}" > "${1}.md5"
-    _msg_info "Creating sha256 checksum ..."
+    msg_info "Creating sha256 checksum ..."
     sha256sum "${1}" > "${1}.sha256"
     cd -- "${OLDPWD}"
 }
@@ -1027,14 +1027,14 @@ make_tarball() {
     #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "${iso_filename%.iso}.tar.xz"
 
     mkdir -p "${out_dir}"
-    _msg_info "Creating tarball..."
+    msg_info "Creating tarball..."
     local tar_path="$(realpath ${out_dir})/${${iso_filename%.iso}.tar.xz}"
     cd -- "${work_dir}/airootfs"
     tar -J -p -c -f "${tar_path}" ./*
     cd -- "${OLDPWD}"
 
     _mkchecksum "${tar_path}"
-    _msg_info "Done! | $(ls -sh ${tar_path})"
+    msg_info "Done! | $(ls -sh ${tar_path})"
 
     _umount "${work_dir}/airootfs"
     remove "${work_dir}/airootfs"
@@ -1113,6 +1113,7 @@ make_overisofs() {
 make_iso() {
     remove "${work_dir}/airootfs"
 
+    local _iso_efi_boot_args=""
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
     fi
@@ -1129,7 +1130,7 @@ make_iso() {
     fi
 
     mkdir -p -- "${out_dir}"
-    _msg_info "Creating ISO image..."
+    msg_info "Creating ISO image..."
     xorriso -as mkisofs \
         -iso-level 3 \
         -full-iso9660-filenames \
@@ -1145,10 +1146,10 @@ make_iso() {
         -no-emul-boot -boot-load-size 4 -boot-info-table \
         -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
         ${_iso_efi_boot_args} \
-        -output "${out_dir}/${img_name}" \
+        -output "${out_dir}/${iso_filename}" \
         "${work_dir}/iso/"
-    _mkisochecksum
-    _msg_info "Done! | $(ls -sh -- "${out_dir}/${img_name}")"
+    _mkchecksum "${iso_filename}"
+    msg_info "Done! | $(ls -sh -- "${out_dir}/${iso_filename}")"
 
     msg_info "The password for the live user and root is ${password}."
 }
