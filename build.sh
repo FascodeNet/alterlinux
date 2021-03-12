@@ -1023,7 +1023,7 @@ make_tarball() {
 
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
-    local tar_path="$(realpath ${out_dir})/${${iso_filename%.iso}.tar.xz}"
+    local tar_path="$(realpath ${out_dir})/${iso_filename%.iso}.tar.xz"
     cd -- "${work_dir}/airootfs"
     tar -J -p -c -f "${tar_path}" ./*
     cd -- "${OLDPWD}"
