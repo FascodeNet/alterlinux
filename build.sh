@@ -607,7 +607,7 @@ make_basefs() {
     mount_airootfs
     msg_info "Done!"
 
-    _pacman "base" "syslinux"
+    #_pacman "base" "syslinux"
 }
 
 # Additional packages (airootfs)
