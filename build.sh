@@ -328,21 +328,21 @@ _chroot_run() {
 _cleanup_common () {
     msg_info "Cleaning up what we can on airootfs..."
 
-    #remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
-    remove_find "${work_dir}/airootfs/var/lib/pacman" "${work_dir}/airootfs/var/lib/pacman/sync" "${work_dir}/airootfs/var/cache/pacman/pkg" "${work_dir}/airootfs/var/log" "${work_dir}/airootfs/var/tmp"
+    remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
+    #remove_find "${work_dir}/airootfs/var/lib/pacman" "${work_dir}/airootfs/var/lib/pacman/sync" "${work_dir}/airootfs/var/cache/pacman/pkg" "${work_dir}/airootfs/var/log" "${work_dir}/airootfs/var/tmp"
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
 
     # Create an empty /etc/machine-id
-    #printf '' > "${airootfs_dir}/etc/machine-id"
-    printf '' > "${work_dir}/airootfs/etc/machine-id"
+    printf '' > "${airootfs_dir}/etc/machine-id"
+    #printf '' > "${work_dir}/airootfs/etc/machine-id"
 
     msg_info "Done!"
 }
 
 _cleanup_airootfs(){
     _cleanup_common
-    #remove_find "${airootfs_dir}/boot"
-    remove_find "${work_dir}/airootfs/boot"
+    remove_find "${airootfs_dir}/boot"
+    #remove_find "${work_dir}/airootfs/boot"
 }
 
 _mkchecksum() {
@@ -1004,11 +1004,11 @@ make_efiboot() {
 
 # Compress tarball
 make_tarball() {
-    umount_airootfs
-    mkdir -p "${work_dir}/airootfs"
-    mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+    # backup airootfs.img for tarball
+    cp "${airootfs_dir}.img" "${airootfs_dir}.img.org"
 
     # Run script
+    mount_airootfs
     if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
         chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
@@ -1030,8 +1030,9 @@ make_tarball() {
     _mkchecksum "${tar_path}"
     msg_info "Done! | $(ls -sh ${tar_path})"
 
-    _umount "${work_dir}/airootfs"
-    remove "${work_dir}/airootfs"
+    remove "${airootfs_dir}.img"
+    mv "${airootfs_dir}.img.org" "${airootfs_dir}.img"
+
     if [[ "${noiso}" = true ]]; then
         msg_info "The password for the live user and root is ${password}."
     fi
@@ -1387,6 +1388,7 @@ run_once make_packages_repo
 run_once make_pkgbuild
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
+[[ "${tarball}" = true ]] && run_once make_tarball
 if [[ "${noiso}" = false ]]; then
     run_once make_syslinux
     run_once make_isolinux
@@ -1401,7 +1403,7 @@ if [[ "${noiso}" = false ]]; then
     run_once make_overisofs
     run_once make_iso
 fi
-[[ "${tarball}" = true ]] && run_once make_tarball
+
 [[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
 
 exit 0
