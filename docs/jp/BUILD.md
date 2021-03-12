@@ -26,6 +26,11 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 
 ```bash
 sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake pyalpm
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -siAcC
+cd ..
+rm -rf yay/
 ```
 
 ### TUIを使用する
