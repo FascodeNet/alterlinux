@@ -498,6 +498,18 @@ prepare_build() {
         set -x -v
     fi
 
+    # Legacy mode
+    if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
+        msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
+        if [[ ! -z "${include_extra+SET}" ]]; then
+            if [[ "${include_extra}" = true ]]; then
+                modules=("share" "share-extra" "base")
+            else
+                modules=("share" "base")
+            fi
+        fi
+    fi
+
     local module dependent module_err module_check
     module_check(){
         if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
@@ -563,21 +575,8 @@ prepare_build() {
     fi
 
     # Check kernel for each channel
-    #if [[ -f "${channel_dir}/kernel_list-${arch}" ]] && [[ -z $(cat "${channel_dir}/kernel_list-${arch}" | grep -h -v ^'#' | grep -x "${kernel}" 2> /dev/null) ]]; then
     if [[ ! "$(bash "${tools_dir}/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
         msg_error "This kernel is currently not supported on this channel or architecture" "1"
-    fi
-
-    # Legacy mode
-    if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
-        msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        if [[ ! -z "${include_extra+SET}" ]]; then
-            if [[ "${include_extra}" = true ]]; then
-                modules=("share" "share-extra")
-            else
-                modules=("share")
-            fi
-        fi
     fi
 
     # Unmount
