@@ -477,30 +477,23 @@ prepare_build() {
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         if [[ ! -z "${include_extra+SET}" ]]; then
             if [[ "${include_extra}" = true ]]; then
-                modules=("share" "share-extra" "base")
+                modules=("share" "share-extra" "base" "zsh-powerline")
             else
                 modules=("share" "base")
             fi
         fi
     fi
 
-    local module dependent module_err module_check
+    local module_check
     module_check(){
         if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
             msg_error "Module ${1} is not available." "1";
         fi
     }
-    for module in ${modules[@]}; do
-        module_check "${module}"
-        for dependent in $(bash "${tools_dir}/module.sh" depend "${module}"); do
-            module_check "${dependent}"
-            modules+=("${dependent}")
-        done
-    done
+    for_module "module_check {}"
     modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
-    unset module i dependent
     if ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1; then
         msg_warn "The share module is not loaded."
     fi
@@ -622,15 +615,15 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    #cp -f "${work_dir}/pacman-${arch}.conf" "${airootfs_dir}/etc/alteriso-pacman.conf"
+    cp -rf --preserve=mode "/usr/bin/yay" "${airootfs_dir}/usr/local/bin/yay"
+
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
-
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
 
     # Remove script
-    remove "${airootfs_dir}/root/aur.sh"
+    remove "${airootfs_dir}/root/aur.sh" "${airootfs_dir}/usr/local/bin/yay"
 }
 
 make_pkgbuild() {
@@ -647,13 +640,14 @@ make_pkgbuild() {
     #-- ビルドスクリプトの実行 --#
     # prepare for makepkg
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
+    cp -rf --preserve=mode "/usr/bin/yay" "${airootfs_dir}/usr/local/bin/yay"
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run build script
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds"
 
     # Remove script
-    remove "${airootfs_dir}/root/pkgbuild.sh"
+    remove "${airootfs_dir}/root/pkgbuild.sh" "${airootfs_dir}/usr/local/bin/yay"
 }
 
 # Customize installation (airootfs)
@@ -998,7 +992,7 @@ make_tarball() {
     msg_info "Creating tarball..."
     local tar_path="$(realpath ${out_dir})/${iso_filename%.iso}.tar.xz"
     cd -- "${airootfs_dir}"
-    tar -J -p -c -f "${tar_path}" ./*
+    tar -v -J -p -c -f "${tar_path}" ./*
     cd -- "${OLDPWD}"
 
     _mkchecksum "${tar_path}"

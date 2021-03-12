@@ -22,4 +22,7 @@ modules=(
     "share-extra"
     "lightdm"
     "qtongtk"
+    "base"
+    "share"
+    "zsh-powerline"
 )
