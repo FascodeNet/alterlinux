@@ -477,30 +477,23 @@ prepare_build() {
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         if [[ ! -z "${include_extra+SET}" ]]; then
             if [[ "${include_extra}" = true ]]; then
-                modules=("share" "share-extra" "base")
+                modules=("share" "share-extra" "base" "zsh-powerline")
             else
                 modules=("share" "base")
             fi
         fi
     fi
 
-    local module dependent module_err module_check
+    local module_check
     module_check(){
         if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
             msg_error "Module ${1} is not available." "1";
         fi
     }
-    for module in ${modules[@]}; do
-        module_check "${module}"
-        for dependent in $(bash "${tools_dir}/module.sh" depend "${module}"); do
-            module_check "${dependent}"
-            modules+=("${dependent}")
-        done
-    done
+    for_module "module_check {}"
     modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
-    unset module i dependent
     if ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1; then
         msg_warn "The share module is not loaded."
     fi

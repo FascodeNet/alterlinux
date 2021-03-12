@@ -13,6 +13,8 @@
 
 set -e
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
+script_name="$(basename "${0}")"
+script_full="${script_path}/tools/${script_name}"
 module_dir="${script_path}/modules"
 alteriso_version="3.1"
 
@@ -24,7 +26,6 @@ _help() {
     echo " General command:"
     echo "    check [name]              Determine if the locale is available"
     echo "    show                      Shows a list of available modules"
-    echo "    depend [name]             Shows the modules that the module depends on"
     echo "    help                      This help message"
     echo
     echo " General options:"
@@ -49,22 +50,6 @@ check(){
         fi
     else
         echo "incorrect"
-    fi
-}
-
-depend(){
-    if (( "${#}" == 0 )) || (( "${#}" >= 2 ));then
-        _help
-        exit 1
-    fi
-    if [[ ! "$(check "${1}")" = "correct" ]]; then
-        exit 1
-    elif [[ ! -f "${module_dir}/${1}/dependent" ]]; then
-        exit 0
-    else
-        printf "%s\n" $(grep -h -v ^'#' "${module_dir}/${1}/dependent") | tr "\n" " "
-        echo
-        exit 0
     fi
 }
 
@@ -125,7 +110,6 @@ fi
 
 case "${COMMAND}" in
     "check" ) check "${@}"  ;;
-    "depend") depend "${@}" ;;
     "show"  ) show          ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
