@@ -195,18 +195,10 @@ _usage () {
 }
 
 # Unmount helper Usage: _umount <target>
-_umount() {
-    if mountpoint -q "${1}"; then
-        umount -lf "${1}"
-    fi
-}
+_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Mount helper Usage: _mount <source> <target>
-_mount() {
-    if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then
-        mount "${1}" "${2}"
-    fi
-}
+_mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
 
 # Unmount chroot dir
 umount_chroot () {
@@ -223,13 +215,12 @@ umount_chroot () {
 mount_airootfs () {
     mkdir -p "${work_dir}/airootfs"
     #_mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
-    _mount "${work_dir}/${arch}/airootfs.img" "${airootfs_dir}"
+    #_mount "${work_dir}/${arch}/airootfs.img" "${airootfs_dir}"
+    _mount "${airootfs_dir}.img" "${airootfs_dir}"
 }
 
 umount_airootfs() {
-    if [[ -v airootfs_dir ]]; then
-        _umount "${airootfs_dir}"
-    fi
+    if [[ -v airootfs_dir ]]; then _umount "${airootfs_dir}"; fi
 }
 
 umount_chroot_advance() {
@@ -250,17 +241,11 @@ run_once() {
     fi
 }
 
-# rm helper
-# Delete the file if it exists.
-# For directories, rm -rf is used.
-# If the file does not exist, skip it.
+# Show message when file is removed
 # remove <file> <file> ...
 remove() {
     local _file
-    for _file in "${@}"; do
-        msg_debug "Removing ${_file}"
-        rm -rf "${_file}"
-    done
+    for _file in "${@}"; do msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
 remove_find(){
@@ -285,12 +270,7 @@ umount_trap() {
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in ${@}; do
-        if [[ -f "${_file}" ]]; then
-            source "${_file}"
-            msg_debug "The settings have been overwritten by the ${_file}"
-        fi
-    done
+    for _file in ${@}; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
 }
 
 # Display channel list
@@ -306,9 +286,7 @@ show_channel_list() {
 # for_module <command>
 for_module(){
     local module
-    for module in ${modules[@]}; do
-        eval $(echo ${@} | sed "s|{}|${module}|g")
-    done
+    for module in ${modules[@]}; do eval $(echo ${@} | sed "s|{}|${module}|g"); done
 }
 
 # パッケージをインストールする
@@ -320,8 +298,7 @@ _pacman(){
 
 # コマンドをchrootで実行する
 _chroot_run() {
-    msg_debug "Run command in chroot"
-    msg_debug "Command: ${*}"
+    msg_debug "Run command in chroot\nCommand: ${*}"
     eval -- arch-chroot "${airootfs_dir}" ${@}
 }
 
@@ -329,12 +306,10 @@ _cleanup_common () {
     msg_info "Cleaning up what we can on airootfs..."
 
     remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
-    #remove_find "${work_dir}/airootfs/var/lib/pacman" "${work_dir}/airootfs/var/lib/pacman/sync" "${work_dir}/airootfs/var/cache/pacman/pkg" "${work_dir}/airootfs/var/log" "${work_dir}/airootfs/var/tmp"
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
 
     # Create an empty /etc/machine-id
     printf '' > "${airootfs_dir}/etc/machine-id"
-    #printf '' > "${work_dir}/airootfs/etc/machine-id"
 
     msg_info "Done!"
 }
@@ -342,7 +317,6 @@ _cleanup_common () {
 _cleanup_airootfs(){
     _cleanup_common
     remove_find "${airootfs_dir}/boot"
-    #remove_find "${work_dir}/airootfs/boot"
 }
 
 _mkchecksum() {
@@ -385,7 +359,7 @@ prepare_env() {
             _result=( $("${tools_dir}/package.py" -s "${_pkg}") )
             case "${_result[0]}" in
                 "latest")
-                    [[ ${debug} = true ]] && echo -ne " ${_result[1]}\n"
+                    [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
                     ;;
                 "noversion")
                     echo; msg_warn "Failed to get the latest version of ${_pkg}."
@@ -1042,7 +1016,7 @@ make_tarball() {
 # Build airootfs filesystem image
 make_prepare() {
     umount_airootfs
-    mkdir -p "${work_dir}/airootfs"
+    mkdir -p -- "${work_dir}/airootfs"
     mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
 
     # Create packages list
