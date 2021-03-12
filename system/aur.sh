@@ -10,6 +10,12 @@ set -e -u
 
 aur_username="aurbuild"
 
+# Check yay
+if ! type -p yay > /dev/null; then
+    echo "yay was not found. Please install it."
+    exit 1
+fi
+
 
 # Delete file only if file exists
 # remove <file1> <file2> ...
