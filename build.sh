@@ -992,7 +992,7 @@ make_tarball() {
     msg_info "Creating tarball..."
     local tar_path="$(realpath ${out_dir})/${iso_filename%.iso}.tar.xz"
     cd -- "${airootfs_dir}"
-    tar -J -p -c -f "${tar_path}" ./*
+    tar -v -J -p -c -f "${tar_path}" ./*
     cd -- "${OLDPWD}"
 
     _mkchecksum "${tar_path}"
