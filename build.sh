@@ -1010,8 +1010,8 @@ make_tarball() {
 
     # Run script
     mount_airootfs
-    if [[ -f "${work_dir}/airootfs/root/optimize_for_tarball.sh" ]]; then
-        chmod 755 "${work_dir}/airootfs/root/optimize_for_tarball.sh"
+    if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
+        chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
         # Execute optimize_for_tarball.sh.
         _chroot_run "/root/optimize_for_tarball.sh -u ${username}"
     fi
@@ -1024,7 +1024,7 @@ make_tarball() {
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
     local tar_path="$(realpath ${out_dir})/${iso_filename%.iso}.tar.xz"
-    cd -- "${work_dir}/airootfs"
+    cd -- "${airootfs_dir}"
     tar -J -p -c -f "${tar_path}" ./*
     cd -- "${OLDPWD}"
 
