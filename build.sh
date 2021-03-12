@@ -407,9 +407,6 @@ prepare_env() {
         if [[ "${_check_failed}" = true ]]; then exit 1; fi
     fi
 
-    # Set mkalteriso path
-    mkalteriso="${tools_dir}/mkalteriso.sh"
-
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
@@ -496,6 +493,11 @@ prepare_build() {
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
+    # Debug mode
+    if [[ "${bash_debug}" = true ]]; then
+        set -x -v
+    fi
+
     local module dependent module_err module_check
     module_check(){
         if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
@@ -551,13 +553,6 @@ prepare_build() {
         iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
     fi
     msg_debug "Iso filename is ${iso_filename}"
-
-    # Debug mode
-    mkalteriso_option="-a ${arch} -v"
-    if [[ "${bash_debug}" = true ]]; then
-        set -x -v
-        mkalteriso_option="${mkalteriso_option} -x"
-    fi
 
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
@@ -1024,8 +1019,6 @@ make_tarball() {
 
     remove "${airootfs_dir}/root/optimize_for_tarball.sh"
 
-    #${mkalteriso} ${mkalteriso_option} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -P "${iso_publisher}" -A "${iso_application}" -o "${out_dir}" tarball "${iso_filename%.iso}.tar.xz"
-
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
     local tar_path="$(realpath ${out_dir})/${${iso_filename%.iso}.tar.xz}"
@@ -1140,7 +1133,7 @@ make_iso() {
         -volid "${iso_label}" \
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
-        -preparer "prepared by mkalteriso" \
+        -preparer "prepared by AlterISO" \
         -eltorito-boot isolinux/isolinux.bin \
         -eltorito-catalog isolinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
@@ -1158,7 +1151,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,shmkalteriso,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
