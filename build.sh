@@ -1016,7 +1016,7 @@ make_tarball() {
         _chroot_run "/root/optimize_for_tarball.sh -u ${username}"
     fi
 
-    _cleanup_airootfs
+    _cleanup_common
     _chroot_run "mkinitcpio -P"
 
     remove "${airootfs_dir}/root/optimize_for_tarball.sh"
