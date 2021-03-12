@@ -1005,6 +1005,7 @@ make_efiboot() {
 # Compress tarball
 make_tarball() {
     # backup airootfs.img for tarball
+    msg_info "Copying airootfs.img ..."
     cp "${airootfs_dir}.img" "${airootfs_dir}.img.org"
 
     # Run script
