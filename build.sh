@@ -214,8 +214,6 @@ umount_chroot () {
 # Mount airootfs on "${work_dir}/${arch}/airootfs"
 mount_airootfs () {
     mkdir -p "${airootfs_dir}"
-    #_mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
-    #_mount "${work_dir}/${arch}/airootfs.img" "${airootfs_dir}"
     _mount "${airootfs_dir}.img" "${airootfs_dir}"
 }
 
@@ -233,9 +231,10 @@ run_once() {
     set -eu
     if [[ ! -e "${work_dir}/build.${1}_${arch}" ]]; then
         msg_debug "Running ${1} ..."
+        mount_airootfs
         "${1}"
         touch "${work_dir}/build.${1}_${arch}"
-        umount_chroot
+        umount_chroot_advance
     else
         msg_debug "Skipped because ${1} has already been executed."
     fi
