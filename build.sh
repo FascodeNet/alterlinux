@@ -1009,23 +1009,21 @@ make_tarball() {
 
 # Build airootfs filesystem image
 make_prepare() {
-    umount_airootfs
-    mkdir -p -- "${work_dir}/airootfs"
-    mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/airootfs"
+    mount_airootfs
 
     # Create packages list
     msg_info "Creating a list of installed packages on live-enviroment..."
     pacman-key --init
-    pacman -Q --sysroot "${work_dir}/airootfs" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${work_dir}/packages-full.list" > /dev/null
+    pacman -Q --sysroot "${airootfs_dir}" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${work_dir}/packages-full.list" > /dev/null
 
     # Cleanup
-    remove "${work_dir}/airootfs/root/optimize_for_tarball.sh"
+    remove "${airootfs_dir}/root/optimize_for_tarball.sh"
     _cleanup_airootfs
 
     # Create squashfs
     mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
     msg_info "Creating SquashFS image, this may take some time..."
-    mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" ${sfs_comp_opt}
+    mksquashfs "${airootfs_dir}" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" ${sfs_comp_opt}
 
     # Create checksum
     msg_info "Creating checksum file for self-test..."
@@ -1350,7 +1348,7 @@ prepare_env
 prepare_build
 show_settings
 run_once make_pacman_conf
-run_once make_basefs
+run_once make_basefs # Mount airootfs
 run_once make_packages_repo
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_pkgbuild
