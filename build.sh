@@ -213,7 +213,7 @@ umount_chroot () {
 
 # Mount airootfs on "${work_dir}/${arch}/airootfs"
 mount_airootfs () {
-    mkdir -p "${work_dir}/airootfs"
+    mkdir -p "${airootfs_dir}"
     #_mount "${work_dir}/${arch}/airootfs.img" "${work_dir}/${arch}/airootfs"
     #_mount "${work_dir}/${arch}/airootfs.img" "${airootfs_dir}"
     _mount "${airootfs_dir}.img" "${airootfs_dir}"
@@ -291,7 +291,7 @@ for_module(){
 
 # パッケージをインストールする
 _pacman(){
-    msg_info "Installing packages to '${work_dir}/airootfs/'..."
+    msg_info "Installing packages to ${airootfs_dir}/'..."
     pacstrap -C "${work_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
     msg_info "Packages installed successfully!"
 }
@@ -1072,8 +1072,6 @@ make_overisofs() {
 
 # Build ISO
 make_iso() {
-    remove "${work_dir}/airootfs"
-
     local _iso_efi_boot_args=""
     if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
          _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
