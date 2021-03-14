@@ -247,16 +247,6 @@ remove() {
     for _file in "${@}"; do msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
-remove_find(){
-    local _dir
-    for _dir in "${@}"; do
-        if [[ -d "${_dir}" ]]; then
-            msg_debug "Removing ${_dir}"
-            find "${_dir}" -mindepth 1 -delete
-        fi
-    done
-}
-
 # 強制終了時にアンマウント
 umount_trap() {
     local _status="${?}"
@@ -304,7 +294,17 @@ _chroot_run() {
 _cleanup_common () {
     msg_info "Cleaning up what we can on airootfs..."
 
-    remove_find "${airootfs_dir}/var/lib/pacman" "${airootfs_dir}/var/lib/pacman/sync" "${airootfs_dir}/var/cache/pacman/pkg" "${airootfs_dir}/var/log" "${airootfs_dir}/var/tmp"
+    # Delete pacman database sync cache files (*.tar.gz)
+    [[ -d "${airootfs_dir}/var/lib/pacman" ]] && find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+    # Delete pacman database sync cache
+    [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]] && find "${airootfs_dir}/var/lib/pacman/sync" -delete
+    # Delete pacman package cache
+    [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]] && find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
+    # Delete all log files, keeps empty dirs.
+    [[ -d "${airootfs_dir}/var/log" ]] && find "${airootfs_dir}/var/log" -type f -delete
+    # Delete all temporary files and dirs
+    [[ -d "${airootfs_dir}/var/tmp" ]] && find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
+    # Delete package pacman related files.
     find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
 
     # Create an empty /etc/machine-id
@@ -315,7 +315,9 @@ _cleanup_common () {
 
 _cleanup_airootfs(){
     _cleanup_common
-    remove_find "${airootfs_dir}/boot"
+
+    # Delete all files in /boot
+    [[ -d "${airootfs_dir}/boot" ]] && find "${airootfs_dir}/boot" -mindepth 1 -delete
 }
 
 _mkchecksum() {
