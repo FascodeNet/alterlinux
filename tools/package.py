@@ -66,10 +66,14 @@ def compare(package):
             msg_warn(f"Failed to get the latest version of {package}.")
         return 1
 
+    # スクリプトモード時にパッケージバージョンを表示    
+    if args.script:
+        print(pkg_from_local.version)
+
     if pkg_from_local.version == pkg_from_sync.version:
         # latest
         if not args.script:
-            msg_info(f"The latest version of {package} is installed.")
+            msg_info(f"The latest version of {package} {pkg_from_local.version} is installed.")
         return 0
     else:
         # nomatch

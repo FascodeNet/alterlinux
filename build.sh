@@ -353,31 +353,32 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _result
+        local _check_failed=false _pkg _result=0 _version
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            _result=( $("${tools_dir}/package.py" -s "${_pkg}") )
-            case "${_result[0]}" in
-                "latest")
-                    [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
+            _version="$("${tools_dir}/package.py" -s "${_pkg}")" || _result="${?}"
+            case "${_result}" in
+                "0")
+                    [[ "${debug}" = true ]] && echo -ne " ${_version}\n"
                     ;;
-                "noversion")
+                "1")
                     echo; msg_warn "Failed to get the latest version of ${_pkg}."
                     ;;
-                "nomatch")
+                "2")
                     [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
                     msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_result[1]} Latest: ${_result[2]}"
                     ;;
-                "failed")
+                "3")
                     [[ "${debug}" = true ]] && echo
                     msg_error "${_pkg} is not installed." ; _check_failed=true
                     ;;
-                "error")
+                "4")
                     [[ "${debug}" = true ]] && echo
                     msg_error "pyalpm is not installed." ; exit 1
                     ;;
             esac
+            _result=0
         done
         if [[ "${_check_failed}" = true ]]; then exit 1; fi
     fi
