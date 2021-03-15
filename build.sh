@@ -539,7 +539,9 @@ prepare_build() {
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
 
     # Check architecture for each channel
-    if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
+    local _exit=0
+    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}" || _exit="${?}"
+    if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
@@ -1305,15 +1307,15 @@ if [[ "${bash_debug}" = true ]]; then set -x -v; fi
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
-    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}")" in
-        "incorrect")
+    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "${?}")" in
+        "2")
             msg_error "Invalid channel ${1}" "1"
             ;;
-        "directory")
+        "1")
             channel_dir="${1}"
             channel_name="$(basename "${1%/}")"
             ;;
-        "correct")
+        "0")
             channel_dir="${script_path}/channels/${1}"
             channel_name="${1}"
             ;;
