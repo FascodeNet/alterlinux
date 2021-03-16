@@ -22,11 +22,12 @@ repo_list = [
 ]
 
 epilog = """
-script mode output:
-  latest        The latest package is installed
-  noversion     Failed to get the latest version of the package, but the package is installed
-  nomatch       The version of the package installed in local does not match one of the latest
-  failed        Package not installed
+exit code:
+  0 (latest)           The latest package is installed
+  1 (noversion)        Failed to get the latest version of the package, but the package is installed
+  2 (nomatch)          The version of the package installed in local does not match one of the latest
+  3 (failed)           Package not installed
+  4                    Other error
 """
 
 def msg_info(string):
@@ -54,30 +55,31 @@ def compare(package):
     pkg_from_sync = get_from_syncdb(package)
 
     if pkg_from_local is None:
-        if args.script:
-            return ["failed"]
-        else:
+        # failed
+        if not args.script:
             msg_error(f"{package} is not installed.")
-            return 1
+        return 3
+
     elif pkg_from_sync is None:
-        if args.script:
-            return ["noversion"]
-        else:
+        # noversion
+        if not args.script:
             msg_warn(f"Failed to get the latest version of {package}.")
-            return 1
-    
+        return 1
+
+    # スクリプトモード時にパッケージバージョンを表示    
+    if args.script:
+        print(pkg_from_local.version)
+
     if pkg_from_local.version == pkg_from_sync.version:
-        if args.script:
-            return ["latest", pkg_from_local.version]
-        else:
-            msg_info(f"The latest version of {package} is installed.")
-            return 0
+        # latest
+        if not args.script:
+            msg_info(f"The latest version of {package} {pkg_from_local.version} is installed.")
+        return 0
     else:
-        if args.script:
-            return ["nomatch", pkg_from_local.version, pkg_from_sync.version]
-        else:
+        # nomatch
+        if not args.script:
             msg_warn(f"The version of {package} does not match one of the latest.\nLocal: {pkg_from_local.version} Latest: {pkg_from_sync.version}")
-            return 1
+        return 2
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -111,7 +113,7 @@ if __name__ == "__main__":
             exit()
         else:
             msg_error("pyalpm is not installed.")
-            sys.exit(1)
+            sys.exit(4)
 
     handle = pyalpm.Handle(".", "/var/lib/pacman")
     
@@ -121,9 +123,12 @@ if __name__ == "__main__":
     localdb = handle.get_localdb()
     syncdbs = handle.get_syncdbs()
     
-    if args.script:
-        result = compare(args.package)
-        print(" ".join(result))
-    else:
-        return_code = compare(args.package)
-        sys.exit(return_code)
+    #if args.script:
+    #    result = compare(args.package)
+    #    print(" ".join(result))
+    #else:
+    #    return_code = compare(args.package)
+    #    sys.exit(return_code)
+
+    return_code = compare(args.package)
+    sys.exit(return_code)

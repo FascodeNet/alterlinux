@@ -21,10 +21,9 @@ _help() {
 }
 
 # Parse options
-ARGUMENT="${@}"
 OPTS="a:b:c:d:k:o:p:u:v:h"
 OPTL="arch:,boot-splash:,channel:,developer:,kernel:,os-name:,password:,username:,version:,help"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT="$(getopt -o "${OPTS}" -l "${OPTL}" -- "${@}")"; then
     exit 1
 fi
 
@@ -32,7 +31,7 @@ eval set -- "${OPT}"
 unset OPT OPTS OPTL
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2

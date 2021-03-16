@@ -9,21 +9,17 @@
 
 # Bluetooth
 rfkill unblock all
-systemctl enable bluetooth
+_systemd_service enable bluetooth
 
 # Snap
-if [[ "${arch}" = "x86_64" ]]; then
-    systemctl enable snapd.apparmor.service
-    systemctl enable apparmor.service
-    systemctl enable snapd.socket
-    systemctl enable snapd.service
-fi
+_systemd_service enable snapd.apparmor.service
+_systemd_service enable apparmor.service
+_systemd_service enable snapd.socket
+_systemd_service enable snapd.service
 
 
 # firewalld
-if installedpkg firewalld; then
-    systemctl enable firewalld.service
-fi
+_systemd_service enable firewalld.service
 
 
 # Added autologin group to auto login
@@ -32,7 +28,7 @@ usermod -aG autologin ${username}
 
 
 # ntp
-systemctl enable systemd-timesyncd.service
+_systemd_service enable systemd-timesyncd.service
 
 
 # Update system datebase

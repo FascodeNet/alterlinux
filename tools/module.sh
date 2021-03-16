@@ -13,6 +13,8 @@
 
 set -e
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
+script_name="$(basename "${0}")"
+script_full="${script_path}/tools/${script_name}"
 module_dir="${script_path}/modules"
 alteriso_version="3.1"
 
@@ -24,18 +26,20 @@ _help() {
     echo " General command:"
     echo "    check [name]              Determine if the locale is available"
     echo "    show                      Shows a list of available modules"
-    echo "    depend [name]             Shows the modules that the module depends on"
     echo "    help                      This help message"
     echo
     echo " General options:"
     echo "    -v | --version [ver]      Specifies the AlterISO version"
     echo "    -h | --help               This help message"
+    echo
+    echo " check exit code:"
+    echo "    0 (correct)  1 (incorrect)  2 (other)"
 }
 
 check(){
     if (( "${#}" == 0 )) || (( "${#}" >= 2 ));then
         _help
-        exit 1
+        exit 2
     fi
     local _version
     if [[ -f "${module_dir}/${1}/alteriso" ]]; then
@@ -45,26 +49,10 @@ check(){
             unset alteriso
         )"
         if (( "$(echo "${_version}" | cut -d "." -f 1)" == "$(echo "${alteriso_version}" | cut -d "." -f 1)" )); then
-            echo "correct"
+            exit 0
         fi
     else
-        echo "incorrect"
-    fi
-}
-
-depend(){
-    if (( "${#}" == 0 )) || (( "${#}" >= 2 ));then
-        _help
         exit 1
-    fi
-    if [[ ! "$(check "${1}")" = "correct" ]]; then
-        exit 1
-    elif [[ ! -f "${module_dir}/${1}/dependent" ]]; then
-        exit 0
-    else
-        printf "%s\n" $(grep -h -v ^'#' "${module_dir}/${1}/dependent") | tr "\n" " "
-        echo
-        exit 0
     fi
 }
 
@@ -125,7 +113,6 @@ fi
 
 case "${COMMAND}" in
     "check" ) check "${@}"  ;;
-    "depend") depend "${@}" ;;
     "show"  ) show          ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;

@@ -20,4 +20,5 @@ usershell="/bin/zsh"
 # This setting cannot be changed by an argument.
 modules=(
     "share"
+    "base"
 )
