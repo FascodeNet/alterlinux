@@ -488,7 +488,8 @@ prepare_build() {
 
     local module_check
     module_check(){
-        if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
+        msg_debug "Checking ${1} module ..."
+        if ! bash "${tools_dir}/module.sh" check "${1}"; then
             msg_error "Module ${1} is not available." "1";
         fi
     }

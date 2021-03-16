@@ -31,12 +31,15 @@ _help() {
     echo " General options:"
     echo "    -v | --version [ver]      Specifies the AlterISO version"
     echo "    -h | --help               This help message"
+    echo
+    echo " check exit code:"
+    echo "    0 (correct)  1 (incorrect)  2 (other)"
 }
 
 check(){
     if (( "${#}" == 0 )) || (( "${#}" >= 2 ));then
         _help
-        exit 1
+        exit 2
     fi
     local _version
     if [[ -f "${module_dir}/${1}/alteriso" ]]; then
@@ -46,10 +49,10 @@ check(){
             unset alteriso
         )"
         if (( "$(echo "${_version}" | cut -d "." -f 1)" == "$(echo "${alteriso_version}" | cut -d "." -f 1)" )); then
-            echo "correct"
+            exit 0
         fi
     else
-        echo "incorrect"
+        exit 1
     fi
 }
 
