@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 set -e -u
 
@@ -68,10 +68,12 @@ yes | sudo -u aurbuild \
         --noprovides \
         --removemake \
         --useask \
+        --color always \
         --config "/etc/alteriso-pacman.conf" \
         --cachedir "/var/cache/pacman/pkg/" \
         ${*}
 
+yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
 # remove user and file
 userdel aurbuild
@@ -79,6 +81,3 @@ remove /aurbuild_temp
 remove /etc/sudoers.d/aurbuild
 remove "/etc/alteriso-pacman.conf"
 remove "/var/cache/pacman/pkg/"
-
-yay -Sccc --noconfirm
-yay -Syy

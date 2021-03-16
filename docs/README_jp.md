@@ -9,7 +9,7 @@
         <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=flat-square">
     </a>
     <a href="../LICENSE">
-        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square" alt="License: GPLv3.0">
+        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://www.archlinux.org/">
         <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=flat-square&logo=arch-linux" alt="Base">
@@ -32,14 +32,14 @@
     <a href="https://github.com/FascodeNet/alterlinux/releases">
         <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
     </a>
-    <a href="https://fascode.net/en/projects/linux/alter/downloads/">
-        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=flat-square">
-    </a>
     <a href="https://github.com/FascodeNet/alterlinux/commits/">
         <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://github.com/fascodeNet/alterlinux/">
         <img src="https://img.shields.io/github/repo-size/fascodenet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux">
+        <img src="https://img.shields.io/tokei/lines/github/fascodenet/alterlinux?style=flat-square">
     </a>
 </p>
 

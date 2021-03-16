@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
-import gi, os, shlex, subprocess
+import gi, os, shlex, subprocess, sys
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class MainWindow(Gtk.Window):
     def __init__(self):
+
+        #-- Check gtk --#
+        if not Gtk.init_check()[0]:
+            script_name = os.path.basename(__file__)
+            print("[{}]: Failed to initialize gtk".format(script_name))
+            sys.exit()
+
         #-- Create Window --#
         Gtk.Window.__init__(self, title="AlterISO GUI Helper")
+
+        #-- Set window icon --#
+        _window_icon = "images/icon/color/AlterV5-Icon-Colored-vector.svg"
+        self.set_icon_from_file(os.path.join(root_dir, _window_icon))
 
         #-- Create Dict --#
         self.dict = {}
@@ -147,6 +158,15 @@ class MainWindow(Gtk.Window):
         password_box.pack_start(password_label, True, True, 0)
         password_box.pack_start(self.password_entry, True, True, 0)
         password_box.pack_start(self.password_button, True, True, 0)
+
+        # extra_option
+        extra_option_label = Gtk.Label(label="Extra build options: Additional command line options")
+        self.extra_option_entry = Gtk.Entry()
+        self.extra_option_entry.set_text("")
+        extra_option_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        extra_option_box.set_homogeneous(True)
+        extra_option_box.pack_start(extra_option_label, True, True, 0)
+        extra_option_box.pack_start(self.extra_option_entry, True, True, 0)
         
         # reset
         reset_button = Gtk.Button.new_with_label("Reset")
@@ -156,10 +176,16 @@ class MainWindow(Gtk.Window):
         build_button = Gtk.Button.new_with_label("Build")
         build_button.connect("clicked", self.on_build_clicked)
 
+        # exit
+        exit_button = Gtk.Button.new_with_label("Exit")
+        exit_button.connect("clicked", self.on_exit_clicked)
+
         util_box = Gtk.Box(spacing=5)
         util_box.set_homogeneous(True)
         util_box.pack_start(reset_button, True, True, 0)
         util_box.pack_start(build_button, True, True, 0)
+        util_box.pack_start(exit_button, True, True, 0)
+
         
         #-- Create Layout --#
         # layout 1
@@ -178,10 +204,18 @@ class MainWindow(Gtk.Window):
         layout_2.attach(username_box, 2, 0, 1, 2)
         layout_2.attach(password_box, 3, 0, 1, 3)
 
+        # layout 3
+        layout_3 = Gtk.Grid()
+        layout_3.set_column_spacing(5)
+        layout_3.set_column_homogeneous(True)
+        layout_3.attach(extra_option_box, 4, 0, 1, 3)
+
+
         # sub layout
         sub_layout = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         sub_layout.pack_start(layout_1, True, True, 5)
         sub_layout.pack_start(layout_2, True, True, 5)
+        sub_layout.pack_start(layout_3, True, True, 5)
         sub_layout.pack_start(util_box,  True, True, 5)
         
         # main layout
@@ -200,6 +234,9 @@ class MainWindow(Gtk.Window):
             self.password_entry.set_visibility(True)
             self.password_button.set_label("Hide Password")
 
+    def on_exit_clicked(self, button):
+        sys.exit()
+
     def on_build_clicked(self, button):
         arch = self.arch_combo.get_model()[self.arch_combo.get_active_iter()][1]
         kernel = self.kernel_combo.get_model()[self.kernel_combo.get_active_iter()][1]
@@ -208,13 +245,17 @@ class MainWindow(Gtk.Window):
         comp = self.comp_combo.get_model()[self.comp_combo.get_active_iter()][1]
         username = self.username_entry.get_text()
         password = self.password_entry.get_text()
+        extra_option = self.extra_option_entry.get_text()
 
         if kernel == "linux":
             kernel = "core"
         else:
             kernel = kernel.replace("linux-", "")
         
-        command = "sudo {}/build.sh --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {}".format(root_dir, arch, kernel, locale, comp, username, password)
+        display = os.environ["DISPLAY"]
+        xauthority = os.environ["XAUTHORITY"]
+
+        command = "pkexec env DISPLAY={} XAUTHORITY={} {}/build.sh --noconfirm --arch {} --kernel {} --lang {} --comp-type {} --user {} --password {} {}".format(display, xauthority, root_dir, arch, kernel, locale, comp, username, password, extra_option)
         
         if self.boot_splash_button_enable.get_active():
             command = "{} --boot-splash".format(command)

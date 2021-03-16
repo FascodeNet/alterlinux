@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 
 set -e -u
@@ -17,7 +17,6 @@ password=alter
 boot_splash=false
 kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
 theme_name=alter-logo
-rebuild=false
 username='alter'
 os_name="Alter Linux"
 install_dir="alter"
@@ -35,7 +34,6 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
         k) kernel_config_line=(${OPTARG}) ;;
-        r) rebuild=true ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
@@ -55,6 +53,9 @@ kernel="${kernel_config_line[0]}"
 kernel_filename="${kernel_config_line[1]}"
 kernel_mkinitcpio_profile="${kernel_config_line[2]}"
 
+# Make it compatible with previous code
+unset OPTIND OPTARG arg
+
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
@@ -66,7 +67,6 @@ function check_bool() {
 }
 
 check_bool boot_splash
-check_bool rebuild
 check_bool debug
 
 
@@ -86,6 +86,14 @@ function remove () {
     done
 }
 
+
+function installedpkg () {
+    if pacman -Qq "${1}" 1>/dev/null 2>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 # Enable and generate languages.
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen

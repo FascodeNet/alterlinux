@@ -25,7 +25,7 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake pyalpm
 ```
 
 ### TUIを使用する
@@ -77,9 +77,6 @@ sudo ./build.sh [options] [channel]
 出力先ディレクトリを指定する| -o [dir]
 作業ディレクトリを指定する | -w [dir]
 
-##### 注意
-チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
-
 #### 例
 以下の条件でビルドするにはこのようにします。
 
@@ -111,7 +108,6 @@ plasma | PlasmaとQtアプリを搭載した現在開発中のチャンネル
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドできるチャンネル
 xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
 xfce-pro | xfceチャンネルのウィンドウマネージャを変更し、多くのソフトを追加したチャンネル
-rebuild | 作業ディレクトリにある設定を利用して再ビルドを行う特殊なチャンネル
 
 
 #### カーネルについて

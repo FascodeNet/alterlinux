@@ -26,7 +26,7 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake pyalpm
 ```
 
 ### Use the TUI
@@ -67,10 +67,6 @@ Run `./build.sh -h` for full options and usage.
  Specify output destination directory | -o [dir]
  Specify working directory | -w [dir]
 
-##### Note
-
-All options described after the channel name are ignored. Be sure to put the option before the channel name. 
-
 #### An example
 
 Do this to build under the following conditions.
@@ -104,7 +100,6 @@ plasma | Uses KDE and Qt software.
 releng | Build ArchLinux as is. Boot splash etc. cannot be used.
 xfce | Use Xfce4 for desktop environment.
 xfce-pro | Pro Edition with some software added to Xfce and replaced with Compiz
-rebuild | Build from the point where it left off using the previous build settings.
 
 #### About the kernel
 
