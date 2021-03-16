@@ -38,6 +38,12 @@ _help() {
     echo "    -h | --help               This help message"
     echo
     echo "         --nocheck            Do not check the channel with desc command.This option helps speed up."
+    echo
+    echo " check command exit code"
+    echo "    0 (correct)               Normal available channel"
+    echo "    1 (directory)             Channel outside the channel directory"
+    echo "    2 (incorrect)             Unavailable channel"
+    echo "    3                         Other error"
 }
 
 gen_channel_list() {
@@ -111,19 +117,23 @@ check() {
     gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
         _help
-        exit 1
+        exit 3
     fi
     if [[ $(printf '%s\n' "${channellist[@]}" | grep -qx "${1}"; echo -n ${?} ) -eq 0 ]]; then
-        echo "correct"
+        #echo "correct"
+        exit 0
     elif [[ -d "${1}" ]] && [[ -n $(ls "${1}") ]]; then
         local _channel_name="$(basename "${1%/}")"
         if ! check_alteriso_version "${_channel}" || [[ "${opt_nochkver}" = true ]]; then
-            echo "directory"
+            #echo "directory"
+            exit 1
         else
-            echo "incorrect"
+            #echo "incorrect"
+            exit 2
         fi
     else
-        echo "incorrect"
+        #echo "incorrect"
+        exit 2
     fi
 }
 
@@ -133,7 +143,7 @@ desc() {
         _help
         exit 1
     fi
-    if [[ "${opt_nocheck}" = false ]] && [[ ! "$(bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${1}")" = "correct" ]]; then
+    if [[ "${opt_nocheck}" = false ]] && ! bash "${script_path}/tools/channel.sh" -a ${arch} -n -b check "${1}"; then
         exit 1
     fi
     local _channel

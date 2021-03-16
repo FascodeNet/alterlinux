@@ -353,31 +353,32 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _result
+        local _check_failed=false _pkg _result=0 _version
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
-            _result=( $("${tools_dir}/package.py" -s "${_pkg}") )
-            case "${_result[0]}" in
-                "latest")
-                    [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
+            _version="$("${tools_dir}/package.py" -s "${_pkg}")" || _result="${?}"
+            case "${_result}" in
+                "0")
+                    [[ "${debug}" = true ]] && echo -ne " ${_version}\n"
                     ;;
-                "noversion")
+                "1")
                     echo; msg_warn "Failed to get the latest version of ${_pkg}."
                     ;;
-                "nomatch")
+                "2")
                     [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
                     msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_result[1]} Latest: ${_result[2]}"
                     ;;
-                "failed")
+                "3")
                     [[ "${debug}" = true ]] && echo
                     msg_error "${_pkg} is not installed." ; _check_failed=true
                     ;;
-                "error")
+                "4")
                     [[ "${debug}" = true ]] && echo
                     msg_error "pyalpm is not installed." ; exit 1
                     ;;
             esac
+            _result=0
         done
         if [[ "${_check_failed}" = true ]]; then exit 1; fi
     fi
@@ -487,7 +488,8 @@ prepare_build() {
 
     local module_check
     module_check(){
-        if [[ ! "$(bash "${tools_dir}/module.sh" check "${1}")" = "correct" ]]; then
+        msg_debug "Checking ${1} module ..."
+        if ! bash "${tools_dir}/module.sh" check "${1}"; then
             msg_error "Module ${1} is not available." "1";
         fi
     }
@@ -538,13 +540,10 @@ prepare_build() {
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
 
     # Check architecture for each channel
-    if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}")" = "correct" ]]; then
+    local _exit=0
+    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}" || _exit="${?}"
+    if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
-
-    # Check kernel for each channel
-    if [[ ! "$(bash "${tools_dir}/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
-        msg_error "This kernel is currently not supported on this channel or architecture" "1"
     fi
 
     # Unmount
@@ -1304,15 +1303,15 @@ if [[ "${bash_debug}" = true ]]; then set -x -v; fi
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
-    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}")" in
-        "incorrect")
+    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "${?}")" in
+        "2")
             msg_error "Invalid channel ${1}" "1"
             ;;
-        "directory")
+        "1")
             channel_dir="${1}"
             channel_name="$(basename "${1%/}")"
             ;;
-        "correct")
+        "0")
             channel_dir="${script_path}/channels/${1}"
             channel_name="${1}"
             ;;
