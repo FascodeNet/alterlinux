@@ -26,7 +26,12 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 Install the packages required for build.
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools cmake pyalpm
+sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake pyalpm
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -siAcC
+cd ..
+rm -rf yay/
 ```
 
 ### Use the TUI

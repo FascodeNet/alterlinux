@@ -43,11 +43,6 @@ menuconfigで使用されるスクリプトです。
 ## menuconf-to-alterconf.sh
 menuconfigで使用されるスクリプトです。  
 
-## mkalteriso.sh
-mkalterisoのシェルスクリプト実装です。  
-`--shmkalteriso`が指定されるか`shmkalteriso=true`の場合に使用されます。  
-詳細は`mkalteriso.sh -h`を実行してください。
-
 ## msg.sh
 ラベルと色がついたメッセージを出力します。このスクリプトは様々な場所から呼び出されます。  
 詳細は`msg.sh -h`を実行してください。  

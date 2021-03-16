@@ -62,13 +62,13 @@ _help() {
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="dh"
-opt_long="debug,help"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
-
+OPTS="dh"
+OPTL="debug,help"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+    exit 1
+fi
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
     case "${1}" in
