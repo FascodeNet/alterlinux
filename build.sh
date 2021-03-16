@@ -545,11 +545,6 @@ prepare_build() {
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
-    # Check kernel for each channel
-    if [[ ! "$(bash "${tools_dir}/kernel.sh" -c "${channel_name}" -a "${arch}" -s check "${kernel}")" = "correct" ]]; then
-        msg_error "This kernel is currently not supported on this channel or architecture" "1"
-    fi
-
     # Unmount
     umount_chroot
 }
