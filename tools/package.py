@@ -4,23 +4,21 @@
 #
 # mk-linux419
 # Twitter: @fascoder_4
-# Email  : m.k419sabuaka@gmail.com
+# Email  : mk419@fascode.net
 #
 # (c) 2019-2021 Fascode Network.
 #
 # package.py
 #
 
-import argparse, os, subprocess, sys, time
+import sys
+from argparse import SUPPRESS, ArgumentParser, RawTextHelpFormatter
+from os.path import abspath, dirname
+from pathlib import Path
+from subprocess import run
+from typing import Optional
 
-repo_list = [
-    "core",
-    "extra",
-    "community",
-    "multilib",
-    "alter-stable"
-]
-
+pyalpm_error = False
 epilog = """
 exit code:
   0 (latest)           The latest package is installed
@@ -30,105 +28,92 @@ exit code:
   4                    Other error
 """
 
-def msg_info(string):
-    subprocess.run([f"{script_dir}/msg.sh", "-a", "package.py", "info", string])
 
-def msg_warn(string):
-    subprocess.run([f"{script_dir}/msg.sh", "-a", "package.py", "warn", string])
+try:
+    from pyalpm import Package
+    from pycman.config import init_with_config
+except:
+    pyalpm_error = True
 
-def msg_error(string):
-    subprocess.run([f"{script_dir}/msg.sh", "-a", "package.py", "error", string])
 
-def get_from_localdb(package):
-    return localdb.get_pkg(package)
+def msg(string: str, level: str) -> None:
+    if not args.script:
+        run([f"{script_dir}/msg.sh", "-a", "package.py", level, string])
 
-def get_from_syncdb(package):
-    for db in syncdbs:
+
+def get_from_syncdb(package: str) -> Optional[Package]:
+    for db in handle.get_syncdbs():
         pkg = db.get_pkg(package)
 
-        if pkg is not None: break
-    
+        if pkg: break
+
     return pkg
 
-def compare(package):
-    pkg_from_local = get_from_localdb(package)
+
+def compare(package: str) -> tuple[int,Optional[tuple[str]]]:
+    pkg_from_local = handle.get_localdb().get_pkg(package)
     pkg_from_sync = get_from_syncdb(package)
 
-    if pkg_from_local is None:
-        # failed
-        if not args.script:
-            msg_error(f"{package} is not installed.")
-        return 3
+    if not pkg_from_local:
+        msg(f"{package} is not installed.", "error")
 
-    elif pkg_from_sync is None:
-        # noversion
-        if not args.script:
-            msg_warn(f"Failed to get the latest version of {package}.")
-        return 1
+        return (3, None)
+    elif not pkg_from_sync:
+        msg(f"Failed to get the latest version of {package}.", "warn")
 
-    # スクリプトモード時にパッケージバージョンを表示    
-    if args.script:
-        print(pkg_from_local.version)
+        return (2, None)
 
     if pkg_from_local.version == pkg_from_sync.version:
-        # latest
-        if not args.script:
-            msg_info(f"The latest version of {package} {pkg_from_local.version} is installed.")
-        return 0
+        msg(f"The latest version of {package} is installed.", "info")
+
+        return (0, (pkg_from_local.version))
     else:
-        # nomatch
-        if not args.script:
-            msg_warn(f"The version of {package} does not match one of the latest.\nLocal: {pkg_from_local.version} Latest: {pkg_from_sync.version}")
-        return 2
+        msg(f"The version of {package} does not match one of the latest.", "warn")
+        msg(f"Local: {pkg_from_local.version} Latest: {pkg_from_sync.version}", "warn")
+
+        return (1, (pkg_from_local.version, pkg_from_sync.version))
+
 
 if __name__ == "__main__":
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    script_dir = dirname(abspath(__file__))
 
-    parser = argparse.ArgumentParser(
-        usage=f"{sys.argv[0]} [option] [package]",
-        description="Check the status of the specified package",
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog=epilog
+    parser = ArgumentParser(
+        usage           = f"{sys.argv[0]} [option] [package]",
+        description     = "Check the status of the specified package",
+        formatter_class = RawTextHelpFormatter,
+        epilog          = epilog
     )
 
     parser.add_argument(
         "package",
-        type=str,
-        help=argparse.SUPPRESS
+        type = str,
+        help = SUPPRESS
+    )
+
+    parser.add_argument(
+        "-c", "--conf",
+        default = Path("/etc/pacman.conf"),
+        type    = Path,
+        help    = "Path of pacman configuration file"
     )
 
     parser.add_argument(
         "-s", "--script",
-        action="store_true",
-        help="Enable script mode"
+        action = "store_true",
+        help   = "Enable script mode"
     )
 
     args = parser.parse_args()
 
-    try:
-        import pyalpm
-    except:
-        if args.script:
-            print("error")
-            exit()
-        else:
-            msg_error("pyalpm is not installed.")
-            sys.exit(4)
+    if pyalpm_error:
+        msg("pyalpm is not installed.", "error")
+        sys.exit(4)
 
-    handle = pyalpm.Handle(".", "/var/lib/pacman")
-    
-    for repo in repo_list:
-        handle.register_syncdb(repo, 2048)
-    
-    localdb = handle.get_localdb()
-    syncdbs = handle.get_syncdbs()
-    
-    #if args.script:
-    #    result = compare(args.package)
-    #    print(" ".join(result))
-    #else:
-    #    return_code = compare(args.package)
-    #    sys.exit(return_code)
+    handle = init_with_config(str(args.conf))
 
-    return_code = compare(args.package)
-    sys.exit(return_code)
+    exit_code, info = compare(args.package)
+
+    if args.script and info:
+        print(" ".join(info))
+
+    sys.exit(exit_code)
