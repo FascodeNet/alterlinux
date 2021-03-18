@@ -12,7 +12,7 @@
 #
 
 import sys
-from argparse import SUPPRESS, ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter, SUPPRESS
 from os.path import abspath, dirname
 from pathlib import Path
 from subprocess import run
@@ -30,7 +30,7 @@ exit code:
 
 
 try:
-    from pyalpm import Package
+    from pyalpm import find_satisfier, Package
     from pycman.config import init_with_config
 except:
     pyalpm_error = True
@@ -41,18 +41,29 @@ def msg(string: str, level: str) -> None:
         run([f"{script_dir}/msg.sh", "-a", "package.py", level, string])
 
 
+def get_from_localdb(package: str) -> Optional[Package]:
+    localdb = handle.get_localdb()
+    pkg = localdb.get_pkg(package)
+
+    if pkg:
+        return pkg
+    else:
+        for pkg in localdb.search(package):
+            if package in pkg.provides:
+                return pkg
+
+
 def get_from_syncdb(package: str) -> Optional[Package]:
     for db in handle.get_syncdbs():
         pkg = db.get_pkg(package)
 
-        if pkg: break
-
-    return pkg
+        if pkg:
+            return pkg
 
 
 def compare(package: str) -> tuple[int,Optional[tuple[str]]]:
-    pkg_from_local = handle.get_localdb().get_pkg(package)
-    pkg_from_sync = get_from_syncdb(package)
+    pkg_from_local = get_from_localdb(package)
+    pkg_from_sync = get_from_syncdb(pkg_from_local.name) if pkg_from_local else None
 
     if not pkg_from_local:
         msg(f"{package} is not installed.", "error")
