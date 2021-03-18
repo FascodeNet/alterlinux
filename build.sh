@@ -144,30 +144,22 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch  _list _dirname
+    local blank="33" _arch  _list _dirname _type
 
-    echo " Language for each architecture:"
-    for _list in ${script_path}/system/locale-* ; do
-        _arch="${_list#${script_path}/system/locale-}"
-        echo -n "    ${_arch}"
-        echo_blank "$(( ${blank} - 4 - ${#_arch} ))"
-        "${tools_dir}/locale.sh" -a "${_arch}" show
+    for _type in "locale" "kernel"; do
+        echo " ${_type} for each architecture:"
+        for _list in ${script_path}/system/${_type}-* ; do
+            _arch="${_list#${script_path}/system/${_type}-}"
+            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - 4 - "${#_arch}" ))")"
+            "${tools_dir}/${_type}.sh" -a "${_arch}" show
+        done
+        echo
     done
 
-    echo
-    echo " Kernel for each architecture:"
-    for _list in ${script_path}/system/kernel-* ; do
-        _arch="${_list#${script_path}/system/kernel-}"
-        echo -n "    ${_arch} "
-        echo_blank "$(( ${blank} - 5 - ${#_arch} ))"
-        "${tools_dir}/kernel.sh" -a "${_arch}" show
-    done
-
-    echo
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n show); do
         echo -ne "    ${_dirname%.add}"
-        echo_blank "$(( ${blank} - 3 - $(echo ${_dirname%.add} | wc -m) ))"
+        echo_blank "$(( "${blank}" - 3 - "$(echo "${_dirname%.add}" | wc -m)" ))"
         "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname%.add}"
     done
 
@@ -315,7 +307,6 @@ _cleanup_common () {
 
 _cleanup_airootfs(){
     _cleanup_common
-
     # Delete all files in /boot
     [[ -d "${airootfs_dir}/boot" ]] && find "${airootfs_dir}/boot" -mindepth 1 -delete
 }
@@ -416,15 +407,10 @@ show_settings() {
     msg_info "Live username is ${username}."
     msg_info "Live user password is ${password}."
     msg_info "The compression method of squashfs is ${sfs_comp}."
-    if [[ $(echo "${channel_name}" | sed 's/^.*\.\([^\.]*\)$/\1/') = "add" ]]; then
-        msg_info "Use the $(echo ${channel_name} | sed 's/\.[^\.]*$//') channel."
-    else
-        msg_info "Use the ${channel_name} channel."
-    fi
+    msg_info "Use the ${channel_name%.add} channel."
     msg_info "Build with architecture ${arch}."
-    if [[ ${noconfirm} = false ]]; then
-        echo
-        echo "Press Enter to continue or Ctrl + C to cancel."
+    if [[ "${noconfirm}" = false ]]; then
+        echo -e "\nPress Enter to continue or Ctrl + C to cancel."
         read
     fi
     trap 1 2 3 15
@@ -438,15 +424,7 @@ prepare_build() {
     if [[ -d "${script_path}/.git" ]]; then
         cd  "${script_path}"
         msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd - > /dev/null 2>&1
-    fi
-
-    # Pacman configuration file used only when building
-    # If there is pacman.conf for each channel, use that for building
-    if [[ -f "${channel_dir}/pacman-${arch}.conf" ]]; then
-        build_pacman_conf="${channel_dir}/pacman-${arch}.conf"
-    else
-        build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
+        cd "${OLDPWD}" > /dev/null 2>&1
     fi
 
     # Set dirs
@@ -483,8 +461,8 @@ prepare_build() {
             msg_error "Module ${1} is not available." "1";
         fi
     }
-    for_module "module_check {}"
     modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
+    for_module "module_check {}"
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
     if ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1; then
@@ -514,7 +492,7 @@ prepare_build() {
     if [[ "${gitversion}" = true ]]; then
         cd "${script_path}"
         iso_version=${iso_version}-$(git rev-parse --short HEAD)
-        cd - > /dev/null 2>&1
+        cd "${OLDPWD}"
     fi
 
     # Generate iso file name.
@@ -544,6 +522,15 @@ prepare_build() {
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
+
+    # Pacman configuration file used only when building
+    # If there is pacman.conf for each channel, use that for building
+    if [[ -f "${channel_dir}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${channel_dir}/pacman-${arch}.conf"
+    else
+        build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
+    fi
+
     if [[ "${nosigcheck}" = true ]]; then
         sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
     else
@@ -562,8 +549,6 @@ make_basefs() {
     msg_info "Mounting ${airootfs_dir}.img on ${airootfs_dir}"
     mount_airootfs
     msg_info "Done!"
-
-    #_pacman "base" "syslinux"
 }
 
 # Additional packages (airootfs)
@@ -628,7 +613,6 @@ make_pkgbuild() {
     done
     
     #-- ビルドスクリプトの実行 --#
-    # prepare for makepkg
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
     cp -rf --preserve=mode "/usr/bin/yay" "${airootfs_dir}/usr/local/bin/yay"
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
@@ -680,14 +664,12 @@ make_customize_airootfs() {
     # -r is obsolete due to the removal of rebuild.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
 
-
     # Generate options of customize_airootfs.sh.
     _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
     [[ "${boot_splash}" = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
     [[ "${debug}" = true       ]] && _airootfs_script_options="${_airootfs_script_options} -d"
     [[ "${bash_debug}" = true  ]] && _airootfs_script_options="${_airootfs_script_options} -x"
 
-    
     _main_script="root/customize_airootfs.sh"
 
     _script_list=(
@@ -842,7 +824,6 @@ make_syslinux() {
 # Prepare /isolinux
 make_isolinux() {
     mkdir -p "${isofs_dir}/isolinux"
-
     sed "s|%INSTALL_DIR%|${install_dir}|g" \
     "${script_path}/system/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
     cp "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
@@ -1072,10 +1053,7 @@ make_iso() {
 
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
-        _iso_efi_boot_args="-eltorito-alt-boot
-                            -e EFI/alteriso/efiboot.img
-                            -no-emul-boot
-                            -isohybrid-gpt-basdat"
+        _iso_efi_boot_args="-eltorito-alt-boot -e EFI/alteriso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat"
     fi
 
     mkdir -p -- "${out_dir}"
