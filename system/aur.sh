@@ -62,22 +62,24 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Build and install
 chmod +s /usr/bin/sudo
-yes | sudo -u aurbuild \
-    yay -Sy \
-        --mflags "-AcC" \
-        --aur \
-        --noconfirm \
-        --nocleanmenu \
-        --nodiffmenu \
-        --noeditmenu \
-        --noupgrademenu \
-        --noprovides \
-        --removemake \
-        --useask \
-        --color always \
-        --config "/etc/alteriso-pacman.conf" \
-        --cachedir "/var/cache/pacman/pkg/" \
-        ${*}
+for _pkg in "${@}"
+    yes | sudo -u aurbuild \
+        yay -Sy \
+            --mflags "-AcC" \
+            --aur \
+            --noconfirm \
+            --nocleanmenu \
+            --nodiffmenu \
+            --noeditmenu \
+            --noupgrademenu \
+            --noprovides \
+            --removemake \
+            --useask \
+            --color always \
+            --config "/etc/alteriso-pacman.conf" \
+            --cachedir "/var/cache/pacman/pkg/" \
+            "${_pkg}"
+done
 
 yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
