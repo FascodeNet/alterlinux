@@ -72,7 +72,7 @@ def compare(package: str) -> tuple[int,Optional[tuple[str]]]:
     elif not pkg_from_sync:
         msg(f"Failed to get the latest version of {package}.", "warn")
 
-        return (2, None)
+        return (1, (pkg_from_local.version))
 
     if pkg_from_local.version == pkg_from_sync.version:
         msg(f"The latest version of {package} is installed.", "info")
@@ -82,7 +82,7 @@ def compare(package: str) -> tuple[int,Optional[tuple[str]]]:
         msg(f"The version of {package} does not match one of the latest.", "warn")
         msg(f"Local: {pkg_from_local.version} Latest: {pkg_from_sync.version}", "warn")
 
-        return (1, (pkg_from_local.version, pkg_from_sync.version))
+        return (2, (pkg_from_local.version, pkg_from_sync.version))
 
 
 if __name__ == "__main__":
@@ -125,6 +125,6 @@ if __name__ == "__main__":
     exit_code, info = compare(args.package)
 
     if args.script and info:
-        print(" ".join(info))
+        print(info)
 
     sys.exit(exit_code)

@@ -359,7 +359,7 @@ prepare_env() {
             msg_debug -n "Checking ${_pkg} ..."
             _version="$("${tools_dir}/package.py" -s "${_pkg}")" || _result="${?}"
             case "${_result}" in
-                "0")
+                "0" | "1")
                     [[ "${debug}" = true ]] && echo -ne " ${_version}\n"
                     ;;
                 "1")
@@ -368,8 +368,7 @@ prepare_env() {
                 "2")
                     _local="$(echo "${_version}" | getclm 1)"
                     _latest="$(echo "${_version}" | getclm 2)"
-                    [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
-                    msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_local} Latest: ${_latest}"
+                    echo; msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_local} Latest: ${_latest}"
                     ;;
                 "3")
                     [[ "${debug}" = true ]] && echo
