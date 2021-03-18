@@ -62,7 +62,7 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Build and install
 chmod +s /usr/bin/sudo
-for _pkg in "${@}"
+for _pkg in "pamac-aur" "${@}"; do
     yes | sudo -u aurbuild \
         yay -Sy \
             --mflags "-AcC" \
@@ -79,6 +79,11 @@ for _pkg in "${@}"
             --config "/etc/alteriso-pacman.conf" \
             --cachedir "/var/cache/pacman/pkg/" \
             "${_pkg}"
+
+    if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
+        echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+        exit 1
+    fi
 done
 
 yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
