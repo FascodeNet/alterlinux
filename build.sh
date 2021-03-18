@@ -356,23 +356,12 @@ prepare_env() {
         local _check_failed=false _pkg _result=0 _version _local _latest
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
-            msg_debug -n "Checking ${_pkg} ..."
-            _version="$("${tools_dir}/package.py" -s "${_pkg}")" || _result="${?}"
+            eval "${tools_dir}/package.py" "${_pkg}" $( [[ "${debug}" = false ]] && echo "> /dev/null") || _result="${?}"
             case "${_result}" in
-                "0" | "1")
-                    [[ "${debug}" = true ]] && echo -ne " ${_version}\n"
-                    ;;
-                "1")
-                    echo; msg_warn "Failed to get the latest version of ${_pkg}."
-                    ;;
-                "2")
-                    _local="$(echo "${_version}" | getclm 1)"
-                    _latest="$(echo "${_version}" | getclm 2)"
-                    echo; msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_local} Latest: ${_latest}"
-                    ;;
                 "3")
-                    [[ "${debug}" = true ]] && echo
-                    msg_error "${_pkg} is not installed." ; _check_failed=true
+                    #[[ "${debug}" = true ]] && echo
+                    #msg_error "${_pkg} is not installed." 
+                    _check_failed=true
                     ;;
                 "4")
                     [[ "${debug}" = true ]] && echo
