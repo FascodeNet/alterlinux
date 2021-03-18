@@ -130,7 +130,8 @@ function user_check () {
 # run_additional_command [command name] [command to actually execute]
 run_additional_command() {
     if [[ -f "$(type -p "${1}" 2> /dev/null)" ]]; then
-        ${2}
+        shift 1
+        eval "${@}"
     fi
 }
 
@@ -198,7 +199,7 @@ chown root:root -R /etc/sudoers.d/
 
 
 # Configure Plymouth settings
-if [[ $boot_splash = true ]]; then
+if [[ "${boot_splash}" = true ]]; then
     # Edit calamares settings for Plymouth.
 
     # Use lightdm-plymouth instead of lightdm.
@@ -217,7 +218,7 @@ if [[ $boot_splash = true ]]; then
     sed -i "s/%PLYMOUTH_THEME%/${theme_name}/g" "/etc/plymouth/plymouthd.conf"
 
     # Apply plymouth theme settings.
-    plymouth-set-default-theme ${theme_name}
+    run_additional_command "plymouth-set-default-theme" "plymouth-set-default-theme ${theme_name}"
 else
     # Delete the configuration file for plymouth.
     remove "/usr/share/calamares/modules/services-plymouth.conf"
@@ -235,7 +236,7 @@ fi
 
 #TUI Installer configs
 
-echo ${kernel_filename} > /root/kernel_filename
+echo "${kernel_filename}" > /root/kernel_filename
 
 # Calamares configs
 
@@ -284,7 +285,7 @@ sed -i -r  "s/(GRUB_DISTRIBUTOR=).*/\1\"${grub_os_name}\"/g" "/etc/default/grub"
 
 # Create new icon cache
 # This is because alter icon was added by airootfs.
-run_additional_command "gtk-update-icon-cache" "gtk-update-icon-cache -f /usr/share/icons/hicolor"
+run_additional_command "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 
 
 # systemctl helper
