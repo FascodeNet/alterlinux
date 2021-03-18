@@ -353,7 +353,7 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _result=0 _version
+        local _check_failed=false _pkg _result=0 _version _local _latest
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             msg_debug -n "Checking ${_pkg} ..."
@@ -366,8 +366,10 @@ prepare_env() {
                     echo; msg_warn "Failed to get the latest version of ${_pkg}."
                     ;;
                 "2")
+                    _local="$(echo "${_version}" | getclm 1)"
+                    _latest="$(echo "${_version}" | getclm 2)"
                     [[ "${debug}" = true ]] && echo -ne " ${_result[1]}\n"
-                    msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_result[1]} Latest: ${_result[2]}"
+                    msg_warn "The version of ${_pkg} installed in local does not match one of the latest.\nLocal: ${_local} Latest: ${_latest}"
                     ;;
                 "3")
                     [[ "${debug}" = true ]] && echo
