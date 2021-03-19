@@ -73,10 +73,10 @@ msg_debug() {
 
 
 # Parse options
-ARGUMENT="${@}"
+ARGUMENT=("${@}")
 OPTS="a:bc:de:k:l:mh"
 OPTL="arch:,boot-splash,channel:,debug,exclude:,kernel:,locale:,memtest86,aur,help,line"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
 
