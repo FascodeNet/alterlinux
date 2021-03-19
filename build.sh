@@ -521,8 +521,6 @@ prepare_build() {
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
-    msg_debug "Use ${build_pacman_conf}"
-
     # Pacman configuration file used only when building
     # If there is pacman.conf for each channel, use that for building
     if [[ -f "${channel_dir}/pacman-${arch}.conf" ]]; then
@@ -530,6 +528,8 @@ make_pacman_conf() {
     else
         build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
     fi
+
+    msg_debug "Use ${build_pacman_conf}"
 
     if [[ "${nosigcheck}" = true ]]; then
         sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
