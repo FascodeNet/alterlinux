@@ -516,11 +516,12 @@ prepare_build() {
     fi
 
     # Set argument of pkglist.sh
-    pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
-    if [[ "${boot_splash}"   = true ]]; then pkglist_args+=" -b"; fi
-    if [[ "${debug}"         = true ]]; then pkglist_args+=" -d"; fi
-    if [[ "${memtest86}"     = true ]]; then pkglist_args+=" -m"; fi
-    pkglist_args+=" ${modules[*]}"
+    pkglist_args=("-a" "${arch}" "-k" "${kernel}" "-c" "${channel_dir}" "-l" "${locale_name}")
+    if [[ "${boot_splash}"   = true ]]; then pkglist_args+=("-b"); fi
+    if [[ "${debug}"         = true ]]; then pkglist_args+=("-d"); fi
+    if [[ "${memtest86}"     = true ]]; then pkglist_args+=("-m"); fi
+    if (( "${#additional_exclude_pkg[@]}" >= 1 )); then pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
+    pkglist_args+=("${modules[*]}")
 
     # Unmount
     umount_chroot
@@ -561,7 +562,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages_repo() {
-    local _pkglist=($("${tools_dir}/pkglist.sh" ${pkglist_args}))
+    local _pkglist=($("${tools_dir}/pkglist.sh" "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -572,7 +573,7 @@ make_packages_repo() {
 }
 
 make_packages_aur() {
-    local _pkglist_aur=($("${tools_dir}/pkglist.sh" --aur ${pkglist_args}))
+    local _pkglist_aur=($("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
