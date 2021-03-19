@@ -216,6 +216,7 @@ done
 #-- additional_exclude_pkg のパッケージを_excludelistに追加 --#
 if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
     _excludelist+=(${additional_exclude_pkg[@]})
+    msg_debug "Additional excluded packages: ${additional_exclude_pkg[*]}"
 fi
 
 #-- excludeに記述されたパッケージを除外 --#
