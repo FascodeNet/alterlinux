@@ -81,7 +81,7 @@ if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
 fi
 
 eval set -- "${OPT}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL ARGUMENT
 
 while true; do
     case "${1}" in
