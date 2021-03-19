@@ -22,6 +22,7 @@ module_dir="${script_path}/modules"
 customized_username=false
 customized_password=false
 customized_kernel=false
+pkglist_args=""
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
 
@@ -514,6 +515,13 @@ prepare_build() {
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
+    # Set argument of pkglist.sh
+    pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
+    if [[ "${boot_splash}"   = true ]]; then pkglist_args+=" -b"; fi
+    if [[ "${debug}"         = true ]]; then pkglist_args+=" -d"; fi
+    if [[ "${memtest86}"     = true ]]; then pkglist_args+=" -m"; fi
+    pkglist_args+=" ${modules[*]}"
+
     # Unmount
     umount_chroot
 }
@@ -553,15 +561,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages_repo() {
-    local _pkg _pkglist_args="-a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
-
-    # get pkglist
-    if [[ "${boot_splash}"   = true ]]; then _pkglist_args+=" -b"; fi
-    if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
-    if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
-    _pkglist_args+=" ${modules[*]}"
-
-    local _pkglist=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
+    local _pkglist=($("${tools_dir}/pkglist.sh" ${pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -572,20 +572,10 @@ make_packages_repo() {
 }
 
 make_packages_aur() {
-    local _pkg _pkglist_args="--aur -a ${arch} -k ${kernel} -c ${channel_dir} -l ${locale_name}"
-
-    # get pkglist
-    # get pkglist
-    if [[ "${boot_splash}"   = true ]]; then _pkglist_args+=" -b"; fi
-    if [[ "${debug}"         = true ]]; then _pkglist_args+=" -d"; fi
-    if [[ "${memtest86}"     = true ]]; then _pkglist_args+=" -m"; fi
-    _pkglist_args+=" ${modules[*]}"
-
-    local _pkglist_aur=($("${tools_dir}/pkglist.sh" ${_pkglist_args}))
+    local _pkglist_aur=($("${tools_dir}/pkglist.sh" --aur ${pkglist_args}))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n\n# AUR packages.\n#\n\n" >> "${work_dir}/packages.list"
-    #for _pkg in ${_pkglist_aur[@]}; do echo ${_pkg} >> "${work_dir}/packages.list"; done
     printf "%s\n" "${_pkglist_aur[@]}" >> "${work_dir}/packages.list"
 
     # prepare for yay
