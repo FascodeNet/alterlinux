@@ -58,10 +58,10 @@ sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 # Install yay
 (
     _oldpwd="$(pwd)"
-    git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-    cd "/tmp/yay"
     pacman -Syy --noconfirm
     pacman --noconfirm -S --asdeps --needed go
+    sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+    cd "/tmp/yay"
     sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --install
     cd ..
     rm -rf "/tmp/yay"
