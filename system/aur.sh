@@ -59,6 +59,18 @@ pacman-key --init
 #eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
 ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
+# Install yay
+(
+    _oldpwd="$(pwd)"
+    git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+    cd "/tmp/yay"
+    pacman -Syy --noconfirm
+    pacman --noconfirm -S --asdeps --needed go
+    makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --install
+    cd ..
+    rm -rf "/tmp/yay"
+    cd "${_oldpwd}"
+)
 
 # Build and install
 chmod +s /usr/bin/sudo
