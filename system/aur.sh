@@ -62,7 +62,7 @@ sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
     cd "/tmp/yay"
     pacman -Syy --noconfirm
     pacman --noconfirm -S --asdeps --needed go
-    makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --install
+    sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --install
     cd ..
     rm -rf "/tmp/yay"
     cd "${_oldpwd}"
