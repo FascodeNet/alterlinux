@@ -10,13 +10,6 @@ set -e -u
 
 aur_username="aurbuild"
 
-# Check yay
-if ! type -p yay > /dev/null; then
-    echo "yay was not found. Please install it."
-    exit 1
-fi
-
-
 # Delete file only if file exists
 # remove <file1> <file2> ...
 function remove () {
@@ -71,6 +64,12 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
     rm -rf "/tmp/yay"
     cd "${_oldpwd}"
 )
+
+if ! type -p yay > /dev/null; then
+    echo "Failed to install yay"
+    exit 1
+fi
+
 
 # Build and install
 chmod +s /usr/bin/sudo
