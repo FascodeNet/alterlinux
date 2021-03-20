@@ -63,7 +63,7 @@ if pacman -Qq yay 1> /dev/null 2>&1; then
 else
     (
         _oldpwd="$(pwd)"
-        pacman -Syy --noconfirm
+        pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
         pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
         sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
         cd "/tmp/yay"
