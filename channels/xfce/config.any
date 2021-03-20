@@ -21,7 +21,6 @@ usershell="/bin/zsh"
 modules=(
     "share-extra"
     "lightdm"
-    "xfce-alter"
     "qtongtk"
     "base"
     "share"
