@@ -68,7 +68,7 @@ else
         sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
         cd "/tmp/yay"
         sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(makepkg --packagelist)
+        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u aurbuild makepkg --packagelist)
         cd ..
         rm -rf "/tmp/yay"
         cd "${_oldpwd}"
