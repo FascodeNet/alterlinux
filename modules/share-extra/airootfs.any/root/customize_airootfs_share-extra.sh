@@ -31,6 +31,17 @@ usermod -aG autologin ${username}
 _systemd_service enable systemd-timesyncd.service
 
 
+# Pipewire
+# Do not use _systemd_service because pipewire services are not system but user
+# Use flag "--user --global"
+# https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/923
+for _service in "pipewire.service" "pipewire-pulse.service"
+    if systemctl --user --global cat "${_service}" 1> /dev/null 2>&1; then
+        systemctl --user --global enable "${_service}"
+    fi
+done
+
+
 # Update system datebase
 if type -p dconf 1>/dev/null 2>/dev/null; then
     dconf update
