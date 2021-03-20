@@ -56,17 +56,21 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
 # Install yay
-(
-    _oldpwd="$(pwd)"
-    pacman -Syy --noconfirm
-    pacman --noconfirm -S --asdeps --needed go
-    sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-    cd "/tmp/yay"
-    sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --install
-    cd ..
-    rm -rf "/tmp/yay"
-    cd "${_oldpwd}"
-)
+if pacman -Qq yay 1> /dev/null 2>&1; then
+    remove_yay=false
+else
+    (
+        _oldpwd="$(pwd)"
+        pacman -Syy --noconfirm
+        pacman --noconfirm -S --asdeps --needed go
+        sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+        cd "/tmp/yay"
+        sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --install --noconfirm
+        cd ..
+        rm -rf "/tmp/yay"
+        cd "${_oldpwd}"
+    )
+fi
 
 if ! type -p yay > /dev/null; then
     echo "Failed to install yay"
