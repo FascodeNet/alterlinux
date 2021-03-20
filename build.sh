@@ -462,7 +462,7 @@ prepare_build() {
             msg_error "Module ${1} is not available." "1";
         fi
     }
-    modules=($(printf "%s\n" "${modules[@]}" | sort | uniq))
+    modules=($(printf "%s\n" "${modules[@]}" | awk '!a[$0]++'))
     for_module "module_check {}"
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
