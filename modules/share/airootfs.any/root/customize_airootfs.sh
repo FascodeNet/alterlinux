@@ -296,8 +296,8 @@ _systemd_service(){
     local _command="${1}"
     shift 1
     for _service in "${@}"; do
-        #if [[ -f "$(systemctl cat "${_service}" 2> "/dev/null" | head -n 1 | tail | sed 's|# ||g')" ]]; then
-        if systemctl cat "${_service}" 1>&2 2>/dev/null; then
+        # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
+        if (( "$(suystemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
             systemctl ${_command} "${_service}"
         fi
     done
