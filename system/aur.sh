@@ -58,9 +58,7 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
 # Install yay
-if pacman -Qq yay 1> /dev/null 2>&1; then
-    remove_yay=false
-else
+if ! pacman -Qq yay 1> /dev/null 2>&1; then
     (
         _oldpwd="$(pwd)"
         pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"

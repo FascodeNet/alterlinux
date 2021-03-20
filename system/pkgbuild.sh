@@ -81,6 +81,30 @@ pacman-key --init
 #eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
 ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
+# Un comment the mirror list.
+sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
+
+# Install yay
+if ! pacman -Qq yay 1> /dev/null 2>&1; then
+    (
+        _oldpwd="$(pwd)"
+        pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
+        pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
+        sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+        cd "/tmp/yay"
+        sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u aurbuild makepkg --packagelist)
+        cd ..
+        rm -rf "/tmp/yay"
+        cd "${_oldpwd}"
+    )
+fi
+
+if ! type -p yay > /dev/null; then
+    echo "Failed to install yay"
+    exit 1
+fi
+
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
