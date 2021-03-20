@@ -10,6 +10,8 @@ set -e -u
 
 aur_username="aurbuild"
 
+trap 'exit 1' 1 2 3 15
+
 # Delete file only if file exists
 # remove <file1> <file2> ...
 function remove () {
