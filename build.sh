@@ -581,7 +581,6 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    cp -rf --preserve=mode "/usr/bin/yay" "${airootfs_dir}/usr/local/bin/yay"
 
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
