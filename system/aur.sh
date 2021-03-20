@@ -52,6 +52,9 @@ pacman-key --init
 #eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
 ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
+# Un comment the mirror list.
+sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
+
 # Install yay
 (
     _oldpwd="$(pwd)"
