@@ -13,6 +13,8 @@ line=false
 debug=false
 memtest86=false
 
+additional_exclude_pkg=()
+
 arch=""
 channel_dir=""
 kernel=""
@@ -29,6 +31,7 @@ _help() {
     echo "    -b | --boot-splash        Enable boot splash"
     echo "    -c | --channel [dir]      Specify the channel directory"
     echo "    -d | --debug              Enable debug message"
+    echo "    -e | --exclude [pkgs]     List of packages to be additionally excluded"
     echo "    -k | --kernel [kernel]    Specify the kernel"
     echo "    -l | --locale [locale]    Specify the locale"
     echo "    -m | --memtest86          Enable memtest86 package"
@@ -70,15 +73,15 @@ msg_debug() {
 
 
 # Parse options
-ARGUMENT="${@}"
-OPTS="a:bc:dk:l:mh"
-OPTL="arch:,boot-splash,channel:,debug,kernel:,locale:,memtest86,aur,help,line"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+ARGUMENT=("${@}")
+OPTS="a:bc:de:k:l:mh"
+OPTL="arch:,boot-splash,channel:,debug,exclude:,kernel:,locale:,memtest86,aur,help,line"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
 
 eval set -- "${OPT}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL ARGUMENT
 
 while true; do
     case "${1}" in
@@ -97,6 +100,10 @@ while true; do
         -d | --debug)
             debug=true
             shift 1
+            ;;
+        -e | --exclude)
+            additional_exclude_pkg=(${2})
+            shift 2
             ;;
         -k | --kernel)
             kernel="${2}"
@@ -205,6 +212,12 @@ for _file in ${_excludefile[@]}; do
         _excludelist+=($(grep -h -v ^'#' "${_file}") )
     fi
 done
+
+#-- additional_exclude_pkg のパッケージを_excludelistに追加 --#
+if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
+    _excludelist+=(${additional_exclude_pkg[@]})
+    msg_debug "Additional excluded packages: ${additional_exclude_pkg[*]}"
+fi
 
 #-- excludeに記述されたパッケージを除外 --#
 # _pkglistを_subpkglistにコピーしexcludeのパッケージを除外し再代入

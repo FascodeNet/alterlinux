@@ -62,7 +62,7 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Build and install
 chmod +s /usr/bin/sudo
-for _pkg in "pamac-aur" "${@}"; do
+for _pkg in "${@}"; do
     yes | sudo -u aurbuild \
         yay -Sy \
             --mflags "-AcC" \
