@@ -9,8 +9,6 @@
 #
 # LightDM and theme packages
 
-
-lightdm
 light-locker
 lightdm-slick-greeter
 lightdm-settings

@@ -56,10 +56,17 @@ include_info=true
 customized_syslinux=true
 
 
-# Add extra files
-# Include files of share-extra channel
+# Modules to include
+# An array of module directory names to include.
 # This setting cannot be changed by an argument.
-include_extra=true
+modules=(
+    "share-extra"
+    "lightdm"
+    "qtongtk"
+    "base"
+    "share"
+    "zsh-powerline"
+)
 
 
 #-- Live environment user --#

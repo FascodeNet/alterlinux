@@ -37,10 +37,6 @@ xfdesktop
 # xfwm4-themes
 
 
-#-- xfce4 config --#
-# alterlinux-xfce-conf
-
-
 #-- xfce4 plugins --#
 thunar-archive-plugin
 thunar-media-tags-plugin

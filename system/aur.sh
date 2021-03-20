@@ -10,6 +10,12 @@ set -e -u
 
 aur_username="aurbuild"
 
+# Check yay
+if ! type -p yay > /dev/null; then
+    echo "yay was not found. Please install it."
+    exit 1
+fi
+
 
 # Delete file only if file exists
 # remove <file1> <file2> ...
@@ -56,22 +62,29 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Build and install
 chmod +s /usr/bin/sudo
-yes | sudo -u aurbuild \
-    yay -Sy \
-        --mflags "-AcC" \
-        --aur \
-        --noconfirm \
-        --nocleanmenu \
-        --nodiffmenu \
-        --noeditmenu \
-        --noupgrademenu \
-        --noprovides \
-        --removemake \
-        --useask \
-        --color always \
-        --config "/etc/alteriso-pacman.conf" \
-        --cachedir "/var/cache/pacman/pkg/" \
-        ${*}
+for _pkg in "${@}"; do
+    yes | sudo -u aurbuild \
+        yay -Sy \
+            --mflags "-AcC" \
+            --aur \
+            --noconfirm \
+            --nocleanmenu \
+            --nodiffmenu \
+            --noeditmenu \
+            --noupgrademenu \
+            --noprovides \
+            --removemake \
+            --useask \
+            --color always \
+            --config "/etc/alteriso-pacman.conf" \
+            --cachedir "/var/cache/pacman/pkg/" \
+            "${_pkg}"
+
+    if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
+        echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+        exit 1
+    fi
+done
 
 yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 

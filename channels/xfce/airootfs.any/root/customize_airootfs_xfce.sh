@@ -26,15 +26,3 @@ else
     remove "/etc/skel/.config/Thunar/uca.xml.jp"
     remove "/home/${username}/.config/Thunar/uca.xml.jp"
 fi
-
-
-# Enable LightDM to auto login
-if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable lightdm-plymouth.service
-else
-    systemctl enable lightdm.service
-fi
-
-
-# Replace auto login user
-sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.conf"
