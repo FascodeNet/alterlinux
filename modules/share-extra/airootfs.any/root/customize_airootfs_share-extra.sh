@@ -35,7 +35,7 @@ _systemd_service enable systemd-timesyncd.service
 # Do not use _systemd_service because pipewire services are not system but user
 # Use flag "--user --global"
 # https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/923
-for _service in "pipewire.service" "pipewire-pulse.service"
+for _service in "pipewire.service" "pipewire-pulse.service"; do
     if systemctl --user --global cat "${_service}" 1> /dev/null 2>&1; then
         systemctl --user --global enable "${_service}"
     fi
