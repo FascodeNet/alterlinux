@@ -109,7 +109,7 @@ getclm() {
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
 echo_blank(){
-    yes " " | head -n "${1}" | tr -d "\n"
+    yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"
 }
 
 _usage () {
