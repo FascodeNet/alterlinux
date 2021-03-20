@@ -625,6 +625,7 @@ make_customize_airootfs() {
 
     for _airootfs in ${_airootfs_list[@]};do
         if [[ -d "${_airootfs}" ]]; then
+            msg_debug "Copying airootfs ${_airootfs} ..."
             cp -af "${_airootfs}"/* "${airootfs_dir}"
         fi
     done
