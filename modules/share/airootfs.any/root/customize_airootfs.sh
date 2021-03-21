@@ -299,6 +299,8 @@ _systemd_service(){
         # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
         if (( "$(suystemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
             systemctl ${_command} "${_service}"
+        else
+            echo "${_service} was not found" >&2
         fi
     done
 }
