@@ -22,6 +22,7 @@ module_dir="${script_path}/modules"
 customized_username=false
 customized_password=false
 customized_kernel=false
+customized_logpath=false
 pkglist_args=""
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
@@ -1075,7 +1076,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
@@ -1230,6 +1231,19 @@ while :; do
             normwork=true
             shift 1
             ;;
+        --log)
+            logging=true
+            shift 1
+            ;;
+        --logpath)
+            logging="${2}"
+            customized_logpath=true
+            shift 2
+            ;;
+        --nolog)
+            logging=false
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1241,7 +1255,6 @@ while :; do
     esac
 done
 
-
 # Check root.
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
@@ -1249,8 +1262,6 @@ if (( ! "${EUID}" == 0 )); then
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
     exit "${?}"
 fi
-
-unset DEFAULT_ARGUMENT ARGUMENT
 
 # Show config message
 msg_debug "Use the default configuration file (${defaultconfig})."
@@ -1297,6 +1308,23 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
         msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
+
+# Run with tee
+if [[ ! "${logging}" = false ]]; then
+    if [[ "${customized_logpath}" = false ]]; then
+        if [[ "${gitversion}" = true ]]; then
+            logging="${out_dir}/${iso_name}-${channel_name%.add}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
+        else
+            logging="${out_dir}/${iso_name}-${channel_name%.add}-$(date +%Y.%m.%d)-${arch}.log"
+        fi
+    fi
+    mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
+    eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
+    exit "${?}"
+fi
+
+unset DEFAULT_ARGUMENT ARGUMENT
 
 set -eu
 
