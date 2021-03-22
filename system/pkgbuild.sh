@@ -68,6 +68,8 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 # Un comment the mirror list.
 #sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
+# Update datebase
+pacman -Syy --config "/etc/alteriso-pacman.conf"
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
