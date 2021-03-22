@@ -38,22 +38,6 @@ function user_check () {
     fi
 }
 
-# Usage: get_srcinfo_data <path> <var>
-# 参考: https://qiita.com/withelmo/items/b0e1ffba639dd3ae18c0
-function get_srcinfo_data() {
-    local _srcinfo="${1}" _ver="${2}"
-    local _srcinfo_json=$(python << EOF
-from srcinfo.parse import parse_srcinfo; import json
-text = """
-$(cat ${1})
-"""
-parsed, errors = parse_srcinfo(text)
-print(json.dumps(parsed))
-EOF
-)
-    echo "${_srcinfo_json}" | jq -rc "${2}" | tr '\n' ' '
-}
-
 # 一般ユーザーで実行します
 function run_user () {
     sudo -u "${build_username}" ${@}
@@ -87,60 +71,11 @@ ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key -
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
-makedepends=() depends=() pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
+pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
-    # Install yay
-    if ! pacman -Qq yay 1> /dev/null 2>&1; then
-        (
-            _oldpwd="$(pwd)"
-            pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
-            pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
-            sudo -u "${build_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-            cd "/tmp/yay"
-            sudo -u "${build_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-            pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u "${build_username}" makepkg --packagelist)
-            cd ..
-            rm -rf "/tmp/yay"
-            cd "${_oldpwd}"
-        )
-    fi
-
-    if ! type -p yay > /dev/null; then
-        echo "Failed to install yay"
-        exit 1
-    fi
-
     for _dir in ${pkgbuild_dirs[@]}; do
         cd "${_dir}"
-        run_user bash -c "makepkg --printsrcinfo > .SRCINFO"
-        makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
-        depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
-        cd - >/dev/null
-    done
-
-    # Build and install
-    chmod +s /usr/bin/sudo
-    echo "Install depends: ${makedepends[*]} ${depends[*]}"
-    yes | run_user \
-        yay -Sy \
-            --mflags "-AcC" \
-            --asdeps \
-            --noconfirm \
-            --nocleanmenu \
-            --nodiffmenu \
-            --noeditmenu \
-            --noupgrademenu \
-            --noprovides \
-            --removemake \
-            --useask \
-            --color always \
-            --config "/etc/alteriso-pacman.conf" \
-            --cachedir "/var/cache/pacman/pkg/" \
-            ${makedepends[*]} ${depends[*]}
-
-    for _dir in ${pkgbuild_dirs[@]}; do
-        cd "${_dir}"
-        run_user makepkg -iAcC --noconfirm 
+        run_user makepkg -iAcCs --noconfirm 
         cd - >/dev/null
     done
 fi
@@ -149,7 +84,7 @@ if deletepkg=($(pacman -Qtdq)) &&  (( "${#deletepkg[@]}" != 0 )); then
     pacman -Rsnc --noconfirm "${deletepkg[@]}" --config "/etc/alteriso-pacman.conf"
 fi
 
-run_user yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
+pacman -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
 # remove user and file
 userdel "${build_username}"
