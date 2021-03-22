@@ -679,6 +679,8 @@ make_customize_airootfs() {
             echo -e "\n" >> "${airootfs_dir}/${_main_script}"
             cat "${_script}" >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
+        else
+            msg_debug "${_script} was not found."
         fi
     done
 
