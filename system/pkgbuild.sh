@@ -120,6 +120,7 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
 
     # Build and install
     chmod +s /usr/bin/sudo
+    echo "Install depends: ${makedepends[*]} ${depends[*]}"
     yes | run_user \
         yay -Sy \
             --mflags "-AcC" \
