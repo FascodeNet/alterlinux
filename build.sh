@@ -601,7 +601,7 @@ make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
-    for _dir in $(find "${_pkgbuild_dirs}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
+    for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
         mkdir -p "${airootfs_dir}/pkgbuilds/"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
