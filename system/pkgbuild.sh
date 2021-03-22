@@ -90,10 +90,10 @@ if ! pacman -Qq yay 1> /dev/null 2>&1; then
         _oldpwd="$(pwd)"
         pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
         pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
-        sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+        sudo -u pkgbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
         cd "/tmp/yay"
-        sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u aurbuild makepkg --packagelist)
+        sudo -u pkgbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u pkgbuild makepkg --packagelist)
         cd ..
         rm -rf "/tmp/yay"
         cd "${_oldpwd}"
