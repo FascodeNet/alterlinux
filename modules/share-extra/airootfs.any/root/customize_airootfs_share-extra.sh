@@ -53,3 +53,6 @@ if type -p dconf 1>/dev/null 2>/dev/null; then
     dconf update
 fi
 
+
+# Change aurorun files permission
+chmod 755 "/home/${username}/.config/autostart/"* "/etc/skel/.config/autostart/"* || true
