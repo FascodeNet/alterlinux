@@ -63,10 +63,10 @@ if ! pacman -Qq yay 1> /dev/null 2>&1; then
         _oldpwd="$(pwd)"
         pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
         pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
-        sudo -u aurbuild git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+        sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
         cd "/tmp/yay"
-        sudo -u aurbuild makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u aurbuild makepkg --packagelist)
+        sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u "${aur_username}" makepkg --packagelist)
         cd ..
         rm -rf "/tmp/yay"
         cd "${_oldpwd}"
@@ -82,7 +82,7 @@ fi
 # Build and install
 chmod +s /usr/bin/sudo
 for _pkg in "${@}"; do
-    yes | sudo -u aurbuild \
+    yes | sudo -u "${aur_username}" \
         yay -Sy \
             --mflags "-AcC" \
             --aur \
@@ -108,7 +108,7 @@ done
 yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
 # remove user and file
-userdel aurbuild
+userdel "${aur_username}"
 remove /aurbuild_temp
 remove /etc/sudoers.d/aurbuild
 remove "/etc/alteriso-pacman.conf"
