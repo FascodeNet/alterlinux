@@ -82,34 +82,34 @@ pacman-key --init
 ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
 # Un comment the mirror list.
-sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
-
-# Install yay
-if ! pacman -Qq yay 1> /dev/null 2>&1; then
-    (
-        _oldpwd="$(pwd)"
-        pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
-        pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
-        sudo -u "${build_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-        cd "/tmp/yay"
-        sudo -u "${build_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u "${build_username}" makepkg --packagelist)
-        cd ..
-        rm -rf "/tmp/yay"
-        cd "${_oldpwd}"
-    )
-fi
-
-if ! type -p yay > /dev/null; then
-    echo "Failed to install yay"
-    exit 1
-fi
+#sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
 makedepends=() depends=() pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
+    # Install yay
+    if ! pacman -Qq yay 1> /dev/null 2>&1; then
+        (
+            _oldpwd="$(pwd)"
+            pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
+            pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
+            sudo -u "${build_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+            cd "/tmp/yay"
+            sudo -u "${build_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+            pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u "${build_username}" makepkg --packagelist)
+            cd ..
+            rm -rf "/tmp/yay"
+            cd "${_oldpwd}"
+        )
+    fi
+
+    if ! type -p yay > /dev/null; then
+        echo "Failed to install yay"
+        exit 1
+    fi
+
     for _dir in ${pkgbuild_dirs[@]}; do
         cd "${_dir}"
         run_user bash -c "makepkg --printsrcinfo > .SRCINFO"

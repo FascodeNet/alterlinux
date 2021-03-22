@@ -55,7 +55,7 @@ pacman-key --init
 ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
 # Un comment the mirror list.
-sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
+#sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
 # Install yay
 if ! pacman -Qq yay 1> /dev/null 2>&1; then
