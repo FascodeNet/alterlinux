@@ -1316,9 +1316,9 @@ fi
 if [[ ! "${logging}" = false ]]; then
     if [[ "${customized_logpath}" = false ]]; then
         if [[ "${gitversion}" = true ]]; then
-            logging="${out_dir}/${iso_name}-${channel_name%.add}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
+            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
         else
-            logging="${out_dir}/${iso_name}-${channel_name%.add}-$(date +%Y.%m.%d)-${arch}.log"
+            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-${arch}.log"
         fi
     fi
     mkdir -p "$(dirname "${logging}")"; touch "${logging}"
