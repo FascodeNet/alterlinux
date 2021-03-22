@@ -80,7 +80,11 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
         depends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${depends[@]}"))
         makedepends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${makedepends[@]}"))
         if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
-            pacman -S --noconfirm --asdeps --needed "${depends[@]}" "${makedepends[@]}"
+            for _pkg in ${depends[@]} ${makedepends[@]}; do
+                if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
+                    pacman -S --config "/etc/alteriso-pacman.conf" --noconfirm --asdeps --needed "${_pkg}"
+                fi
+            done
         fi
         run_user makepkg -iAcCs --noconfirm 
         cd - >/dev/null
