@@ -77,6 +77,9 @@ pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
     for _dir in ${pkgbuild_dirs[@]}; do
         cd "${_dir}"
+        depends=($(source "${_dir}/PKGBUILD"; echo "${depends[@]}"))
+        makedepends=($(source "${_dir}/PKGBUILD"; echo "${makedepends[@]}"))
+        pacman -S --noconfirm --asdeps --needed "${depends[@]}" "${makedepends[@]}"
         run_user makepkg -iAcCs --noconfirm 
         cd - >/dev/null
     done
