@@ -150,8 +150,7 @@ _usage () {
 
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
-        for _list in ${script_path}/system/${_type}-* ; do
-            _arch="${_list#${script_path}/system/${_type}-}"
+        for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
             echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - 4 - "${#_arch}" ))")"
             "${tools_dir}/${_type}.sh" -a "${_arch}" show
         done
@@ -160,8 +159,7 @@ _usage () {
 
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n show); do
-        echo -ne "    ${_dirname%.add}"
-        echo_blank "$(( "${blank}" - 3 - "$(echo "${_dirname%.add}" | wc -m)" ))"
+        echo -ne "    ${_dirname%.add}$(echo_blank "$(( "${blank}" - 3 - "$(echo "${_dirname%.add}" | wc -m)" ))")"
         "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname%.add}"
     done
 
