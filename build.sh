@@ -1066,6 +1066,10 @@ make_iso() {
         -eltorito-catalog isolinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
         -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+        --mbr-force-bootable \
+        -iso_mbr_part_type 0FC63DAF-8483-4772-8E79-3D69D8477DE4 \
+        -partition_offset 16 \
+        -eltorito-alt-boot \
         ${_iso_efi_boot_args} \
         -output "${out_dir}/${iso_filename}" \
         "${work_dir}/iso/"
