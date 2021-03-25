@@ -24,3 +24,4 @@ system/cpp-src/mkalteriso/CMakeLists.txt.user
 menuconfig-script/kernel_choice_*
 /custom.conf
 /out/
+out
