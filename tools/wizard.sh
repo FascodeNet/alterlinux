@@ -148,15 +148,21 @@ Function_Global_Main_check_required_files () {
     Var_Local_file_list=(
         "build.sh"
         "tools/keyring.sh"
+        "tools/clean.sh"
         "tools/channel.sh"
+        "tools/module.sh"
         "tools/locale.sh"
+        "tools/kernel.sh"
+        "tools/pkglist.sh"
+        "tools/alteriso-info.sh"
+        "tools/package.py"
+        "tools/msg.sh"
         "system/kernel-i686"
         "system/kernel-x86_64"
         "system/locale-i686"
         "system/locale-x86_64"
         "system/pacman-i686.conf"
         "system/pacman-x86_64.conf"
-        "system/arch-pkgbuild-parser"
         "default.conf"
     )
 
@@ -173,6 +179,13 @@ Function_Global_Main_check_required_files () {
 
 Function_Global_Main_load_default_config () {
     source "${Var_Global_Wizard_Env_script_path}/default.conf"
+}
+
+Function_Global_Main_check_yay(){
+    if ! pacman -Qq yay > /dev/null 2>&1; then
+        msg_error "yayが見つかりませんでした" "yay was not found."
+        exit 1
+    fi
 }
 
 Function_Global_Main_install_dependent_packages () {
@@ -208,7 +221,7 @@ Function_Global_Main_install_dependent_packages () {
         fi
     done
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
-        sudo pacman -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
+        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
     fi
     echo
 }
@@ -818,6 +831,7 @@ Function_Global_Main_ask_questions () {
 Function_Global_Prebuild() {
     Function_Global_Main_wizard_language
     Function_Global_Main_check_required_files
+    #Function_Global_Main_check_yay
     Function_Global_Main_load_default_config
     Function_Global_Main_install_dependent_packages
     Function_Global_Main_guide_to_the_web

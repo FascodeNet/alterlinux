@@ -22,4 +22,3 @@ Alter Linuxのリポジトリを使用する場合は鍵を追加する必要が
 [alterlinux-mirrorlist](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-mirrorlist)
 [alterlinux-wallpapers](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-wallpapers) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-wallpapers)
 [alterlinux-welcome-page](https://github.com/FascodeNet/alterlinux-desktop-file/tree/master/alterlinux-welcome-page) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-welcome-page)
-[alterlinux-xfce-conf](https://github.com/FascodeNet/alterlinux-xfce-conf) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-xfce-conf)

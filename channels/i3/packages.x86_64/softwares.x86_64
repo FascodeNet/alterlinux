@@ -9,22 +9,9 @@
 #
 # some softwares
 
-# internet
-chromium
-# firefox
-thunderbird
-
 # file manager
 thunar
 file-roller
-
-# office
-libreoffice-still
-
-# audio
-pavucontrol
-pulseaudio
-vlc
 
 # notification daemon
 dunst
@@ -35,10 +22,6 @@ xfce4-clipman-plugin
 # screenshot
 xfce4-screenshooter
 
-# system
-gparted
-grub-customizer
-
 # for sysmenu
 arandr
-htop
+

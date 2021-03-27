@@ -1,7 +1,7 @@
 favorites=firefox.desktop,thunderbird.desktop,vlc.desktop,xfce4-screenshooter.desktop
 recent=
 button-title=Alter
-button-icon=alter
+button-icon=/usr/share/icons/hicolor/96x96/apps/alter.png
 button-single-row=false
 show-button-title=true
 show-button-icon=true

@@ -38,5 +38,6 @@ papirus-icon-theme
 #-- wallpaper --#
 alterlinux-wallpapers
 
-# Qt config
-qt5ct
+
+#-- To run fascode-live-tools on lxde session --#
+python-pyxdg
