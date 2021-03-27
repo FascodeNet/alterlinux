@@ -183,6 +183,7 @@ _usage () {
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --normwork              No remove working dir"
+    echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
@@ -1079,7 +1080,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
@@ -1247,6 +1248,10 @@ while :; do
             logging=false
             shift 1
             ;;
+        --nopkgbuild)
+            nopkgbuild=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1338,7 +1343,7 @@ run_once make_pacman_conf
 run_once make_basefs # Mount airootfs
 run_once make_packages_repo
 [[ "${noaur}" = false ]] && run_once make_packages_aur
-run_once make_pkgbuild
+[[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 [[ "${tarball}" = true ]] && run_once make_tarball
