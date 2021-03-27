@@ -730,8 +730,9 @@ make_boot() {
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
     if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
-        cp "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
-        cp "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/memtest.COPYING"
+        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
     fi
 
     local _ucode_image
@@ -807,9 +808,13 @@ make_syslinux() {
     cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
 
 
-    mkdir -p "${isofs_dir}/syslinux/hdt"
-    gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/syslinux/hdt/pciids.gz"
-    gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > "${isofs_dir}/syslinux/hdt/modalias.gz"
+    if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
+        install -d -m 0755 -- "${isofs_dir}/syslinux/hdt"
+        if [[ -e "${airootfs_dir}/usr/share/hwdata/pci.ids" ]]; then
+            gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/syslinux/hdt/pciids.gz"
+        fi
+        find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > "${isofs_dir}/syslinux/hdt/modalias.gz"
+    fi
 }
 
 # Prepare /isolinux
