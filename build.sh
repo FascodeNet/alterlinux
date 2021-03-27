@@ -731,8 +731,9 @@ make_boot() {
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
     if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
-        cp "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
-        cp "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/memtest.COPYING"
+        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
     fi
 
     local _ucode_image
@@ -753,7 +754,7 @@ make_boot_extra() {
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
     _uname_r="$(file -b ${airootfs_dir}/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux"
+    mkdir -p "${isofs_dir}/syslinux"
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
@@ -768,7 +769,7 @@ make_syslinux() {
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%ARCH%|${arch}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
+             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
@@ -781,49 +782,48 @@ make_syslinux() {
         _no_use_config_name=splash
     fi
     for _pxe_or_sys in "sys" "pxe"; do
-        remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
-        mv "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}.cfg"
+        remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+        mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}.cfg"
     done
 
     # Set syslinux wallpaper
     if [[ -f "${channel_dir}/splash.png" ]]; then
-        cp "${channel_dir}/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
+        cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
     else
-        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
+        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
     fi
 
     # remove config
     local _remove_config
     function _remove_config() {
-        remove "${isofs_dir}/${install_dir}/boot/syslinux/${1}"
-        sed -i "s|$(cat "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+        remove "${isofs_dir}/syslinux/${1}"
+        sed -i "s|$(cat "${isofs_dir}/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
     }
 
-    if [[ "${norescue_entry}" = true ]]; then
-        _remove_config archiso_sys_rescue.cfg
-    fi
-
-    if [[ "${memtest86}" = false ]]; then
-        _remove_config memtest86.cfg
-    fi
+    if [[ "${norescue_entry}" = true  ]]; then _remove_config archiso_sys_rescue.cfg;  fi
+    if [[ "${memtest86}"      = false ]]; then _remove_config memtest86.cfg;           fi
 
     # copy files
-    cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/${install_dir}/boot/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux"
-    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
-    gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
-    gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+    cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
+
+
+    if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
+        install -d -m 0755 -- "${isofs_dir}/syslinux/hdt"
+        if [[ -e "${airootfs_dir}/usr/share/hwdata/pci.ids" ]]; then
+            gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/syslinux/hdt/pciids.gz"
+        fi
+        find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > "${isofs_dir}/syslinux/hdt/modalias.gz"
+    fi
 }
 
 # Prepare /isolinux
 make_isolinux() {
-    mkdir -p "${isofs_dir}/isolinux"
-    sed "s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/system/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
+    sed "s|%INSTALL_DIR%|${install_dir}|g" "${script_path}/system/isolinux.cfg" > "${isofs_dir}/syslinux/isolinux.cfg"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
 }
 
 # Prepare /EFI
@@ -1039,13 +1039,6 @@ make_overisofs() {
 # Build ISO
 make_iso() {
     local _iso_efi_boot_args=""
-    if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
-    fi
-    if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
-    fi
-
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
         _iso_efi_boot_args="-eltorito-alt-boot -e EFI/alteriso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat"
@@ -1063,10 +1056,10 @@ make_iso() {
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
         -preparer "prepared by AlterISO" \
-        -eltorito-boot isolinux/isolinux.bin \
-        -eltorito-catalog isolinux/boot.cat \
+        -eltorito-boot syslinux/isolinux.bin \
+        -eltorito-catalog syslinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+        -isohybrid-mbr ${work_dir}/iso/syslinux/isohdpfx.bin \
         ${_iso_efi_boot_args} \
         -output "${out_dir}/${iso_filename}" \
         "${work_dir}/iso/"
