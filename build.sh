@@ -820,12 +820,10 @@ make_syslinux() {
 
 # Prepare /isolinux
 make_isolinux() {
-    mkdir -p "${isofs_dir}/isolinux"
-    sed "s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/system/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
+    sed "s|%INSTALL_DIR%|${install_dir}|g" "${script_path}/system/isolinux.cfg" > "${isofs_dir}/syslinux/isolinux.cfg"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
 }
 
 # Prepare /EFI
@@ -1041,13 +1039,6 @@ make_overisofs() {
 # Build ISO
 make_iso() {
     local _iso_efi_boot_args=""
-    if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
-    fi
-    if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
-    fi
-
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
         _iso_efi_boot_args="-eltorito-alt-boot -e EFI/alteriso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat"
@@ -1065,10 +1056,10 @@ make_iso() {
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
         -preparer "prepared by AlterISO" \
-        -eltorito-boot isolinux/isolinux.bin \
-        -eltorito-catalog isolinux/boot.cat \
+        -eltorito-boot syslinux/isolinux.bin \
+        -eltorito-catalog syslinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+        -isohybrid-mbr ${work_dir}/iso/syslinux/isohdpfx.bin \
         ${_iso_efi_boot_args} \
         -output "${out_dir}/${iso_filename}" \
         "${work_dir}/iso/"
