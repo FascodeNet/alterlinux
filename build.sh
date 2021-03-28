@@ -872,11 +872,11 @@ EOF
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
     mkdir -p "${isofs_dir}/EFI/alteriso"
-    truncate -s 128M "${isofs_dir}/EFI/alteriso/efiboot.img"
-    mkfs.fat -n ARCHISO_EFI "${isofs_dir}/EFI/alteriso/efiboot.img"
+    truncate -s 128M "${work_dir}/efiboot.img"
+    mkfs.fat -n ARCHISO_EFI "${work_dir}/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
-    mount "${isofs_dir}/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
+    mount "${work_dir}/efiboot.img" "${work_dir}/efiboot"
 
     mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
     cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
@@ -1034,8 +1034,8 @@ make_overisofs() {
 make_iso() {
     local _iso_efi_boot_args=""
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
-        _iso_efi_boot_args="-eltorito-alt-boot -e EFI/alteriso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat"
+    if [[ -f "${work_dir}/efiboot.img" ]]; then
+        _iso_efi_boot_args="-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B ${work_dir}/efiboot.img -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat"
     fi
 
     mkdir -p -- "${out_dir}"
