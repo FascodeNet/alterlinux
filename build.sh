@@ -871,7 +871,6 @@ EOF
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
-    mkdir -p "${isofs_dir}/EFI/alteriso"
     truncate -s 128M "${work_dir}/efiboot.img"
     mkfs.fat -n ARCHISO_EFI "${work_dir}/efiboot.img"
 
