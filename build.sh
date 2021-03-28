@@ -146,7 +146,7 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch  _list _dirname _type
+    local blank="33" _arch _dirname _type
 
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
@@ -334,8 +334,7 @@ check_bool() {
         _value="$(eval echo '$'${_variable})"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
             if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is empty." "1"
-        fi
-        if [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
             if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is not of bool type." "1"
         elif [[ "${debug}" = true ]]; then
             echo -e " ${_value}"
@@ -348,14 +347,12 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _result=0 _version _local _latest
+        local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             eval "${tools_dir}/package.py" "${_pkg}" $( [[ "${debug}" = false ]] && echo "> /dev/null") || _result="${?}"
             case "${_result}" in
                 "3")
-                    #[[ "${debug}" = true ]] && echo
-                    #msg_error "${_pkg} is not installed." 
                     _check_failed=true
                     ;;
                 "4")
@@ -370,9 +367,7 @@ prepare_env() {
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
-        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        fi
+        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"; fi
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
 
@@ -391,8 +386,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         if [[ "${normwork}" = false ]]; then
-            echo
-            "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+            echo; "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
         fi
         exit ${status}
     }
