@@ -3,31 +3,9 @@
 <channel name="xfce4-panel" version="1.0">
   <property name="configver" type="int" value="2"/>
   <property name="panels" type="array">
-    <value type="int" value="1"/>
     <value type="int" value="2"/>
     <value type="int" value="3"/>
     <value type="int" value="4"/>
-    <value type="int" value="5"/>
-    <value type="int" value="6"/>
-    <property name="panel-1" type="empty">
-      <property name="position" type="string" value="p=10;x=970;y=953"/>
-      <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="5"/>
-      <property name="position-locked" type="bool" value="true"/>
-      <property name="plugin-ids" type="array">
-        <value type="int" value="2"/>
-      </property>
-      <property name="autohide-behavior" type="uint" value="1"/>
-      <property name="background-style" type="uint" value="1"/>
-      <property name="background-rgba" type="array">
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
-      </property>
-      <property name="enter-opacity" type="uint" value="75"/>
-      <property name="leave-opacity" type="uint" value="75"/>
-    </property>
     <property name="panel-2" type="empty">
       <property name="position" type="string" value="p=6;x=64;y=25"/>
       <property name="size" type="uint" value="35"/>
@@ -91,41 +69,8 @@
       <property name="enter-opacity" type="uint" value="100"/>
       <property name="leave-opacity" type="uint" value="100"/>
     </property>
-    <property name="panel-5" type="empty">
-      <property name="position" type="string" value="p=8;x=98;y=949"/>
-      <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="20"/>
-      <property name="position-locked" type="bool" value="true"/>
-      <property name="enter-opacity" type="uint" value="0"/>
-      <property name="leave-opacity" type="uint" value="0"/>
-      <property name="background-style" type="uint" value="1"/>
-      <property name="background-rgba" type="array">
-        <value type="double" value="0.750000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.000000"/>
-      </property>
-      <property name="autohide-behavior" type="uint" value="1"/>
-    </property>
-    <property name="panel-6" type="empty">
-      <property name="position" type="string" value="p=4;x=1824;y=949"/>
-      <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="20"/>
-      <property name="position-locked" type="bool" value="true"/>
-      <property name="background-style" type="uint" value="1"/>
-      <property name="background-rgba" type="array">
-        <value type="double" value="0.750000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.000000"/>
-      </property>
-      <property name="autohide-behavior" type="uint" value="1"/>
-      <property name="enter-opacity" type="uint" value="0"/>
-      <property name="leave-opacity" type="uint" value="0"/>
-    </property>
   </property>
   <property name="plugins" type="empty">
-    <property name="plugin-2" type="string" value="docklike"/>
     <property name="plugin-3" type="string" value="whiskermenu"/>
     <property name="plugin-11" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
