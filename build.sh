@@ -253,7 +253,7 @@ umount_trap() {
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in ${@}; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
+    for _file in "${@}"; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
 }
 
 # Display channel list
@@ -269,7 +269,7 @@ show_channel_list() {
 # for_module <command>
 for_module(){
     local module
-    for module in ${modules[@]}; do eval $(echo ${@} | sed "s|{}|${module}|g"); done
+    for module in "${modules[@]}"; do eval $(echo "${@}" | sed "s|{}|${module}|g"); done
 }
 
 # パッケージをインストールする
@@ -282,7 +282,7 @@ _pacman(){
 # コマンドをchrootで実行する
 _chroot_run() {
     msg_debug "Run command in chroot\nCommand: ${*}"
-    eval -- arch-chroot "${airootfs_dir}" ${@}
+    eval -- arch-chroot "${airootfs_dir}" "${@}"
 }
 
 _cleanup_common () {
@@ -326,7 +326,7 @@ _mkchecksum() {
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value _variable
-    for _variable in ${@}; do
+    for _variable in "${@}"; do
         msg_debug -n "Checking ${_variable}..."
         eval ': ${'${_variable}':=""}'
         _value="$(eval echo '$'${_variable})"
@@ -347,7 +347,7 @@ prepare_env() {
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
-        for _pkg in ${dependence[@]}; do
+        for _pkg in "${dependence[@]}"; do
             eval "${tools_dir}/package.py" "${_pkg}" $( [[ "${debug}" = false ]] && echo "> /dev/null") || _result="${?}"
             case "${_result}" in
                 "3")
@@ -627,7 +627,7 @@ make_customize_airootfs() {
     _airootfs_list=("${channel_dir}/airootfs.any" "${channel_dir}/airootfs.${arch}")
     for_module '_airootfs_list=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}" ${_airootfs_list[@]})'
 
-    for _airootfs in ${_airootfs_list[@]};do
+    for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
             msg_debug "Copying airootfs ${_airootfs} ..."
             cp -af "${_airootfs}"/* "${airootfs_dir}"
@@ -676,7 +676,7 @@ make_customize_airootfs() {
     for_module '_script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")'
 
     # Create script
-    for _script in ${_script_list[@]}; do
+    for _script in "${_script_list[@]}"; do
         if [[ -f "${_script}" ]]; then
             echo -e "\n$(cat "${_script}")" >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
@@ -855,7 +855,7 @@ make_efi() {
         _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
     fi
 
-    for _efi_config in ${_efi_config_list[@]}; do
+    for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -927,7 +927,7 @@ make_efiboot() {
         _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
     fi
 
-    for _efi_config in ${_efi_config_list[@]}; do
+    for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -1036,7 +1036,7 @@ make_overisofs() {
     local _over_isofs_list _isofs
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
     for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
-    for _isofs in ${_over_isofs_list[@]}; do
+    for _isofs in "${_over_isofs_list[@]}"; do
         if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
     done
 }
