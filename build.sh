@@ -197,7 +197,7 @@ _mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(cat /proc/mounts | getclm 2 | grep $(realpath ${work_dir}) | tac); do
+    for _mount in $(cat /proc/mounts | getclm 2 | grep "$(realpath ${work_dir})" | tac); do
         if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
@@ -348,7 +348,7 @@ prepare_env() {
         local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
         for _pkg in "${dependence[@]}"; do
-            eval "${tools_dir}/package.py" "${_pkg}" $( [[ "${debug}" = false ]] && echo "> /dev/null") || _result="${?}"
+            eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             case "${_result}" in
                 "3")
                     _check_failed=true
@@ -376,7 +376,7 @@ prepare_env() {
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ "${normwork}" = false ]]; then
         umount_chroot_advance
         msg_info "Deleting the contents of ${work_dir}..."
-        "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+        "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
     fi
 
     # 強制終了時に作業ディレクトリを削除する
@@ -384,7 +384,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         if [[ "${normwork}" = false ]]; then
-            echo; "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+            echo; "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
         fi
         exit ${status}
     }
@@ -1300,7 +1300,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "clean" ]]; then
-   "${tools_dir}/clean.sh" -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
+   "${tools_dir}/clean.sh" -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
     exit 0
 fi
 
@@ -1346,6 +1346,6 @@ if [[ "${noiso}" = false ]]; then
     run_once make_iso
 fi
 
-[[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
+[[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
 
 exit 0
