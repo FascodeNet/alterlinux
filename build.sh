@@ -512,6 +512,17 @@ prepare_build() {
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
 
+    # Run with tee
+    if [[ ! "${logging}" = false ]]; then
+        if [[ "${customized_logpath}" = false ]]; then
+            logging="${iso_filename%.iso}.log"
+        fi
+        mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+        msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
+        eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
+        exit "${?}"
+    fi
+
     # Set argument of pkglist.sh
     pkglist_args=("-a" "${arch}" "-k" "${kernel}" "-c" "${channel_dir}" "-l" "${locale_name}")
     if [[ "${boot_splash}"   = true ]]; then pkglist_args+=("-b"); fi
@@ -1303,20 +1314,6 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
     fi
 fi
 
-# Run with tee
-if [[ ! "${logging}" = false ]]; then
-    if [[ "${customized_logpath}" = false ]]; then
-        if [[ "${gitversion}" = true ]]; then
-            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
-        else
-            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-${arch}.log"
-        fi
-    fi
-    mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
-    eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
-    exit "${?}"
-fi
 
 unset DEFAULT_ARGUMENT ARGUMENT
 
