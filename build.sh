@@ -269,7 +269,7 @@ show_channel_list() {
 # for_module <command>
 for_module(){
     local module
-    for module in "${modules[@]}"; do eval $(echo "${@}" | sed "s|{}|${module}|g"); done
+    for module in "${modules[@]}"; do eval "$(echo "${@}" | sed "s|{}|${module}|g")"; done
 }
 
 # パッケージをインストールする
@@ -471,8 +471,8 @@ prepare_build() {
     fi
 
     # Parse files
-    eval $(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")
-    eval $(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
+    eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
+    eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
     # Set username
     if [[ "${customized_username}" = false ]]; then
@@ -1076,10 +1076,10 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT="${@}"
+ARGUMENT=("${@}")
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
 OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"); then
     exit 1
 fi
 
@@ -1264,8 +1264,8 @@ done
 # Check root.
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
-    sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
+    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
+    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
     exit "${?}"
 fi
 
