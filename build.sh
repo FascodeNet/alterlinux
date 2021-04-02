@@ -103,9 +103,7 @@ msg_error() {
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cat - | cut -d " " -f "${1}"; }
 
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
