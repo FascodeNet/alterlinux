@@ -519,6 +519,8 @@ prepare_build() {
         msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
         eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
         exit "${?}"
+    else
+        unset DEFAULT_ARGUMENT ARGUMENT
     fi
 
     # Set argument of pkglist.sh
@@ -1314,9 +1316,6 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
         msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
-
-
-unset DEFAULT_ARGUMENT ARGUMENT
 
 set -eu
 
