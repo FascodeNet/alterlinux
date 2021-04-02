@@ -422,7 +422,7 @@ prepare_build() {
     if [[ -d "${script_path}/.git" ]]; then
         cd  "${script_path}"
         msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd "${OLDPWD}" > /dev/null 2>&1
+        cd "${OLDPWD}"
     fi
 
     # Set dirs
@@ -489,7 +489,7 @@ prepare_build() {
     # gitversion
     if [[ "${gitversion}" = true ]]; then
         cd "${script_path}"
-        iso_version=${iso_version}-$(git rev-parse --short HEAD)
+        iso_version="${iso_version}-$(git rev-parse --short HEAD)"
         cd "${OLDPWD}"
     fi
 
