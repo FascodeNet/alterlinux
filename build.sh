@@ -680,8 +680,7 @@ make_customize_airootfs() {
     # Create script
     for _script in ${_script_list[@]}; do
         if [[ -f "${_script}" ]]; then
-            echo -e "\n" >> "${airootfs_dir}/${_main_script}"
-            cat "${_script}" >> "${airootfs_dir}/${_main_script}"
+            echo -e "\n$(cat "${_script}")" >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
         else
             msg_debug "${_script} was not found."
@@ -700,12 +699,16 @@ make_customize_airootfs() {
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
     local _hook
-    mkdir -p "${airootfs_dir}/etc/initcpio/hooks"
-    mkdir -p "${airootfs_dir}/etc/initcpio/install"
-    for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
-        cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
-    done
+    mkdir -p "${airootfs_dir}/etc/initcpio/hooks" "${airootfs_dir}/etc/initcpio/install"
+
+    find "${script_path}/system/initcpio/hooks/" -type f -printf0 2> /dev/null | xargs -I{} -0 cp "{}" "${airootfs_dir}/etc/initcpio/hooks"
+    find "${script_path}/system/initcpio/install/" -type f -printf0 2> /dev/null | xargs -I{} -0 cp "{}" "${airootfs_dir}/etc/initcpio/install"
+
+    #for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
+    #    cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
+    #    cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
+    #done
+
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
     cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
     cp "${script_path}/system/initcpio/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
