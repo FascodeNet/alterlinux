@@ -7,9 +7,9 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Alter Linux original
+# This package list will only be installed if the Japanese option is enabled.
+#
+# Japanese package
 
-
-#-- installer --#
-alterlinux-calamares
-libpwquality
+# other
+man-pages-ja

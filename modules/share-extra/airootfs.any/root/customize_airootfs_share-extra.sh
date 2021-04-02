@@ -36,7 +36,8 @@ _systemd_service enable systemd-timesyncd.service
 # Use flag "--user --global"
 # https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/923
 for _service in "pipewire.service" "pipewire-pulse.service"; do
-    if systemctl --user --global cat "${_service}" 1> /dev/null 2>&1; then
+    #if systemctl --user --global cat "${_service}" 1> /dev/null 2>&1; then
+    if (( "$(systemctl --user --global list-unit-files "${_service}" | wc -l)" > 3 )); then
         systemctl --user --global enable "${_service}"
     fi
 done
@@ -52,3 +53,6 @@ if type -p dconf 1>/dev/null 2>/dev/null; then
     dconf update
 fi
 
+
+# Change aurorun files permission
+chmod 755 "/home/${username}/.config/autostart/"* "/etc/skel/.config/autostart/"* || true

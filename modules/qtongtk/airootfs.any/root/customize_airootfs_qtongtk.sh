@@ -18,7 +18,7 @@ files=(
 for file in "${files[@]}"; do
     mkdir -p "$(dirname "${file}")"
     touch "${file}"
-    echo "${code}" > "${file}"
+    echo "${code}" >> "${file}"
 done
 
 unset code files file

@@ -38,22 +38,6 @@ function user_check () {
     fi
 }
 
-# Usage: get_srcinfo_data <path> <var>
-# 参考: https://qiita.com/withelmo/items/b0e1ffba639dd3ae18c0
-function get_srcinfo_data() {
-    local _srcinfo="${1}" _ver="${2}"
-    local _srcinfo_json=$(python << EOF
-from srcinfo.parse import parse_srcinfo; import json
-text = """
-$(cat ${1})
-"""
-parsed, errors = parse_srcinfo(text)
-print(json.dumps(parsed))
-EOF
-)
-    echo "${_srcinfo_json}" | jq -rc "${2}" | tr '\n' ' '
-}
-
 # 一般ユーザーで実行します
 function run_user () {
     sudo -u "${build_username}" ${@}
@@ -81,41 +65,28 @@ pacman-key --init
 #eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
 ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
 
+# Un comment the mirror list.
+#sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
+
+# Update datebase
+pacman -Syy --config "/etc/alteriso-pacman.conf"
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
-makedepends=() depends=() pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
+pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
     for _dir in ${pkgbuild_dirs[@]}; do
         cd "${_dir}"
-        run_user bash -c "makepkg --printsrcinfo > .SRCINFO"
-        makedepends+=($(get_srcinfo_data ".SRCINFO" ".makedepends[]?"))
-        depends+=($(get_srcinfo_data ">SRCINFO" ".depends[]?"))
-        cd - >/dev/null
-    done
-
-    # Build and install
-    chmod +s /usr/bin/sudo
-    yes | run_user \
-        yay -Sy \
-            --mflags "-AcC" \
-            --asdeps \
-            --noconfirm \
-            --nocleanmenu \
-            --nodiffmenu \
-            --noeditmenu \
-            --noupgrademenu \
-            --noprovides \
-            --removemake \
-            --useask \
-            --color always \
-            --config "/etc/alteriso-pacman.conf" \
-            --cachedir "/var/cache/pacman/pkg/" \
-            ${makedepends[*]} ${depends[*]}
-
-    for _dir in ${pkgbuild_dirs[@]}; do
-        cd "${_dir}"
-        run_user makepkg -iAcC --noconfirm 
+        depends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${depends[@]}"))
+        makedepends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${makedepends[@]}"))
+        if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
+            for _pkg in ${depends[@]} ${makedepends[@]}; do
+                if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
+                    pacman -S --config "/etc/alteriso-pacman.conf" --noconfirm --asdeps --needed "${_pkg}"
+                fi
+            done
+        fi
+        run_user makepkg -iAcCs --noconfirm 
         cd - >/dev/null
     done
 fi
@@ -124,7 +95,7 @@ if deletepkg=($(pacman -Qtdq)) &&  (( "${#deletepkg[@]}" != 0 )); then
     pacman -Rsnc --noconfirm "${deletepkg[@]}" --config "/etc/alteriso-pacman.conf"
 fi
 
-run_user yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
+pacman -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
 
 # remove user and file
 userdel "${build_username}"

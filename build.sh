@@ -22,6 +22,7 @@ module_dir="${script_path}/modules"
 customized_username=false
 customized_password=false
 customized_kernel=false
+customized_logpath=false
 pkglist_args=""
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
@@ -109,7 +110,7 @@ getclm() {
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
 echo_blank(){
-    yes " " | head -n "${1}" | tr -d "\n"
+    yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"
 }
 
 _usage () {
@@ -145,12 +146,11 @@ _usage () {
     echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch  _list _dirname _type
+    local blank="33" _arch _dirname _type
 
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
-        for _list in ${script_path}/system/${_type}-* ; do
-            _arch="${_list#${script_path}/system/${_type}-}"
+        for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
             echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - 4 - "${#_arch}" ))")"
             "${tools_dir}/${_type}.sh" -a "${_arch}" show
         done
@@ -159,8 +159,7 @@ _usage () {
 
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n show); do
-        echo -ne "    ${_dirname%.add}"
-        echo_blank "$(( "${blank}" - 3 - "$(echo "${_dirname%.add}" | wc -m)" ))"
+        echo -ne "    ${_dirname%.add}$(echo_blank "$(( "${blank}" - 3 - "$(echo "${_dirname%.add}" | wc -m)" ))")"
         "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname%.add}"
     done
 
@@ -170,6 +169,9 @@ _usage () {
     echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
     echo "         --channellist           Output the channel list and exit"
     echo "         --gitversion            Add Git commit hash to image file version"
+    echo "         --log                   Enable logging (re-run script with tee)"
+    echo "         --logpath <file>        Set log file path (use with --log)"
+    echo "         --nolog                 No logging"
     echo "         --msgdebug              Enables output debugging"
     echo "         --noaur                 Ignore aur packages (Use only for debugging)"
     echo "         --nocolor               No output colored output"
@@ -181,6 +183,7 @@ _usage () {
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --normwork              No remove working dir"
+    echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
@@ -331,8 +334,7 @@ check_bool() {
         _value="$(eval echo '$'${_variable})"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
             if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is empty." "1"
-        fi
-        if [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
+        elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
             if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is not of bool type." "1"
         elif [[ "${debug}" = true ]]; then
             echo -e " ${_value}"
@@ -345,14 +347,12 @@ check_bool() {
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _result=0 _version _local _latest
+        local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
         for _pkg in ${dependence[@]}; do
             eval "${tools_dir}/package.py" "${_pkg}" $( [[ "${debug}" = false ]] && echo "> /dev/null") || _result="${?}"
             case "${_result}" in
                 "3")
-                    #[[ "${debug}" = true ]] && echo
-                    #msg_error "${_pkg} is not installed." 
                     _check_failed=true
                     ;;
                 "4")
@@ -367,9 +367,7 @@ prepare_env() {
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
-        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then
-            msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        fi
+        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"; fi
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
 
@@ -388,8 +386,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         if [[ "${normwork}" = false ]]; then
-            echo
-            "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+            echo; "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
         fi
         exit ${status}
     }
@@ -448,9 +445,9 @@ prepare_build() {
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         if [[ ! -z "${include_extra+SET}" ]]; then
             if [[ "${include_extra}" = true ]]; then
-                modules=("share" "share-extra" "base" "zsh-powerline")
+                modules=("base" "share" "share-extra" "zsh-powerline")
             else
-                modules=("share" "base")
+                modules=("base" "share")
             fi
         fi
     fi
@@ -581,7 +578,6 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    cp -rf --preserve=mode "/usr/bin/yay" "${airootfs_dir}/usr/local/bin/yay"
 
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
@@ -589,7 +585,7 @@ make_packages_aur() {
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
 
     # Remove script
-    remove "${airootfs_dir}/root/aur.sh" "${airootfs_dir}/usr/local/bin/yay"
+    remove "${airootfs_dir}/root/aur.sh"
 }
 
 make_pkgbuild() {
@@ -598,21 +594,20 @@ make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
-    for _dir in $(find "${_pkgbuild_dirs}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
+    for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
         mkdir -p "${airootfs_dir}/pkgbuilds/"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
     #-- ビルドスクリプトの実行 --#
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
-    cp -rf --preserve=mode "/usr/bin/yay" "${airootfs_dir}/usr/local/bin/yay"
     sed "s|https|http|g" "${work_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run build script
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds"
 
     # Remove script
-    remove "${airootfs_dir}/root/pkgbuild.sh" "${airootfs_dir}/usr/local/bin/yay"
+    remove "${airootfs_dir}/root/pkgbuild.sh"
 }
 
 # Customize installation (airootfs)
@@ -677,6 +672,8 @@ make_customize_airootfs() {
             echo -e "\n" >> "${airootfs_dir}/${_main_script}"
             cat "${_script}" >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
+        else
+            msg_debug "${_script} was not found."
         fi
     done
 
@@ -728,8 +725,9 @@ make_boot() {
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
     if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
-        cp "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
-        cp "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/memtest.COPYING"
+        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
     fi
 
     local _ucode_image
@@ -750,7 +748,7 @@ make_boot_extra() {
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
     _uname_r="$(file -b ${airootfs_dir}/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
-    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux"
+    mkdir -p "${isofs_dir}/syslinux"
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${work_dir}/${arch}/syslinux/"
@@ -765,7 +763,7 @@ make_syslinux() {
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%ARCH%|${arch}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/${install_dir}/boot/syslinux/${_cfg##*/}"
+             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
@@ -778,49 +776,48 @@ make_syslinux() {
         _no_use_config_name=splash
     fi
     for _pxe_or_sys in "sys" "pxe"; do
-        remove "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
-        mv "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_${_pxe_or_sys}.cfg"
+        remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+        mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}.cfg"
     done
 
     # Set syslinux wallpaper
     if [[ -f "${channel_dir}/splash.png" ]]; then
-        cp "${channel_dir}/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
+        cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
     else
-        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/${install_dir}/boot/syslinux"
+        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
     fi
 
     # remove config
     local _remove_config
     function _remove_config() {
-        remove "${isofs_dir}/${install_dir}/boot/syslinux/${1}"
-        sed -i "s|$(cat "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/${install_dir}/boot/syslinux/archiso_sys_load.cfg" 
+        remove "${isofs_dir}/syslinux/${1}"
+        sed -i "s|$(cat "${isofs_dir}/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
     }
 
-    if [[ "${norescue_entry}" = true ]]; then
-        _remove_config archiso_sys_rescue.cfg
-    fi
-
-    if [[ "${memtest86}" = false ]]; then
-        _remove_config memtest86.cfg
-    fi
+    if [[ "${norescue_entry}" = true  ]]; then _remove_config archiso_sys_rescue.cfg;  fi
+    if [[ "${memtest86}"      = false ]]; then _remove_config memtest86.cfg;           fi
 
     # copy files
-    cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/${install_dir}/boot/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/${install_dir}/boot/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/${install_dir}/boot/syslinux"
-    mkdir -p "${isofs_dir}/${install_dir}/boot/syslinux/hdt"
-    gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/${install_dir}/boot/syslinux/hdt/pciids.gz"
-    gzip -c -9 "${airootfs_dir}/usr/lib/modules/${_uname_r}/modules.alias" > "${isofs_dir}/${install_dir}/boot/syslinux/hdt/modalias.gz"
+    cp "${work_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
+
+
+    if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
+        install -d -m 0755 -- "${isofs_dir}/syslinux/hdt"
+        if [[ -e "${airootfs_dir}/usr/share/hwdata/pci.ids" ]]; then
+            gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/syslinux/hdt/pciids.gz"
+        fi
+        find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > "${isofs_dir}/syslinux/hdt/modalias.gz"
+    fi
 }
 
 # Prepare /isolinux
 make_isolinux() {
-    mkdir -p "${isofs_dir}/isolinux"
-    sed "s|%INSTALL_DIR%|${install_dir}|g" \
-    "${script_path}/system/isolinux.cfg" > "${isofs_dir}/isolinux/isolinux.cfg"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/isolinux/"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/isolinux/"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/ldlinux.c32" "${isofs_dir}/isolinux/"
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
+    sed "s|%INSTALL_DIR%|${install_dir}|g" "${script_path}/system/isolinux.cfg" > "${isofs_dir}/syslinux/isolinux.cfg"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
 }
 
 # Prepare /EFI
@@ -874,12 +871,11 @@ EOF
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
 make_efiboot() {
-    mkdir -p "${isofs_dir}/EFI/alteriso"
-    truncate -s 128M "${isofs_dir}/EFI/alteriso/efiboot.img"
-    mkfs.fat -n ARCHISO_EFI "${isofs_dir}/EFI/alteriso/efiboot.img"
+    truncate -s 128M "${work_dir}/efiboot.img"
+    mkfs.fat -n ARCHISO_EFI "${work_dir}/efiboot.img"
 
     mkdir -p "${work_dir}/efiboot"
-    mount "${isofs_dir}/EFI/alteriso/efiboot.img" "${work_dir}/efiboot"
+    mount "${work_dir}/efiboot.img" "${work_dir}/efiboot"
 
     mkdir -p "${work_dir}/efiboot/EFI/alteriso/${arch}"
     cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${work_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
@@ -1036,16 +1032,9 @@ make_overisofs() {
 # Build ISO
 make_iso() {
     local _iso_efi_boot_args=""
-    if [[ ! -f "${work_dir}/iso/isolinux/isolinux.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isolinux.bin' does not exist." 1
-    fi
-    if [[ ! -f "${work_dir}/iso/isolinux/isohdpfx.bin" ]]; then
-         _msg_error "The file '${work_dir}/iso/isolinux/isohdpfx.bin' does not exist." 1
-    fi
-
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${work_dir}/iso/EFI/alteriso/efiboot.img" ]]; then
-        _iso_efi_boot_args="-eltorito-alt-boot -e EFI/alteriso/efiboot.img -no-emul-boot -isohybrid-gpt-basdat"
+    if [[ -f "${work_dir}/efiboot.img" ]]; then
+        _iso_efi_boot_args="-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B ${work_dir}/efiboot.img -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat"
     fi
 
     mkdir -p -- "${out_dir}"
@@ -1060,10 +1049,10 @@ make_iso() {
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
         -preparer "prepared by AlterISO" \
-        -eltorito-boot isolinux/isolinux.bin \
-        -eltorito-catalog isolinux/boot.cat \
+        -eltorito-boot syslinux/isolinux.bin \
+        -eltorito-catalog syslinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr ${work_dir}/iso/isolinux/isohdpfx.bin \
+        -isohybrid-mbr ${work_dir}/iso/syslinux/isohdpfx.bin \
         ${_iso_efi_boot_args} \
         -output "${out_dir}/${iso_filename}" \
         "${work_dir}/iso/"
@@ -1077,7 +1066,7 @@ make_iso() {
 # Parse options
 ARGUMENT="${@}"
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
     exit 1
 fi
@@ -1232,6 +1221,23 @@ while :; do
             normwork=true
             shift 1
             ;;
+        --log)
+            logging=true
+            shift 1
+            ;;
+        --logpath)
+            logging="${2}"
+            customized_logpath=true
+            shift 2
+            ;;
+        --nolog)
+            logging=false
+            shift 1
+            ;;
+        --nopkgbuild)
+            nopkgbuild=true
+            shift 1
+            ;;
         --)
             shift
             break
@@ -1243,7 +1249,6 @@ while :; do
     esac
 done
 
-
 # Check root.
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
@@ -1251,8 +1256,6 @@ if (( ! "${EUID}" == 0 )); then
     sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
     exit "${?}"
 fi
-
-unset DEFAULT_ARGUMENT ARGUMENT
 
 # Show config message
 msg_debug "Use the default configuration file (${defaultconfig})."
@@ -1300,6 +1303,23 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
     fi
 fi
 
+# Run with tee
+if [[ ! "${logging}" = false ]]; then
+    if [[ "${customized_logpath}" = false ]]; then
+        if [[ "${gitversion}" = true ]]; then
+            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
+        else
+            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-${arch}.log"
+        fi
+    fi
+    mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
+    eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
+    exit "${?}"
+fi
+
+unset DEFAULT_ARGUMENT ARGUMENT
+
 set -eu
 
 prepare_env
@@ -1309,7 +1329,7 @@ run_once make_pacman_conf
 run_once make_basefs # Mount airootfs
 run_once make_packages_repo
 [[ "${noaur}" = false ]] && run_once make_packages_aur
-run_once make_pkgbuild
+[[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 [[ "${tarball}" = true ]] && run_once make_tarball

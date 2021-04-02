@@ -831,7 +831,7 @@ Function_Global_Main_ask_questions () {
 Function_Global_Prebuild() {
     Function_Global_Main_wizard_language
     Function_Global_Main_check_required_files
-    Function_Global_Main_check_yay
+    #Function_Global_Main_check_yay
     Function_Global_Main_load_default_config
     Function_Global_Main_install_dependent_packages
     Function_Global_Main_guide_to_the_web
