@@ -197,11 +197,9 @@ _mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(cat /proc/mounts | getclm 2 | grep "$(realpath ${work_dir})" | tac); do
-        if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
-            msg_info "Unmounting ${_mount}"
-            _umount "${_mount}" 2> /dev/null
-        fi
+    for _mount in $(cat /proc/mounts | getclm 2 | grep "$(realpath ${work_dir})" | tac | grep -xv "$(realpath ${work_dir})/${arch}/airootfs"); do
+        msg_info "Unmounting ${_mount}"
+        _umount "${_mount}" 2> /dev/null
     done
 }
 
@@ -1086,7 +1084,7 @@ eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
 unset OPT OPTS OPTL
 
-while :; do
+while true; do
     case "${1}" in
         -a | --arch)
             arch="${2}"
