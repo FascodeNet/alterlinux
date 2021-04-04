@@ -514,8 +514,8 @@ prepare_build() {
             logging="${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
-        eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
+        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}"
+        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog 2>&1 | tee ${logging}
         exit "${?}"
     else
         unset DEFAULT_ARGUMENT ARGUMENT
