@@ -23,7 +23,7 @@ customized_username=false
 customized_password=false
 customized_kernel=false
 customized_logpath=false
-pkglist_args=""
+pkglist_args=()
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
 
