@@ -39,30 +39,33 @@ _help() {
     echo
     echo "Display a message with a colored app name and message type label"
     echo
+    echo " Example: ${0} -a 'Script' -s 10 warn It is example message"
+    echo " Output : $(bash "${msgsh}" -a "Script" -s 10 warn It is example message)"
+    echo
     echo " General type:"
-    echo "    info                      General message"
-    echo "    warn                      Warning message"
-    echo "    error                     Error message"
-    echo "    debug                     Debug message"
+    echo "    info                                  General message"
+    echo "    warn                                  Warning message"
+    echo "    error                                 Error message"
+    echo "    debug                                 Debug message"
     echo
     echo " General options:"
-    echo "    -a [name]                 Specify the app name"
-    echo "    -c [character]            Specify the character to adjust the label"
-    echo "    -l [label]                Specify the label"
-    echo "    -n | --nocolor            No output colored output"
-    echo "    -o [option]               Specify echo options"
-    echo "    -p [output]               Specify the output destination"
-    echo "                              standard output: stdout"
-    echo "                              error output   : stderr"
-    echo "    -r [color]                Specify the color of label"
-    echo "    -s [number]               Specifies the label space"
-    echo "    -t [color]                Specify the color of text"
-    echo "    -x | --bash-debug         Enables output bash debugging"
-    echo "    -h | --help               This help message"
+    echo "    -a | --appname [name]                 Specify the app name"
+    echo "    -c | --chr     [character]            Specify the character to adjust the label"
+    echo "    -l | --label   [label]                Specify the label"
+    echo "    -n | --nocolor                        No output colored output"
+    echo "    -o | --echo-option [option]           Specify echo options"
+    echo "    -p | --output [output]                Specify the output destination"
+    echo "                                          standard output: stdout"
+    echo "                                          error output   : stderr"
+    echo "    -r | --label-color [color]            Specify the color of label"
+    echo "    -s | --label-space [number]           Specifies the label space"
+    echo "    -t | --text-color [color]             Specify the color of text"
+    echo "    -x | --bash-debug                     Enables output bash debugging"
+    echo "    -h | --help                           This help message"
     echo
-    echo "         --nolabel            Do not output label"
-    echo "         --noappname          Do not output app name"
-    echo "         --noadjust           Do not adjust the width of the label"
+    echo "         --nolabel                        Do not output label"
+    echo "         --noappname                      Do not output app name"
+    echo "         --noadjust                       Do not adjust the width of the label"
 }
 
 # text [-b/-c color/-f/-l/]
@@ -118,25 +121,25 @@ check_color(){
 
 ARGUMENT=("${@}")
 OPTS="a:c:l:no:p:r:s:t:xh"
-OPTL="nocolor,bash-debug,help,nolabel,noappname,noadjust"
+OPTL="appname:,chr:,label:,nocolor,echo-option:,output:,label-color:,label-space:,text-color:,bash-debug,help,nolabel,noappname,noadjust"
 if ! OPT=($(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")); then
     exit 1
 fi
 
 eval set -- "${OPT[@]}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL ARGUMENT
 
 while true; do
     case "${1}" in
-        -a)
+        -a | --appname)
             appname="${2}"
             shift 2
             ;;
-        -c)
+        -c | --chr)
             adjust_chr="${2}"
             shift 2
             ;;
-        -l)
+        -l | --label)
             customized_label=true
             msg_label="${2}"
             shift 2
@@ -145,16 +148,16 @@ while true; do
             nocolor=true
             shift 1
             ;;
-        -o)
+        -o | --echo-option)
             echo_opts+=(${2})
             shift 2
             ;;
-        -p)
+        -p | --output)
             output="${2}"
             customized_output=true
             shift 2
             ;;
-        -r)
+        -r | --label-color)
             customized_label_color=true
             if check_color "${2}"; then
                 labelcolor="${2}"
@@ -164,11 +167,11 @@ while true; do
             fi
             shift 2
             ;;
-        -s)
+        -s | --label-space)
             label_space="${2}"
             shift 2
             ;;
-        -t)
+        -t | --text-color)
             customized_text_color=true
             if check_color "${2}"; then
                 textcolor="${2}"
