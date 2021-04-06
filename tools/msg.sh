@@ -66,61 +66,33 @@ _help() {
 # text [-b/-c color/-f/-l/]
 # -b: 太字, -f: 点滅, -l: 下線
 text() {
-    local OPTIND OPTARG _arg _textcolor _decotypes="" _message
+    local OPTIND OPTARG _arg _textcolor _decotypes=""
     while getopts "c:bfln" _arg; do
         case "${_arg}" in
             c)
                 case "${OPTARG}" in
-                    "black")
-                        _textcolor="30"
-                        ;;
-                    "red")
-                        _textcolor="31"
-                        ;;
-                    "green")
-                        _textcolor="32"
-                        ;;
-                    "yellow")
-                        _textcolor="33"
-                        ;;
-                    "blue")
-                        _textcolor="34"
-                        ;;
-                    "magenta")
-                        _textcolor="35"
-                        ;;
-                    "cyan")
-                        _textcolor="36"
-                        ;;
-                    "white")
-                        _textcolor="37"
-                        ;;
-                    *)
-                        return 1
-                        ;;
+                    "black"  ) _textcolor="30" ;;
+                    "red"    ) _textcolor="31" ;;
+                    "green"  ) _textcolor="32" ;;
+                    "yellow" ) _textcolor="33" ;;
+                    "blue"   ) _textcolor="34" ;;
+                    "magenta") _textcolor="35" ;;
+                    "cyan"   ) _textcolor="36" ;;
+                    "white"  ) _textcolor="37" ;;
+                    *        ) return 1        ;;
                 esac
                 ;;
-            b)
-                _decotypes="${_decotypes};1"
-                ;;
-            f)
-                _decotypes="${_decotypes};5"
-                ;;
-            l)
-                _decotypes="${_decotypes};4"
-                ;;
-            n)
-                _decotypes="${_decotypes};0"
-                ;;
+            b) _decotypes="${_decotypes};1" ;;
+            f) _decotypes="${_decotypes};5" ;;
+            l) _decotypes="${_decotypes};4" ;;
+            n) _decotypes="${_decotypes};0" ;;
         esac
     done
     shift "$((OPTIND - 1))"
-
-    _message="${@}"
     if [[ "${nocolor}" = true ]]; then
-        echo -ne "${@}"
+        echo -ne "${*}"
     else
-        echo -ne "\e[$([[ -v _textcolor ]] && echo -n ";${_textcolor}"; [[ -v _decotypes ]] && echo -n "${_decotypes}")m${_message}\e[m"
+        echo -ne "\e[$([[ -v _textcolor ]] && echo -n ";${_textcolor}"; [[ -v _decotypes ]] && echo -n "${_decotypes}")m${*}\e[m"
     fi
 }
 
