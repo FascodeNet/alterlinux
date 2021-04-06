@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-set -e
+set -eu
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
+msgsh="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/$(basename "${0}")"
 
 msg_type="info"
-echo_opts=""
+echo_opts=()
 bash_debug=false
 nocolor=false
-
 
 # appname
 appname="msg.sh"
@@ -37,188 +36,182 @@ _help() {
     echo
     echo "Display a message with a colored app name and message type label"
     echo
+    echo " Example: ${0} -a 'Script' -s 10 warn It is example message"
+    echo " Output : $(bash "${msgsh}" -a "Script" -s 10 warn It is example message)"
+    echo
     echo " General type:"
-    echo "    info                      General message"
-    echo "    warn                      Warning message"
-    echo "    error                     Error message"
-    echo "    debug                     Debug message"
+    echo "    info                                  General message"
+    echo "    warn                                  Warning message"
+    echo "    error                                 Error message"
+    echo "    debug                                 Debug message"
     echo
     echo " General options:"
-    echo "    -a [name]                 Specify the app name"
-    echo "    -c [character]            Specify the character to adjust the label"
-    echo "    -l [label]                Specify the label"
-    echo "    -n | --nocolor            No output colored output"
-    echo "    -o [option]               Specify echo options"
-    echo "    -p [output]               Specify the output destination"
-    echo "                              standard output: stdout"
-    echo "                              error output   : stderr"
-    echo "    -r [color]                Specify the color of label"
-    echo "    -s [number]               Specifies the label space"
-    echo "    -t [color]                Specify the color of text"
-    echo "    -x | --bash-debug         Enables output bash debugging"
-    echo "    -h | --help               This help message"
+    echo "    -a | --appname [name]                 Specify the app name"
+    echo "    -c | --chr     [character]            Specify the character to adjust the label"
+    echo "    -l | --label   [label]                Specify the label"
+    echo "    -n | --nocolor                        No output colored output"
+    echo "    -o | --echo-option [option]           Specify echo options"
+    echo "    -p | --output [output]                Specify the output destination"
+    echo "                                          standard output: stdout"
+    echo "                                          error output   : stderr"
+    echo "    -r | --label-color [color]            Specify the color of label"
+    echo "    -s | --label-space [number]           Specifies the label space"
+    echo "    -t | --text-color [color]             Specify the color of text"
+    echo "    -x | --bash-debug                     Enables output bash debugging"
+    echo "    -h | --help                           This help message"
     echo
-    echo "         --nolabel            Do not output label"
-    echo "         --noappname          Do not output app name"
-    echo "         --noadjust           Do not adjust the width of the label"
+    echo "         --nolabel                        Do not output label"
+    echo "         --noappname                      Do not output app name"
+    echo "         --noadjust                       Do not adjust the width of the label"
 }
 
 # text [-b/-c color/-f/-l/]
 # -b: 太字, -f: 点滅, -l: 下線
 text() {
-    local OPTIND OPTARG _arg _textcolor _decotypes="" _message
+    local OPTIND OPTARG _arg _textcolor _decotypes=""
     while getopts "c:bfln" _arg; do
         case "${_arg}" in
             c)
                 case "${OPTARG}" in
-                    "black")
-                        _textcolor="30"
-                        ;;
-                    "red")
-                        _textcolor="31"
-                        ;;
-                    "green")
-                        _textcolor="32"
-                        ;;
-                    "yellow")
-                        _textcolor="33"
-                        ;;
-                    "blue")
-                        _textcolor="34"
-                        ;;
-                    "magenta")
-                        _textcolor="35"
-                        ;;
-                    "cyan")
-                        _textcolor="36"
-                        ;;
-                    "white")
-                        _textcolor="37"
-                        ;;
-                    *)
-                        return 1
-                        ;;
+                    "black"  ) _textcolor="30" ;;
+                    "red"    ) _textcolor="31" ;;
+                    "green"  ) _textcolor="32" ;;
+                    "yellow" ) _textcolor="33" ;;
+                    "blue"   ) _textcolor="34" ;;
+                    "magenta") _textcolor="35" ;;
+                    "cyan"   ) _textcolor="36" ;;
+                    "white"  ) _textcolor="37" ;;
+                    *        ) return 1        ;;
                 esac
                 ;;
-            b)
-                _decotypes="${_decotypes};1"
-                ;;
-            f)
-                _decotypes="${_decotypes};5"
-                ;;
-            l)
-                _decotypes="${_decotypes};4"
-                ;;
-            n)
-                _decotypes="${_decotypes};0"
-                ;;
+            b) _decotypes="${_decotypes};1" ;;
+            f) _decotypes="${_decotypes};5" ;;
+            l) _decotypes="${_decotypes};4" ;;
+            n) _decotypes="${_decotypes};0" ;;
+            *) msg_error "Wrong use of text function" ;;
         esac
     done
     shift "$((OPTIND - 1))"
-
-    _message="${@}"
     if [[ "${nocolor}" = true ]]; then
-        echo -ne "${@}"
+        echo -ne "${*}"
     else
-        echo -ne "\e[$([[ -v _textcolor ]] && echo -n ";${_textcolor}"; [[ -v _decotypes ]] && echo -n "${_decotypes}")m${_message}\e[m"
+        echo -ne "\e[$([[ -v _textcolor ]] && echo -n ";${_textcolor}"; [[ -v _decotypes ]] && echo -n "${_decotypes}")m${*}\e[m"
     fi
 }
 
 # Message functions
 msg_error() {
-    bash "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
+    bash "${msgsh}" -a "msg.sh" error "${1}"
 }
 
+# Check color
+# Usage check_color <str>
+check_color(){
+    case "${1}" in
+        "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
 
-while getopts "a:c:l:no:p:r:s:t:xh-:" arg; do
-  case "${arg}" in
-        a)
-            appname="${OPTARG}"
+ARGUMENT=("${@}")
+OPTS="a:c:l:no:p:r:s:t:xh"
+OPTL="appname:,chr:,label:,nocolor,echo-option:,output:,label-color:,label-space:,text-color:,bash-debug,help,nolabel,noappname,noadjust"
+if ! OPT=($(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")); then
+    exit 1
+fi
+
+eval set -- "${OPT[@]}"
+unset OPT OPTS OPTL ARGUMENT
+
+while true; do
+    case "${1}" in
+        -a | --appname)
+            appname="${2}"
+            shift 2
             ;;
-        c)
-            adjust_chr="${OPTARG}"
+        -c | --chr)
+            adjust_chr="${2}"
+            shift 2
             ;;
-        l)
+        -l | --label)
             customized_label=true
-            msg_label="${OPTARG}"
+            msg_label="${2}"
+            shift 2
             ;;
-        n)
+        -n | --nocolor)
             nocolor=true
+            shift 1
             ;;
-        o)
-            echo_opts="${OPTARG}"
+        -o | --echo-option)
+            echo_opts+=(${2})
+            shift 2
             ;;
-        p)
-            output="${OPTARG}"
+        -p | --output)
+            output="${2}"
             customized_output=true
+            shift 2
             ;;
-        r)
+        -r | --label-color)
             customized_label_color=true
-            case "${OPTARG}" in
-                "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
-                    labelcolor="${OPTARG}"
-                    ;;
-                *)
-                    msg_error "The wrong color."
-                    exit 1
-                    ;;
-            esac
+            if check_color "${2}"; then
+                labelcolor="${2}"
+            else
+                msg_error "The wrong color."
+                exit 1
+            fi
+            shift 2
             ;;
-        s)
-            label_space="${OPTARG}"
+        -s | --label-space)
+            label_space="${2}"
+            shift 2
             ;;
-        t)
+        -t | --text-color)
             customized_text_color=true
-            case "${OPTARG}" in
-                "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
-                    textcolor="${OPTARG}"
-                    ;;
-                *)
-                    msg_error "The wrong color."
-                    exit 1
-                    ;;
-            esac
+            if check_color "${2}"; then
+                textcolor="${2}"
+            else
+                msg_error "The wrong color."
+                exit 1
+            fi
+            shift 2
             ;;
-        x)
+        -x | --bash_debug)
             bash_debug=true
             set -xv
+            shift 1
             ;;
-        h)
+        -h | --help)
             _help
             shift 1
             exit 0
             ;;
-        -)
-            case "${OPTARG}" in
-                "nocolor")
-                    nocolor=true
-                    ;;
-                "bash-debug")
-                    bash_debug=true
-                    set -xv
-                    ;;
-                "help")
-                    _help
-                    exit 0
-                    ;;
-                "nolabel")
-                    nolabel=true
-                    ;;
-                "noappname")
-                    noappname=true
-                    ;;
-                "noadjust")
-                    noadjust=true
-                    ;;
-                *)
-                    _help
-                    exit 1
-                    ;;
-            esac
-  esac
+        --nolabel)
+            nolabel=true
+            shift 1
+            ;;
+        --noappname)
+            noappname=true
+            shift 1
+            ;;
+        --noadjust)
+            noadjust=true
+            shift 1
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            _help
+            exit 1
+            ;;
+    esac
 done
 
-shift "$((OPTIND - 1))"
 
 # Color echo
 #
@@ -251,7 +244,7 @@ shift "$((OPTIND - 1))"
 # 7 => Reverse video on (色反転)
 # 8 => Concealed on
 
-case "${1}" in
+case "${1-""}" in
     "info")
         msg_type="type"
         [[ "${customized_output}"      = false ]] && output="stdout"
@@ -291,15 +284,16 @@ case "${1}" in
 esac
 
 word_count="${#msg_label}"
-message="${@}"
+message="${*}"
 
 echo_type() {
-    local i
     if [[ "${nolabel}" = false ]]; then
         if [[ "${noadjust}" = false ]]; then
-            for i in $( seq 1 "$(( label_space - word_count))" ); do
-                echo -ne "${adjust_chr}"
-            done
+            yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
+            #local i
+            #for i in $( seq 1 "$(( label_space - word_count))" ); do
+            #    echo -ne "${adjust_chr}"
+            #done
         fi
         text -c "${labelcolor}" "${msg_label}"
     fi
@@ -313,7 +307,7 @@ echo_appname() {
 
 # echo_message <message>
 echo_message() {
-    if [[ "${textcolor}" = "white" ]]; then
+    if [[ "${customized_text_color}" = false ]]; then
         text -n "${1}"
     else
         text -c "${textcolor}" "${1}"
@@ -325,13 +319,13 @@ for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
     full_message="$(echo_appname)$(echo_type) $(echo_message "${_message}")"
     case "${output}" in
         "stdout")
-            echo ${echo_opts} "${full_message}" >&1
+            echo "${echo_opts[@]}" "${full_message}" >&1
             ;;
         "stderr")
-            echo ${echo_opts} "${full_message}" >&2
+            echo "${echo_opts[@]}" "${full_message}" >&2
             ;;
         *)
-            echo ${echo_opts} "${full_message}" > ${output}
+            echo "${echo_opts[@]}" "${full_message}" > "${output}"
             ;;
     esac
     unset _message
