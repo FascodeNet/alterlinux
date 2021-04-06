@@ -4,6 +4,8 @@ set -eu
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
+msgsh="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/$(basename "${0}")"
+
 msg_type="info"
 echo_opts=()
 bash_debug=false
@@ -98,7 +100,7 @@ text() {
 
 # Message functions
 msg_error() {
-    bash "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
+    bash "${msgsh}" -a "msg.sh" error "${1}"
 }
 
 # Check color
