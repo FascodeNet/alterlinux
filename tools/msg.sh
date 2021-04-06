@@ -5,7 +5,7 @@ set -eu
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 msg_type="info"
-echo_opts=""
+echo_opts=()
 bash_debug=false
 nocolor=false
 
@@ -144,7 +144,7 @@ while true; do
             shift 1
             ;;
         -o)
-            echo_opts="${2}"
+            echo_opts+=(${2})
             shift 2
             ;;
         -p)
@@ -315,13 +315,13 @@ for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do
     full_message="$(echo_appname)$(echo_type) $(echo_message "${_message}")"
     case "${output}" in
         "stdout")
-            echo ${echo_opts} "${full_message}" >&1
+            echo "${echo_opts[@]}" "${full_message}" >&1
             ;;
         "stderr")
-            echo ${echo_opts} "${full_message}" >&2
+            echo "${echo_opts[@]}" "${full_message}" >&2
             ;;
         *)
-            echo ${echo_opts} "${full_message}" > ${output}
+            echo "${echo_opts[@]}" "${full_message}" > "${output}"
             ;;
     esac
     unset _message
