@@ -246,7 +246,7 @@ done
 # 7 => Reverse video on (色反転)
 # 8 => Concealed on
 
-case "${1}" in
+case "${1-""}" in
     "info")
         msg_type="type"
         [[ "${customized_output}"      = false ]] && output="stdout"
