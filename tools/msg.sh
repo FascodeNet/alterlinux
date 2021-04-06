@@ -2,15 +2,12 @@
 
 set -eu
 
-script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-
 msgsh="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/$(basename "${0}")"
 
 msg_type="info"
 echo_opts=()
 bash_debug=false
 nocolor=false
-
 
 # appname
 appname="msg.sh"
@@ -91,6 +88,7 @@ text() {
             f) _decotypes="${_decotypes};5" ;;
             l) _decotypes="${_decotypes};4" ;;
             n) _decotypes="${_decotypes};0" ;;
+            *) msg_error "Wrong use of text function" ;;
         esac
     done
     shift "$((OPTIND - 1))"
@@ -286,15 +284,16 @@ case "${1-""}" in
 esac
 
 word_count="${#msg_label}"
-message="${@}"
+message="${*}"
 
 echo_type() {
-    local i
     if [[ "${nolabel}" = false ]]; then
         if [[ "${noadjust}" = false ]]; then
-            for i in $( seq 1 "$(( label_space - word_count))" ); do
-                echo -ne "${adjust_chr}"
-            done
+            yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
+            #local i
+            #for i in $( seq 1 "$(( label_space - word_count))" ); do
+            #    echo -ne "${adjust_chr}"
+            #done
         fi
         text -c "${labelcolor}" "${msg_label}"
     fi
@@ -308,7 +307,7 @@ echo_appname() {
 
 # echo_message <message>
 echo_message() {
-    if [[ "${textcolor}" = "white" ]]; then
+    if [[ "${customized_text_color}" = false ]]; then
         text -n "${1}"
     else
         text -c "${textcolor}" "${1}"
