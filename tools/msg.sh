@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -eu
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
@@ -101,96 +101,114 @@ msg_error() {
     bash "${script_path}/tools/msg.sh" -a "msg.sh" error "${1}"
 }
 
+# Check color
+# Usage check_color <str>
+check_color(){
+    case "${2}" in
+        "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
 
-while getopts "a:c:l:no:p:r:s:t:xh-:" arg; do
-  case "${arg}" in
-        a)
-            appname="${OPTARG}"
+ARGUMENT=("${@}")
+OPTS="a:c:l:no:p:r:s:t:xh"
+OPTL="nocolor,bash-debug,help,nolabel,noappname,noadjust"
+if ! OPT=($(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")); then
+    exit 1
+fi
+
+eval set -- "${OPT[@]}"
+unset OPT OPTS OPTL
+
+while true; do
+    case "${1}" in
+        -a)
+            appname="${2}"
+            shift 2
             ;;
-        c)
-            adjust_chr="${OPTARG}"
+        -c)
+            adjust_chr="${2}"
+            shift 2
             ;;
-        l)
+        -l)
             customized_label=true
-            msg_label="${OPTARG}"
+            msg_label="${2}"
+            shift 2
             ;;
-        n)
+        -n | --nocolor)
             nocolor=true
+            shift 1
             ;;
-        o)
-            echo_opts="${OPTARG}"
+        -o)
+            echo_opts="${2}"
+            shift 2
             ;;
-        p)
-            output="${OPTARG}"
+        -p)
+            output="${2}"
             customized_output=true
+            shift 2
             ;;
-        r)
+        -r)
             customized_label_color=true
-            case "${OPTARG}" in
-                "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
-                    labelcolor="${OPTARG}"
-                    ;;
-                *)
-                    msg_error "The wrong color."
-                    exit 1
-                    ;;
-            esac
+            if check_color "${2}"; then
+                labelcolor="${2}"
+            else
+                msg_error "The wrong color."
+                exit 1
+            fi
+            shift 2
             ;;
-        s)
-            label_space="${OPTARG}"
+        -s)
+            label_space="${2}"
+            shift 2
             ;;
-        t)
+        -t)
             customized_text_color=true
-            case "${OPTARG}" in
-                "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
-                    textcolor="${OPTARG}"
-                    ;;
-                *)
-                    msg_error "The wrong color."
-                    exit 1
-                    ;;
-            esac
+            if check_color "${2}"; then
+                textcolor="${2}"
+            else
+                msg_error "The wrong color."
+                exit 1
+            fi
+            shift 2
             ;;
-        x)
+        -x | --bash_debug)
             bash_debug=true
             set -xv
+            shift 1
             ;;
-        h)
+        -h | --help)
             _help
             shift 1
             exit 0
             ;;
-        -)
-            case "${OPTARG}" in
-                "nocolor")
-                    nocolor=true
-                    ;;
-                "bash-debug")
-                    bash_debug=true
-                    set -xv
-                    ;;
-                "help")
-                    _help
-                    exit 0
-                    ;;
-                "nolabel")
-                    nolabel=true
-                    ;;
-                "noappname")
-                    noappname=true
-                    ;;
-                "noadjust")
-                    noadjust=true
-                    ;;
-                *)
-                    _help
-                    exit 1
-                    ;;
-            esac
-  esac
+        --nolabel)
+            nolabel=true
+            shift 1
+            ;;
+        --noappname)
+            noappname=true
+            shift 1
+            ;;
+        --noadjust)
+            noadjust=true
+            shift 1
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            _help
+            exit 1
+            ;;
+    esac
 done
 
-shift "$((OPTIND - 1))"
 
 # Color echo
 #
