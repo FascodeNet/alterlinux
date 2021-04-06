@@ -104,7 +104,7 @@ msg_error() {
 # Check color
 # Usage check_color <str>
 check_color(){
-    case "${2}" in
+    case "${1}" in
         "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white")
             return 0
             ;;
