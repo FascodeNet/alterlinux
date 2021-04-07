@@ -511,11 +511,11 @@ prepare_build() {
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
         if [[ "${customized_logpath}" = false ]]; then
-            logging="${iso_filename%.iso}.log"
+            logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
         msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}"
-        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog 2>&1 | tee ${logging}
+        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog 2>&1 | tee "${logging}"
         exit "${?}"
     else
         unset DEFAULT_ARGUMENT ARGUMENT
