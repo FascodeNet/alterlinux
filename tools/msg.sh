@@ -290,10 +290,6 @@ echo_type() {
     if [[ "${nolabel}" = false ]]; then
         if [[ "${noadjust}" = false ]]; then
             yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
-            #local i
-            #for i in $( seq 1 "$(( label_space - word_count))" ); do
-            #    echo -ne "${adjust_chr}"
-            #done
         fi
         text -c "${labelcolor}" "${msg_label}"
     fi
