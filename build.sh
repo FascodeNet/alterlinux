@@ -897,10 +897,6 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
 
-    # PreLoader.efiがefitoolsのi686版に存在しません。この行を有効化するとi686ビルドに失敗します
-    # PreLoader.efiの役割がわかりません誰かたすけてください（archiso v43で使用されていた）
-    #cp "${airootfs_dir}/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
-
     cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
@@ -917,11 +913,10 @@ make_efiboot() {
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
     cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
-    local _efi_config_list=() _efi_config
-    _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
+    local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
 
     if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
+        _efi_config_list=($(printf "%s\n" "${_efi_config_list[@]}" | grep -v "rescue"))
     fi
 
     for _efi_config in "${_efi_config_list[@]}"; do
