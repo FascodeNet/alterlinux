@@ -219,6 +219,10 @@ if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
     msg_debug "Additional excluded packages: ${additional_exclude_pkg[*]}"
 fi
 
+
+#-- パッケージリストをソートし重複を削除 --#
+_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
+
 #-- excludeに記述されたパッケージを除外 --#
 # _pkglistを_subpkglistにコピーしexcludeのパッケージを除外し再代入
 _subpkglist=(${_pkglist[@]})
@@ -239,8 +243,6 @@ else
     msg_debug "No packages are excluded."
 fi
 
-# パッケージリストをソートし重複を削除
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
 
 OLD_IFS="${IFS}"
 if [[ "${line}" = true ]]; then
