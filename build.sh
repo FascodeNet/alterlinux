@@ -546,7 +546,7 @@ make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
 
     if [[ "${nosigcheck}" = true ]]; then
-        sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
+        sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g; s|^#?\\s*CacheDir.+|SigLevel = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
     else
         cp "${build_pacman_conf}" "${build_dir}/pacman-${arch}.conf"
     fi
