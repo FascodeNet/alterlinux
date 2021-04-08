@@ -39,12 +39,6 @@ _help() {
     echo "         --line               Line break the output"
 }
 
-# Usage: getclm <number>
-# 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
-
 # Execute command for each module
 # It will be executed with {} replaced with the module name.
 # for_module <command>
@@ -213,16 +207,9 @@ fi
 _pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
 
 #-- excludeに記述されたパッケージを除外 --#
-# _pkglistを_subpkglistにコピーしexcludeのパッケージを除外し再代入
-_subpkglist=(${_pkglist[@]})
-unset _pkglist
-for _pkg in ${_subpkglist[@]}; do
-    # もし変数_pkgの値が配列_excludelistに含まれていなかったらpkglistに追加する
-    if printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}" 2>&1 1> /dev/null ; then
-        _pkglist+=("${_pkg}")
-    fi
+for _pkg in "${_excludelist[@]}"; do
+    _pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
 done
-unset _subpkglist
 
 #-- excludeされたパッケージを表示 --#
 if (( "${#_excludelist[@]}" >= 1 )); then
@@ -231,7 +218,6 @@ if (( "${#_excludelist[@]}" >= 1 )); then
 else
     msg_debug "No packages are excluded."
 fi
-
 
 OLD_IFS="${IFS}"
 if [[ "${line}" = true ]]; then
