@@ -225,7 +225,7 @@ _subpkglist=(${_pkglist[@]})
 unset _pkglist
 for _pkg in ${_subpkglist[@]}; do
     # もし変数_pkgの値が配列_excludelistに含まれていなかったらpkglistに追加する
-    if [[ ! $(printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
+    if printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}" 2>&1 1> /dev/null ; then
         _pkglist+=("${_pkg}")
     fi
 done
