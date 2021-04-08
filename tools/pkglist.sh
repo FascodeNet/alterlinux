@@ -7,7 +7,6 @@ module_dir="${script_path}/modules"
 modules=()
 
 boot_splash=false
-aur=false
 pkgdir_name="packages"
 line=false
 debug=false
@@ -58,16 +57,16 @@ for_module(){
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" -p "stderr" error "${1}"
 }
 
 msg_info() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" -p "stderr" info "${1}"
 }
 
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
+        "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" -p "stderr" debug "${1}"
     fi
 }
 
@@ -118,7 +117,7 @@ while true; do
             shift 1
             ;;
         --aur)
-            aur=true
+            pkgdir_name="packages_aur"
             shift 1
             ;;
         --line)
@@ -139,7 +138,6 @@ done
 
 modules=("${@}")
 
-
 if [[ -z "${arch}" ]] || [[ "${arch}" = "" ]]; then
     msg_error "Architecture not specified"
     exit 1
@@ -154,15 +152,7 @@ elif [[ -z "${locale_name}" ]] || [[ "${locale_name}" = "" ]]; then
     exit 1
 fi
 
-
-if [[ "${aur}" = true ]]; then
-    pkgdir_name="packages_aur"
-else
-    pkgdir_name="packages"
-fi
-
 set +e
-
 
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
@@ -218,7 +208,6 @@ if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
     _excludelist+=(${additional_exclude_pkg[@]})
     msg_debug "Additional excluded packages: ${additional_exclude_pkg[*]}"
 fi
-
 
 #-- パッケージリストをソートし重複を削除 --#
 _pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
