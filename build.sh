@@ -341,6 +341,12 @@ check_bool() {
 
 # Check the build environment and create a directory.
 prepare_env() {
+    # Set dirs
+    build_dir="${work_dir}/build"
+    cache_dir="${work_dir}/cache"
+    airootfs_dir="${build_dir}/${arch}/airootfs"
+    isofs_dir="${build_dir}/iso"
+
     # Check packages
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
@@ -417,12 +423,6 @@ prepare_build() {
         msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
         cd "${OLDPWD}"
     fi
-
-    # Set dirs
-    build_dir="${work_dir}/build"
-    cache_dir="${work_dir}/cache"
-    airootfs_dir="${build_dir}/${arch}/airootfs"
-    isofs_dir="${build_dir}/iso"
 
     # Create dir
     mkdir -p "${airootfs_dir}" "${cache_dir}"
