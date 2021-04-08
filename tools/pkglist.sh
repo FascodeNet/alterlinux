@@ -239,11 +239,8 @@ else
     msg_debug "No packages are excluded."
 fi
 
-# Sort the list of packages in abc order.
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | perl -pe 's/\n/ /g'))
-
-# 重複してるものを削除
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | uniq))
+# パッケージリストをソートし重複を削除
+_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
 
 OLD_IFS="${IFS}"
 if [[ "${line}" = true ]]; then
