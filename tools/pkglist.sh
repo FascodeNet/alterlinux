@@ -232,9 +232,11 @@ done
 unset _subpkglist
 
 #-- excludeされたパッケージを表示 --#
-if [[ -n "${_excludelist[*]}" ]]; then
+if (( "${#_excludelist[@]}" >= 1 )); then
     msg_debug "The following packages have been removed from the installation list."
     msg_debug "Excluded packages: ${_excludelist[*]}"
+else
+    msg_debug "No packages are excluded."
 fi
 
 # Sort the list of packages in abc order.
