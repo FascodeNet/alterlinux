@@ -14,6 +14,7 @@ channnels=(
 architectures=("x86_64" "i686")
 locale_list=("ja" "en")
 share_options=()
+default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alter")
 
 work_dir="${script_path}/work"
 simulation=false
@@ -97,7 +98,7 @@ build() {
             _exit_code="${?}"
         else
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
-            eval sudo bash "${script_path}/build.sh" "${_options[@]}"
+            sudo bash "${script_path}/build.sh" "${_options[@]}"
             _exit_code="${?}"
             if [[ "${_exit_code}" = 0 ]]; then
                 touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
@@ -114,7 +115,7 @@ _help() {
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
-    echo "    -d                 Use the default build.sh arguments. (${default_options})"
+    echo "    -d                 Use the default build.sh arguments. (${[default_options[*]})"
     echo "    -g                 Use gitversion"
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
@@ -137,10 +138,7 @@ _help() {
     "${script_path}/tools/channel.sh" show
 }
 
-
 share_options+=("--noconfirm")
-default_options="--boot-splash --cleanup --user alter --password alter"
-
 
 # Parse options
 ARGUMENT="${@}"
@@ -163,7 +161,7 @@ while true; do
             shift 1
             ;;
         -d)
-            share_options+=("${default_options}")
+            share_options+=("${default_options[@]}")
             shift 1
             ;;
         -m)
@@ -255,7 +253,7 @@ fi
 
 fullbuild_dir="${work_dir}/fullbuild"
 
-share_options+=("--work ${work_dir}")
+share_options+=("--work" "${work_dir}")
 
 msg_info "Options: ${share_options[*]}"
 msg_info "Press Enter to continue or Ctrl + C to cancel."
