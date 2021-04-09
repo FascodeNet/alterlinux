@@ -342,6 +342,7 @@ check_bool() {
 # Check the build environment and create a directory.
 prepare_env() {
     # Set dirs
+    work_dir="$(realpath "${work_dir}")"
     build_dir="${work_dir}/build"
     cache_dir="${work_dir}/cache/${arch}"
     airootfs_dir="${build_dir}/${arch}/airootfs"
