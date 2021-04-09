@@ -343,7 +343,7 @@ check_bool() {
 prepare_env() {
     # Set dirs
     build_dir="${work_dir}/build"
-    cache_dir="${work_dir}/cache"
+    cache_dir="${work_dir}/cache/${arch}"
     airootfs_dir="${build_dir}/${arch}/airootfs"
     isofs_dir="${build_dir}/iso"
 
