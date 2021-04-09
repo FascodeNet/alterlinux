@@ -153,7 +153,7 @@ unset OPT OPTS OPTL
 while true; do
     case ${1} in
         -a)
-            share_options+=("${2}")
+            share_options+=(${2})
             shift 2
             ;;
         -c)
