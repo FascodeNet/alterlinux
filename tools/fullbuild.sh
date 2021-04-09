@@ -11,15 +11,9 @@ channnels=(
 #   "gnome"
 )
 
-architectures=(
-    "x86_64"
-    "i686"
-)
-
-locale_list=(
-    "ja"
-    "en"
-)
+architectures=("x86_64" "i686")
+locale_list=("ja" "en")
+share_options=()
 
 work_dir="${script_path}/work"
 simulation=false
@@ -91,7 +85,7 @@ trap_exit() {
 build() {
     local _exit_code=0
 
-    options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
+    options="${share_options[*]} --arch ${arch} --lang ${lang} ${cha}"
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         sudo pacman -Sccc --noconfirm
@@ -99,7 +93,7 @@ build() {
 
     if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
-            echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
+            echo "build.sh ${options}"
             _exit_code="${?}"
         else
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
@@ -144,7 +138,7 @@ _help() {
 }
 
 
-share_options="--noconfirm"
+share_options+=("--noconfirm")
 default_options="--boot-splash --cleanup --user alter --password alter"
 
 
@@ -161,7 +155,7 @@ unset OPT OPTS OPTL
 while true; do
     case ${1} in
         -a)
-            share_options="${share_options} ${2}"
+            share_options+=("${2}")
             shift 2
             ;;
         -c)
@@ -169,7 +163,7 @@ while true; do
             shift 1
             ;;
         -d)
-            share_options="${share_options} ${default_options}"
+            share_options+=("${default_options}")
             shift 1
             ;;
         -m)
@@ -181,7 +175,7 @@ while true; do
                 msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
             else
-                share_options="${share_options} --gitversion"
+                share_options+=("--gitversion")
             fi
             shift 1
             ;;
@@ -194,7 +188,7 @@ while true; do
             shift 2
             ;;
         -t)
-            share_options="${share_options} --tarball"
+            share_options+=("--tarball")
             ;;
         -l)
             locale_list=(${2})
@@ -261,9 +255,9 @@ fi
 
 fullbuild_dir="${work_dir}/fullbuild"
 
-share_options="${share_options} --work ${work_dir}"
+share_options+=("--work ${work_dir}")
 
-msg_info "Options: ${share_options}"
+msg_info "Options: ${share_options[*]}"
 msg_info "Press Enter to continue or Ctrl + C to cancel."
 read
 
