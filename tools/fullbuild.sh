@@ -86,7 +86,7 @@ trap_exit() {
 build() {
     local _exit_code=0 _options=("${share_options[@]}")
 
-    _options+=("--arch" "${arch}" "--lang" "${lang}" "--" "${cha}")
+    _options+=("--arch" "${arch}" "--lang" "${lang}" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         sudo pacman -Sccc --noconfirm
