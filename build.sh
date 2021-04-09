@@ -221,11 +221,11 @@ umount_chroot_advance() {
 # Helper function to run make_*() only one time.
 run_once() {
     set -eu
-    if [[ ! -e "${build_dir}/build.${1}_${arch}" ]]; then
+    if [[ ! -e "${lockfile_dir}/build.${1}_${arch}" ]]; then
         msg_debug "Running ${1} ..."
         mount_airootfs
         "${1}"
-        touch "${build_dir}/build.${1}_${arch}"
+        touch "${lockfile_dir}/build.${1}_${arch}"
         umount_chroot_advance
     else
         msg_debug "Skipped because ${1} has already been executed."
@@ -346,9 +346,10 @@ prepare_env() {
     cache_dir="${work_dir}/cache/${arch}"
     airootfs_dir="${build_dir}/${arch}/airootfs"
     isofs_dir="${build_dir}/iso"
+    lockfile_dir="${build_dir}/lockfile"
 
     # Create dir
-    mkdir -p "${airootfs_dir}" "${cache_dir}"
+    mkdir -p "${airootfs_dir}" "${cache_dir}" "${lockfile_dir}"
 
     # Check packages
     if [[ "${nodepend}" = false ]]; then
