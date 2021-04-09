@@ -139,6 +139,8 @@ if [[ ! "${noconfirm}" = true ]]; then
     read -n 1 yesorno
     if [[ ! "${yesorno}" = "y" ]]; then
         exit 1
+    else
+        echo
     fi
 fi
 
