@@ -137,10 +137,10 @@ if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/nul
     msg_warn "${work_dir}"
     msg_warn -n "Are you sure you want to continue?"
     read -n 1 yesorno
-    if [[ ! "${yesorno}" = "y" ]]; then
-        exit 1
-    else
+    if [[ "${yesorno}" = "y" ]] || [[ "${yesorno}" = "" ]]; then
         echo
+    else
+        exit 1
     fi
 fi
 
