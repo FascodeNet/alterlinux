@@ -83,9 +83,9 @@ trap_exit() {
 
 
 build() {
-    local _exit_code=0
+    local _exit_code=0 _options=("${share_options[@]}")
 
-    options="${share_options[*]} --arch ${arch} --lang ${lang} ${cha}"
+    _options+=("--arch" "${arch}" "--lang" "${lang}" "--" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         sudo pacman -Sccc --noconfirm
@@ -93,11 +93,11 @@ build() {
 
     if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
-            echo "build.sh ${options}"
+            echo "sudo bash build.sh ${_options[*]}"
             _exit_code="${?}"
         else
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
-            sudo bash ${script_path}/build.sh ${options}
+            eval sudo bash "${script_path}/build.sh" "${_options[@]}"
             _exit_code="${?}"
             if [[ "${_exit_code}" = 0 ]]; then
                 touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
