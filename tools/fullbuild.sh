@@ -247,11 +247,8 @@ if [[ "${customized_work}" = false ]]; then
     )"
 fi
 
-if [[ ! -d "${work_dir}" ]]; then
-    mkdir -p "${work_dir}"
-fi
-
 fullbuild_dir="${work_dir}/fullbuild"
+mkdir -p "${fullbuild_dir}"
 
 share_options+=("--work" "${work_dir}")
 
