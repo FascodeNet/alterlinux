@@ -23,7 +23,7 @@ customized_username=false
 customized_password=false
 customized_kernel=false
 customized_logpath=false
-pkglist_args=""
+pkglist_args=()
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
 
@@ -103,9 +103,7 @@ msg_error() {
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cat - | cut -d " " -f "${1}"; }
 
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
@@ -199,11 +197,9 @@ _mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(cat /proc/mounts | getclm 2 | grep $(realpath ${work_dir}) | tac); do
-        if [[ ! "${_mount}" = "$(realpath ${work_dir})/${arch}/airootfs" ]]; then
-            msg_info "Unmounting ${_mount}"
-            _umount "${_mount}" 2> /dev/null
-        fi
+    for _mount in $(cat /proc/mounts | getclm 2 | grep "$(realpath ${work_dir})" | tac | grep -xv "$(realpath ${work_dir})/${arch}/airootfs"); do
+        msg_info "Unmounting ${_mount}"
+        _umount "${_mount}" 2> /dev/null
     done
 }
 
@@ -255,7 +251,7 @@ umount_trap() {
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in ${@}; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
+    for _file in "${@}"; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
 }
 
 # Display channel list
@@ -271,7 +267,7 @@ show_channel_list() {
 # for_module <command>
 for_module(){
     local module
-    for module in ${modules[@]}; do eval $(echo ${@} | sed "s|{}|${module}|g"); done
+    for module in "${modules[@]}"; do eval "$(echo "${@}" | sed "s|{}|${module}|g")"; done
 }
 
 # パッケージをインストールする
@@ -284,7 +280,7 @@ _pacman(){
 # コマンドをchrootで実行する
 _chroot_run() {
     msg_debug "Run command in chroot\nCommand: ${*}"
-    eval -- arch-chroot "${airootfs_dir}" ${@}
+    eval -- arch-chroot "${airootfs_dir}" "${@}"
 }
 
 _cleanup_common () {
@@ -328,7 +324,7 @@ _mkchecksum() {
 # Check the value of a variable that can only be set to true or false.
 check_bool() {
     local _value _variable
-    for _variable in ${@}; do
+    for _variable in "${@}"; do
         msg_debug -n "Checking ${_variable}..."
         eval ': ${'${_variable}':=""}'
         _value="$(eval echo '$'${_variable})"
@@ -349,8 +345,8 @@ prepare_env() {
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
-        for _pkg in ${dependence[@]}; do
-            eval "${tools_dir}/package.py" "${_pkg}" $( [[ "${debug}" = false ]] && echo "> /dev/null") || _result="${?}"
+        for _pkg in "${dependence[@]}"; do
+            eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             case "${_result}" in
                 "3")
                     _check_failed=true
@@ -378,7 +374,7 @@ prepare_env() {
     if [[ -n $(ls -a "${work_dir}" 2> /dev/null | grep -xv ".." | grep -xv ".") ]] && [[ "${normwork}" = false ]]; then
         umount_chroot_advance
         msg_info "Deleting the contents of ${work_dir}..."
-        "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+        "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
     fi
 
     # 強制終了時に作業ディレクトリを削除する
@@ -386,7 +382,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         if [[ "${normwork}" = false ]]; then
-            echo; "${tools_dir}/clean.sh" -o -w $(realpath "${work_dir}") $([[ "${debug}" = true ]] && echo -n "-d")
+            echo; "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
         fi
         exit ${status}
     }
@@ -422,7 +418,7 @@ prepare_build() {
     if [[ -d "${script_path}/.git" ]]; then
         cd  "${script_path}"
         msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd "${OLDPWD}" > /dev/null 2>&1
+        cd "${OLDPWD}"
     fi
 
     # Set dirs
@@ -473,8 +469,8 @@ prepare_build() {
     fi
 
     # Parse files
-    eval $(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")
-    eval $(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
+    eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
+    eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
     # Set username
     if [[ "${customized_username}" = false ]]; then
@@ -489,7 +485,7 @@ prepare_build() {
     # gitversion
     if [[ "${gitversion}" = true ]]; then
         cd "${script_path}"
-        iso_version=${iso_version}-$(git rev-parse --short HEAD)
+        iso_version="${iso_version}-$(git rev-parse --short HEAD)"
         cd "${OLDPWD}"
     fi
 
@@ -510,6 +506,19 @@ prepare_build() {
     bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}" || _exit="${?}"
     if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    fi
+
+    # Run with tee
+    if [[ ! "${logging}" = false ]]; then
+        if [[ "${customized_logpath}" = false ]]; then
+            logging="${out_dir}/${iso_filename%.iso}.log"
+        fi
+        mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}"
+        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog 2>&1 | tee "${logging}"
+        exit "${?}"
+    else
+        unset DEFAULT_ARGUMENT ARGUMENT
     fi
 
     # Set argument of pkglist.sh
@@ -538,7 +547,7 @@ make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
 
     if [[ "${nosigcheck}" = true ]]; then
-        sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g" ${build_pacman_conf} > "${work_dir}/pacman-${arch}.conf"
+        sed -r "s|^#?\\s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}" > "${work_dir}/pacman-${arch}.conf"
     else
         cp "${build_pacman_conf}" "${work_dir}/pacman-${arch}.conf"
     fi
@@ -594,7 +603,7 @@ make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
-    for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" 2>/dev/null | xargs -If realpath f | xargs -If dirname f); do
+    for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
         mkdir -p "${airootfs_dir}/pkgbuilds/"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
@@ -618,7 +627,7 @@ make_customize_airootfs() {
     _airootfs_list=("${channel_dir}/airootfs.any" "${channel_dir}/airootfs.${arch}")
     for_module '_airootfs_list=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}" ${_airootfs_list[@]})'
 
-    for _airootfs in ${_airootfs_list[@]};do
+    for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
             msg_debug "Copying airootfs ${_airootfs} ..."
             cp -af "${_airootfs}"/* "${airootfs_dir}"
@@ -667,10 +676,9 @@ make_customize_airootfs() {
     for_module '_script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")'
 
     # Create script
-    for _script in ${_script_list[@]}; do
+    for _script in "${_script_list[@]}"; do
         if [[ -f "${_script}" ]]; then
-            echo -e "\n" >> "${airootfs_dir}/${_main_script}"
-            cat "${_script}" >> "${airootfs_dir}/${_main_script}"
+            echo -e "\n$(cat "${_script}")" >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
         else
             msg_debug "${_script} was not found."
@@ -689,12 +697,13 @@ make_customize_airootfs() {
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
     local _hook
-    mkdir -p "${airootfs_dir}/etc/initcpio/hooks"
-    mkdir -p "${airootfs_dir}/etc/initcpio/install"
+    mkdir -p "${airootfs_dir}/etc/initcpio/hooks" "${airootfs_dir}/etc/initcpio/install"
+
     for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
         cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
         cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
     done
+
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
     cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
     cp "${script_path}/system/initcpio/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
@@ -843,7 +852,7 @@ make_efi() {
         _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
     fi
 
-    for _efi_config in ${_efi_config_list[@]}; do
+    for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -888,10 +897,6 @@ make_efiboot() {
 
     mkdir -p "${work_dir}/efiboot/EFI/boot"
 
-    # PreLoader.efiがefitoolsのi686版に存在しません。この行を有効化するとi686ビルドに失敗します
-    # PreLoader.efiの役割がわかりません誰かたすけてください（archiso v43で使用されていた）
-    #cp "${airootfs_dir}/usr/share/efitools/efi/PreLoader.efi" "${work_dir}/efiboot/EFI/boot/bootx64.efi"
-
     cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${work_dir}/efiboot/EFI/boot/"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
@@ -908,14 +913,13 @@ make_efiboot() {
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${work_dir}/efiboot/loader/loader.conf"
     cp "${isofs_dir}/loader/entries/uefi-shell"* "${work_dir}/efiboot/loader/entries/"
 
-    local _efi_config_list=() _efi_config
-    _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
+    local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
 
     if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf" | grep -v "rescue"))
+        _efi_config_list=($(printf "%s\n" "${_efi_config_list[@]}" | grep -v "rescue"))
     fi
 
-    for _efi_config in ${_efi_config_list[@]}; do
+    for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
             s|%OS_NAME%|${os_name}|g;
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -1024,7 +1028,7 @@ make_overisofs() {
     local _over_isofs_list _isofs
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
     for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
-    for _isofs in ${_over_isofs_list[@]}; do
+    for _isofs in "${_over_isofs_list[@]}"; do
         if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
     done
 }
@@ -1064,10 +1068,10 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT="${@}"
+ARGUMENT=("${@}")
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
 OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"); then
     exit 1
 fi
 
@@ -1075,7 +1079,7 @@ eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
 unset OPT OPTS OPTL
 
-while :; do
+while true; do
     case "${1}" in
         -a | --arch)
             arch="${2}"
@@ -1252,8 +1256,8 @@ done
 # Check root.
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}'"
-    sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT}
+    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
+    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
     exit "${?}"
 fi
 
@@ -1288,7 +1292,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "clean" ]]; then
-   "${tools_dir}/clean.sh" -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
+   "${tools_dir}/clean.sh" -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
     exit 0
 fi
 
@@ -1302,23 +1306,6 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
         msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
-
-# Run with tee
-if [[ ! "${logging}" = false ]]; then
-    if [[ "${customized_logpath}" = false ]]; then
-        if [[ "${gitversion}" = true ]]; then
-            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
-        else
-            logging="${out_dir}/${iso_name}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-${arch}.log"
-        fi
-    fi
-    mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}'"
-    eval "sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT} --nolog 2>&1 | tee ${logging}"
-    exit "${?}"
-fi
-
-unset DEFAULT_ARGUMENT ARGUMENT
 
 set -eu
 
@@ -1348,6 +1335,6 @@ if [[ "${noiso}" = false ]]; then
     run_once make_iso
 fi
 
-[[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" $([[ "${debug}" = true ]] && echo -n "-d")
+[[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${work_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
 
 exit 0

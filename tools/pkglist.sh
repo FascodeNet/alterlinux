@@ -7,7 +7,6 @@ module_dir="${script_path}/modules"
 modules=()
 
 boot_splash=false
-aur=false
 pkgdir_name="packages"
 line=false
 debug=false
@@ -40,12 +39,6 @@ _help() {
     echo "         --line               Line break the output"
 }
 
-# Usage: getclm <number>
-# 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
-
 # Execute command for each module
 # It will be executed with {} replaced with the module name.
 # for_module <command>
@@ -58,16 +51,16 @@ for_module(){
 
 # Message functions
 msg_error() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" -p "stderr" error "${1}"
 }
 
 msg_info() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" error "${1}"
+    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" -p "stderr" info "${1}"
 }
 
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" error "${1}"
+        "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" -p "stderr" debug "${1}"
     fi
 }
 
@@ -118,7 +111,7 @@ while true; do
             shift 1
             ;;
         --aur)
-            aur=true
+            pkgdir_name="packages_aur"
             shift 1
             ;;
         --line)
@@ -139,7 +132,6 @@ done
 
 modules=("${@}")
 
-
 if [[ -z "${arch}" ]] || [[ "${arch}" = "" ]]; then
     msg_error "Architecture not specified"
     exit 1
@@ -154,15 +146,7 @@ elif [[ -z "${locale_name}" ]] || [[ "${locale_name}" = "" ]]; then
     exit 1
 fi
 
-
-if [[ "${aur}" = true ]]; then
-    pkgdir_name="packages_aur"
-else
-    pkgdir_name="packages"
-fi
-
 set +e
-
 
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
@@ -219,29 +203,21 @@ if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
     msg_debug "Additional excluded packages: ${additional_exclude_pkg[*]}"
 fi
 
+#-- パッケージリストをソートし重複を削除 --#
+_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
+
 #-- excludeに記述されたパッケージを除外 --#
-# _pkglistを_subpkglistにコピーしexcludeのパッケージを除外し再代入
-_subpkglist=(${_pkglist[@]})
-unset _pkglist
-for _pkg in ${_subpkglist[@]}; do
-    # もし変数_pkgの値が配列_excludelistに含まれていなかったらpkglistに追加する
-    if [[ ! $(printf '%s\n' "${_excludelist[@]}" | grep -qx "${_pkg}"; echo -n ${?} ) = 0 ]]; then
-        _pkglist+=("${_pkg}")
-    fi
+for _pkg in "${_excludelist[@]}"; do
+    _pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
 done
-unset _subpkglist
 
 #-- excludeされたパッケージを表示 --#
-if [[ -n "${_excludelist[*]}" ]]; then
+if (( "${#_excludelist[@]}" >= 1 )); then
     msg_debug "The following packages have been removed from the installation list."
     msg_debug "Excluded packages: ${_excludelist[*]}"
+else
+    msg_debug "No packages are excluded."
 fi
-
-# Sort the list of packages in abc order.
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | perl -pe 's/\n/ /g'))
-
-# 重複してるものを削除
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | uniq))
 
 OLD_IFS="${IFS}"
 if [[ "${line}" = true ]]; then
