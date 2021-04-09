@@ -97,7 +97,7 @@ build() {
         sudo pacman -Sccc --noconfirm
     fi
 
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
+    if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
             _exit_code="${?}"
@@ -106,7 +106,7 @@ build() {
             sudo bash ${script_path}/build.sh ${options}
             _exit_code="${?}"
             if [[ "${_exit_code}" = 0 ]]; then
-                touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
+                touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
             else
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
@@ -258,6 +258,8 @@ fi
 if [[ ! -d "${work_dir}" ]]; then
     mkdir -p "${work_dir}"
 fi
+
+fullbuild_dir="${work_dir}/fullbuild"
 
 share_options="${share_options} --work ${work_dir}"
 
