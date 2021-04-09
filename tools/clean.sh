@@ -4,6 +4,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 work_dir="${script_path}/work"
 debug=false
 only_work=false
+noconfirm=true
 
 
 # 設定ファイルを読み込む
@@ -75,22 +76,11 @@ msg_error() {
     fi
 }
 
-# rm helper
-# Delete the file if it exists.
-# For directories, rm -rf is used.
-# If the file does not exist, skip it.
+# Show message when file is removed
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "$@")) _file
-    for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            msg_info "Removing ${_file}"
-            rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            msg_info "Removing ${_file}"
-            rm -rf "${_file}"
-        fi
-    done
+    local _file
+    for _file in "${@}"; do msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
 # Unmount chroot dir
@@ -120,11 +110,15 @@ _help() {
     echo "    -h                       This help message"
 }
 
-while getopts "dow:h" arg; do
-    case ${arg} in
+while getopts "dow:hn" arg; do
+    case "${arg}" in
         d)  debug=true ;;
         o) only_work=true ;;
         w) work_dir="${OPTARG}" ;;
+        n)
+            noconfirm=true
+            msg_warn "Remove files without warning"
+            ;;
         h) 
             _help
             exit 0
@@ -138,6 +132,17 @@ done
 
 shift $((OPTIND - 1))
 
+if [[ ! "${noconfirm}" = true ]]; then
+    msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
+    msg_warn "${work_dir}"
+    msg_warn -n "Are you sure you want to continue?"
+    read -n 1 yesorno
+    if [[ ! "${yesorno}" = "y" ]]; then
+        exit 1
+    fi
+fi
+
+
 umount_chroot
 if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig/build/"**
@@ -145,5 +150,6 @@ if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig-script/kernel_choice"
     remove "${script_path}/system/mkalteriso"
 fi
+
 remove "${work_dir%/}"/**
 remove "${work_dir}"
