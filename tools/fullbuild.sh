@@ -11,22 +11,18 @@ channnels=(
 #   "gnome"
 )
 
-architectures=(
-    "x86_64"
-    "i686"
-)
+architectures=("x86_64" "i686")
+locale_list=("ja" "en")
+share_options=()
+default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alter")
 
-locale_list=(
-    "ja"
-    "en"
-)
-
-work_dir="${script_path}/temp"
+work_dir="${script_path}/work"
 simulation=false
 retry=5
 
 remove_cache=false
 all_channel=false
+customized_work=false
 
 # Show an INFO message
 # $1: message string
@@ -88,24 +84,24 @@ trap_exit() {
 
 
 build() {
-    local _exit_code=0
+    local _exit_code=0 _options=("${share_options[@]}")
 
-    options="${share_options} --arch ${arch} --lang ${lang} ${cha}"
+    _options+=("--arch" "${arch}" "--lang" "${lang}" "--" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         sudo pacman -Sccc --noconfirm
     fi
 
-    if [[ ! -e "${work_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
+    if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
-            echo "build.sh ${share_options} --lang ${lang} --arch ${arch} ${cha}"
+            echo "sudo bash build.sh ${_options[*]}"
             _exit_code="${?}"
         else
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
-            sudo bash ${script_path}/build.sh ${options}
+            sudo bash "${script_path}/build.sh" "${_options[@]}"
             _exit_code="${?}"
             if [[ "${_exit_code}" = 0 ]]; then
-                touch "${work_dir}/fullbuild.${cha}_${arch}_${lang}"
+                touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
             else
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
@@ -119,7 +115,7 @@ _help() {
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
-    echo "    -d                 Use the default build.sh arguments. (${default_options})"
+    echo "    -d                 Use the default build.sh arguments. (${[default_options[*]})"
     echo "    -g                 Use gitversion"
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
@@ -128,6 +124,7 @@ _help() {
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode"
     echo "    -t                 Build the tarball as well"
+    echo "    -w <dir>           Set the work dir"
     echo
     echo "    --remove-cache     Clear cache for all packages on every build"
     echo
@@ -141,25 +138,22 @@ _help() {
     "${script_path}/tools/channel.sh" show
 }
 
-
-share_options="--noconfirm"
-default_options="--boot-splash --cleanup --user alter --password alter"
-
+share_options+=("--noconfirm")
 
 # Parse options
-ARGUMENT="${@}"
-OPTS="a:dghr:sctm:l:"
+ARGUMENT=("${@}")
+OPTS="a:dghr:sctm:l:w:"
 OPTL="help,remove-cache"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
 eval set -- "${OPT}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL ARGUMENT
 
 while true; do
     case ${1} in
         -a)
-            share_options="${share_options} ${2}"
+            share_options+=(${2})
             shift 2
             ;;
         -c)
@@ -167,7 +161,7 @@ while true; do
             shift 1
             ;;
         -d)
-            share_options="${share_options} ${default_options}"
+            share_options+=("${default_options[@]}")
             shift 1
             ;;
         -m)
@@ -179,7 +173,7 @@ while true; do
                 msg_error "There is no git directory. You need to use git clone to use this feature."
                 exit 1
             else
-                share_options="${share_options} --gitversion"
+                share_options+=("--gitversion")
             fi
             shift 1
             ;;
@@ -192,10 +186,15 @@ while true; do
             shift 2
             ;;
         -t)
-            share_options="${share_options} --tarball"
+            share_options+=("--tarball")
             ;;
         -l)
             locale_list=(${2})
+            shift 2
+            ;;
+        -w)
+            work_dir="${2}"
+            customized_work=true
             shift 2
             ;;
         -h | --help)
@@ -234,16 +233,34 @@ if [[ "${simulation}" = true ]]; then
     retry=1
 fi
 
-msg_info "Options: ${share_options}"
+if [[ "${customized_work}" = false ]]; then
+    work_dir="$(
+        source "${script_path}/default.conf"
+        if [[ -f "${script_path}/custom.conf" ]]; then
+            source "${script_path}/custom.conf"
+        fi
+        if [[ "${work_dir:0:1}" = "/" ]]; then
+            echo -n "${work_dir}"
+        else
+            echo -n "${script_path}/${work_dir}"
+        fi
+    )"
+fi
+
+if [[ ! -d "${work_dir}" ]]; then
+    mkdir -p "${work_dir}"
+fi
+
+fullbuild_dir="${work_dir}/fullbuild"
+
+share_options+=("--work" "${work_dir}")
+
+msg_info "Options: ${share_options[*]}"
 msg_info "Press Enter to continue or Ctrl + C to cancel."
 read
 
 
 trap 'trap_exit' 1 2 3 15
-
-if [[ ! -d "${work_dir}" ]]; then
-    mkdir -p "${work_dir}"
-fi
 
 if [[ "${simulation}" = false ]]; then
     msg_info "Update the package database."
