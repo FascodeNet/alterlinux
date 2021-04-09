@@ -225,7 +225,7 @@ run_once() {
         msg_debug "Running ${1} ..."
         mount_airootfs
         "${1}"
-        touch "${lockfile_dir}/build.${1}_${arch}"
+        mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}_${arch}"
         umount_chroot_advance
     else
         msg_debug "Skipped because ${1} has already been executed."
@@ -350,7 +350,7 @@ prepare_env() {
     lockfile_dir="${build_dir}/lockfile"
 
     # Create dir
-    mkdir -p "${airootfs_dir}" "${cache_dir}" "${lockfile_dir}"
+    mkdir -p "${airootfs_dir}" "${cache_dir}"
 
     # Check packages
     if [[ "${nodepend}" = false ]]; then
