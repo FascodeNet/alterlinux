@@ -4,7 +4,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 work_dir="${script_path}/work"
 debug=false
 only_work=false
-noconfirm=true
+noconfirm=false
 
 
 # 設定ファイルを読み込む
