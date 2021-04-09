@@ -21,12 +21,13 @@ locale_list=(
     "en"
 )
 
-work_dir="${script_path}/temp"
+work_dir="${script_path}/work"
 simulation=false
 retry=5
 
 remove_cache=false
 all_channel=false
+customized_work=false
 
 # Show an INFO message
 # $1: message string
@@ -128,6 +129,7 @@ _help() {
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode"
     echo "    -t                 Build the tarball as well"
+    echo "    -w <dir>           Set the work dir"
     echo
     echo "    --remove-cache     Clear cache for all packages on every build"
     echo
@@ -148,7 +150,7 @@ default_options="--boot-splash --cleanup --user alter --password alter"
 
 # Parse options
 ARGUMENT="${@}"
-OPTS="a:dghr:sctm:l:"
+OPTS="a:dghr:sctm:l:w:"
 OPTL="help,remove-cache"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
     exit 1
@@ -198,6 +200,11 @@ while true; do
             locale_list=(${2})
             shift 2
             ;;
+        -w)
+            work_dir="${2}"
+            customized_work=true
+            shift 2
+            ;;
         -h | --help)
             shift 1
             _help
@@ -234,16 +241,32 @@ if [[ "${simulation}" = true ]]; then
     retry=1
 fi
 
+if [[ "${customized_work}" = false ]]; then
+    work_dir="$(
+        source "${script_path}/default.conf"
+        if [[ -f "${script_path}/custom.conf" ]]; then
+            source "${script_path}/custom.conf"
+        fi
+        if [[ "${work_dir:0:1}" = "/" ]]; then
+            echo -n "${work_dir}"
+        else
+            echo -n "${script_path}/${work_dir}"
+        fi
+    )"
+fi
+
+if [[ ! -d "${work_dir}" ]]; then
+    mkdir -p "${work_dir}"
+fi
+
+share_options="${share_options} --work ${work_dir}"
+
 msg_info "Options: ${share_options}"
 msg_info "Press Enter to continue or Ctrl + C to cancel."
 read
 
 
 trap 'trap_exit' 1 2 3 15
-
-if [[ ! -d "${work_dir}" ]]; then
-    mkdir -p "${work_dir}"
-fi
 
 if [[ "${simulation}" = false ]]; then
     msg_info "Update the package database."
