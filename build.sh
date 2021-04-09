@@ -339,7 +339,7 @@ check_bool() {
 }
 
 _run_cleansh(){
-    "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")" "$([[ "${noconfirm}" = true ]] && echo -n "-n")"
+    "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && printf "-d")" "$([[ "${noconfirm}" = true ]] && printf "-n")"
 }
 
 
