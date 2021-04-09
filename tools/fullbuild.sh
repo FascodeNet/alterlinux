@@ -141,14 +141,14 @@ _help() {
 share_options+=("--noconfirm")
 
 # Parse options
-ARGUMENT="${@}"
+ARGUMENT=("${@}")
 OPTS="a:dghr:sctm:l:w:"
 OPTL="help,remove-cache"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
 eval set -- "${OPT}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL ARGUMENT
 
 while true; do
     case ${1} in
