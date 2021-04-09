@@ -132,7 +132,7 @@ done
 
 shift $((OPTIND - 1))
 
-if [[ ! "${noconfirm}" = true ]]; then
+if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
     msg_warn -n "Are you sure you want to continue?"
