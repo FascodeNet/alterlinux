@@ -9,6 +9,9 @@
 #
 # Xfce4 Desktop Environment
 
+#-- Wallpaper --#
+alterlinux-wallpapers
+
 
 #-- xfce4 base --#
 exo
@@ -30,7 +33,6 @@ xfdesktop
 xfwm4
 xfwm4-themes
 
-alterlinux-wallpapers
 
 #-- xfce4 plugins --#
 thunar-archive-plugin
