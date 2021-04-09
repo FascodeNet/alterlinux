@@ -338,6 +338,10 @@ check_bool() {
     done
 }
 
+_run_cleansh(){
+    "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")" "$([[ "${noconfirm}" = true ]] && echo -n "-n")"
+}
+
 
 # Check the build environment and create a directory.
 prepare_env() {
@@ -382,7 +386,7 @@ prepare_env() {
     if [[ "${normwork}" = false ]]; then
         umount_chroot_advance
         msg_info "Deleting the contents of ${build_dir}..."
-        "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
+        _run_cleansh
     fi
 
     # 強制終了時に作業ディレクトリを削除する
@@ -390,7 +394,7 @@ prepare_env() {
     _trap_remove_work() {
         local status=${?}
         if [[ "${normwork}" = false ]]; then
-            echo; "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
+            echo; _run_cleansh
         fi
         exit ${status}
     }
@@ -1292,7 +1296,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "clean" ]]; then
-   "${tools_dir}/clean.sh" -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
+   _run_cleansh
     exit 0
 fi
 
@@ -1335,6 +1339,6 @@ if [[ "${noiso}" = false ]]; then
     run_once make_iso
 fi
 
-[[ "${cleaning}" = true ]] && "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && echo -n "-d")"
+[[ "${cleaning}" = true ]] && _run_cleansh
 
 exit 0
