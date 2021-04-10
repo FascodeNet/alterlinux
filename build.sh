@@ -197,6 +197,9 @@ _mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then
 # Unmount chroot dir
 umount_chroot () {
     local _mount
+    if [[ ! -v build_dir ]] || [[ "${build_dir}" = "" ]]; then
+        msg_error "Exception error about working directory" 1
+    fi
     for _mount in $(cat /proc/mounts | getclm 2 | grep "$(realpath ${build_dir})" | tac | grep -xv "$(realpath ${build_dir})/${arch}/airootfs"); do
         msg_info "Unmounting ${_mount}"
         _umount "${_mount}" 2> /dev/null
