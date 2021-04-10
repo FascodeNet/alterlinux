@@ -9,4 +9,5 @@
 #
 # Display Manager
 
-lightdm
+lightdm-slick-greeter
+lightdm-settings
