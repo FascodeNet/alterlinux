@@ -26,10 +26,10 @@ if cat "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" | grep "%SESSION%
         session_list+=("${session}")
     done < <(find "/usr/share/xsessions" -type f -print0 -name "*.desktop" | xargs -0 -I{} bash -c 'basename {} | sed "s|.desktop||g"')
 
-    if (( "${#session_list[@]}" = 1)); then
+    if (( "${#session_list[@]}" == 1)); then
         session="${session_list[*]}"
         sed -i "s|%SESSION%|${session}|g" "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf"
-    elif (( "${#session_list[@]}" = 0)); then
+    elif (( "${#session_list[@]}" == 0)); then
         echo "Warining: Auto login session was not found"
     else
         remove "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf"
