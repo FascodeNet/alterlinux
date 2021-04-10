@@ -591,8 +591,7 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-
-    sed "s|https|http|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    sed "s|https|http|g; s|^#?\\s*CacheDir|#CacheDir|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
@@ -614,7 +613,7 @@ make_pkgbuild() {
     
     #-- ビルドスクリプトの実行 --#
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
-    sed "s|https|http|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    sed "s|https|http|g; s|^#?\\s*CacheDir|#CacheDir|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run build script
     _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds"
