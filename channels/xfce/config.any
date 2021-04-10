@@ -24,5 +24,6 @@ modules=(
     "share-extra"
     "zsh-powerline"
     "lightdm"
+    "alter-lightdm"
     "qtongtk"
 )
