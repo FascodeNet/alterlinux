@@ -628,7 +628,7 @@ make_customize_airootfs() {
     local _airootfs _airootfs_script_options _script _script_list _airootfs_list _main_script
 
     _airootfs_list=("${channel_dir}/airootfs.any" "${channel_dir}/airootfs.${arch}")
-    for_module '_airootfs_list=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}" ${_airootfs_list[@]})'
+    for_module '_airootfs_list=("${_airootfs_list[@]}" "${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}")'
 
     for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
