@@ -1,0 +1,13 @@
+#
+# Alter Linux package list
+# lap1sid
+# Twitter: @Pixel_3a
+# Email  : lap1sid@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+
+#-- scripts --#
+alterlinux-gtk-bookmarks
+alterlinux-desktop-file
+alterlinux-welcome-page
