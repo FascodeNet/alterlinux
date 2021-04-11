@@ -25,3 +25,4 @@ menuconfig-script/kernel_choice_*
 /custom.conf
 /out/
 out
+/pacman-*.conf

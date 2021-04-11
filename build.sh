@@ -552,6 +552,10 @@ make_pacman_conf() {
         build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
     fi
 
+    if [[ -f "${script_path}/pacman-${arch}.conf" ]]; then
+        build_pacman_conf="${script_path}/pacman-${arch}.conf"
+    fi
+
     msg_debug "Use ${build_pacman_conf}"
     sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
 
