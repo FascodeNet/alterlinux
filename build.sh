@@ -546,15 +546,13 @@ prepare_build() {
 make_pacman_conf() {
     # Pacman configuration file used only when building
     # If there is pacman.conf for each channel, use that for building
-    if [[ -f "${channel_dir}/pacman-${arch}.conf" ]]; then
-        build_pacman_conf="${channel_dir}/pacman-${arch}.conf"
-    else
-        build_pacman_conf="${script_path}/system/pacman-${arch}.conf"
-    fi
-
-    if [[ -f "${script_path}/pacman-${arch}.conf" ]]; then
-        build_pacman_conf="${script_path}/pacman-${arch}.conf"
-    fi
+    local _pacman_conf _pacman_conf_list=("${script_path}/pacman-${arch}.conf" "${channel_dir}/pacman-${arch}.conf" "${script_path}/system/pacman-${arch}.conf")
+    for _pacman_conf in "${_pacman_conf_list[@]}"; do
+        if [[ -f "${_pacman_conf}" ]]; then
+            build_pacman_conf="${_pacman_conf}"
+            break
+        fi
+    done
 
     msg_debug "Use ${build_pacman_conf}"
     sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
