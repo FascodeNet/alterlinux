@@ -356,9 +356,6 @@ prepare_env() {
     isofs_dir="${build_dir}/iso"
     lockfile_dir="${build_dir}/lockfile"
 
-    # Create dir
-    mkdir -p "${airootfs_dir}" "${cache_dir}"
-
     # Check packages
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
@@ -390,6 +387,16 @@ prepare_env() {
         umount_chroot_advance
         msg_info "Deleting the contents of ${build_dir}..."
         _run_cleansh
+    fi
+
+    # Create dir
+    mkdir -p "${airootfs_dir}" "${cache_dir}"
+
+    # Set gpg key
+    if [[ -n "${gpg_key}" ]]; then
+        gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
+        exec {ARCHISO_GNUPG_FD}<>"${build_dir}/pubkey.gpg"
+        export ARCHISO_GNUPG_FD
     fi
 
     # 強制終了時に作業ディレクトリを削除する
