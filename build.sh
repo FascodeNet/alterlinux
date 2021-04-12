@@ -315,13 +315,10 @@ _cleanup_airootfs(){
 }
 
 _mkchecksum() {
-    local name="${1}"
-    cd -- "${out_dir}"
     msg_info "Creating md5 checksum ..."
-    md5sum "${1}" > "${1}.md5"
+    echo "$(md5sum "${1}" | getclm 1) $(basename "${1}")" > "${1}.md5"
     msg_info "Creating sha256 checksum ..."
-    sha256sum "${1}" > "${1}.sha256"
-    cd -- "${OLDPWD}"
+    echo "$(sha256sum "${1}" | getclm 1) $(basename "${1}")" > "${1}.sha256"
 }
 
 # Check the value of a variable that can only be set to true or false.
@@ -1005,9 +1002,7 @@ make_prepare() {
 
     # Create checksum
     msg_info "Creating checksum file for self-test..."
-    cd -- "${isofs_dir}/${install_dir}/${arch}"
-    sha512sum airootfs.sfs > airootfs.sha512
-    cd -- "${OLDPWD}"
+    echo "$(sha512sum "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" | getclm 1) airootfs.sfs" > "${isofs_dir}/${install_dir}/${arch}/airootfs.sha512"
     msg_info "Done!"
 
     # Sign with gpg
