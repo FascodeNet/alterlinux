@@ -9,10 +9,6 @@
 #
 # Xfce4 Desktop Environment
 
-#-- Wallpaper --#
-alterlinux-wallpapers
-
-
 #-- xfce4 base --#
 exo
 garcon
