@@ -383,15 +383,17 @@ prepare_env() {
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
 
+    # Create dir
+    for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
+        mkdir -p "${_dir}"
+    done
+
     # Check work dir
     if [[ "${normwork}" = false ]]; then
         umount_chroot_advance
         msg_info "Deleting the contents of ${build_dir}..."
         _run_cleansh
     fi
-
-    # Create dir
-    mkdir -p "${airootfs_dir}" "${cache_dir}"
 
     # Set gpg key
     if [[ -n "${gpg_key}" ]]; then
