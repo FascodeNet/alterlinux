@@ -86,9 +86,19 @@ remove() {
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(cat /proc/mounts | getclm 2 | grep $(realpath ${work_dir}) | tac); do
-        msg_info "Unmounting ${_mount}"
-        umount -lf "${_mount}" 2> /dev/null
+    if [[ ! -v "build_dir" ]] || [[ "${build_dir}" = "" ]]; then
+        msg_error "Exception error about working directory" 1
+    fi
+    if [[ ! -d "${build_dir}" ]]; then
+        return 0
+    fi
+    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${build_dir})/${arch}/airootfs"); do
+        if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
+            msg_info "Unmounting ${_mount}"
+            _umount "${_mount}" 2> /dev/null
+        else
+            msg_error "It is dangerous to unmount a directory that is not managed by the script."
+        fi
     done
 }
 
@@ -131,6 +141,10 @@ while getopts "dow:hn" arg; do
 done
 
 shift $((OPTIND - 1))
+
+if [[ ! -v work_dir ]] && [[ "${work_dir}" = "" ]]; then
+    exit 1
+fi
 
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."

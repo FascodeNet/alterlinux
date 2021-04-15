@@ -390,7 +390,6 @@ prepare_env() {
 
     # Check work dir
     if [[ "${normwork}" = false ]]; then
-        umount_chroot_advance
         msg_info "Deleting the contents of ${build_dir}..."
         _run_cleansh
     fi
