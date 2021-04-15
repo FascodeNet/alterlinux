@@ -86,13 +86,13 @@ remove() {
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    if [[ ! -v "build_dir" ]] || [[ "${build_dir}" = "" ]]; then
+    if [[ ! -v "work_dir" ]] || [[ "${work_dir}" = "" ]]; then
         msg_error "Exception error about working directory" 1
     fi
-    if [[ ! -d "${build_dir}" ]]; then
+    if [[ ! -d "${work_dir}" ]]; then
         return 0
     fi
-    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${build_dir})/${arch}/airootfs"); do
+    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${work_dir})" | tac | grep -xv "$(realpath -s ${work_dir})/${arch}/airootfs"); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
