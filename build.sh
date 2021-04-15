@@ -364,9 +364,9 @@ prepare_env() {
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
-        if pacman -Qq pyalpm > /dev/null 2>&1; then
+        if ! pacman -Qq pyalpm > /dev/null 2>&1; then
             msg_error "pyalpm is not installed." 1
-        fi
+        fi   
         for _pkg in "${dependence[@]}"; do
             eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             if (( _result == 3 )) || (( _result == 4 )); then
