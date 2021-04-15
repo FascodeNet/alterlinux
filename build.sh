@@ -1077,7 +1077,7 @@ make_iso() {
         ${_iso_efi_boot_args} \
         -output "${out_dir}/${iso_filename}" \
         "${build_dir}/iso/"
-    _mkchecksum "${iso_filename}"
+    _mkchecksum "${out_dir}/${iso_filename}"
     msg_info "Done! | $(ls -sh -- "${out_dir}/${iso_filename}")"
 
     msg_info "The password for the live user and root is ${password}."
