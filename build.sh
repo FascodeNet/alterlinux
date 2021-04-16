@@ -566,16 +566,27 @@ make_pacman_conf() {
 
     msg_debug "Use ${build_pacman_conf}"
     sed -r "
-        s|^#?\\s*CacheDir.+|CacheDir     = ${pacman_dir}/cache|g;
-        s|^#?\\s*DBPath.+|DBPath       = ${pacman_dir}/cache|g;
+        s|^#?\\s*CacheDir.+|CacheDir     = ${work_dir}/cache/${arch}|g;
+        s|^#?\\s*DBPath.+|#DBPath       = ${pacman_dir}/db|g;
         s|^#?\\s*GPGDir.+|GPGDir       = ${pacman_dir}/gpg|g;
         s|^#?\\s*LogFile.+|LogFile      = ${pacman_dir}/pacman.log|g;
     " "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
-    mkdir -p "${work_dir}/pacman"
 
     if [[ "${nosigcheck}" = true ]]; then
         sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
     fi
+
+    # Remove pacman files
+    remove "${pacman_dir}"
+    for _dir in "${work_dir}/cache/${arch}" "${pacman_dir}/db" "${pacman_dir}/gpg"; do
+        mkdir -p "${_dir}"
+    done
+
+    #cp -r "/var/lib/pacman/"* "${pacman_dir}/db"
+
+    # Set up pacman
+    fakeroot pacman-key --config "${build_pacman_conf}" --gpgdir "${pacman_dir}/gpg" --init
+    fakeroot pacman-key --config "${build_pacman_conf}" --gpgdir "${pacman_dir}/gpg" --populate
 }
 
 # Base installation (airootfs)
