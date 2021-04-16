@@ -189,10 +189,22 @@ _usage () {
 }
 
 # Unmount helper Usage: _umount <target>
-_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
+#_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Mount helper Usage: _mount <source> <target>
-_mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
+#_mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
+
+_umount(){
+    _fuseumount "${1}"
+}
+
+_fuseumount() {
+    if mountpoint -q "${1}"; then
+        fusermount -u "${1}"
+    fi
+}
+
+_archivemount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then archivemount "${1}" "${2}"; fi; }
 
 # Unmount chroot dir
 umount_chroot () {
@@ -216,7 +228,8 @@ umount_chroot () {
 # Mount airootfs on "${build_dir}/${arch}/airootfs"
 mount_airootfs () {
     mkdir -p "${airootfs_dir}"
-    _mount "${airootfs_dir}.img" "${airootfs_dir}"
+    #_mount "${airootfs_dir}.img" "${airootfs_dir}"
+    _archivemount "${airootfs_dir}.img" "${airootfs_dir}"
 }
 
 umount_airootfs() {
@@ -283,7 +296,8 @@ for_module(){
 # パッケージをインストールする
 _pacman(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
+    #pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
+    fakeroot pacman -r /home/hayao/Desktop/work -Sy "${@}" --noconfirm --config=/home/hayao/Git/alterlinux/work/build/pacman-x86_64.conf --debug
     msg_info "Packages installed successfully!"
 }
 
@@ -552,6 +566,8 @@ make_pacman_conf() {
 
     msg_debug "Use ${build_pacman_conf}"
     sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
+    sed -i "s|/var/lib/pacman/|${work_dir}/pacman|g; s|#DBPath|DBPath|g" "${build_dir}/pacman-${arch}.conf"
+    mkdir -p "${work_dir}/pacman"
 
     if [[ "${nosigcheck}" = true ]]; then
         sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
@@ -1256,12 +1272,12 @@ while true; do
 done
 
 # Check root.
-if (( ! "${EUID}" == 0 )); then
-    msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
-    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
-    exit "${?}"
-fi
+#if (( ! "${EUID}" == 0 )); then
+#    msg_warn "This script must be run as root." >&2
+#    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
+#    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
+#    exit "${?}"
+#fi
 
 # Show config message
 msg_debug "Use the default configuration file (${defaultconfig})."
@@ -1327,8 +1343,8 @@ set -eu
 prepare_env
 prepare_build
 show_settings
-run_once make_pacman_conf
 run_once make_basefs # Mount airootfs
+run_once make_pacman_conf
 run_once make_packages_repo
 [[ "${noaur}" = false ]] && run_once make_packages_aur
 [[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
