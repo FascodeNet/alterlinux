@@ -352,14 +352,6 @@ _run_cleansh(){
 
 # Check the build environment and create a directory.
 prepare_env() {
-    # Set dirs
-    work_dir="$(realpath "${work_dir}")"
-    build_dir="${work_dir}/build"
-    cache_dir="${work_dir}/cache/${arch}"
-    airootfs_dir="${build_dir}/${arch}/airootfs"
-    isofs_dir="${build_dir}/iso"
-    lockfile_dir="${build_dir}/lockfile"
-
     # Check packages
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
@@ -382,11 +374,6 @@ prepare_env() {
         if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"; fi
         if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
     fi
-
-    # Create dir
-    for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
-        mkdir -p "${_dir}"
-    done
 
     # Check work dir
     if [[ "${normwork}" = false ]]; then
@@ -1301,6 +1288,19 @@ if [[ -n "${1+SET}" ]]; then
 else
     channel_dir="${script_path}/channels/${channel_name}"
 fi
+
+# Set dirs
+work_dir="$(realpath "${work_dir}")"
+build_dir="${work_dir}/build"
+cache_dir="${work_dir}/cache/${arch}"
+airootfs_dir="${build_dir}/${arch}/airootfs"
+isofs_dir="${build_dir}/iso"
+lockfile_dir="${build_dir}/lockfile"
+
+# Create dir
+for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
+    mkdir -p "${_dir}"
+done
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
