@@ -565,8 +565,12 @@ make_pacman_conf() {
     done
 
     msg_debug "Use ${build_pacman_conf}"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
-    sed -i "s|/var/lib/pacman/|${work_dir}/pacman|g; s|#DBPath|DBPath|g" "${build_dir}/pacman-${arch}.conf"
+    sed -r "
+        s|^#?\\s*CacheDir.+|CacheDir     = ${pacman_dir}/cache|g;
+        s|^#?\\s*DBPath.+|DBPath       = ${pacman_dir}/cache|g;
+        s|^#?\\s*GPGDir.+|GPGDir       = ${pacman_dir}/gpg|g;
+        s|^#?\\s*LogFile.+|LogFile      = ${pacman_dir}/pacman.log|g;
+    " "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
     mkdir -p "${work_dir}/pacman"
 
     if [[ "${nosigcheck}" = true ]]; then
@@ -1308,13 +1312,13 @@ fi
 # Set dirs
 work_dir="$(realpath "${work_dir}")"
 build_dir="${work_dir}/build"
-cache_dir="${work_dir}/cache/${arch}"
+pacman_dir="${work_dir}/pacman/${arch}"
 airootfs_dir="${build_dir}/${arch}/airootfs"
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
 
 # Create dir
-for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
+for _dir in "${build_dir}" "${pacman_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
     mkdir -p "${_dir}"
 done
 
