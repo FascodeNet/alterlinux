@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 work_dir="${script_path}/work"
 debug=false
@@ -92,12 +94,13 @@ umount_chroot () {
     if [[ ! -d "${work_dir}" ]]; then
         return 0
     fi
-    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${work_dir})" | tac | grep -xv "$(realpath -s ${work_dir})/${arch}/airootfs"); do
+    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${work_dir})" | tac | grep -xv "$(realpath -s "${work_dir}")"); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
         else
             msg_error "It is dangerous to unmount a directory that is not managed by the script."
+            msg_error "Path: ${_mount}"
         fi
     done
 }
