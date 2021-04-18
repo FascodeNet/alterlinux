@@ -85,6 +85,9 @@ remove() {
     for _file in "${@}"; do msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
+# Unmount helper Usage: _umount <target>
+_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
+
 # Unmount chroot dir
 umount_chroot () {
     local _mount
