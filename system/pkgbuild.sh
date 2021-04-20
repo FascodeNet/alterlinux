@@ -86,7 +86,7 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
                 fi
             done
         fi
-        run_user makepkg -iAcCs --noconfirm 
+        run_user makepkg -iAcCs --noconfirm --skippgpcheck 
         cd - >/dev/null
     done
 fi

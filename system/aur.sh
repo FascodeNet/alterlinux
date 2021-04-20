@@ -95,6 +95,7 @@ for _pkg in "${@}"; do
             --removemake \
             --useask \
             --color always \
+            --mflags "--skippgpcheck" \
             --config "/etc/alteriso-pacman.conf" \
             --cachedir "/var/cache/pacman/pkg/" \
             "${_pkg}"
