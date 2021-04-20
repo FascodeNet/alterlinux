@@ -27,3 +27,6 @@ xfce4-screenshooter
 
 # for sysmenu
 arandr
+
+# Screen lock
+light-locker
