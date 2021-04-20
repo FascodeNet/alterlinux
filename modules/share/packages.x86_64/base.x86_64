@@ -19,4 +19,4 @@ mkinitcpio-nfs-utils
 nbd
 vi
 
-#edk2-shell
+edk2-shell
