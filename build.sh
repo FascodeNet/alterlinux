@@ -556,6 +556,10 @@ make_pacman_conf() {
     if [[ "${nosigcheck}" = true ]]; then
         sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
     fi
+
+    if [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]]; then
+        msg_info "Use cached package files in ${cache_dir}"
+    fi
 }
 
 # Base installation (airootfs)
@@ -581,6 +585,9 @@ make_packages_repo() {
 
     # Install packages on airootfs
     _pacman "${_pkglist[@]}"
+
+    # Upgrade cached package
+    _chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
 }
 
 make_packages_aur() {
