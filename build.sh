@@ -587,7 +587,9 @@ make_packages_repo() {
     _pacman "${_pkglist[@]}"
 
     # Upgrade cached package
-    _chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
+    #sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    #_chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
+    # remove "${airootfs_dir}/etc/alteriso-pacman.conf"
 }
 
 make_packages_aur() {
