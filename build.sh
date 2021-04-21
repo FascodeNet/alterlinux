@@ -280,11 +280,19 @@ for_module(){
     for module in "${modules[@]}"; do eval "$(echo "${@}" | sed "s|{}|${module}|g")"; done
 }
 
-# パッケージをインストールする
-_pacman(){
+# pacstrapを実行
+_pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
+    pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" "${@}"
     msg_info "Packages installed successfully!"
+}
+
+# chroot環境でpacmanコマンドを実行
+# /etc/alteriso-pacman.confを準備してコマンドを実行します
+_run_with_pacmanconf(){
+    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    "${@}"
+    remove "${airootfs_dir}/etc/alteriso-pacman.conf"
 }
 
 # コマンドをchrootで実行する
@@ -584,12 +592,10 @@ make_packages_repo() {
     printf "%s\n" "${_pkglist[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
-    _pacman "${_pkglist[@]}"
+    _pacstrap "${_pkglist[@]}"
 
     # Upgrade cached package
-    #sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
-    #_chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
-    # remove "${airootfs_dir}/etc/alteriso-pacman.conf"
+    # _run_with_pacmanconf _chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
 }
 
 make_packages_aur() {
@@ -601,10 +607,9 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run aur script
-    _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
+    _run_with_pacmanconf _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
@@ -623,10 +628,9 @@ make_pkgbuild() {
     
     #-- ビルドスクリプトの実行 --#
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
-    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
 
     # Run build script
-    _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds"
+    _run_with_pacmanconf _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds"
 
     # Remove script
     remove "${airootfs_dir}/root/pkgbuild.sh"
