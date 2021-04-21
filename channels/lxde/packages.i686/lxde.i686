@@ -35,9 +35,5 @@ adapta-gtk-theme
 papirus-icon-theme
 
 
-#-- wallpaper --#
-alterlinux-wallpapers
-
-
 #-- To run fascode-live-tools on lxde session --#
 python-pyxdg

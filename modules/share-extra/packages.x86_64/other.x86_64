@@ -38,11 +38,6 @@ htop
 #-- printer --#
 system-config-printer
 
-#-- scripts --#
-alterlinux-gtk-bookmarks
-alterlinux-desktop-file
-alterlinux-welcome-page
-
 
 #-- text editor --#
 nano
