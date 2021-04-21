@@ -29,13 +29,8 @@ function remove () {
 
 # user_check <name>
 function user_check () {
-    if [[ -z "${1}" ]]; then
-        return 1
-    elif getent passwd "${1}" > /dev/null; then
-        return 0
-    else
-        return 1
-    fi
+    if [[ ! -v 1 ]]; then return 2; fi
+    getent passwd "${1}" > /dev/null
 }
 
 # 一般ユーザーで実行します
@@ -62,8 +57,7 @@ echo "${build_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/pkgbuild"
 
 # Setup keyring
 pacman-key --init
-#eval $(cat "/etc/systemd/system/pacman-init.service" | grep 'ExecStart' | sed "s|ExecStart=||g" )
-ls "/usr/share/pacman/keyrings/"*".gpg" | sed "s|.gpg||g" | xargs | pacman-key --populate
+pacman-key --populate
 
 # Un comment the mirror list.
 #sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"

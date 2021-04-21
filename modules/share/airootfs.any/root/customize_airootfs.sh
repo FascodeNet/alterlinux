@@ -113,17 +113,10 @@ if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then
 fi
 
 
-# Creating a root user.
-# usermod -s /usr/bin/zsh root
+# user_check <name>
 function user_check () {
-    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
-        if [[ -z $1 ]]; then
-            echo -n "false"
-        fi
-        echo -n "true"
-    else
-        echo -n "false"
-    fi
+    if [[ ! -v 1 ]]; then return 2; fi
+    getent passwd "${1}" > /dev/null
 }
 
 # Execute only if the command exists
@@ -163,7 +156,7 @@ function create_user () {
     fi
     set -u
 
-    if [[ $(user_check ${_username}) = false ]]; then
+    if user_check "${_username}"; then
         useradd -m -s ${usershell} ${_username}
         groupadd sudo
         usermod -U -g ${_username} ${_username}
