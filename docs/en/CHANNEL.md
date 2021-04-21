@@ -4,7 +4,7 @@ Channel is an Alter Linux original mechanism that is made so that you can easily
 This mechanism allows you to easily create an AlterOS derivative OS.  
 Initially, it was only possible to switch packages, but now the specifications have changed significantly and various changes can be made for each channel.  
 
-The following are channel specifications as of May 13, 2021.  
+The following are channel specifications as of May 13, 2020.  
 
 # Let the script recognize the channel
 
@@ -46,9 +46,7 @@ Add here basic packages and common files that will be installed on all channels.
 
 ## rebuild
 
-This channel is visible in the help, but it is not a directory entity. This channel is embedded in the script.  
-This channel is a channel to read the file which saved the build option generated in the working directory and rebuild.  
-This channel is embedded in the script.  
+Rebuild is obsolete in AlterISO3. 
 
 # Specifications of each channel
 

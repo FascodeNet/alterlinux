@@ -15,15 +15,20 @@ _help() {
     echo "Scripts that perform locale-related processing " 
     echo
     echo " General command:"
-    echo "    check [name]       Determine if the locale is available"
-    echo "    show               Shows a list of available locales"
-    echo "    get [name]         Prints the specified locale settings"
-    echo "    help               This help message"
+    echo "    check [name]              Determine if the locale is available"
+    echo "    show                      Shows a list of available locales"
+    echo "    get [name]                Prints the specified locale settings"
+    echo "    help                      This help message"
     echo
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -c | --channel            Specify the channel"
+    echo "    -s | --script             Enable script mode"
     echo "    -h | --help               This help message"
+    echo
+    echo " Script mode usage:"
+    echo "     check                    Returns 0 if the check was successful, 1 otherwise."
+    printf '     get                      eval $(%s -s -a <arch> -c <channel> get <locale>)\n' "$(basename ${0})"
 }
 
 # Usage: getclm <number>
@@ -55,10 +60,10 @@ check() {
         exit 1
     fi
     if [[ $(printf '%s\n' "${localelist[@]}" | grep -qx "${1}"; echo -n ${?} ) -eq 0 ]]; then
-        echo "correct"
+        #echo "correct"
         exit 0
     else
-        echo "incorrect"
+        #echo "incorrect"
         exit 1
     fi
 }
@@ -118,13 +123,13 @@ EOF
 
 # Parse options
 ARGUMENT="${@}"
-opt_short="a:c:hs"
-opt_long="arch:,channel:,help,script"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
-
+OPTS="a:c:hs"
+OPTL="arch:,channel:,help,script"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+    exit 1
+fi
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
     case ${1} in

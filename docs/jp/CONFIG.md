@@ -22,4 +22,3 @@ channels/share/config.any |
 channels/share/config.<arch> | 
 channels/<ch_name>/config.any | 
 channels/<ch_name>/config.<arch> | 
-work/build_options | `rebuild`や`retry`時に読み込まれます

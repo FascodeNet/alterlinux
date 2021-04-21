@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
+set -eu
+
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 work_dir="${script_path}/work"
 debug=false
 only_work=false
+noconfirm=false
 
 
 # 設定ファイルを読み込む
@@ -75,30 +78,33 @@ msg_error() {
     fi
 }
 
-# rm helper
-# Delete the file if it exists.
-# For directories, rm -rf is used.
-# If the file does not exist, skip it.
+# Show message when file is removed
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "$@")) _file
-    for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            msg_info "Removing ${_file}"
-            rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            msg_info "Removing ${_file}"
-            rm -rf "${_file}"
-        fi
-    done
+    local _file
+    for _file in "${@}"; do msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
+
+# Unmount helper Usage: _umount <target>
+_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Unmount chroot dir
 umount_chroot () {
     local _mount
-    for _mount in $(mount | getclm 3 | grep $(realpath ${work_dir}) | tac); do
-        msg_info "Unmounting ${_mount}"
-        umount -lf "${_mount}" 2> /dev/null
+    if [[ ! -v "work_dir" ]] || [[ "${work_dir}" = "" ]]; then
+        msg_error "Exception error about working directory" 1
+    fi
+    if [[ ! -d "${work_dir}" ]]; then
+        return 0
+    fi
+    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${work_dir})" | tac | grep -xv "$(realpath -s "${work_dir}")"); do
+        if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
+            msg_info "Unmounting ${_mount}"
+            _umount "${_mount}" 2> /dev/null
+        else
+            msg_error "It is dangerous to unmount a directory that is not managed by the script."
+            msg_error "Path: ${_mount}"
+        fi
     done
 }
 
@@ -120,11 +126,15 @@ _help() {
     echo "    -h                       This help message"
 }
 
-while getopts "dow:h" arg; do
-    case ${arg} in
+while getopts "dow:hn" arg; do
+    case "${arg}" in
         d)  debug=true ;;
         o) only_work=true ;;
         w) work_dir="${OPTARG}" ;;
+        n)
+            noconfirm=true
+            msg_warn "Remove files without warning"
+            ;;
         h) 
             _help
             exit 0
@@ -138,6 +148,23 @@ done
 
 shift $((OPTIND - 1))
 
+if [[ ! -v work_dir ]] && [[ "${work_dir}" = "" ]]; then
+    exit 1
+fi
+
+if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
+    msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
+    msg_warn "${work_dir}"
+    msg_warn -n "Are you sure you want to continue?"
+    read -n 1 yesorno
+    if [[ "${yesorno}" = "y" ]] || [[ "${yesorno}" = "" ]]; then
+        echo
+    else
+        exit 1
+    fi
+fi
+
+
 umount_chroot
 if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig/build/"**
@@ -145,5 +172,6 @@ if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig-script/kernel_choice"
     remove "${script_path}/system/mkalteriso"
 fi
+
 remove "${work_dir%/}"/**
 remove "${work_dir}"
