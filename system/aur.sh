@@ -26,7 +26,7 @@ function user_check () {
 }
 
 # Creating a aur user.
-if user_check "${aur_username}"; then
+if ! user_check "${aur_username}"; then
     useradd -m -d "/aurbuild_temp" "${aur_username}"
 fi
 mkdir -p "/aurbuild_temp"

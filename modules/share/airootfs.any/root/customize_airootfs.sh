@@ -156,7 +156,7 @@ function create_user () {
     fi
     set -u
 
-    if user_check "${_username}"; then
+    if ! user_check "${_username}"; then
         useradd -m -s ${usershell} ${_username}
         groupadd sudo
         usermod -U -g ${_username} ${_username}
