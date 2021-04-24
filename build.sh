@@ -306,16 +306,24 @@ _cleanup_common () {
 
     # Delete pacman database sync cache files (*.tar.gz)
     [[ -d "${airootfs_dir}/var/lib/pacman" ]] && find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+
     # Delete pacman database sync cache
     [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]] && find "${airootfs_dir}/var/lib/pacman/sync" -delete
+
     # Delete pacman package cache
     [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]] && find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
+
     # Delete all log files, keeps empty dirs.
     [[ -d "${airootfs_dir}/var/log" ]] && find "${airootfs_dir}/var/log" -type f -delete
+
     # Delete all temporary files and dirs
     [[ -d "${airootfs_dir}/var/tmp" ]] && find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
+
     # Delete package pacman related files.
     find "${build_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
+
+    # Delete all cache file
+    [[ -d "${airootfs_dir}/var/cache" ]] && find "${airootfs_dir}/var/cache" -mindepth 1 -delete
 
     # Create an empty /etc/machine-id
     printf '' > "${airootfs_dir}/etc/machine-id"
