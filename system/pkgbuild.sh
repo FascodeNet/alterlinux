@@ -83,7 +83,7 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
         run_user makepkg -fACcs --noconfirm --skippgpcheck
         for pkg in $(run_user makepkg -f --packagelist); do
             run_user pacman -S --noconfirm --needed --config /etc/alteriso-pacman.conf "${pkg}"
-        fi
+        done
         cd - >/dev/null
     done
 fi
