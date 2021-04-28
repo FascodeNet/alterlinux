@@ -941,7 +941,7 @@ make_efiboot() {
     mkdir -p "${build_dir}/efiboot/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
 
-    find "${isofs_dir}/loader/entries/" -name "uefi-shell*" -maxdepth 1 -mindepth 1 -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
+    find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
 
     local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
 
