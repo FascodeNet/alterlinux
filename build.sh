@@ -958,7 +958,7 @@ make_efiboot() {
         "${_efi_config}" > "${build_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
     done
 
-    cp "${isofs_dir}/EFI/shell"*".efi" "${build_dir}/efiboot/EFI/"
+    find "${isofs_dir}/EFI" -maxdepth 1 -mindepth 1 -name "shell*.efi" -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/EFI/"
     umount -d "${build_dir}/efiboot"
 }
 
