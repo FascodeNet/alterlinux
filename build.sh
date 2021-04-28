@@ -635,6 +635,7 @@ make_pkgbuild() {
     done
     
     #-- ビルドスクリプトの実行 --#
+    # copy buold script
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
     # Run build script
