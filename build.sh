@@ -42,44 +42,35 @@ fi
 
 umask 0022
 
+# Message common function
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "build.sh") _type="${1}"
+    shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
+    [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
+    _msg_opts+=("${_type}" "${@}")
+    "${tools_dir}/msg.sh" "${_msg_opts[@]}"
+}
+
 # Show an INFO message
 # ${1}: message string
 msg_info() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} info "${1}"
+    msg_common info "${@}"
 }
 
 # Show an Warning message
 # ${1}: message string
 msg_warn() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} warn "${1}"
+    msg_common warn "${@}"
 }
 
 # Show an debug message
 # ${1}: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a build.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-        [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${tools_dir}/msg.sh" ${_msg_opts} debug "${1}"
+        msg_common debug "${@}"
     fi
 }
 
@@ -87,16 +78,9 @@ msg_debug() {
 # ${1}: message string
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} error "${1}"
+    msg_common error "${@}"
     if [[ -n "${2:-}" ]]; then
-        exit ${2}
+        exit "${2}"
     fi
 }
 
