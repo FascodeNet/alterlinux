@@ -42,44 +42,35 @@ fi
 
 umask 0022
 
+# Message common function
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "build.sh") _type="${1}"
+    shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
+    [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
+    _msg_opts+=("${_type}" "${@}")
+    "${tools_dir}/msg.sh" "${_msg_opts[@]}"
+}
+
 # Show an INFO message
 # ${1}: message string
 msg_info() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} info "${1}"
+    msg_common info "${@}"
 }
 
 # Show an Warning message
 # ${1}: message string
 msg_warn() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} warn "${1}"
+    msg_common warn "${@}"
 }
 
 # Show an debug message
 # ${1}: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a build.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-        [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${tools_dir}/msg.sh" ${_msg_opts} debug "${1}"
+        msg_common debug "${@}"
     fi
 }
 
@@ -87,16 +78,9 @@ msg_debug() {
 # ${1}: message string
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} error "${1}"
+    msg_common error "${@}"
     if [[ -n "${2:-}" ]]; then
-        exit ${2}
+        exit "${2}"
     fi
 }
 
@@ -534,8 +518,8 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}"
-        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog 2>&1 | tee "${logging}"
+        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nodepend --nolog 2>&1 | tee ${logging}"
+        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog --nodepend 2>&1 | tee "${logging}"
         exit "${?}"
     else
         unset DEFAULT_ARGUMENT ARGUMENT
@@ -635,6 +619,7 @@ make_pkgbuild() {
     done
     
     #-- ビルドスクリプトの実行 --#
+    # copy buold script
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
     # Run build script
@@ -888,20 +873,22 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     local _efi_shell_arch
-    for _efi_shell_arch in $(find "${airootfs_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
-        if [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
-            cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-        elif [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
-            cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-        else
-            continue
-        fi
-        cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
+    if [[ -d "${airootfs_dir}/usr/share/edk2-shell" ]]; then
+        for _efi_shell_arch in $(find "${airootfs_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
+            if [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
+                cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            elif [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
+                cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            else
+                continue
+            fi
+            cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
 title  UEFI Shell ${_efi_shell_arch}
 efi    /EFI/shell_${_efi_shell_arch}.efi
 
 EOF
-    done
+        done
+    fi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -937,7 +924,8 @@ make_efiboot() {
 
     mkdir -p "${build_dir}/efiboot/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
-    cp "${isofs_dir}/loader/entries/uefi-shell"* "${build_dir}/efiboot/loader/entries/"
+
+    find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
 
     local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
 
@@ -954,7 +942,7 @@ make_efiboot() {
         "${_efi_config}" > "${build_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
     done
 
-    cp "${isofs_dir}/EFI/shell"*".efi" "${build_dir}/efiboot/EFI/"
+    find "${isofs_dir}/EFI" -maxdepth 1 -mindepth 1 -name "shell*.efi" -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/EFI/"
     umount -d "${build_dir}/efiboot"
 }
 
