@@ -78,7 +78,7 @@ msg_debug() {
 # ${1}: message string
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    msg_common error "${@}"
+    msg_common error "${1}"
     if [[ -n "${2:-}" ]]; then
         exit "${2}"
     fi
