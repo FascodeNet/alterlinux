@@ -18,7 +18,7 @@ default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alte
 
 work_dir="${script_path}/work"
 simulation=false
-retry=5
+retry=1
 
 remove_cache=false
 all_channel=false
@@ -100,11 +100,15 @@ build() {
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash "${script_path}/build.sh" "${_options[@]}"
             _exit_code="${?}"
-            if [[ "${_exit_code}" = 0 ]]; then
+            if (( _exit_code == 0 )); then
                 touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
+            elif (( "${retry_count}" == "${retry}" )); then
+                msg_error "Failed to build (Exit code: ${_exit_code})"
+                exit "${_exit_code}"
             else
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
+            
         fi
     fi
 }
@@ -115,7 +119,7 @@ _help() {
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
-    echo "    -d                 Use the default build.sh arguments. (${[default_options[*]})"
+    echo "    -d                 Use the default build.sh arguments. (${default_options[*]})"
     echo "    -g                 Use gitversion"
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
@@ -267,7 +271,7 @@ fi
 for arch in ${architectures[@]}; do
     for cha in ${channnels[@]}; do
         for lang in ${locale_list[@]}; do
-            for i in $(seq 1 ${retry}); do
+            for retry_count in $(seq 1 ${retry}); do
                 if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
                     build
                 fi
