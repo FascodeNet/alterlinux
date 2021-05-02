@@ -23,6 +23,7 @@ retry=1
 remove_cache=false
 all_channel=false
 customized_work=false
+noconfirm=false
 
 # Show an INFO message
 # $1: message string
@@ -131,6 +132,7 @@ _help() {
     echo "    -w <dir>           Set the work dir"
     echo
     echo "    --remove-cache     Clear cache for all packages on every build"
+    echo "    --noconfirm        Run without confirmation"
     echo
     echo " !! WARNING !!"
     echo " Do not set channel or architecture with -a."
@@ -147,7 +149,7 @@ share_options+=("--noconfirm")
 # Parse options
 ARGUMENT=("${@}")
 OPTS="a:dghr:sctm:l:w:"
-OPTL="help,remove-cache"
+OPTL="help,remove-cache,noconfirm"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
@@ -210,6 +212,10 @@ while true; do
             remove_cache=true
             shift 1
             ;;
+        --noconfirm)
+            noconfirm=true
+            shift 1
+            ;;
         --)
             shift 1
             break
@@ -257,8 +263,10 @@ mkdir -p "${fullbuild_dir}"
 share_options+=("--work" "${work_dir}")
 
 msg_info "Options: ${share_options[*]}"
-msg_info "Press Enter to continue or Ctrl + C to cancel."
-read
+if [[ "${noconfirm}" = false ]]; then
+    msg_info "Press Enter to continue or Ctrl + C to cancel."
+    read
+fi
 
 
 trap 'trap_exit' 1 2 3 15
