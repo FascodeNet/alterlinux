@@ -130,7 +130,13 @@ while true; do
     esac
 done
 
-modules=("${@}")
+for module in "${@}"; do
+    if "${script_path}/tools/module.sh" check "${module}"; then
+        modules=("${@}")
+    else
+        msg_debug "Module ${module} was not found"
+    fi
+done
 
 if [[ -z "${arch}" ]] || [[ "${arch}" = "" ]]; then
     msg_error "Architecture not specified"
