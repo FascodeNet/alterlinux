@@ -63,6 +63,7 @@ modules=(
     "base"
     "share"
     "share-extra"
+    "kmscon"
     "zsh-powerline"
     "lightdm"
     "alter-lightdm"

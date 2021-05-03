@@ -21,4 +21,5 @@ usershell="/bin/zsh"
 modules=(
     "share"
     "base"
+    "kmscon"
 )

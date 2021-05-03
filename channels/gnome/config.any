@@ -25,6 +25,7 @@ modules=(
     "base"
     "share"
     "share-extra"
+    "kmscon"
     "zsh-powerline"
     "gdm"
     "qtongtk"
