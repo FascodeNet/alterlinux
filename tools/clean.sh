@@ -97,7 +97,6 @@ umount_chroot () {
     if [[ ! -d "${work_dir}" ]]; then
         return 0
     fi
-    #for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
     for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
