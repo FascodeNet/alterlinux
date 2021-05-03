@@ -285,12 +285,12 @@ run_additional_command "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 # Execute the subcommand only when the specified unit is available.
 # Usage: _systemd_service <systemctl subcommand> <service1> <service2> ...
 _systemd_service(){
-    local _service
-    local _command="${1}"
+    local _service _command="${1}"
     shift 1
     for _service in "${@}"; do
         # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
-        if (( "$(systemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
+        #if (( "$(systemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
+        if systemctl cat "${_service}" 2>/dev/null 1>&2; then
             systemctl ${_command} "${_service}"
         else
             echo "${_service} was not found" >&2
