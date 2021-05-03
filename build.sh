@@ -581,7 +581,7 @@ make_packages_repo() {
     local _pkglist=($("${tools_dir}/pkglist.sh" "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${build_dir}/packages.list"
+    echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
     printf "%s\n" "${_pkglist[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
@@ -595,7 +595,7 @@ make_packages_aur() {
     local _pkglist_aur=($("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#\n\n" >> "${build_dir}/packages.list"
+    echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
     printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
 
     # prepare for yay
