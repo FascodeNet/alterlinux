@@ -187,7 +187,7 @@ umount_chroot () {
     if [[ ! -d "${build_dir}" ]]; then
         return 0
     fi
-    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${build_dir})/${arch}/airootfs"); do
+    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
@@ -197,7 +197,7 @@ umount_chroot () {
     done
 }
 
-# Mount airootfs on "${build_dir}/${arch}/airootfs"
+# Mount airootfs on "${airootfs_dir}"
 mount_airootfs () {
     mkdir -p "${airootfs_dir}"
     _mount "${airootfs_dir}.img" "${airootfs_dir}"
@@ -817,7 +817,7 @@ make_syslinux() {
     if [[ "${memtest86}"      = false ]]; then _remove_config memtest86.cfg;           fi
 
     # copy files
-    cp "${build_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
     cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
     cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
 
