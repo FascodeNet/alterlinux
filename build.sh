@@ -1301,9 +1301,9 @@ fi
 
 # Set dirs
 work_dir="$(realpath "${work_dir}")"
-build_dir="${work_dir}/build"
+build_dir="${work_dir}/build/${arch}"
 cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/${arch}/airootfs"
+airootfs_dir="${build_dir}/airootfs"
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
 
