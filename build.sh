@@ -531,7 +531,7 @@ prepare_build() {
     if [[ "${debug}"         = true ]]; then pkglist_args+=("-d"); fi
     if [[ "${memtest86}"     = true ]]; then pkglist_args+=("-m"); fi
     if (( "${#additional_exclude_pkg[@]}" >= 1 )); then pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
-    pkglist_args+=("${modules[*]}")
+    pkglist_args+=("${modules[@]}")
 
     # Unmount
     umount_chroot
