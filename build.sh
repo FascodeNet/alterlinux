@@ -216,11 +216,11 @@ umount_chroot_advance() {
 # Helper function to run make_*() only one time.
 run_once() {
     set -eu
-    if [[ ! -e "${lockfile_dir}/build.${1}_${arch}" ]]; then
+    if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
         msg_debug "Running ${1} ..."
         mount_airootfs
-        "${1}"
-        mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}_${arch}"
+        eval "${@}"
+        mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
         umount_chroot_advance
     else
         msg_debug "Skipped because ${1} has already been executed."
@@ -268,14 +268,14 @@ for_module(){
 # pacstrapを実行
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" "${@}"
+    pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${@}"
     msg_info "Packages installed successfully!"
 }
 
 # chroot環境でpacmanコマンドを実行
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
-    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
     "${@}"
     remove "${airootfs_dir}/etc/alteriso-pacman.conf"
 }
@@ -552,7 +552,7 @@ make_pacman_conf() {
     done
 
     msg_debug "Use ${build_pacman_conf}"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
 
     if [[ "${nosigcheck}" = true ]]; then
         sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
@@ -1302,9 +1302,9 @@ fi
 
 # Set dirs
 work_dir="$(realpath "${work_dir}")"
-build_dir="${work_dir}/build"
+build_dir="${work_dir}/build/${arch}"
 cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/${arch}/airootfs"
+airootfs_dir="${build_dir}/airootfs"
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
 
