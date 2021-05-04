@@ -614,8 +614,9 @@ make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
+    mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
-        mkdir -p "${airootfs_dir}/pkgbuilds/"
+        msg_info "Find $(basename "${_dir}")"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
@@ -755,6 +756,7 @@ make_boot_extra() {
 
     for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
         if [[ -e "${airootfs_dir}/boot/${_ucode_image}" ]]; then
+            msg_info "Installimg ${_ucode_image} ..."
             install -m 0644 -- "${airootfs_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
             if [[ -e "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
                 install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
