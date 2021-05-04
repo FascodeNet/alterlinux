@@ -1,5 +1,7 @@
 # 貢献する方法 -日本語-
 
+English version is [here](CONTRIBUTING.md#how-to-contribute---english-)
+ 
 ## コーディング規約
 
 ### 全体
