@@ -2,7 +2,8 @@
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
 Dockerでビルドする方法は[この手順](DOCKER.md)を参照してください。  
   
-実機でビルドする場合は、必ずOSがArch LinuxかAlter Linuxでなければなりません。  
+実機でビルドする場合は、OSがArch LinuxかAlter Linuxでなければなりません。  
+（Manjaroや他のディストリビューションでも必要なコマンドをインストールすれば理論上は可能ですが動作は保証されません。）
 以下では実機でビルドする方法を解説します。  
   
 ArchやAlter上で直接ビルドする場合、ビルドはいくつかの方法で行うことができます。
@@ -31,12 +32,7 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake pyalpm
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -siAcC
-cd ..
-rm -rf yay/
+sudo pacman -S --needed curl dosfstools git libburn libisofs lz4 lzo make pyalpm squashfs-tools libisoburn xz zlib zstd qt5-base
 ```
 
 ### TUIを使用する
@@ -96,11 +92,12 @@ sudo ./build.sh [options] [channel]
 
 - Plymouthを有効化
 - 圧縮方式は`gzip`
-- カーネルは`linux-lqx`
+- カーネルは`linux-lts`
 - パスワードは`ilovearch`
+- チャンネルは`xfce`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
+./build.sh -b -c "gzip" -k "lts" -p 'ilovearch' xfce
 ```
 
 
@@ -108,7 +105,7 @@ sudo ./build.sh [options] [channel]
 #### チャンネルについて
 チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
 この仕組みにより様々なバージョンのAlter Linuxをビルドすることが可能になります。  
-2020年8月17日現在でサポートされているチャンネルは以下のとおりです。  
+2021年5月07日現在でサポートされているチャンネルは以下のとおりです。  
 完全なチャンネルの一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 目的
@@ -120,6 +117,7 @@ i3 | i3とカスタマイズ可能なpolybarを搭載したrelengを除いて最
 lxde | LXDEと最小限のアプリケーションのみが入っている軽量なチャンネル
 plasma | PlasmaとQtアプリを搭載した現在開発中のチャンネル
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドできるチャンネル
+serene | Serene Linuxを移植したチャンネル
 xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
 xfce-pro | xfceチャンネルのウィンドウマネージャを変更し、多くのソフトを追加したチャンネル
 
@@ -129,7 +127,7 @@ xfce-pro | xfceチャンネルのウィンドウマネージャを変更し、�
 また`x86_64`では公式カーネルに加えて以下ようなカーネルをサポートしています。  
 カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。  
 AlterISO3からは非公式なカーネルはyayによりコンパイル、インストールされます。カーネルのコンパイルに時間がかかる場合が有るので注意してください。  
-この一覧に無いカーネルもサポートしています。完全な一覧は[x86_64のカーネル設定ファイル](/system/kernel-x86_64)を参照してください。  
+この一覧に無いカーネルもサポートしています。完全な一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 特徴
 --- | ---
