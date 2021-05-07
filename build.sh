@@ -24,6 +24,7 @@ customized_password=false
 customized_kernel=false
 customized_logpath=false
 pkglist_args=()
+modules=()
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
 
@@ -178,17 +179,15 @@ _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 # Mount helper Usage: _mount <source> <target>
 _mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
 
-# Unmount chroot dir
-umount_chroot () {
+# Unmount work dir
+umount_work () {
     local _mount
     if [[ ! -v "build_dir" ]] || [[ "${build_dir}" = "" ]]; then
         msg_error "Exception error about working directory" 1
     fi
-    if [[ ! -d "${build_dir}" ]]; then
-        return 0
-    fi
+    [[ ! -d "${build_dir}" ]] && return 0
     #for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
-    for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
+    for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
@@ -204,14 +203,6 @@ mount_airootfs () {
     _mount "${airootfs_dir}.img" "${airootfs_dir}"
 }
 
-umount_airootfs() {
-    if [[ -v airootfs_dir ]]; then _umount "${airootfs_dir}"; fi
-}
-
-umount_chroot_advance() {
-    umount_chroot
-    umount_airootfs
-}
 
 # Helper function to run make_*() only one time.
 run_once() {
@@ -221,7 +212,7 @@ run_once() {
         mount_airootfs
         eval "${@}"
         mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
-        umount_chroot_advance
+        umount_work
     else
         msg_debug "Skipped because ${1} has already been executed."
     fi
@@ -237,7 +228,7 @@ remove() {
 # 強制終了時にアンマウント
 umount_trap() {
     local _status="${?}"
-    umount_chroot_advance
+    umount_work
     msg_error "It was killed by the user.\nThe process may not have completed successfully."
     exit "${_status}"
 }
@@ -533,9 +524,6 @@ prepare_build() {
     if [[ "${memtest86}"     = true ]]; then pkglist_args+=("-m"); fi
     if (( "${#additional_exclude_pkg[@]}" >= 1 )); then pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
     pkglist_args+=("${modules[@]}")
-
-    # Unmount
-    umount_chroot
 }
 
 
@@ -1019,7 +1007,7 @@ make_prepare() {
         msg_info "Done!"
     fi
 
-    umount_chroot_advance
+    umount_work
 
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}" "${airootfs_dir}.img"
