@@ -24,6 +24,7 @@ customized_password=false
 customized_kernel=false
 customized_logpath=false
 pkglist_args=()
+modules=()
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
 
@@ -42,44 +43,35 @@ fi
 
 umask 0022
 
+# Message common function
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "build.sh") _type="${1}"
+    shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
+    [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
+    _msg_opts+=("${_type}" "${@}")
+    "${tools_dir}/msg.sh" "${_msg_opts[@]}"
+}
+
 # Show an INFO message
 # ${1}: message string
 msg_info() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} info "${1}"
+    msg_common info "${@}"
 }
 
 # Show an Warning message
 # ${1}: message string
 msg_warn() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} warn "${1}"
+    msg_common warn "${@}"
 }
 
 # Show an debug message
 # ${1}: message string
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a build.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-        [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-        "${tools_dir}/msg.sh" ${_msg_opts} debug "${1}"
+        msg_common debug "${@}"
     fi
 }
 
@@ -87,16 +79,9 @@ msg_debug() {
 # ${1}: message string
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a build.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    [[ "${msgdebug}" = true ]] && _msg_opts="${_msg_opts} -x"
-    [[ "${nocolor}"  = true ]] && _msg_opts="${_msg_opts} -n"
-    "${tools_dir}/msg.sh" ${_msg_opts} error "${1}"
+    msg_common error "${1}"
     if [[ -n "${2:-}" ]]; then
-        exit ${2}
+        exit "${2}"
     fi
 }
 
@@ -194,16 +179,15 @@ _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 # Mount helper Usage: _mount <source> <target>
 _mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
 
-# Unmount chroot dir
-umount_chroot () {
+# Unmount work dir
+umount_work () {
     local _mount
     if [[ ! -v "build_dir" ]] || [[ "${build_dir}" = "" ]]; then
         msg_error "Exception error about working directory" 1
     fi
-    if [[ ! -d "${build_dir}" ]]; then
-        return 0
-    fi
-    for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${build_dir})/${arch}/airootfs"); do
+    [[ ! -d "${build_dir}" ]] && return 0
+    #for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
+    for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
             _umount "${_mount}" 2> /dev/null
@@ -213,30 +197,22 @@ umount_chroot () {
     done
 }
 
-# Mount airootfs on "${build_dir}/${arch}/airootfs"
+# Mount airootfs on "${airootfs_dir}"
 mount_airootfs () {
     mkdir -p "${airootfs_dir}"
     _mount "${airootfs_dir}.img" "${airootfs_dir}"
 }
 
-umount_airootfs() {
-    if [[ -v airootfs_dir ]]; then _umount "${airootfs_dir}"; fi
-}
-
-umount_chroot_advance() {
-    umount_chroot
-    umount_airootfs
-}
 
 # Helper function to run make_*() only one time.
 run_once() {
     set -eu
-    if [[ ! -e "${lockfile_dir}/build.${1}_${arch}" ]]; then
+    if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
         msg_debug "Running ${1} ..."
         mount_airootfs
-        "${1}"
-        mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}_${arch}"
-        umount_chroot_advance
+        eval "${@}"
+        mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
+        umount_work
     else
         msg_debug "Skipped because ${1} has already been executed."
     fi
@@ -252,7 +228,7 @@ remove() {
 # 強制終了時にアンマウント
 umount_trap() {
     local _status="${?}"
-    umount_chroot_advance
+    umount_work
     msg_error "It was killed by the user.\nThe process may not have completed successfully."
     exit "${_status}"
 }
@@ -283,14 +259,14 @@ for_module(){
 # pacstrapを実行
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" "${@}"
+    pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${@}"
     msg_info "Packages installed successfully!"
 }
 
 # chroot環境でpacmanコマンドを実行
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
-    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman-${arch}.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
     "${@}"
     remove "${airootfs_dir}/etc/alteriso-pacman.conf"
 }
@@ -306,16 +282,24 @@ _cleanup_common () {
 
     # Delete pacman database sync cache files (*.tar.gz)
     [[ -d "${airootfs_dir}/var/lib/pacman" ]] && find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+
     # Delete pacman database sync cache
     [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]] && find "${airootfs_dir}/var/lib/pacman/sync" -delete
+
     # Delete pacman package cache
     [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]] && find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
+
     # Delete all log files, keeps empty dirs.
     [[ -d "${airootfs_dir}/var/log" ]] && find "${airootfs_dir}/var/log" -type f -delete
+
     # Delete all temporary files and dirs
     [[ -d "${airootfs_dir}/var/tmp" ]] && find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
+
     # Delete package pacman related files.
     find "${build_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
+
+    # Delete all cache file
+    [[ -d "${airootfs_dir}/var/cache" ]] && find "${airootfs_dir}/var/cache" -mindepth 1 -delete
 
     # Create an empty /etc/machine-id
     printf '' > "${airootfs_dir}/etc/machine-id"
@@ -526,8 +510,8 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}"
-        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog 2>&1 | tee "${logging}"
+        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nodepend --nolog 2>&1 | tee ${logging}"
+        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog --nodepend 2>&1 | tee "${logging}"
         exit "${?}"
     else
         unset DEFAULT_ARGUMENT ARGUMENT
@@ -539,10 +523,7 @@ prepare_build() {
     if [[ "${debug}"         = true ]]; then pkglist_args+=("-d"); fi
     if [[ "${memtest86}"     = true ]]; then pkglist_args+=("-m"); fi
     if (( "${#additional_exclude_pkg[@]}" >= 1 )); then pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
-    pkglist_args+=("${modules[*]}")
-
-    # Unmount
-    umount_chroot
+    pkglist_args+=("${modules[@]}")
 }
 
 
@@ -559,7 +540,7 @@ make_pacman_conf() {
     done
 
     msg_debug "Use ${build_pacman_conf}"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
 
     if [[ "${nosigcheck}" = true ]]; then
         sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
@@ -588,7 +569,7 @@ make_packages_repo() {
     local _pkglist=($("${tools_dir}/pkglist.sh" "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${build_dir}/packages.list"
+    echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
     printf "%s\n" "${_pkglist[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
@@ -602,7 +583,7 @@ make_packages_aur() {
     local _pkglist_aur=($("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n\n# AUR packages.\n#\n\n" >> "${build_dir}/packages.list"
+    echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
     printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
 
     # prepare for yay
@@ -621,12 +602,14 @@ make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
+    mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
-        mkdir -p "${airootfs_dir}/pkgbuilds/"
+        msg_info "Find $(basename "${_dir}")"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
     #-- ビルドスクリプトの実行 --#
+    # copy buold script
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
     # Run build script
@@ -761,6 +744,7 @@ make_boot_extra() {
 
     for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
         if [[ -e "${airootfs_dir}/boot/${_ucode_image}" ]]; then
+            msg_info "Installimg ${_ucode_image} ..."
             install -m 0644 -- "${airootfs_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
             if [[ -e "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
                 install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
@@ -824,7 +808,7 @@ make_syslinux() {
     if [[ "${memtest86}"      = false ]]; then _remove_config memtest86.cfg;           fi
 
     # copy files
-    cp "${build_dir}"/${arch}/airootfs/usr/lib/syslinux/bios/*.c32 "${isofs_dir}/syslinux"
+    cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
     cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
     cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
 
@@ -880,20 +864,22 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     local _efi_shell_arch
-    for _efi_shell_arch in $(find "${airootfs_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
-        if [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
-            cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-        elif [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
-            cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-        else
-            continue
-        fi
-        cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
+    if [[ -d "${airootfs_dir}/usr/share/edk2-shell" ]]; then
+        for _efi_shell_arch in $(find "${airootfs_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
+            if [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
+                cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            elif [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
+                cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            else
+                continue
+            fi
+            cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
 title  UEFI Shell ${_efi_shell_arch}
 efi    /EFI/shell_${_efi_shell_arch}.efi
 
 EOF
-    done
+        done
+    fi
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -929,7 +915,8 @@ make_efiboot() {
 
     mkdir -p "${build_dir}/efiboot/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
-    cp "${isofs_dir}/loader/entries/uefi-shell"* "${build_dir}/efiboot/loader/entries/"
+
+    find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
 
     local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
 
@@ -946,7 +933,7 @@ make_efiboot() {
         "${_efi_config}" > "${build_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
     done
 
-    cp "${isofs_dir}/EFI/shell"*".efi" "${build_dir}/efiboot/EFI/"
+    find "${isofs_dir}/EFI" -maxdepth 1 -mindepth 1 -name "shell*.efi" -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/EFI/"
     umount -d "${build_dir}/efiboot"
 }
 
@@ -1020,7 +1007,7 @@ make_prepare() {
         msg_info "Done!"
     fi
 
-    umount_chroot_advance
+    umount_work
 
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}" "${airootfs_dir}.img"
@@ -1305,9 +1292,9 @@ fi
 
 # Set dirs
 work_dir="$(realpath "${work_dir}")"
-build_dir="${work_dir}/build"
+build_dir="${work_dir}/build/${arch}"
 cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/${arch}/airootfs"
+airootfs_dir="${build_dir}/airootfs"
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
 

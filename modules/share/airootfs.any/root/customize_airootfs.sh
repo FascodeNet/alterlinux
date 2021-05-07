@@ -156,7 +156,7 @@ function create_user () {
     fi
     set -u
 
-    if user_check "${_username}"; then
+    if ! user_check "${_username}"; then
         useradd -m -s ${usershell} ${_username}
         groupadd sudo
         usermod -U -g ${_username} ${_username}
@@ -174,8 +174,8 @@ create_user "${username}" "${password}"
 
 
 # Set up auto login
-if [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; then
-    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty1.service.d/autologin.conf
+if [[ -f "/etc/systemd/system/getty@.service.d/autologin.conf" ]]; then
+    sed -i "s|%USERNAME%|${username}|g" "/etc/systemd/system/getty@.service.d/autologin.conf"
 fi
 
 

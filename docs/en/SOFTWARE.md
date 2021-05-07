@@ -15,7 +15,7 @@ If you need a binary file, access [the Alter Linux repository](https://xn--d-8o2
 | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 [alterlinux-calamares](https://github.com/FascodeNet/alterlinux-calamares) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-calamares)
 [alterlinux-fcitx-conf](https://github.com/FascodeNet/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-fcitx-conf)
-[alterlinux-gtk-bookmarks](https://github.com/FascodeNet/alterlinux-desktop-file/tree/master/alterlinux-gtk-bookmarks) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-gtk-bookmarks)
+[fascode-gtk-bookmarks](https://github.com/FascodeNet/alterlinux-desktop-file/tree/master/fascode-gtk-bookmarks) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/fascode-gtk-bookmarks)
 [alterlinux-i3-manager](https://github.com/FascodeNet/alterlinux-i3-manager) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-i3-manager)
 [alterlinux-keyring](https://github.com/FascodeNet/alterlinux-keyring) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-keyring)
 [alterlinux-desktop-file](https://github.com/FascodeNet/alterlinux-desktop-file) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-desktop-file)

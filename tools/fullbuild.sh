@@ -18,11 +18,12 @@ default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alte
 
 work_dir="${script_path}/work"
 simulation=false
-retry=5
+retry=1
 
 remove_cache=false
 all_channel=false
 customized_work=false
+noconfirm=false
 
 # Show an INFO message
 # $1: message string
@@ -100,11 +101,15 @@ build() {
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash "${script_path}/build.sh" "${_options[@]}"
             _exit_code="${?}"
-            if [[ "${_exit_code}" = 0 ]]; then
+            if (( _exit_code == 0 )); then
                 touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
+            elif (( "${retry_count}" == "${retry}" )); then
+                msg_error "Failed to build (Exit code: ${_exit_code})"
+                exit "${_exit_code}"
             else
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
+            
         fi
     fi
 }
@@ -115,7 +120,7 @@ _help() {
     echo " General options:"
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
-    echo "    -d                 Use the default build.sh arguments. (${[default_options[*]})"
+    echo "    -d                 Use the default build.sh arguments. (${default_options[*]})"
     echo "    -g                 Use gitversion"
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
@@ -127,6 +132,7 @@ _help() {
     echo "    -w <dir>           Set the work dir"
     echo
     echo "    --remove-cache     Clear cache for all packages on every build"
+    echo "    --noconfirm        Run without confirmation"
     echo
     echo " !! WARNING !!"
     echo " Do not set channel or architecture with -a."
@@ -143,7 +149,7 @@ share_options+=("--noconfirm")
 # Parse options
 ARGUMENT=("${@}")
 OPTS="a:dghr:sctm:l:w:"
-OPTL="help,remove-cache"
+OPTL="help,remove-cache,noconfirm"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
@@ -206,6 +212,10 @@ while true; do
             remove_cache=true
             shift 1
             ;;
+        --noconfirm)
+            noconfirm=true
+            shift 1
+            ;;
         --)
             shift 1
             break
@@ -253,8 +263,10 @@ mkdir -p "${fullbuild_dir}"
 share_options+=("--work" "${work_dir}")
 
 msg_info "Options: ${share_options[*]}"
-msg_info "Press Enter to continue or Ctrl + C to cancel."
-read
+if [[ "${noconfirm}" = false ]]; then
+    msg_info "Press Enter to continue or Ctrl + C to cancel."
+    read
+fi
 
 
 trap 'trap_exit' 1 2 3 15
@@ -267,7 +279,7 @@ fi
 for arch in ${architectures[@]}; do
     for cha in ${channnels[@]}; do
         for lang in ${locale_list[@]}; do
-            for i in $(seq 1 ${retry}); do
+            for retry_count in $(seq 1 ${retry}); do
                 if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
                     build
                 fi
