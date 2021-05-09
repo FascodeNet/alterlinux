@@ -518,7 +518,7 @@ prepare_build() {
     [[ "${boot_splash}"              = true ]] && pkglist_args+=("-b")
     [[ "${debug}"                    = true ]] && pkglist_args+=("-d")
     [[ "${memtest86}"                = true ]] && pkglist_args+=("-m")
-    (( "${#additional_exclude_pkg[@]}" >= 1 )) && pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
+    (( "${#additional_exclude_pkg[@]}" >= 1 )) && pkglist_args+=("-e" "${additional_exclude_pkg[*]}")
     pkglist_args+=("${modules[@]}")
 
     # Set argument of aur.sh and pkgbuild.sh
