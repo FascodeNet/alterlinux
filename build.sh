@@ -260,7 +260,11 @@ for_module(){
 # pacstrapを実行
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${@}"
+    if [[ "${pacman_debug}" = true ]]; then
+        pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" --debug "${@}"
+    else
+        pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${@}"
+    fi
     msg_info "Packages installed successfully!"
 }
 
@@ -1074,7 +1078,7 @@ make_iso() {
 # Parse options
 ARGUMENT=("${@}")
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild,pacman_debug"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild,pacman-debug"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"); then
     exit 1
 fi
