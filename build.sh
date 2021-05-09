@@ -165,6 +165,7 @@ _usage () {
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
+    echo "         --pacman-debug          Enable pacman debug mode"
     echo "         --normwork              No remove working dir"
     echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
     echo
@@ -1073,7 +1074,7 @@ make_iso() {
 # Parse options
 ARGUMENT=("${@}")
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild,pacman_debug"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"); then
     exit 1
 fi
@@ -1219,6 +1220,10 @@ while true; do
         --config)
             source "${2}"
             shift 2
+            ;;
+        --pacman-debug)
+            pacman_debug=true
+            shift 1
             ;;
         --nosigcheck)
             nosigcheck=true
