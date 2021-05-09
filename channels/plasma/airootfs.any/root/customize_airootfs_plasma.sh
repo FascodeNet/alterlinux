@@ -17,10 +17,6 @@ if [[ "${arch}" = "x86_64" ]]; then
     systemctl enable apparmor.service
     systemctl enable snapd.socket
     systemctl enable snapd.service
-
-
-    # firewalld
-    systemctl enable firewalld.service
 fi
 
 

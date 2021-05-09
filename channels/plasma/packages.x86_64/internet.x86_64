@@ -27,5 +27,4 @@ kdenetwork-filesharing
 
 
 #-- security --#
-firewalld
 ufw

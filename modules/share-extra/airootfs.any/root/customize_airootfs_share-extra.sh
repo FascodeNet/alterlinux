@@ -18,10 +18,6 @@ _systemd_service enable snapd.socket
 _systemd_service enable snapd.service
 
 
-# firewalld
-_systemd_service enable firewalld.service
-
-
 # Added autologin group to auto login
 groupadd autologin
 usermod -aG autologin ${username}

@@ -24,5 +24,4 @@ chromium
 
 
 #-- security --#
-firewalld
 ufw
