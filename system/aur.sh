@@ -10,6 +10,7 @@ set -e -u
 
 aur_username="aurbuild"
 pacman_debug=true
+pacman_args=()
 
 trap 'exit 1' 1 2 3 15
 
@@ -72,18 +73,26 @@ pacman-key --populate
 # Un comment the mirror list.
 #sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
+# Set pacman args
+pacman_args=("--config" "/etc/alteriso-pacman.conf" "--noconfirm")
+if [[ "${pacman_debug}" = true ]]; then
+    pacman_args+=("--debug")
+fi
+
 # Install yay
 if ! pacman -Qq yay 1> /dev/null 2>&1; then
     (
         _oldpwd="$(pwd)"
-        pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
-        pacman --noconfirm -S --asdeps --needed go --config "/etc/alteriso-pacman.conf"
+        pacman -Syy "${pacman_args[@]}"
+        pacman -S --asdeps --needed "${pacman_args[@]}" go
         sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
         cd "/tmp/yay"
         sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        pacman --noconfirm --config "/etc/alteriso-pacman.conf" -U $(sudo -u "${aur_username}" makepkg --packagelist)
+        for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
+            pacman "${pacman_args[@]}" -U "${_pkg}"
+        done
         cd ..
-        rm -rf "/tmp/yay"
+        remove "/tmp/yay"
         cd "${_oldpwd}"
     )
 fi
@@ -101,7 +110,6 @@ for _pkg in "${@}"; do
         yay -Sy \
             --mflags "-AcC" \
             --aur \
-            --noconfirm \
             --nocleanmenu \
             --nodiffmenu \
             --noeditmenu \
@@ -111,7 +119,7 @@ for _pkg in "${@}"; do
             --useask \
             --color always \
             --mflags "--skippgpcheck" \
-            --config "/etc/alteriso-pacman.conf" \
+            "${pacman_args[@]}" \
             --cachedir "/var/cache/pacman/pkg/" \
             "${_pkg}"
 
@@ -121,7 +129,7 @@ for _pkg in "${@}"; do
     fi
 done
 
-yay -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
+yay -Sccc "${pacman_args[@]}"
 
 # remove user and file
 userdel "${aur_username}"

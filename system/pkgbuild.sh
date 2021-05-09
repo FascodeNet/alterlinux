@@ -10,6 +10,7 @@ set -e
 
 build_username="pkgbuild"
 pacman_debug=true
+pacman_args=()
 
 _help() {
     echo "usage ${0} [option]"
@@ -92,8 +93,14 @@ pacman-key --populate
 # Un comment the mirror list.
 #sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
 
+# Set pacman args
+pacman_args=("--config" "/etc/alteriso-pacman.conf" "--noconfirm")
+if [[ "${pacman_debug}" = true ]]; then
+    pacman_args+=("--debug")
+fi
+
 # Update datebase
-pacman -Syy --config "/etc/alteriso-pacman.conf"
+pacman -Syy "${pacman_args[@]}"
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
@@ -106,23 +113,23 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
         if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
             for _pkg in ${depends[@]} ${makedepends[@]}; do
                 if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
-                    pacman -S --config "/etc/alteriso-pacman.conf" --noconfirm --asdeps --needed "${_pkg}"
+                    pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
                 fi
             done
         fi
         run_user makepkg -fACcs --noconfirm --skippgpcheck
         for pkg in $(run_user makepkg -f --packagelist); do
-            pacman --noconfirm --needed --config /etc/alteriso-pacman.conf -U "${pkg}"
+            pacman --needed "${pacman_args[@]}" -U "${pkg}"
         done
         cd - >/dev/null
     done
 fi
 
 if deletepkg=($(pacman -Qtdq)) &&  (( "${#deletepkg[@]}" != 0 )); then
-    pacman -Rsnc --noconfirm "${deletepkg[@]}" --config "/etc/alteriso-pacman.conf"
+    pacman -Rsnc "${deletepkg[@]}" "${pacman_args[@]}"
 fi
 
-pacman -Sccc --noconfirm --config "/etc/alteriso-pacman.conf"
+pacman -Sccc "${pacman_args[@]}"
 
 # remove user and file
 userdel "${build_username}"
