@@ -9,7 +9,37 @@
 set -e
 
 build_username="pkgbuild"
+pacman_debug=true
 
+_help() {
+    echo "usage ${0} [option]"
+    echo
+    echo "Build and install PKGBUILD" 
+    echo
+    echo " General options:"
+    echo "    -d                       Enable pacman debug message"
+    echo "    -u [user]                Set the user name to build packages"
+    echo "    -x                       Enable bash debug message"
+    echo "    -h                       This help message"
+}
+
+while getopts "du:xh" arg; do
+    case "${arg}" in
+        d) pacman_debug=true ;;
+        u) build_username="${OPTARG}" ;;
+        x) set -xv ;;
+        h) 
+            _help
+            exit 0
+            ;;
+        *)
+            _help
+            exit 1
+            ;;
+    esac
+done
+
+shift "$((OPTIND - 1))"
 
 # Delete file only if file exists
 # remove <file1> <file2> ...

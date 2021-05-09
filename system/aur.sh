@@ -9,8 +9,39 @@
 set -e -u
 
 aur_username="aurbuild"
+pacman_debug=true
 
 trap 'exit 1' 1 2 3 15
+
+_help() {
+    echo "usage ${0} [option]"
+    echo
+    echo "Install aur packages with yay" 
+    echo
+    echo " General options:"
+    echo "    -d                       Enable pacman debug message"
+    echo "    -u [user]                Set the user name to build packages"
+    echo "    -x                       Enable bash debug message"
+    echo "    -h                       This help message"
+}
+
+while getopts "du:xh" arg; do
+    case "${arg}" in
+        d) pacman_debug=true ;;
+        u) aur_username="${OPTARG}" ;;
+        x) set -xv ;;
+        h) 
+            _help
+            exit 0
+            ;;
+        *)
+            _help
+            exit 1
+            ;;
+    esac
+done
+
+shift "$((OPTIND - 1))"
 
 # Show message when file is removed
 # remove <file> <file> ...

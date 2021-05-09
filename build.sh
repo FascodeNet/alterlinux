@@ -24,6 +24,7 @@ customized_password=false
 customized_kernel=false
 customized_logpath=false
 pkglist_args=()
+makepkg_script_args=()
 modules=()
 DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
@@ -473,22 +474,12 @@ prepare_build() {
     eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
     eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
-    # Set username
-    if [[ "${customized_username}" = false ]]; then
-        username="${defaultusername}"
-    fi
-
-    # Set password
-    if [[ "${customized_password}" = false ]]; then
-        password="${defaultpassword}"
-    fi
+    # Set username and password
+    [[ "${customized_username}" = false ]] && username="${defaultusername}"
+    [[ "${customized_password}" = false ]] && password="${defaultpassword}"
 
     # gitversion
-    if [[ "${gitversion}" = true ]]; then
-        cd "${script_path}"
-        iso_version="${iso_version}-$(git rev-parse --short HEAD)"
-        cd "${OLDPWD}"
-    fi
+    [[ "${gitversion}" = true ]] && iso_version="${iso_version}-$(cd "${script_path}"; git rev-parse --short HEAD)"
 
     # Generate iso file name.
     local _channel_name="${channel_name%.add}-${locale_version}"
@@ -524,11 +515,15 @@ prepare_build() {
 
     # Set argument of pkglist.sh
     pkglist_args=("-a" "${arch}" "-k" "${kernel}" "-c" "${channel_dir}" "-l" "${locale_name}")
-    if [[ "${boot_splash}"   = true ]]; then pkglist_args+=("-b"); fi
-    if [[ "${debug}"         = true ]]; then pkglist_args+=("-d"); fi
-    if [[ "${memtest86}"     = true ]]; then pkglist_args+=("-m"); fi
-    if (( "${#additional_exclude_pkg[@]}" >= 1 )); then pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
+    [[ "${boot_splash}"              = true ]] && pkglist_args+=("-b")
+    [[ "${debug}"                    = true ]] && pkglist_args+=("-d")
+    [[ "${memtest86}"                = true ]] && pkglist_args+=("-m")
+    (( "${#additional_exclude_pkg[@]}" >= 1 )) && pkglist_args+=("-e" "${additional_exclude_pkg[*]}"); fi
     pkglist_args+=("${modules[@]}")
+
+    # Set argument of aur.sh and pkgbuild.sh
+    [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
+    [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
 }
 
 
@@ -595,7 +590,7 @@ make_packages_aur() {
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
 
     # Run aur script
-    _run_with_pacmanconf _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/aur.sh ${_pkglist_aur[*]}"
+    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
@@ -618,7 +613,7 @@ make_pkgbuild() {
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
     # Run build script
-    _run_with_pacmanconf _chroot_run "bash $([[ "${bash_debug}" = true ]] && echo -n "-x") /root/pkgbuild.sh /pkgbuilds"
+    _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
 
     # Remove script
     remove "${airootfs_dir}/root/pkgbuild.sh"
