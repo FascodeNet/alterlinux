@@ -153,13 +153,12 @@ _usage () {
     echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
     echo "         --channellist           Output the channel list and exit"
     echo "         --gitversion            Add Git commit hash to image file version"
-    echo "         --log                   Enable logging (re-run script with tee)"
     echo "         --logpath <file>        Set log file path (use with --log)"
-    echo "         --nolog                 No logging"
+    echo "         --[no]log               (No) log ;re-run script with tee"
     echo "         --msgdebug              Enables output debugging"
     echo "         --noaur                 Ignore aur packages (Use only for debugging)"
     echo "         --nocolor               No output colored output"
-    echo "         --noconfirm             No check the settings before building"
+    echo "         --[no]confirm           (No) check the settings before building"
     echo "         --nochkver              No check the version of the channel"
     echo "         --nodebug               No debug message"
     echo "         --noefi                 No efi boot (Use only for debugging)"
@@ -1114,7 +1113,7 @@ make_iso() {
 # Parse options
 ARGUMENT=("${@}")
 OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild,pacman-debug"
+OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild,pacman-debug,confirm,"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"); then
     exit 1
 fi
@@ -1205,6 +1204,10 @@ while true; do
             ;;
         --noconfirm)
             noconfirm=true
+            shift 1
+            ;;
+        --confirm)
+            noconfirm=false
             shift 1
             ;;
         --nodepend)
