@@ -1,4 +1,5 @@
 
+ARGS         :=
 BUILD_SCRIPT := build.sh
 KERNEL       := zen
 SHARE_OPTION := --boot-splash --comp-type "xz" --user "alter" --password "alter" --kernel "${KERNEL}" --debug --noconfirm
@@ -14,8 +15,8 @@ basic-64 basic-32  cinnamon-64 cinnamon-32 gnome-64 i3-64 i3-32 lxde-64 lxde-32 
 	$(eval CHANNEL=${shell echo ${@} | cut -d '-' -f 1})
 	$(eval ARCHITECTURE=${shell echo ${@} | cut -d '-' -f 2})
 	@case ${ARCHITECTURE} in\
-		"32") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_i686} ${CHANNEL} ;;\
-		"64") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${SHARE_OPTION} ${ARCH_x86_64} ${CHANNEL};;\
+		"32") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_i686} ${CHANNEL} ;;\
+		"64") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_x86_64} ${CHANNEL};;\
 	esac
 	@make clean
 

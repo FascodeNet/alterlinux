@@ -396,6 +396,8 @@ prepare_env() {
         exit ${status}
     }
     trap '_trap_remove_work' 1 2 3 15
+
+    return 0
 }
 
 
@@ -418,6 +420,8 @@ show_settings() {
     fi
     trap 1 2 3 15
     trap 'umount_trap' 1 2 3 15
+
+    return 0
 }
 
 
@@ -524,6 +528,8 @@ prepare_build() {
     # Set argument of aur.sh and pkgbuild.sh
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
+
+    return 0
 }
 
 
@@ -549,6 +555,8 @@ make_pacman_conf() {
     if [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]]; then
         msg_info "Use cached package files in ${cache_dir}"
     fi
+
+    return 0
 }
 
 # Base installation (airootfs)
@@ -562,6 +570,7 @@ make_basefs() {
     msg_info "Mounting ${airootfs_dir}.img on ${airootfs_dir}"
     mount_airootfs
     msg_info "Done!"
+    return 0
 }
 
 # Additional packages (airootfs)
@@ -577,6 +586,8 @@ make_packages_repo() {
 
     # Upgrade cached package
     # _run_with_pacmanconf _chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
+
+    return 0
 }
 
 make_packages_aur() {
@@ -594,6 +605,8 @@ make_packages_aur() {
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
+
+    return 0
 }
 
 make_pkgbuild() {
@@ -617,6 +630,8 @@ make_pkgbuild() {
 
     # Remove script
     remove "${airootfs_dir}/root/pkgbuild.sh"
+
+    return 0
 }
 
 # Customize installation (airootfs)
@@ -692,6 +707,8 @@ make_customize_airootfs() {
 
     # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
     chmod -f 750 "${airootfs_dir}/root"
+
+    return 0
 }
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
@@ -722,6 +739,8 @@ make_setup_mkinitcpio() {
     if [[ "${gpg_key}" ]]; then
         exec 17<&-
     fi
+    
+    return 0
 }
 
 # Prepare kernel/initramfs ${install_dir}/boot/
@@ -729,6 +748,8 @@ make_boot() {
     mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
     cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
     cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
+
+    return 0
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
@@ -753,6 +774,8 @@ make_boot_extra() {
         fi
     done
     msg_info "Done!"
+
+    return 0
 }
 
 # Prepare /${install_dir}/boot/syslinux
@@ -820,6 +843,8 @@ make_syslinux() {
         fi
         find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > "${isofs_dir}/syslinux/hdt/modalias.gz"
     fi
+
+    return 0
 }
 
 # Prepare /isolinux
@@ -828,6 +853,8 @@ make_isolinux() {
     sed "s|%INSTALL_DIR%|${install_dir}|g" "${script_path}/system/isolinux.cfg" > "${isofs_dir}/syslinux/isolinux.cfg"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
     install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
+
+    return 0
 }
 
 # Prepare /EFI
@@ -880,6 +907,8 @@ efi    /EFI/shell_${_efi_shell_arch}.efi
 EOF
         done
     fi
+
+    return 0
 }
 
 # Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
@@ -935,6 +964,8 @@ make_efiboot() {
 
     find "${isofs_dir}/EFI" -maxdepth 1 -mindepth 1 -name "shell*.efi" -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/EFI/"
     umount -d "${build_dir}/efiboot"
+
+    return 0
 }
 
 # Compress tarball
@@ -972,6 +1003,8 @@ make_tarball() {
     if [[ "${noiso}" = true ]]; then
         msg_info "The password for the live user and root is ${password}."
     fi
+    
+    return 0
 }
 
 
@@ -1012,6 +1045,8 @@ make_prepare() {
     if [[ "${cleaning}" = true ]]; then
         remove "${airootfs_dir}" "${airootfs_dir}.img"
     fi
+
+    return 0
 }
 
 make_alteriso_info(){
@@ -1024,6 +1059,8 @@ make_alteriso_info(){
         fi
         "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" > "${_info_file}"
     fi
+
+    return 0
 }
 
 # Add files to the root of isofs
@@ -1034,6 +1071,8 @@ make_overisofs() {
     for _isofs in "${_over_isofs_list[@]}"; do
         if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
     done
+
+    return 0
 }
 
 # Build ISO
@@ -1067,6 +1106,8 @@ make_iso() {
     msg_info "Done! | $(ls -sh -- "${out_dir}/${iso_filename}")"
 
     msg_info "The password for the live user and root is ${password}."
+
+    return 0
 }
 
 
