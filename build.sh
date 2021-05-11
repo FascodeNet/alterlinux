@@ -968,9 +968,7 @@ make_tarball() {
     # Run script
     mount_airootfs
     if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
-        chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
-        # Execute optimize_for_tarball.sh.
-        _chroot_run "/root/optimize_for_tarball.sh -u ${username}"
+        _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
     fi
 
     _cleanup_common
