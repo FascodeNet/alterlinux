@@ -822,8 +822,8 @@ make_syslinux() {
         sed -i "s|$(cat "${isofs_dir}/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
     }
 
-    if [[ "${norescue_entry}" = true  ]]; then _remove_config archiso_sys_rescue.cfg;  fi
-    if [[ "${memtest86}"      = false ]]; then _remove_config memtest86.cfg;           fi
+    [[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
+    [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
 
     # copy files
     cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
@@ -1032,9 +1032,7 @@ make_prepare() {
 
     umount_work
 
-    if [[ "${cleaning}" = true ]]; then
-        remove "${airootfs_dir}" "${airootfs_dir}.img"
-    fi
+    [[ "${cleaning}" = true ]] && remove "${airootfs_dir}" "${airootfs_dir}.img"
 
     return 0
 }
@@ -1059,7 +1057,7 @@ make_overisofs() {
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
     for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
     for _isofs in "${_over_isofs_list[@]}"; do
-        if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
+        [[ -d "${_isofs}" ]] && cp -af "${_isofs}"/* "${isofs_dir}"
     done
 
     return 0
