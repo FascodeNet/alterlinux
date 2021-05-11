@@ -583,9 +583,6 @@ make_packages_repo() {
     # Install packages on airootfs
     _pacstrap "${_pkglist[@]}"
 
-    # Upgrade cached package
-    # _run_with_pacmanconf _chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
-
     return 0
 }
 
@@ -609,18 +606,17 @@ make_packages_aur() {
 }
 
 make_pkgbuild() {
-    #-- PKGBUILDが入ってるディレクトリの一覧 --#
+    # Get PKGBUILD List
     local _pkgbuild_dirs=("${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
-    #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
+    # Copy PKGBUILD to work
     mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
         msg_info "Find $(basename "${_dir}")"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
-    #-- ビルドスクリプトの実行 --#
     # copy buold script
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
@@ -861,7 +857,6 @@ make_efi() {
     install -d -m 0755 -- "${isofs_dir}/EFI/boot"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    #cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
     install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
 
     local _use_config_name="nosplash"
