@@ -894,11 +894,7 @@ make_efi() {
             else
                 continue
             fi
-            cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
-title  UEFI Shell ${_efi_shell_arch}
-efi    /EFI/shell_${_efi_shell_arch}.efi
-
-EOF
+            echo -e "title  UEFI Shell ${_efi_shell_arch}\nefi    /EFI/shell_${_efi_shell_arch}.efi" > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf"
         done
     fi
 
