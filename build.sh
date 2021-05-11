@@ -574,6 +574,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages_repo() {
+    msg_debug "pkglist.sh ${pkglist_args[*]}"
     local _pkglist=($("${tools_dir}/pkglist.sh" "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
