@@ -509,11 +509,11 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
-        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
+        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
+        sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
         exit "${?}"
     else
-        unset DEFAULT_ARGUMENT ARGUMENT
+        unset ARGUMENT
     fi
 
     # Set argument of pkglist.sh
@@ -1120,7 +1120,7 @@ fi
 
 eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL DEFAULT_ARGUMENT
 
 while true; do
     case "${1}" in
@@ -1307,8 +1307,8 @@ done
 # Check root.
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
-    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
+    msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
+    sudo "${0}" "${ARGUMENT[@]}"
     exit "${?}"
 fi
 
