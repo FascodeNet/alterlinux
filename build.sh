@@ -171,7 +171,7 @@ _usage () {
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
-    if [[ -n "${1:-}" ]]; then exit "${1}"; fi
+    [[ -n "${1:-}" ]] && exit "${1}"
 }
 
 # Unmount helper Usage: _umount <target>
@@ -363,13 +363,13 @@ prepare_env() {
             fi
             _result=0
         done
-        if [[ "${_check_failed}" = true ]]; then exit 1; fi
+        [[ "${_check_failed}" = true ]] && exit 1
     fi
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
-        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"; fi
-        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
+        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
+        [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]] && modprobe loop
     fi
 
     # Check work dir
@@ -1305,7 +1305,7 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
 # Debug mode
-if [[ "${bash_debug}" = true ]]; then set -x -v; fi
+[[ "${bash_debug}" = true ]] && set -x -v
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
