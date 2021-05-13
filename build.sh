@@ -58,22 +58,17 @@ msg_common(){
 
 # Show an INFO message
 # ${1}: message string
-msg_info() {
-    msg_common info "${@}"
-}
+msg_info() { msg_common info "${@}"; }
 
 # Show an Warning message
 # ${1}: message string
-msg_warn() {
-    msg_common warn "${@}"
-}
+msg_warn() { msg_common warn "${@}"; }
 
 # Show an debug message
 # ${1}: message string
-msg_debug() {
-    if [[ "${debug}" = true ]]; then
-        msg_common debug "${@}"
-    fi
+msg_debug() { 
+    [[ "${debug}" = true ]] && msg_common debug "${@}"
+    return 0
 }
 
 # Show an ERROR message then exit with status
@@ -81,21 +76,17 @@ msg_debug() {
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
     msg_common error "${1}"
-    if [[ -n "${2:-}" ]]; then
-        exit "${2}"
-    fi
+    [[ -n "${2:-}" ]] && exit "${2}"
 }
 
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() { cat - | cut -d " " -f "${1}"; }
+getclm() { cut -d " " -f "${1}"; }
 
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
-echo_blank(){
-    yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"
-}
+echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 
 _usage () {
     echo "usage ${0} [options] [channel]"
@@ -178,7 +169,7 @@ _usage () {
 _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Mount helper Usage: _mount <source> <target>
-_mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
+_mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; }
 
 # Unmount work dir
 umount_work () {
@@ -187,7 +178,6 @@ umount_work () {
         msg_error "Exception error about working directory" 1
     fi
     [[ ! -d "${build_dir}" ]] && return 0
-    #for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
     for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac); do
         if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
             msg_info "Unmounting ${_mount}"
@@ -238,7 +228,8 @@ umount_trap() {
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in "${@}"; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
+    for _file in "${@}"; do [[ -f "${_file}" ]] && source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; done
+    return 0
 }
 
 # Display channel list
@@ -272,7 +263,7 @@ _pacstrap(){
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
     sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
-    "${@}"
+    eval -- "${@}"
     remove "${airootfs_dir}/etc/alteriso-pacman.conf"
 }
 
@@ -333,9 +324,9 @@ check_bool() {
         eval ': ${'${_variable}':=""}'
         _value="$(eval echo '$'${_variable})"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
-            if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is empty." "1"
+            [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is empty." "1"
         elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-            if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is not of bool type." "1"
+            [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is not of bool type (${_variable} = ${_value})" "1"
         elif [[ "${debug}" = true ]]; then
             echo -e " ${_value}"
         fi
