@@ -224,11 +224,9 @@ load_config() {
 
 # Display channel list
 show_channel_list() {
-    if [[ "${nochkver}" = true ]]; then
-        bash "${tools_dir}/channel.sh" -v "${alteriso_version}" -n show
-    else
-        bash "${tools_dir}/channel.sh" -v "${alteriso_version}" show
-    fi
+    local _args=("-v" "${alteriso_version}" show)
+    [[ "${nochkver}" = true ]] && _args+=("-n")
+    bash "${tools_dir}/channel.sh" "${_args[@]}"
 }
 
 # Execute command for each module. It will be executed with {} replaced with the module name.
@@ -241,11 +239,9 @@ for_module(){
 # pacstrapを実行
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    if [[ "${pacman_debug}" = true ]]; then
-        pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" --debug "${@}"
-    else
-        pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${@}"
-    fi
+    local _args=("-c" "-G" "-M" "--" "${airootfs_dir}" "${@}")
+    [[ "${pacman_debug}" = true ]] && _args+=(--debug)
+    pacstrap -C "${build_dir}/pacman.conf" "${_args[@]}"
     msg_info "Packages installed successfully!"
 }
 
