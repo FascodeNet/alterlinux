@@ -532,6 +532,13 @@ make_pacman_conf() {
         msg_info "Use cached package files in ${cache_dir}"
     fi
 
+    # Share any architecture packages
+    #while read -r _pkg; do
+    #    if [[ ! -f "${cache_dir}/$(basename "${_pkg}")" ]]; then
+    #        ln -s "${_pkg}" "${cache_dir}"
+    #    fi
+    #done < <(find "${cache_dir}/../" -type d -name "$(basename "${cache_dir}")" -prune -o -type f -name "*-any.pkg.tar.*" -printf "%p\n")
+
     return 0
 }
 
