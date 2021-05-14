@@ -169,7 +169,7 @@ _usage () {
 _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Mount helper Usage: _mount <source> <target>
-_mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; }
+_mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; return 0; }
 
 # Unmount work dir
 umount_work () {
