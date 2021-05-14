@@ -173,19 +173,9 @@ _mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount
 
 # Unmount work dir
 umount_work () {
-    local _mount
-    if [[ ! -v "build_dir" ]] || [[ "${build_dir}" = "" ]]; then
-        msg_error "Exception error about working directory" 1
-    fi
-    [[ ! -d "${build_dir}" ]] && return 0
-    for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac); do
-        if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
-            msg_info "Unmounting ${_mount}"
-            _umount "${_mount}" 2> /dev/null
-        else
-            msg_error "It is dangerous to unmount a directory that is not managed by the script."
-        fi
-    done
+    local _args=("${build_dir}")
+    [[ "${debug}" = true ]] && _args=("-d" "${_args[@]}")
+    "${tools_dir}/umount.sh" "${_args[@]}"
 }
 
 # Mount airootfs on "${airootfs_dir}"
