@@ -34,7 +34,7 @@ _help() {
 # Message common function
 # msg_common [type] [-n] [string]
 msg_common(){
-    local _msg_opts=("-a" "build.sh") _type="${1}"
+    local _msg_opts=("-a" "umount.sh" "--label-space" "6") _type="${1}"
     shift 1
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
