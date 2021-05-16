@@ -32,7 +32,7 @@ alteriso_version="3.1"
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
 for config in "${defaultconfig}" "${script_path}/custom.conf"; do
-    [[ -f "${script_path}/${config}.conf" ]] && source "${script_path}/${config}.conf"
+    [[ -f "${config}" ]] && source "${config}"
 done
 
 umask 0022
