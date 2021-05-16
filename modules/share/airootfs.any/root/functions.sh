@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# functions.sh
+#
+# bash functions for customize_airootfs.sh
+#
+
 
 # Check whether true or false is assigned to the variable.
 function check_bool() {
