@@ -46,3 +46,7 @@ keyring::
 
 wizard:
 	@sudo ${CURRENT_DIR}/tools/wizard.sh
+
+check:
+	@bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
+	@bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error tools/*.{sh,ksh,bash}'
