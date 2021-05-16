@@ -58,22 +58,17 @@ msg_common(){
 
 # Show an INFO message
 # ${1}: message string
-msg_info() {
-    msg_common info "${@}"
-}
+msg_info() { msg_common info "${@}"; }
 
 # Show an Warning message
 # ${1}: message string
-msg_warn() {
-    msg_common warn "${@}"
-}
+msg_warn() { msg_common warn "${@}"; }
 
 # Show an debug message
 # ${1}: message string
-msg_debug() {
-    if [[ "${debug}" = true ]]; then
-        msg_common debug "${@}"
-    fi
+msg_debug() { 
+    [[ "${debug}" = true ]] && msg_common debug "${@}"
+    return 0
 }
 
 # Show an ERROR message then exit with status
@@ -81,21 +76,17 @@ msg_debug() {
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
     msg_common error "${1}"
-    if [[ -n "${2:-}" ]]; then
-        exit "${2}"
-    fi
+    [[ -n "${2:-}" ]] && exit "${2}"
 }
 
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() { cat - | cut -d " " -f "${1}"; }
+getclm() { cut -d " " -f "${1}"; }
 
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
-echo_blank(){
-    yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"
-}
+echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 
 _usage () {
     echo "usage ${0} [options] [channel]"
@@ -153,13 +144,12 @@ _usage () {
     echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
     echo "         --channellist           Output the channel list and exit"
     echo "         --gitversion            Add Git commit hash to image file version"
-    echo "         --log                   Enable logging (re-run script with tee)"
     echo "         --logpath <file>        Set log file path (use with --log)"
-    echo "         --nolog                 No logging"
+    echo "         --[no]log               (No) log ;re-run script with tee"
     echo "         --msgdebug              Enables output debugging"
     echo "         --noaur                 Ignore aur packages (Use only for debugging)"
     echo "         --nocolor               No output colored output"
-    echo "         --noconfirm             No check the settings before building"
+    echo "         --[no]confirm           (No) check the settings before building"
     echo "         --nochkver              No check the version of the channel"
     echo "         --nodebug               No debug message"
     echo "         --noefi                 No efi boot (Use only for debugging)"
@@ -172,31 +162,20 @@ _usage () {
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
-    if [[ -n "${1:-}" ]]; then exit "${1}"; fi
+    [[ -n "${1:-}" ]] && exit "${1}"
 }
 
 # Unmount helper Usage: _umount <target>
 _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Mount helper Usage: _mount <source> <target>
-_mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
+_mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; return 0; }
 
 # Unmount work dir
 umount_work () {
-    local _mount
-    if [[ ! -v "build_dir" ]] || [[ "${build_dir}" = "" ]]; then
-        msg_error "Exception error about working directory" 1
-    fi
-    [[ ! -d "${build_dir}" ]] && return 0
-    #for _mount in $(cat "/proc/mounts" | getclm 2 | grep "$(realpath -s ${build_dir})" | tac | grep -xv "$(realpath -s ${airootfs_dir})"); do
-    for _mount in $(find "${build_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac); do
-        if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
-            msg_info "Unmounting ${_mount}"
-            _umount "${_mount}" 2> /dev/null
-        else
-            msg_error "It is dangerous to unmount a directory that is not managed by the script."
-        fi
-    done
+    local _args=("${build_dir}")
+    [[ "${debug}" = true ]] && _args=("-d" "${_args[@]}")
+    "${tools_dir}/umount.sh" "${_args[@]}"
 }
 
 # Mount airootfs on "${airootfs_dir}"
@@ -239,16 +218,15 @@ umount_trap() {
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in "${@}"; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
+    for _file in "${@}"; do [[ -f "${_file}" ]] && source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; done
+    return 0
 }
 
 # Display channel list
 show_channel_list() {
-    if [[ "${nochkver}" = true ]]; then
-        bash "${tools_dir}/channel.sh" -v "${alteriso_version}" -n show
-    else
-        bash "${tools_dir}/channel.sh" -v "${alteriso_version}" show
-    fi
+    local _args=("-v" "${alteriso_version}" show)
+    [[ "${nochkver}" = true ]] && _args+=("-n")
+    bash "${tools_dir}/channel.sh" "${_args[@]}"
 }
 
 # Execute command for each module. It will be executed with {} replaced with the module name.
@@ -261,11 +239,9 @@ for_module(){
 # pacstrapを実行
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    if [[ "${pacman_debug}" = true ]]; then
-        pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" --debug "${@}"
-    else
-        pacstrap -C "${build_dir}/pacman.conf" -c -G -M -- "${airootfs_dir}" "${@}"
-    fi
+    local _args=("-c" "-G" "-M" "--" "${airootfs_dir}" "${@}")
+    [[ "${pacman_debug}" = true ]] && _args+=(--debug)
+    pacstrap -C "${build_dir}/pacman.conf" "${_args[@]}"
     msg_info "Packages installed successfully!"
 }
 
@@ -273,7 +249,7 @@ _pacstrap(){
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
     sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
-    "${@}"
+    eval -- "${@}"
     remove "${airootfs_dir}/etc/alteriso-pacman.conf"
 }
 
@@ -334,9 +310,9 @@ check_bool() {
         eval ': ${'${_variable}':=""}'
         _value="$(eval echo '$'${_variable})"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
-            if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is empty." "1"
+            [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is empty." "1"
         elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-            if [[ "${debug}" = true ]]; then echo; fi; msg_error "The variable name ${_variable} is not of bool type." "1"
+            [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is not of bool type (${_variable} = ${_value})" "1"
         elif [[ "${debug}" = true ]]; then
             echo -e " ${_value}"
         fi
@@ -364,13 +340,13 @@ prepare_env() {
             fi
             _result=0
         done
-        if [[ "${_check_failed}" = true ]]; then exit 1; fi
+        [[ "${_check_failed}" = true ]] && exit 1
     fi
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
-        if [[ ! -d "/usr/lib/modules/$(uname -r)" ]]; then msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"; fi
-        if [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]]; then modprobe loop; fi
+        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
+        [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]] && modprobe loop
     fi
 
     # Check work dir
@@ -495,7 +471,7 @@ prepare_build() {
     msg_debug "Iso filename is ${iso_filename}"
 
     # check bool
-    check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck
+    check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
 
     # Check architecture for each channel
     local _exit=0
@@ -510,11 +486,11 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]} --nodepend --nolog 2>&1 | tee ${logging}"
-        sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}" --nolog --nodepend 2>&1 | tee "${logging}"
+        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
+        sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
         exit "${?}"
     else
-        unset DEFAULT_ARGUMENT ARGUMENT
+        unset ARGUMENT
     fi
 
     # Set argument of pkglist.sh
@@ -556,6 +532,13 @@ make_pacman_conf() {
         msg_info "Use cached package files in ${cache_dir}"
     fi
 
+    # Share any architecture packages
+    #while read -r _pkg; do
+    #    if [[ ! -f "${cache_dir}/$(basename "${_pkg}")" ]]; then
+    #        ln -s "${_pkg}" "${cache_dir}"
+    #    fi
+    #done < <(find "${cache_dir}/../" -type d -name "$(basename "${cache_dir}")" -prune -o -type f -name "*-any.pkg.tar.*" -printf "%p\n")
+
     return 0
 }
 
@@ -575,6 +558,7 @@ make_basefs() {
 
 # Additional packages (airootfs)
 make_packages_repo() {
+    msg_debug "pkglist.sh ${pkglist_args[*]}"
     local _pkglist=($("${tools_dir}/pkglist.sh" "${pkglist_args[@]}"))
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
@@ -583,9 +567,6 @@ make_packages_repo() {
 
     # Install packages on airootfs
     _pacstrap "${_pkglist[@]}"
-
-    # Upgrade cached package
-    # _run_with_pacmanconf _chroot_run pacman -Syy --noconfirm --config "/etc/alteriso-pacman.conf"
 
     return 0
 }
@@ -610,18 +591,17 @@ make_packages_aur() {
 }
 
 make_pkgbuild() {
-    #-- PKGBUILDが入ってるディレクトリの一覧 --#
+    # Get PKGBUILD List
     local _pkgbuild_dirs=("${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
-    #-- PKGBUILDが入ったディレクトリを作業ディレクトリにコピー --#
+    # Copy PKGBUILD to work
     mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
         msg_info "Find $(basename "${_dir}")"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
-    #-- ビルドスクリプトの実行 --#
     # copy buold script
     cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
@@ -827,8 +807,8 @@ make_syslinux() {
         sed -i "s|$(cat "${isofs_dir}/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
     }
 
-    if [[ "${norescue_entry}" = true  ]]; then _remove_config archiso_sys_rescue.cfg;  fi
-    if [[ "${memtest86}"      = false ]]; then _remove_config memtest86.cfg;           fi
+    [[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
+    [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
 
     # copy files
     cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
@@ -862,7 +842,6 @@ make_efi() {
     install -d -m 0755 -- "${isofs_dir}/EFI/boot"
 
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    #cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
     install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
 
     local _use_config_name="nosplash"
@@ -900,11 +879,7 @@ make_efi() {
             else
                 continue
             fi
-            cat - > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf" << EOF
-title  UEFI Shell ${_efi_shell_arch}
-efi    /EFI/shell_${_efi_shell_arch}.efi
-
-EOF
+            echo -e "title  UEFI Shell ${_efi_shell_arch}\nefi    /EFI/shell_${_efi_shell_arch}.efi" > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf"
         done
     fi
 
@@ -977,9 +952,7 @@ make_tarball() {
     # Run script
     mount_airootfs
     if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
-        chmod 755 "${airootfs_dir}/root/optimize_for_tarball.sh"
-        # Execute optimize_for_tarball.sh.
-        _chroot_run "/root/optimize_for_tarball.sh -u ${username}"
+        _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
     fi
 
     _cleanup_common
@@ -1042,9 +1015,7 @@ make_prepare() {
 
     umount_work
 
-    if [[ "${cleaning}" = true ]]; then
-        remove "${airootfs_dir}" "${airootfs_dir}.img"
-    fi
+    [[ "${cleaning}" = true ]] && remove "${airootfs_dir}" "${airootfs_dir}.img"
 
     return 0
 }
@@ -1069,7 +1040,7 @@ make_overisofs() {
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
     for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
     for _isofs in "${_over_isofs_list[@]}"; do
-        if [[ -d "${_isofs}" ]]; then cp -af "${_isofs}"/* "${isofs_dir}"; fi
+        [[ -d "${_isofs}" ]] && cp -af "${_isofs}"/* "${isofs_dir}"
     done
 
     return 0
@@ -1112,16 +1083,16 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${@}")
-OPTS="a:bc:deg:hjk:l:o:p:rt:u:w:x"
-OPTL="arch:,boot-splash,comp-type:,debug,cleaning,cleanup,gpgkey:,help,lang:,japanese,kernel:,out:,password:,comp-opts:,user:,work:,bash-debug,nocolor,noconfirm,nodepend,gitversion,msgdebug,noloopmod,tarball,noiso,noaur,nochkver,channellist,config:,noefi,nodebug,nosigcheck,normwork,log,logpath:,nolog,nopkgbuild,pacman-debug"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"); then
+ARGUMENT=("${@}" ${DEFAULT_ARGUMENT})
+OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
+OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm")
+if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
     exit 1
 fi
 
 eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
-unset OPT OPTS OPTL
+unset OPT OPTS OPTL DEFAULT_ARGUMENT
 
 while true; do
     case "${1}" in
@@ -1205,6 +1176,10 @@ while true; do
             ;;
         --noconfirm)
             noconfirm=true
+            shift 1
+            ;;
+        --confirm)
+            noconfirm=false
             shift 1
             ;;
         --nodepend)
@@ -1304,8 +1279,8 @@ done
 # Check root.
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
-    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
+    msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
+    sudo "${0}" "${ARGUMENT[@]}"
     exit "${?}"
 fi
 
@@ -1314,7 +1289,7 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
 
 # Debug mode
-if [[ "${bash_debug}" = true ]]; then set -x -v; fi
+[[ "${bash_debug}" = true ]] && set -x -v
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
