@@ -424,7 +424,7 @@ prepare_build() {
     local module_check
     module_check(){
         msg_debug "Checking ${1} module ..."
-        ! bash "${tools_dir}/module.sh" check "${1}" && msg_error "Module ${1} is not available." "1";
+        bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1";
     }
     modules=($(printf "%s\n" "${modules[@]}" | awk '!a[$0]++'))
     for_module "module_check {}"
