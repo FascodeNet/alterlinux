@@ -1031,10 +1031,10 @@ make_overisofs() {
 
 # Build ISO
 make_iso() {
-    local _iso_efi_boot_args=""
+    local _iso_efi_boot_args=()
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${build_dir}/efiboot.img" ]]; then
-        _iso_efi_boot_args="-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B ${build_dir}/efiboot.img -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat"
+        _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B ${build_dir}/efiboot.img -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
     fi
 
     mkdir -p -- "${out_dir}"
@@ -1053,7 +1053,7 @@ make_iso() {
         -eltorito-catalog syslinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
         -isohybrid-mbr ${build_dir}/iso/syslinux/isohdpfx.bin \
-        ${_iso_efi_boot_args} \
+        "${_iso_efi_boot_args[@]}" \
         -output "${out_dir}/${iso_filename}" \
         "${build_dir}/iso/"
     _mkchecksum "${out_dir}/${iso_filename}"
