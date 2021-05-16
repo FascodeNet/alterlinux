@@ -170,10 +170,9 @@ show() {
 
 
 # Parse options
-ARGUMENT="${@}"
 OPTS="a:bdfk:nov:h"
 OPTL="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
     exit 1
 fi
 eval set -- "${OPT}"

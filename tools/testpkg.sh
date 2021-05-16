@@ -61,10 +61,9 @@ _help() {
 
 
 # Parse options
-ARGUMENT="${@}"
 OPTS="dh"
 OPTL="debug,help"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
     exit 1
 fi
 eval set -- "${OPT}"
