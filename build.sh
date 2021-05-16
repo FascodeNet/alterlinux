@@ -30,17 +30,10 @@ DEFAULT_ARGUMENT=""
 alteriso_version="3.1"
 
 # Load config file
-if [[ -f "${defaultconfig}" ]]; then
-    source "${defaultconfig}"
-else
-    "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found."
-    exit 1
-fi
-
-# Load custom.conf
-if [[ -f "${script_path}/custom.conf" ]]; then
-    source "${script_path}/custom.conf"
-fi
+[[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
+for config in "${defaultconfig}" "${script_path}/custom.conf"; do
+    [[ -f "${script_path}/${config}.conf" ]] && source "${script_path}/${config}.conf"
+done
 
 umask 0022
 
@@ -365,11 +358,9 @@ prepare_env() {
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
     _trap_remove_work() {
-        local status=${?}
-        if [[ "${normwork}" = false ]]; then
-            echo; _run_cleansh
-        fi
-        exit ${status}
+        local status="${?}"
+        [[ "${normwork}" = false ]] && echo && _run_cleansh
+        exit "${status}"
     }
     trap '_trap_remove_work' 1 2 3 15
 
@@ -433,22 +424,16 @@ prepare_build() {
     local module_check
     module_check(){
         msg_debug "Checking ${1} module ..."
-        if ! bash "${tools_dir}/module.sh" check "${1}"; then
-            msg_error "Module ${1} is not available." "1";
-        fi
+        ! bash "${tools_dir}/module.sh" check "${1}" && msg_error "Module ${1} is not available." "1";
     }
     modules=($(printf "%s\n" "${modules[@]}" | awk '!a[$0]++'))
     for_module "module_check {}"
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
-    if ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1; then
-        msg_warn "The share module is not loaded."
-    fi
+    ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
 
     # Set kernel
-    if [[ "${customized_kernel}" = false ]]; then
-        kernel="${defaultkernel}"
-    fi
+    [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
 
     # Parse files
     eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
@@ -482,9 +467,7 @@ prepare_build() {
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
-        if [[ "${customized_logpath}" = false ]]; then
-            logging="${out_dir}/${iso_filename%.iso}.log"
-        fi
+        [[ "${customized_logpath}" = false ]] && logging="${out_dir}/${iso_filename%.iso}.log"
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
         msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
