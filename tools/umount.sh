@@ -6,9 +6,9 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# build.sh
+# umount.sh
 #
-# The main script that runs the build
+# Simple script to unmmount everything under the specified directory
 #
 
 set -eu
