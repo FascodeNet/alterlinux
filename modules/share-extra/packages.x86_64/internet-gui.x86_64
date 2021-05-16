@@ -24,4 +24,4 @@ chromium
 
 
 #-- security --#
-ufw
+gufw

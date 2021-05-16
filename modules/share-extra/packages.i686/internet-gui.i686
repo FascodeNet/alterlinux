@@ -24,4 +24,4 @@ firefox
 
 
 #-- security --#
-ufw
+gufw
