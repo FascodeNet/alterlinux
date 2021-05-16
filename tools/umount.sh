@@ -76,7 +76,7 @@ umount_work () {
     fi
     [[ ! -d "${target_dir}" ]] && return 0
     while read -r _mount; do
-        if echo "${_mount}" | grep "${target_dir}" > /dev/null 2>&1 || "${force}" = true; then
+        if echo "${_mount}" | grep "${target_dir}" > /dev/null 2>&1 || [[ "${force}" = true ]]; then
             if mountpoint -q "${_mount}"; then
                 msg_info "Unmounting ${_mount}"
                 _umount "${_mount}" 2> /dev/null
