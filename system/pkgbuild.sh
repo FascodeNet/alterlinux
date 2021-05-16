@@ -9,7 +9,7 @@
 set -e
 
 build_username="pkgbuild"
-pacman_debug=true
+pacman_debug=false
 pacman_args=()
 
 _help() {
