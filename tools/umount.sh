@@ -19,6 +19,7 @@ tools_dir="${script_path}/tools/"
 debug=false
 nocolor=false
 force=false
+maxdepth="4"
 
 _help() {
     echo "usage ${0} [options] [dir]"
@@ -28,6 +29,7 @@ _help() {
     echo " General options:"
     echo "    -f | --force              Force umount (No warning)"
     echo "    -d | --debug              Enable debug message"
+    echo "    -m | --maxdepth           Specify the maximum hierarchy (set 0 to no limit)"
     echo "    -h | --help               This help message"
 }
 
@@ -76,7 +78,8 @@ umount_work () {
     fi
     [[ ! -d "${target_dir}" ]] && return 0
     while read -r _mount; do
-        if echo "${_mount}" | grep "${target_dir}" > /dev/null 2>&1 || [[ "${force}" = true ]]; then
+        if [[ "${force}" = true ]] || [[ "${_mount}" = "${target_dir}"* ]] > /dev/null 2>&1; then
+            msg_debug "Checking ${_mount}"
             if mountpoint -q "${_mount}"; then
                 msg_info "Unmounting ${_mount}"
                 _umount "${_mount}" 2> /dev/null
@@ -84,7 +87,13 @@ umount_work () {
         else
             msg_error "It is dangerous to unmount a directory that is not managed by the script."
         fi
-    done < <(find "${target_dir}" -mindepth 1 -type d -printf "%p\n" | tac)
+    done < <(
+        if (( maxdepth == 0 )); then
+            find "${target_dir}" -mindepth 1 -type d -printf "%p\n" | tac
+        else
+            find "${target_dir}" -mindepth 1 -maxdepth "${maxdepth}" -type d -printf "%p\n" | tac
+        fi
+    )
 }
 
 
@@ -94,8 +103,8 @@ if (( ! "${EUID}" == 0 )); then
 fi
 
 # Parse options
-OPTS=("dfh")
-OPTL=("debug" "force" "help:")
+OPTS=("d" "f" "h" "m:")
+OPTL=("debug" "force" "help" "maxdepth:")
 if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${@}"); then
     exit 1
 fi
@@ -113,6 +122,10 @@ while true; do
         -f | --force)
             force=true
             shift 1
+            ;;
+        -m | --maxdepth)
+            maxdepth="${2}"
+            shift 2
             ;;
         -h | --help)
             _usage
@@ -133,7 +146,7 @@ done
 if [[ -z "${1+SET}" ]]; then
     msg_error "Please specify the target directory." "1"
 else
-    target_dir="${1}"
+    target_dir="$(realpath "${1}")"
 fi
 
 umount_work
