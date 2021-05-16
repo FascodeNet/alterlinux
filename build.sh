@@ -444,7 +444,7 @@ prepare_build() {
     [[ "${customized_password}" = false ]] && password="${defaultpassword}"
 
     # gitversion
-    [[ "${gitversion}" = true ]] && iso_version="${iso_version}-$(cd "${script_path}"; git rev-parse --short HEAD)"
+    [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
     # Generate iso file name.
     local _channel_name="${channel_name%.add}-${locale_version}"
@@ -1009,7 +1009,7 @@ make_alteriso_info(){
         local _info_file="${isofs_dir}/alteriso-info" _version="${iso_version}"
         remove "${_info_file}"; touch "${_info_file}"
         if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
-            _version="${iso_version}-$(git rev-parse --short HEAD)"
+            _version="${iso_version}-${gitrev}"
         fi
         "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" > "${_info_file}"
     fi
@@ -1293,13 +1293,14 @@ else
     channel_dir="${script_path}/channels/${channel_name}"
 fi
 
-# Set dirs
+# Set vars
 work_dir="$(realpath "${work_dir}")"
 build_dir="${work_dir}/build/${arch}"
 cache_dir="${work_dir}/cache/${arch}"
 airootfs_dir="${build_dir}/airootfs"
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
+gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 
 # Create dir
 for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
