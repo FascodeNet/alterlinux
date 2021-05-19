@@ -32,7 +32,9 @@ if [[ -f "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" ]] && cat "/etc
     elif (( "${#session_list[@]}" == 0)); then
         echo "Warining: Auto login session was not found"
     else
-        echo "Failed to set the session." >&2
+        echo "Failed to set the session.Multiple sessions were found." >&2
+        echo "Please set the session of automatic login in /etc/lightdm/lightdm.conf.d/02-autologin-session.conf"
+        echo "Found session: $(printf "%s " ${session_list[@]})"
         exit 1
     fi
 fi
