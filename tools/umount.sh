@@ -19,7 +19,7 @@ tools_dir="${script_path}/tools/"
 debug=false
 nocolor=false
 force=false
-maxdepth="4"
+maxdepth="2"
 
 _help() {
     echo "usage ${0} [options] [dir]"
