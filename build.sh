@@ -158,27 +158,7 @@ _usage () {
     [[ -n "${1:-}" ]] && exit "${1}"
 }
 
-# Unmount helper Usage: _umount <target>
-#_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
-
-# Mount helper Usage: _mount <source> <target>
-<<<<<<< HEAD
-#_mount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then mount "${1}" "${2}"; fi; }
-
-_umount(){
-    _fuseumount "${1}"
-}
-
-_fuseumount() {
-    if mountpoint -q "${1}"; then
-        fusermount -u "${1}"
-    fi
-}
-
 _archivemount() { if ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]]; then archivemount "${1}" "${2}"; fi; }
-=======
-_mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; return 0; }
->>>>>>> dev
 
 # Unmount work dir
 umount_work () {
