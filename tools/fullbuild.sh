@@ -54,10 +54,10 @@ msg_error() {
 
 
 trap_exit() {
-    local status=${?}
+    local status="${?}"
     echo
     msg_error "fullbuild.sh has been killed by the user."
-    exit ${status}
+    exit "${status}"
 }
 
 
@@ -135,7 +135,7 @@ eval set -- "${OPT}"
 unset OPT OPTS OPTL ARGUMENT
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a)
             share_options+=(${2})
             shift 2
@@ -214,7 +214,7 @@ if [[ "${all_channel}" = true  ]]; then
         channnels=($("${script_path}/tools/channel.sh" -b show))
     fi
 elif [[ -n "${*}" ]]; then
-    channnels=(${@})
+    channnels=("${@}")
 fi
 
 if [[ "${simulation}" = true ]]; then
@@ -249,16 +249,11 @@ fi
 
 trap 'trap_exit' 1 2 3 15
 
-if [[ "${simulation}" = false ]]; then
-    msg_info "Update the package database."
-    sudo pacman -Syy
-fi
-
-for arch in ${architectures[@]}; do
-    for cha in ${channnels[@]}; do
-        for lang in ${locale_list[@]}; do
-            for retry_count in $(seq 1 ${retry}); do
-                if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+for arch in "${architectures[@]}"; do
+    for cha in "${channnels[@]}"; do
+        for lang in "${locale_list[@]}"; do
+            for retry_count in $(seq 1 "${retry}"); do
+                if [[ -n "$(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}")" ]]; then
                     build
                 fi
             done
