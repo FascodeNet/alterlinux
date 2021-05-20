@@ -67,7 +67,8 @@ build() {
     _options+=("--arch" "${arch}" "--lang" "${lang}" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
-        sudo pacman -Sccc --noconfirm
+        msg_info "Removing package cache for ${arch}"
+        sudo rm -rf "${work_dir}/cache/${arch}"
     fi
 
     if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
