@@ -229,14 +229,9 @@ for_module(){
 # pacstrapを実行
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-<<<<<<< HEAD
-    #pacstrap -C "${build_dir}/pacman-${arch}.conf" -c -G -M -- "${airootfs_dir}" ${*}
-    fakeroot pacman -r /home/hayao/Desktop/work -Sy "${@}" --noconfirm --config=/home/hayao/Git/alterlinux/work/build/pacman-x86_64.conf --debug
-=======
-    local _args=("-c" "-G" "-M" "--" "${airootfs_dir}" "${@}")
-    [[ "${pacman_debug}" = true ]] && _args+=(--debug)
-    pacstrap -C "${build_dir}/pacman.conf" "${_args[@]}"
->>>>>>> dev
+    local _args=("${airootfs_dir}" "${@}")
+    [[ "${pacman_debug}" = true ]] && _args+=("--debug")
+    fakeroot pacman -r "${airootfs_dir}" -Sy "${@}" --noconfirm --config="${build_dir}/pacman-${arch}.conf" --debug "${_args[@]}"
     msg_info "Packages installed successfully!"
 }
 
