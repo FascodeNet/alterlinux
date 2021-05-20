@@ -7,15 +7,5 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Base packages
 
-base-devel
-
-bash
-haveged
-intel-ucode
-amd-ucode
-mkinitcpio-nfs-utils
-nbd
-
-#edk2-shell
+vlc-plugin-fluidsynth-bin

@@ -32,10 +32,9 @@ stdout=false
 include_aur=false
 
 # Parse options
-ARGUMENT="${@}"
 OPTS="a:o:hs"
 OPTL="arch:,out:,help,stdout,aur"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
     exit 1
 fi
 eval set -- "${OPT}"

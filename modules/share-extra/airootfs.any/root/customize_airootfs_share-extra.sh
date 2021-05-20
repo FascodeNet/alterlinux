@@ -16,10 +16,7 @@ _systemd_service enable snapd.apparmor.service
 _systemd_service enable apparmor.service
 _systemd_service enable snapd.socket
 _systemd_service enable snapd.service
-
-
-# firewalld
-_systemd_service enable firewalld.service
+_systemd_service enable ufw.service
 
 
 # Added autologin group to auto login

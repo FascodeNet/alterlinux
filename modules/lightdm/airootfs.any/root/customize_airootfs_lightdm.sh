@@ -20,7 +20,7 @@ sed -i "s|%USERNAME%|${username}|g" "/etc/lightdm/lightdm.conf.d/02-autologin.co
 
 
 # Session list
-if cat "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" | grep "%SESSION%" 1> /dev/null 2>&1; then
+if [[ -f "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" ]] && cat "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" | grep "%SESSION%" 1> /dev/null 2>&1; then
     session_list=()
     while read -r session; do
         session_list+=("${session}")
@@ -32,6 +32,9 @@ if cat "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" | grep "%SESSION%
     elif (( "${#session_list[@]}" == 0)); then
         echo "Warining: Auto login session was not found"
     else
-        remove "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf"
+        echo "Failed to set the session.Multiple sessions were found." >&2
+        echo "Please set the session of automatic login in /etc/lightdm/lightdm.conf.d/02-autologin-session.conf"
+        echo "Found session: $(printf "%s " ${session_list[@]})"
+        exit 1
     fi
 fi
