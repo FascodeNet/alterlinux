@@ -25,54 +25,39 @@ all_channel=false
 customized_work=false
 noconfirm=false
 
-# Show an INFO message
-# $1: message string
-msg_info() {
-    local _msg_opts="-a fullbuilid -s 5"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
+# Message common function
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "fullbuild" "-s" "5") _type="${1}"
+    shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
+    [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
+    _msg_opts+=("${_type}" "${@}")
+    "${script_path}/tools/msg.sh" "${_msg_opts[@]}"
 }
+
+# Show an INFO message
+# ${1}: message string
+msg_info() { msg_common info "${@}"; }
 
 # Show an Warning message
-# $1: message string
-msg_warn() {
-    local _msg_opts="-a fullbuilid -s 5"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
-}
+# ${1}: message string
+msg_warn() { msg_common warn "${@}"; }
 
 # Show an debug message
-# $1: message string
-msg_debug() {
-    if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a fullbuilid -s 5"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
-    fi
+# ${1}: message string
+msg_debug() { 
+    [[ "${debug}" = true ]] && msg_common debug "${@}"
+    return 0
 }
 
 # Show an ERROR message then exit with status
-# $1: message string
-# $2: exit code number (with 0 does not exit)
+# ${1}: message string
+# ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a fullbuilid -s 5"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
-    if [[ -n "${2:-}" ]]; then
-        exit ${2}
-    fi
+    msg_common error "${1}"
+    [[ -n "${2:-}" ]] && exit "${2}"
 }
 
 
