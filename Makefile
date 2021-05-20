@@ -50,3 +50,8 @@ wizard:
 check:
 	@bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
 	@bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error tools/*.{sh,ksh,bash}'
+
+init-chroot:
+	$(eval CHROOT=${shell which chroot})
+	@sudo cp -a ${CHROOT} /usr/local/bin/alteriso-chroot
+	@sudo setcap cap_sys_chroot+ep /usr/local/bin/alteriso-chroot

@@ -253,8 +253,13 @@ _run_with_pacmanconf(){
 
 # コマンドをchrootで実行する
 _chroot_run() {
+    if ! type alteriso-chroot > /dev/null 2>&1; then
+        msg_error "Initial settings are required when building for the first time."
+        msg_error "Please run \" sudo make init-chroot \"" 1
+    fi
+        
     msg_debug "Run command in chroot\nCommand: ${*}"
-    eval -- arch-chroot "${airootfs_dir}" "${@}"
+    eval -- alteriso-chroot "${airootfs_dir}" fakeroot "${@}"
 }
 
 _cleanup_common () {
