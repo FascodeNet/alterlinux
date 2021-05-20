@@ -502,22 +502,17 @@ make_pacman_conf() {
     done
 
     msg_debug "Use ${build_pacman_conf}"
-<<<<<<< HEAD
     sed -r "
         s|^#?\\s*CacheDir.+|CacheDir     = ${work_dir}/cache/${arch}|g;
         s|^#?\\s*DBPath.+|#DBPath       = ${pacman_dir}/db|g;
         s|^#?\\s*GPGDir.+|GPGDir       = ${pacman_dir}/gpg|g;
         s|^#?\\s*LogFile.+|LogFile      = ${pacman_dir}/pacman.log|g;
     " "${build_pacman_conf}" > "${build_dir}/pacman-${arch}.conf"
-=======
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
->>>>>>> dev
 
     if [[ "${nosigcheck}" = true ]]; then
         sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
     fi
 
-<<<<<<< HEAD
     # Remove pacman files
     remove "${pacman_dir}"
     for _dir in "${work_dir}/cache/${arch}" "${pacman_dir}/db" "${pacman_dir}/gpg"; do
@@ -529,20 +524,18 @@ make_pacman_conf() {
     # Set up pacman
     fakeroot pacman-key --config "${build_pacman_conf}" --gpgdir "${pacman_dir}/gpg" --init
     fakeroot pacman-key --config "${build_pacman_conf}" --gpgdir "${pacman_dir}/gpg" --populate
-=======
-    if [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]]; then
-        msg_info "Use cached package files in ${cache_dir}"
+    if [[ -n "$(find "${work_dir}/cache/${arch}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]]; then
+        msg_info "Use cached package files in ${work_dir}/cache/${arch}"
     fi
 
     # Share any architecture packages
     #while read -r _pkg; do
-    #    if [[ ! -f "${cache_dir}/$(basename "${_pkg}")" ]]; then
-    #        ln -s "${_pkg}" "${cache_dir}"
+    #    if [[ ! -f "${work_dir}/cache/${arch}/$(basename "${_pkg}")" ]]; then
+    #        ln -s "${_pkg}" "${work_dir}/cache/${arch}"
     #    fi
-    #done < <(find "${cache_dir}/../" -type d -name "$(basename "${cache_dir}")" -prune -o -type f -name "*-any.pkg.tar.*" -printf "%p\n")
+    #done < <(find "${work_dir}/cache/${arch}/../" -type d -name "$(basename "${work_dir}/cache/${arch}")" -prune -o -type f -name "*-any.pkg.tar.*" -printf "%p\n")
 
     return 0
->>>>>>> dev
 }
 
 # Base installation (airootfs)
@@ -1280,21 +1273,12 @@ while true; do
 done
 
 # Check root.
-<<<<<<< HEAD
 #if (( ! "${EUID}" == 0 )); then
 #    msg_warn "This script must be run as root." >&2
-#    msg_warn "Re-run 'sudo ${0} ${DEFAULT_ARGUMENT} ${ARGUMENT[*]}'"
-#    sudo ${0} ${DEFAULT_ARGUMENT} "${ARGUMENT[@]}"
+#    msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
+#    sudo "${0}" "${ARGUMENT[@]}"
 #    exit "${?}"
 #fi
-=======
-if (( ! "${EUID}" == 0 )); then
-    msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
-    sudo "${0}" "${ARGUMENT[@]}"
-    exit "${?}"
-fi
->>>>>>> dev
 
 # Show config message
 msg_debug "Use the default configuration file (${defaultconfig})."
@@ -1324,15 +1308,9 @@ fi
 
 # Set vars
 work_dir="$(realpath "${work_dir}")"
-<<<<<<< HEAD
 build_dir="${work_dir}/build"
 pacman_dir="${work_dir}/pacman/${arch}"
 airootfs_dir="${build_dir}/${arch}/airootfs"
-=======
-build_dir="${work_dir}/build/${arch}"
-cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/airootfs"
->>>>>>> dev
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
 gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
