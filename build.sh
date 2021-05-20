@@ -227,11 +227,19 @@ for_module(){
 }
 
 # pacstrapを実行
+#_pacstrap(){
+#    msg_info "Installing packages to ${airootfs_dir}/'..."
+#    local _args=("-c" "-G" "-M" "--" "${airootfs_dir}" "${@}")
+#    [[ "${pacman_debug}" = true ]] && _args+=(--debug)
+#    fakeroot pacstrap -C "${build_dir}/pacman-${arch}.conf" "${_args[@]}"
+#    msg_info "Packages installed successfully!"
+#}
 _pacstrap(){
     msg_info "Installing packages to ${airootfs_dir}/'..."
-    local _args=("${airootfs_dir}" "${@}")
+    local _args=("${@}")
     [[ "${pacman_debug}" = true ]] && _args+=("--debug")
-    fakeroot pacman -r "${airootfs_dir}" -Sy "${@}" --noconfirm --config="${build_dir}/pacman-${arch}.conf" --debug "${_args[@]}"
+    mkdir -p "${airootfs_dir}/var/lib/pacman/"
+    fakeroot pacman -r "${airootfs_dir}" -Sy "${@}" --noconfirm --config="${build_dir}/pacman-${arch}.conf" "${_args[@]}"
     msg_info "Packages installed successfully!"
 }
 
