@@ -68,7 +68,14 @@ msg_error() {
 }
 
 # Unmount helper Usage: _umount <target>
-_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
+#_umount() { 
+#    if mountpoint -q "${1}"; then
+#        umount -lf "${1}"
+#    fi
+#}
+_umount{
+    fusermount -u "${1}"
+}
 
 # Unmount work dir
 umount_work () {
@@ -98,9 +105,9 @@ umount_work () {
 
 
 # Check root.
-if (( ! "${EUID}" == 0 )); then
-    msg_error "This script must be run as root." "1"
-fi
+#if (( ! "${EUID}" == 0 )); then
+#    msg_error "This script must be run as root." "1"
+#fi
 
 # Parse options
 OPTS=("d" "f" "h" "m:")
