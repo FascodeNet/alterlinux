@@ -31,7 +31,6 @@ msg_common(){
     local _msg_opts=("-a" "fullbuild" "-s" "5") _type="${1}"
     shift 1
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
-    [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
     _msg_opts+=("${_type}" "${@}")
     "${script_path}/tools/msg.sh" "${_msg_opts[@]}"
@@ -44,13 +43,6 @@ msg_info() { msg_common info "${@}"; }
 # Show an Warning message
 # ${1}: message string
 msg_warn() { msg_common warn "${@}"; }
-
-# Show an debug message
-# ${1}: message string
-msg_debug() { 
-    [[ "${debug}" = true ]] && msg_common debug "${@}"
-    return 0
-}
 
 # Show an ERROR message then exit with status
 # ${1}: message string
