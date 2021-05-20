@@ -73,7 +73,7 @@ msg_error() {
 #        umount -lf "${1}"
 #    fi
 #}
-_umount{
+_umount() {
     fusermount -u "${1}"
 }
 
