@@ -15,6 +15,8 @@ architectures=("x86_64" "i686")
 locale_list=("ja" "en")
 share_options=()
 default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alter")
+failed=()
+abort=false
 
 work_dir="${script_path}/work"
 simulation=false
@@ -83,7 +85,11 @@ build() {
                 touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
             elif (( "${retry_count}" == "${retry}" )); then
                 msg_error "Failed to build (Exit code: ${_exit_code})"
-                exit "${_exit_code}"
+                if [[ "${abort}" = true ]]; then
+                    exit "${_exit_code}"
+                else
+                    failed+=("${cha}-${arch}-${lang}")
+                fi
             else
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
@@ -99,6 +105,7 @@ _help() {
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options[*]})"
+    echo "    -e                 Exit the script when the build fails"
     echo "    -g                 Use gitversion"
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
@@ -126,7 +133,7 @@ share_options+=("--noconfirm")
 
 # Parse options
 ARGUMENT=("${@}")
-OPTS="a:dghr:sctm:l:w:"
+OPTS="a:deghr:sctm:l:w:"
 OPTL="help,remove-cache,noconfirm"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
@@ -146,6 +153,10 @@ while true; do
             ;;
         -d)
             share_options+=("${default_options[@]}")
+            shift 1
+            ;;
+        -e)
+            abort=true
             shift 1
             ;;
         -m)
@@ -263,5 +274,10 @@ done
 
 
 if [[ "${simulation}" = false ]]; then
-    msg_info "All editions have been built"
+    if (( "${#failed[@]}" == 0 )); then
+        msg_info "All editions have been built"
+    else
+        msg_error "Build of the following settings failed"
+        printf " - %s\n" "${failed[@]}"
+    fi
 fi
