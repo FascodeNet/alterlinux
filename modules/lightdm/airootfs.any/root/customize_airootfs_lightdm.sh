@@ -35,6 +35,7 @@ if [[ -f "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" ]] && cat "/etc
         echo "Failed to set the session.Multiple sessions were found." >&2
         echo "Please set the session of automatic login in /etc/lightdm/lightdm.conf.d/02-autologin-session.conf"
         echo "Found session: $(printf "%s " ${session_list[@]})"
+        sleep 0.5
         exit 1
     fi
 fi
