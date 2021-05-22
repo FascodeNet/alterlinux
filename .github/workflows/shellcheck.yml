@@ -31,4 +31,4 @@ jobs:
         with:
           severity: error
         env:
-          SHELLCHECK_OPTS: ---shell=bash
+          SHELLCHECK_OPTS: --shell=bash
