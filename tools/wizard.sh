@@ -221,7 +221,7 @@ Function_Global_Main_install_dependent_packages () {
         fi
     done
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
-        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
+        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" "${Var_Global_missing_packages[@]}"
     fi
     echo
 }
