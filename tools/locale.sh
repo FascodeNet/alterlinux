@@ -90,13 +90,13 @@ get() {
     _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
     _get_locale_line_number() {
         local _lang _count=0
-        for _lang in ${_locale_name_list[@]}; do
+        for _lang in "${_locale_name_list[@]}"; do
             _count=$(( _count + 1 ))
             if [[ "${_lang}" = "${1}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
     }
-    _locale_line_number="$(_get_locale_line_number ${@})"
+    _locale_line_number="$(_get_locale_line_number "${@}")"
 
     # 不正なロケール名なら終了する
     if [[ "${_locale_line_number}" = "failed" ]]; then
@@ -131,7 +131,7 @@ eval set -- "${OPT}"
 unset OPTS OPTL
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -165,9 +165,9 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}    ;;
+    "check" ) check "${@}"    ;;
     "show"  ) show          ;;
-    "get"   ) get ${@}      ;;
+    "get"   ) get "${@}"      ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
 esac

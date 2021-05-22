@@ -237,10 +237,10 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}                  ;;
+    "check" ) check "${@}"                ;;
     "show"  ) show                        ;;
-    "desc"  ) desc ${@}                   ;;
-    "ver"   ) get_alteriso_version ${@}   ;;
+    "desc"  ) desc "${@}"                 ;;
+    "ver"   ) get_alteriso_version "${@}" ;;
     "help"  ) _help; exit 0               ;;
     *       ) _help; exit 1               ;;
 esac

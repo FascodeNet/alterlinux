@@ -89,7 +89,7 @@ done
 
 # パッケージ一覧
 msg_debug "Getting package list ..."
-for arch in ${archs[@]}; do
+for arch in "${archs[@]}"; do
     packages+=($("${script_path}/tools/allpkglist.sh" -s -a "${arch}"))
 done
 
@@ -98,7 +98,7 @@ msg_debug "Getting group list ..."
 group_list=($(curl -s https://archlinux.org/groups/ | grep "/groups/x86_64" | cut -d "/" -f 4))
 
 # 実行開始
-for pkg in ${packages[@]}; do
+for pkg in "${packages[@]}"; do
     msg_debug "Searching ${pkg} ..."
     if ! searchpkg "${pkg}"; then
         echo "${pkg} is not in the official repository." >&2

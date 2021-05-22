@@ -44,8 +44,8 @@ _help() {
 # for_module <command>
 for_module(){
     local module
-    for module in ${modules[@]}; do
-        eval $(echo ${@} | sed "s|{}|${module}|g")
+    for module in "${modules[@]}"; do
+        eval $(echo "${@}" | sed "s|{}|${module}|g")
     done
 }
 
@@ -183,7 +183,7 @@ fi
 
 #-- Read package list --#
 # Read the file and remove comments starting with # and add it to the list of packages to install.
-for _file in ${_loadfilelist[@]}; do
+for _file in "${_loadfilelist[@]}"; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
         _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
@@ -197,7 +197,7 @@ done
 _excludefile=("${channel_dir}/packages.${arch}/exclude" "${channel_dir}/packages_aur.${arch}/exclude")
 for_module '_excludefile+=("${module_dir}/{}/packages.${arch}/exclude" "${module_dir}/{}/packages_aur.${arch}/exclude")'
 
-for _file in ${_excludefile[@]}; do
+for _file in "${_excludefile[@]}"; do
     if [[ -f "${_file}" ]]; then
         _excludelist+=($(grep -h -v ^'#' "${_file}") )
     fi

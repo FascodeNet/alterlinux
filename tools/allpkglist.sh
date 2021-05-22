@@ -79,7 +79,7 @@ fi
 
 load_config() {
     local _file
-    for _file in ${@}; do
+    for _file in "${@}"; do
         if [[ -f "${_file}" ]]; then
             source "${_file}"
         fi
@@ -89,7 +89,7 @@ load_config() {
 for_module(){
     local module
     for module in ${modules[@]}; do
-        eval $(echo ${@} | sed "s|{}|${module}|g")
+        eval $(echo "${@}" | sed "s|{}|${module}|g")
     done
 }
 
@@ -105,7 +105,7 @@ for arch in ${archs[@]}; do
                     modules=("share")
                 fi
             fi
-            for module in ${modules[@]}; do
+            for module in "${modules[@]}"; do
                 dependent="${module_dir}/${module}/dependent"
                 if [[ -f "${dependent}" ]]; then
                     modules+=($(grep -h -v ^'#' "${dependent}" | tr -d "\n" ))

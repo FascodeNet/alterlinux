@@ -14,7 +14,7 @@ noconfirm=false
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in ${@}; do
+    for _file in "${@}"; do
         if [[ -f "${_file}" ]]; then
             source "${_file}"
         fi

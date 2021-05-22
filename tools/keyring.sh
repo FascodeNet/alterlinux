@@ -171,7 +171,7 @@ checkpkg() {
 
 run() {
     msg_info "Running ${*}"
-    ${@}
+    eval "${@}"
 }
 
 

@@ -97,7 +97,7 @@ variable_list=(
     "iso_version"
 )
 
-for var in ${variable_list[@]}; do
+for var in "${variable_list[@]}"; do
     if [[ -z "$(eval echo '$'${var})" ]]; then
         echo "${var} is empty" >&2
         exit 1
