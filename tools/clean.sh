@@ -154,9 +154,7 @@ fi
 umount_chroot
 if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig/build/"**
-    remove "${script_path}/system/cpp-src/mkalteriso/build"/**
     remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${script_path}/system/mkalteriso"
 fi
 
 remove "${work_dir%/}"/**
