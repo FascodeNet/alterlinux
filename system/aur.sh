@@ -9,7 +9,7 @@
 set -e -u
 
 aur_username="aurbuild"
-pacman_debug=true
+pacman_debug=false
 pacman_args=()
 
 trap 'exit 1' 1 2 3 15

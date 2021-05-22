@@ -15,6 +15,8 @@ architectures=("x86_64" "i686")
 locale_list=("ja" "en")
 share_options=()
 default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alter")
+failed=()
+abort=false
 
 work_dir="${script_path}/work"
 simulation=false
@@ -25,62 +27,39 @@ all_channel=false
 customized_work=false
 noconfirm=false
 
-# Show an INFO message
-# $1: message string
-msg_info() {
-    local _msg_opts="-a fullbuilid -s 5"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
+# Message common function
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "fullbuild" "-s" "5") _type="${1}"
+    shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
+    _msg_opts+=("${_type}" "${@}")
+    "${script_path}/tools/msg.sh" "${_msg_opts[@]}"
 }
+
+# Show an INFO message
+# ${1}: message string
+msg_info() { msg_common info "${@}"; }
 
 # Show an Warning message
-# $1: message string
-msg_warn() {
-    local _msg_opts="-a fullbuilid -s 5"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
-}
-
-# Show an debug message
-# $1: message string
-msg_debug() {
-    if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a fullbuilid -s 5"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
-    fi
-}
+# ${1}: message string
+msg_warn() { msg_common warn "${@}"; }
 
 # Show an ERROR message then exit with status
-# $1: message string
-# $2: exit code number (with 0 does not exit)
+# ${1}: message string
+# ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a fullbuilid -s 5"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
-    if [[ -n "${2:-}" ]]; then
-        exit ${2}
-    fi
+    msg_common error "${1}"
+    [[ -n "${2:-}" ]] && exit "${2}"
 }
 
 
 trap_exit() {
-    local status=${?}
+    local status="${?}"
     echo
     msg_error "fullbuild.sh has been killed by the user."
-    exit ${status}
+    exit "${status}"
 }
 
 
@@ -90,7 +69,8 @@ build() {
     _options+=("--arch" "${arch}" "--lang" "${lang}" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
-        sudo pacman -Sccc --noconfirm
+        msg_info "Removing package cache for ${arch}"
+        sudo rm -rf "${work_dir}/cache/${arch}"
     fi
 
     if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
@@ -105,7 +85,11 @@ build() {
                 touch "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
             elif (( "${retry_count}" == "${retry}" )); then
                 msg_error "Failed to build (Exit code: ${_exit_code})"
-                exit "${_exit_code}"
+                if [[ "${abort}" = true ]]; then
+                    exit "${_exit_code}"
+                else
+                    failed+=("${cha}-${arch}-${lang}")
+                fi
             else
                 msg_error "build.sh finished with exit code ${_exit_code}. Will try again."
             fi
@@ -121,6 +105,7 @@ _help() {
     echo "    -a <options>       Set other options in build.sh"
     echo "    -c                 Build all channel (DO NOT specify the channel !!)"
     echo "    -d                 Use the default build.sh arguments. (${default_options[*]})"
+    echo "    -e                 Exit the script when the build fails"
     echo "    -g                 Use gitversion"
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
@@ -148,7 +133,7 @@ share_options+=("--noconfirm")
 
 # Parse options
 ARGUMENT=("${@}")
-OPTS="a:dghr:sctm:l:w:"
+OPTS="a:deghr:sctm:l:w:"
 OPTL="help,remove-cache,noconfirm"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
@@ -157,7 +142,7 @@ eval set -- "${OPT}"
 unset OPT OPTS OPTL ARGUMENT
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a)
             share_options+=(${2})
             shift 2
@@ -168,6 +153,10 @@ while true; do
             ;;
         -d)
             share_options+=("${default_options[@]}")
+            shift 1
+            ;;
+        -e)
+            abort=true
             shift 1
             ;;
         -m)
@@ -236,7 +225,7 @@ if [[ "${all_channel}" = true  ]]; then
         channnels=($("${script_path}/tools/channel.sh" -b show))
     fi
 elif [[ -n "${*}" ]]; then
-    channnels=(${@})
+    channnels=("${@}")
 fi
 
 if [[ "${simulation}" = true ]]; then
@@ -271,16 +260,11 @@ fi
 
 trap 'trap_exit' 1 2 3 15
 
-if [[ "${simulation}" = false ]]; then
-    msg_info "Update the package database."
-    sudo pacman -Syy
-fi
-
-for arch in ${architectures[@]}; do
-    for cha in ${channnels[@]}; do
-        for lang in ${locale_list[@]}; do
-            for retry_count in $(seq 1 ${retry}); do
-                if [[ -n $(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}") ]]; then
+for arch in "${architectures[@]}"; do
+    for cha in "${channnels[@]}"; do
+        for lang in "${locale_list[@]}"; do
+            for retry_count in $(seq 1 "${retry}"); do
+                if [[ -n "$(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}")" ]]; then
                     build
                 fi
             done
@@ -290,5 +274,10 @@ done
 
 
 if [[ "${simulation}" = false ]]; then
-    msg_info "All editions have been built"
+    if (( "${#failed[@]}" == 0 )); then
+        msg_info "All editions have been built"
+    else
+        msg_error "Build of the following settings failed"
+        printf " - %s\n" "${failed[@]}"
+    fi
 fi

@@ -9,7 +9,7 @@
 set -e
 
 build_username="pkgbuild"
-pacman_debug=true
+pacman_debug=false
 pacman_args=()
 
 _help() {
@@ -66,7 +66,7 @@ function user_check () {
 
 # 一般ユーザーで実行します
 function run_user () {
-    sudo -u "${build_username}" ${@}
+    sudo -u "${build_username}" "${@}"
 }
 
 # 引数を確認
@@ -106,12 +106,12 @@ pacman -Syy "${pacman_args[@]}"
 cd "${pkgbuild_dir}"
 pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
-    for _dir in ${pkgbuild_dirs[@]}; do
+    for _dir in "${pkgbuild_dirs[@]}"; do
         cd "${_dir}"
         depends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${depends[@]}"))
         makedepends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${makedepends[@]}"))
         if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
-            for _pkg in ${depends[@]} ${makedepends[@]}; do
+            for _pkg in "${depends[@]}" "${makedepends[@]}"; do
                 if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
                     pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
                 fi

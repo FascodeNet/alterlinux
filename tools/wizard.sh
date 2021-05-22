@@ -166,7 +166,7 @@ Function_Global_Main_check_required_files () {
         "default.conf"
     )
 
-    for Var_Local_file in ${Var_Local_file_list[@]}; do
+    for Var_Local_file in "${Var_Local_file_list[@]}"; do
         if [[ ! -f "${Var_Global_Wizard_Env_script_path}/${Var_Local_file}" ]]; then
             msg_error "${Var_Local_file}が見つかりませんでした。" "${Var_Local_file} was not found."
             Var_Local_error=true
@@ -199,9 +199,9 @@ Function_Global_Main_install_dependent_packages () {
         local Var_Local_package Var_Local_installed_package Var_Local_installed_version
         Var_Local_installed_package=($(pacman -Q | getclm 1))
         Var_Local_installed_version=($(pacman -Q | getclm 2))
-        for Var_Local_package in $(seq 0 $(( ${#Var_Local_installed_package[@]} - 1 ))); do
-            if [[ ${Var_Local_installed_package[${Var_Local_package}]} = ${1} ]]; then
-                if [[ ${Var_Local_installed_version[${Var_Local_package}]} = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
+        for Var_Local_package in $(seq 0 $(( "${#Var_Local_installed_package[@]}" - 1 ))); do
+            if [[ "${Var_Local_installed_package[${Var_Local_package}]}" = "${1}" ]]; then
+                if [[ "${Var_Local_installed_version[${Var_Local_package}]}" = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -214,14 +214,14 @@ Function_Global_Main_install_dependent_packages () {
         return 0
     }
     echo
-    for Var_Local_package in ${dependence[@]}; do
+    for Var_Local_package in "${dependence[@]}"; do
         msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
         if [[ $(Function_Local_checkpkg ${Var_Local_package}) = false ]]; then
             Var_Global_missing_packages+=(${Var_Local_package})
         fi
     done
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
-        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
+        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" "${Var_Global_missing_packages[@]}"
     fi
     echo
 }
@@ -255,7 +255,7 @@ Function_Global_Main_run_keyring.sh () {
 
 Function_Global_Main_remove_dependent_packages () {
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
-        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
+        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" "${Var_Global_missing_packages[@]}"
     fi
 }
 
@@ -313,7 +313,7 @@ Function_Global_Ask_locale() {
 
     local Var_Local_locale_list Var_Local_locale Var_Local_count=1 Var_Local_input_locale
     Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
-    for Var_Local_locale in ${Var_Local_locale_list[@]}; do
+    for Var_Local_locale in "${Var_Local_locale_list[@]}"; do
         (
             local locale_name locale_gen_name locale_version locale_time locale_fullname
             eval $("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )
@@ -328,7 +328,7 @@ Function_Global_Ask_locale() {
 
     set +e
     expr "${Var_Local_input_locale}" + 1 >/dev/null 2>&1
-    if [[ ${?} -lt 2 ]]; then
+    if [[ "${?}" -lt 2 ]]; then
         set -e
         # 数字である
         Var_Local_input_locale=$(( Var_Local_input_locale - 1 ))
@@ -562,7 +562,7 @@ Function_Global_Ask_kernel () {
 
     #選択肢の生成
     local Var_Local_kernel Var_Local_count=1 Var_Local_int
-    for Var_Local_kernel in ${Var_Local_kernel_list[@]}; do
+    for Var_Local_kernel in "${Var_Local_kernel_list[@]}"; do
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
             eval $("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )
@@ -616,7 +616,7 @@ Function_Global_Ask_channel () {
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
     # 選択肢を生成
-    for Var_Local_channel in ${Var_Local_channel_list[@]}; do
+    for Var_Local_channel in "${Var_Local_channel_list[@]}"; do
         if [[ -f "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt" ]]; then
             Var_Local_description=$(cat "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt")
         else

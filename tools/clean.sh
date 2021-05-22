@@ -4,6 +4,7 @@ set -eu
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 work_dir="${script_path}/work"
+tools_dir="${script_path}/tools"
 debug=false
 only_work=false
 noconfirm=false
@@ -13,7 +14,7 @@ noconfirm=false
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in ${@}; do
+    for _file in "${@}"; do
         if [[ -f "${_file}" ]]; then
             source "${_file}"
         fi
@@ -90,22 +91,7 @@ _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Unmount chroot dir
 umount_chroot () {
-    local _mount
-    if [[ ! -v "work_dir" ]] || [[ "${work_dir}" = "" ]]; then
-        msg_error "Exception error about working directory" 1
-    fi
-    if [[ ! -d "${work_dir}" ]]; then
-        return 0
-    fi
-    for _mount in $(find "${work_dir}" -mindepth 1 -type d -printf "%p\0" | xargs -0 -I{} bash -c "mountpoint -q {} && echo {}" | tac); do
-        if echo "${_mount}" | grep "${work_dir}" > /dev/null 2>&1 || echo "${_mount}" | grep "${script_path}" > /dev/null 2>&1 || echo "${_mount}" | grep "${out_dir}" > /dev/null 2>&1; then
-            msg_info "Unmounting ${_mount}"
-            _umount "${_mount}" 2> /dev/null
-        else
-            msg_error "It is dangerous to unmount a directory that is not managed by the script."
-            msg_error "Path: ${_mount}"
-        fi
-    done
+    "${tools_dir}/umount.sh" "${work_dir}"
 }
 
 # Usage: getclm <number>
@@ -168,9 +154,7 @@ fi
 umount_chroot
 if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig/build/"**
-    remove "${script_path}/system/cpp-src/mkalteriso/build"/**
     remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${script_path}/system/mkalteriso"
 fi
 
 remove "${work_dir%/}"/**

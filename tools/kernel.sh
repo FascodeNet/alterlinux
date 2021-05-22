@@ -101,7 +101,7 @@ get() {
     _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
     _get_kernel_line() {
         local _kernel _count=0
-        for _kernel in ${_kernel_name_list[@]}; do
+        for _kernel in "${_kernel_name_list[@]}"; do
             _count=$(( _count + 1 ))
             if [[ "${_kernel}" = "${1}" ]]; then echo "${_count}"; return 0; fi
         done
@@ -175,9 +175,9 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}    ;;
+    "check" ) check "${@}"  ;;
     "show"  ) show          ;;
-    "get"   ) get ${@}      ;;
+    "get"   ) get "${@}"    ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
 esac
