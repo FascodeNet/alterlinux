@@ -97,11 +97,6 @@ umount_work () {
 }
 
 
-# Check root.
-if (( ! "${EUID}" == 0 )); then
-    msg_error "This script must be run as root." "1"
-fi
-
 # Parse options
 OPTS=("d" "f" "h" "m:")
 OPTL=("debug" "force" "help" "maxdepth:")
@@ -128,7 +123,7 @@ while true; do
             shift 2
             ;;
         -h | --help)
-            _usage
+            _help
             exit 0
             ;;
         --)
@@ -137,10 +132,16 @@ while true; do
             ;;
         *)
             msg_error "Invalid argument '${1}'"
-            _usage 1
+            _help
+            exit 1
             ;;
     esac
 done
+
+# Check root.
+if (( ! "${EUID}" == 0 )); then
+    msg_error "This script must be run as root." "1"
+fi
 
 
 if [[ -z "${1+SET}" ]]; then
