@@ -143,6 +143,9 @@ if (( ! "${EUID}" == 0 )); then
     msg_error "This script must be run as root." "1"
 fi
 
+# Fullpath
+work_dir="$(realpath "${work_dir}")"
+
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
