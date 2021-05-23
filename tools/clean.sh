@@ -138,6 +138,11 @@ if [[ ! -v work_dir ]] && [[ "${work_dir}" = "" ]]; then
     exit 1
 fi
 
+# Check root.
+if (( ! "${EUID}" == 0 )); then
+    msg_error "This script must be run as root." "1"
+fi
+
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
