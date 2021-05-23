@@ -180,6 +180,7 @@ sed -i "s/%ARCH%/${arch}/g" "/usr/share/calamares/modules/unpackfs.conf"
 
 # Add disabling of sudo setting
 echo -e "\nremove \"/etc/sudoers.d/alterlive\"" >> "/usr/share/calamares/final-process"
+echo -e "\nremove \"/etc/systemd/system/getty@.service.d\"" >> "/usr/share/calamares/final-process"
 
 
 # Set os name
