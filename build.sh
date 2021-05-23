@@ -747,14 +747,14 @@ make_syslinux() {
     mkdir -p "${isofs_dir}/syslinux"
 
     # 一時ディレクトリに設定ファイルをコピー
-    mkdir -p "${build_dir}/${arch}/syslinux/"
+    mkdir -p "${build_dir}/syslinux/"
     cp -a "${script_path}/syslinux/"* "${build_dir}/${arch}/syslinux/"
     if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_dir}/syslinux"* "${build_dir}/${arch}/syslinux/"
+        cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
-    for _cfg in ${build_dir}/${arch}/syslinux/*.cfg; do
+    for _cfg in "${build_dir}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
