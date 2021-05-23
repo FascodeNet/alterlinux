@@ -748,7 +748,7 @@ make_syslinux() {
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${build_dir}/syslinux/"
-    cp -a "${script_path}/syslinux/"* "${build_dir}/${arch}/syslinux/"
+    cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
     if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
         cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
     fi
