@@ -965,7 +965,7 @@ make_prepare() {
     # Create squashfs
     mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
     msg_info "Creating SquashFS image, this may take some time..."
-    mksquashfs "${airootfs_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" ${sfs_comp_opt}
+    mksquashfs "${airootfs_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}"
 
     # Create checksum
     msg_info "Creating checksum file for self-test..."
@@ -1120,9 +1120,9 @@ while true; do
             ;;
         -t | --comp-opts)
             if [[ "${2}" = "reset" ]]; then
-                sfs_comp_opt=""
+                sfs_comp_opt=()
             else
-                sfs_comp_opt="${2}"
+                sfs_comp_opt=(${2})
             fi
             shift 2
             ;;
