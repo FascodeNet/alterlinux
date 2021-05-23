@@ -447,12 +447,8 @@ prepare_build() {
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
     # Generate iso file name.
-    local _channel_name="${channel_name%.add}-${locale_version}"
-    if [[ "${nochname}" = true ]]; then
-        iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-    else
-        iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    fi
+    local _channel_name="${channel_name%.add}-${locale_version}" iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     msg_debug "Iso filename is ${iso_filename}"
 
     # check bool
@@ -468,7 +464,7 @@ prepare_build() {
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
         [[ "${customized_logpath}" = false ]] && logging="${out_dir}/${iso_filename%.iso}.log"
-        mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+        mkdir -p "$(dirname "${logging}")" && touch "${logging}"
         msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
         exit "${?}"
@@ -507,13 +503,9 @@ make_pacman_conf() {
     msg_debug "Use ${build_pacman_conf}"
     sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
 
-    if [[ "${nosigcheck}" = true ]]; then
-        sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
-    fi
+    [[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
 
-    if [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]]; then
-        msg_info "Use cached package files in ${cache_dir}"
-    fi
+    [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && msg_info "Use cached package files in ${cache_dir}"
 
     # Share any architecture packages
     #while read -r _pkg; do
@@ -699,9 +691,7 @@ make_setup_mkinitcpio() {
 
     _chroot_run "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img"
 
-    if [[ "${gpg_key}" ]]; then
-        exec 17<&-
-    fi
+    [[ "${gpg_key}" ]] && exec 17<&-
     
     return 0
 }
@@ -743,18 +733,17 @@ make_boot_extra() {
 
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
-    _uname_r="$(file -b ${airootfs_dir}/boot/${kernel_filename} | awk 'f{print;f=0} /version/{f=1}' RS=' ')"
     mkdir -p "${isofs_dir}/syslinux"
 
     # 一時ディレクトリに設定ファイルをコピー
-    mkdir -p "${build_dir}/${arch}/syslinux/"
-    cp -a "${script_path}/syslinux/"* "${build_dir}/${arch}/syslinux/"
+    mkdir -p "${build_dir}/syslinux/"
+    cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
     if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_dir}/syslinux"* "${build_dir}/${arch}/syslinux/"
+        cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
     fi
 
     # copy all syslinux config to work dir
-    for _cfg in ${build_dir}/${arch}/syslinux/*.cfg; do
+    for _cfg in "${build_dir}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%OS_NAME%|${os_name}|g;
              s|%KERNEL_FILENAME%|${kernel_filename}|g;
@@ -893,12 +882,8 @@ make_efiboot() {
     local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
 
-    local _use_config_name
-    if [[ "${boot_splash}" = true ]]; then
-        _use_config_name="splash"
-    else
-        _use_config_name="nosplash"
-    fi
+    local _use_config_name="nosplash"
+    [[ "${boot_splash}" = true ]] && _use_config_name="splash"
 
     mkdir -p "${build_dir}/efiboot/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
@@ -980,7 +965,7 @@ make_prepare() {
     # Create squashfs
     mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
     msg_info "Creating SquashFS image, this may take some time..."
-    mksquashfs "${airootfs_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" ${sfs_comp_opt}
+    mksquashfs "${airootfs_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}"
 
     # Create checksum
     msg_info "Creating checksum file for self-test..."
@@ -1008,9 +993,7 @@ make_alteriso_info(){
     if [[ "${include_info}" = true ]]; then
         local _info_file="${isofs_dir}/alteriso-info" _version="${iso_version}"
         remove "${_info_file}"; touch "${_info_file}"
-        if [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]]; then
-            _version="${iso_version}-${gitrev}"
-        fi
+        [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]] && _version="${iso_version}-${gitrev}"
         "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" > "${_info_file}"
     fi
 
@@ -1034,7 +1017,7 @@ make_iso() {
     local _iso_efi_boot_args=()
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
     if [[ -f "${build_dir}/efiboot.img" ]]; then
-        _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B ${build_dir}/efiboot.img -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
+        _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
     fi
 
     mkdir -p -- "${out_dir}"
@@ -1137,9 +1120,9 @@ while true; do
             ;;
         -t | --comp-opts)
             if [[ "${2}" = "reset" ]]; then
-                sfs_comp_opt=""
+                sfs_comp_opt=()
             else
-                sfs_comp_opt="${2}"
+                sfs_comp_opt=(${2})
             fi
             shift 2
             ;;

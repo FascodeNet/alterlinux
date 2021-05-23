@@ -6,16 +6,7 @@ script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 script_name="$(basename "$(realpath "${0}")")"
 
 function remove () {
-    local list
-    local file
-    list=($(echo "$@"))
-    for file in "${list[@]}"; do
-        if [[ -f ${file} ]]; then
-            rm -f "${file}"
-        elif [[ -d ${file} ]]; then
-            rm -rf "${file}"
-        fi
-    done
+    rm -rf "${@}"
 }
 
 while getopts 'u:' arg; do
@@ -40,14 +31,13 @@ remove_user_file ".config/gtk-3.0/bookmarks"
 remove /etc/polkit-1/rules.d/01-nopasswork.rules
 
 # Delete unnecessary files of archiso.
-remove /etc/systemd/system/getty@tty1.service.d/autologin.conf
 remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio
 
 # Delete systemd files
 remove /etc/systemd/journald.conf.d/volatile-storage.conf
-remove /etc/systemd/system/getty@tty1.service.d
+remove /etc/systemd/system/getty@.service.d
 remove /etc/systemd/system/alteriso-reflector.service
 
 # Disabled auto login for LightDM

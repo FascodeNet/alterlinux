@@ -91,7 +91,7 @@ _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Unmount chroot dir
 umount_chroot () {
-    "${tools_dir}/umount.sh" "${work_dir}"
+    "${tools_dir}/umount.sh" -d "${work_dir}" -m 3
 }
 
 # Usage: getclm <number>
@@ -138,16 +138,19 @@ if [[ ! -v work_dir ]] && [[ "${work_dir}" = "" ]]; then
     exit 1
 fi
 
+# Check root.
+if (( ! "${EUID}" == 0 )); then
+    msg_error "This script must be run as root." "1"
+fi
+
+# Fullpath
+work_dir="$(realpath "${work_dir}")"
+
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
-    msg_warn -n "Are you sure you want to continue?"
-    read -n 1 yesorno
-    if [[ "${yesorno}" = "y" ]] || [[ "${yesorno}" = "" ]]; then
-        echo
-    else
-        exit 1
-    fi
+    echo -e "Press Enter to continue or Ctrl + C to cancel."
+    read
 fi
 
 
