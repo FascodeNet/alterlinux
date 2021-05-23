@@ -447,7 +447,8 @@ prepare_build() {
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
     # Generate iso file name.
-    local _channel_name="${channel_name%.add}-${locale_version}" iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    local _channel_name="${channel_name%.add}-${locale_version}" 
+    local iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     msg_debug "Iso filename is ${iso_filename}"
 
