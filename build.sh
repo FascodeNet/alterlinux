@@ -414,7 +414,7 @@ prepare_build() {
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         if [[ ! -z "${include_extra+SET}" ]]; then
             if [[ "${include_extra}" = true ]]; then
-                modules=("base" "share" "share-extra" "zsh-powerline")
+                modules=("base" "share" "share-extra" "calamares" "zsh-powerline")
             else
                 modules=("base" "share")
             fi
