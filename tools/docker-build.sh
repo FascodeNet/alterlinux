@@ -113,5 +113,7 @@ DOCKER_RUN_OPTS+=(-v /usr/lib/modules:/usr/lib/modules:ro)
     DOCKER_RUN_OPTS+=(-v ${SHARE_DB_DIR}:/var/lib/pacman/sync)
 }
 
-docker build ${DOCKER_BUILD_OPTS[@]} -t alterlinux-build:latest ${script_path}
-docker run --rm -t -i --privileged -e _DOCKER=true ${DOCKER_RUN_OPTS[@]} alterlinux-build ${BUILD_SCRIPT_OPTS[@]}
+[[ "x$(tty)" != "x" ]] && OPT_TTY="-t" || OPT_TTY=""
+
+echo docker build ${DOCKER_BUILD_OPTS[@]} -t alterlinux-build:latest ${script_path}
+echo docker run --rm -i ${OPT_TTY} --privileged -e _DOCKER=true ${DOCKER_RUN_OPTS[@]} alterlinux-build ${BUILD_SCRIPT_OPTS[@]}
