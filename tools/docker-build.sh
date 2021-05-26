@@ -14,7 +14,7 @@ EOF
     exit 1
 fi
 
-script_path=$(cd -P "$(dirname "$(readlink -f "${0}")")" && cd .. && pwd)
+script_path=$(cd -P $(dirname $(readlink -f ${0})) && cd .. && pwd)
 
 _usage () {
     echo "usage ${0} [options]"
@@ -22,6 +22,7 @@ _usage () {
     echo " General options:"
     echo "    -o | --build-opiton \"[options]\"     Set build options passed to build.sh"
     echo "    -d | --dist-out-dir \"[path]\"        Set distributions' output directory"
+    echo "    -n | --noninteractive                 The process will not ask you any questions"
     echo "    -c | --clean                          Enable --no-cache option when building docker image"
     echo "    -s | --no-share-pkgfile               Disable pacman pkgcache"
     echo "    -p | --pkg-cache-dir \"[path]\"       Set pacman pkg cache directory"
@@ -52,16 +53,20 @@ while (( $# > 0 )); do
                 exit 1
             fi
             #
-            BUILD_SCRIPT_OPTS+=("${2}")
+            BUILD_SCRIPT_OPTS+=(${2})
             shift 2
             ;;
         -d | --dist-out-dir)
-            mkdir -p "${2}" || {
+            mkdir -p ${2} || {
                 echo "Error: failed creating output directory: ${2}" 1>&2
                 exit 1
             }
-            DIST_DIR=$(cd -P "${2}" && pwd)
+            DIST_DIR=$(cd -P ${2} && pwd)
             shift 2
+            ;;
+        -n | --noninteractive)
+            BUILD_SCRIPT_OPTS+=(--noconfirm)
+            shift 1
             ;;
         -c | --clean)
             # Enable docker's --no-cache option
@@ -74,8 +79,8 @@ while (( $# > 0 )); do
             ;;
         -p | --pkg-cache-dir)
             if [[ -d ${2} ]] && \
-                mkdir -p "${2}/pkg" && \
-                mkdir -p "${2}/sync"
+                mkdir -p ${2}/pkg && \
+                mkdir -p ${2}/sync
             then
                 SHARE_PKG_DIR=${2}/pkg
                 SHARE_DB_DIR=${2}/sync
@@ -101,12 +106,12 @@ done
 # End parse options
 
 DOCKER_RUN_OPTS=()
-DOCKER_RUN_OPTS+=(-v "${DIST_DIR}:/alterlinux/out")
-DOCKER_RUN_OPTS+=(-v "/usr/lib/modules:/usr/lib/modules:ro")
-[[ "${NO_SHARE_PKG}" != "True" ]] && {
-    DOCKER_RUN_OPTS+=(-v "${SHARE_PKG_DIR}:/var/cache/pacman/pkg")
-    DOCKER_RUN_OPTS+=(-v "${SHARE_DB_DIR}:/var/lib/pacman/sync")
+DOCKER_RUN_OPTS+=(-v ${DIST_DIR}:/alterlinux/out)
+DOCKER_RUN_OPTS+=(-v /usr/lib/modules:/usr/lib/modules:ro)
+[[ "x${NO_SHARE_PKG}" != "xTrue" ]] && {
+    DOCKER_RUN_OPTS+=(-v ${SHARE_PKG_DIR}:/var/cache/pacman/pkg)
+    DOCKER_RUN_OPTS+=(-v ${SHARE_DB_DIR}:/var/lib/pacman/sync)
 }
 
-docker build "${DOCKER_BUILD_OPTS[@]}" -t alterlinux-build:latest "${script_path}"
-docker run --rm -t -i --privileged -e _DOCKER=true "${DOCKER_RUN_OPTS[@]}" alterlinux-build "${BUILD_SCRIPT_OPTS[@]}"
+docker build ${DOCKER_BUILD_OPTS[@]} -t alterlinux-build:latest ${script_path}
+docker run --rm -t -i --privileged -e _DOCKER=true ${DOCKER_RUN_OPTS[@]} alterlinux-build ${BUILD_SCRIPT_OPTS[@]}
