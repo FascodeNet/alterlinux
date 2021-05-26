@@ -42,7 +42,6 @@ fi
 # Start parse options
 DIST_DIR=${script_path}/out
 DOCKER_BUILD_OPTS=()
-DOCKER_RUN_OPTS=()
 BUILD_SCRIPT_OPTS=()
 while (( $# > 0 )); do
     case ${1} in
@@ -101,13 +100,13 @@ while (( $# > 0 )); do
 done
 # End parse options
 
-DOCKER_RUN_OPTS+=("-v ${DIST_DIR}:/alterlinux/out")
-DOCKER_RUN_OPTS+=("-v /usr/lib/modules:/usr/lib/modules:ro")
+DOCKER_RUN_OPTS=()
+DOCKER_RUN_OPTS+=(-v "${DIST_DIR}:/alterlinux/out")
+DOCKER_RUN_OPTS+=(-v "/usr/lib/modules:/usr/lib/modules:ro")
 [[ "${NO_SHARE_PKG}" != "True" ]] && {
-    DOCKER_RUN_OPTS+=("-v ${SHARE_PKG_DIR}:/var/cache/pacman/pkg")
-    DOCKER_RUN_OPTS+=("-v ${SHARE_DB_DIR}:/var/lib/pacman/sync")
+    DOCKER_RUN_OPTS+=(-v "${SHARE_PKG_DIR}:/var/cache/pacman/pkg")
+    DOCKER_RUN_OPTS+=(-v "${SHARE_DB_DIR}:/var/lib/pacman/sync")
 }
 
-# cd ${script_path}
 docker build "${DOCKER_BUILD_OPTS[@]}" -t alterlinux-build:latest "${script_path}"
 docker run --rm -t -i --privileged -e _DOCKER=true "${DOCKER_RUN_OPTS[@]}" alterlinux-build "${BUILD_SCRIPT_OPTS[@]}"
