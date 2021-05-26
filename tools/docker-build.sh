@@ -115,5 +115,5 @@ DOCKER_RUN_OPTS+=(-v /usr/lib/modules:/usr/lib/modules:ro)
 
 [[ "x$(tty)" != "x" ]] && OPT_TTY="-t" || OPT_TTY=""
 
-echo docker build ${DOCKER_BUILD_OPTS[@]} -t alterlinux-build:latest ${script_path}
-echo docker run --rm -i ${OPT_TTY} --privileged -e _DOCKER=true ${DOCKER_RUN_OPTS[@]} alterlinux-build ${BUILD_SCRIPT_OPTS[@]}
+docker build ${DOCKER_BUILD_OPTS[@]} -t alterlinux-build:latest ${script_path}
+exec docker run --rm -i ${OPT_TTY} --privileged -e _DOCKER=true ${DOCKER_RUN_OPTS[@]} alterlinux-build ${BUILD_SCRIPT_OPTS[@]}
