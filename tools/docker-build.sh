@@ -22,6 +22,7 @@ _usage () {
     echo " General options:"
     echo "    -o | --build-opiton \"[options]\"     Set build options passed to build.sh"
     echo "    -d | --dist-out-dir \"[path]\"        Set distributions' output directory"
+    echo "    -w | --work-dir \"[path]\"            Set build working dir for debug"
     echo "    -n | --noninteractive                 The process will not ask you any questions"
     echo "    -c | --clean                          Enable --no-cache option when building docker image"
     echo "    -s | --no-share-pkgfile               Disable pacman pkgcache"
@@ -62,6 +63,14 @@ while (( $# > 0 )); do
                 exit 1
             }
             DIST_DIR=$(cd -P ${2} && pwd)
+            shift 2
+            ;;
+        -w | --work-dir)
+            mkdir -p ${2} || {
+                echo "Error: failed creating working directory: ${2}" 1>&2
+                exit 1
+            }
+            EXTERNAL_WORK_DIR=$(cd -P ${2} && pwd)
             shift 2
             ;;
         -n | --noninteractive)
@@ -108,6 +117,8 @@ done
 DOCKER_RUN_OPTS=()
 DOCKER_RUN_OPTS+=(-v "${DIST_DIR}:/alterlinux/out")
 DOCKER_RUN_OPTS+=(-v "/usr/lib/modules:/usr/lib/modules:ro")
+[[ "x${EXTERNAL_WORK_DIR}" != "x" ]] && \
+    DOCKER_RUN_OPTS+=(-v "${EXTERNAL_WORK_DIR}:/alterlinux/work")
 [[ "x${NO_SHARE_PKG}" != "xTrue" ]] && {
     DOCKER_RUN_OPTS+=(-v "${SHARE_PKG_DIR}:/var/cache/pacman/pkg")
     DOCKER_RUN_OPTS+=(-v "${SHARE_DB_DIR}:/var/lib/pacman/sync")
