@@ -1,7 +1,7 @@
 pkgbase = alterlinux-calamares
 	pkgdesc = Distribution-independent installer framework
-	pkgver = 3.2.35
-	pkgrel = 3
+	pkgver = 3.2.39
+	pkgrel = 1
 	url = https://github.com/FascodeNet/alterlinux-calamares
 	arch = i686
 	arch = x86_64
@@ -37,7 +37,7 @@ pkgbase = alterlinux-calamares
 	backup = usr/share/calamares/modules/removeuser.conf
 	backup = usr/share/calamares/modules/users.conf
 	backup = usr/share/calamares/branding/alter/branding.desc
-	source = https://github.com/FascodeNet/alterlinux-calamares/archive/3.2.35-3.tar.gz
+	source = https://github.com/FascodeNet/alterlinux-calamares/archive/3.2.39-1.tar.gz
 	sha256sums = SKIP
 
 pkgname = alterlinux-calamares
