@@ -114,9 +114,15 @@ while (( $# > 0 )); do
 done
 # End parse options
 
+if [[ -d /usr/lib/modules/$(uname -r) ]]; then
+    KMODS_DIR=/usr/lib/modules
+else
+    KMODS_DIR=/lib/modules
+fi
+
 DOCKER_RUN_OPTS=()
 DOCKER_RUN_OPTS+=(-v "${DIST_DIR}:/alterlinux/out")
-DOCKER_RUN_OPTS+=(-v "/usr/lib/modules:/usr/lib/modules:ro")
+DOCKER_RUN_OPTS+=(-v "${KMODS_DIR}:/usr/lib/modules:ro")
 [[ "x${EXTERNAL_WORK_DIR}" != "x" ]] && \
     DOCKER_RUN_OPTS+=(-v "${EXTERNAL_WORK_DIR}:/alterlinux/work")
 [[ "x${NO_SHARE_PKG}" != "xTrue" ]] && {
