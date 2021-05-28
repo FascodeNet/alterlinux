@@ -14,7 +14,7 @@ EOF
     exit 1
 fi
 
-script_path=$(cd -P $(dirname $(readlink -f ${0})) && cd .. && pwd)
+script_path="$(cd -P $(dirname $(readlink -f ${0})) && cd .. && pwd)"
 
 _usage () {
     echo "usage ${0} [options]"
@@ -32,24 +32,24 @@ _usage () {
 }
 
 # Start define var
-if [[ -d /var/cache/pacman/pkg ]] && [[ -d /var/lib/pacman/sync ]]; then
-    SHARE_PKG_DIR=/var/cache/pacman/pkg
-    SHARE_DB_DIR=/var/lib/pacman/sync
+if [[ -d "/var/cache/pacman/pkg" ]] && [[ -d "/var/lib/pacman/sync" ]]; then
+    SHARE_PKG_DIR="/var/cache/pacman/pkg"
+    SHARE_DB_DIR="/var/lib/pacman/sync"
 else
-    SHARE_PKG_DIR=${script_path}/cache/pkg
-    SHARE_DB_DIR=${script_path}/cache/sync
+    SHARE_PKG_DIR="${script_path}/cache/pkg"
+    SHARE_DB_DIR="${script_path}/cache/sync"
 fi
 # End define var
 
 # Start parse options
-DIST_DIR=${script_path}/out
+DIST_DIR="${script_path}/out"
 DOCKER_BUILD_OPTS=()
 BUILD_SCRIPT_OPTS=()
-while (( $# > 0 )); do
-    case ${1} in
+while (( ${#} > 0 )); do
+    case "${1}" in
         -o | --build-opiton)
             # -o: dists output dir option in build.sh
-            if [[ ${2} == *"-o"* ]]; then
+            if [[ "${2}" == *"-o"* ]]; then
                 echo "The -o option cannot be set with docker build. Please use -d option instead." 1>&2
                 exit 1
             fi
@@ -58,7 +58,7 @@ while (( $# > 0 )); do
             shift 2
             ;;
         -d | --dist-out-dir)
-            mkdir -p ${2} || {
+            mkdir -p "${2}" || {
                 echo "Error: failed creating output directory: ${2}" 1>&2
                 exit 1
             }
@@ -66,11 +66,11 @@ while (( $# > 0 )); do
             shift 2
             ;;
         -w | --work-dir)
-            mkdir -p ${2} || {
+            mkdir -p "${2}" || {
                 echo "Error: failed creating working directory: ${2}" 1>&2
                 exit 1
             }
-            EXTERNAL_WORK_DIR=$(cd -P ${2} && pwd)
+            EXTERNAL_WORK_DIR=$(cd -P "${2}" && pwd)
             shift 2
             ;;
         -n | --noninteractive)
@@ -87,12 +87,12 @@ while (( $# > 0 )); do
             shift 1
             ;;
         -p | --pkg-cache-dir)
-            if [[ -d ${2} ]] && \
-                mkdir -p ${2}/pkg && \
-                mkdir -p ${2}/sync
+            if [[ -d "${2}" ]] && \
+                mkdir -p "${2}/pkg" && \
+                mkdir -p "${2}/sync"
             then
-                SHARE_PKG_DIR=${2}/pkg
-                SHARE_DB_DIR=${2}/sync
+                SHARE_PKG_DIR="${2}/pkg"
+                SHARE_DB_DIR="${2}/sync"
             else
                 echo "Error: The directory is not found or cannot make directory." 1>&2
                 exit 1
@@ -114,10 +114,10 @@ while (( $# > 0 )); do
 done
 # End parse options
 
-if [[ -d /usr/lib/modules/$(uname -r) ]]; then
-    KMODS_DIR=/usr/lib/modules
+if [[ -d "/usr/lib/modules/$(uname -r)" ]]; then
+    KMODS_DIR="/usr/lib/modules"
 else
-    KMODS_DIR=/lib/modules
+    KMODS_DIR="/lib/modules"
 fi
 
 DOCKER_RUN_OPTS=()
@@ -132,5 +132,5 @@ DOCKER_RUN_OPTS+=(-v "${KMODS_DIR}:/usr/lib/modules:ro")
 
 tty >/dev/null 2>&1 && OPT_TTY="-it" || OPT_TTY=""
 
-docker build "${DOCKER_BUILD_OPTS[@]}" -t alterlinux-build:latest ${script_path}
+docker build "${DOCKER_BUILD_OPTS[@]}" -t alterlinux-build:latest "${script_path}"
 exec docker run --rm ${OPT_TTY} --privileged -e _DOCKER=true "${DOCKER_RUN_OPTS[@]}" alterlinux-build "${BUILD_SCRIPT_OPTS[@]}"
