@@ -39,4 +39,5 @@ zen-letsnote                 vmlinuz-linux-zen-letsnote      linux-zen-letsnote
 lts414                       vmlinuz-linux-lts414            linux-lts414
 lts419                       vmlinuz-linux-lts419            linux-lts419
 lts44                        vmlinuz-linux-lts44             linux-lts44
+wsl                          wsl                             wsl
 
