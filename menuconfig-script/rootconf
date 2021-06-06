@@ -113,17 +113,18 @@ menu "Live環境の設定"
 		config CUSTOM_PASSWD
 			string "パスワード"
 	endif
-	choice
-		prompt "チャンネル"
-		default CHANNEL_XFCE
-		help
-			"使用するチャンネルを選択します。"
-		config CHANNEL_XFCE
-			bool "Xfce"
-		config CHANNEL_PLASMA
-			bool "Kde Plasma"
-		config CHANNEL_LXDE
-			bool "lxde"
+	if X64_BUILD
+		choice
+			prompt "チャンネル"
+			source channels_menuconfig-x86_64
+		endchoice
+	endif
+	if I686_BUILD
+		choice
+			prompt "チャンネル"
+			source channels_menuconfig-i686
+		endchoice
+	endif
 	endchoice
 	config IMAGE_OWNER
 		string "イメージファイルの所有者名"

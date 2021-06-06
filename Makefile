@@ -24,11 +24,13 @@ menuconfig/build/mconf::
 	@mkdir -p menuconfig/build
 	(cd menuconfig/build ; cmake -GNinja .. ; ninja -j4 )
 
-menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice
+menuconfig:menuconfig/build/mconf menuconfig-script/kernel_choice menuconfig-script/channel_choice
 	@menuconfig/build/mconf menuconfig-script/rootconf
 
 menuconfig-script/kernel_choice:system/kernel-x86_64 system/kernel-i686
 	@${CURRENT_DIR}/tools/kernel-choice-conf-gen.sh
+menuconfig-script/channel_choice:system/channels_menuconfig-x86_64 system/channels_menuconfig-i686
+	@${CURRENT_DIR}/tools/channel-choice-conf-gen.sh
 
 build_option:
 	@if [ ! -f .config ]; then make menuconfig ; fi
