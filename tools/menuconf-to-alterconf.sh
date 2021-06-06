@@ -65,7 +65,7 @@ if [[ $USE_CUSTOM_LANG = "true" ]]; then
     eval "${buf}"
 fi
 eval "${buf,,}"
-if [[ $USE_CUSTOM_WORK = "true" ]]; then
+if [[ "${CONFIG_USE_CUSTOM_WORK}" = "true" ]]; then
     buf=`grep CONFIG_CUSTOM_WORKDIR .config | sed -e 's/CONFIG_CUSTOM_WORKDIR/workdir/g' `
     eval "${buf}"
 fi
