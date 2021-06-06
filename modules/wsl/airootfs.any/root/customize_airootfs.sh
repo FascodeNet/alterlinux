@@ -106,16 +106,8 @@ if [[ "${language}" = "ja" ]]; then
 fi
 
 
-# Remove configuration files for other kernels.
-remove "/usr/share/calamares/modules/initcpio/"
-remove "/usr/share/calamares/modules/unpackfs/"
-
 # Set os name
 sed -i "s/%OS_NAME%/${os_name}/g" "/usr/lib/os-release"
 
 # Un comment the mirror list.
 sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
-
-# Set the os name to grub
-grub_os_name="${os_name%' Linux'}"
-sed -i -r  "s/(GRUB_DISTRIBUTOR=).*/\1\"${grub_os_name}\"/g" "/etc/default/grub"
