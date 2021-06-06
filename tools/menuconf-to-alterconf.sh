@@ -60,7 +60,7 @@ if [[ "${CONFIG_USE_CUSTOM_PASSWD}" = "y" ]]; then
 fi
 buf=`grep CONFIG_USE_CUSTOM_WORK .config`
 eval "${buf}"
-if [[ "${CONFIG_USE_CUSTOM_WORK}" = "true" ]]; then
+if [[ "${CONFIG_USE_CUSTOM_WORK}" = "y" ]]; then
     buf=`grep CONFIG_CUSTOM_WORKDIR .config | sed -e 's/CONFIG_CUSTOM_WORKDIR/workdir/g' `
     eval "${buf}"
 fi
