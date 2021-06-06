@@ -112,6 +112,7 @@ _usage () {
     echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
     echo "                                  Default: ${work_dir}"
+    echo "    --wsl                        WSL mode"
     echo
 
     local blank="33" _arch _dirname _type
@@ -434,11 +435,11 @@ prepare_build() {
 
     # Set kernel
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
+    [[ "${wsl}" = true ]] && kernel="wsl"
 
     # Parse files
     eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
     eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
-
     # Set username and password
     [[ "${customized_username}" = false ]] && username="${defaultusername}"
     [[ "${customized_password}" = false ]] && password="${defaultpassword}"
@@ -1135,6 +1136,10 @@ while true; do
         -w | --work)
             work_dir="${2}"
             shift 2
+            ;;
+        --wsl)
+            wsl=true
+            shift 1
             ;;
         -x | --bash-debug)
             debug=true
