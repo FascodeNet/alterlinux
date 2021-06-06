@@ -128,3 +128,11 @@ menu "Live環境の設定"
 	config IMAGE_OWNER
 		string "イメージファイルの所有者名"
 endmenu
+menu "その他ビルド設定"
+	config USE_CUSTOM_WORK
+		bool "カスタムワークディレクトリを使用する"
+	if USE_CUSTOM_WORK
+		config CUSTOM_WORKDIR
+			string "ワークディレクトリ"
+	endif
+endmenu
