@@ -27,4 +27,4 @@ menuconfig-script/kernel_choice_*
 out
 /pacman-*.conf
 .config
-system/channels_menuconfig-*
+menuconfig-script/channels_menuconfig-*

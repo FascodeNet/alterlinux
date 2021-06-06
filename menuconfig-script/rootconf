@@ -125,7 +125,6 @@ menu "Live環境の設定"
 			source channels_menuconfig-i686
 		endchoice
 	endif
-	endchoice
 	config IMAGE_OWNER
 		string "イメージファイルの所有者名"
 endmenu
