@@ -58,15 +58,16 @@ if [[ "${CONFIG_USE_CUSTOM_PASSWD}" = "y" ]]; then
     buf=`grep CONFIG_CUSTOM_PASSWD .config | sed -e 's/CONFIG_CUSTOM_PASSWD/password/g' `
     eval "${buf}"
 fi
+buf=`grep CONFIG_USE_CUSTOM_WORK .config`
+eval "${buf}"
+if [[ "${CONFIG_USE_CUSTOM_WORK}" = "true" ]]; then
+    buf=`grep CONFIG_CUSTOM_WORKDIR .config | sed -e 's/CONFIG_CUSTOM_WORKDIR/workdir/g' `
+    eval "${buf}"
+fi
 buf=`grep CONFIG_CHANNEL_N_A_M_E_ .config | sed -e 's/=y//g' | sed -e 's/CONFIG_CHANNEL_N_A_M_E_/channel=/g'`
 eval "${buf,,}"
 if [[ $USE_CUSTOM_LANG = "true" ]]; then
     buf=`grep CONFIG_CUSTOM_LANGUAGE .config | sed -e 's/CONFIG_CUSTOM_LANGUAGE/language/g' `
-    eval "${buf}"
-fi
-eval "${buf,,}"
-if [[ "${CONFIG_USE_CUSTOM_WORK}" = "true" ]]; then
-    buf=`grep CONFIG_CUSTOM_WORKDIR .config | sed -e 's/CONFIG_CUSTOM_WORKDIR/workdir/g' `
     eval "${buf}"
 fi
 
