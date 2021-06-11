@@ -28,4 +28,5 @@ modules=(
     "zsh-powerline"
     "gdm"
     "qtongtk"
+    "calamares"
 )

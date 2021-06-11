@@ -26,4 +26,5 @@ modules=(
     "lightdm"
     "alter-lightdm"
     "qtongtk"
+    "calamares"
 )
