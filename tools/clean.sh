@@ -99,7 +99,7 @@ while true; do
             shift 1
             ;;
         -w | --work)
-            work_dir="${OPTARG}"
+            work_dir="${2}"
             shift 2
             ;;
         -n | --noconfirm)
