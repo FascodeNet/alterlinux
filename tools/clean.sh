@@ -58,7 +58,7 @@ remove() {
 _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Unmount chroot dir
-umount_chroot () { "${tools_dir}/umount.sh" -d "${work_dir}" -m 3; }
+umount_chroot () { "${tools_dir}/umount.sh" -d "${work_dir}" -m 3 "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"; }
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。

@@ -168,6 +168,7 @@ _mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount
 umount_work () {
     local _args=("${build_dir}")
     [[ "${debug}" = true ]] && _args=("-d" "${_args[@]}")
+    [[ "${nocolor}" = true ]] && _args+=("--nocolor")
     "${tools_dir}/umount.sh" "${_args[@]}"
 }
 
@@ -313,7 +314,7 @@ check_bool() {
 }
 
 _run_cleansh(){
-    bash $([[ "${bash_debug}" = true ]] && echo -n "-x" ) "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && printf "%s" "-d")" "$([[ "${noconfirm}" = true ]] && printf "%s" "-n")"
+    bash $([[ "${bash_debug}" = true ]] && echo -n "-x" ) "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && printf "%s" "-d")" "$([[ "${noconfirm}" = true ]] && printf "%s" "-n")" "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"
 }
 
 
@@ -478,6 +479,7 @@ prepare_build() {
     [[ "${boot_splash}"              = true ]] && pkglist_args+=("-b")
     [[ "${debug}"                    = true ]] && pkglist_args+=("-d")
     [[ "${memtest86}"                = true ]] && pkglist_args+=("-m")
+    [[ "${nocolor}"                  = true ]] && pkglist_args+=("--nocolor")
     (( "${#additional_exclude_pkg[@]}" >= 1 )) && pkglist_args+=("-e" "${additional_exclude_pkg[*]}")
     pkglist_args+=("${modules[@]}")
 
