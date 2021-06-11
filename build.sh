@@ -1129,7 +1129,7 @@ while true; do
             ;;
         -u | --user)
             customized_username=true
-            username="$(echo -n "${2}" | sed 's/ //g' |tr '[A-Z]' '[a-z]')"
+            username="$(echo -n "${2}" | sed 's/ //g' | tr '[:upper:]' '[:lower:]')"
             shift 2
             ;;
         -w | --work)
