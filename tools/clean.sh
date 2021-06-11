@@ -73,14 +73,15 @@ _help() {
     echo "    -d | --debug             Show debug message"
     echo "    -o | --only-work         Remove only work dir"
     echo "    -w | --work [dir]        Specify the work dir"
-    echo "    -h | --noconfirm         This help message"
+    echo "    -h | --help              This help message"
     echo "         --nocolor           No output color message"
+    echo "         --noconfirm         Clean up without confirmation"
 }
 
 # Parse options
 # Parse options
 ARGUMENT=("${@}")
-OPTS=("d" "o" "w:" "h")
+OPTS=("d" "o" "w:" "h" "n")
 OPTL=("help" "nocolor" "noconfirm" "work:" "only-work")
 if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
     exit 1
