@@ -19,6 +19,7 @@ failed=()
 abort=false
 
 work_dir="${script_path}/work"
+out_dir="${script_path}/out"
 simulation=false
 retry=1
 
@@ -52,6 +53,7 @@ msg_warn() { msg_common warn "${@}"; }
 msg_error() {
     msg_common error "${1}"
     [[ -n "${2:-}" ]] && exit "${2}"
+    return 0
 }
 
 
@@ -66,7 +68,7 @@ trap_exit() {
 build() {
     local _exit_code=0 _options=("${share_options[@]}")
 
-    _options+=("--arch" "${arch}" "--lang" "${lang}" "${cha}")
+    _options+=("--arch" "${arch}" "--lang" "${lang}" "--out" "${out_dir}/${cha}/${arch}" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         msg_info "Removing package cache for ${arch}"
@@ -110,6 +112,7 @@ _help() {
     echo "    -h | --help        This help message"
     echo "    -l <locale>        Set the locale to build"
     echo "    -m <architecture>  Set the architecture to build"
+    echo "    -o <dir>           Set the out dir"
     echo "    -r <interer>       Set the number of retries"
     echo "                       Defalut: ${retry}"
     echo "    -s                 Enable simulation mode"
@@ -133,9 +136,9 @@ share_options+=("--noconfirm")
 
 # Parse options
 ARGUMENT=("${@}")
-OPTS="a:deghr:sctm:l:w:"
-OPTL="help,remove-cache,noconfirm"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
+OPTS=("a:" "d" "e" "g" "h" "r:" "s" "c" "t" "m:" "l:" "w:" "o:")
+OPTL=("help" "remove-cache" "noconfirm")
+if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
     exit 1
 fi
 eval set -- "${OPT}"
@@ -161,6 +164,10 @@ while true; do
             ;;
         -m)
             architectures=(${2})
+            shift 2
+            ;;
+        -o)
+            out_dir="${2}"
             shift 2
             ;;
         -g)
