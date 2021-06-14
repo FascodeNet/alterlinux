@@ -3,12 +3,18 @@
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 channels=(
+##  Current official channel
     "xfce"
-#   "xfce-pro"
-    "lxde"
-    "cinnamon"
     "i3"
+
+## Scheduled to discontinue distribution
+#   "lxde"
+#   "cinnamon"
+
+## They are unstable channel
+#   "xfce-pro"
 #   "gnome"
+#   "serene"
 )
 
 architectures=("x86_64" "i686")
