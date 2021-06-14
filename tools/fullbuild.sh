@@ -258,8 +258,17 @@ fi
 fullbuild_dir="${work_dir}/fullbuild"
 mkdir -p "${fullbuild_dir}"
 
-share_options+=("--work" "${work_dir}")
+if [[ "$(find "${fullbuild_dir}" -maxdepth 1 -mindepth 1 -name "fullbuild.*" 2> /dev/null)" ]]; then
+    msg_info "Do you want to reset lock files ? (y/N)"
+    read -n 1 _yes_or_no
+    echo
+    if [[ "${_yes_or_no}" = "y" ]] || [[ "${_yes_or_no}" = "Y" ]]; then
+        find "${fullbuild_dir}" -maxdepth 1 -mindepth 1 -name "fullbuild.*" -delete 2> /dev/null
+    fi
+fi
 
+
+share_options+=("--work" "${work_dir}")
 msg_info "Options: ${share_options[*]}"
 if [[ "${noconfirm}" = false ]]; then
     msg_info "Press Enter to continue or Ctrl + C to cancel."
