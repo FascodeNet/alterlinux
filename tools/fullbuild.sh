@@ -97,6 +97,8 @@ build() {
             fi
             
         fi
+    else
+        msg_info "Found: ${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}"
     fi
 }
 
