@@ -2,7 +2,7 @@
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
-channnels=(
+channels=(
     "xfce"
 #   "xfce-pro"
     "lxde"
@@ -231,10 +231,10 @@ if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
         msg_error "Do not specify the channel." "1"
     else
-        channnels=($("${script_path}/tools/channel.sh" -b show))
+        channels=($("${script_path}/tools/channel.sh" -b show))
     fi
 elif [[ -n "${*}" ]]; then
-    channnels=("${@}")
+    channels=("${@}")
 fi
 
 if [[ "${simulation}" = true ]]; then
@@ -279,7 +279,7 @@ fi
 trap 'trap_exit' 1 2 3 15
 
 for arch in "${architectures[@]}"; do
-    for cha in "${channnels[@]}"; do
+    for cha in "${channels[@]}"; do
         for lang in "${locale_list[@]}"; do
             for retry_count in $(seq 1 "${retry}"); do
                 if [[ -n "$(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}")" ]]; then
