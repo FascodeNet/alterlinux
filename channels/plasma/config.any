@@ -22,5 +22,6 @@ modules=(
     "base"
     "share"
     "share-extra"
+    "zsh-powerline/"
     "calamares"
 )
