@@ -1,0 +1,18 @@
+## Disk management
+
+gnome-disk-utility
+gparted
+nvme-cli
+
+## Other
+xarchiver
+smbclient
+gvfs
+gvfs-smb
+
+## Intermet
+thunderbird
+network-manager-applet
+
+## media
+viewnior

@@ -9,19 +9,5 @@
 #
 # Media
 
-
-#-- bluetooth --#
-bluedevil
-bluez
-bluez-utils
-pulseaudio-bluetooth
-
-
-#-- audio --#
-pulseaudio
-plasma-pa
-
-
 #-- media player --#
 gwenview
-vlc
