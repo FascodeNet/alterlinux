@@ -1,8 +1,23 @@
 ## Disk management
-
+baobab
 gnome-disk-utility
 gparted
 nvme-cli
+
+## MTP
+gvfs-mtp
+
+## Security
+gufw
+
+## SystemMonitor
+gnome-system-monitor
+
+## Printer
+system-config-printer
+
+## Audio
+pavucontrol
 
 ## Other
 xarchiver
