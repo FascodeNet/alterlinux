@@ -16,5 +16,8 @@
 #-- connection Tools--#
 plasma-nm
 
+#-- firewall --#
+plasma-firewall
+
 #-- other tools --#
 kdenetwork-filesharing
