@@ -10,6 +10,8 @@
 # Delete icon cache
 remove "/home/${username}/.cache/icon-cache.kcache"
 
+# Delete config file to disable free space notification only for live
+remove "/etc/skel/.config/plasmanotifyrc"
 
 if [[ "${arch}" = "x86_64" ]]; then
     # Snap
