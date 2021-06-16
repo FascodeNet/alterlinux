@@ -20,3 +20,6 @@ kate
 #-- other --#
 htop
 packagekit-qt5
+
+#-- printer --#
+print-manager
