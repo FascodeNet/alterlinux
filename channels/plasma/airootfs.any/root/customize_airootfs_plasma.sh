@@ -10,6 +10,11 @@
 # Delete icon cache
 remove "/home/${username}/.cache/icon-cache.kcache"
 
+# Add Calamares to favorite menu only for live
+sqlite3 "/home/${username}/.local/share/kactivitymanagerd/resources" \
+"INSERT INTO 'ResourceLink' VALUES \
+(':global', 'org.kde.plasma.favorites.applications', 'applications:calamares.desktop');"
+
 # Delete config file to disable free space notification only for live
 remove "/etc/skel/.config/plasmanotifyrc"
 
