@@ -19,6 +19,9 @@ system-config-printer
 ## Audio
 pavucontrol
 
+## Bluetooth
+blueman
+
 ## Other
 xarchiver
 smbclient
