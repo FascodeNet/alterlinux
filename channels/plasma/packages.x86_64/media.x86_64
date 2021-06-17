@@ -12,5 +12,8 @@
 #-- audio --#
 plasma-pa
 
+#-- bluetooth --#
+bluedevil
+
 #-- media player --#
 gwenview
