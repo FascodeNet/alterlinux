@@ -814,25 +814,19 @@ make_isolinux() {
 
 # Prepare /EFI
 make_efi() {
+    local _bootfile _use_config_name="nosplash" _efi_config_list=() _efi_config
+    [[ "${boot_splash}" = true ]] && _use_config_name="splash"
+    _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+
     install -d -m 0755 -- "${isofs_dir}/EFI/boot"
-
-    local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
-
-    local _use_config_name="nosplash"
-    if [[ "${boot_splash}" = true ]]; then
-        _use_config_name="splash"
-    fi
 
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
 
-    local _efi_config_list=() _efi_config
-    _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
+    readarray -t _efi_config_list < <(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue")
 
-    if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
-    fi
+    [[ "${norescue_entry}" = false ]] && readarray -t -O "${#_efi_config_list}" _efi_config_list < <(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue")
 
     for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
