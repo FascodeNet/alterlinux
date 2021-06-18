@@ -927,13 +927,13 @@ make_tarball() {
 
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
-    local tar_path="$(realpath ${out_dir})/${iso_filename%.iso}.tar.xz"
+    local tar_path="$(realpath "${out_dir}")/${iso_filename%.iso}.tar.xz"
     cd -- "${airootfs_dir}"
     tar -v -J -p -c -f "${tar_path}" ./*
     cd -- "${OLDPWD}"
 
     _mkchecksum "${tar_path}"
-    msg_info "Done! | $(ls -sh ${tar_path})"
+    msg_info "Done! | $(ls -sh "${tar_path}")"
 
     remove "${airootfs_dir}.img"
     mv "${airootfs_dir}.img.org" "${airootfs_dir}.img"
@@ -1032,7 +1032,7 @@ make_iso() {
         -eltorito-boot syslinux/isolinux.bin \
         -eltorito-catalog syslinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr ${build_dir}/iso/syslinux/isohdpfx.bin \
+        -isohybrid-mbr "${build_dir}/iso/syslinux/isohdpfx.bin" \
         "${_iso_efi_boot_args[@]}" \
         -output "${out_dir}/${iso_filename}" \
         "${build_dir}/iso/"
