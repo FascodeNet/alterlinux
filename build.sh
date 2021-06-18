@@ -779,7 +779,7 @@ make_syslinux() {
     local _remove_config
     function _remove_config() {
         remove "${isofs_dir}/syslinux/${1}"
-        sed -i "s|$(cat "${isofs_dir}/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
+        sed -i "s|$(grep "${1}" "${isofs_dir}/syslinux/archiso_sys_load.cfg")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
     }
 
     [[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
