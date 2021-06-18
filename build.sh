@@ -427,7 +427,7 @@ prepare_build() {
         msg_debug "Checking ${1} module ..."
         bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1";
     }
-    modules=($(printf "%s\n" "${modules[@]}" | awk '!a[$0]++'))
+    readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "module_check {}"
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
