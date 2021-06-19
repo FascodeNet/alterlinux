@@ -382,7 +382,7 @@ show_settings() {
     msg_info "Build with architecture ${arch}."
     if [[ "${noconfirm}" = false ]]; then
         echo -e "\nPress Enter to continue or Ctrl + C to cancel."
-        read
+        read -r
     fi
     trap 1 2 3 15
     trap 'umount_trap' 1 2 3 15
