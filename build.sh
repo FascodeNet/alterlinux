@@ -227,7 +227,7 @@ show_channel_list() {
 # for_module <command>
 for_module(){
     local module
-    for module in "${modules[@]}"; do eval "$(echo "${@}" | sed "s|{}|${module}|g")"; done
+    for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done
 }
 
 # pacstrapを実行
