@@ -450,6 +450,7 @@ prepare_build() {
     # Generate iso file name.
     local _channel_name="${channel_name%.add}-${locale_version}" 
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    tar_filename="${iso_filename%.iso}.tar.xz"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     msg_debug "Iso filename is ${iso_filename}"
 
@@ -910,9 +911,7 @@ make_tarball() {
 
     # Run script
     mount_airootfs
-    if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
-        _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
-    fi
+    [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]] && _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
 
     _cleanup_common
     _chroot_run "mkinitcpio -P"
@@ -921,20 +920,17 @@ make_tarball() {
 
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
-    local tar_path="$(realpath "${out_dir}")/${iso_filename%.iso}.tar.xz"
     cd -- "${airootfs_dir}"
-    tar -v -J -p -c -f "${tar_path}" ./*
+    tar -v -J -p -c -f "${out_dir}/${tar_filename}" ./*
     cd -- "${OLDPWD}"
 
-    _mkchecksum "${tar_path}"
-    msg_info "Done! | $(ls -sh "${tar_path}")"
+    _mkchecksum "${out_dir}/${tar_filename}"
+    msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
 
     remove "${airootfs_dir}.img"
     mv "${airootfs_dir}.img.org" "${airootfs_dir}.img"
 
-    if [[ "${noiso}" = true ]]; then
-        msg_info "The password for the live user and root is ${password}."
-    fi
+    [[ "${noiso}" = true ]] && msg_info "The password for the live user and root is ${password}."
     
     return 0
 }
