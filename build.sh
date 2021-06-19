@@ -324,9 +324,7 @@ prepare_env() {
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
-        if ! pacman -Qq pyalpm > /dev/null 2>&1; then
-            msg_error "pyalpm is not installed." 1
-        fi   
+        ! pacman -Qq pyalpm > /dev/null 2>&1 && msg_error "pyalpm is not installed." 1
         for _pkg in "${dependence[@]}"; do
             eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             if (( _result == 3 )) || (( _result == 4 )); then
@@ -340,7 +338,7 @@ prepare_env() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]] && modprobe loop
+        lsmod | getclm 1 | grep -x "loop" || modprobe loop
     fi
 
     # Check work dir
