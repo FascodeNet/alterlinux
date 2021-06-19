@@ -301,8 +301,8 @@ check_bool() {
     local _value _variable
     for _variable in "${@}"; do
         msg_debug -n "Checking ${_variable}..."
-        eval ': ${'${_variable}':=""}'
-        _value="$(eval echo '$'${_variable})"
+        eval ": \${${_variable}:=''}"
+        _value="$(eval echo "\$${_variable}")"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
             [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is empty." "1"
         elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
