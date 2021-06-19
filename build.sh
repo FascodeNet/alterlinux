@@ -886,11 +886,8 @@ make_efiboot() {
 
     find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
 
-    local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
-
-    if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list=($(printf "%s\n" "${_efi_config_list[@]}" | grep -v "rescue"))
-    fi
+    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-cd*.conf" -printf "%f" | grep -v "rescue")
+    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-cd*rescue*.conf" -printf "%f")
 
     for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
