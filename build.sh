@@ -1245,7 +1245,7 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
-    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "${?}")" in
+    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "%d" "${?}")" in
         "2")
             msg_error "Invalid channel ${1}" "1"
             ;;
