@@ -1263,7 +1263,6 @@ else
 fi
 
 # Set vars
-work_dir="$(realpath "${work_dir}")"
 build_dir="${work_dir}/build/${arch}"
 cache_dir="${work_dir}/cache/${arch}"
 airootfs_dir="${build_dir}/airootfs"
@@ -1275,6 +1274,7 @@ gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
     mkdir -p "${_dir}"
 done
+ork_dir="$(realpath "${work_dir}")"
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
