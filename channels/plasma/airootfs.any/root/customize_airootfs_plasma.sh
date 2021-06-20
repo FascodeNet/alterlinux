@@ -15,8 +15,13 @@ sqlite3 "/home/${username}/.local/share/kactivitymanagerd/resources/database" \
 "INSERT INTO 'ResourceLink' VALUES \
 (':global', 'org.kde.plasma.favorites.applications', 'applications:calamares.desktop');"
 
-# Delete config file to disable free space notification only for live
+# remove config file about live only
+
+# disable free space notification 
 remove "/etc/skel/.config/plasmanotifyrc"
+# disable auto lock screen
+remove "/etc/skel/.config/kscreenlockerrc"
+
 
 if [[ "${arch}" = "x86_64" ]]; then
     # Snap
