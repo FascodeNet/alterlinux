@@ -474,7 +474,7 @@ prepare_build() {
     fi
 
     # Set argument of pkglist.sh
-    pkglist_args=("-a" "${arch}" "-k" "${kernel}" "-c" "${channel_dir}" "-l" "${locale_name}")
+    pkglist_args=("-a" "${arch}" "-k" "${kernel}" "-c" "${channel_dir}" "-l" "${locale_name}" --line)
     [[ "${boot_splash}"              = true ]] && pkglist_args+=("-b")
     [[ "${debug}"                    = true ]] && pkglist_args+=("-d")
     [[ "${memtest86}"                = true ]] && pkglist_args+=("-m")
