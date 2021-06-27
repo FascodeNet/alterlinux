@@ -126,9 +126,9 @@ _usage () {
     done
 
     echo " Channel:"
-    for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n show); do
-        echo -ne "    ${_dirname%.add}$(echo_blank "$(( "${blank}" - 3 - "$(echo "${_dirname%.add}" | wc -m)" ))")"
-        "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname%.add}"
+    for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n --line show | sed "s|.add$||g"); do
+        echo -ne "    ${_dirname}$(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")"
+        "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}"
     done
 
     echo
@@ -324,9 +324,7 @@ prepare_env() {
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
         msg_info "Checking dependencies ..."
-        if ! pacman -Qq pyalpm > /dev/null 2>&1; then
-            msg_error "pyalpm is not installed." 1
-        fi   
+        ! pacman -Qq pyalpm > /dev/null 2>&1 && msg_error "pyalpm is not installed." 1
         for _pkg in "${dependence[@]}"; do
             eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             if (( _result == 3 )) || (( _result == 4 )); then
@@ -340,7 +338,7 @@ prepare_env() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        [[ -z "$(lsmod | getclm 1 | grep -x "loop")" ]] && modprobe loop
+        lsmod | getclm 1 | grep -x "loop" || modprobe loop
     fi
 
     # Check work dir
@@ -384,7 +382,7 @@ show_settings() {
     msg_info "Build with architecture ${arch}."
     if [[ "${noconfirm}" = false ]]; then
         echo -e "\nPress Enter to continue or Ctrl + C to cancel."
-        read
+        read -r
     fi
     trap 1 2 3 15
     trap 'umount_trap' 1 2 3 15
@@ -413,7 +411,7 @@ prepare_build() {
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        if [[ ! -z "${include_extra+SET}" ]]; then
+        if [[ -n "${include_extra+SET}" ]]; then
             if [[ "${include_extra}" = true ]]; then
                 modules=("base" "share" "share-extra" "calamares" "zsh-powerline")
             else
@@ -427,7 +425,7 @@ prepare_build() {
         msg_debug "Checking ${1} module ..."
         bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1";
     }
-    modules=($(printf "%s\n" "${modules[@]}" | awk '!a[$0]++'))
+    readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "module_check {}"
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
@@ -450,6 +448,7 @@ prepare_build() {
     # Generate iso file name.
     local _channel_name="${channel_name%.add}-${locale_version}" 
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
+    tar_filename="${iso_filename%.iso}.tar.xz"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     msg_debug "Iso filename is ${iso_filename}"
 
@@ -458,7 +457,7 @@ prepare_build() {
 
     # Check architecture for each channel
     local _exit=0
-    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a ${arch} -n -b check "${channel_name}" || _exit="${?}"
+    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
     if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
         msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
     fi
@@ -537,7 +536,7 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages_repo() {
     msg_debug "pkglist.sh ${pkglist_args[*]}"
-    local _pkglist=($("${tools_dir}/pkglist.sh" "${pkglist_args[@]}"))
+    readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
@@ -550,7 +549,7 @@ make_packages_repo() {
 }
 
 make_packages_aur() {
-    local _pkglist_aur=($("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}"))
+    readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
@@ -779,7 +778,7 @@ make_syslinux() {
     local _remove_config
     function _remove_config() {
         remove "${isofs_dir}/syslinux/${1}"
-        sed -i "s|$(cat "${isofs_dir}/syslinux/archiso_sys_load.cfg" | grep "${1}")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
+        sed -i "s|$(grep "${1}" "${isofs_dir}/syslinux/archiso_sys_load.cfg")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
     }
 
     [[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
@@ -814,25 +813,18 @@ make_isolinux() {
 
 # Prepare /EFI
 make_efi() {
+    local _bootfile _use_config_name="nosplash" _efi_config_list=() _efi_config
+    [[ "${boot_splash}" = true ]] && _use_config_name="splash"
+    _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+
     install -d -m 0755 -- "${isofs_dir}/EFI/boot"
-
-    local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
-
-    local _use_config_name="nosplash"
-    if [[ "${boot_splash}" = true ]]; then
-        _use_config_name="splash"
-    fi
 
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
 
-    local _efi_config_list=() _efi_config
-    _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
-
-    if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list+=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-usb"*".conf" | grep -v "rescue"))
-    fi
+    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-usb*.conf" -printf "%f" | grep -v "rescue")
+    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-usb*rescue*.conf" -printf "%f")
 
     for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -869,35 +861,27 @@ make_efiboot() {
     mkdir -p "${build_dir}/efiboot"
     mount "${build_dir}/efiboot.img" "${build_dir}/efiboot"
 
-    mkdir -p "${build_dir}/efiboot/EFI/alteriso/${arch}"
+    mkdir -p "${build_dir}/efiboot/EFI/alteriso/${arch}" "${build_dir}/efiboot/EFI/boot" "${build_dir}/efiboot/loader/entries"
     cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${build_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
     cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${build_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
 
-    local _ucode_image
+    local _ucode_image _efi_config _use_config_name="nosplash" _bootfile
     for _ucode_image in "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
         [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${build_dir}/efiboot/EFI/alteriso/"
     done
 
-    mkdir -p "${build_dir}/efiboot/EFI/boot"
-
     cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
 
-    local _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+    _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
     cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
 
-    local _use_config_name="nosplash"
     [[ "${boot_splash}" = true ]] && _use_config_name="splash"
-
-    mkdir -p "${build_dir}/efiboot/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
 
     find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
 
-    local _efi_config _efi_config_list=($(ls "${script_path}/efiboot/${_use_config_name}/archiso-cd"*".conf"))
-
-    if [[ "${norescue_entry}" = false ]]; then
-        _efi_config_list=($(printf "%s\n" "${_efi_config_list[@]}" | grep -v "rescue"))
-    fi
+    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-cd*.conf" -printf "%f" | grep -v "rescue")
+    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-cd*rescue*.conf" -printf "%f")
 
     for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -922,9 +906,7 @@ make_tarball() {
 
     # Run script
     mount_airootfs
-    if [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]]; then
-        _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
-    fi
+    [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]] && _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
 
     _cleanup_common
     _chroot_run "mkinitcpio -P"
@@ -933,20 +915,17 @@ make_tarball() {
 
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
-    local tar_path="$(realpath ${out_dir})/${iso_filename%.iso}.tar.xz"
     cd -- "${airootfs_dir}"
-    tar -v -J -p -c -f "${tar_path}" ./*
+    tar -v -J -p -c -f "${out_dir}/${tar_filename}" ./*
     cd -- "${OLDPWD}"
 
-    _mkchecksum "${tar_path}"
-    msg_info "Done! | $(ls -sh ${tar_path})"
+    _mkchecksum "${out_dir}/${tar_filename}"
+    msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
 
     remove "${airootfs_dir}.img"
     mv "${airootfs_dir}.img.org" "${airootfs_dir}.img"
 
-    if [[ "${noiso}" = true ]]; then
-        msg_info "The password for the live user and root is ${password}."
-    fi
+    [[ "${noiso}" = true ]] && msg_info "The password for the live user and root is ${password}."
     
     return 0
 }
@@ -1038,7 +1017,7 @@ make_iso() {
         -eltorito-boot syslinux/isolinux.bin \
         -eltorito-catalog syslinux/boot.cat \
         -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr ${build_dir}/iso/syslinux/isohdpfx.bin \
+        -isohybrid-mbr "${build_dir}/iso/syslinux/isohdpfx.bin" \
         "${_iso_efi_boot_args[@]}" \
         -output "${out_dir}/${iso_filename}" \
         "${build_dir}/iso/"
@@ -1052,10 +1031,9 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${@}" ${DEFAULT_ARGUMENT})
 OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
 OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm")
-if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
+if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${@}" "${DEFAULT_ARGUMENT[@]}"); then
     exit 1
 fi
 
@@ -1262,7 +1240,7 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 
 # Check for a valid channel name
 if [[ -n "${1+SET}" ]]; then
-    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "${?}")" in
+    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "%d" "${?}")" in
         "2")
             msg_error "Invalid channel ${1}" "1"
             ;;
@@ -1280,7 +1258,6 @@ else
 fi
 
 # Set vars
-work_dir="$(realpath "${work_dir}")"
 build_dir="${work_dir}/build/${arch}"
 cache_dir="${work_dir}/cache/${arch}"
 airootfs_dir="${build_dir}/airootfs"
@@ -1292,6 +1269,7 @@ gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
     mkdir -p "${_dir}"
 done
+ork_dir="$(realpath "${work_dir}")"
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
