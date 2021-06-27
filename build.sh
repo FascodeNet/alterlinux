@@ -832,7 +832,7 @@ make_efi() {
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-        "${_efi_config}" > "${isofs_dir}/loader/entries/$(basename "${_efi_config}" | sed "s|usb|${arch}|g")"
+        "${script_path}/efiboot/${_use_config_name}/${_efi_config}" > "${isofs_dir}/loader/entries/$(basename "${_efi_config}" | sed "s|usb|${arch}|g")"
     done
 
     # edk2-shell based UEFI shell
@@ -889,7 +889,7 @@ make_efiboot() {
             s|%KERNEL_FILENAME%|${kernel_filename}|g;
             s|%ARCH%|${arch}|g;
             s|%INSTALL_DIR%|${install_dir}|g" \
-        "${_efi_config}" > "${build_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
+        "${script_path}/efiboot/${_use_config_name}/${_efi_config}" > "${build_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
     done
 
     find "${isofs_dir}/EFI" -maxdepth 1 -mindepth 1 -name "shell*.efi" -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/EFI/"
