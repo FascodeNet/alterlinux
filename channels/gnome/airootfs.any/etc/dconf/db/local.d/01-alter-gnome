@@ -19,9 +19,6 @@ show-battery-percentage=true
 [org/gnome/desktop/notifications/application/org-gnome-tweaks]
 application-id='org.gnome.tweaks.desktop'
 
-[org/gnome/desktop/peripherals/keyboard]
-numlock-state=false
-
 [org/gnome/desktop/peripherals/touchpad]
 two-finger-scrolling-enabled=true
 
