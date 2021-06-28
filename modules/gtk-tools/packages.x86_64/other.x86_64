@@ -7,13 +7,6 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Internet
 
-#-- connection --#
-network-manager-applet
-
-#-- mail client --#
-thunderbird
-
-#-- web browser --#
-chromium
+#-- system monitor --#
+gnome-system-monitor

@@ -1,17 +1,8 @@
 ## Disk management
-baobab
-gnome-disk-utility
-gparted
 nvme-cli
 
 ## MTP
 gvfs-mtp
-
-## Security
-gufw
-
-## SystemMonitor
-gnome-system-monitor
 
 ## Printer
 system-config-printer
@@ -31,6 +22,3 @@ gvfs-smb
 ## Intermet
 thunderbird
 network-manager-applet
-
-## media
-viewnior

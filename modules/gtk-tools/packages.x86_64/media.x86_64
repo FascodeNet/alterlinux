@@ -7,13 +7,7 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Internet
+# Media
 
-#-- connection --#
-network-manager-applet
-
-#-- mail client --#
-thunderbird
-
-#-- web browser --#
-chromium
+#-- media player --#
+viewnior

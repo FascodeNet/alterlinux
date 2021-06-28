@@ -21,7 +21,3 @@ thunderbird
 
 #-- web browser --#
 firefox
-
-
-#-- security --#
-gufw

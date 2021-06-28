@@ -7,13 +7,8 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Internet
+# Disk management
 
-#-- connection --#
-network-manager-applet
-
-#-- mail client --#
-thunderbird
-
-#-- web browser --#
-chromium
+baobab
+gnome-disk-utility
+gparted
