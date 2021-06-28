@@ -25,6 +25,7 @@ modules=(
     "base"
     "share"
     "share-extra"
+    "gtk-tools"
     "zsh-powerline"
     "gdm"
     "qtongtk"

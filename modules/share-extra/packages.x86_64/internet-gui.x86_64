@@ -9,19 +9,11 @@
 #
 # Internet
 
-
 #-- connection --#
 network-manager-applet
 
-
 #-- mail client --#
 thunderbird
-# mailspring
-
 
 #-- web browser --#
 chromium
-
-
-#-- security --#
-gufw

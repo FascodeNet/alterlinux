@@ -1,18 +1,13 @@
 #
 # Alter Linux package list
 #
-# lap1sid
-# Twitter: @Pixel_3a
-# Email  : lap1sid@fascode.net
-#
 # Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Disk management
+# Internet
 
-partitionmanager
-filelight
-kbackup
+#-- security --#
+gufw

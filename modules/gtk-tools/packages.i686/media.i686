@@ -7,10 +7,7 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Fonts
+# Media
 
-
-# font
-noto-fonts
-noto-fonts-cjk
-noto-fonts-emoji
+#-- media player --#
+viewnior

@@ -27,5 +27,6 @@ modules=(
     "share"
     "zsh-powerline"
     "share-extra"
+    "gtk-tools"
     #"lightdm"
 )

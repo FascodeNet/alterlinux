@@ -78,7 +78,7 @@ ln -sf "/usr/share/zoneinfo/${timezone}" /etc/localtime
 
 usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
-if [[ -f "$(type -p "xdg-user-dirs-update" 2> /dev/null)" ]]; then LC_ALL=C LANG=Cxdg-user-dirs-update; fi
+run_additional_command "xdg-user-dirs-update" "LC_ALL=C LANG=C xdg-user-dirs-update"
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo
