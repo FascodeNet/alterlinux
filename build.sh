@@ -151,6 +151,7 @@ _usage () {
     echo "         --pacman-debug          Enable pacman debug mode"
     echo "         --normwork              No remove working dir"
     echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
+    echo "         --tar-opts <option>     Set tar command argument (Use with --tarball)"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
