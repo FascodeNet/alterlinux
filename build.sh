@@ -151,6 +151,7 @@ _usage () {
     echo "         --pacman-debug          Enable pacman debug mode"
     echo "         --normwork              No remove working dir"
     echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
+    echo "         --tar-type <comp_type>  Set compression type (gzip, lzma, lzo, xz, zstd)"
     echo "         --tar-opts <option>     Set tar command argument (Use with --tarball)"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
@@ -445,10 +446,18 @@ prepare_build() {
     # gitversion
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
-    # Generate iso file name.
+    # Generate tar file name
+    tar_ext=""
+    case "${tar_comp}" in
+        "gzip" ) tar_ext="gz"                        ;;
+        "zstd" ) tar_ext="zst"                       ;;
+        "xz" | "lzo" | "lzma") tar_ext="${tar_comp}" ;;
+    esac
+
+    # Generate iso file name
     local _channel_name="${channel_name%.add}-${locale_version}" 
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    tar_filename="${iso_filename%.iso}.tar.xz"
+    tar_filename="${iso_filename%.iso}.tar.${tar_ext}"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     msg_debug "Iso filename is ${iso_filename}"
 
@@ -901,24 +910,27 @@ make_efiboot() {
 # Compress tarball
 make_tarball() {
     # backup airootfs.img for tarball
+    msg_debug "Tarball filename is ${tar_filename}"
     msg_info "Copying airootfs.img ..."
     cp "${airootfs_dir}.img" "${airootfs_dir}.img.org"
 
     # Run script
     mount_airootfs
     [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]] && _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
-
     _cleanup_common
     _chroot_run "mkinitcpio -P"
-
     remove "${airootfs_dir}/root/optimize_for_tarball.sh"
 
+    # make
+    tar_comp_opt+=("--${tar_comp}")
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
     cd -- "${airootfs_dir}"
-    tar -c -v -p -f "${out_dir}/${tar_filename}" "${taropt[@]}" ./*
+    msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
+    tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
     cd -- "${OLDPWD}"
 
+    # checksum
     _mkchecksum "${out_dir}/${tar_filename}"
     msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
 
@@ -1033,7 +1045,7 @@ make_iso() {
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}")
 OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
-OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-opts:")
+OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:")
 if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
 #if ! readarray OPT < <(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
     exit 1
@@ -1215,8 +1227,15 @@ while true; do
             nopkgbuild=true
             shift 1
             ;;
+        --tar-type)
+            case "${2}" in
+                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") tar_comp="${2}" ;;
+                *) msg_error "Invaild compressors '${2}'" '1' ;;
+            esac
+            shift 2
+            ;;
         --tar-opts)
-            taropt=(${2})
+            tar_comp_opt=(${2})
             shift 2
             ;;
         --)
