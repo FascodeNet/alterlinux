@@ -9,4 +9,4 @@
     <item name="Editor/spaces_instead_of_tabs" type="bool">TRUE</item>
     <item name="Editor/tab_width" type="int">4</item>
   </Prefs>
-<moo-prefs> 
+</moo-prefs> 
