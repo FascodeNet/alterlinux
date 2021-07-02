@@ -1270,10 +1270,12 @@ lockfile_dir="${build_dir}/lockfile"
 gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 
 # Create dir
-for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
-    mkdir -p "${_dir}"
+for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
+    mkdir -p "$(eval "echo \$${_dir}")"
+    msg_debug "${_dir} is $(realpath "$(eval "echo \$${_dir}")")"
+    eval "${_dir}=\"$(realpath "$(eval "echo \$${_dir}")")\""
 done
-ork_dir="$(realpath "${work_dir}")"
+
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
