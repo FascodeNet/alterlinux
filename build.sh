@@ -60,8 +60,7 @@ msg_warn() { msg_common warn "${@}"; }
 # Show an debug message
 # ${1}: message string
 msg_debug() { 
-    [[ "${debug}" = true ]] && msg_common debug "${@}"
-    return 0
+    [[ "${debug}" = true ]] && msg_common debug "${@}" || return 0
 }
 
 # Show an ERROR message then exit with status
@@ -69,7 +68,7 @@ msg_debug() {
 # ${2}: exit code number (with 0 does not exit)
 msg_error() {
     msg_common error "${1}"
-    [[ -n "${2:-}" ]] && exit "${2}"
+    [[ -n "${2:-""}" ]] && exit "${2}" || return 0
 }
 
 
