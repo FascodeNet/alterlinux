@@ -915,7 +915,7 @@ make_tarball() {
     mkdir -p "${out_dir}"
     msg_info "Creating tarball..."
     cd -- "${airootfs_dir}"
-    tar -v -J -p -c -f "${out_dir}/${tar_filename}" ./*
+    tar -c -v -p -f "${out_dir}/${tar_filename}" "${taropt[@]}" ./*
     cd -- "${OLDPWD}"
 
     _mkchecksum "${out_dir}/${tar_filename}"
@@ -1032,7 +1032,7 @@ make_iso() {
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}")
 OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
-OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm")
+OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-opts:")
 if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
 #if ! readarray OPT < <(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
     exit 1
@@ -1074,8 +1074,7 @@ while true; do
             shift 2
             ;;
         -h | --help)
-            _usage
-            exit 0
+            _usage 0
             ;;
         -j | --japanese)
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
@@ -1214,6 +1213,10 @@ while true; do
         --nopkgbuild)
             nopkgbuild=true
             shift 1
+            ;;
+        --tar-opts)
+            taropt=(${2})
+            shift 2
             ;;
         --)
             shift
