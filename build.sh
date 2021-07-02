@@ -1220,8 +1220,8 @@ while true; do
             break
             ;;
         *)
-            msg_error "Invalid argument '${1}'"
-            _usage 1
+            msg_error "Argument exception error '${1}'"
+            msg_error "Please report this error to the developer." 1
             ;;
     esac
 done
