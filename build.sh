@@ -11,7 +11,7 @@
 # The main script that runs the build
 #
 
-set -eu
+set -Eeu
 
 # Internal config
 # Do not change these values.
@@ -27,6 +27,7 @@ pkglist_args=()
 makepkg_script_args=()
 modules=()
 DEFAULT_ARGUMENT=""
+ARGUMENT=("${@}")
 alteriso_version="3.1"
 
 # Load config file
@@ -362,11 +363,18 @@ prepare_env() {
         [[ "${normwork}" = false ]] && echo && _run_cleansh
         exit "${status}"
     }
-    trap '_trap_remove_work' 1 2 3 15
+    trap '_trap_remove_work' HUP INT QUIT TERM
 
     return 0
 }
 
+# Error message
+error_exit_trap(){
+    local _exit="${?}" _line="${1}" && shift 1
+    msg_error "An exception error occurred in the function"
+    msg_error "Exit Code: ${_exit}\nLine: ${_line}\nArgument: ${ARGUMENT[*]}"
+    exit "${_exit}"
+}
 
 # Show settings.
 show_settings() {
@@ -385,8 +393,9 @@ show_settings() {
         echo -e "\nPress Enter to continue or Ctrl + C to cancel."
         read -r
     fi
-    trap 1 2 3 15
-    trap 'umount_trap' 1 2 3 15
+    trap HUP INT QUIT TERM
+    trap 'umount_trap' HUP INT QUIT TERM
+    trap 'error_exit_trap $LINENO' ERR
 
     return 0
 }
@@ -478,8 +487,6 @@ prepare_build() {
         msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
         exit "${?}"
-    else
-        unset ARGUMENT
     fi
 
     # Set argument of pkglist.sh
