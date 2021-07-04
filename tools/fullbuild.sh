@@ -6,10 +6,11 @@ channels=(
 ##  Current official channel
     "xfce"
     "i3"
+    "plasma"
 
 ## Scheduled to discontinue distribution
-#   "lxde"
-#   "cinnamon"
+    "lxde"
+    "cinnamon"
 
 ## They are unstable channel
 #   "xfce-pro"
