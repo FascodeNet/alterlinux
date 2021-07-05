@@ -31,6 +31,7 @@ _help() {
     echo "    -d | --debug              Enable debug message"
     echo "    -m | --maxdepth           Specify the maximum hierarchy (set 0 to no limit)"
     echo "    -h | --help               This help message"
+    echo "         --nocolor            No output color message"
 }
 
 # Message common function
@@ -99,7 +100,7 @@ umount_work () {
 
 # Parse options
 OPTS=("d" "f" "h" "m:")
-OPTL=("debug" "force" "help" "maxdepth:")
+OPTL=("debug" "force" "help" "maxdepth:" "nocolor")
 if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${@}"); then
     exit 1
 fi
@@ -125,6 +126,10 @@ while true; do
         -h | --help)
             _help
             exit 0
+            ;;
+        --nocolor)
+            nocolor=true
+            shift 1
             ;;
         --)
             shift

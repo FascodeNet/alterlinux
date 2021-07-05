@@ -3,19 +3,10 @@
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
-script_name="$(basename "$(realpath "${0}")")"
+script_name="$(basename "$(realpath "${script_path}")")"
 
 function remove () {
-    local list
-    local file
-    list=($(echo "$@"))
-    for file in "${list[@]}"; do
-        if [[ -f ${file} ]]; then
-            rm -f "${file}"
-        elif [[ -d ${file} ]]; then
-            rm -rf "${file}"
-        fi
-    done
+    rm -rf "${@}"
 }
 
 function remove_user_file(){
@@ -40,11 +31,7 @@ remove_user_file ".config/gtk-3.0/bookmarks"
 # Remove polkit role
 remove /etc/polkit-1/rules.d/01-nopasswork.rules
 
-
-# Delete unnecessary files of archiso.
-# See the following site for details.
-# https://wiki.archlinux.jp/index.php/Archiso#Chroot_.E3.81.A8.E3.83.99.E3.83.BC.E3.82.B9.E3.82.B7.E3.82.B9.E3.83.86.E3.83.A0.E3.81.AE.E8.A8.AD.E5.AE.9A
-remove /etc/systemd/system/getty@tty1.service.d/autologin.conf
+remove /etc/systemd/system/getty@.service.d/autologin.conf
 remove /root/.automated_script.sh
 remove /etc/mkinitcpio-archiso.conf
 remove /etc/initcpio

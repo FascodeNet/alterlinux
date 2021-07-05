@@ -5,10 +5,14 @@ KERNEL       := zen
 SHARE_OPTION := --boot-splash --comp-type "xz" --user "alter" --password "alter" --kernel "${KERNEL}" --debug --noconfirm
 ARCH_x86_64  := --arch x86_64
 ARCH_i686    := --arch i686
+FULLBUILD    := -d -g -e 1 --noconfirm
+FULL_x86_64  := xfce cinnamon i3 plasma
+FULL_i686    := xfce lxde
 CURRENT_DIR  := ${shell dirname $(dir $(abspath $(lastword $(MAKEFILE_LIST))))}/${shell basename $(dir $(abspath $(lastword $(MAKEFILE_LIST))))}
 
 full:
-	@sudo ${CURRENT_DIR}/tools/fullbuild.sh -d
+	@sudo ${CURRENT_DIR}/tools/fullbuild.sh ${FULLBUILD} -m x86_64 ${FULL_x86_64}
+	@sudo ${CURRENT_DIR}/tools/fullbuild.sh ${FULLBUILD} -m i686   ${FULL_i686}
 	@make clean
 
 basic-64 basic-32  cinnamon-64 cinnamon-32 gnome-64 i3-64 i3-32 lxde-64 lxde-32 plasma-64 releng-32 releng-64 serene-64 serene-32 xfce-64 xfce-32 xfce-pro-64:
@@ -35,7 +39,7 @@ build_option:
 	${CURRENT_DIR}/tools/menuconf-to-alterconf.sh ${CURRENT_DIR}/.build_option
 
 clean:
-	@sudo ${CURRENT_DIR}/${BUILD_SCRIPT} clean
+	@sudo ${CURRENT_DIR}/${BUILD_SCRIPT} --noconfirm clean
 
 build:build_option
 	$(eval BUILD_OPTION := $(shell cat ${CURRENT_DIR}/.build_option))

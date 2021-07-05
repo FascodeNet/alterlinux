@@ -19,9 +19,6 @@ show-battery-percentage=true
 [org/gnome/desktop/notifications/application/org-gnome-tweaks]
 application-id='org.gnome.tweaks.desktop'
 
-[org/gnome/desktop/peripherals/keyboard]
-numlock-state=false
-
 [org/gnome/desktop/peripherals/touchpad]
 two-finger-scrolling-enabled=true
 
@@ -67,9 +64,9 @@ hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 0
-disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com', 'pamac-updates@manjaro.org']
+disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com' ]
 enabled-extensions=['extensions@abteil.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'CoverflowAltTab@palatis.blogspot.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'horizontal-workspaces@gnome-shell-extensions.gcampax.github.com', 'CoverflowAltTab@dmo60.de', 'arcmenu@arcmenu.com', 'clipboard-indicator@tudmotu.com', 'appindicatorsupport@rgcjonas.gmail.com']
-favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'pamac-updater.desktop', 'gnome-control-center.desktop']
+favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'gnome-control-center.desktop']
 
 [org/gnome/shell/extensions/arc-menu]
 application-shortcuts-list=[['Software', 'system-software-install-symbolic', 'ArcMenu_Software'], ['Settings', 'preferences-system-symbolic', 'gnome-control-center.desktop'], ['Tweaks', 'org.gnome.tweaks-symbolic', 'org.gnome.tweaks.desktop'], ['Terminal', 'utilities-terminal-symbolic', 'org.gnome.Terminal.desktop']]
@@ -83,7 +80,7 @@ dtp-dtd-state=[true, true]
 enable-custom-arc-menu=false
 enable-menu-button-arrow=false
 menu-button-icon='Custom_Icon'
-pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'LibreOffice', 'libreoffice-startcenter', 'libreoffice-startcenter.desktop', 'VLC Media Player', 'vlc', 'vlc.desktop', 'Update software', 'system-software-update', 'pamac-updater.desktop', 'System Monitor', 'org.gnome.SystemMonitor', 'gnome-system-monitor.desktop', 'Terminal', 'org.gnome.Terminal', 'org.gnome.Terminal.desktop', 'Settings', 'org.gnome.Settings', 'gnome-control-center.desktop']
+pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'LibreOffice', 'libreoffice-startcenter', 'libreoffice-startcenter.desktop', 'VLC Media Player', 'vlc', 'vlc.desktop', 'System Monitor', 'org.gnome.SystemMonitor', 'gnome-system-monitor.desktop', 'Terminal', 'org.gnome.Terminal', 'org.gnome.Terminal.desktop', 'Settings', 'org.gnome.Settings', 'gnome-control-center.desktop']
 position-in-panel='Left'
 recently-installed-apps=@as []
 show-external-devices=true

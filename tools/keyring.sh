@@ -208,9 +208,8 @@ update_arch_key() {
 
 
 update_alter_key() {
-    curl -L -o "/tmp/fascode.pub" "https://山d.com/repo/fascode.pub"
-    pacman-key -a "/tmp/fascode.pub"
-    rm -f "/tmp/fascode.pub"
+    curl -Lo - "http://repo.dyama.net/fascode.pub" \
+        | pacman-key -a -
     pacman-key --lsign-key development@fascode.net
 
     pacman --config "${alter_pacman_conf_x86_64}" -Sy --noconfirm alter-stable/alterlinux-keyring

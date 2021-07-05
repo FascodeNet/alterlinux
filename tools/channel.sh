@@ -9,6 +9,7 @@ opt_nochkver=false
 opt_nobuiltin=false
 opt_fullpath=false
 opt_nocheck=false
+opt_line=false
 alteriso_version="3.1"
 mode=""
 arch="all"
@@ -38,6 +39,7 @@ _help() {
     echo "    -h | --help               This help message"
     echo
     echo "         --nocheck            Do not check the channel with desc command.This option helps speed up."
+    echo "         --line               Line break the output"
     echo
     echo " check command exit code"
     echo "    0 (correct)               Normal available channel"
@@ -164,14 +166,18 @@ desc() {
 show() {
     gen_channel_list
     if (( "${#channellist[*]}" > 0)); then
-        echo "${channellist[*]}"
+        if [[ "${opt_line}" = true ]]; then
+            printf "%s\n" "${channellist[@]}"
+        else
+            echo "${channellist[*]}"
+        fi
     fi
 }
 
 
 # Parse options
 OPTS="a:bdfk:nov:h"
-OPTL="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck"
+OPTL="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck,line"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
     exit 1
 fi
@@ -179,7 +185,7 @@ eval set -- "${OPT}"
 unset OPT OPTS OPTL
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -218,6 +224,10 @@ while true; do
             ;;
         --nocheck)
             opt_nocheck=true
+            shift 1
+            ;;
+        --line)
+            opt_line=true
             shift 1
             ;;
         --)
