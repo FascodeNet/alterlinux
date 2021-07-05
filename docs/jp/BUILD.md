@@ -42,6 +42,12 @@ sudo pacman -S --needed curl dosfstools git libburn libisofs lz4 lzo make pyalpm
 make menuconfig
 ```
 
+設定が完了したら以下のコマンドでビルドできます
+
+```bash
+sudo make build
+```
+
 ### GUIを使用する
 GUIで設定を行ってビルドできます。GUIには`python-gobject`が必須です。  
 
