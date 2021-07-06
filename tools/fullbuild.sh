@@ -156,7 +156,7 @@ unset OPT OPTS OPTL ARGUMENT
 while true; do
     case "${1}" in
         -a)
-            share_options+=(${2})
+            IFS=" " read -r -a share_options <<< "${2}"
             shift 2
             ;;
         -c)
@@ -172,7 +172,7 @@ while true; do
             shift 1
             ;;
         -m)
-            architectures=(${2})
+            IFS=" " read -r -a architectures <<< "${2}"
             shift 2
             ;;
         -o)
@@ -200,7 +200,7 @@ while true; do
             share_options+=("--tarball")
             ;;
         -l)
-            locale_list=(${2})
+            IFS=" " read -r -a locale_list <<< "${2}"
             shift 2
             ;;
         -w)
@@ -238,7 +238,7 @@ if [[ "${all_channel}" = true  ]]; then
     if [[ -n "${*}" ]]; then
         msg_error "Do not specify the channel." "1"
     else
-        channels=($("${script_path}/tools/channel.sh" -b show))
+        readarray -t channels < <("${script_path}/tools/channel.sh" -b show)
     fi
 elif [[ -n "${*}" ]]; then
     channels=("${@}")
@@ -267,7 +267,7 @@ mkdir -p "${fullbuild_dir}"
 
 if [[ "$(find "${fullbuild_dir}" -maxdepth 1 -mindepth 1 -name "fullbuild.*" 2> /dev/null)" ]]; then
     msg_info "Do you want to reset lock files ? (y/N)"
-    read -n 1 _yes_or_no
+    read -r -n 1 _yes_or_no
     echo
     if [[ "${_yes_or_no}" = "y" ]] || [[ "${_yes_or_no}" = "Y" ]]; then
         find "${fullbuild_dir}" -maxdepth 1 -mindepth 1 -name "fullbuild.*" -delete 2> /dev/null
@@ -279,7 +279,7 @@ share_options+=("--work" "${work_dir}")
 msg_info "Options: ${share_options[*]}"
 if [[ "${noconfirm}" = false ]]; then
     msg_info "Press Enter to continue or Ctrl + C to cancel."
-    read
+    read -r
 fi
 
 
@@ -289,7 +289,7 @@ for arch in "${architectures[@]}"; do
     for cha in "${channels[@]}"; do
         for lang in "${locale_list[@]}"; do
             for retry_count in $(seq 1 "${retry}"); do
-                if [[ -n "$(cat "${script_path}/channels/${cha}/architecture" | grep -h -v ^'#' | grep -x "${arch}")" ]]; then
+                if grep -h -v ^'#' "${script_path}/channels/${cha}/architecture" | grep -x "${arch}" 1> /dev/null 2>&1; then
                     build
                 fi
             done
