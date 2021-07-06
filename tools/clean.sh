@@ -26,7 +26,7 @@ work_dir="$(
     load_config "${script_path}/default.conf"
     load_config "${script_path}/custom.conf"
     cd "${script_path}"
-    echo "$(realpath "${work_dir}")"
+    realpath "${work_dir}"
 )"
 
 # msg_common [type] [-n] [string]
@@ -62,7 +62,7 @@ umount_chroot () { "${tools_dir}/umount.sh" -d "${work_dir}" -m 3 "$([[ "${nocol
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() { echo "$(cat -)" | cut -d " " -f "${1}"; }
+getclm() { cut -d " " -f "${1}"; }
 
 _help() {
     echo "usage ${0} [option]"
