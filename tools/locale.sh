@@ -33,9 +33,7 @@ _help() {
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cut -d " " -f "${1}"; }
 
 # Message functions
 msg_error() {
@@ -87,7 +85,7 @@ get() {
 
     # 選択されたロケールの設定が描かれた行番号を取得
     _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    readarray -t _locale_name_list < <(grep -h -v ^'#' "${_locale_config_file}" | awk '{print $1}')
     _get_locale_line_number() {
         local _lang _count=0
         for _lang in "${_locale_name_list[@]}"; do
@@ -108,7 +106,7 @@ get() {
     fi
 
     # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
+    readarray -t _locale_config_line < <(grep -h -v ^'#' "${_locale_config_file}" | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
