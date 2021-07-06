@@ -85,29 +85,20 @@ while true; do
     esac
 done
 
-variable_list=(
-    "arch"
-    "boot_splash"
-    "channel_name"
-    "iso_publisher"
-    "kernel"
-    "iso_application"
-    "password"
-    "username"
-    "iso_version"
-)
+variable_list=( "arch" "boot_splash" "channel_name" "iso_publisher" "kernel" "iso_application" "password" "username" "iso_version")
 
+error=false
 for var in "${variable_list[@]}"; do
-    if [[ -z "$(eval echo '$'${var})" ]]; then
+    if [[ -z "$(eval echo "\$${var}")" ]]; then
         echo "${var} is empty" >&2
-        exit 1
+        error=true
     fi
 done
-
+[[ "${error}" = true ]] && exit 1
+unset error
 
 # Get kernel info
-eval $(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
-
+eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
 echo "Developer      : ${iso_publisher}"
 echo "OS Name        : ${iso_application}"
