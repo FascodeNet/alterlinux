@@ -265,7 +265,7 @@ fi
 fullbuild_dir="${work_dir}/fullbuild"
 mkdir -p "${fullbuild_dir}"
 
-if [[ "$(find "${fullbuild_dir}" -maxdepth 1 -mindepth 1 -name "fullbuild.*" 2> /dev/null)" ]]; then
+if [[ "$(find "${fullbuild_dir}" -maxdepth 1 -mindepth 1 -name "fullbuild.*" 2> /dev/null)" ]] && [[ "${noconfirm}" = false ]]; then
     msg_info "Do you want to reset lock files ? (y/N)"
     read -r -n 1 _yes_or_no
     echo
