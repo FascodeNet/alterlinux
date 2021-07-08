@@ -106,7 +106,7 @@ get() {
     fi
 
     # ロケール設定ファイルから該当の行を抽出
-    readarray -t _locale_config_line < <(grep -h -v ^'#' "${_locale_config_file}" | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1)
+    readarray -t _locale_config_line < <(grep -h -v ^'#' "${_locale_config_file}" | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1 | tail -n 1 | sed -e 's/  */ /g' | tr " " "\n")
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数

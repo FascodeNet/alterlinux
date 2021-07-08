@@ -101,10 +101,10 @@ get() {
         local _kernel _count=0
         for _kernel in "${_kernel_name_list[@]}"; do
             _count=$(( _count + 1 ))
-            [[ "${_kernel}" = "${1}" ]] && echo "${_count}"
+            [[ "${_kernel}" = "${1}" ]] && echo "${_count}" && return 0
         done
         echo -n "failed"
-        return 0
+        return 1
     }
     _kernel_line="$(_get_kernel_line "${1}")"
 
@@ -118,7 +118,7 @@ get() {
     fi
 
     # カーネル設定ファイルから該当の行を抽出
-    readarray -t _kernel_config_line < <(grep -h -v ^'#' "${_kernel_config_file}" | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1)
+    readarray -t _kernel_config_line < <(grep -h -v ^'#' "${_kernel_config_file}" | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1 | sed -e 's/  */ /g' | tr " " "\n")
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
