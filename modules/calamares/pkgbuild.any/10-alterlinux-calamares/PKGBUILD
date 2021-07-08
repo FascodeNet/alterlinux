@@ -1,6 +1,7 @@
 # Maintainer: lap1sid <development@fascode.net>
 
 pkgname=alterlinux-calamares
+_reponame=alterlinux-calamares-old
 pkgver="3.2.35"
 pkgrel=3
 _pkgrel='b2'
@@ -23,14 +24,14 @@ backup=(
         'usr/share/calamares/branding/alter/branding.desc'
 )
 
-source+=("$url/archive/$pkgver-$pkgrel.tar.gz")
+source+=("${url}/archive/${pkgver}-${pkgrel}.tar.gz")
 #source+=("$url/archive/$pkgver-$_pkgrel.tar.gz")
 
 sha256sums=('SKIP')
 
 prepare() {
     # rename
-    mv "${srcdir}/${pkgname}-${pkgver}-${pkgrel}" "${srcdir}/${pkgver}-${pkgrel}"
+    mv "${srcdir}/${_reponame}-${pkgver}-${pkgrel}" "${srcdir}/${pkgver}-${pkgrel}"
     #mv ${srcdir}/${pkgname}-${pkgver}-${_pkgrel} ${srcdir}/${pkgver}-${pkgrel}
     cd "${srcdir}/${pkgver}-${pkgrel}"
     sed -i -e 's/"Install configuration files" OFF/"Install configuration files" ON/' CMakeLists.txt
