@@ -46,7 +46,7 @@ gen_locale_list() {
         exit 1
     fi
     local _locale
-    for _locale in $(grep -h -v ^'#' "${script_path}/system/locale-${arch}" | getclm 1); do 
+    for _locale in $(grep -h -v ^'#' "${script_path}/system/locale-${arch}" | grep -v ^$ | getclm 1); do 
         localelist+=("${_locale}")
     done
 }
@@ -85,7 +85,7 @@ get() {
 
     # 選択されたロケールの設定が描かれた行番号を取得
     _locale_config_file="${script_path}/system/locale-${arch}"
-    readarray -t _locale_name_list < <(grep -h -v ^'#' "${_locale_config_file}" | awk '{print $1}')
+    readarray -t _locale_name_list < <(grep -h -v ^'#' "${_locale_config_file}" | grep -v ^$ | awk '{print $1}')
     _get_locale_line_number() {
         local _lang _count=0
         for _lang in "${_locale_name_list[@]}"; do
