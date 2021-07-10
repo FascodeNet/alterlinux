@@ -96,7 +96,7 @@ get() {
     else
         _kernel_config_file="${script_path}/system/kernel-${arch}"
     fi
-    readarray -t _kernel_name_list < <(grep -h -v ^'#' "${_kernel_config_file}" | getclm 1)
+    readarray -t _kernel_name_list < <(grep -h -v ^'#' "${_kernel_config_file}" | grep -v ^$  | getclm 1)
     _get_kernel_line() {
         local _kernel _count=0
         for _kernel in "${_kernel_name_list[@]}"; do
