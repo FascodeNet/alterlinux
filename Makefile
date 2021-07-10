@@ -16,11 +16,13 @@ full:
 	@make clean
 
 basic-64 basic-32  cinnamon-64 cinnamon-32 gnome-64 i3-64 i3-32 lxde-64 lxde-32 plasma-64 releng-32 releng-64 serene-64 serene-32 xfce-64 xfce-32 xfce-pro-64:
-	$(eval CHANNEL=${shell echo ${@} | cut -d '-' -f 1})
-	$(eval ARCHITECTURE=${shell echo ${@} | cut -d '-' -f 2})
+	@$(eval ARCHITECTURE=${shell echo ${@} | rev | cut -d '-' -f 1 | rev })
+	@$(eval CHANNEL=${shell echo ${@} | sed "s/-${ARCHITECTURE}//g"})
+	@[[ -z "${CHANNEL}" ]] && echo "Empty Channel" && exit 1 || :
 	@case ${ARCHITECTURE} in\
 		"32") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_i686} ${CHANNEL} ;;\
 		"64") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_x86_64} ${CHANNEL};;\
+		*   ) echo "Unknown Architecture"; exit 1  ;; \
 	esac
 	@make clean
 
