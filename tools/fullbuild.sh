@@ -75,7 +75,7 @@ trap_exit() {
 build() {
     local _exit_code=0 _options=("${share_options[@]}")
 
-    _options+=("--arch" "${arch}" "--lang" "${lang}" "--out" "${out_dir}/${cha}/${arch}" "${cha}")
+    _options+=("--arch" "${arch}" "--lang" "${lang}" "--out" "${out_dir}/${cha}/${lang}" "${cha}")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         msg_info "Removing package cache for ${arch}"
