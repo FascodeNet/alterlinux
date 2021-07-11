@@ -14,7 +14,7 @@ EOF
     exit 1
 fi
 
-script_path="$(cd -P $(dirname $(readlink -f ${0})) && cd .. && pwd)"
+script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 _usage () {
     echo "usage ${0} [options]"

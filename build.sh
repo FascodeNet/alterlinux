@@ -316,7 +316,7 @@ check_bool() {
 }
 
 _run_cleansh(){
-    bash $([[ "${bash_debug}" = true ]] && echo -n "-x" ) "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && printf "%s" "-d")" "$([[ "${noconfirm}" = true ]] && printf "%s" "-n")" "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"
+    bash "$([[ "${bash_debug}" = true ]] && echo -n "-x" || echo -n "+x")" "${tools_dir}/clean.sh" -o -w "$(realpath "${build_dir}")" "$([[ "${debug}" = true ]] && printf "%s" "-d")" "$([[ "${noconfirm}" = true ]] && printf "%s" "-n")" "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"
 }
 
 
@@ -1125,7 +1125,7 @@ while true; do
             if [[ "${2}" = "reset" ]]; then
                 sfs_comp_opt=()
             else
-                sfs_comp_opt=(${2})
+                IFS=" " read -r -a sfs_comp_opt <<< "${2}"
             fi
             shift 2
             ;;
@@ -1242,7 +1242,7 @@ while true; do
             shift 2
             ;;
         --tar-opts)
-            tar_comp_opt=(${2})
+            IFS=" " read -r -a tar_comp_opt <<< "${2}"
             shift 2
             ;;
         --)
