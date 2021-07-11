@@ -88,6 +88,7 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
     <li>Adopt ZEN kernel by default</li>
     <li>Equipped with sophisticated UI, themes, and icons</li>
     <li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
+    <li>Higher quality audio with Pipewire is available by default</li>
     <li>Easy development of derived OS by framework based on archiso</li>
 </ul>
 

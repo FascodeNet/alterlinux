@@ -86,6 +86,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
     <li>デフォルトでZENカーネルを採用</li>
     <li>洗練されたUIやテーマ、アイコンを搭載しています</li>
     <li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用できます</li>
+    <li>デフォルトでPipewireによる、高品質なオーディオが使えます</li>
     <li>archisoをベースとしたフレームワークにより簡単に派生OSを開発できます</li>
 </ul>
 
