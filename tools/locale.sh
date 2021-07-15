@@ -15,22 +15,25 @@ _help() {
     echo "Scripts that perform locale-related processing " 
     echo
     echo " General command:"
-    echo "    check [name]       Determine if the locale is available"
-    echo "    show               Shows a list of available locales"
-    echo "    get [name]         Prints the specified locale settings"
-    echo "    help               This help message"
+    echo "    check [name]              Determine if the locale is available"
+    echo "    show                      Shows a list of available locales"
+    echo "    get [name]                Prints the specified locale settings"
+    echo "    help                      This help message"
     echo
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -c | --channel            Specify the channel"
+    echo "    -s | --script             Enable script mode"
     echo "    -h | --help               This help message"
+    echo
+    echo " Script mode usage:"
+    echo "     check                    Returns 0 if the check was successful, 1 otherwise."
+    printf '     get                      eval $(%s -s -a <arch> -c <channel> get <locale>)\n' "$(basename ${0})"
 }
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cut -d " " -f "${1}"; }
 
 # Message functions
 msg_error() {
@@ -43,7 +46,7 @@ gen_locale_list() {
         exit 1
     fi
     local _locale
-    for _locale in $(grep -h -v ^'#' "${script_path}/system/locale-${arch}" | getclm 1); do 
+    for _locale in $(grep -h -v ^'#' "${script_path}/system/locale-${arch}" | grep -v ^$ | getclm 1); do 
         localelist+=("${_locale}")
     done
 }
@@ -55,10 +58,10 @@ check() {
         exit 1
     fi
     if [[ $(printf '%s\n' "${localelist[@]}" | grep -qx "${1}"; echo -n ${?} ) -eq 0 ]]; then
-        echo "correct"
+        #echo "correct"
         exit 0
     else
-        echo "incorrect"
+        #echo "incorrect"
         exit 1
     fi
 }
@@ -82,16 +85,16 @@ get() {
 
     # 選択されたロケールの設定が描かれた行番号を取得
     _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    readarray -t _locale_name_list < <(grep -h -v ^'#' "${_locale_config_file}" | grep -v ^$ | awk '{print $1}')
     _get_locale_line_number() {
         local _lang _count=0
-        for _lang in ${_locale_name_list[@]}; do
+        for _lang in "${_locale_name_list[@]}"; do
             _count=$(( _count + 1 ))
             if [[ "${_lang}" = "${1}" ]]; then echo "${_count}"; return 0; fi
         done
         echo -n "failed"
     }
-    _locale_line_number="$(_get_locale_line_number ${@})"
+    _locale_line_number="$(_get_locale_line_number "${@}")"
 
     # 不正なロケール名なら終了する
     if [[ "${_locale_line_number}" = "failed" ]]; then
@@ -103,7 +106,7 @@ get() {
     fi
 
     # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
+    readarray -t _locale_config_line < <(grep -h -v ^'#' "${_locale_config_file}" | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1 | tail -n 1 | sed -e 's/  */ /g' | tr " " "\n")
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
@@ -117,17 +120,16 @@ EOF
 }
 
 # Parse options
-ARGUMENT="${@}"
-opt_short="a:c:hs"
-opt_long="arch:,channel:,help,script"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
-
+OPTS="a:c:hs"
+OPTL="arch:,channel:,help,script"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
+    exit 1
+fi
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPTS OPTL
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -161,9 +163,9 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}    ;;
+    "check" ) check "${@}"    ;;
     "show"  ) show          ;;
-    "get"   ) get ${@}      ;;
+    "get"   ) get "${@}"      ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
 esac

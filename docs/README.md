@@ -16,8 +16,8 @@
     <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
         <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-    <a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-        <img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
+    <a href="https://github.com/FascodeNet/alterlinux/actions">
+        <img src="https://img.shields.io/github/workflow/status/fascodenet/alterlinux/ShellCheck%20CL?style=flat-square">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/issues">
         <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
@@ -88,6 +88,7 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
     <li>Adopt ZEN kernel by default</li>
     <li>Equipped with sophisticated UI, themes, and icons</li>
     <li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
+    <li>Higher quality audio with Pipewire is available by default</li>
     <li>Easy development of derived OS by framework based on archiso</li>
 </ul>
 

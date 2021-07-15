@@ -12,9 +12,6 @@
 #-- Terminal --#
 guake
 
-#-- Wallpaper --#
-alterlinux-wallpapers
-
 
 #-- xfce4 base --#
 exo
@@ -35,10 +32,6 @@ xfconf
 xfdesktop
 # xfwm4
 # xfwm4-themes
-
-
-#-- xfce4 config --#
-# alterlinux-xfce-conf
 
 
 #-- xfce4 plugins --#

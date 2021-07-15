@@ -1,0 +1,27 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Media
+
+
+#-- audio --#
+pavucontrol
+pipewire
+pipewire-alsa
+pipewire-pulse
+
+
+#-- bluetooth --#
+blueman
+bluez
+bluez-utils
+
+
+#-- media player --#
+vlc

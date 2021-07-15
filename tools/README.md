@@ -7,6 +7,9 @@ Alter Linuxのビルドに使用する処理をコマンド化したものです
 全てのチャンネルのパッケージの一覧を表示します。  
 `channel.sh`でチャンネルの一覧を取得後、`pkglist.sh`でパッケージ一覧を取得します。
 
+## alteriso-info.sh
+ビルド情報を書いたテキストファイルを出力します。詳細は`alteiso-info.sh`を実行してください。  
+
 ## build_helper.py
 GUIのビルドヘルパーです。PyGobjectが必要です。  
 
@@ -43,10 +46,9 @@ menuconfigで使用されるスクリプトです。
 ## menuconf-to-alterconf.sh
 menuconfigで使用されるスクリプトです。  
 
-## mkalteriso.sh
-mkalterisoのシェルスクリプト実装です。  
-`--shmkalteriso`が指定されるか`shmkalteriso=true`の場合に使用されます。  
-詳細は`mkalteriso.sh -h`を実行してください。
+## module.sh
+使用可能なモジュールの一覧や確認を行います。  
+詳細は`module.sh -h`を実行してください。  
 
 ## msg.sh
 ラベルと色がついたメッセージを出力します。このスクリプトは様々な場所から呼び出されます。  
@@ -57,13 +59,18 @@ mkalterisoのシェルスクリプト実装です。
 `build.sh`の依存関係チェックに使用されています。  
 詳細は`package.py -h`を実行してください。
 
-## pkglist.py
+## pkglist.sh
 指定されたチャンネルのパッケージ一覧を取得します。  
 詳細は`pkglist.sh`を実行してください。
 
 ## testpkg.sh
 `allpkglist.sh`で全てのパッケージ一覧を取得後、そのパッケージが公式リポジトリから利用可能かどうかを調べます。  
 詳細は`testpkg.sh`を実行してください。  
+
+## umount.sh
+指定されたディレクトリ以下のマウントポイントを検索してアンマウントします。  
+`build.sh`や`clean.sh`から呼び出されます。  
+詳細は`umount.sh`を実行してください。  
 
 ## wizard.sh
 CLIの対話型のビルド設定ツールです。英語と日本語に対応しています。  

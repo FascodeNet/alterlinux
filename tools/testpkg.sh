@@ -61,14 +61,13 @@ _help() {
 
 
 # Parse options
-ARGUMENT="${@}"
-opt_short="dh"
-opt_long="debug,help"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
-
+OPTS="dh"
+OPTL="debug,help"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
+    exit 1
+fi
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
     case "${1}" in
@@ -90,16 +89,17 @@ done
 
 # パッケージ一覧
 msg_debug "Getting package list ..."
-for arch in ${archs[@]}; do
-    packages+=($("${script_path}/tools/allpkglist.sh" -s -a "${arch}"))
+for arch in "${archs[@]}"; do
+    readarray -O "${#packages[@]}" packages < <("${script_path}/tools/allpkglist.sh" -s -a "${arch}")
 done
 
 # ArchLinux公式サイトからパッケージグループの一覧を取得
 msg_debug "Getting group list ..."
-group_list=($(curl -s https://archlinux.org/groups/ | grep "/groups/x86_64" | cut -d "/" -f 4))
+#group_list=($(curl -s https://archlinux.org/groups/ | grep "/groups/x86_64" | cut -d "/" -f 4))
+readarray -t group_list < <(pacman -Sgg | cut -d " " -f 1 | uniq)
 
 # 実行開始
-for pkg in ${packages[@]}; do
+for pkg in "${packages[@]}"; do
     msg_debug "Searching ${pkg} ..."
     if ! searchpkg "${pkg}"; then
         echo "${pkg} is not in the official repository." >&2

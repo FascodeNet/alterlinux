@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
+set -eu
 
 load_config() {
     local _file
-    for _file in ${@}; do
+    for _file in "${@}"; do
         if [[ -f "${_file}" ]]; then
             source "${_file}"
         fi
@@ -30,20 +30,21 @@ out_dir=""
 archs=("x86_64" "i686" "i486")
 stdout=false
 include_aur=false
+pkglist=()
 
 # Parse options
-ARGUMENT="${@}"
-opt_short="a:o:hs"
-opt_long="arch:,out:,help,stdout,aur"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
+OPTS="a:o:hs"
+OPTL="arch:,out:,help,stdout,aur"
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
+    exit 1
+fi
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
     case "${1}" in
         -a | --arch)
-            archs=(${2})
+            IFS=" " read -ra archs <<< "${2}"
             shift 2
             ;;
         -o | --out)
@@ -71,44 +72,44 @@ while true; do
 done
 
 
-share_dir="${script_path}/channels/share"
-extra_dir="${script_path}/channels/share-extra"
-
 if [[ -z "${out_dir}" ]] || [[ "${stdout}" = true ]]; then
     stdout=true
 else
     mkdir -p "${out_dir}"
 fi
 
-for arch in ${archs[@]}; do
+load_config() {
+    local _file
+    for _file in "${@}"; do
+        [[ -f "${_file}" ]] && source "${_file}"
+    done
+    return 0
+}
+
+for arch in "${archs[@]}"; do
     for channel in $("${tools_dir}/channel.sh" show -a "${arch}" -b -d -k zen -f); do
-    #for channel in "${script_path}/channels/releng"; do
-        include_extra=$(
-            load_config "${share_dir}/config.any" "${share_dir}/share/config.${arch}"
+        readarray -t modules < <(
+            load_config "${script_path}/default.conf" "${script_path}/custom.conf"
             load_config "${channel}/config.any" "${channel}/config.${arch}"
-            if [[ "${include_extra}" = true ]]; then
-                load_config "${extra_dir}/config.any" "${extra_dir}/share/config.${arch}"
+            if [[ -n "${include_extra+SET}" ]]; then
+                if [[ "${include_extra}" = true ]]; then
+                    modules=("base" "share" "share-extra" "calamares" "zsh-powerline")
+                else
+                    modules=("base" "share")
+                fi
             fi
-            echo ${include_extra}
+            printf "%s\n" "${modules[@]}"
         )
 
-        pkglist_opts="-a "${arch}" -b -c "${channel%/}" -k zen -l en --line"
-
-        if [[ "${include_extra}" = true ]]; then
-            pkglist_opts+=" -e"
-        fi
+        pkglist_opts=(-a "${arch}" -b -c "${channel}" -k zen -l en --line "${modules[@]}")
 
         if [[ "${stdout}" = true ]]; then
-            pkglist+=($("${tools_dir}/pkglist.sh" ${pkglist_opts}))
-            if [[ "${include_aur}" = true ]]; then
-                pkglist+=($("${tools_dir}/pkglist.sh" --aur ${pkglist_opts}))
-            fi
+            readarray -O "${#pkglist[@]}" -t pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_opts[@]}")
+            [[ "${include_aur}" = true ]] && readarray -O "${#pkglist[@]}" -t pkglist < <("${tools_dir}/pkglist.sh" --aur "${pkglist_opts[@]}") || true
         else
             (
-                "${tools_dir}/pkglist.sh" -d ${pkglist_opts}
-                if [[ "${include_aur}" = true ]]; then
-                    "${tools_dir}/pkglist.sh" --aur -d ${pkglist_opts}
-                fi
+                "${tools_dir}/pkglist.sh" -d "${pkglist_opts[@]}"
+                [[ "${include_aur}" = true ]] && "${tools_dir}/pkglist.sh" --aur -d "${pkglist_opts[@]}" || true
             ) 1> "${out_dir}/$(basename "${channel}").${arch}"
         fi
         
@@ -116,6 +117,6 @@ for arch in ${archs[@]}; do
 done
 
 if [[ "${stdout}" = true ]]; then
-    pkglist=($(printf "%s\n" "${pkglist[@]}" | sort |uniq))
+    readarray -t pkglist < <(printf "%s\n" "${pkglist[@]}" | sort |uniq)
     printf "%s\n" "${pkglist[@]}"
 fi

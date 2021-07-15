@@ -21,17 +21,17 @@ _help() {
 }
 
 # Parse options
-ARGUMENT="${@}"
-opt_short="a:b:c:d:k:o:p:u:v:h"
-opt_long="arch:,boot-splash:,channel:,developer:,kernel:,os-name:,password:,username:,version:,help"
-OPT=$(getopt -o ${opt_short} -l ${opt_long} -- ${ARGUMENT})
-[[ ${?} != 0 ]] && exit 1
+OPTS="a:b:c:d:k:o:p:u:v:h"
+OPTL="arch:,boot-splash:,channel:,developer:,kernel:,os-name:,password:,username:,version:,help"
+if ! OPT="$(getopt -o "${OPTS}" -l "${OPTL}" -- "${@}")"; then
+    exit 1
+fi
 
 eval set -- "${OPT}"
-unset OPT opt_short opt_long
+unset OPT OPTS OPTL
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -85,29 +85,20 @@ while true; do
     esac
 done
 
-variable_list=(
-    "arch"
-    "boot_splash"
-    "channel_name"
-    "iso_publisher"
-    "kernel"
-    "iso_application"
-    "password"
-    "username"
-    "iso_version"
-)
+variable_list=( "arch" "boot_splash" "channel_name" "iso_publisher" "kernel" "iso_application" "password" "username" "iso_version")
 
-for var in ${variable_list[@]}; do
-    if [[ -z "$(eval echo '$'${var})" ]]; then
+error=false
+for var in "${variable_list[@]}"; do
+    if [[ -z "$(eval echo "\$${var}")" ]]; then
         echo "${var} is empty" >&2
-        exit 1
+        error=true
     fi
 done
-
+[[ "${error}" = true ]] && exit 1
+unset error
 
 # Get kernel info
-eval $(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")
-
+eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
 echo "Developer      : ${iso_publisher}"
 echo "OS Name        : ${iso_application}"

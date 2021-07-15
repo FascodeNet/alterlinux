@@ -17,8 +17,8 @@
     <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
         <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-    <a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-        <img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
+    <a href="https://github.com/FascodeNet/alterlinux/actions">
+        <img src="https://img.shields.io/github/workflow/status/fascodenet/alterlinux/ShellCheck%20CL?style=flat-square">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/issues">
         <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
@@ -86,6 +86,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
     <li>デフォルトでZENカーネルを採用</li>
     <li>洗練されたUIやテーマ、アイコンを搭載しています</li>
     <li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用できます</li>
+    <li>デフォルトでPipewireによる、高品質なオーディオが使えます</li>
     <li>archisoをベースとしたフレームワークにより簡単に派生OSを開発できます</li>
 </ul>
 

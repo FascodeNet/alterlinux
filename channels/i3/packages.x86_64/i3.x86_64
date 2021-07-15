@@ -16,7 +16,6 @@ xorg-xrandr
 i3-gaps
 nitrogen
 picom
-polybar
 conky
 
 # launcher
@@ -30,9 +29,6 @@ alterlinux-i3-manager
 
 # autostart
 dex
-
-# Qt config
-qt5ct
 
 # Theme
 adapta-gtk-theme

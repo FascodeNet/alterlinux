@@ -38,7 +38,7 @@ boot_splash=false
 
 # See the `mksquashfs` help for details on these items.
 sfs_comp="xz"
-sfs_comp_opt=""
+sfs_comp_opt=()
 
 # Sets the default locale for the live environment.
 # You can also place a package list for that locale name and install packages specific to that locale.
@@ -59,11 +59,6 @@ noaur=true
 
 # Kernel name
 defaultkernel="core"
-
-# Use mkalteriso written in a traditional shell script
-# instead of the C ++ version of mkalteriso.
-# Change the default behavior of "--shmkalteriso".
-shmkalteriso=true
 
 # Do not add rescue mode launch items
 # If true, do not add items such as "without GUI" or "Safe graphics".

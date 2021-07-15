@@ -9,10 +9,8 @@
 #
 # look and feel
 
-
 # icon
 papirus-icon-theme
 
-
-# Qt config
-qt5ct
+# theme
+materia-gtk-theme

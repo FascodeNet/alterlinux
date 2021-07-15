@@ -4,38 +4,22 @@
 # Twitter: @Pixel_3a
 # Email  : lap1sid@fascode.net
 #
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
 # (c) 2019-2021 Fascode Network.
 #
-
-
-#-- boot manager --#
-grub
-grub-customizer
-os-prober
-refind
-
-
-#-- documents --#
-man-db
-man-pages
-
 
 #-- system monitor --#
 ksysguard
 
-
-#-- scripts --#
-alterlinux-gtk-bookmarks
-alterlinux-desktop-file
-alterlinux-welcome-page
-
-
 #-- text editor --#
 kate
-nano
-vim
-
 
 #-- other --#
 htop
 packagekit-qt5
+
+#-- printer --#
+print-manager
