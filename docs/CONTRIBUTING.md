@@ -1,10 +1,12 @@
 # 貢献する方法 -日本語-
 
+English version is [here](CONTRIBUTING.md#how-to-contribute---english-)
+ 
 ## コーディング規約
 
 ### 全体
 
-- なるべく`bash`のビルドインコマンドを使用する
+- なるべく`bash`のビルトインコマンドを使用する
 - 外部コマンドを使用する場合は依存パッケージを追加する（極力使用しないでください）
 
 ### 出力
@@ -83,7 +85,7 @@ Issueを送る際は以下の情報を記述して下さい。
 
 ### General
 
-- Use the `bash` build-in command if possible
+- Use the `bash` built-in command if possible
 - Add a dependency package if you use an external command (please try not to use it as much as possible)
 
 ### Output

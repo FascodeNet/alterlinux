@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # keyring.sh
 #
@@ -16,125 +16,42 @@ set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 arch="$(uname -m)"
-
+archlinux32_repo="http://mirror.juniorjpdj.pl/archlinux32/i486/core/"
 
 # Set pacman.conf when build alterlinux
 alter_pacman_conf_x86_64="${script_path}/system/pacman-x86_64.conf"
 alter_pacman_conf_i686="${script_path}/system/pacman-i686.conf"
 
-
-# Color echo
-# usage: echo_color -b <backcolor> -t <textcolor> -d <decoration> [Text]
-#
-# Text Color
-# 30 => Black
-# 31 => Red
-# 32 => Green
-# 33 => Yellow
-# 34 => Blue
-# 35 => Magenta
-# 36 => Cyan
-# 37 => White
-#
-# Background color
-# 40 => Black
-# 41 => Red
-# 42 => Green
-# 43 => Yellow
-# 44 => Blue
-# 45 => Magenta
-# 46 => Cyan
-# 47 => White
-#
-# Text decoration
-# You can specify multiple decorations with ;.
-# 0 => All attributs off (ノーマル)
-# 1 => Bold on (太字)
-# 4 => Underscore (下線)
-# 5 => Blink on (点滅)
-# 7 => Reverse video on (色反転)
-# 8 => Concealed on
-
-echo_color() {
-    local backcolor
-    local textcolor
-    local decotypes
-    local echo_opts
-    local OPTIND_bak="${OPTIND}"
-    unset OPTIND
-
-    echo_opts="-e"
-
-    while getopts 'b:t:d:n' arg; do
-        case "${arg}" in
-            b) backcolor="${OPTARG}" ;;
-            t) textcolor="${OPTARG}" ;;
-            d) decotypes="${OPTARG}" ;;
-            n) echo_opts="-n -e"     ;;
-        esac
-    done
-
-    shift $((OPTIND - 1))
-
-    echo ${echo_opts} "\e[$([[ -v backcolor ]] && echo -n "${backcolor}"; [[ -v textcolor ]] && echo -n ";${textcolor}"; [[ -v decotypes ]] && echo -n ";${decotypes}")m${*}\e[m"
-    OPTIND=${OPTIND_bak}
+# Message common function
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "keyring.sh") _type="${1}"
+    shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    _msg_opts+=("${_type}" "${@}")
+    "${script_path}/tools/msg.sh" "${_msg_opts[@]}"
 }
 
 # Show an INFO message
-# $1: message string
-msg_info() {
-    local _msg_opts="-a keyring.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
-}
+# ${1}: message string
+msg_info() { msg_common info "${@}"; }
 
 # Show an Warning message
-# $1: message string
-msg_warn() {
-    local _msg_opts="-a keyring.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
-}
-
-# Show an debug message
-# $1: message string
-msg_debug() {
-    if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a keyring.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
-    fi
-}
+# ${1}: message string
+msg_warn() { msg_common warn "${@}"; }
 
 # Show an ERROR message then exit with status
-# $1: message string
-# $2: exit code number (with 0 does not exit)
+# ${1}: message string
+# ${2}: exit code number (with 0 does not exit)
 msg_error() {
-    local _msg_opts="-a keyring.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
-    if [[ -n "${2:-}" ]]; then
-        exit ${2}
-    fi
+    msg_common error "${1}"
+    [[ -n "${2:-}" ]] && exit "${2}"
+    return 0
 }
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cut -d " " -f "${1}"; }
 
 
 # Show usage
@@ -171,7 +88,7 @@ checkpkg() {
 
 run() {
     msg_info "Running ${*}"
-    ${@}
+    eval "${@}"
 }
 
 
@@ -208,9 +125,8 @@ update_arch_key() {
 
 
 update_alter_key() {
-    curl -L -o "/tmp/fascode.pub" "https://山d.com/repo/fascode.pub"
-    pacman-key -a "/tmp/fascode.pub"
-    rm -f "/tmp/fascode.pub"
+    curl -Lo - "http://repo.dyama.net/fascode.pub" \
+        | pacman-key -a -
     pacman-key --lsign-key development@fascode.net
 
     pacman --config "${alter_pacman_conf_x86_64}" -Sy --noconfirm alter-stable/alterlinux-keyring
@@ -228,10 +144,22 @@ remove_alter_key() {
 }
 
 update_arch32_key() {
+    ! pacman -Ssq archlinux32-keyring | grep -x archlinux32-keyring 2> /dev/null 1>&2 && msg_error "Not found archlinux32-keyring on remote repository. You should install it manually." 1
     pacman --noconfirm -S archlinux32-keyring
     pacman-key --init
     pacman-key --populate archlinux32
     #pacman-key --refresh-keys
+}
+
+new_update_arch32_key(){
+    local _savedir="${HOME}/.cache"
+    while read -r _pkg ; do
+        curl -o "${_savedir}/${_pkg}" "${archlinux32_repo}/${_pkg}"
+        pacman -U --noconfirm "${_savedir}/${_pkg}"
+        rm -f "${_savedir}/${_pkg}"
+    done < <(curl -sL "${archlinux32_repo}" | sed "s|<a href=\"||g" | cut -d "\"" -f 1 | grep -v "^<" | grep -v ".sig$" | grep ".pkg.tar." | grep "archlinux32-keyring" | grep -v "archlinux32-keyring-transition")
+    pacman-key --init
+    pacman-key --populate archlinux32
 }
 
 remove_arch32_key() {

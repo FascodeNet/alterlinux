@@ -4,7 +4,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # config
 #
@@ -54,6 +54,22 @@ include_info=true
 # Use this setting for debugging only.
 # # This setting cannot be changed by an argument.
 customized_syslinux=true
+
+
+# Modules to include
+# An array of module directory names to include.
+# This setting cannot be changed by an argument.
+modules=(
+    "base"
+    "share"
+    "share-extra"
+    "gtk-tools"
+    "zsh-powerline"
+    "lightdm"
+    "alter-lightdm"
+    "qtongtk"
+    "calamares"
+)
 
 
 #-- Live environment user --#

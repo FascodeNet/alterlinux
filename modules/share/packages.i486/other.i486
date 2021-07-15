@@ -1,0 +1,35 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Other
+
+
+#-- commandline tools --#
+arch-install-scripts
+bash-completion
+git
+jq
+mc
+python-srcinfo
+
+
+#-- utility --#
+sudo
+tlp
+xdg-user-dirs
+
+
+#-- linux --#
+linux-atm
+linux-firmware
+
+
+#-- man --#
+man-db
+man-pages

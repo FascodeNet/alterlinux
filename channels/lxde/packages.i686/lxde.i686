@@ -5,7 +5,7 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # Lxde Desktop Environment
 
@@ -35,8 +35,5 @@ adapta-gtk-theme
 papirus-icon-theme
 
 
-#-- wallpaper --#
-alterlinux-wallpapers
-
-# Qt config
-qt5ct
+#-- To run fascode-live-tools on lxde session --#
+python-pyxdg

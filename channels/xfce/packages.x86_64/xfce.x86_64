@@ -5,10 +5,9 @@
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # Xfce4 Desktop Environment
-
 
 #-- xfce4 base --#
 exo
@@ -29,10 +28,6 @@ xfconf
 xfdesktop
 xfwm4
 xfwm4-themes
-
-
-#-- xfce4 config --#
-alterlinux-xfce-conf
 
 
 #-- xfce4 plugins --#

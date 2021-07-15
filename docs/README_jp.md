@@ -9,7 +9,7 @@
         <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=flat-square">
     </a>
     <a href="../LICENSE">
-        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square" alt="License: GPLv3.0">
+        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://www.archlinux.org/">
         <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=flat-square&logo=arch-linux" alt="Base">
@@ -17,8 +17,8 @@
     <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
         <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-    <a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-        <img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
+    <a href="https://github.com/FascodeNet/alterlinux/actions">
+        <img src="https://img.shields.io/github/workflow/status/fascodenet/alterlinux/ShellCheck%20CL?style=flat-square">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/issues">
         <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
@@ -32,14 +32,14 @@
     <a href="https://github.com/FascodeNet/alterlinux/releases">
         <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
     </a>
-    <a href="https://fascode.net/en/projects/linux/alter/downloads/">
-        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=flat-square">
-    </a>
     <a href="https://github.com/FascodeNet/alterlinux/commits/">
         <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://github.com/fascodeNet/alterlinux/">
         <img src="https://img.shields.io/github/repo-size/fascodenet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux">
+        <img src="https://img.shields.io/tokei/lines/github/fascodenet/alterlinux?style=flat-square">
     </a>
 </p>
 
@@ -86,6 +86,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
     <li>デフォルトでZENカーネルを採用</li>
     <li>洗練されたUIやテーマ、アイコンを搭載しています</li>
     <li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用できます</li>
+    <li>デフォルトでPipewireによる、高品質なオーディオが使えます</li>
     <li>archisoをベースとしたフレームワークにより簡単に派生OSを開発できます</li>
 </ul>
 
