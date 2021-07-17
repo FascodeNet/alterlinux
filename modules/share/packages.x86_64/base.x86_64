@@ -12,7 +12,7 @@
 base-devel
 
 bash
-haveged
+#haveged
 intel-ucode
 amd-ucode
 mkinitcpio-nfs-utils
