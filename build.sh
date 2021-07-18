@@ -422,13 +422,14 @@ prepare_build() {
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        if [[ -n "${include_extra+SET}" ]]; then
-            if [[ "${include_extra}" = true ]]; then
+        case "${include_extra-"unset"}" in
+            "true")
                 modules=("base" "share" "share-extra" "gtk-tools" "pamac" "calamares" "zsh-powerline")
-            else
+                ;;
+            "false" | "unset")
                 modules=("base" "share")
-            fi
-        fi
+                ;;
+        esac
     fi
 
     local module_check
