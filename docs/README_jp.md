@@ -65,6 +65,9 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <h3>Xfce</h3>
 <img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
 
+<h3>Plasma</h3>
+<img src="../images/screenshot/desktop-plasma.png" alt="screenshot">
+
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 
