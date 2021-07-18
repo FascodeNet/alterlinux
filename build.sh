@@ -29,6 +29,7 @@ modules=()
 DEFAULT_ARGUMENT=""
 ARGUMENT=("${@}")
 alteriso_version="3.1"
+norepopkg=()
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
@@ -554,18 +555,30 @@ make_packages_repo() {
     msg_debug "pkglist.sh ${pkglist_args[*]}"
     readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
 
+    local _pkg
+    for _pkg in "${_pkglist[@]}"; do
+        msg_info "Checking ${_pkg}..."
+        if pacman -Ssq "${_pkg}" 2> /dev/null 1> /dev/null; then
+            _pkglist_install+=("${_pkg}")
+        else
+            msg_info "${_pkg} was not found. Install it with yay from AUR"
+            norepopkg+=("${_pkg}")
+        fi
+    done
+
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist[@]}" >> "${build_dir}/packages.list"
+    printf "%s\n" "${_pkglist_install[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
-    _pacstrap "${_pkglist[@]}"
+    _pacstrap "${_pkglist_install[@]}"
 
     return 0
 }
 
 make_packages_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
+    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
