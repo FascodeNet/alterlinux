@@ -557,11 +557,12 @@ make_packages_repo() {
     readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
 
     #pacman -Sy --config "${build_pacman_conf}"
-    readarray -t installedpkg < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {})
+    readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
+
     local _pkg
     for _pkg in "${_pkglist[@]}"; do
         msg_info "Checking ${_pkg}..."
-        if printf "%s\n" "${installedpkg[@]}" | grep -qx "${_pkg}"; then
+        if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
             _pkglist_install+=("${_pkg}")
         else
             msg_info "${_pkg} was not found. Install it with yay from AUR"
