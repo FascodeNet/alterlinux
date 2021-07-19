@@ -554,6 +554,7 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages_repo() {
     msg_debug "pkglist.sh ${pkglist_args[*]}"
+    readarray -t _pkglist_install < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
 
     # Package check
     #readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
