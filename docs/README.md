@@ -68,6 +68,9 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
 <h3>Xfce</h3>
 <img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
 
+<h3>Plasma</h3>
+<img src="../images/screenshot/desktop-plasma.png" alt="screenshot">
+
 <h3>Lxde</h3>
 <img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
 

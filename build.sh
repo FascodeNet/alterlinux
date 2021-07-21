@@ -29,6 +29,7 @@ modules=()
 DEFAULT_ARGUMENT=""
 ARGUMENT=("${@}")
 alteriso_version="3.1"
+norepopkg=()
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
@@ -421,13 +422,14 @@ prepare_build() {
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        if [[ -n "${include_extra+SET}" ]]; then
-            if [[ "${include_extra}" = true ]]; then
-                modules=("base" "share" "share-extra" "calamares" "zsh-powerline")
-            else
+        case "${include_extra-"unset"}" in
+            "true")
+                modules=("base" "share" "share-extra" "gtk-tools" "pamac" "calamares" "zsh-powerline")
+                ;;
+            "false" | "unset")
                 modules=("base" "share")
-            fi
-        fi
+                ;;
+        esac
     fi
 
     local module_check
@@ -552,20 +554,35 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages_repo() {
     msg_debug "pkglist.sh ${pkglist_args[*]}"
-    readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+    readarray -t _pkglist_install < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+
+    # Package check
+    #readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+    #readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
+    #local _pkg
+    #for _pkg in "${_pkglist[@]}"; do
+    #    msg_info "Checking ${_pkg}..."
+    #    if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
+    #        _pkglist_install+=("${_pkg}")
+    #    else
+    #        msg_info "${_pkg} was not found. Install it with yay from AUR"
+    #        norepopkg+=("${_pkg}")
+    #    fi
+    #done
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist[@]}" >> "${build_dir}/packages.list"
+    printf "%s\n" "${_pkglist_install[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
-    _pacstrap "${_pkglist[@]}"
+    _pacstrap "${_pkglist_install[@]}"
 
     return 0
 }
 
 make_packages_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
+    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
@@ -666,7 +683,7 @@ make_customize_airootfs() {
     # Create script
     for _script in "${_script_list[@]}"; do
         if [[ -f "${_script}" ]]; then
-            echo -e "\n$(cat "${_script}")" >> "${airootfs_dir}/${_main_script}"
+            (echo && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
         else
             msg_debug "${_script} was not found."
