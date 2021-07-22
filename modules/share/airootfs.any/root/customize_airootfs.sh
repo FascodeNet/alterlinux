@@ -43,6 +43,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
         l) language="${OPTARG}" ;;
+        *) : ;;
     esac
 done
 
