@@ -94,33 +94,22 @@ _usage () {
     echo "    -h | --help                  This help message and exit"
     echo
     echo "    -a | --arch <arch>           Set iso architecture"
-    echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                                  Default: ${sfs_comp}"
     echo "    -g | --gpgkey <key>          Set gpg key"
-    echo "                                  Default: ${gpg_key}"
     echo "    -l | --lang <lang>           Specifies the default language for the live environment"
-    echo "                                  Default: ${locale_name}"
-    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${defaultkernel}"
+    echo "    -k | --kernel <kernel>       Set special kernel type. See below for available kernels"
     echo "    -o | --out <out_dir>         Set the output directory"
-    echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
-    echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
-    echo "                                  Default: empty"
     echo "    -u | --user <username>       Set user name"
-    echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
-    echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch _dirname _type
-
+    local blank="29" _arch _dirname _type _output _first
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
-            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - 4 - "${#_arch}" ))")"
+            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")"
             "${tools_dir}/${_type}.sh" -a "${_arch}" show
         done
         echo
@@ -128,8 +117,13 @@ _usage () {
 
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n --line show | sed "s|.add$||g"); do
-        echo -ne "    ${_dirname}$(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")"
-        "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}"
+        readarray -t _output < <("${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}")
+        _first=true
+        echo -n "    ${_dirname}"
+        for _out in "${_output[@]}"; do
+            "${_first}" && echo -e "    $(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")${_out}" || echo -e "    $(echo_blank "$(( "${blank}" + 5 - "${#_dirname}" ))")${_out}"
+            _first=false
+        done
     done
 
     echo
@@ -228,10 +222,7 @@ show_channel_list() {
 
 # Execute command for each module. It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){
-    local module
-    for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done
-}
+for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
 
 # pacstrapを実行
 _pacstrap(){
