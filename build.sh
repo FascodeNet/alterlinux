@@ -434,21 +434,12 @@ prepare_build() {
     fi
 
     # Load presets
-    local _preset load_preset _modules=()
-    load_preset(){
-        if [[ -f "${script_path}/presets/${1}" ]]; then
-            readarray -t -O "${#_modules[@]}" _modules < <(cat "${script_path}/presets/${1}")
-        else
-            _modules+=("${1}")
-        fi
-    }
-    for_module "load_preset {}"
+    local _modules=() module_check
+    for_module '[[ -f "${preset_dir}/{}" ]] && readarray -t -O "${#_modules[@]}" _modules < <(cat "${preset_dir}/{}") || _modules+=("{}")'
     modules=("${_modules[@]}")
     unset _modules
 
-
     # Check modules
-    local module_check
     module_check(){
         msg_debug "Checking ${1} module ..."
         bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1";
@@ -496,9 +487,7 @@ prepare_build() {
     # Check architecture for each channel
     local _exit=0
     bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
-    if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
+    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
@@ -1326,12 +1315,7 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}"
-cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/airootfs"
-isofs_dir="${build_dir}/iso"
-lockfile_dir="${build_dir}/lockfile"
-gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
 
 # Create dir
 for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
