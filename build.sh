@@ -390,6 +390,7 @@ show_settings() {
     msg_info "The compression method of squashfs is ${sfs_comp}."
     msg_info "Use the ${channel_name%.add} channel."
     msg_info "Build with architecture ${arch}."
+    (( "${#additional_exclude_pkg[@]}" != 0 )) && msg_info "Excluded packages: ${additional_exclude_pkg[*]}"
     if [[ "${noconfirm}" = false ]]; then
         echo -e "\nPress Enter to continue or Ctrl + C to cancel."
         read -r
