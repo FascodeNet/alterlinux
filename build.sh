@@ -425,7 +425,7 @@ prepare_build() {
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         case "${include_extra-"unset"}" in
             "true")
-                modules=("base" "share" "share-extra" "gtk-tools" "pamac" "calamares" "zsh-powerline")
+                modules=("cli-modules" "share-extra" "gtk-tools" "pamac" "calamares")
                 ;;
             "false" | "unset")
                 modules=("base" "share")
@@ -433,6 +433,21 @@ prepare_build() {
         esac
     fi
 
+    # Load presets
+    local _preset load_preset _modules=()
+    load_preset(){
+        if [[ -f "${script_path}/presets/${1}" ]]; then
+            readarray -t -O "${#_modules[@]}" _modules < <(cat "${script_path}/presets/${1}")
+        else
+            _modules+=("${1}")
+        fi
+    }
+    for_module "load_preset {}"
+    modules=("${_modules[@]}")
+    unset _modules
+
+
+    # Check modules
     local module_check
     module_check(){
         msg_debug "Checking ${1} module ..."
@@ -440,6 +455,8 @@ prepare_build() {
     }
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "module_check {}"
+
+    # Load modules
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
     ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
