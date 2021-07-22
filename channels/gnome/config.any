@@ -25,6 +25,7 @@ modules=(
     "base"
     "share"
     "share-extra"
+    "pipewire"
     "gtk-tools"
     "zsh-powerline"
     "gdm"
