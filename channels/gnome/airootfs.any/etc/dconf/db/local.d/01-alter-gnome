@@ -12,7 +12,7 @@ clock-show-weekday=false
 enable-animations=false
 enable-hot-corners=false
 gtk-im-module='gtk-im-context-simple'
-gtk-theme='Adapta-Blue-Nokto-Eta'
+gtk-theme='Materia-dark-compact'
 icon-theme='Papirus-Dark'
 show-battery-percentage=true
 
@@ -160,13 +160,13 @@ show-network-volumes=false
 show-volumes=false
 
 [org/gnome/shell/extensions/user-theme]
-name='Adapta-Blue-Nokto'
+name='Materia-dark-compact'
 
 [org/gnome/shell/keybindings]
 toggle-overview=@as []
 
 [org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
-background-color='rgb(19,25,28)'
+background-color='rgb(18,18,18)'
 default-size-columns=80
 font='SauceCodePro Nerd Font 10'
 foreground-color='rgb(208,207,204)'
