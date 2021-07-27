@@ -144,8 +144,8 @@ work_dir="$(realpath "${work_dir}")"
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
-    echo -e "Press Enter to continue or Ctrl + C to cancel."
-    read
+    msg_info "Press Enter to continue or Ctrl + C to cancel."
+    read -r
 fi
 
 
