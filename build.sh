@@ -398,32 +398,20 @@ show_settings() {
 
 # Preparation for build
 prepare_build() {
+    # Debug mode
+    [[ "${bash_debug}" = true ]] && set -x -v
+
     # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd "${OLDPWD}"
-    fi
+    [[ -n "${gitrev-""}" ]] && msg_debug "The version of alteriso is ${gitrev}"
 
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
-    # Debug mode
-    if [[ "${bash_debug}" = true ]]; then
-        set -x -v
-    fi
-
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        case "${include_extra-"unset"}" in
-            "true")
-                modules=("cli-modules" "share-extra" "gtk-tools" "pamac" "calamares")
-                ;;
-            "false" | "unset")
-                modules=("base" "share")
-                ;;
-        esac
+        modules=("legacy")
+        [[ "${include_extra-"unset"}" = true ]] && modules=("legacy-extra")
     fi
 
     # Load presets
