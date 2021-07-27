@@ -58,16 +58,16 @@ msg_common(){
 }
 
 msg_error() {
-    msg_common -l "Error" -r "red" -p "stderr" error "${1}"
+    msg_common -l "Error" -r "red" -p "stderr" error "${1}" &
 }
 
 msg_info() {
-    msg_common -l "Info" -r "green" -p "stderr" info "${1}"
+    msg_common -l "Info" -r "green" -p "stderr" info "${1}" &
 }
 
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        msg_common -l "Debug" -r "magenta" -p "stderr" debug "${1}"
+        msg_common -l "Debug" -r "magenta" -p "stderr" debug "${1}" &
     fi
 }
 
