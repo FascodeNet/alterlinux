@@ -20,11 +20,6 @@ usershell="/bin/zsh"
 # This setting cannot be changed by an argument.
 modules=(
     "cli-modules"
-    "share-extra"
-    "pipewire"
-    "gtk-tools"
-    "lightdm"
-    "alter-lightdm"
-    "qtongtk"
-    "calamares"
+    "lightdm-modules"
+    "gtk-modules"
 )

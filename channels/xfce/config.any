@@ -20,6 +20,6 @@ usershell="/bin/zsh"
 # This setting cannot be changed by an argument.
 modules=(
     "cli-modules"
-    "gtk-modules"
     "lightdm-modules"
+    "gtk-modules"
 )
