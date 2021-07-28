@@ -19,14 +19,7 @@ usershell="/bin/zsh"
 # An array of module directory names to include.
 # This setting cannot be changed by an argument.
 modules=(
-    "base"
-    "share"
-    "share-extra"
-    "pipewire"
-    "gtk-tools"
-    "zsh-powerline"
-    "lightdm"
-    "alter-lightdm"
-    "qtongtk"
-    "calamares"
+    "cli-modules"
+    "lightdm-modules"
+    "gtk-modules"
 )

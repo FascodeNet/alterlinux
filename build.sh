@@ -90,37 +90,26 @@ _usage () {
     echo " General options:"
     echo "    -b | --boot-splash           Enable boot splash"
     echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
-    echo "         --tarball               Build rootfs in tar.xz format"
+    echo "    -r |  --tarball               Build rootfs in tar.xz format"
     echo "    -h | --help                  This help message and exit"
     echo
     echo "    -a | --arch <arch>           Set iso architecture"
-    echo "                                  Default: ${arch}"
     echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                                  Default: ${sfs_comp}"
     echo "    -g | --gpgkey <key>          Set gpg key"
-    echo "                                  Default: ${gpg_key}"
     echo "    -l | --lang <lang>           Specifies the default language for the live environment"
-    echo "                                  Default: ${locale_name}"
-    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${defaultkernel}"
+    echo "    -k | --kernel <kernel>       Set special kernel type. See below for available kernels"
     echo "    -o | --out <out_dir>         Set the output directory"
-    echo "                                  Default: ${out_dir}"
     echo "    -p | --password <password>   Set a live user password"
-    echo "                                  Default: ${password}"
     echo "    -t | --comp-opts <options>   Set compressor-specific options."
-    echo "                                  Default: empty"
     echo "    -u | --user <username>       Set user name"
-    echo "                                  Default: ${username}"
     echo "    -w | --work <work_dir>       Set the working directory"
-    echo "                                  Default: ${work_dir}"
     echo
 
-    local blank="33" _arch _dirname _type
-
+    local blank="29" _arch _dirname _type _output _first
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
-            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - 4 - "${#_arch}" ))")"
+            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")"
             "${tools_dir}/${_type}.sh" -a "${_arch}" show
         done
         echo
@@ -128,8 +117,13 @@ _usage () {
 
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n --line show | sed "s|.add$||g"); do
-        echo -ne "    ${_dirname}$(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")"
-        "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}"
+        readarray -t _output < <("${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}")
+        _first=true
+        echo -n "    ${_dirname}"
+        for _out in "${_output[@]}"; do
+            "${_first}" && echo -e "    $(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")${_out}" || echo -e "    $(echo_blank "$(( "${blank}" + 5 - "${#_dirname}" ))")${_out}"
+            _first=false
+        done
     done
 
     echo
@@ -137,6 +131,7 @@ _usage () {
     echo "    -d | --debug                 Enable debug messages"
     echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
     echo "         --channellist           Output the channel list and exit"
+    echo "         --config                Load additional config file"
     echo "         --gitversion            Add Git commit hash to image file version"
     echo "         --logpath <file>        Set log file path (use with --log)"
     echo "         --[no]log               (No) log ;re-run script with tee"
@@ -145,11 +140,12 @@ _usage () {
     echo "         --nocolor               No output colored output"
     echo "         --[no]confirm           (No) check the settings before building"
     echo "         --nochkver              No check the version of the channel"
-    echo "         --nodebug               No debug message"
+    echo "         --nodebug               Disable all debug messages"
     echo "         --noefi                 No efi boot (Use only for debugging)"
     echo "         --noloopmod             No check and load kernel module automatically"
     echo "         --nodepend              No check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
+    echo "         --nosigcheck            No pacman signature check"
     echo "         --pacman-debug          Enable pacman debug mode"
     echo "         --normwork              No remove working dir"
     echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
@@ -228,10 +224,7 @@ show_channel_list() {
 
 # Execute command for each module. It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){
-    local module
-    for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done
-}
+for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
 
 # pacstrapを実行
 _pacstrap(){
@@ -405,41 +398,37 @@ show_settings() {
 
 # Preparation for build
 prepare_build() {
+    # Debug mode
+    [[ "${bash_debug}" = true ]] && set -x -v
+
     # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd "${OLDPWD}"
-    fi
+    [[ -n "${gitrev-""}" ]] && msg_debug "The version of alteriso is ${gitrev}"
 
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
-    # Debug mode
-    if [[ "${bash_debug}" = true ]]; then
-        set -x -v
-    fi
-
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        case "${include_extra-"unset"}" in
-            "true")
-                modules=("base" "share" "share-extra" "gtk-tools" "pamac" "calamares" "zsh-powerline")
-                ;;
-            "false" | "unset")
-                modules=("base" "share")
-                ;;
-        esac
+        modules=("legacy")
+        [[ "${include_extra-"unset"}" = true ]] && modules=("legacy-extra")
     fi
 
-    local module_check
+    # Load presets
+    local _modules=() module_check
+    for_module '[[ -f "${preset_dir}/{}" ]] && readarray -t -O "${#_modules[@]}" _modules < <(cat "${preset_dir}/{}") || _modules+=("{}")'
+    modules=("${_modules[@]}")
+    unset _modules
+
+    # Check modules
     module_check(){
         msg_debug "Checking ${1} module ..."
         bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1";
     }
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "module_check {}"
+
+    # Load modules
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
     ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
@@ -479,9 +468,7 @@ prepare_build() {
     # Check architecture for each channel
     local _exit=0
     bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
-    if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
+    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
@@ -1035,9 +1022,7 @@ make_overisofs() {
 make_iso() {
     local _iso_efi_boot_args=()
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${build_dir}/efiboot.img" ]]; then
-        _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
-    fi
+    [[ -f "${build_dir}/efiboot.img" ]] && _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
 
     mkdir -p -- "${out_dir}"
     msg_info "Creating ISO image..."
@@ -1071,13 +1056,8 @@ make_iso() {
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}")
 OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
 OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:")
-if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
-#if ! readarray OPT < <(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
-    exit 1
-fi
+OPT="$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}")" || exit 1
 
-#eval set -- "${OPT[@]}"4
-#msg_debug "Argument: ${OPT[@]}"
 eval set -- "${OPT}"
 msg_debug "Argument: ${OPT}"
 unset OPT OPTS OPTL DEFAULT_ARGUMENT
@@ -1309,12 +1289,7 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}"
-cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/airootfs"
-isofs_dir="${build_dir}/iso"
-lockfile_dir="${build_dir}/lockfile"
-gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
 
 # Create dir
 for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do

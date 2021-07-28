@@ -22,13 +22,7 @@ noaur=false
 # An array of module directory names to include.
 # This setting cannot be changed by an argument.
 modules=(
-    "base"
-    "share"
-    "share-extra"
-    "pipewire"
-    "gtk-tools"
-    "zsh-powerline"
+    "cli-modules"
     "gdm"
-    "qtongtk"
-    "calamares"
+    "gtk-modules"
 )
