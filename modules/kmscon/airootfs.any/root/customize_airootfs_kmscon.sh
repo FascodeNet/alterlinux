@@ -17,5 +17,8 @@ fi
 _systemd_service disable "getty@tty1.service"
 _systemd_service enable "kmsconvt@tty1.service"
 
+# Do not run setterm
+remove /etc/profile.d/disable-beep.sh
+
 # Run KMSCON for all tty
 ln -s "/usr/lib/systemd/system/kmsconvt@.service" "/etc/systemd/system/autovt@.service"
