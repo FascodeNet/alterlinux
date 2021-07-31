@@ -7,15 +7,15 @@
 # (c) 2019-2021 Fascode Network.
 #
 
-# Copy config file for getty@tty1.service to kmsconvt@tty1.service
+# Copy config file for getty@.service to kmsconvt@.service
 if [[ -f "/etc/systemd/system/getty@.service.d/autologin.conf" ]]; then
     mkdir -p "/etc/systemd/system/kmsconvt@.service.d/"
     cp "/etc/systemd/system/getty@.service.d/autologin.conf" "/etc/systemd/system/kmsconvt@.service.d/autologin.conf" 
 fi
 
 # Disable default tty
-_systemd_service disable "getty@tty1.service"
-_systemd_service enable "kmsconvt@tty1.service"
+_systemd_service disable "getty@tty1.service" "getty@.service"
+_systemd_service enable "kmsconvt@.service"
 
 # Do not run setterm
 remove /etc/profile.d/disable-beep.sh
