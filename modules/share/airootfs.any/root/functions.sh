@@ -21,20 +21,11 @@ function check_bool() {
     esac
 }
 
-# Delete file only if file exists
-# remove <file1> <file2> ...
-function remove () {
-    local _list
+# Show message when file is removed
+# remove <file> <file> ...
+remove() {
     local _file
-    _list=($(echo "$@"))
-    for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            rm -rf "${_file}"
-        fi
-        echo "${_file} was deleted."
-    done
+    for _file in "${@}"; do echo "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
 # user_check <name>
