@@ -39,9 +39,6 @@ sushi
 dconf-editor
 gnome-tweaks
 
-#-- extentions --#
-chrome-gnome-shell
-
 
 #-- Display manager --#
 gdm

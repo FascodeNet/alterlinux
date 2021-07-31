@@ -75,10 +75,9 @@ show(){
 }
 
 # Parse options
-ARGUMENT="${@}"
 OPTS="hv:"
 OPTL="help,version:"
-if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- ${ARGUMENT}); then
+if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
     exit 1
 fi
 

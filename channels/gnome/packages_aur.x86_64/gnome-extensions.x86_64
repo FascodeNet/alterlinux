@@ -9,6 +9,8 @@
 #
 # Gnome extensions
 
+chrome-gnome-shell
+
 gnome-shell-extension-arc-menu
 gnome-shell-extension-clipboard-indicator
 gnome-shell-extension-coverflow-alt-tab

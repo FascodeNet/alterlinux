@@ -23,10 +23,10 @@ usershell="/bin/zsh"
 # An array of module directory names to include.
 # This setting cannot be changed by an argument.
 modules=(
-    "base"
-    "share"
-    "zsh-powerline"
+    "cli-modules"
     "share-extra"
     "kmscon"
+    "pipewire"
+    "gtk-tools"
     #"lightdm"
 )

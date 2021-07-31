@@ -11,6 +11,7 @@ pkgdir_name="packages"
 line=false
 debug=false
 memtest86=false
+nocolor=false
 
 additional_exclude_pkg=()
 
@@ -44,23 +45,29 @@ _help() {
 # for_module <command>
 for_module(){
     local module
-    for module in ${modules[@]}; do
-        eval $(echo ${@} | sed "s|{}|${module}|g")
+    for module in "${modules[@]}"; do
+        eval $(echo "${@}" | sed "s|{}|${module}|g")
     done
 }
 
 # Message functions
+msg_common(){
+    local _args=(-s "5" -a "pkglist.sh")
+    [[ "${nocolor}" = true ]] && _args+=("--nocolor")
+    "${script_path}/tools/msg.sh" "${_args[@]}" "${@}"
+}
+
 msg_error() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Error" -r "red" -p "stderr" error "${1}"
+    msg_common -l "Error" -r "red" -p "stderr" error "${1}" &
 }
 
 msg_info() {
-    "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Info" -r "green" -p "stderr" info "${1}"
+    msg_common -l "Info" -r "green" -p "stderr" info "${1}" &
 }
 
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        "${script_path}/tools/msg.sh" -s "5" -a "pkglist.sh" -l "Debug" -r "magenta" -p "stderr" debug "${1}"
+        msg_common -l "Debug" -r "magenta" -p "stderr" debug "${1}" &
     fi
 }
 
@@ -68,7 +75,7 @@ msg_debug() {
 # Parse options
 ARGUMENT=("${@}")
 OPTS="a:bc:de:k:l:mh"
-OPTL="arch:,boot-splash,channel:,debug,exclude:,kernel:,locale:,memtest86,aur,help,line"
+OPTL="arch:,boot-splash,channel:,debug,exclude:,kernel:,locale:,memtest86,aur,help,line,nocolor"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}"); then
     exit 1
 fi
@@ -122,6 +129,10 @@ while true; do
             _help
             exit 0
             ;;
+        --nocolor)
+            nocolor=true
+            shift 1
+            ;;
         --)
             shift 1
             break
@@ -130,7 +141,13 @@ while true; do
     esac
 done
 
-modules=("${@}")
+for module in "${@}"; do
+    if "${script_path}/tools/module.sh" check "${module}"; then
+        modules=("${@}")
+    else
+        msg_debug "Module ${module} was not found"
+    fi
+done
 
 if [[ -z "${arch}" ]] || [[ "${arch}" = "" ]]; then
     msg_error "Architecture not specified"
@@ -177,7 +194,7 @@ fi
 
 #-- Read package list --#
 # Read the file and remove comments starting with # and add it to the list of packages to install.
-for _file in ${_loadfilelist[@]}; do
+for _file in "${_loadfilelist[@]}"; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
         _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
@@ -191,7 +208,7 @@ done
 _excludefile=("${channel_dir}/packages.${arch}/exclude" "${channel_dir}/packages_aur.${arch}/exclude")
 for_module '_excludefile+=("${module_dir}/{}/packages.${arch}/exclude" "${module_dir}/{}/packages_aur.${arch}/exclude")'
 
-for _file in ${_excludefile[@]}; do
+for _file in "${_excludefile[@]}"; do
     if [[ -f "${_file}" ]]; then
         _excludelist+=($(grep -h -v ^'#' "${_file}") )
     fi

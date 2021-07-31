@@ -288,26 +288,21 @@ message="${*}"
 
 echo_type() {
     if [[ "${nolabel}" = false ]]; then
-        if [[ "${noadjust}" = false ]]; then
-            yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
-        fi
+        [[ "${noadjust}" = false ]] && yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
         text -c "${labelcolor}" "${msg_label}"
     fi
+    return 0
 }
 
 echo_appname() {
-    if [[ "${noappname}" = false ]]; then
-        text -c "cyan" "[${appname}]"
-    fi
+    [[ "${noappname}" = false ]] && text -c "cyan" "[${appname}]"
+    return 0
 }
 
 # echo_message <message>
 echo_message() {
-    if [[ "${customized_text_color}" = false ]]; then
-        text -n "${1}"
-    else
-        text -c "${textcolor}" "${1}"
-    fi
+    [[ "${customized_text_color}" = false ]] && text -n "${1}" || text -c "${textcolor}" "${1}"
+    return 0
 }
 
 for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do

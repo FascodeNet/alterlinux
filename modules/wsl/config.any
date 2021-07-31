@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+
+# Set to true to enable plymouth.
+# See help for a list of available values.
+# Change the default behavior of "-b" and "--boot-splash".
+boot_splash=false
+
+
+# Build the tarball with iso.
+# Change the default behavior of "--tarball".
+tarball=true
+
+
+# Set command line argument for tar command
+# It is only used for creating tarball
+# Change the default behavior of "--tar-opts".
+tar_comp="gzip"
+
+
+# When set to true, colored output will not be performed.
+# Change the default behavior of "--nocolor".
+nocolor=false
+
+
+# Do not include file about efi
+# Change the default behavior of "--noefi".
+# If noiso is true, it will be enabled automatically.
+noefi=true
+
+
+# Does not build the ISO image file.
+# Be sure to set the tarball to true if you want this to be true.
+# Change the default behavior of "--noiso".
+noiso=true

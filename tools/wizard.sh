@@ -129,7 +129,7 @@ Function_Global_Main_wizard_language () {
         echo "2: 日本語 Japanese"
         echo
         echo -n ": "
-        read Var_Global_Wizard_Option_language
+        read -r Var_Global_Wizard_Option_language
 
         case "${Var_Global_Wizard_Option_language}" in
             1 ) Var_Global_Wizard_Option_language=en ;;
@@ -166,7 +166,7 @@ Function_Global_Main_check_required_files () {
         "default.conf"
     )
 
-    for Var_Local_file in ${Var_Local_file_list[@]}; do
+    for Var_Local_file in "${Var_Local_file_list[@]}"; do
         if [[ ! -f "${Var_Global_Wizard_Env_script_path}/${Var_Local_file}" ]]; then
             msg_error "${Var_Local_file}が見つかりませんでした。" "${Var_Local_file} was not found."
             Var_Local_error=true
@@ -199,9 +199,9 @@ Function_Global_Main_install_dependent_packages () {
         local Var_Local_package Var_Local_installed_package Var_Local_installed_version
         Var_Local_installed_package=($(pacman -Q | getclm 1))
         Var_Local_installed_version=($(pacman -Q | getclm 2))
-        for Var_Local_package in $(seq 0 $(( ${#Var_Local_installed_package[@]} - 1 ))); do
-            if [[ ${Var_Local_installed_package[${Var_Local_package}]} = ${1} ]]; then
-                if [[ ${Var_Local_installed_version[${Var_Local_package}]} = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
+        for Var_Local_package in $(seq 0 $(( "${#Var_Local_installed_package[@]}" - 1 ))); do
+            if [[ "${Var_Local_installed_package[${Var_Local_package}]}" = "${1}" ]]; then
+                if [[ "${Var_Local_installed_version[${Var_Local_package}]}" = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
                     echo -n "true"
                     return 0
                 else
@@ -214,14 +214,14 @@ Function_Global_Main_install_dependent_packages () {
         return 0
     }
     echo
-    for Var_Local_package in ${dependence[@]}; do
+    for Var_Local_package in "${dependence[@]}"; do
         msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
         if [[ $(Function_Local_checkpkg ${Var_Local_package}) = false ]]; then
             Var_Global_missing_packages+=(${Var_Local_package})
         fi
     done
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
-        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
+        yay -S --needed --config "${Var_Global_Wizard_Env_pacman_conf}" "${Var_Global_missing_packages[@]}"
     fi
     echo
 }
@@ -238,7 +238,7 @@ Function_Global_Main_guide_to_the_web () {
 Function_Global_Main_run_keyring.sh () {
     local Var_Local_input_yes_or_no
     msg_n "Alter Linuxの鍵を追加しますか？（y/N）: " "Are you sure you want to add the Alter Linux key? (y/N):"
-    read Var_Local_input_yes_or_no
+    read -r Var_Local_input_yes_or_no
     if ${Var_Global_Wizard_Option_nobuild}; then
         msg \
             "${Var_Local_input_yes_or_no}が入力されました。シミュレーションモードが有効化されているためスキップします。" \
@@ -255,7 +255,7 @@ Function_Global_Main_run_keyring.sh () {
 
 Function_Global_Main_remove_dependent_packages () {
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
-        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" ${Var_Global_missing_packages[@]}
+        sudo pacman -Rsn --config "${Var_Global_Wizard_Env_pacman_conf}" "${Var_Global_missing_packages[@]}"
     fi
 }
 
@@ -272,7 +272,7 @@ Function_Global_Ask_build_arch() {
     echo "2: i686 (32bit)"
     echo -n ": "
 
-    read Var_Global_Wizard_Option_build_arch
+    read -r Var_Global_Wizard_Option_build_arch
 
     case "${Var_Global_Wizard_Option_build_arch}" in
         1 | "x86_64" ) Var_Global_Wizard_Option_build_arch="x86_64" ;;
@@ -285,7 +285,7 @@ Function_Global_Ask_build_arch() {
 Function_Global_Ask_plymouth () {
     local Var_Local_input_yes_or_no
     msg_n "Plymouthを有効化しますか？[no]（y/N） : " "Do you want to enable Plymouth? [no] (y/N) : "
-    read Var_Local_input_yes_or_no
+    read -r Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_plymouth=true   ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_plymouth=false  ;;
@@ -297,7 +297,7 @@ Function_Global_Ask_plymouth () {
 Function_Global_Ask_japanese () {
     local Var_Local_input_yes_or_no
     msg_n "日本語を有効化しますか？[no]（y/N） : " "Do you want to activate Japanese? [no] (y/N) : "
-    read Var_Local_input_yes_or_no
+    read -r Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_japanese=true   ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_japanese=false  ;;
@@ -313,7 +313,7 @@ Function_Global_Ask_locale() {
 
     local Var_Local_locale_list Var_Local_locale Var_Local_count=1 Var_Local_input_locale
     Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
-    for Var_Local_locale in ${Var_Local_locale_list[@]}; do
+    for Var_Local_locale in "${Var_Local_locale_list[@]}"; do
         (
             local locale_name locale_gen_name locale_version locale_time locale_fullname
             eval $("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )
@@ -324,11 +324,11 @@ Function_Global_Ask_locale() {
         Var_Local_count=$(( Var_Local_count + 1 ))
     done
     echo -n ": "
-    read Var_Local_input_locale
+    read -r Var_Local_input_locale
 
     set +e
     expr "${Var_Local_input_locale}" + 1 >/dev/null 2>&1
-    if [[ ${?} -lt 2 ]]; then
+    if [[ "${?}" -lt 2 ]]; then
         set -e
         # 数字である
         Var_Local_input_locale=$(( Var_Local_input_locale - 1 ))
@@ -366,7 +366,7 @@ Function_Global_Ask_comp_type () {
     echo "5: xz"
     echo "6: zstd"
     echo -n ": "
-    read Var_Local_input_comp_type
+    read -r Var_Local_input_comp_type
     case "${Var_Local_input_comp_type}" in
         "1" | "gzip" ) Var_Global_Build_comp_type="gzip" ;;
         "2" | "lzma" ) Var_Global_Build_comp_type="lzma" ;;
@@ -391,7 +391,7 @@ Function_Global_Ask_comp_option () {
 
                 Function_Local_gzip_level () {
                     msg_n "gzipの圧縮レベルを入力してください。 (1~22) : " "Enter the gzip compression level.  (1~22) : "
-                    read Var_Local_gzip_level
+                    read -r Var_Local_gzip_level
                     if ! [[ ${Var_Local_gzip_level} -lt 23 && ${Var_Local_gzip_level} -ge 1 ]]; then
                         Function_Local_gzip_level
                         return 0
@@ -402,7 +402,7 @@ Function_Global_Ask_comp_option () {
                         "gzipのウィンドウサイズを入力してください。 (1~15) : " \
                         "Please enter the gzip window size. (1~15) : "
 
-                    read Var_Local_gzip_window
+                    read -r Var_Local_gzip_window
                     if ! [[ ${Var_Local_gzip_window} -lt 15 && ${Var_Local_gzip_window} -ge 1 ]]; then
                         Function_Local_gzip_window
                         return 0
@@ -419,7 +419,7 @@ Function_Global_Ask_comp_option () {
                 msg_n \
                     "高圧縮モードを有効化しますか？ （y/N） : " \
                     "Do you want to enable high compression mode? （y/N） : "
-                read Var_Local_lz4_high_comp
+                read -r Var_Local_lz4_high_comp
                 case "${Var_Local_lz4_high_comp}" in
                     "y" | "Y" | "yes" | "Yes" | "YES" ) comp_option="-Xhc"         ;;
                     "n" | "N" | "no"  | "No"  | "NO"  ) :                          ;;
@@ -433,7 +433,7 @@ Function_Global_Ask_comp_option () {
                 msg_n \
                     "zstdの圧縮レベルを入力してください。 (1~22) : " \
                     "Enter the zstd compression level. (1~22) : "
-                read Var_Local_zstd_level
+                read -r Var_Local_zstd_level
                 if [[ ${Var_Local_zstd_level} -lt 23 && ${Var_Local_zstd_level} -ge 1 ]]; then
                     comp_option="-Xcompression-level ${Var_Local_zstd_level}"
                 else
@@ -458,7 +458,7 @@ Function_Global_Ask_comp_option () {
                     echo "4: lzo1x_1_15"
                     echo "5: lzo1x_999"
                     echo -n ": "
-                    read Var_Local_lzo_algorithm
+                    read -r Var_Local_lzo_algorithm
                     case "${Var_Local_lzo_algorithm}" in
                         "1" | "lzo1x_1")
                             Var_Local_lzo_algorithm="lzo1x_1"
@@ -486,7 +486,7 @@ Function_Global_Ask_comp_option () {
                     local Function_Local_lzo_level Var_Local_lzo_level
                     Function_Local_lzo_level () {
                         msg_n "lzoの圧縮レベルを入力してください。 (1~9) : " "Enter the gzip compression level.  (1~9) : "
-                        read Var_Local_lzo_level
+                        read -r Var_Local_lzo_level
                         if ! [[ ${Var_Local_lzo_level} -lt 10 && ${Var_Local_lzo_level} -ge 1 ]]; then
                             Function_Local_lzo_level
                             return 0
@@ -519,7 +519,7 @@ Function_Global_Ask_comp_option () {
 
 Function_Global_Ask_username () {
     msg_n "ユーザー名を入力してください : " "Please enter your username : "
-    read Var_Global_Build_username
+    read -r Var_Global_Build_username
     if [[ -z "${Var_Global_Build_username}" ]]; then
         Function_Global_Ask_username
         return 0
@@ -532,10 +532,10 @@ Function_Global_Ask_password () {
     local Var_Local_password Var_Local_password_confirm
 
     msg_n "パスワードを入力してください : " "Please enter your password : "
-    read -s Var_Local_password
+    read -r -s Var_Local_password
     echo
     msg_n "もう一度入力して下さい : " "Type it again : "
-    read -s Var_Local_password_confirm
+    read -r -s Var_Local_password_confirm
     if [[ ! "${Var_Local_password}" = "${Var_Local_password_confirm}" ]]; then
         echo
         msg_error "同じパスワードが入力されませんでした。" "You did not enter the same password."
@@ -562,7 +562,7 @@ Function_Global_Ask_kernel () {
 
     #選択肢の生成
     local Var_Local_kernel Var_Local_count=1 Var_Local_int
-    for Var_Local_kernel in ${Var_Local_kernel_list[@]}; do
+    for Var_Local_kernel in "${Var_Local_kernel_list[@]}"; do
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
             eval $("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )
@@ -576,7 +576,7 @@ Function_Global_Ask_kernel () {
     # 質問する
     echo -n ": "
     local Var_Local_input_kernel
-    read Var_Local_input_kernel
+    read -r Var_Local_input_kernel
 
     # 回答を解析する
     # 数字かどうか判定する
@@ -616,7 +616,7 @@ Function_Global_Ask_channel () {
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
     # 選択肢を生成
-    for Var_Local_channel in ${Var_Local_channel_list[@]}; do
+    for Var_Local_channel in "${Var_Local_channel_list[@]}"; do
         if [[ -f "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt" ]]; then
             Var_Local_description=$(cat "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt")
         else
@@ -632,7 +632,7 @@ Function_Global_Ask_channel () {
         Var_Local_count="$(( Var_Local_count + 1 ))"
     done
     echo -n ":"
-    read Var_Global_Build_channel
+    read -r Var_Global_Build_channel
 
     # 入力された値が数字かどうか判定する
     set +e
@@ -677,7 +677,7 @@ Function_Global_Ask_owner () {
     }
 
     msg_n "イメージファイルの所有者を入力してください。: " "Enter the owner of the image file.: "
-    read Var_Global_iso_owner
+    read -r Var_Global_iso_owner
     if [[ $(Function_Local_check_user ${Var_Global_iso_owner}) = false ]]; then
         echo "ユーザーが存在しません。"
         Function_Global_Ask_owner
@@ -698,7 +698,7 @@ Function_Global_Ask_out_dir () {
     msg "イメージファイルの作成先を入力して下さい。" "Enter the destination to create the image file."
     msg "デフォルトは ${Var_Global_Wizard_Env_script_path}/out です。" "The default is ${Var_Global_Wizard_Env_script_path}/out."
     echo -n ": "
-    read out_dir
+    read -r out_dir
     if [[ -z "${out_dir}" ]]; then
         out_dir="${Var_Global_Wizard_Env_script_path}/out"
     else
@@ -727,7 +727,7 @@ Function_Global_Ask_out_dir () {
 Function_Global_Ask_tarball () {
     local Var_Local_input_yes_or_no
     msg_n "tarballをビルドしますか？[no]（y/N） : " "Build a tarball? [no] (y/N) : "
-    read Var_Local_input_yes_or_no
+    read -r Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) Var_Global_Build_tarball=true   ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) Var_Global_Build_tarball=false  ;;
@@ -776,7 +776,7 @@ Function_Global_Ask_Confirm () {
         "この設定で続行します。よろしいですか？ (y/N) : " \
         "Continue with this setting. Is it OK? (y/N) : "
     local Var_Local_input_yes_or_no
-    read Var_Local_input_yes_or_no
+    read -r Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) :         ;;
         "n" | "N" | "no"  | "No"  | "NO"  ) ask       ;;
