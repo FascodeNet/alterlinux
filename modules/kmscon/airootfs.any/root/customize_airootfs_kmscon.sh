@@ -8,9 +8,9 @@
 #
 
 # Copy config file for getty@tty1.service to kmsconvt@tty1.service
-if [[ -f "/etc/systemd/system/getty@tty1.service.d/autologin.conf" ]]; then
-    mkdir -p "/etc/systemd/system/kmsconvt@tty1.service.d/"
-    cp "/etc/systemd/system/getty@tty1.service.d/autologin.conf" "/etc/systemd/system/kmsconvt@tty1.service.d/autologin.conf" 
+if [[ -f "/etc/systemd/system/getty@.service.d/autologin.conf" ]]; then
+    mkdir -p "/etc/systemd/system/kmsconvt@.service.d/"
+    cp "/etc/systemd/system/getty@.service.d/autologin.conf" "/etc/systemd/system/kmsconvt@.service.d/autologin.conf" 
 fi
 
 # Disable default tty
