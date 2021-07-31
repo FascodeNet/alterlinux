@@ -63,7 +63,8 @@ if ! user_check "${aur_username}"; then
 fi
 mkdir -p "/aurbuild_temp"
 chmod 700 -R "/aurbuild_temp"
-chown ${aur_username}:${aur_username} -R "/aurbuild_temp"
+chown "
+" -R "/aurbuild_temp"
 echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Setup keyring
