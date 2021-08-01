@@ -463,7 +463,7 @@ prepare_build() {
     msg_debug "Iso filename is ${iso_filename}"
 
     # check bool
-    check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
+    check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion nopvbar
 
     # Check architecture for each channel
     local _exit=0
@@ -939,8 +939,11 @@ make_tarball() {
     msg_info "Creating tarball..."
     cd -- "${airootfs_dir}"
     msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
-    #tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
-    tar -c -p -f - ./* "${tar_comp_opt[@]}" | pv | "${tar_comp}" > "${out_dir}/${tar_filename}"
+    if [[ "${nopvbar}" = true ]]; then
+        tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
+    else
+        tar -c -p -f - ./* "${tar_comp_opt[@]}" | pv | "${tar_comp}" > "${out_dir}/${tar_filename}"
+    fi
     cd -- "${OLDPWD}"
 
     # checksum
