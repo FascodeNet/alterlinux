@@ -52,6 +52,11 @@ function installedpkg () {
     fi
 }
 
+# Add group if it does not exist
+_groupadd(){
+    cut -d ":" -f 1 < "/etc/group" | grep -qx "${1}" && return 0 || groupadd "${1}"
+}
+
 # Create a user.
 # create_user <username> <password>
 function create_user () {
@@ -74,7 +79,7 @@ function create_user () {
 
     if ! user_check "${_username}"; then
         useradd -m -s ${usershell} ${_username}
-        groupadd sudo
+        _groupadd sudo
         usermod -U -g ${_username} ${_username}
         usermod -aG sudo ${_username}
         usermod -aG storage ${_username}
