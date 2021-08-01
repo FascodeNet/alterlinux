@@ -452,7 +452,7 @@ prepare_build() {
     case "${tar_comp}" in
         "gzip" ) tar_ext="gz"                        ;;
         "zstd" ) tar_ext="zst"                       ;;
-        "xz" | "lzo" | "lzma") tar_ext="${tar_comp}" ;;
+        "xz" | "lzma") tar_ext="${tar_comp}" ;;
     esac
 
     # Generate iso file name
@@ -1234,7 +1234,7 @@ while true; do
             ;;
         --tar-type)
             case "${2}" in
-                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") tar_comp="${2}" ;;
+                "gzip" | "lzma" | "xz" | "zstd") tar_comp="${2}" ;;
                 *) msg_error "Invaild compressors '${2}'" '1' ;;
             esac
             shift 2
