@@ -1074,7 +1074,7 @@ while true; do
             ;;
         -c | --comp-type)
             case "${2}" in
-                "gzip" | "lzma" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
+                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
                 *) msg_error "Invaild compressors '${2}'" '1' ;;
             esac
             shift 2
