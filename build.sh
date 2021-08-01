@@ -939,7 +939,8 @@ make_tarball() {
     msg_info "Creating tarball..."
     cd -- "${airootfs_dir}"
     msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
-    tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
+    #tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
+    tar -c -v -p -f - ./* "${tar_comp_opt[@]}" | pv | "${tar_comp}" > "${out_dir}/${tar_filename}"
     cd -- "${OLDPWD}"
 
     # checksum
