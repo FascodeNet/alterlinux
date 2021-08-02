@@ -236,12 +236,10 @@ else
     msg_debug "No packages are excluded."
 fi
 
-OLD_IFS="${IFS}"
-if [[ "${line}" = true ]]; then
-    IFS=$'\n'
-fi
-
 wait
 
-echo "${_pkglist[*]}" >&1
-IFS="${OLD_IFS}"
+if [[ "${line}" = true ]]; then
+    printf "%s\n" "${_pkglist[@]}"
+else
+    echo "${_pkglist[*]}" >&1
+fi
