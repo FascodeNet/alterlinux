@@ -191,8 +191,10 @@ Function_Global_Main_install_dependent_packages () {
 
     Function_Local_checkpkg () {
         local Var_Local_package Var_Local_installed_package Var_Local_installed_version
-        Var_Local_installed_package=($(pacman -Q | getclm 1))
-        Var_Local_installed_version=($(pacman -Q | getclm 2))
+        #Var_Local_installed_package=($(pacman -Q | getclm 1))
+        #Var_Local_installed_version=($(pacman -Q | getclm 2))
+        readarray -t Var_Local_installed_package < <(pacman -Q | getclm 1)
+        readarray -t Var_Local_installed_version < <(pacman -Q | getclm 2)
         for Var_Local_package in $(seq 0 $(( "${#Var_Local_installed_package[@]}" - 1 ))); do
             if [[ "${Var_Local_installed_package[${Var_Local_package}]}" = "${1}" ]]; then
                 if [[ "${Var_Local_installed_version[${Var_Local_package}]}" = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
@@ -816,9 +818,12 @@ Function_Global_Main_ask_questions () {
     # Function_Global_Ask_japanese この関数はAlterISO2以前を想定されたものです。
     Function_Global_Ask_locale
     Function_Global_Ask_channel
-    # Function_Global_Ask_owner
     Function_Global_Ask_tarball
+
+    # これらのディレクトリやファイルの所有権変更は現在無効化されています
+    # Function_Global_Ask_owner
     # Function_Global_Ask_out_dir
+
     Function_Global_Ask_Confirm
 }
 
