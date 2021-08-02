@@ -240,5 +240,7 @@ if [[ "${line}" = true ]]; then
     IFS=$'\n'
 fi
 
+wait
+
 echo "${_pkglist[*]}" >&1
 IFS="${OLD_IFS}"
