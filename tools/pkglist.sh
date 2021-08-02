@@ -182,7 +182,7 @@ fi
 
 # memtest86 package list
 if [[ "${memtest86}" = true ]]; then
-    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <($(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
 
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))'
 fi
