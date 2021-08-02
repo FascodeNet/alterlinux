@@ -191,29 +191,20 @@ Function_Global_Main_install_dependent_packages () {
 
     Function_Local_checkpkg () {
         local Var_Local_package Var_Local_installed_package Var_Local_installed_version
-        #Var_Local_installed_package=($(pacman -Q | getclm 1))
-        #Var_Local_installed_version=($(pacman -Q | getclm 2))
         readarray -t Var_Local_installed_package < <(pacman -Q | getclm 1)
         readarray -t Var_Local_installed_version < <(pacman -Q | getclm 2)
         for Var_Local_package in $(seq 0 $(( "${#Var_Local_installed_package[@]}" - 1 ))); do
             if [[ "${Var_Local_installed_package[${Var_Local_package}]}" = "${1}" ]]; then
-                if [[ "${Var_Local_installed_version[${Var_Local_package}]}" = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
-                    echo -n "true"
-                    return 0
-                else
-                    echo -n "false"
-                    return 0
-                fi
+                [[ "${Var_Local_installed_version[${Var_Local_package}]}" = "$(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" "${1}")" ]] && return 0 || return 1
             fi
         done
-        echo -n "false"
-        return 0
+        return 1
     }
     echo
     for Var_Local_package in "${dependence[@]}"; do
         msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
-        if [[ $(Function_Local_checkpkg ${Var_Local_package}) = false ]]; then
-            Var_Global_missing_packages+=(${Var_Local_package})
+        if Function_Local_checkpkg "${Var_Local_package}"; then
+            Var_Global_missing_packages+=("${Var_Local_package}")
         fi
     done
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
