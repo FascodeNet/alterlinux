@@ -718,22 +718,20 @@ Function_Global_Ask_tarball () {
 
 # 最終的なbuild.shのオプションを生成
 Function_Global_Main_create_argument () {
-    local Function_Local_add_arg
-    Function_Local_add_arg () {
-        argument="${argument} ${@}"
-    }
+    Var_Global_Build_argument=("--noconfirm" "-a" "${Var_Global_Wizard_Option_build_arch}")
 
-    #[[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
-    [[ -n "${Var_Global_Build_locale}"       ]] && Function_Local_add_arg "-l '${Var_Global_Build_locale}"
-    [[ "${Var_Global_Build_plymouth}" = true ]] && Function_Local_add_arg "-b"
-    [[ -n "${Var_Global_Build_comp_type}"    ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
-    [[ -n "${comp_option}"                   ]] && Function_Local_add_arg "-t '${comp_option}'"
-    [[ -n "${Var_Global_Build_kernel}"       ]] && Function_Local_add_arg "-k ${Var_Global_Build_kernel}"
-    [[ -n "${Var_Global_Build_username}"     ]] && Function_Local_add_arg "-u '${Var_Global_Build_username}'"
-    [[ -n "${Var_Global_Build_password}"     ]] && Function_Local_add_arg "-p '${Var_Global_Build_password}'"
-    [[ -n "${out_dir}"                       ]] && Function_Local_add_arg "-o '${out_dir}'"
-    [[ "${Var_Global_Build_tarball}" = true  ]] && Function_Local_add_arg "--tarball"
-    argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
+    #[[ "${Var_Global_Build_japanese}" = true ]] && Var_Global_Build_argument+=("-l ja")
+    [[ -n "${Var_Global_Build_locale}"       ]] && Var_Global_Build_argument+=("-l" "${Var_Global_Build_locale}")
+    [[ "${Var_Global_Build_plymouth}" = true ]] && Var_Global_Build_argument+=("-b")
+    [[ -n "${Var_Global_Build_comp_type}"    ]] && Var_Global_Build_argument+=("-c ${Var_Global_Build_comp_type}")
+    [[ -n "${comp_option}"                   ]] && Var_Global_Build_argument+=("-t" "${comp_option}")
+    [[ -n "${Var_Global_Build_kernel}"       ]] && Var_Global_Build_argument+=("-k" "${Var_Global_Build_kernel}")
+    [[ -n "${Var_Global_Build_username}"     ]] && Var_Global_Build_argument+=("-u" "${Var_Global_Build_username}")
+    [[ -n "${Var_Global_Build_password}"     ]] && Var_Global_Build_argument+=("-p" "${Var_Global_Build_password}")
+    [[ -n "${out_dir}"                       ]] && Var_Global_Build_argument+=("-o" "${out_dir}")
+    [[ "${Var_Global_Build_tarball}" = true  ]] && Var_Global_Build_argument+=("--tarball")
+    #argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
+    Var_Global_Build_argument+=("${Var_Global_Build_channel}")
 }
 
 
@@ -772,7 +770,7 @@ Function_Global_Main_run_build.sh () {
         # echo ${argument}
 
         work_dir="${Var_Global_Wizard_Env_script_path}/work"
-        sudo bash "${Var_Global_Wizard_Env_script_path}/build.sh" ${argument}
+        sudo bash "${Var_Global_Wizard_Env_script_path}/build.sh" "${Var_Global_Build_argument[@]}"
         
     fi
 }
