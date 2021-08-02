@@ -303,7 +303,7 @@ Function_Global_Ask_locale() {
     for Var_Local_locale in "${Var_Local_locale_list[@]}"; do
         (
             local locale_name locale_gen_name locale_version locale_time locale_fullname
-            eval $("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )
+            eval "$("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )"
             echo -n "$(printf %02d "${Var_Local_count}")    ${locale_name}"
             for Var_Local_int in $( seq 1 $(( 10 - ${#kernel} )) ); do echo -ne " "; done
             echo -ne "(${locale_fullname})\n"
