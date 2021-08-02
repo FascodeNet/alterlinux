@@ -130,13 +130,9 @@ Function_Global_Main_wizard_language () {
         read -r Var_Global_Wizard_Option_language
 
         case "${Var_Global_Wizard_Option_language}" in
-            1 ) Var_Global_Wizard_Option_language=en ;;
-            2 ) Var_Global_Wizard_Option_language=jp ;;
-            "英語" ) Var_Global_Wizard_Option_language=en ;;
-            "日本語" ) Var_Global_Wizard_Option_language=jp ;;
-            "English" ) Var_Global_Wizard_Option_language=en ;;
-            "Japanese" ) Var_Global_Wizard_Option_language=jp ;;
-            * ) Function_Global_Main_wizard_language ;;
+            "1" | "英語"   | "English"  | "en") Var_Global_Wizard_Option_language=en ;;
+            "2" | "日本語" | "Japanese" | "ja") Var_Global_Wizard_Option_language=jp ;;
+            *                                ) Function_Global_Main_wizard_language ;;
         esac
     fi
 }
