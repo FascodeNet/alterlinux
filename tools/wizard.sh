@@ -600,8 +600,11 @@ Function_Global_Ask_kernel () {
 Function_Global_Ask_channel () {
     # チャンネルの一覧を取得
     local Var_Local_int Var_Local_count=1 Var_Local_channel Var_Local_channel_list Var_Local_description Var_Local_channel_dir Var_Local_index
-    Var_Local_channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
-    Var_Local_channel_dir=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show))
+    #Var_Local_channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
+    #Var_Local_channel_dir=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show))
+
+    readarray -t Var_Local_channel_list < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show)
+    readarray -t Var_Local_channel_dir  < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show)
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
     # 選択肢を生成
