@@ -176,13 +176,13 @@ for_module '_loadfilelist+=(${module_dir}/{}/${pkgdir_name}.${arch}/kernel/${ker
 
 # Plymouth package list
 if [[ "${boot_splash}" = true ]]; then
-    _loadfilelist+=($(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))'
 fi
 
 # memtest86 package list
 if [[ "${memtest86}" = true ]]; then
-    _loadfilelist+=($(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <($(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))
 
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))'
 fi
@@ -192,7 +192,8 @@ fi
 for _file in "${_loadfilelist[@]}"; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
-        _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        #_pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        readarray -t -O "${#_pkglist[@]}" < <(grep -h -v ^'#' ${_file})
     else
         msg_debug "The file was not found ${_file}"
     fi
@@ -205,7 +206,8 @@ for_module '_excludefile+=("${module_dir}/{}/packages.${arch}/exclude" "${module
 
 for _file in "${_excludefile[@]}"; do
     if [[ -f "${_file}" ]]; then
-        _excludelist+=($(grep -h -v ^'#' "${_file}") )
+        #_excludelist+=($(grep -h -v ^'#' "${_file}") )
+        readarray -t -O "${#_excludelist[@]}" < <(grep -h -v ^'#' "${_file}")
     fi
 done
 
@@ -216,11 +218,13 @@ if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
 fi
 
 #-- パッケージリストをソートし重複を削除 --#
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
+#_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
+readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " ")
 
 #-- excludeに記述されたパッケージを除外 --#
 for _pkg in "${_excludelist[@]}"; do
-    _pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
+    #_pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
+    readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " ")
 done
 
 #-- excludeされたパッケージを表示 --#
