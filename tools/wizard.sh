@@ -757,7 +757,7 @@ Function_Global_Ask_Confirm () {
     read -r Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) :         ;;
-        "n" | "N" | "no"  | "No"  | "NO"  ) ask       ;;
+        "n" | "N" | "no"  | "No"  | "NO"  ) exit 0    ;;
         *                                 ) Function_Global_Ask_Confirm ;;
     esac
 }
