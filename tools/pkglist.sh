@@ -43,12 +43,7 @@ _help() {
 # Execute command for each module
 # It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){
-    local module
-    for module in "${modules[@]}"; do
-        eval $(echo "${@}" | sed "s|{}|${module}|g")
-    done
-}
+for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
 
 # Message functions
 msg_common(){
@@ -102,7 +97,7 @@ while true; do
             shift 1
             ;;
         -e | --exclude)
-            additional_exclude_pkg=(${2})
+            IFS=" " read -r -a additional_exclude_pkg <<< "${2}"
             shift 2
             ;;
         -k | --kernel)
