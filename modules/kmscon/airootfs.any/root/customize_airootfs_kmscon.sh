@@ -15,7 +15,9 @@ fi
 
 # Disable default tty
 _systemd_service disable "getty@tty1.service" "getty@.service"
-#_systemd_service enable "kmsconvt@.service"
+_systemd_service enable "kmsconvt@tty1.service"
+_systemd_service enable "kmsconvt@tty2.service"
+
 
 # Do not run setterm
 remove /etc/profile.d/disable-beep.sh
