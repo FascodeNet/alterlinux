@@ -658,19 +658,13 @@ Function_Global_Ask_channel () {
 Function_Global_Ask_owner () {
     local Function_Local_check_user
     Function_Local_check_user () {
-        if [[ $(getent passwd "${1}" > /dev/null ; printf "${?}") = 0 ]]; then
-            if [[ -z $1 ]]; then
-                echo -n "false"
-            fi
-            echo -n "true"
-        else
-            echo -n "false"
-        fi
+        [[ -z "${1+SET}" ]] && return 2
+        getent passwd "${1}" > /dev/null && return 0 || return 1
     }
 
     msg_n "イメージファイルの所有者を入力してください。: " "Enter the owner of the image file.: "
     read -r Var_Global_iso_owner
-    if [[ $(Function_Local_check_user ${Var_Global_iso_owner}) = false ]]; then
+    if Function_Local_check_user "${Var_Global_iso_owner}"; then
         echo "ユーザーが存在しません。"
         Function_Global_Ask_owner
         return 0
