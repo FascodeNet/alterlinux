@@ -220,12 +220,12 @@ fi
 
 #-- パッケージリストをソートし重複を削除 --#
 #_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
-readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " ")
+readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq)
 
 #-- excludeに記述されたパッケージを除外 --#
 for _pkg in "${_excludelist[@]}"; do
     #_pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
-    readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " ")
+    readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}")
 done
 
 #-- excludeされたパッケージを表示 --#
