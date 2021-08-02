@@ -162,9 +162,9 @@ set +e
 
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
-_loadfilelist=(
-    #-- channel packages --#
-    $(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+readarray -t _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+
+_loadfilelist+=(
     "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
     "${channel_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
 )
