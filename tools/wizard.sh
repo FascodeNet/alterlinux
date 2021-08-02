@@ -700,12 +700,6 @@ Function_Global_Ask_out_dir () {
                 "The directory is unavailable."
             Function_Global_Ask_out_dir
             return 0
-        elif [[ -n "$(ls ${out_dir})" ]]; then
-            msg_error \
-                "ディレクトリは空ではありません。" \
-                "The directory is not empty."
-            Function_Global_Ask_out_dir
-            return 0
         fi
     fi
 }
