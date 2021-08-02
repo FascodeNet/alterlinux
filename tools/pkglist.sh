@@ -189,11 +189,12 @@ fi
 
 #-- Read package list --#
 # Read the file and remove comments starting with # and add it to the list of packages to install.
+_pkglist=()
 for _file in "${_loadfilelist[@]}"; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
         #_pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
-        readarray -t -O "${#_pkglist[@]}" < <(grep -h -v ^'#' "${_file}")
+        readarray -t -O "${#_pkglist[@]}" _pkglist < <(grep -h -v ^'#' "${_file}")
     else
         msg_debug "The file was not found ${_file}"
     fi
@@ -207,7 +208,7 @@ for_module '_excludefile+=("${module_dir}/{}/packages.${arch}/exclude" "${module
 for _file in "${_excludefile[@]}"; do
     if [[ -f "${_file}" ]]; then
         #_excludelist+=($(grep -h -v ^'#' "${_file}") )
-        readarray -t -O "${#_excludelist[@]}" < <(grep -h -v ^'#' "${_file}")
+        readarray -t -O "${#_excludelist[@]}" _excludelist < <(grep -h -v ^'#' "${_file}")
     fi
 done
 
