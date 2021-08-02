@@ -299,7 +299,8 @@ Function_Global_Ask_locale() {
         "Please select the language to build from the following numbers"
 
     local Var_Local_locale_list Var_Local_locale Var_Local_count=1 Var_Local_input_locale
-    Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    #Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    readarray -t Var_Local_locale_list < <("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show)
     for Var_Local_locale in "${Var_Local_locale_list[@]}"; do
         (
             local locale_name locale_gen_name locale_version locale_time locale_fullname
