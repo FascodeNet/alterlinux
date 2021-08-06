@@ -128,8 +128,8 @@ check() {
         #echo "correct"
         exit 0
     elif [[ -d "${1}" ]] && [[ -n $(ls "${1}") ]]; then
-        local _channel_name="$(basename "${1%/}")"
-        if ! check_alteriso_version "${_channel}" || [[ "${opt_nochkver}" = true ]]; then
+        _channel_name="$(basename "${1%/}")"
+        if check_alteriso_version "${_channel_name}" || [[ "${opt_nochkver}" = true ]]; then
             #echo "directory"
             exit 1
         else
