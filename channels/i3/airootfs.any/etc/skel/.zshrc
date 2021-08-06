@@ -100,7 +100,7 @@ colors
 
 
 #-- Pass to the path --#
-[[ -d ~/.bin ]] && export PATH="~/.bin:${PATH}"
+[[ -d ~/.bin ]] && export PATH="${HOME}/.bin:${PATH}"
 
 
 #-- PROMPT --#
