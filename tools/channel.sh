@@ -64,7 +64,8 @@ gen_channel_list() {
                         channellist+=("${_dirname}")
                     fi
                 else
-                    channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+                    #channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+                    readarray -t -O "${#channellist[@]}" channellist < <(echo "${_dirname}" | sed 's/\.[^\.]*$//')
                 fi
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]] && [[ "${opt_only_add}" = false ]]; then
                 if [[ "${opt_fullpath}" = true ]]; then
