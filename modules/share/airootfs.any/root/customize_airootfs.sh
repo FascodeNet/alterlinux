@@ -27,7 +27,7 @@ language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
+while getopts 'p:bt:k:xu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
