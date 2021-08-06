@@ -117,6 +117,8 @@ check_alteriso_version(){
 }
 
 check() {
+    local _channel_name
+
     gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
         _help
