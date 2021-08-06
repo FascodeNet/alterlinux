@@ -229,7 +229,7 @@ fi
 
 #-- パッケージリストをソートし重複を削除 --#
 #_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
-readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq)
+readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr -d "\n")
 
 #-- excludeに記述されたパッケージを除外 --#
 for _pkg in "${_excludelist[@]}"; do
