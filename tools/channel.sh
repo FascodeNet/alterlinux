@@ -64,7 +64,8 @@ gen_channel_list() {
                         channellist+=("${_dirname}")
                     fi
                 else
-                    channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+                    #channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+                    readarray -t -O "${#channellist[@]}" channellist < <(echo "${_dirname}" | sed 's/\.[^\.]*$//')
                 fi
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]] && [[ "${opt_only_add}" = false ]]; then
                 if [[ "${opt_fullpath}" = true ]]; then
@@ -116,6 +117,8 @@ check_alteriso_version(){
 }
 
 check() {
+    local _channel_name
+
     gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
         _help
@@ -125,8 +128,8 @@ check() {
         #echo "correct"
         exit 0
     elif [[ -d "${1}" ]] && [[ -n $(ls "${1}") ]]; then
-        local _channel_name="$(basename "${1%/}")"
-        if ! check_alteriso_version "${_channel}" || [[ "${opt_nochkver}" = true ]]; then
+        _channel_name="$(basename "${1%/}")"
+        if check_alteriso_version "${_channel_name}" || [[ "${opt_nochkver}" = true ]]; then
             #echo "directory"
             exit 1
         else

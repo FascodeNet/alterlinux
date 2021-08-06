@@ -18,6 +18,7 @@
 
 
 #-- Completion --#
+# shellcheck disable=SC2206
 [ -e /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -U compinit
 compinit -u
@@ -99,7 +100,7 @@ colors
 
 
 #-- Pass to the path --#
-[[ -d ~/.bin ]] && export PATH="~/.bin:${PATH}"
+[[ -d ~/.bin ]] && export PATH="${HOME}/.bin:${PATH}"
 
 
 #-- PROMPT --#

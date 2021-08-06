@@ -27,12 +27,13 @@ language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
+while getopts 'p:bt:k:xu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
+        #k) kernel_config_line=(${OPTARG}) ;;
+        k) IFS=" " read -r -a kernel_config_line <<< "${OPTARG}" ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
@@ -43,6 +44,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
         l) language="${OPTARG}" ;;
+        *) : ;;
     esac
 done
 

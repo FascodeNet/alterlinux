@@ -65,9 +65,7 @@ msg_n() {
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cut -d " " -f "${1}"; }
 
 # 使い方
 Function_Global_help() {
@@ -132,13 +130,9 @@ Function_Global_Main_wizard_language () {
         read -r Var_Global_Wizard_Option_language
 
         case "${Var_Global_Wizard_Option_language}" in
-            1 ) Var_Global_Wizard_Option_language=en ;;
-            2 ) Var_Global_Wizard_Option_language=jp ;;
-            "英語" ) Var_Global_Wizard_Option_language=en ;;
-            "日本語" ) Var_Global_Wizard_Option_language=jp ;;
-            "English" ) Var_Global_Wizard_Option_language=en ;;
-            "Japanese" ) Var_Global_Wizard_Option_language=jp ;;
-            * ) Function_Global_Main_wizard_language ;;
+            "1" | "英語"   | "English"  | "en") Var_Global_Wizard_Option_language=en ;;
+            "2" | "日本語" | "Japanese" | "ja") Var_Global_Wizard_Option_language=jp ;;
+            *                                ) Function_Global_Main_wizard_language ;;
         esac
     fi
 }
@@ -197,27 +191,20 @@ Function_Global_Main_install_dependent_packages () {
 
     Function_Local_checkpkg () {
         local Var_Local_package Var_Local_installed_package Var_Local_installed_version
-        Var_Local_installed_package=($(pacman -Q | getclm 1))
-        Var_Local_installed_version=($(pacman -Q | getclm 2))
+        readarray -t Var_Local_installed_package < <(pacman -Q | getclm 1)
+        readarray -t Var_Local_installed_version < <(pacman -Q | getclm 2)
         for Var_Local_package in $(seq 0 $(( "${#Var_Local_installed_package[@]}" - 1 ))); do
             if [[ "${Var_Local_installed_package[${Var_Local_package}]}" = "${1}" ]]; then
-                if [[ "${Var_Local_installed_version[${Var_Local_package}]}" = $(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" ${1}) ]]; then
-                    echo -n "true"
-                    return 0
-                else
-                    echo -n "false"
-                    return 0
-                fi
+                [[ "${Var_Local_installed_version[${Var_Local_package}]}" = "$(pacman -Sp --print-format '%v' --config "${Var_Global_Wizard_Env_pacman_conf}" "${1}")" ]] && return 0 || return 1
             fi
         done
-        echo -n "false"
-        return 0
+        return 1
     }
     echo
     for Var_Local_package in "${dependence[@]}"; do
         msg "依存パッケージ ${Var_Local_package} を確認しています..." "Checking dependency package ${Var_Local_package} ..."
-        if [[ $(Function_Local_checkpkg ${Var_Local_package}) = false ]]; then
-            Var_Global_missing_packages+=(${Var_Local_package})
+        if Function_Local_checkpkg "${Var_Local_package}"; then
+            Var_Global_missing_packages+=("${Var_Local_package}")
         fi
     done
     if [[ -n "${Var_Global_missing_packages[*]}" ]]; then
@@ -312,11 +299,12 @@ Function_Global_Ask_locale() {
         "Please select the language to build from the following numbers"
 
     local Var_Local_locale_list Var_Local_locale Var_Local_count=1 Var_Local_input_locale
-    Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    #Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    readarray -t Var_Local_locale_list < <("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show)
     for Var_Local_locale in "${Var_Local_locale_list[@]}"; do
         (
             local locale_name locale_gen_name locale_version locale_time locale_fullname
-            eval $("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )
+            eval "$("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )"
             echo -n "$(printf %02d "${Var_Local_count}")    ${locale_name}"
             for Var_Local_int in $( seq 1 $(( 10 - ${#kernel} )) ); do echo -ne " "; done
             echo -ne "(${locale_fullname})\n"
@@ -558,14 +546,15 @@ Function_Global_Ask_kernel () {
 
     #カーネルの一覧を取得
     local Var_Local_kernel_list
-    Var_Local_kernel_list=($("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    #Var_Local_kernel_list=($("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
+    readarray -t Var_Local_kernel_list < <("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" show)
 
     #選択肢の生成
     local Var_Local_kernel Var_Local_count=1 Var_Local_int
     for Var_Local_kernel in "${Var_Local_kernel_list[@]}"; do
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
-            eval $("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )
+            eval "$("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )"
             echo -n "$(printf %02d "${Var_Local_count}")    ${kernel}"
             for Var_Local_int in $( seq 1 $(( 19 - ${#kernel} )) ); do echo -ne " "; done
             echo -ne "(${kernel_filename})\n"
@@ -611,8 +600,11 @@ Function_Global_Ask_kernel () {
 Function_Global_Ask_channel () {
     # チャンネルの一覧を取得
     local Var_Local_int Var_Local_count=1 Var_Local_channel Var_Local_channel_list Var_Local_description Var_Local_channel_dir Var_Local_index
-    Var_Local_channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
-    Var_Local_channel_dir=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show))
+    #Var_Local_channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
+    #Var_Local_channel_dir=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show))
+
+    readarray -t Var_Local_channel_list < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show)
+    readarray -t Var_Local_channel_dir  < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show)
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
     # 選択肢を生成
@@ -666,19 +658,13 @@ Function_Global_Ask_channel () {
 Function_Global_Ask_owner () {
     local Function_Local_check_user
     Function_Local_check_user () {
-        if [[ $(getent passwd "${1}" > /dev/null ; printf "${?}") = 0 ]]; then
-            if [[ -z $1 ]]; then
-                echo -n "false"
-            fi
-            echo -n "true"
-        else
-            echo -n "false"
-        fi
+        [[ -z "${1+SET}" ]] && return 2
+        getent passwd "${1}" > /dev/null && return 0 || return 1
     }
 
     msg_n "イメージファイルの所有者を入力してください。: " "Enter the owner of the image file.: "
     read -r Var_Global_iso_owner
-    if [[ $(Function_Local_check_user ${Var_Global_iso_owner}) = false ]]; then
+    if Function_Local_check_user "${Var_Global_iso_owner}"; then
         echo "ユーザーが存在しません。"
         Function_Global_Ask_owner
         return 0
@@ -714,12 +700,6 @@ Function_Global_Ask_out_dir () {
                 "The directory is unavailable."
             Function_Global_Ask_out_dir
             return 0
-        elif [[ -n "$(ls ${out_dir})" ]]; then
-            msg_error \
-                "ディレクトリは空ではありません。" \
-                "The directory is not empty."
-            Function_Global_Ask_out_dir
-            return 0
         fi
     fi
 }
@@ -738,22 +718,20 @@ Function_Global_Ask_tarball () {
 
 # 最終的なbuild.shのオプションを生成
 Function_Global_Main_create_argument () {
-    local Function_Local_add_arg
-    Function_Local_add_arg () {
-        argument="${argument} ${@}"
-    }
+    Var_Global_Build_argument=("--noconfirm" "-a" "${Var_Global_Wizard_Option_build_arch}")
 
-    #[[ "${Var_Global_Build_japanese}" = true ]] && Function_Local_add_arg "-l ja"
-    [[ -n "${Var_Global_Build_locale}"       ]] && Function_Local_add_arg "-l '${Var_Global_Build_locale}"
-    [[ "${Var_Global_Build_plymouth}" = true ]] && Function_Local_add_arg "-b"
-    [[ -n "${Var_Global_Build_comp_type}"    ]] && Function_Local_add_arg "-c ${Var_Global_Build_comp_type}"
-    [[ -n "${comp_option}"                   ]] && Function_Local_add_arg "-t '${comp_option}'"
-    [[ -n "${Var_Global_Build_kernel}"       ]] && Function_Local_add_arg "-k ${Var_Global_Build_kernel}"
-    [[ -n "${Var_Global_Build_username}"     ]] && Function_Local_add_arg "-u '${Var_Global_Build_username}'"
-    [[ -n "${Var_Global_Build_password}"     ]] && Function_Local_add_arg "-p '${Var_Global_Build_password}'"
-    [[ -n "${out_dir}"                       ]] && Function_Local_add_arg "-o '${out_dir}'"
-    [[ "${Var_Global_Build_tarball}" = true  ]] && Function_Local_add_arg "--tarball"
-    argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
+    #[[ "${Var_Global_Build_japanese}" = true ]] && Var_Global_Build_argument+=("-l ja")
+    [[ -n "${Var_Global_Build_locale}"       ]] && Var_Global_Build_argument+=("-l" "${Var_Global_Build_locale}")
+    [[ "${Var_Global_Build_plymouth}" = true ]] && Var_Global_Build_argument+=("-b")
+    [[ -n "${Var_Global_Build_comp_type}"    ]] && Var_Global_Build_argument+=("-c ${Var_Global_Build_comp_type}")
+    [[ -n "${comp_option}"                   ]] && Var_Global_Build_argument+=("-t" "${comp_option}")
+    [[ -n "${Var_Global_Build_kernel}"       ]] && Var_Global_Build_argument+=("-k" "${Var_Global_Build_kernel}")
+    [[ -n "${Var_Global_Build_username}"     ]] && Var_Global_Build_argument+=("-u" "${Var_Global_Build_username}")
+    [[ -n "${Var_Global_Build_password}"     ]] && Var_Global_Build_argument+=("-p" "${Var_Global_Build_password}")
+    [[ -n "${out_dir}"                       ]] && Var_Global_Build_argument+=("-o" "${out_dir}")
+    [[ "${Var_Global_Build_tarball}" = true  ]] && Var_Global_Build_argument+=("--tarball")
+    #argument="--noconfirm -a ${Var_Global_Wizard_Option_build_arch} ${argument} ${Var_Global_Build_channel}"
+    Var_Global_Build_argument+=("${Var_Global_Build_channel}")
 }
 
 
@@ -779,7 +757,7 @@ Function_Global_Ask_Confirm () {
     read -r Var_Local_input_yes_or_no
     case "${Var_Local_input_yes_or_no}" in
         "y" | "Y" | "yes" | "Yes" | "YES" ) :         ;;
-        "n" | "N" | "no"  | "No"  | "NO"  ) ask       ;;
+        "n" | "N" | "no"  | "No"  | "NO"  ) exit 0    ;;
         *                                 ) Function_Global_Ask_Confirm ;;
     esac
 }
@@ -792,7 +770,7 @@ Function_Global_Main_run_build.sh () {
         # echo ${argument}
 
         work_dir="${Var_Global_Wizard_Env_script_path}/work"
-        sudo bash "${Var_Global_Wizard_Env_script_path}/build.sh" ${argument}
+        sudo bash "${Var_Global_Wizard_Env_script_path}/build.sh" "${Var_Global_Build_argument[@]}"
         
     fi
 }
@@ -822,9 +800,12 @@ Function_Global_Main_ask_questions () {
     # Function_Global_Ask_japanese この関数はAlterISO2以前を想定されたものです。
     Function_Global_Ask_locale
     Function_Global_Ask_channel
-    # Function_Global_Ask_owner
     Function_Global_Ask_tarball
+
+    # これらのディレクトリやファイルの所有権変更は現在無効化されています
+    # Function_Global_Ask_owner
     # Function_Global_Ask_out_dir
+
     Function_Global_Ask_Confirm
 }
 

@@ -17,6 +17,7 @@ function remove_user_file(){
 while getopts 'u:' arg; do
     case "${arg}" in
         u) user="${OPTARG}";;
+        *) return 1;
     esac
 done
 
