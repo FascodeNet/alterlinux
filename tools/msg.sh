@@ -120,7 +120,7 @@ check_color(){
 ARGUMENT=("${@}")
 OPTS="a:c:l:no:p:r:s:t:xh"
 OPTL="appname:,chr:,label:,nocolor,echo-option:,output:,label-color:,label-space:,text-color:,bash-debug,help,nolabel,noappname,noadjust"
-if ! OPT=($(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")); then
+if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")"; then
     exit 1
 fi
 
@@ -147,7 +147,8 @@ while true; do
             shift 1
             ;;
         -o | --echo-option)
-            echo_opts+=(${2})
+            #echo_opts+=(${2})
+            IFS=" " read -r -a echo_opts <<< "${2}"
             shift 2
             ;;
         -p | --output)
