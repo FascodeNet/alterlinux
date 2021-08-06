@@ -160,9 +160,16 @@ fi
 
 set +e
 
+get_filelist(){
+    if [[ -d "${1}" ]]; then
+        find "${1}" -mindepth 1 -name "*.${arch}" -typr f -or -type l 2> /dev/null
+    fi
+}
+
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
-readarray -t _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+#readarray -t _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+readarray -t _loadfilelist < <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}")
 
 _loadfilelist+=(
     "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
@@ -176,13 +183,15 @@ for_module '_loadfilelist+=(${module_dir}/{}/${pkgdir_name}.${arch}/kernel/${ker
 
 # Plymouth package list
 if [[ "${boot_splash}" = true ]]; then
-    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+    #readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}/plymouth")
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))'
 fi
 
 # memtest86 package list
 if [[ "${memtest86}" = true ]]; then
-    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+    #readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}/memtest86")
 
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))'
 fi
