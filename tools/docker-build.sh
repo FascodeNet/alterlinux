@@ -54,7 +54,9 @@ while (( ${#} > 0 )); do
                 exit 1
             fi
             #
-            BUILD_SCRIPT_OPTS+=(${2})
+            #BUILD_SCRIPT_OPTS+=(${2})
+            IFS=" " read -r -a BUILD_SCRIPT_OPTS <<< "${2}"
+            
             shift 2
             ;;
         -d | --dist-out-dir)
