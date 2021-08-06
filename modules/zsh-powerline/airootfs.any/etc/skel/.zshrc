@@ -15,6 +15,7 @@
 
 
 #-- Completion --#
+# shellcheck disable=SC2206
 [ -e /usr/local/share/zsh-completions ] && fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -U compinit
 compinit -u
