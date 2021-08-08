@@ -136,7 +136,7 @@ for _pkg in "${@}"; do
 done
 
 # Reinstall failed package
-for _pkg in "${@}"; do
+for _pkg in "${failedpkg[@]}"; do
     installpkg "${_pkg}"
     if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
         echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
