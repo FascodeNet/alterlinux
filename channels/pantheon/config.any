@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# config
+#
+# Overwrites the first to read and set the build script
+# This configuration file follows the bash syntax.
+#
+
+# Set the user's default shell.
+usershell="/bin/zsh"
+
+# Modules to include
+# Pantheon channel uses pantheon's greeter, so use lightdm module instead of lightdm-modules preset
+modules=(
+    "cli-modules"
+    #"lightdm-modules"
+    "lightdm"
+    "gtk-modules"
+)
