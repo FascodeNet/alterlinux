@@ -9,7 +9,7 @@
 #
 # Pantheon addtional packages
 
-pantheon-session-git
 pantheon-settings-daemon-git
+pantheon-dock-git
+pantheon-session-git
 
-pantheon-dock
