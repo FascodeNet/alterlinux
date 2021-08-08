@@ -99,8 +99,8 @@ readarray -t pkgbuild_dirs < <(ls "${pkgbuild_dir}" 2> /dev/null)
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
     for _dir in "${pkgbuild_dirs[@]}"; do
         cd "${_dir}"
-        readarray depends < <(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${depends[@]}")
-        readarray makedepends < <(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${makedepends[@]}")
+        readarray depends < <(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; printf "%s\n" "${depends[@]}")
+        readarray makedepends < <(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; printf "%s\n" "${makedepends[@]}")
         if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
             for _pkg in "${depends[@]}" "${makedepends[@]}"; do
                 if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
