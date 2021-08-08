@@ -106,6 +106,8 @@ fi
 # Build and install
 chmod +s /usr/bin/sudo
 for _pkg in "${@}"; do
+    pacman -Qq "${_pkg}" > /dev/null 2>&1  && continue
+
     yes | sudo -u "${aur_username}" \
         yay -Sy \
             --mflags "-AcC" \
