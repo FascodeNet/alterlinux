@@ -11,6 +11,7 @@ set -e -u
 aur_username="aurbuild"
 pacman_debug=false
 pacman_args=()
+failedpkg=()
 
 trap 'exit 1' 1 2 3 15
 
@@ -102,12 +103,7 @@ if ! type -p yay > /dev/null; then
     exit 1
 fi
 
-
-# Build and install
-chmod +s /usr/bin/sudo
-for _pkg in "${@}"; do
-    pacman -Qq "${_pkg}" > /dev/null 2>&1  && continue
-
+installpkg(){
     yes | sudo -u "${aur_username}" \
         yay -Sy \
             --mflags "-AcC" \
@@ -123,8 +119,25 @@ for _pkg in "${@}"; do
             --mflags "--skippgpcheck" \
             "${pacman_args[@]}" \
             --cachedir "/var/cache/pacman/pkg/" \
-            "${_pkg}"
+            "${@}"
+}
 
+
+# Build and install
+chmod +s /usr/bin/sudo
+for _pkg in "${@}"; do
+    pacman -Qq "${_pkg}" > /dev/null 2>&1  && continue
+    installpkg "${_pkg}"
+
+    if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
+        echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+        failedpkg+=("${_pkg}")
+    fi
+done
+
+# Reinstall failed package
+for _pkg in "${@}"; do
+    installpkg "${_pkg}"
     if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
         echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
         exit 1
