@@ -119,7 +119,7 @@ installpkg(){
             --mflags "--skippgpcheck" \
             "${pacman_args[@]}" \
             --cachedir "/var/cache/pacman/pkg/" \
-            "${@}"
+            "${@}" || true
 }
 
 
