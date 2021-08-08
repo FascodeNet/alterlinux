@@ -10,6 +10,70 @@
 # Pantheon Desktop Environment
 
 #-- Pantheon --#
-pantheon
-pantheon-unstable
+capnet-assist
+cerbere
+contractor
+elementary-icon-theme
+elementary-wallpapers
+granite
+gtk-theme-elementary
+lightdm-pantheon-greeter
+pantheon-applications-menu
+pantheon-calculator
+pantheon-calendar
+pantheon-camera
+pantheon-code
+pantheon-dpms-helper
+pantheon-files
+pantheon-geoclue2-agent
+pantheon-mail
+pantheon-music
+pantheon-notifications
+pantheon-onboarding
+pantheon-photos
+pantheon-polkit-agent
+pantheon-screenshot
+pantheon-shortcut-overlay
+pantheon-sideload
+pantheon-tasks
+pantheon-terminal
+pantheon-videos
+sound-theme-elementary
+switchboard
+switchboard-plug-a11y
+switchboard-plug-about
+switchboard-plug-applications
+switchboard-plug-bluetooth
+switchboard-plug-datetime
+switchboard-plug-display
+switchboard-plug-keyboard
+switchboard-plug-mouse-touchpad
+switchboard-plug-network
+switchboard-plug-notifications
+switchboard-plug-online-accounts
+switchboard-plug-parental-controls
+switchboard-plug-power
+switchboard-plug-printers
+switchboard-plug-sharing
+switchboard-plug-sound
+switchboard-plug-user-accounts
+wingpanel
+wingpanel-indicator-bluetooth
+wingpanel-indicator-datetime
+wingpanel-indicator-keyboard
+wingpanel-indicator-network
+wingpanel-indicator-nightlight
+wingpanel-indicator-notifications
+wingpanel-indicator-power
+wingpanel-indicator-session
+wingpanel-indicator-sound
+
+
+#-- pantheon-unstable --#
+gala
+switchboard-plug-desktop
+
+
+#-- Additional --#
+gnome-settings-daemon
 
