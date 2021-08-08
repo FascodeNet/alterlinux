@@ -116,7 +116,7 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
     done
 fi
 
-if readarray deletepkg < <(pacman -Qtdq) &&  (( "${#deletepkg[@]}" != 0 )); then
+if readarray -t deletepkg < <(pacman -Qtdq) &&  (( "${#deletepkg[@]}" != 0 )); then
     pacman -Rsnc "${deletepkg[@]}" "${pacman_args[@]}"
 fi
 
