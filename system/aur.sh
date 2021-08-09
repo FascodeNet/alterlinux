@@ -160,7 +160,7 @@ done
 
 # Remove packages
 readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
-pacman -Rsnc "${pacman_args[@]}" "${remove_list[@]}"
+(( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
 # Clean up
 yay -Sccc "${pacman_args[@]}"

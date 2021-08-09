@@ -11,6 +11,7 @@ set -e
 build_username="pkgbuild"
 pacman_debug=false
 pacman_args=()
+remove_list=()
 
 _help() {
     echo "usage ${0} [option]"
@@ -116,9 +117,9 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
     done
 fi
 
-if readarray -t deletepkg < <(pacman -Qtdq) &&  (( "${#deletepkg[@]}" != 0 )); then
-    pacman -Rsnc "${deletepkg[@]}" "${pacman_args[@]}"
-fi
+
+readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qtdq) 
+(( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
 pacman -Sccc "${pacman_args[@]}"
 
