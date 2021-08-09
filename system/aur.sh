@@ -12,6 +12,8 @@ aur_username="aurbuild"
 pacman_debug=false
 pacman_args=()
 failedpkg=()
+remove_list=()
+yay_depends=("go")
 
 trap 'exit 1' 1 2 3 15
 
@@ -82,20 +84,32 @@ fi
 
 # Install yay
 if ! pacman -Qq yay 1> /dev/null 2>&1; then
-    (
-        _oldpwd="$(pwd)"
-        pacman -Syy "${pacman_args[@]}"
-        pacman -S --asdeps --needed "${pacman_args[@]}" go
-        sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-        cd "/tmp/yay"
-        sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
-            pacman "${pacman_args[@]}" -U "${_pkg}"
-        done
-        cd ..
-        remove "/tmp/yay"
-        cd "${_oldpwd}"
-    )
+    # Update database
+    _oldpwd="$(pwd)"
+    pacman -Syy "${pacman_args[@]}"
+
+    # Install depends
+    for _pkg in "${yay_depends[@]}"; do
+        if ! pacman -Qq "${_pkg}" | grep -q "${_pkg}"; then
+            pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
+            remove_list+=("${_pkg}")
+        fi
+    done
+
+    # Build yay
+    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+    cd "/tmp/yay"
+    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+
+    # Install yay
+    for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
+        pacman "${pacman_args[@]}" -U "${_pkg}"
+    done
+
+    # Remove debtis
+    cd ..
+    remove "/tmp/yay"
+    cd "${_oldpwd}"
 fi
 
 if ! type -p yay > /dev/null; then
@@ -144,6 +158,11 @@ for _pkg in "${failedpkg[@]}"; do
     fi
 done
 
+# Remove packages
+readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
+pacman -Rsnc "${pacman_args[@]}" "${remove_list[@]}"
+
+# Clean up
 yay -Sccc "${pacman_args[@]}"
 
 # remove user and file
