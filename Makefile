@@ -6,7 +6,7 @@ SHARE_OPTION := --boot-splash --comp-type "xz" --user "alter" --password "alter"
 ARCH_x86_64  := --arch x86_64
 ARCH_i686    := --arch i686
 FULLBUILD    := -d -g -e --noconfirm
-FULL_x86_64  := xfce cinnamon i3 plasma
+FULL_x86_64  := xfce cinnamon i3 plasma gnome
 FULL_i686    := xfce lxde
 CURRENT_DIR  := ${shell dirname $(dir $(abspath $(lastword $(MAKEFILE_LIST))))}/${shell basename $(dir $(abspath $(lastword $(MAKEFILE_LIST))))}
 
