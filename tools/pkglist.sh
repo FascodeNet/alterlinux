@@ -162,7 +162,7 @@ set +e
 
 get_filelist(){
     if [[ -d "${1}" ]]; then
-        find "${1}" -mindepth 1 -name "*.${arch}" -typr f -or -type l 2> /dev/null
+        find "${1}" -mindepth 1 -name "*.${arch}" -type f -or -type l 2> /dev/null
     fi
 }
 
@@ -190,8 +190,8 @@ fi
 
 # memtest86 package list
 if [[ "${memtest86}" = true ]]; then
-    #readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
-    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}/memtest86")
+    #readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}/memtest86")
 
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))'
 fi
@@ -229,7 +229,7 @@ fi
 
 #-- パッケージリストをソートし重複を削除 --#
 #_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
-readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr -d "\n")
+readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | grep -v ^$)
 
 #-- excludeに記述されたパッケージを除外 --#
 for _pkg in "${_excludelist[@]}"; do
