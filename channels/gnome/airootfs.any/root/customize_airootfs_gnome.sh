@@ -26,3 +26,10 @@ function remove_userfile() {
 }
 remove_userfile "Desktop/calamares.desktop"
 #remove_userfile ".config/autostart/genicon.desktop"
+
+# Optimize for i686
+if [[ "${arch}" = "i686" ]]; then
+    for _file in "/etc/dconf/db/local.d/01-alter-gnome" "/etc/dconf/db/local.d/02-live-installer-panel"; do
+        sed -i "s|chromium.desktop|firefox.desktop|g; s|Chromium|FireFox|g" "${_file}"
+    done
+fi
