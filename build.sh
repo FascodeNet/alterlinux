@@ -420,7 +420,7 @@ prepare_build() {
 
     # Load presets
     local _modules=() module_check
-    for_module '[[ -f "${preset_dir}/{}" ]] && readarray -t -O "${#_modules[@]}" _modules < <(cat "${preset_dir}/{}") || _modules+=("{}")'
+    for_module '[[ -f "${preset_dir}/{}" ]] && readarray -t -O "${#_modules[@]}" _modules < <(grep -h -v ^'#' "${preset_dir}/{}") || _modules+=("{}")'
     modules=("${_modules[@]}")
     unset _modules
 
