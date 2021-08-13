@@ -126,23 +126,30 @@ position='Bottom'
 switcher-style='Timeline'
 
 [org/gnome/shell/extensions/dash-to-panel]
-appicon-margin=4
+animate-appicon-hover-animation-extent={'RIPPLE': 4, 'PLANK': 4, 'SIMPLE': 1}
+appicon-padding=4
 available-monitors=[0]
 dot-position='BOTTOM'
 group-apps=true
 hotkeys-overlay-combo='TEMPORARILY'
 intellihide=false
 isolate-workspaces=true
-panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+leftbox-padding=-1
+panel-anchors='{"0":"MIDDLE"}'
+panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+panel-lengths='{"0":100}'
 panel-positions='{"0":"BOTTOM"}'
-panel-size=32
+panel-sizes='{"0":32}'
 secondarymenu-contains-showdetails=true
 show-appmenu=false
 show-apps-icon-file=''
+status-icon-padding=-1
 stockgs-keep-dash=true
 stockgs-keep-top-panel=false
 stockgs-panelbtn-click-only=false
 taskbar-locked=false
+tray-padding=-1
+window-preview-title-position='TOP'
 
 [org/gnome/shell/extensions/ding]
 icon-size='small'
