@@ -42,7 +42,7 @@ network-monitor-gio-name=''
 [org/gnome/mutter]
 center-new-windows=false
 dynamic-workspaces=true
-overlay-key='Super_R'
+overlay-key='Super_L'
 
 [org/gnome/nautilus/list-view]
 default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'where', 'date_modified', 'date_modified_with_time', 'date_accessed', 'recency', 'starred', 'detailed_type']
@@ -65,7 +65,7 @@ hinting='slight'
 [org/gnome/shell]
 app-picker-view=uint32 0
 disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
-enabled-extensions=['extensions@abteil.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'CoverflowAltTab@palatis.blogspot.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'horizontal-workspaces@gnome-shell-extensions.gcampax.github.com', 'CoverflowAltTab@dmo60.de', 'arcmenu@arcmenu.com', 'clipboard-indicator@tudmotu.com', 'appindicatorsupport@rgcjonas.gmail.com']
+enabled-extensions=['extensions@abteil.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'CoverflowAltTab@palatis.blogspot.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'horizontal-workspaces@gnome-shell-extensions.gcampax.github.com', 'CoverflowAltTab@dmo60.de', 'arcmenu@arcmenu.com', 'clipboard-indicator@tudmotu.com', 'appindicatorsupport@rgcjonas.gmail.com', 'activities_icons@fawtytoo']
 favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'gnome-control-center.desktop']
 welcome-dialog-last-shown-version='999999999'
 
@@ -99,6 +99,7 @@ menu-hotkey='Super_L'
 menu-layout='Windows'
 menu-width=290
 pinned-app-list=['Chromium', '', 'chromium.desktop', 'Thunderbird', '', 'thunderbird.desktop', 'LibreOffice Writer', '', 'libreoffice-writer.desktop', 'LibreOffice Impress', '', 'libreoffice-impress.desktop', 'LibreOffice Calc', '', 'libreoffice-calc.desktop', 'System Monitor', '', 'gnome-system-monitor.desktop', 'Extensions', '', 'org.gnome.Extensions.desktop', 'VLC media player', '', 'vlc.desktop', 'medit', '', 'medit.desktop']
+position-in-panel='Left'
 prefs-visible-page=0
 right-panel-width=205
 searchbar-default-bottom-location='Bottom'
@@ -137,7 +138,7 @@ intellihide=false
 isolate-workspaces=true
 leftbox-padding=-1
 panel-anchors='{"0":"MIDDLE"}'
-panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
 panel-lengths='{"0":100}'
 panel-positions='{"0":"BOTTOM"}'
 panel-sizes='{"0":32}'
