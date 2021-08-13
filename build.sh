@@ -151,6 +151,7 @@ _usage () {
     echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
     echo "         --tar-type <comp_type>  Set compression type (gzip, lzma, lzo, xz, zstd)"
     echo "         --tar-opts <option>     Set tar command argument (Use with --tarball)"
+    echo "         --add-module <module>   Load additional modules (Separated by \",\")"
     echo
     echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
     echo
@@ -406,6 +407,9 @@ prepare_build() {
 
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
+
+    # Additional modules
+    modules+=("${additional_modules[@]}")
 
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
@@ -1056,7 +1060,7 @@ make_iso() {
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}")
 OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
-OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:")
+OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:")
 OPT="$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}")" || exit 1
 
 eval set -- "${OPT}"
@@ -1242,6 +1246,11 @@ while true; do
             ;;
         --tar-opts)
             IFS=" " read -r -a tar_comp_opt <<< "${2}"
+            shift 2
+            ;;
+        --add-module)
+            readarray -t -O "${#additional_modules[@]}" additional_modules < <(echo "${2}" | tr "," "\n")
+            msg_debug "Added modules: ${additional_modules[*]}"
             shift 2
             ;;
         --)
