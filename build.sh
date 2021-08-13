@@ -109,8 +109,7 @@ _usage () {
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
-            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")"
-            "${tools_dir}/${_type}.sh" -a "${_arch}" show
+            echo "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")$("${tools_dir}/${_type}.sh" -a "${_arch}" show)"
         done
         echo
     done
@@ -159,7 +158,7 @@ _usage () {
 }
 
 # Unmount helper Usage: _umount <target>
-_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
+_umount() { mountpoint -q "${1}" && umount -lf "${1}"; return 0; }
 
 # Mount helper Usage: _mount <source> <target>
 _mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; return 0; }
@@ -181,7 +180,6 @@ mount_airootfs () {
 
 # Helper function to run make_*() only one time.
 run_once() {
-    set -eu
     if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
         msg_debug "Running ${1} ..."
         mount_airootfs
@@ -659,10 +657,10 @@ make_customize_airootfs() {
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
 
     # Generate options of customize_airootfs.sh.
-    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
-    [[ "${boot_splash}" = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
-    [[ "${debug}" = true       ]] && _airootfs_script_options="${_airootfs_script_options} -d"
-    [[ "${bash_debug}" = true  ]] && _airootfs_script_options="${_airootfs_script_options} -x"
+    _airootfs_script_options=(-p "${password}" -k "${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}" -u "${username}" -o "${os_name}" -i "${install_dir}" -s "${usershell}" -a "${arch}" -g "${locale_gen_name}" -l "${locale_name}" -z "${locale_time}" -t "${theme_name}")
+    [[ "${boot_splash}" = true ]] && _airootfs_script_options+=("-b")
+    [[ "${debug}" = true       ]] && _airootfs_script_options+=("-d")
+    [[ "${bash_debug}" = true  ]] && _airootfs_script_options+=("-x")
 
     _main_script="root/customize_airootfs.sh"
 
@@ -684,8 +682,8 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename ${_main_script})"
-    _chroot_run "${_main_script} ${_airootfs_script_options}"
+    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
+    _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
     remove "${airootfs_dir}/${_main_script}"
 
     # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
