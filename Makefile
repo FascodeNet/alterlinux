@@ -15,7 +15,7 @@ full:
 	sudo ${CURRENT_DIR}/tools/fullbuild.sh ${FULLBUILD} -m i686   ${FULL_i686}
 	@make clean
 
-basic-64 basic-32  cinnamon-64 cinnamon-32 gnome-64 i3-64 i3-32 lxde-64 lxde-32 plasma-64 releng-32 releng-64 serene-64 serene-32 xfce-64 xfce-32 xfce-pro-64:
+basic-64 basic-32  cinnamon-64 cinnamon-32 gnome-64 gnome-32 i3-64 i3-32 lxde-64 lxde-32 plasma-64 releng-32 releng-64 serene-64 serene-32 xfce-64 xfce-32 xfce-pro-64:
 	@$(eval ARCHITECTURE=${shell echo ${@} | rev | cut -d '-' -f 1 | rev })
 	@$(eval CHANNEL=${shell echo ${@} | sed "s/-${ARCHITECTURE}//g"})
 	@[[ -z "${CHANNEL}" ]] && echo "Empty Channel" && exit 1 || :
