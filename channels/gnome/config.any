@@ -23,7 +23,6 @@ noaur=false
 # This setting cannot be changed by an argument.
 modules=(
     "cli-modules"
-    "kmscon"
     "gdm"
     "gtk-modules"
 )

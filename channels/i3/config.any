@@ -22,5 +22,4 @@ modules=(
     "cli-modules"
     "lightdm-modules"
     "gtk-modules"
-    "kmscon"
 )

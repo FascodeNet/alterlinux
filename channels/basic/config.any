@@ -25,7 +25,6 @@ usershell="/bin/zsh"
 modules=(
     "cli-modules"
     "share-extra"
-    "kmscon"
     "pipewire"
     "gtk-tools"
     #"lightdm"

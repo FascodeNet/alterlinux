@@ -23,5 +23,4 @@ modules=(
     "share-extra"
     "pipewire"
     "calamares"
-    "kmscon"
 )
