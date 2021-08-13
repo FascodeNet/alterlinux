@@ -20,7 +20,7 @@ _systemd_service enable ufw.service
 
 
 # Added autologin group to auto login
-groupadd autologin
+_groupadd autologin
 usermod -aG autologin ${username}
 
 
