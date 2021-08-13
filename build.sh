@@ -705,11 +705,9 @@ make_setup_mkinitcpio() {
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
     cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
     cp "${script_path}/system/initcpio/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
-    if [[ "${boot_splash}" = true ]]; then
-        cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
-    else
-        cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
-    fi
+    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+
     if [[ "${gpg_key}" ]]; then
       gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
       exec 17<>"${build_dir}/gpgkey"
@@ -764,9 +762,7 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${build_dir}/syslinux/"
     cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
-    if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
-    fi
+    [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]] && cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
 
     # copy all syslinux config to work dir
     for _cfg in "${build_dir}/syslinux/"*.cfg; do
@@ -778,13 +774,10 @@ make_syslinux() {
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
-    local _use_config_name _no_use_config_name _pxe_or_sys
+    local _use_config_name="nosplash" _no_use_config_name="splash" _pxe_or_sys
     if [[ "${boot_splash}" = true ]]; then
         _use_config_name=splash
         _no_use_config_name=nosplash
-    else
-        _use_config_name=nosplash
-        _no_use_config_name=splash
     fi
     for _pxe_or_sys in "sys" "pxe"; do
         remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
@@ -792,11 +785,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    if [[ -f "${channel_dir}/splash.png" ]]; then
-        cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
-    else
-        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
-    fi
+    cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
+    [[ -f "${channel_dir}/splash.png" ]] && cp -f "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
 
     # remove config
     local _remove_config
