@@ -335,7 +335,7 @@ prepare_env() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        lsmod | getclm 1 | grep -x "loop" || modprobe loop
+        lsmod | getclm 1 | grep -qx "loop" || modprobe loop
     fi
 
     # Check work dir
