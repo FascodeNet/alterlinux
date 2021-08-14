@@ -675,7 +675,7 @@ make_customize_airootfs() {
     # Create script
     for _script in "${_script_list[@]}"; do
         if [[ -f "${_script}" ]]; then
-            (echo && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
+            (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
         else
             msg_debug "${_script} was not found."
