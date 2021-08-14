@@ -15,7 +15,7 @@
 # Check whether true or false is assigned to the variable.
 function check_bool() {
     local
-    case $(eval echo '$'${1}) in
+    case $(eval echo '$'"${1}") in
         true | false) : ;;
                    *) echo "The value ${boot_splash} set is invalid" >&2 ;;
     esac
@@ -60,13 +60,8 @@ _groupadd(){
 # Create a user.
 # create_user <username> <password>
 function create_user () {
-    local _password
-    local _username
+    local _username="${1-""}" _password="${2-""}"
 
-    _username=${1}
-    _password=${2}
-
-    set +u
     if [[ -z "${_username}" ]]; then
         echo "User name is not specified." >&2
         return 1
@@ -75,19 +70,18 @@ function create_user () {
         echo "No password has been specified." >&2
         return 1
     fi
-    set -u
 
     if ! user_check "${_username}"; then
-        useradd -m -s ${usershell} ${_username}
+        useradd -m -s "${usershell}" "${_username}"
         _groupadd sudo
-        usermod -U -g ${_username} ${_username}
-        usermod -aG sudo ${_username}
-        usermod -aG storage ${_username}
-        cp -aT /etc/skel/ /home/${_username}/
+        usermod -U -g "${_username}" "${_username}"
+        usermod -aG sudo "${_username}"
+        usermod -aG storage "${_username}"
+        cp -aT "/etc/skel/" "/home/${_username}/"
     fi
-    chmod 700 -R /home/${_username}
-    chown ${_username}:${_username} -R /home/${_username}
-    echo -e "${_password}\n${_password}" | passwd ${_username}
+    chmod 700 -R "/home/${_username}"
+    chown "${_username}:${_username}" -R "/home/${_username}"
+    echo -e "${_password}\n${_password}" | passwd "${_username}"
     set -u
 }
 
@@ -100,7 +94,7 @@ _safe_systemctl(){
     for _service in "${@}"; do
         # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
         if (( "$(systemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
-            systemctl ${_command} "${_service}"
+            systemctl "${_command}" "${_service}"
         else
             echo "${_service} was not found" >&2
         fi
