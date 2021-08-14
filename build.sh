@@ -181,11 +181,12 @@ mount_airootfs () {
 # Helper function to run make_*() only one time.
 run_once() {
     if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
+        umount_work
         msg_debug "Running ${1} ..."
         mount_airootfs
         eval "${@}"
         mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
-        umount_work
+        
     else
         msg_debug "Skipped because ${1} has already been executed."
     fi
