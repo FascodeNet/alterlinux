@@ -14,9 +14,9 @@ if [[ -f "/etc/systemd/system/getty@.service.d/autologin.conf" ]]; then
 fi
 
 # Disable default tty
-_systemd_service disable "getty@tty1.service" "getty@.service"
-_systemd_service enable "kmsconvt@tty1.service"
-_systemd_service enable "kmsconvt@tty2.service"
+_safe_systemctl disable "getty@tty1.service" "getty@.service"
+_safe_systemctl enable "kmsconvt@tty1.service"
+_safe_systemctl enable "kmsconvt@tty2.service"
 
 
 # Do not run setterm

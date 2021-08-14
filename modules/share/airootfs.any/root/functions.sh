@@ -93,8 +93,8 @@ function create_user () {
 
 # systemctl helper
 # Execute the subcommand only when the specified unit is available.
-# Usage: _systemd_service <systemctl subcommand> <service1> <service2> ...
-_systemd_service(){
+# Usage: _safe_systemctl <systemctl subcommand> <service1> <service2> ...
+_safe_systemctl(){
     local _service _command="${1}"
     shift 1
     for _service in "${@}"; do

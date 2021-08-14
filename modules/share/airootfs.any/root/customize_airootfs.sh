@@ -157,19 +157,19 @@ run_additional_command "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 
 
 # Enable graphical.
-_systemd_service set-default graphical.target
+_safe_systemctl set-default graphical.target
 
 
 # Enable services.
-_systemd_service enable pacman-init.service
-_systemd_service enable cups.service
-_systemd_service enable NetworkManager.service
-_systemd_service enable alteriso-reflector.service
-_systemd_service disable reflector.service
+_safe_systemctl enable pacman-init.service
+_safe_systemctl enable cups.service
+_safe_systemctl enable NetworkManager.service
+_safe_systemctl enable alteriso-reflector.service
+_safe_systemctl disable reflector.service
 
 
 # TLP
 # See ArchWiki for details.
-_systemd_service enable tlp.service
-_systemd_service mask systemd-rfkill.service
-_systemd_service mask systemd-rfkill.socket
+_safe_systemctl enable tlp.service
+_safe_systemctl mask systemd-rfkill.service
+_safe_systemctl mask systemd-rfkill.socket
