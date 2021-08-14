@@ -43,7 +43,7 @@ build_option:
 	${CURRENT_DIR}/tools/menuconf-to-alterconf.sh ${CURRENT_DIR}/.build_option
 
 clean:
-	@sudo ${CURRENT_DIR}/${BUILD_SCRIPT} --noconfirm clean
+	@sudo ${CURRENT_DIR}/${BUILD_SCRIPT} --noconfirm --debug clean
 
 build:build_option
 	$(eval BUILD_OPTION := $(shell cat ${CURRENT_DIR}/.build_option))
