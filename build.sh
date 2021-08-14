@@ -657,7 +657,7 @@ make_customize_airootfs() {
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
 
     # Generate options of customize_airootfs.sh.
-    _airootfs_script_options=(-p "${password}" -k "${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}" -u "${username}" -o "${os_name}" -i "${install_dir}" -s "${usershell}" -a "${arch}" -g "${locale_gen_name}" -l "${locale_name}" -z "${locale_time}" -t "${theme_name}")
+    _airootfs_script_options=(-p "${password}" -k "\"${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}\"" -u "${username}" -o "${os_name}" -i "${install_dir}" -s "${usershell}" -a "${arch}" -g "${locale_gen_name}" -l "${locale_name}" -z "${locale_time}" -t "${theme_name}")
     [[ "${boot_splash}" = true ]] && _airootfs_script_options+=("-b")
     [[ "${debug}" = true       ]] && _airootfs_script_options+=("-d")
     [[ "${bash_debug}" = true  ]] && _airootfs_script_options+=("-x")
