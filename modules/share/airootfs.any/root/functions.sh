@@ -94,7 +94,13 @@ _safe_systemctl(){
     for _service in "${@}"; do
         # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
         if (( "$(systemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
-            systemctl "${_command}" "${_service}"
+            if [[ "${_command}" = "enable" ]]; then
+                if [[ "$(systemctl is-enabled "${_service}")" = "enabled" ]]; then
+                    systemctl enable "${_service}"
+                fi
+            else
+                systemctl "${_command}" "${_service}"
+            fi
         else
             echo "${_service} was not found" >&2
         fi
