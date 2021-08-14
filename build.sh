@@ -246,7 +246,7 @@ _run_with_pacmanconf(){
 # コマンドをchrootで実行する
 _chroot_run() {
     msg_debug "Run command in chroot\nCommand: ${*}"
-    arch-chroot "${airootfs_dir}" "${@}"
+    arch-chroot "${airootfs_dir}" "${@}" || return "${?}"
 }
 
 _cleanup_common () {
