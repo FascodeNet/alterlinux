@@ -1058,35 +1058,12 @@ unset OPT OPTS OPTL DEFAULT_ARGUMENT
 
 while true; do
     case "${1}" in
-        -a | --arch)
-            arch="${2}"
-            shift 2
-            ;;
-        -b | --boot-splash)
-            boot_splash=true
-            shift 1
-            ;;
         -c | --comp-type)
             case "${2}" in
                 "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
                 *) msg_error "Invaild compressors '${2}'" '1' ;;
             esac
             shift 2
-            ;;
-        -d | --debug)
-            debug=true
-            shift 1
-            ;;
-        -e | --cleaning | --cleanup)
-            cleaning=true
-            shift 1
-            ;;
-        -g | --gpgkey)
-            gpg_key="${2}"
-            shift 2
-            ;;
-        -h | --help)
-            _usage 0
             ;;
         -j | --japanese)
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
@@ -1096,22 +1073,10 @@ while true; do
             kernel="${2}"
             shift 2
             ;;
-        -l | --lang)
-            locale_name="${2}"
-            shift 2
-            ;;
-        -o | --out)
-            out_dir="${2}"
-            shift 2
-            ;;
         -p | --password)
             customized_password=true
             password="${2}"
             shift 2
-            ;;
-        -r | --tarball)
-            tarball=true
-            shift 1
             ;;
         -t | --comp-opts)
             if [[ "${2}" = "reset" ]]; then
@@ -1126,31 +1091,6 @@ while true; do
             username="$(echo -n "${2}" | sed 's/ //g' | tr '[:upper:]' '[:lower:]')"
             shift 2
             ;;
-        -w | --work)
-            work_dir="${2}"
-            shift 2
-            ;;
-        -x | --bash-debug)
-            debug=true
-            bash_debug=true
-            shift 1
-            ;;
-        --noconfirm)
-            noconfirm=true
-            shift 1
-            ;;
-        --confirm)
-            noconfirm=false
-            shift 1
-            ;;
-        --nodepend)
-            nodepend=true
-            shift 1
-            ;;
-        --nocolor)
-            nocolor=true
-            shift 1
-            ;;
         --gitversion)
             if [[ -d "${script_path}/.git" ]]; then
                 gitversion=true
@@ -1159,72 +1099,16 @@ while true; do
             fi
             shift 1
             ;;
-        --msgdebug)
-            msgdebug=true;
-            shift 1
-            ;;
-        --noloopmod)
-            noloopmod=true
-            shift 1
-            ;;
-        --noiso)
-            noiso=true
-            shift 1
-            ;;
-        --noaur)
-            noaur=true
-            shift 1
-            ;;
-        --nochkver)
-            nochkver=true
-            shift 1
-            ;;
         --nodebug)
             debug=false
             msgdebug=false
             bash_debug=false
             shift 1
             ;;
-        --noefi)
-            noefi=true
-            shift 1
-            ;;
-        --channellist)
-            show_channel_list
-            exit 0
-            ;;
-        --config)
-            source "${2}"
-            shift 2
-            ;;
-        --pacman-debug)
-            pacman_debug=true
-            shift 1
-            ;;
-        --nosigcheck)
-            nosigcheck=true
-            shift 1
-            ;;
-        --normwork)
-            normwork=true
-            shift 1
-            ;;
-        --log)
-            logging=true
-            shift 1
-            ;;
         --logpath)
             logging="${2}"
             customized_logpath=true
             shift 2
-            ;;
-        --nolog)
-            logging=false
-            shift 1
-            ;;
-        --nopkgbuild)
-            nopkgbuild=true
-            shift 1
             ;;
         --tar-type)
             case "${2}" in
@@ -1242,14 +1126,37 @@ while true; do
             msg_debug "Added modules: ${additional_modules[*]}"
             shift 2
             ;;
-        --nogitversion)
-            gitversion=false
-            shift 1
-            ;;
-        --)
-            shift
-            break
-            ;;
+        -g | --gpgkey               ) gpg_key="${2}"     && shift 2 ;;
+        -h | --help                 ) _usage 0                      ;;
+        -a | --arch                 ) arch="${2}"        && shift 2 ;;
+        -d | --debug                ) debug=true         && shift 1 ;;
+        -e | --cleaning | --cleanup ) cleaning=true      && shift 1 ;;
+        -b | --boot-splash          ) boot_splash=true   && shift 1 ;;
+        -l | --lang                 ) locale_name="${2}" && shift 2 ;;
+        -o | --out                  ) out_dir="${2}"     && shift 2 ;;
+        -r | --tarball              ) tarball=true       && shift 1 ;;
+        -w | --work                 ) work_dir="${2}"    && shift 2 ;;
+        -x | --bash-debug           ) bash_debug=true    && shift 1 ;;
+        --noconfirm                 ) noconfirm=true     && shift 1 ;;
+        --confirm                   ) noconfirm=false    && shift 1 ;;
+        --nodepend                  ) nodepend=true      && shift 1 ;;
+        --nocolor                   ) nocolor=true       && shift 1 ;;
+        --msgdebug                  ) msgdebug=true      && shift 1 ;;
+        --noloopmod                 ) noloopmod=true     && shift 1 ;;
+        --noiso                     ) noiso=true         && shift 1 ;;
+        --noaur                     ) noaur=true         && shift 1 ;;
+        --nochkver                  ) nochkver=true      && shift 1 ;;
+        --noefi                     ) noefi=true         && shift 1 ;;
+        --channellist               ) show_channel_list  && exit 0  ;;
+        --config                    ) source "${2}"      && shift 2 ;;
+        --pacman-debug              ) pacman_debug=true  && shift 1 ;;
+        --nosigcheck                ) nosigcheck=true    && shift 1 ;;
+        --normwork                  ) normwork=true      && shift 1 ;;
+        --log                       ) logging=true       && shift 1 ;;
+        --nolog                     ) logging=false      && shift 1 ;;
+        --nopkgbuild                ) nopkgbuild=true    && shift 1 ;;
+        --nogitversion              ) gitversion=false   && shift 1 ;;
+        --                          ) shift 1            && break   ;;
         *)
             msg_error "Argument exception error '${1}'"
             msg_error "Please report this error to the developer." 1
@@ -1301,7 +1208,6 @@ for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
     eval "${_dir}=\"$(realpath "$(eval "echo \$${_dir}")")\""
 done
 
-
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
@@ -1321,8 +1227,6 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
         msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
-
-set -eu
 
 prepare_env
 prepare_build
