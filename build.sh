@@ -34,7 +34,7 @@ norepopkg=()
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
 for config in "${defaultconfig}" "${script_path}/custom.conf"; do
-    [[ -f "${config}" ]] && source "${config}"
+    [[ -f "${config}" ]] && source "${config}" && loaded_files+=("${config}")
 done
 
 umask 0022
@@ -448,6 +448,7 @@ prepare_build() {
     [[ "${customized_password}" = false ]] && password="${defaultpassword}"
 
     # gitversion
+    [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && msg_error "There is no git directory. You need to use git clone to use this feature." "1"
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
     # Generate tar file name
@@ -1091,14 +1092,6 @@ while true; do
             username="$(echo -n "${2}" | sed 's/ //g' | tr '[:upper:]' '[:lower:]')"
             shift 2
             ;;
-        --gitversion)
-            if [[ -d "${script_path}/.git" ]]; then
-                gitversion=true
-            else
-                msg_error "There is no git directory. You need to use git clone to use this feature." "1"
-            fi
-            shift 1
-            ;;
         --nodebug)
             debug=false
             msgdebug=false
@@ -1137,6 +1130,7 @@ while true; do
         -r | --tarball              ) tarball=true       && shift 1 ;;
         -w | --work                 ) work_dir="${2}"    && shift 2 ;;
         -x | --bash-debug           ) bash_debug=true    && shift 1 ;;
+        --gitversion                ) gitversion=true    && shift 1 ;;
         --noconfirm                 ) noconfirm=true     && shift 1 ;;
         --confirm                   ) noconfirm=false    && shift 1 ;;
         --nodepend                  ) nodepend=true      && shift 1 ;;
