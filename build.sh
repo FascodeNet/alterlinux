@@ -131,7 +131,7 @@ _usage () {
     echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
     echo "         --channellist           Output the channel list and exit"
     echo "         --config                Load additional config file"
-    echo "         --gitversion            Add Git commit hash to image file version"
+    echo "         --[no]gitversion        Add Git commit hash to image file version"
     echo "         --logpath <file>        Set log file path (use with --log)"
     echo "         --[no]log               (No) log ;re-run script with tee"
     echo "         --msgdebug              Enables output debugging"
