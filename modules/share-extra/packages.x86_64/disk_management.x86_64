@@ -9,14 +9,16 @@
 #
 # Disk management
 
+#-- GUI --#
+#baobab
+#gnome-disk-utility
+#gparted
 
-baobab
+#-- CLI --#
 clonezilla
 ddrescue
 dmraid
 fsarchiver
-gnome-disk-utility
-gparted
 gptfdisk
 hdparm
 lvm2

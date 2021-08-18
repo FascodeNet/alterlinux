@@ -90,7 +90,7 @@ if ! pacman -Qq yay 1> /dev/null 2>&1; then
 
     # Install depends
     for _pkg in "${yay_depends[@]}"; do
-        if ! pacman -Qq "${_pkg}" | grep -q "${_pkg}"; then
+        if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
             pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
             remove_list+=("${_pkg}")
         fi

@@ -15,7 +15,7 @@
 # Check whether true or false is assigned to the variable.
 function check_bool() {
     local
-    case $(eval echo '$'${1}) in
+    case $(eval echo '$'"${1}") in
         true | false) : ;;
                    *) echo "The value ${boot_splash} set is invalid" >&2 ;;
     esac
@@ -52,16 +52,16 @@ function installedpkg () {
     fi
 }
 
+# Add group if it does not exist
+_groupadd(){
+    cut -d ":" -f 1 < "/etc/group" | grep -qx "${1}" && return 0 || groupadd "${1}"
+}
+
 # Create a user.
 # create_user <username> <password>
 function create_user () {
-    local _password
-    local _username
+    local _username="${1-""}" _password="${2-""}"
 
-    _username=${1}
-    _password=${2}
-
-    set +u
     if [[ -z "${_username}" ]]; then
         echo "User name is not specified." >&2
         return 1
@@ -70,32 +70,37 @@ function create_user () {
         echo "No password has been specified." >&2
         return 1
     fi
-    set -u
 
     if ! user_check "${_username}"; then
-        useradd -m -s ${usershell} ${_username}
-        groupadd sudo
-        usermod -U -g ${_username} ${_username}
-        usermod -aG sudo ${_username}
-        usermod -aG storage ${_username}
-        cp -aT /etc/skel/ /home/${_username}/
+        useradd -m -s "${usershell}" "${_username}"
+        _groupadd sudo
+        usermod -U -g "${_username}" "${_username}"
+        usermod -aG sudo "${_username}"
+        usermod -aG storage "${_username}"
+        cp -aT "/etc/skel/" "/home/${_username}/"
     fi
-    chmod 700 -R /home/${_username}
-    chown ${_username}:${_username} -R /home/${_username}
-    echo -e "${_password}\n${_password}" | passwd ${_username}
+    chmod 700 -R "/home/${_username}"
+    chown "${_username}:${_username}" -R "/home/${_username}"
+    echo -e "${_password}\n${_password}" | passwd "${_username}"
     set -u
 }
 
 # systemctl helper
 # Execute the subcommand only when the specified unit is available.
-# Usage: _systemd_service <systemctl subcommand> <service1> <service2> ...
-_systemd_service(){
+# Usage: _safe_systemctl <systemctl subcommand> <service1> <service2> ...
+_safe_systemctl(){
     local _service _command="${1}"
     shift 1
     for _service in "${@}"; do
         # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
         if (( "$(systemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
-            systemctl ${_command} "${_service}"
+            if [[ "${_command}" = "enable" ]]; then
+                if [[ "$(systemctl is-enabled "${_service}")" = "enabled" ]]; then
+                    systemctl enable "${_service}"
+                fi
+            else
+                systemctl "${_command}" "${_service}"
+            fi
         else
             echo "${_service} was not found" >&2
         fi

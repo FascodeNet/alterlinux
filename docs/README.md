@@ -60,28 +60,35 @@
 </b>
 
 <h2>〈Overview〉</h2>
-
 Alter Linux is a new OS developed based on Arch Linux.<br>
 Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of Alter Linux.<br>
 Please see the <a href="https://fascode.net/projects/linux/alter/">official website</a> for information on announcements and bugs for users.
 
+<h2>〈Download〉</h2>
+The image file can be downloaded from the official <a href="https://fascode.net/projects/linux/alter/#downloads">website</a>.
+<br>
+<b>We are looking for a mirror server provider for repositories and image file distribution.</b>
+<br>
+If you would like us to provide a mirror please contact the developer's Twitter.
+
+<h2>〈Screenshots〉</h2>
 <h3>Xfce</h3>
-<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%">
 
 <h3>Plasma</h3>
-<img src="../images/screenshot/desktop-plasma.png" alt="screenshot">
+<img src="../images/screenshot/desktop-plasma.png" alt="screenshot" width="50%">
 
 <h3>Lxde</h3>
-<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
 
 <h3>Gnome</h3>
-<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot" width="50%">
 
 <h3>Cinnamon</h3>
-<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot" width="50%">
 
 <h3>i3wm</h3>
-<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot">
+<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot" width="50%">
 
 <h2>〈Feature〉</h2>
 <ul>
@@ -94,13 +101,6 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
     <li>Higher quality audio with Pipewire is available by default</li>
     <li>Easy development of derived OS by framework based on archiso</li>
 </ul>
-
-<h2>〈Download〉</h2>
-The image file can be downloaded from the official <a href="https://fascode.net/projects/linux/alter/#downloads">website</a>.
-<br>
-<b>We are looking for a mirror server provider for repositories and image file distribution.</b>
-<br>
-If you would like us to provide a mirror please contact the developer's Twitter.
 
 <h2>〈Branch〉</h2>
 These are a list of major branches. Other branches are temporary or used for specific purposes.
