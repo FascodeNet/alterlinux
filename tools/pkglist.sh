@@ -162,7 +162,7 @@ set +e
 
 get_filelist(){
     if [[ -d "${1}" ]]; then
-        find "${1}" -mindepth 1 -name "*.${arch}" -typr f -or -type l 2> /dev/null
+        find "${1}" -mindepth 1 -name "*.${arch}" -type f -or -type l 2> /dev/null
     fi
 }
 

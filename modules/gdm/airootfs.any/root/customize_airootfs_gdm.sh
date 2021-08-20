@@ -9,9 +9,10 @@
 
 # Enable gdm to auto login
 if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable gdm-plymouth.service
+    _safe_systemctl enable gdm-plymouth.service
+    
 else
-    systemctl enable gdm.service
+    _safe_systemctl enable gdm.service
 fi
 
 

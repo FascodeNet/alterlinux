@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Pipewire
-# Do not use _systemd_service because pipewire services are not system but user
+# Do not use _safe_systemctl because pipewire services are not system but user
 # Use flag "--user --global"
 # https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/923
 for _service in "pipewire.service" "pipewire-pulse.service"; do

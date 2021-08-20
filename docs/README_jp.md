@@ -57,28 +57,35 @@
 </table>
 
 <h2>〈概要〉</h2>
-
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。<br>
 Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
 ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
 
+<h2>〈ダウンロード〉</h2>
+イメージファイルは<a href="https://fascode.net/projects/linux/alter/#downloads">公式サイト</a>からダウンロードできます。
+<br>
+<b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
+<br>
+もし私達にミラーを提供して頂ける場合は開発者のTwitterまでお願いします。
+
+<h2>〈Screenshots〉</h2>
 <h3>Xfce</h3>
-<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%">
 
 <h3>Plasma</h3>
-<img src="../images/screenshot/desktop-plasma.png" alt="screenshot">
+<img src="../images/screenshot/desktop-plasma.png" alt="screenshot" width="50%">
 
 <h3>Lxde</h3>
-<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
 
 <h3>Gnome</h3>
-<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot" width="50%">
 
 <h3>Cinnamon</h3>
-<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot" width="50%">
 
 <h3>i3wm</h3>
-<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot">
+<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot" width="50%">
 
 <h2>〈特徴〉</h2>
 <ul>
@@ -92,14 +99,6 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
     <li>デフォルトでPipewireによる、高品質なオーディオが使えます</li>
     <li>archisoをベースとしたフレームワークにより簡単に派生OSを開発できます</li>
 </ul>
-
-<h2>〈ダウンロード〉</h2>
-イメージファイルは<a href="https://fascode.net/projects/linux/alter/#downloads">公式サイト</a>からダウンロードできます。
-<br>
-<b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
-<br>
-もし私達にミラーを提供して頂ける場合は開発者のTwitterまでお願いします。
-
 
 <h2>〈ブランチ〉</h2>
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
