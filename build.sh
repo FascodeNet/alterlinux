@@ -1048,14 +1048,14 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}")
-OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
-OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion")
-OPT="$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}")" || exit 1
+ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion")
+GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
+getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
+readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
 
-eval set -- "${OPT}"
-msg_debug "Argument: ${OPT}"
-unset OPT OPTS OPTL DEFAULT_ARGUMENT
+eval set -- "${OPT[@]}"
+msg_debug "Argument: ${OPT[*]}"
+unset OPT OPTS OPTL DEFAULT_ARGUMENT GETOPT
 
 while true; do
     case "${1}" in
