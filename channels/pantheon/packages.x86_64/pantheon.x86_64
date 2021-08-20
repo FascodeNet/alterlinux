@@ -15,6 +15,7 @@ cerbere
 contractor
 elementary-icon-theme
 elementary-wallpapers
+gala
 granite
 gtk-theme-elementary
 lightdm-pantheon-greeter
@@ -23,7 +24,7 @@ pantheon-calculator
 pantheon-calendar
 pantheon-camera
 pantheon-code
-pantheon-dpms-helper
+pantheon-default-settings
 pantheon-files
 pantheon-geoclue2-agent
 pantheon-mail
@@ -33,6 +34,8 @@ pantheon-onboarding
 pantheon-photos
 pantheon-polkit-agent
 pantheon-screenshot
+pantheon-session
+pantheon-settings-daemon
 pantheon-shortcut-overlay
 pantheon-sideload
 pantheon-tasks
@@ -57,7 +60,9 @@ switchboard-plug-printers
 switchboard-plug-sharing
 switchboard-plug-sound
 switchboard-plug-user-accounts
+switchboard-plug-wacom
 wingpanel
+wingpanel-indicator-a11y
 wingpanel-indicator-bluetooth
 wingpanel-indicator-datetime
 wingpanel-indicator-keyboard
@@ -70,7 +75,6 @@ wingpanel-indicator-sound
 
 
 #-- pantheon-unstable --#
-gala
 switchboard-plug-desktop
 
 
