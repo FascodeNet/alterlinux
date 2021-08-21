@@ -5,7 +5,7 @@
     <img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="Alter Linux logo">
 </p>
 <p align="center">
-    <a href="https://fascode.net/en/projects/linux/alter/">
+    <a href="https://alter.fascode.net/">
         <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=flat-square">
     </a>
     <a href="../LICENSE">
@@ -59,10 +59,10 @@
 <h2>〈概要〉</h2>
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。<br>
 Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
-ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
+ユーザ向けのアナウンスや不具合等の情報は<a href="https://alter.fascode.net/">公式サイト</a>をご覧ください。
 
 <h2>〈ダウンロード〉</h2>
-イメージファイルは<a href="https://fascode.net/projects/linux/alter/#downloads">公式サイト</a>からダウンロードできます。
+イメージファイルは<a href="https://alter.fascode.net/#downloads">公式サイト</a>からダウンロードできます。
 <br>
 <b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
 <br>
@@ -171,7 +171,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 
 <h2>〈FascodeNetworkと開発者について〉</h2>
 <a href="https://fascode.net/">Fascode Network</a>は学生を主体とする創作チームです。<br>
-<a href="https://fascode.net/projects/linux/alter/">Alter Linux</a>と<a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>の開発を行っています。
+<a href="https://alter.fascode.net/">Alter Linux</a>と<a href="https://serene.fascode.net/">SereneLinux</a>の開発を行っています。
 
 <h3>公式Twitterアカウント</h3>
 <a href="https://twitter.com/FascodeNetwork">

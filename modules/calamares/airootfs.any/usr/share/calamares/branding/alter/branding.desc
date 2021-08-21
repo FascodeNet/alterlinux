@@ -74,7 +74,7 @@ strings:
     versionedName:       Alter Linux
     shortVersionedName:  Alter Linux
     bootloaderEntryName: Alter
-    productUrl:          https://fascode.net/projects/linux/alter/
+    productUrl:          https://alter.fascode.net/
     supportUrl:          https://github.com/SereneTeam/alterlinux/issues
     knownIssuesUrl:      https://alterlinux.com
     releaseNotesUrl:     https://github.com/SereneTeam/alterlinux/releases
