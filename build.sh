@@ -1215,14 +1215,14 @@ fi
 # Set vars
 work_dir="$(realpath "${work_dir}")"
 build_dir="${work_dir}/build/${arch}"
-cache_dir="${work_dir}/cache/${arch}"
+pacman_dir="${work_dir}/pacman_dir/${arch}"
 airootfs_dir="${build_dir}/airootfs"
 isofs_dir="${build_dir}/iso"
 lockfile_dir="${build_dir}/lockfile"
 gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 
 # Create dir
-for _dir in "${build_dir}" "${cache_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
+for _dir in "${build_dir}" "${pacman_dir}" "${airootfs_dir}" "${isofs_dir}" "${lockfile_dir}"; do
     mkdir -p "${_dir}"
 done
 
