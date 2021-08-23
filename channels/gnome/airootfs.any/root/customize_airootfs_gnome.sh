@@ -33,3 +33,8 @@ if [[ "${arch}" = "i686" ]]; then
         sed -i "s|chromium.desktop|firefox.desktop|g; s|Chromium|FireFox|g; s|chromium|firefox|g" "${_file}"
     done
 fi
+
+# Prepare gdm for calamares
+if [[ -f "/usr/share/calamares/modules/services.conf" ]]; then
+    sed -i "s|%DM%|gdm|g" "/usr/share/calamares/modules/services.conf"
+fi
