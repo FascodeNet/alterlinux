@@ -27,12 +27,13 @@ language="en"
 
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
+while getopts 'p:bt:k:xu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
         p) password="${OPTARG}" ;;
         b) boot_splash=true ;;
         t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
+        #k) kernel_config_line=(${OPTARG}) ;;
+        k) IFS=" " read -r -a kernel_config_line <<< "${OPTARG}" ;;
         u) username="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
@@ -43,6 +44,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
         l) language="${OPTARG}" ;;
+        *) : ;;
     esac
 done
 
@@ -73,18 +75,12 @@ locale-gen
 
 
 # Setting the time zone.
-ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
-
-
-# Create Calamares Entry
-if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then
-    cp -a "/etc/skel/Desktop/calamares.desktop" "/usr/share/applications/calamares.desktop"
-fi
+ln -sf "/usr/share/zoneinfo/${timezone}" /etc/localtime
 
 
 usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
-if [[ -f "$(type -p "xdg-user-dirs-update" 2> /dev/null)" ]]; then LC_ALL=C LANG=Cxdg-user-dirs-update; fi
+run_additional_command "xdg-user-dirs-update" "LC_ALL=C LANG=C xdg-user-dirs-update"
 echo -e "${password}\n${password}" | passwd root
 
 # Allow sudo group to run sudo
@@ -101,7 +97,7 @@ if [[ -f "/etc/systemd/system/getty@.service.d/autologin.conf" ]]; then
 fi
 
 
-# Set to execute calamares without password as alter user.
+# Set to execute sudo without password as alter user.
 cat >> /etc/sudoers << "EOF"
 Defaults pwfeedback
 EOF
@@ -115,20 +111,6 @@ chown root:root -R /etc/sudoers.d/
 
 # Configure Plymouth settings
 if [[ "${boot_splash}" = true ]]; then
-    # Edit calamares settings for Plymouth.
-
-    # Use lightdm-plymouth instead of lightdm.
-    remove "/usr/share/calamares/modules/services.conf"
-    mv "/usr/share/calamares/modules/services-plymouth.conf" "/usr/share/calamares/modules/services.conf"
-
-    # Back up default plymouth settings.
-    # cp /usr/share/calamares/modules/plymouthcfg.conf /usr/share/calamares/modules/plymouthcfg.conf.org
-
-    # Override theme settings.
-    remove "/usr/share/calamares/modules/plymouthcfg.conf"
-    echo '---' > "/usr/share/calamares/modules/plymouthcfg.conf"
-    echo "plymouth_theme: ${theme_name}" >> "/usr/share/calamares/modules/plymouthcfg.conf"
-
     # Override plymouth settings.
     sed -i "s/%PLYMOUTH_THEME%/${theme_name}/g" "/etc/plymouth/plymouthd.conf"
 
@@ -136,7 +118,6 @@ if [[ "${boot_splash}" = true ]]; then
     run_additional_command "plymouth-set-default-theme" "plymouth-set-default-theme ${theme_name}"
 else
     # Delete the configuration file for plymouth.
-    remove "/usr/share/calamares/modules/services-plymouth.conf"
     remove "/etc/plymouth"
 fi
 
@@ -152,34 +133,6 @@ fi
 #TUI Installer configs
 
 echo "${kernel_filename}" > /root/kernel_filename
-
-# Calamares configs
-
-# Replace the configuration file.
-# initcpio
-sed -i "s/%MKINITCPIO_PROFILE%/${kernel_mkinitcpio_profile}/g" /usr/share/calamares/modules/initcpio.conf
-
-# unpackfs
-sed -i "s|%KERNEL_FILENAME%|${kernel_filename}|g" /usr/share/calamares/modules/unpackfs.conf
-
-# Remove configuration files for other kernels.
-remove "/usr/share/calamares/modules/initcpio/"
-remove "/usr/share/calamares/modules/unpackfs/"
-
-# Set up calamares removeuser
-sed -i "s/%USERNAME%/${username}/g" "/usr/share/calamares/modules/removeuser.conf"
-
-# Set user shell
-sed -i "s|%USERSHELL%|${usershell}|g" "/usr/share/calamares/modules/users.conf"
-
-# Set INSTALL_DIR
-sed -i "s/%INSTALL_DIR%/${install_dir}/g" "/usr/share/calamares/modules/unpackfs.conf"
-
-# Set ARCH
-sed -i "s/%ARCH%/${arch}/g" "/usr/share/calamares/modules/unpackfs.conf"
-
-# Add disabling of sudo setting
-echo -e "\nremove \"/etc/sudoers.d/alterlive\"" >> "/usr/share/calamares/final-process"
 
 
 # Set os name
@@ -204,19 +157,19 @@ run_additional_command "gtk-update-icon-cache -f /usr/share/icons/hicolor"
 
 
 # Enable graphical.
-_systemd_service set-default graphical.target
+_safe_systemctl set-default graphical.target
 
 
 # Enable services.
-_systemd_service enable pacman-init.service
-_systemd_service enable cups.service
-_systemd_service enable NetworkManager.service
-_systemd_service enable alteriso-reflector.service
-_systemd_service disable reflector.service
+_safe_systemctl enable pacman-init.service
+_safe_systemctl enable cups.service
+_safe_systemctl enable NetworkManager.service
+_safe_systemctl enable alteriso-reflector.service
+_safe_systemctl disable reflector.service
 
 
 # TLP
 # See ArchWiki for details.
-_systemd_service enable tlp.service
-_systemd_service mask systemd-rfkill.service
-_systemd_service mask systemd-rfkill.socket
+_safe_systemctl enable tlp.service
+_safe_systemctl mask systemd-rfkill.service
+_safe_systemctl mask systemd-rfkill.socket

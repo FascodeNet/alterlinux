@@ -10,6 +10,18 @@
 # Delete icon cache
 remove "/home/${username}/.cache/icon-cache.kcache"
 
+# Add Calamares to favorite menu only for live
+sqlite3 "/home/${username}/.local/share/kactivitymanagerd/resources/database" \
+"INSERT INTO 'ResourceLink' VALUES \
+(':global', 'org.kde.plasma.favorites.applications', 'applications:calamares.desktop');"
+
+# remove config file about live only
+
+# disable free space notification 
+remove "/etc/skel/.config/plasmanotifyrc"
+# disable auto lock screen
+remove "/etc/skel/.config/kscreenlockerrc"
+
 
 if [[ "${arch}" = "x86_64" ]]; then
     # Snap

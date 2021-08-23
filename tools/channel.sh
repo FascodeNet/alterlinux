@@ -9,6 +9,7 @@ opt_nochkver=false
 opt_nobuiltin=false
 opt_fullpath=false
 opt_nocheck=false
+opt_line=false
 alteriso_version="3.1"
 mode=""
 arch="all"
@@ -38,6 +39,7 @@ _help() {
     echo "    -h | --help               This help message"
     echo
     echo "         --nocheck            Do not check the channel with desc command.This option helps speed up."
+    echo "         --line               Line break the output"
     echo
     echo " check command exit code"
     echo "    0 (correct)               Normal available channel"
@@ -62,7 +64,8 @@ gen_channel_list() {
                         channellist+=("${_dirname}")
                     fi
                 else
-                    channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+                    #channellist+=("$(echo ${_dirname} | sed 's/\.[^\.]*$//')")
+                    readarray -t -O "${#channellist[@]}" channellist < <(echo "${_dirname}" | sed 's/\.[^\.]*$//')
                 fi
             elif [[ ! -d "${script_path}/channels/${_dirname}.add" ]] && [[ "${opt_only_add}" = false ]]; then
                 if [[ "${opt_fullpath}" = true ]]; then
@@ -114,6 +117,8 @@ check_alteriso_version(){
 }
 
 check() {
+    local _channel_name
+
     gen_channel_list
     if [[ ! "${#}" = "1" ]]; then
         _help
@@ -123,8 +128,8 @@ check() {
         #echo "correct"
         exit 0
     elif [[ -d "${1}" ]] && [[ -n $(ls "${1}") ]]; then
-        local _channel_name="$(basename "${1%/}")"
-        if ! check_alteriso_version "${_channel}" || [[ "${opt_nochkver}" = true ]]; then
+        _channel_name="$(basename "${1%/}")"
+        if check_alteriso_version "${_channel_name}" || [[ "${opt_nochkver}" = true ]]; then
             #echo "directory"
             exit 1
         else
@@ -164,14 +169,18 @@ desc() {
 show() {
     gen_channel_list
     if (( "${#channellist[*]}" > 0)); then
-        echo "${channellist[*]}"
+        if [[ "${opt_line}" = true ]]; then
+            printf "%s\n" "${channellist[@]}"
+        else
+            echo "${channellist[*]}"
+        fi
     fi
 }
 
 
 # Parse options
 OPTS="a:bdfk:nov:h"
-OPTL="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck"
+OPTL="arch:,nobuiltin,dirname,fullpath,kernel:,only-add,nochkver,version:,help,nocheck,line"
 if ! OPT=$(getopt -o ${OPTS} -l ${OPTL} -- "${@}"); then
     exit 1
 fi
@@ -179,7 +188,7 @@ eval set -- "${OPT}"
 unset OPT OPTS OPTL
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -a | --arch)
             arch="${2}"
             shift 2
@@ -220,6 +229,10 @@ while true; do
             opt_nocheck=true
             shift 1
             ;;
+        --line)
+            opt_line=true
+            shift 1
+            ;;
         --)
             shift 1
             break
@@ -237,10 +250,10 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}                  ;;
+    "check" ) check "${@}"                ;;
     "show"  ) show                        ;;
-    "desc"  ) desc ${@}                   ;;
-    "ver"   ) get_alteriso_version ${@}   ;;
+    "desc"  ) desc "${@}"                 ;;
+    "ver"   ) get_alteriso_version "${@}" ;;
     "help"  ) _help; exit 0               ;;
     *       ) _help; exit 1               ;;
 esac

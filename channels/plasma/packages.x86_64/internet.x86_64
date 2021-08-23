@@ -5,6 +5,10 @@
 # Twitter: @Pixel_3a
 # Email  : lap1sid@fascode.net
 #
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
 # (c) 2019-2021 Fascode Network.
 #
 # Internet
@@ -12,19 +16,8 @@
 #-- connection Tools--#
 plasma-nm
 
-
-#-- mail client --#
-#thunderbird
-#mailspring
-
-
-#-- web browser --#
-chromium
-
+#-- firewall --#
+plasma-firewall
 
 #-- other tools --#
 kdenetwork-filesharing
-
-
-#-- security --#
-gufw

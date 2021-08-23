@@ -8,13 +8,14 @@ tools_dir="${script_path}/tools"
 debug=false
 only_work=false
 noconfirm=false
+nocolor=false
 
 
 # 設定ファイルを読み込む
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in ${@}; do
+    for _file in "${@}"; do
         if [[ -f "${_file}" ]]; then
             source "${_file}"
         fi
@@ -25,59 +26,26 @@ work_dir="$(
     load_config "${script_path}/default.conf"
     load_config "${script_path}/custom.conf"
     cd "${script_path}"
-    echo "$(realpath "${work_dir}")"
+    realpath "${work_dir}"
 )"
 
-
-# Show an INFO message
-# $1: message string
-msg_info() {
-    local _msg_opts="-a clean.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} info "${1}"
+# msg_common [type] [-n] [string]
+msg_common(){
+    local _msg_opts=("-a" "clean.sh") _msg_type="${1}" && shift 1
+    [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    [[ "${nocolor}" = true ]] && _msg_opts+=("-n")
+    "${script_path}/tools/msg.sh" "${_msg_opts[@]}" "${_msg_type[@]}" "${1}"
+    [[ -n "${2:-}" ]] && exit "${2}"
+    return 0
 }
 
-# Show an Warning message
+# Show colored message
 # $1: message string
-msg_warn() {
-    local _msg_opts="-a clean.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} warn "${1}"
-}
-
-# Show an debug message
-# $1: message string
-msg_debug() {
-    if [[ "${debug}" = true ]]; then
-        local _msg_opts="-a clean.sh"
-        if [[ "${1}" = "-n" ]]; then
-            _msg_opts="${_msg_opts} -o -n"
-            shift 1
-        fi
-        "${script_path}/tools/msg.sh" ${_msg_opts} debug "${1}"
-    fi
-}
-
-# Show an ERROR message then exit with status
-# $1: message string
-# $2: exit code number (with 0 does not exit)
-msg_error() {
-    local _msg_opts="-a clean.sh"
-    if [[ "${1}" = "-n" ]]; then
-        _msg_opts="${_msg_opts} -o -n"
-        shift 1
-    fi
-    "${script_path}/tools/msg.sh" ${_msg_opts} error "${1}"
-    if [[ -n "${2:-}" ]]; then
-        exit ${2}
-    fi
-}
+# $2: exit code number
+msg_info() { msg_common info "${@}"; }
+msg_warn() { msg_common warn "${@}"; }
+msg_debug() { [[ "${debug}" = true ]] && msg_common debug "${@}"; return 0; }
+msg_error() { msg_common error "${@}"; }
 
 # Show message when file is removed
 # remove <file> <file> ...
@@ -90,15 +58,12 @@ remove() {
 _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Unmount chroot dir
-umount_chroot () {
-    "${tools_dir}/umount.sh" "${work_dir}"
-}
+#umount_chroot () { "${tools_dir}/umount.sh" -d "${work_dir}" -m 3 "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"; }
+umount_chroot () { "${tools_dir}/umount.sh" "${work_dir}" -m 3 "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")" "$([[ "${debug}" = true ]] && printf "%s" "-d")"; }
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cut -d " " -f "${1}"; }
 
 _help() {
     echo "usage ${0} [option]"
@@ -106,24 +71,55 @@ _help() {
     echo "Outputs colored messages" 
     echo
     echo " General options:"
-    echo "    -d                       Show debug message"
-    echo "    -o                       Remove only work dir"
-    echo "    -w [dir]                 Specify the work dir"
-    echo "    -h                       This help message"
+    echo "    -d | --debug             Show debug message"
+    echo "    -o | --only-work         Remove only work dir"
+    echo "    -w | --work [dir]        Specify the work dir"
+    echo "    -h | --help              This help message"
+    echo "         --nocolor           No output color message"
+    echo "         --noconfirm         Clean up without confirmation"
 }
 
-while getopts "dow:hn" arg; do
-    case "${arg}" in
-        d)  debug=true ;;
-        o) only_work=true ;;
-        w) work_dir="${OPTARG}" ;;
-        n)
+# Parse options
+# Parse options
+ARGUMENT=("${@}")
+OPTS=("d" "o" "w:" "h" "n")
+OPTL=("help" "nocolor" "noconfirm" "work:" "only-work")
+if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
+    exit 1
+fi
+eval set -- "${OPT}"
+unset OPTS OPTL
+
+while true; do
+    case "${1}" in
+        -d | --debug)
+            debug=true
+            shift 1
+            ;;
+        -o | --only-work)
+            only_work=true
+            shift 1
+            ;;
+        -w | --work)
+            work_dir="${2}"
+            shift 2
+            ;;
+        -n | --noconfirm)
             noconfirm=true
             msg_warn "Remove files without warning"
+            shift 1
             ;;
-        h) 
+        -h | --help)
             _help
             exit 0
+            ;;
+        --nocolor)
+            nocolor=true
+            shift 1
+            ;;
+        --)
+            shift 1
+            break
             ;;
         *)
             _help
@@ -138,25 +134,26 @@ if [[ ! -v work_dir ]] && [[ "${work_dir}" = "" ]]; then
     exit 1
 fi
 
+# Check root.
+if (( ! "${EUID}" == 0 )); then
+    msg_error "This script must be run as root." "1"
+fi
+
+# Fullpath
+work_dir="$(realpath "${work_dir}")"
+
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
-    msg_warn -n "Are you sure you want to continue?"
-    read -n 1 yesorno
-    if [[ "${yesorno}" = "y" ]] || [[ "${yesorno}" = "" ]]; then
-        echo
-    else
-        exit 1
-    fi
+    msg_info "Press Enter to continue or Ctrl + C to cancel."
+    read -r
 fi
 
 
 umount_chroot
 if [[ "${only_work}" = false ]]; then
     remove "${script_path}/menuconfig/build/"**
-    remove "${script_path}/system/cpp-src/mkalteriso/build"/**
     remove "${script_path}/menuconfig-script/kernel_choice"
-    remove "${script_path}/system/mkalteriso"
 fi
 
 remove "${work_dir%/}"/**

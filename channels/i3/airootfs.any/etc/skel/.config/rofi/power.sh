@@ -22,7 +22,7 @@ declare -A menu_list=(
 
 function main() {
   local -r IFS=$'\n'
-  [[ $# -ne 0 ]] && eval "${menu_list[$1]}" || echo "${!menu_list[*]}"
+  [[ "${#}" -ne 0 ]] && eval "${menu_list[$1]}" || echo "${!menu_list[*]}"
 }
 
-main $@
+main "${@}"

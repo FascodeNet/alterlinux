@@ -9,9 +9,9 @@
 
 # Enable gdm to auto login
 if [[ "${boot_splash}" =  true ]]; then
-    systemctl enable gdm-plymouth.service
+    _safe_systemctl enable gdm-plymouth.service
 else
-    systemctl enable gdm.service
+    _safe_systemctl enable gdm.service
 fi
 
 
@@ -24,4 +24,9 @@ if [[ ! "${language}" = "ja" ]]; then
     sed -i "s/export GTK_IM_MODULE=fcitx/#export GTK_IM_MODULE=fcitx/g" "/etc/environment"
     sed -i "s/export QT_IM_MODULE=fcitx/#export QT_IM_MODULE=fcitx/g" "/etc/environment"
     sed -i "s/export XMODIFIERS=@im=fcitx/#export XMODIFIERS=@im=fcitx/g" "/etc/environment"
+fi
+
+# Prepare gdm for calamares
+if [[ -f "/usr/share/calamares/modules/services.conf" ]]; then
+    sed -i "s|%DM%|gdm|g" "/usr/share/calamares/modules/services.conf"
 fi

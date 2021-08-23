@@ -28,14 +28,12 @@ _help() {
     echo
     echo " Script mode usage:"
     echo "     check                    Returns 0 if the check was successful, 1 otherwise."
-    printf '     get                      eval $(%s -s -a <arch> -c <channel> get <kernel>)\n' "$(basename ${0})"
+    printf '     get                      eval $(%s -s -a <arch> -c <channel> get <kernel>)\n' "$(basename "${0}")"
 }
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
-getclm() {
-    echo "$(cat -)" | cut -d " " -f "${1}"
-}
+getclm() { cut -d " " -f "${1}"; }
 
 # Message functions
 msg_error() {
@@ -55,7 +53,7 @@ gen_kernel_list() {
     else
         _list="${script_path}/system/kernel-${arch}"
     fi
-    for _kernel in $(grep -h -v ^'#' ${_list} | getclm 1); do 
+    for _kernel in $(grep -h -v ^'#' "${_list}" | getclm 1); do 
         kernellist+=("${_kernel}")
     done
 }
@@ -98,15 +96,15 @@ get() {
     else
         _kernel_config_file="${script_path}/system/kernel-${arch}"
     fi
-    _kernel_name_list=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | getclm 1))
+    readarray -t _kernel_name_list < <(grep -h -v ^'#' "${_kernel_config_file}" | grep -v ^$  | getclm 1)
     _get_kernel_line() {
         local _kernel _count=0
-        for _kernel in ${_kernel_name_list[@]}; do
+        for _kernel in "${_kernel_name_list[@]}"; do
             _count=$(( _count + 1 ))
-            if [[ "${_kernel}" = "${1}" ]]; then echo "${_count}"; return 0; fi
+            [[ "${_kernel}" = "${1}" ]] && echo "${_count}" && return 0
         done
         echo -n "failed"
-        return 0
+        return 1
     }
     _kernel_line="$(_get_kernel_line "${1}")"
 
@@ -120,7 +118,7 @@ get() {
     fi
 
     # カーネル設定ファイルから該当の行を抽出
-    _kernel_config_line=($(cat "${_kernel_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1))
+    readarray -t _kernel_config_line < <(grep -h -v ^'#' "${_kernel_config_file}" | grep -v ^$ | head -n "${_kernel_line}" | tail -n 1 | sed -e 's/  */ /g' | tr " " "\n")
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数
@@ -175,9 +173,9 @@ else
 fi
 
 case "${mode}" in
-    "check" ) check ${@}    ;;
+    "check" ) check "${@}"  ;;
     "show"  ) show          ;;
-    "get"   ) get ${@}      ;;
+    "get"   ) get "${@}"    ;;
     "help"  ) _help; exit 0 ;;
     *       ) _help; exit 1 ;;
 esac

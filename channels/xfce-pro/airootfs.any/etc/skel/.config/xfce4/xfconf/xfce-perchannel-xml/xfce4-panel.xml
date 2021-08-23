@@ -155,7 +155,6 @@
       <property name="names-ordered" type="array">
         <value type="string" value="networkmanager applet"/>
         <value type="string" value="thunar"/>
-        <value type="string" value="pamac-tray"/>
         <value type="string" value="blueman-tray"/>
       </property>
     </property>

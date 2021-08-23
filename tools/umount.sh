@@ -31,6 +31,7 @@ _help() {
     echo "    -d | --debug              Enable debug message"
     echo "    -m | --maxdepth           Specify the maximum hierarchy (set 0 to no limit)"
     echo "    -h | --help               This help message"
+    echo "         --nocolor            No output color message"
 }
 
 # Message common function
@@ -41,7 +42,7 @@ msg_common(){
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
     _msg_opts+=("${_type}" "${@}")
-    "${tools_dir}/msg.sh" "${_msg_opts[@]}"
+    "${tools_dir}/msg.sh" "${_msg_opts[@]}" &
 }
 
 # Show an INFO message
@@ -104,14 +105,9 @@ umount_work () {
 }
 
 
-# Check root.
-#if (( ! "${EUID}" == 0 )); then
-#    msg_error "This script must be run as root." "1"
-#fi
-
 # Parse options
 OPTS=("d" "f" "h" "m:")
-OPTL=("debug" "force" "help" "maxdepth:")
+OPTL=("debug" "force" "help" "maxdepth:" "nocolor")
 if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${@}"); then
     exit 1
 fi
@@ -135,8 +131,12 @@ while true; do
             shift 2
             ;;
         -h | --help)
-            _usage
+            _help
             exit 0
+            ;;
+        --nocolor)
+            nocolor=true
+            shift 1
             ;;
         --)
             shift
@@ -144,10 +144,16 @@ while true; do
             ;;
         *)
             msg_error "Invalid argument '${1}'"
-            _usage 1
+            _help
+            exit 1
             ;;
     esac
 done
+
+# Check root.
+if (( ! "${EUID}" == 0 )); then
+    msg_error "This script must be run as root." "1"
+fi
 
 
 if [[ -z "${1+SET}" ]]; then

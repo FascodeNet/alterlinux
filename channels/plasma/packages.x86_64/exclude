@@ -1,0 +1,24 @@
+## Disk management
+nvme-cli
+
+## MTP
+gvfs-mtp
+
+## Printer
+system-config-printer
+
+## Audio
+pavucontrol
+
+## Bluetooth
+blueman
+
+## Other
+xarchiver
+smbclient
+gvfs
+gvfs-smb
+
+## Intermet
+thunderbird
+network-manager-applet

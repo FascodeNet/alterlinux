@@ -1,7 +1,7 @@
 [Unit]
 Description=Initializes Pacman keyring
-Wants=haveged.service
-After=haveged.service
+#Wants=haveged.service
+#After=haveged.service
 Requires=etc-pacman.d-gnupg.mount
 After=etc-pacman.d-gnupg.mount
 

@@ -9,40 +9,23 @@
 
 # Bluetooth
 rfkill unblock all
-_systemd_service enable bluetooth
+_safe_systemctl enable bluetooth
 
 # Snap
-_systemd_service enable snapd.apparmor.service
-_systemd_service enable apparmor.service
-_systemd_service enable snapd.socket
-_systemd_service enable snapd.service
-_systemd_service enable ufw.service
+_safe_systemctl enable snapd.apparmor.service
+_safe_systemctl enable apparmor.service
+_safe_systemctl enable snapd.socket
+_safe_systemctl enable snapd.service
+_safe_systemctl enable ufw.service
 
 
 # Added autologin group to auto login
-groupadd autologin
+_groupadd autologin
 usermod -aG autologin ${username}
 
 
 # ntp
-_systemd_service enable systemd-timesyncd.service
-
-
-# Pipewire
-# Do not use _systemd_service because pipewire services are not system but user
-# Use flag "--user --global"
-# https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/923
-for _service in "pipewire.service" "pipewire-pulse.service"; do
-    #if systemctl --user --global cat "${_service}" 1> /dev/null 2>&1; then
-    if (( "$(systemctl --user --global list-unit-files "${_service}" | wc -l)" > 3 )); then
-        systemctl --user --global enable "${_service}"
-    fi
-done
-
-# Enable bluetooth support for pipewire
-if [[ -f "/etc/pipewire/media-session.d/media-session.conf" ]]; then
-    sed -i "s|#bluez5|bluez5 |g" "/etc/pipewire/media-session.d/media-session.conf"
-fi
+_safe_systemctl enable systemd-timesyncd.service
 
 
 # Update system datebase

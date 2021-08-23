@@ -11,6 +11,7 @@ set -e
 build_username="pkgbuild"
 pacman_debug=false
 pacman_args=()
+remove_list=()
 
 _help() {
     echo "usage ${0} [option]"
@@ -42,20 +43,11 @@ done
 
 shift "$((OPTIND - 1))"
 
-# Delete file only if file exists
-# remove <file1> <file2> ...
-function remove () {
-    local _list
+# Show message when file is removed
+# remove <file> <file> ...
+remove() {
     local _file
-    _list=($(echo "$@"))
-    for _file in "${_list[@]}"; do
-        if [[ -f ${_file} ]]; then
-            rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
-            rm -rf "${_file}"
-        fi
-        echo "${_file} was deleted."
-    done
+    for _file in "${@}"; do echo "Removing ${_file}" >&2; rm -rf "${_file}"; done
 }
 
 # user_check <name>
@@ -66,7 +58,7 @@ function user_check () {
 
 # 一般ユーザーで実行します
 function run_user () {
-    sudo -u "${build_username}" ${@}
+    sudo -u "${build_username}" "${@}"
 }
 
 # 引数を確認
@@ -104,14 +96,14 @@ pacman -Syy "${pacman_args[@]}"
 
 # Parse SRCINFO
 cd "${pkgbuild_dir}"
-pkgbuild_dirs=($(ls "${pkgbuild_dir}" 2> /dev/null))
+readarray -t pkgbuild_dirs < <(ls "${pkgbuild_dir}" 2> /dev/null)
 if (( "${#pkgbuild_dirs[@]}" != 0 )); then
-    for _dir in ${pkgbuild_dirs[@]}; do
+    for _dir in "${pkgbuild_dirs[@]}"; do
         cd "${_dir}"
-        depends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${depends[@]}"))
-        makedepends=($(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; echo "${makedepends[@]}"))
+        readarray -t depends < <(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; printf "%s\n" "${depends[@]}")
+        readarray -t makedepends < <(source "${pkgbuild_dir}/${_dir}/PKGBUILD"; printf "%s\n" "${makedepends[@]}")
         if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
-            for _pkg in ${depends[@]} ${makedepends[@]}; do
+            for _pkg in "${depends[@]}" "${makedepends[@]}"; do
                 if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
                     pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
                 fi
@@ -125,9 +117,9 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
     done
 fi
 
-if deletepkg=($(pacman -Qtdq)) &&  (( "${#deletepkg[@]}" != 0 )); then
-    pacman -Rsnc "${deletepkg[@]}" "${pacman_args[@]}"
-fi
+
+readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qtdq) 
+(( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
 pacman -Sccc "${pacman_args[@]}"
 
