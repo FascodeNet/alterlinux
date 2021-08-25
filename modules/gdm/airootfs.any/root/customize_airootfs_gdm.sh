@@ -27,6 +27,9 @@ if [[ ! "${language}" = "ja" ]]; then
 fi
 
 # Prepare gdm for calamares
-if [[ -f "/usr/share/calamares/modules/services.conf" ]]; then
-    sed -i "s|%DM%|gdm|g" "/usr/share/calamares/modules/services.conf"
-fi
+for file in "services" "services-plymouth"; do
+    if [[ -f "/usr/share/calamares/modules/${file}.conf" ]]; then
+        sed -i "s|%DM%|gdm|g" "/usr/share/calamares/modules/${file}.conf"
+    fi
+done
+
