@@ -92,21 +92,11 @@ _safe_systemctl(){
     local _service _command="${1}"
     shift 1
     for _service in "${@}"; do
-        # https://unix.stackexchange.com/questions/539147/systemctl-check-if-a-unit-service-or-target-exists
-        if (( "$(systemctl list-unit-files "${_service}" | wc -l)" > 3 )); then
-            if [[ "${_command}" = "enable" ]]; then
-                if [[ "$(systemctl is-enabled "${_service}")" = "enabled" ]]; then
-                    echo "${_service} has been enabled" >&2
-                else
-                    systemctl enable "${_service}" || true
-                fi
-            else
-                systemctl "${_command}" "${_service}"
-            fi
-        elif echo "${_service}" | grep -q "@"; then
-             _safe_systemctl "${_command}" "$(echo "${_service}" | cut -d "@" -f 1)"
-        else
-            echo "${_service} was not found" >&2
+        if [[ "${_command}" = "enable" ]] && [[ "$(systemctl is-enabled "${_service}")" = "enabled" ]]; then
+            echo "${_service} has been enabled" >&2
+            continue
         fi
+        systemctl "${_command}" "${_service}" || true
     done
+    return 0
 }
