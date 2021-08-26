@@ -103,6 +103,8 @@ _safe_systemctl(){
             else
                 systemctl "${_command}" "${_service}"
             fi
+        elif echo "${_service}" | grep -q "@"; then
+             _safe_systemctl "${_command}" "$(echo "${_service}" | cut -d "@" -f 1)"
         else
             echo "${_service} was not found" >&2
         fi
