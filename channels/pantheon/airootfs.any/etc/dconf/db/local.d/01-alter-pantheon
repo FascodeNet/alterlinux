@@ -32,7 +32,7 @@ zoom-percent=150
 prefers-color-scheme='no-preference'
 
 [org/gnome/desktop/background]
-picture-uri='file:///usr/share/backgrounds/Ashim%20DSilva.jpg'
+picture-uri='file:///usr/share/backgrounds/alter.png'
 
 [org/gnome/desktop/interface]
 gtk-im-module='gtk-im-context-simple'
