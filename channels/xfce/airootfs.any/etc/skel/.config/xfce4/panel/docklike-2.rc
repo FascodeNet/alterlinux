@@ -1,0 +1,5 @@
+[user]
+pinned=/usr/share/applications/chromium.desktop;/usr/share/applications/thunar.desktop;/usr/share/applications/vlc.desktop;/usr/share/applications/medit.desktop;/usr/share/applications/xfce4-screenshooter.desktop;/usr/share/applications/xfce4-terminal.desktop;/usr/share/applications/xfce-settings-manager.desktop;
+indicatorStyle=1
+forceIconSize=false
+iconSize=32

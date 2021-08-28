@@ -9,14 +9,13 @@ Alter Linuxのリポジトリを使用する場合は鍵を追加する必要が
 
 ### ソフトウェア
 ほとんどのパッケージは公式パッケージか、AUR上に公開していますが、一部のものはどちらにもありません。そのようなパッケージのソースコードとPKGBUILDへのリンクを以下に記載します。
-バイナリファイルが必要な場合は[Alter Linuxリポジトリ](https://xn--d-8o2b.com/repo/alter-stable/x86_64/)にアクセスして下さい。
+バイナリファイルが必要な場合は[Alter Linuxリポジトリ](https://xn--d-8o2b.com/repo/alter-stable//)にアクセスして下さい。
 
 ソースコード | PKGBUILD
 --- | ---
-[alterlinux-calamares](https://github.com/FascodeNet/alterlinux-calamares) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-calamares)
-[alterlinux-fcitx-conf](https://github.com/FascodeNet/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-fcitx-conf)
-[alterlinux-keyring](https://github.com/FascodeNet/alterlinux-keyring) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-keyring)
-[alterlinux-live-tools](https://github.com/FascodeNet/alterlinux-live-tools) | 
-[alterlinux-mirrorlist](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-mirrorlist)
-[alterlinux-wallpapers](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-wallpapers) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-wallpapers)
-[alterlinux-xfce-conf](https://github.com/FascodeNet/alterlinux-xfce-conf) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/x86_64/alterlinux-xfce-conf)
+[alterlinux-calamares](https://github.com/FascodeNet/alterlinux-calamares) | [PKGBUILD](https://github.com/FascodeNet/alterlinux/tree/noroot/modules/share-extra/pkgbuild.any/alterlinux-calamares)
+[alterlinux-fcitx-conf](https://github.com/FascodeNet/alterlinux-fcitx-conf) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-fcitx-conf)
+[alterlinux-i3-manager](https://github.com/FascodeNet/alterlinux-i3-manager) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-i3-manager)
+[alterlinux-keyring](https://github.com/FascodeNet/alterlinux-keyring) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-keyring)
+[alterlinux-mirrorlist](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-mirrorlist) | [PKGBUILD](https://github.com/FascodeNet/alterlinux-pkgbuilds/tree/master/alter-stable/any/alterlinux-mirrorlist)
+

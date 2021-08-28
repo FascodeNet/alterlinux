@@ -4,43 +4,42 @@
     <img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="Alter Linux logo">
 </p>
 <p align="center">
-    <a href="https://fascode.net/en/projects/linux/alter/">
-        <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+    <a href="https://alter.fascode.net/">
+        <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=flat-square">
     </a>
     <a href="../LICENSE">
-        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=for-the-badge" alt="License: GPLv3.0">
+        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://www.archlinux.org/">
-        <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=for-the-badge&logo=arch-linux" alt="Base">
+        <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=flat-square&logo=arch-linux" alt="Base">
     </a>
     <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
-        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=for-the-badge&logo=arch-linux" alt="archiso-version">
+        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-</p>
-<p align="center">
-	<a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-		<img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=for-the-badge">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/issues">
-		<img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=for-the-badge&logo=github" alt="Issues">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/stargazers">
-		<img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=for-the-badge&logo=github">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/network/members">
-		<img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=for-the-badge">
-	</a>
-</p>
-<p align="center">
-	<a href="https://github.com/FascodeNet/alterlinux/releases">
-		<img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=for-the-badge" alt="release">
-	</a>
-	<a href="https://fascode.net/en/projects/linux/alter/downloads/">
-		<img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=for-the-badge">
-	</a>
-	<a href="https://github.com/FascodeNet/alterlinux/commits/">
-		<img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=for-the-badge">
-	</a>
+    <a href="https://github.com/FascodeNet/alterlinux/actions">
+        <img src="https://img.shields.io/github/workflow/status/fascodenet/alterlinux/ShellCheck%20CL?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/issues">
+        <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/stargazers">
+        <img src="https://img.shields.io/github/stars/FascodeNet/alterlinux?color=yellow&style=flat-square&logo=github">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/network/members">
+        <img src="https://img.shields.io/github/forks/FascodeNet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/releases">
+        <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux/commits/">
+        <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/fascodeNet/alterlinux/">
+        <img src="https://img.shields.io/github/repo-size/fascodenet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux">
+        <img src="https://img.shields.io/tokei/lines/github/fascodenet/alterlinux?style=flat-square">
+    </a>
 </p>
 
 <table>
@@ -61,25 +60,35 @@
 </b>
 
 <h2>〈Overview〉</h2>
-
 Alter Linux is a new OS developed based on Arch Linux.<br>
 Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of Alter Linux.<br>
-Please see the <a href="https://fascode.net/projects/linux/alter/">official website</a> for information on announcements and bugs for users.
+Please see the <a href="https://alter.fascode.net/">official website</a> for information on announcements and bugs for users.
 
+<h2>〈Download〉</h2>
+The image file can be downloaded from the official <a href="https://alter.fascode.net/#downloads">website</a>.
+<br>
+<b>We are looking for a mirror server provider for repositories and image file distribution.</b>
+<br>
+If you would like us to provide a mirror please contact the developer's Twitter.
+
+<h2>〈Screenshots〉</h2>
 <h3>Xfce</h3>
-<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%">
+
+<h3>Plasma</h3>
+<img src="../images/screenshot/desktop-plasma.png" alt="screenshot" width="50%">
 
 <h3>Lxde</h3>
-<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
 
 <h3>Gnome</h3>
-<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot" width="50%">
 
 <h3>Cinnamon</h3>
-<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot" width="50%">
 
 <h3>i3wm</h3>
-<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot">
+<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot" width="50%">
 
 <h2>〈Feature〉</h2>
 <ul>
@@ -89,15 +98,9 @@ Please see the <a href="https://fascode.net/projects/linux/alter/">official webs
     <li>Adopt ZEN kernel by default</li>
     <li>Equipped with sophisticated UI, themes, and icons</li>
     <li>You can use the syntax of <code>apt</code> with <code>aptpac</code></li>
+    <li>Higher quality audio with Pipewire is available by default</li>
     <li>Easy development of derived OS by framework based on archiso</li>
 </ul>
-
-<h2>〈Download〉</h2>
-The image file can be downloaded from the official <a href="https://fascode.net/projects/linux/alter/#downloads">website</a>.
-<br>
-<b>We are looking for a mirror server provider for repositories and image file distribution.</b>
-<br>
-If you would like us to provide a mirror please contact the developer's Twitter.
 
 <h2>〈Branch〉</h2>
 These are a list of major branches. Other branches are temporary or used for specific purposes.
@@ -149,13 +152,13 @@ Some documents may have outdated information or only some languages.<br>
 All documentation can be found in <code>docs</code>.<br>
 If you find a typographical error or a notation that isn't the case, please report it on Issues.<br>
 <ul>
-	<li><a href="en/BUILD.md">Build Alter Linux</a></li>
-	<li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
-	<li><a href="en/CHANNEL.md">Channel specifications</a></li>
-	<li><a href="en/PACKAGE.md">Notes on package list</a></li>
-	<li><a href="en/DOCKER.md">How to build on Docker</a></li>
-	<li><a href="en/KERNEL.md">How to add a new kernel</a></li>
-	<li><a href="en/CONFIG.md">About build configuration file</a></li>
+    <li><a href="en/BUILD.md">Build Alter Linux</a></li>
+    <li><a href="en/SOFTWARE.md">About the source code of your own package</a></li>
+    <li><a href="en/CHANNEL.md">Channel specifications</a></li>
+    <li><a href="en/PACKAGE.md">Notes on package list</a></li>
+    <li><a href="en/DOCKER.md">How to build on Docker</a></li>
+    <li><a href="en/KERNEL.md">How to add a new kernel</a></li>
+    <li><a href="en/CONFIG.md">About build configuration file</a></li>
 </ul>
 
 <h2>〈If you cannot start〉</h2>
@@ -165,7 +168,7 @@ In addition, please write down the situation and model name <a href="https://git
 
 <h2>〈About FascodeNetwork and developers〉</h2>
 <a href="https://fascode.net/">Fascode Network</a> is a creative team mainly composed of students.<br>
-We are developing <a href="https://fascode.net/projects/linux/alter/">Alter Linux</a> and <a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>.
+We are developing <a href="https://alter.fascode.net/">Alter Linux</a> and <a href="https://serene.fascode.net/">SereneLinux</a>.
 
 <h3>Official Twitter account</h3>
 <a href="https://twitter.com/FascodeNetwork">

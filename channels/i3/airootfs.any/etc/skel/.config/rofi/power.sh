@@ -7,7 +7,7 @@
 #  Twitter: @Watasuke102
 #  Email  : Watasuke102@gmail.com
 #
-#  (c) 2020 Fascode Network.
+#  (c) 2019-2021 Fascode Network.
 # ---------------------------------------------
 
 declare -A menu_list=(
@@ -22,7 +22,7 @@ declare -A menu_list=(
 
 function main() {
   local -r IFS=$'\n'
-  [[ $# -ne 0 ]] && eval "${menu_list[$1]}" || echo "${!menu_list[*]}"
+  [[ "${#}" -ne 0 ]] && eval "${menu_list[$1]}" || echo "${!menu_list[*]}"
 }
 
-main $@
+main "${@}"

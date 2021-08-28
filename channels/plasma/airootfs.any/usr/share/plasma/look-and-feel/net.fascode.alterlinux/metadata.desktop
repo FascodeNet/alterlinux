@@ -12,5 +12,5 @@ X-KDE-PluginInfo-License=GPL 3+
 X-Plasma-MainScript=defaults
 X-KDE-PluginInfo-Name=net.fascode.alterlinux
 X-KDE-PluginInfo-Version=0.1
-X-KDE-PluginInfo-Website=https://fascode.net/projects/alterlinux
+X-KDE-PluginInfo-Website=https://alter.fascode.net/
 X-KDE-ServiceTypes=Plasma/LookAndFeel

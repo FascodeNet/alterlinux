@@ -1,0 +1,11 @@
+[org/gnome/gedit/plugins]
+active-plugins=['spell', 'sort', 'modelines', 'filebrowser', 'docinfo']
+
+[org/gnome/gedit/preferences/editor]
+display-line-numbers=false
+highlight-current-line=false
+wrap-last-split-mode='word'
+
+[org/gnome/gedit/preferences/ui]
+show-tabs-mode='auto'
+statusbar-visible=true

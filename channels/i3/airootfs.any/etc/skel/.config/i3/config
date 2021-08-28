@@ -6,7 +6,7 @@
 #  Twitter: @Watasuke102
 #  Email  : Watasuke102@gmail.com
 #
-#  (c) 2020 Fascode Network.
+#  (c) 2019-2021 Fascode Network.
 # ---------------------------------------------
 
 # ---------------------
@@ -18,7 +18,7 @@ font pango:Noto Sans 9
 
 # gaps each window
 gaps outer 2
-gaps inner 15
+gaps inner 7
 smart_gaps on
 
 

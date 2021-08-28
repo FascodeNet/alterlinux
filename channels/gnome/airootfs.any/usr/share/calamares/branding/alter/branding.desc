@@ -74,7 +74,7 @@ strings:
     versionedName:       Alter Linux
     shortVersionedName:  Alter Linux
     bootloaderEntryName: Alter
-    productUrl:          https://fascode.net/projects/linux/alter/
+    productUrl:          https://alter.fascode.net/
     supportUrl:          https://github.com/SereneTeam/alterlinux/issues
     knownIssuesUrl:      https://alterlinux.com
     releaseNotesUrl:     https://github.com/SereneTeam/alterlinux/releases
@@ -127,7 +127,7 @@ slideshowAPI: 2
 # branding component also ships a stylesheet.qss. Then they are
 # the corresponding CSS attributes of #sidebarApp.
 style:
-   sidebarBackground:    "#222D32"
+   sidebarBackground:    "#272727"
    sidebarText:          "#FFFFFF"
    sidebarTextSelect:    "#0079ef"
-   sidebarTextHighlight: "#222D32"
+   sidebarTextHighlight: "#272727"

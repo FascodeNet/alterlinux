@@ -21,19 +21,23 @@ AlterISO3では様々な新機能が追加されました。そしてそれと�
 以前の`japanese`変数は意味を成しません。AlterISO3では言語名を`locale_name`変数で行っています。  
 特定の言語を強制的に使用させたい場合は、`-l`オプションで指定する言語名を`locale_name`変数で指定して下さい。  
 
+### モジュールについて
+AlterISO 3.1用に開発する場合はモジュール一覧も定義する必要があります。  
+詳細は後ほど追記します。
+
 #### 詳細設定を行う
 AlterISO3は`locale_name`の値を元にいくつかの変数を`system/locale-<arch>`から参照します。  
 チャンネルの`config`ファイルでは変数を上書きできるので、これらを詳細に書き換えることができます。  
 `locale.gen`の値は`locale_gen_name`変数、タイムゾーンは`locale_time`変数で設定できます。  
 詳細は[releng](/channels/releng/config.any)を参考にして下さい。  
 
+
 ### customize_airootfs_<ch_name>.sh
 
-#### 引数解析
 
-引数解析部分が大きく変更されています。以下の指示に従って書き換えて下さい。  
-
-そのまま書き換えを行い、コードは変更しないでください。  
+引数解析部分が不要になりました。該当部分を削除してください。  
+また、`remove`などの関数定義も不要になりました。  
+利用可能な変数や関数は[share/customize_airootfs.sh](https://github.com/FascodeNet/alterlinux/blob/dev/channels/share/airootfs.any/root/customize_airootfs.sh)を参照してください。
 
 ##### 以前のコード
 
@@ -73,54 +77,6 @@ while getopts 'p:bt:k:rxju:o:i:s:da:' arg; do
 done
 ```
 
-##### AlterISO3のコード（2020年7月31日現在）
-
-```bash
-# Default value
-# Default value
-# All values can be changed by arguments.
-password=alter
-boot_splash=false
-kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
-theme_name=alter-logo
-rebuild=false
-username='alter'
-os_name="Alter Linux"
-install_dir="alter"
-usershell="/bin/bash"
-debug=false
-timezone="UTC"
-localegen="en_US\\.UTF-8\\"
-language="en"
-
-
-# Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
-    case "${arg}" in
-        p) password="${OPTARG}" ;;
-        b) boot_splash=true ;;
-        t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
-        r) rebuild=true ;;
-        u) username="${OPTARG}" ;;
-        o) os_name="${OPTARG}" ;;
-        i) install_dir="${OPTARG}" ;;
-        s) usershell="${OPTARG}" ;;
-        d) debug=true ;;
-        x) debug=true; set -xv ;;
-        a) arch="${OPTARG}" ;;
-        g) localegen="${OPTARG/./\\.}\\" ;;
-        z) timezone="${OPTARG}" ;;
-        l) language="${OPTARG}" ;;
-    esac
-done
-
-
-# Parse kernel
-kernel="${kernel_config_line[0]}"
-kernel_filename="${kernel_config_line[1]}"
-kernel_mkinitcpio_profile="${kernel_config_line[2]}"
-```
 
 #### 日本語用処理部分
 
