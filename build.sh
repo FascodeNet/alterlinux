@@ -30,6 +30,7 @@ DEFAULT_ARGUMENT=""
 ARGUMENT=("${@}")
 alteriso_version="3.1"
 norepopkg=()
+legacy_mode=false
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
@@ -414,6 +415,7 @@ prepare_build() {
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         modules=("legacy")
+        legacy_mode=true
         [[ "${include_extra-"unset"}" = true ]] && modules=("legacy-extra")
     fi
 
@@ -549,18 +551,20 @@ make_packages_repo() {
     readarray -t _pkglist_install < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
 
     # Package check
-    #readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-    #readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
-    #local _pkg
-    #for _pkg in "${_pkglist[@]}"; do
-    #    msg_info "Checking ${_pkg}..."
-    #    if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
-    #        _pkglist_install+=("${_pkg}")
-    #    else
-    #        msg_info "${_pkg} was not found. Install it with yay from AUR"
-    #        norepopkg+=("${_pkg}")
-    #    fi
-    #done
+    if [[ "${legacy_mode}" = true ]]; then
+        readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+        readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
+        local _pkg
+        for _pkg in "${_pkglist[@]}"; do
+            msg_info "Checking ${_pkg}..."
+            if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
+                _pkglist_install+=("${_pkg}")
+            else
+                msg_info "${_pkg} was not found. Install it with yay from AUR"
+                norepopkg+=("${_pkg}")
+            fi
+        done
+    fi
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
