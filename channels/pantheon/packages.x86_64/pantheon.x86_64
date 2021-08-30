@@ -18,7 +18,6 @@ elementary-wallpapers
 gala
 granite
 gtk-theme-elementary
-lightdm-pantheon-greeter
 pantheon-applications-menu
 pantheon-calculator
 pantheon-calendar
@@ -27,11 +26,11 @@ pantheon-code
 pantheon-default-settings
 pantheon-files
 pantheon-geoclue2-agent
-pantheon-mail
-pantheon-music
+# pantheon-mail
+# pantheon-music
 pantheon-notifications
 pantheon-onboarding
-pantheon-photos
+# pantheon-photos
 pantheon-polkit-agent
 pantheon-screenshot
 pantheon-session
@@ -40,7 +39,7 @@ pantheon-shortcut-overlay
 pantheon-sideload
 pantheon-tasks
 pantheon-terminal
-pantheon-videos
+# pantheon-videos
 sound-theme-elementary
 switchboard
 switchboard-plug-a11y
