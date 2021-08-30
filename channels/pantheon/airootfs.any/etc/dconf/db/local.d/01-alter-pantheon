@@ -3,14 +3,11 @@ clock-format='12h'
 clock-show-seconds=false
 clock-show-weekday=true
 
-[io/elementary/onboarding]
-viewed=['welcome', 'style', 'night-light', 'housekeeping', 'onlineaccounts', 'finish']
-
 [net/launchpad/plank/docks/dock1]
 alignment='center'
 auto-pinning=true
 current-workspace-only=false
-dock-items=['gala-multitaskingview.dockitem', 'io.elementary.mail.dockitem', 'io.elementary.calendar.dockitem', 'io.elementary.music.dockitem', 'io.elementary.videos.dockitem', 'io.elementary.photos.dockitem', 'io.elementary.switchboard.dockitem']
+dock-items=['gala-multitaskingview.dockitem', 'chromium.dockitem', 'io.elementary.files.dockitem', 'vlc.dockitem', 'io.elementary.code.dockitem', 'io.elementary.screenshot.dockitem', 'org.manjaro.pamac.manager.dockitem', 'io.elementary.terminal.dockitem', 'io.elementary.switchboard.dockitem']
 hide-delay=500
 hide-mode='window-dodge'
 icon-size=48
@@ -35,7 +32,14 @@ prefers-color-scheme='no-preference'
 picture-uri='file:///usr/share/backgrounds/alter.png'
 
 [org/gnome/desktop/interface]
+document-font-name='Noto Sans CJK JP Medium 10'
+font-antialiasing='grayscale'
+font-hinting='slight'
+font-name='Noto Sans CJK JP Medium 9'
 gtk-im-module='gtk-im-context-simple'
+gtk-theme='io.elementary.stylesheet.blueberry'
+monospace-font-name='SauceCodePro Nerd Font Medium 10'
+text-scaling-factor=1.0
 
 [org/gnome/desktop/peripherals/keyboard]
 numlock-state=true
@@ -46,9 +50,15 @@ natural-scroll=false
 [org/gnome/desktop/peripherals/touchpad]
 natural-scroll=true
 
+[org/gnome/desktop/wm/preferences]
+titlebar-font='SauceCodePro Nerd Font Medium 11'
+
 [org/gnome/evolution-data-server]
 migrated=true
 network-monitor-gio-name=''
+
+[org/gnome/tweaks]
+show-extensions-notice=false
 
 [org/pantheon/desktop/gala/behavior]
 hotcorner-bottomleft='none'
