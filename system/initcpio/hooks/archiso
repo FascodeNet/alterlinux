@@ -136,7 +136,7 @@ run_hook() {
     # defined via initcpio's parse_cmdline()
     [ -z "${archisodevice}" ] && archisodevice="/dev/disk/by-label/${archisolabel}"
     #[ -z "${cow_spacesize}" ] && cow_spacesize="256M"
-    [ -z "${cow_spacesize}" ] && cow_spacesize="1G"
+    [ -z "${cow_spacesize}" ] && cow_spacesize="%COWSPACE%"
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ -n "${cow_label}" ]; then
