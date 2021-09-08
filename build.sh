@@ -1011,7 +1011,7 @@ make_alteriso_info(){
 make_overisofs() {
     local _over_isofs_list _isofs
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
-    for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
+    for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any" "${module_dir}/{}/over_isofs.${arch}")'
     for _isofs in "${_over_isofs_list[@]}"; do
         [[ -d "${_isofs}" ]] && cp -af "${_isofs}"/* "${isofs_dir}"
     done
