@@ -1147,7 +1147,7 @@ while true; do
         --nochkver                  ) nochkver=true      && shift 1 ;;
         --noefi                     ) noefi=true         && shift 1 ;;
         --channellist               ) show_channel_list  && exit 0  ;;
-        --config                    ) source "${2}"      && shift 2 ;;
+        --config                    ) source "${2}"      ;  shift 2 ;;
         --pacman-debug              ) pacman_debug=true  && shift 1 ;;
         --nosigcheck                ) nosigcheck=true    && shift 1 ;;
         --normwork                  ) normwork=true      && shift 1 ;;
