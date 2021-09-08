@@ -31,6 +31,7 @@ ARGUMENT=("${@}")
 alteriso_version="3.1"
 norepopkg=()
 legacy_mode=false
+rerun=false
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
@@ -480,8 +481,8 @@ prepare_build() {
     if [[ ! "${logging}" = false ]]; then
         [[ "${customized_logpath}" = false ]] && logging="${out_dir}/${iso_filename%.iso}.log"
         mkdir -p "$(dirname "${logging}")" && touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
-        sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
+        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
+        sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend --rerun 2>&1 | tee "${logging}"
         exit "${?}"
     fi
 
@@ -1053,7 +1054,7 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:")
+ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun")
 GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
 getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
 readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
@@ -1156,6 +1157,7 @@ while true; do
         --nopkgbuild                ) nopkgbuild=true    && shift 1 ;;
         --nogitversion              ) gitversion=false   && shift 1 ;;
         --cowspace                  ) cowspace="${2}"    && shift 2 ;;
+        --rerun                     ) rerun=true         && shift 1 ;;
         --                          ) shift 1            && break   ;;
         *)
             msg_error "Argument exception error '${1}'"
@@ -1168,7 +1170,7 @@ done
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
     msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
-    sudo "${0}" "${ARGUMENT[@]}"
+    sudo "${0}" "${ARGUMENT[@]}" --rerun
     exit "${?}"
 fi
 
