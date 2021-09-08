@@ -1,0 +1,17 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Nvidia
+
+lib32-nvidia-utils
+lib32-opencl-nvidia
+nvidia-dkms
+nvidia-settings
+nvidia-utils
+opencl-nvidia
