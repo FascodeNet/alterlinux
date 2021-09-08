@@ -24,7 +24,7 @@ build() {
 }
 
 help() {
-    cat << HELPEOF
+    cat <<HELPEOF
 Adds all common KMS drivers to the initramfs image.
 HELPEOF
 }
