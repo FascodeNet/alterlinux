@@ -44,8 +44,7 @@ umask 0022
 # Message common function
 # msg_common [type] [-n] [string]
 msg_common(){
-    local _msg_opts=("-a" "build.sh") _type="${1}"
-    shift 1
+    local _msg_opts=("-a" "build.sh") _type="${1}" && shift 1
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
     [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
@@ -144,7 +143,7 @@ _usage () {
     echo "         --nodebug               Disable all debug messages"
     echo "         --noefi                 No efi boot (Use only for debugging)"
     echo "         --noloopmod             No check and load kernel module automatically"
-    echo "         --nodepend              No check package dependencies before building"
+    echo "         --[no]depend            (No) check package dependencies before building"
     echo "         --noiso                 No build iso image (Use with --tarball)"
     echo "         --nosigcheck            No pacman signature check"
     echo "         --pacman-debug          Enable pacman debug mode"
@@ -1054,7 +1053,7 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun")
+ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend")
 GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
 getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
 readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
@@ -1158,6 +1157,7 @@ while true; do
         --nogitversion              ) gitversion=false   && shift 1 ;;
         --cowspace                  ) cowspace="${2}"    && shift 2 ;;
         --rerun                     ) rerun=true         && shift 1 ;;
+        --depend                    ) nodepend=false      && shift 1 ;;
         --                          ) shift 1            && break   ;;
         *)
             msg_error "Argument exception error '${1}'"
