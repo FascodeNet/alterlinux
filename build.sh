@@ -1052,6 +1052,17 @@ make_iso() {
     return 0
 }
 
+# Write to USB
+make_usb(){
+    { [[ "${write_usb}" = false ]] || [[ ! -b "${write_usb}" ]]; } && return 0
+    if [[ "${noconfirm}" = false ]]; then
+        msg_info "Do you want to write \"${iso_filename}\" to \"${write_usb}\" ?\n Preee Enter to continue: "
+        trap "exit 0" SIGINT
+        read -r
+    fi
+    dd if="${out_dir}/${iso_filename}" | pv | dd of="${write_usb}"
+}
+
 
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun")
@@ -1255,7 +1266,7 @@ if [[ "${noiso}" = false ]]; then
     run_once make_overisofs
     run_once make_iso
 fi
-
 [[ "${cleaning}" = true ]] && _run_cleansh
+[[ ! "${write_usb}" = false ]] && make_usb
 
 exit 0
