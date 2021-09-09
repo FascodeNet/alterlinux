@@ -84,28 +84,7 @@ getclm() { cut -d " " -f "${1}"; }
 echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 
 _usage () {
-    echo "usage ${0} [options] [channel]"
-    echo
-    echo "A channel is a profile of AlterISO settings."
-    echo
-    echo " General options:"
-    echo "    -b | --boot-splash           Enable boot splash"
-    echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
-    echo "    -r |  --tarball               Build rootfs in tar.xz format"
-    echo "    -h | --help                  This help message and exit"
-    echo
-    echo "    -a | --arch <arch>           Set iso architecture"
-    echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "    -g | --gpgkey <key>          Set gpg key"
-    echo "    -l | --lang <lang>           Specifies the default language for the live environment"
-    echo "    -k | --kernel <kernel>       Set special kernel type. See below for available kernels"
-    echo "    -o | --out <out_dir>         Set the output directory"
-    echo "    -p | --password <password>   Set a live user password"
-    echo "    -t | --comp-opts <options>   Set compressor-specific options."
-    echo "    -u | --user <username>       Set user name"
-    echo "    -w | --work <work_dir>       Set the working directory"
-    echo
-
+    cat "${script_path}/docs/build.sh/help.1"
     local blank="29" _arch _dirname _type _output _first
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
@@ -125,36 +104,7 @@ _usage () {
             _first=false
         done
     done
-
-    echo
-    echo " Debug options: Please use at your own risk."
-    echo "    -d | --debug                 Enable debug messages"
-    echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
-    echo "         --channellist           Output the channel list and exit"
-    echo "         --config                Load additional config file"
-    echo "         --[no]gitversion        Add Git commit hash to image file version"
-    echo "         --logpath <file>        Set log file path (use with --log)"
-    echo "         --[no]log               (No) log ;re-run script with tee"
-    echo "         --msgdebug              Enables output debugging"
-    echo "         --noaur                 Ignore aur packages (Use only for debugging)"
-    echo "         --nocolor               No output colored output"
-    echo "         --[no]confirm           (No) check the settings before building"
-    echo "         --nochkver              No check the version of the channel"
-    echo "         --nodebug               Disable all debug messages"
-    echo "         --noefi                 No efi boot (Use only for debugging)"
-    echo "         --noloopmod             No check and load kernel module automatically"
-    echo "         --[no]depend            (No) check package dependencies before building"
-    echo "         --noiso                 No build iso image (Use with --tarball)"
-    echo "         --nosigcheck            No pacman signature check"
-    echo "         --pacman-debug          Enable pacman debug mode"
-    echo "         --normwork              No remove working dir"
-    echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
-    echo "         --tar-type <comp_type>  Set compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "         --tar-opts <option>     Set tar command argument (Use with --tarball)"
-    echo "         --add-module <module>   Load additional modules (Separated by \",\")"
-    echo
-    echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
-    echo
+    cat "${script_path}/docs/build.sh/help.2"
     [[ -n "${1:-}" ]] && exit "${1}"
 }
 
