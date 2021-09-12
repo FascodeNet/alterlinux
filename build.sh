@@ -995,7 +995,7 @@ make_iso() {
         -iso_mbr_part_type 0FC63DAF-8483-4772-8E79-3D69D8477DE4 \
         -partition_offset 16 \
         -eltorito-alt-boot \
-        ${_iso_efi_boot_args} \
+        "${_iso_efi_boot_args[@]}" \
         -output "${out_dir}/${iso_filename}" \
         "${build_dir}/iso/"
     _mkchecksum "${out_dir}/${iso_filename}"
