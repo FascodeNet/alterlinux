@@ -30,7 +30,7 @@ remove_user_file ".config/gtk-3.0/bookmarks"
 
 
 # Remove polkit role
-remove /etc/polkit-1/rules.d/01-nopasswork.rules
+# remove /etc/polkit-1/rules.d/01-nopasswork.rules
 
 remove /etc/systemd/system/getty@.service.d/autologin.conf
 remove /root/.automated_script.sh

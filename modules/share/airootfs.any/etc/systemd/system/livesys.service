@@ -1,0 +1,10 @@
+[Unit]
+Description = Livesys init Daemon
+After = basic.target
+Before = systemd-logind.service
+[Service]
+ExecStart = /etc/alteriso/init_script.sh
+Restart = no
+Type = simple
+[Install]
+WantedBy = multi-user.target

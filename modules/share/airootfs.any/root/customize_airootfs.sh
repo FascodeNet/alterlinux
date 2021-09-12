@@ -83,9 +83,18 @@ cp -aT /etc/skel/ /root/
 run_additional_command "xdg-user-dirs-update" "LC_ALL=C LANG=C xdg-user-dirs-update"
 echo -e "${password}\n${password}" | passwd root
 
+cat <<'EOF' > /etc/alteriso/base_init.d/00_allow_sudo
+#!/usr/bin/env bash
+
 # Allow sudo group to run sudo
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
+EOF
 
+chmod +x /etc/alteriso/base_init.d/00_allow_sudo
+
+cp /root/functions.sh /etc/alteriso/base_init.d/01_create_liveuser
+
+cat <<EOF >> /etc/alteriso/base_init.d/01_create_liveuser
 
 # Create user
 create_user "${username}" "${password}"
@@ -98,16 +107,26 @@ fi
 
 
 # Set to execute sudo without password as alter user.
-cat >> /etc/sudoers << "EOF"
+cat >> /etc/sudoers << "EOF2"
 Defaults pwfeedback
-EOF
+EOF2
 echo "${username} ALL=NOPASSWD: ALL" >> /etc/sudoers.d/alterlive
 
 
 # Chnage sudoers permission
 chmod 750 -R /etc/sudoers.d/
 chown root:root -R /etc/sudoers.d/
-
+EOF
+chmod +x /etc/alteriso/base_init.d/01_create_liveuser
+cat <<EOF > /etc/alteriso/base_init.d/02_create_polkit_file
+#!/usr/bin/env bash
+cat << EOF2 > /etc/polkit-1/rules.d/01-nopasswork.rules
+polkit.addRule(function(action, subject) {
+    return polkit.Result.YES;
+});
+EOF2
+EOF
+chmod +x /etc/alteriso/base_init.d/02_create_polkit_file
 
 # Configure Plymouth settings
 if [[ "${boot_splash}" = true ]]; then
@@ -161,6 +180,7 @@ _safe_systemctl set-default graphical.target
 
 
 # Enable services.
+_safe_systemctl enable livesys.service
 _safe_systemctl enable pacman-init.service
 _safe_systemctl enable cups.service
 _safe_systemctl enable NetworkManager.service
