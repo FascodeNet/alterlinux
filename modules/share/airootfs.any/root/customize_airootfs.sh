@@ -100,12 +100,6 @@ cat <<EOF >> /etc/alteriso/base_init.d/01_create_liveuser
 create_user "${username}" "${password}"
 
 
-# Set up auto login
-if [[ -f "/etc/systemd/system/getty@.service.d/autologin.conf" ]]; then
-    sed -i "s|%USERNAME%|${username}|g" "/etc/systemd/system/getty@.service.d/autologin.conf"
-fi
-
-
 # Set to execute sudo without password as alter user.
 cat >> /etc/sudoers << "EOF2"
 Defaults pwfeedback
@@ -127,7 +121,18 @@ polkit.addRule(function(action, subject) {
 EOF2
 EOF
 chmod +x /etc/alteriso/base_init.d/02_create_polkit_file
-
+cat <<EOF > /etc/alteriso/base_init.d/03_create_autogetty
+#!/usr/bin/env bash
+if [ ! -d /etc/systemd/system/getty@.service.d ]; then
+    mkdir -p /etc/systemd/system/getty@.service.d
+fi
+cat <<EOF2 > /etc/systemd/system/getty@.service.d/autologin.conf
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin ${username} --noclear %I 38400 linux
+EOF2
+EOF
+chmod +x /etc/alteriso/base_init.d/03_create_autogetty
 # Configure Plymouth settings
 if [[ "${boot_splash}" = true ]]; then
     # Override plymouth settings.
