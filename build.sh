@@ -1004,7 +1004,7 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend")
+ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod")
 GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
 getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
 readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
@@ -1097,7 +1097,7 @@ while true; do
         --noaur                     ) noaur=true         && shift 1 ;;
         --nochkver                  ) nochkver=true      && shift 1 ;;
         --noefi                     ) noefi=true         && shift 1 ;;
-        --channellist               ) show_channel_list  && exit 0  ;;
+        --channellist               ) show_channel_list  && exit  0 ;;
         --config                    ) source "${2}"      ;  shift 2 ;;
         --pacman-debug              ) pacman_debug=true  && shift 1 ;;
         --nosigcheck                ) nosigcheck=true    && shift 1 ;;
@@ -1108,7 +1108,8 @@ while true; do
         --nogitversion              ) gitversion=false   && shift 1 ;;
         --cowspace                  ) cowspace="${2}"    && shift 2 ;;
         --rerun                     ) rerun=true         && shift 1 ;;
-        --depend                    ) nodepend=false      && shift 1 ;;
+        --depend                    ) nodepend=false     && shift 1 ;;
+        --loopmod                   ) noloopmod=false    && shift 1 ;;
         --                          ) shift 1            && break   ;;
         *)
             msg_error "Argument exception error '${1}'"
