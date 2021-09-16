@@ -1,0 +1,20 @@
+/* ---------------------------------------------
+ *  Alter Linux i3wm edition
+ *  Rofi config file
+ * 
+ *  Watasuke
+ *  Twitter: @Watasuke102
+ *  Email  : Watasuke102@gmail.com
+ * 
+ *  (c) 2019-2021 Fascode Network.
+ * ---------------------------------------------
+ */
+
+configuration {
+  modi       : "drun,power:~/.config/rofi/power.sh";
+  font       : "hack 10";
+  show-icons : true;
+  icon-theme : "Inverse-blue";
+  theme      : "~/.config/rofi/alter-dark.rasi";
+  kb-cancel  : "Escape";
+}

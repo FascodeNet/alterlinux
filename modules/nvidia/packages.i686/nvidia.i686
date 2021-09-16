@@ -7,7 +7,9 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
+# Nvidia
 
-#-- other --#
-ipad_charge-git
-tlpui
+nvidia-dkms
+nvidia-settings
+nvidia-utils
+opencl-nvidia

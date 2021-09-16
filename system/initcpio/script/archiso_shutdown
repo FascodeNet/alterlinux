@@ -14,7 +14,7 @@ dmsetup remove_all
 
 # Remove all loopback devices.
 for _lup in $(grep ^/dev/loop /oldrun/archiso/used_block_devices | tac); do
-    if ! losetup -d -- "${_lup}" 2> /dev/null; then
+    if ! losetup -d -- "${_lup}" 2>/dev/null; then
         umount -d -- "${_lup}"
     fi
 done
@@ -34,8 +34,8 @@ fi
 # reboot / poweroff / halt, depending on the argument passed by init
 # if something invalid is passed, we halt
 case "$1" in
-  reboot|poweroff|halt) "$1" -f ;;
-  *) halt -f;;
+reboot | poweroff | halt) "$1" -f ;;
+*) halt -f ;;
 esac
 
 # vim: set ft=sh:

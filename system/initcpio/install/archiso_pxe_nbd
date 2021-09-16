@@ -11,7 +11,7 @@ build() {
 }
 
 help() {
-cat<<HELPEOF
+    cat <<HELPEOF
   This hook loads the necessary modules for boot via PXE and NBD.
 HELPEOF
 }
