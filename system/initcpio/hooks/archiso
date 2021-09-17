@@ -172,7 +172,7 @@ run_hook() {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     #[ -z "${archisodevice}" ] && archisodevice="/dev/disk/by-label/${archisolabel}"
-    [ -z "${archisodevice}" ] && archisodevice="$(blkid -l -t LABEL="${archisolabel}" -o device)"
+    [ -z "${archisodevice}" ] && archisodevice="$(blkid -L "${archisolabel}")"
     [ -z "${cow_spacesize}" ] && cow_spacesize="%COWSPACE%"
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
