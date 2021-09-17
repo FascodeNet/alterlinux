@@ -33,6 +33,17 @@ norepopkg=()
 legacy_mode=false
 rerun=false
 
+#-- AlterISO 3.2 Variables --#
+bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
+file_permissions=(
+  ["/etc/shadow"]="0:0:400"
+  ["/root"]="0:0:750"
+  ["/root/.automated_script.sh"]="0:0:755"
+  ["/usr/local/bin/choose-mirror"]="0:0:755"
+  ["/usr/local/bin/Installation_guide"]="0:0:755"
+  ["/usr/local/bin/livecd-sound"]="0:0:755"
+)
+
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
 for config in "${defaultconfig}" "${script_path}/custom.conf"; do
@@ -54,22 +65,22 @@ msg_common(){
 
 # Show an INFO message
 # ${1}: message string
-msg_info() { msg_common info "${@}"; }
+_msg_info() { msg_common info "${@}"; }
 
 # Show an Warning message
 # ${1}: message string
-msg_warn() { msg_common warn "${@}"; }
+_msg_warn() { msg_common warn "${@}"; }
 
 # Show an debug message
 # ${1}: message string
-msg_debug() { 
+_msg_debug() { 
     [[ "${debug}" = true ]] && msg_common debug "${@}" || return 0
 }
 
 # Show an ERROR message then exit with status
 # ${1}: message string
 # ${2}: exit code number (with 0 does not exit)
-msg_error() {
+_msg_error() {
     msg_common error "${1}"
     [[ -n "${2:-""}" ]] && exit "${2}" || return 0
 }
@@ -133,13 +144,13 @@ mount_airootfs () {
 run_once() {
     if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
         umount_work
-        msg_debug "Running ${1} ..."
+        _msg_debug "Running ${1} ..."
         mount_airootfs
         eval "${@}"
         mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
         
     else
-        msg_debug "Skipped because ${1} has already been executed."
+        _msg_debug "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -147,14 +158,14 @@ run_once() {
 # remove <file> <file> ...
 remove() {
     local _file
-    for _file in "${@}"; do msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
+    for _file in "${@}"; do _msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
 # 強制終了時にアンマウント
 umount_trap() {
     local _status="${?}"
     umount_work
-    msg_error "It was killed by the user.\nThe process may not have completed successfully."
+    _msg_error "It was killed by the user.\nThe process may not have completed successfully."
     exit "${_status}"
 }
 
@@ -162,7 +173,7 @@ umount_trap() {
 # load_config [file1] [file2] ...
 load_config() {
     local _file
-    for _file in "${@}"; do [[ -f "${_file}" ]] && source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; done
+    for _file in "${@}"; do [[ -f "${_file}" ]] && source "${_file}" && _msg_debug "The settings have been overwritten by the ${_file}"; done
     return 0
 }
 
@@ -179,11 +190,11 @@ for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/
 
 # pacstrapを実行
 _pacstrap(){
-    msg_info "Installing packages to ${airootfs_dir}/'..."
+    _msg_info "Installing packages to ${airootfs_dir}/'..."
     local _args=("-c" "-G" "-M" "--" "${airootfs_dir}" "${@}")
     [[ "${pacman_debug}" = true ]] && _args+=(--debug)
     pacstrap -C "${build_dir}/pacman.conf" "${_args[@]}"
-    msg_info "Packages installed successfully!"
+    _msg_info "Packages installed successfully!"
 }
 
 # chroot環境でpacmanコマンドを実行
@@ -196,12 +207,12 @@ _run_with_pacmanconf(){
 
 # コマンドをchrootで実行する
 _chroot_run() {
-    msg_debug "Run command in chroot\nCommand: ${*}"
+    _msg_debug "Run command in chroot\nCommand: ${*}"
     arch-chroot "${airootfs_dir}" "${@}" || return "${?}"
 }
 
 _cleanup_common () {
-    msg_info "Cleaning up what we can on airootfs..."
+    _msg_info "Cleaning up what we can on airootfs..."
 
     # Delete pacman database sync cache files (*.tar.gz)
     [[ -d "${airootfs_dir}/var/lib/pacman" ]] && find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
@@ -227,7 +238,7 @@ _cleanup_common () {
     # Create an empty /etc/machine-id
     printf '' > "${airootfs_dir}/etc/machine-id"
 
-    msg_info "Done!"
+    _msg_info "Done!"
 }
 
 _cleanup_airootfs(){
@@ -237,9 +248,9 @@ _cleanup_airootfs(){
 }
 
 _mkchecksum() {
-    msg_info "Creating md5 checksum ..."
+    _msg_info "Creating md5 checksum ..."
     echo "$(md5sum "${1}" | getclm 1) $(basename "${1}")" > "${1}.md5"
-    msg_info "Creating sha256 checksum ..."
+    _msg_info "Creating sha256 checksum ..."
     echo "$(sha256sum "${1}" | getclm 1) $(basename "${1}")" > "${1}.sha256"
 }
 
@@ -247,14 +258,14 @@ _mkchecksum() {
 check_bool() {
     local _value _variable
     for _variable in "${@}"; do
-        msg_debug -n "Checking ${_variable}..."
+        _msg_debug -n "Checking ${_variable}..."
         eval ": \${${_variable}:=''}"
         _value="$(eval echo "\${${_variable},,}")"
         eval "${_variable}=${_value}"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
-            [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is empty." "1"
+            [[ "${debug}" = true ]] && echo ; _msg_error "The variable name ${_variable} is empty." "1"
         elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
-            [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is not of bool type (${_variable} = ${_value})" "1"
+            [[ "${debug}" = true ]] && echo ; _msg_error "The variable name ${_variable} is not of bool type (${_variable} = ${_value})" "1"
         elif [[ "${debug}" = true ]]; then
             echo -e " ${_value}"
         fi
@@ -271,8 +282,8 @@ prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
-        msg_info "Checking dependencies ..."
-        ! pacman -Qq pyalpm > /dev/null 2>&1 && msg_error "pyalpm is not installed." 1
+        _msg_info "Checking dependencies ..."
+        ! pacman -Qq pyalpm > /dev/null 2>&1 && _msg_error "pyalpm is not installed." 1
         for _pkg in "${dependence[@]}"; do
             eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             if (( _result == 3 )) || (( _result == 4 )); then
@@ -285,13 +296,13 @@ prepare_env() {
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
-        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
+        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && _msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
         lsmod | getclm 1 | grep -qx "loop" || modprobe loop
     fi
 
     # Check work dir
     if [[ "${normwork}" = false ]]; then
-        msg_info "Deleting the contents of ${build_dir}..."
+        _msg_info "Deleting the contents of ${build_dir}..."
         _run_cleansh
     fi
 
@@ -317,25 +328,25 @@ prepare_env() {
 # Error message
 error_exit_trap(){
     local _exit="${?}" _line="${1}" && shift 1
-    msg_error "An exception error occurred in the function"
-    msg_error "Exit Code: ${_exit}\nLine: ${_line}\nArgument: ${ARGUMENT[*]}"
+    _msg_error "An exception error occurred in the function"
+    _msg_error "Exit Code: ${_exit}\nLine: ${_line}\nArgument: ${ARGUMENT[*]}"
     exit "${_exit}"
 }
 
 # Show settings.
 show_settings() {
     if [[ "${boot_splash}" = true ]]; then
-        msg_info "Boot splash is enabled."
-        msg_info "Theme is used ${theme_name}."
+        _msg_info "Boot splash is enabled."
+        _msg_info "Theme is used ${theme_name}."
     fi
-    msg_info "Language is ${locale_fullname}."
-    msg_info "Use the ${kernel} kernel."
-    msg_info "Live username is ${username}."
-    msg_info "Live user password is ${password}."
-    msg_info "The compression method of squashfs is ${sfs_comp}."
-    msg_info "Use the ${channel_name%.add} channel."
-    msg_info "Build with architecture ${arch}."
-    (( "${#additional_exclude_pkg[@]}" != 0 )) && msg_info "Excluded packages: ${additional_exclude_pkg[*]}"
+    _msg_info "Language is ${locale_fullname}."
+    _msg_info "Use the ${kernel} kernel."
+    _msg_info "Live username is ${username}."
+    _msg_info "Live user password is ${password}."
+    _msg_info "The compression method of squashfs is ${sfs_comp}."
+    _msg_info "Use the ${channel_name%.add} channel."
+    _msg_info "Build with architecture ${arch}."
+    (( "${#additional_exclude_pkg[@]}" != 0 )) && _msg_info "Excluded packages: ${additional_exclude_pkg[*]}"
     if [[ "${noconfirm}" = false ]]; then
         echo -e "\nPress Enter to continue or Ctrl + C to cancel."
         read -r
@@ -354,7 +365,7 @@ prepare_build() {
     [[ "${bash_debug}" = true ]] && set -x -v
 
     # Show alteriso version
-    [[ -n "${gitrev-""}" ]] && msg_debug "The version of alteriso is ${gitrev}"
+    [[ -n "${gitrev-""}" ]] && _msg_debug "The version of alteriso is ${gitrev}"
 
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
@@ -364,7 +375,7 @@ prepare_build() {
 
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
-        msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
+        _msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         modules=("legacy")
         legacy_mode=true
         [[ "${include_extra-"unset"}" = true ]] && modules=("legacy-extra")
@@ -378,16 +389,16 @@ prepare_build() {
 
     # Check modules
     module_check(){
-        msg_debug -n "Checking ${1} module ... "
-        bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1" && echo "${module_dir}/${1}"
+        _msg_debug -n "Checking ${1} module ... "
+        bash "${tools_dir}/module.sh" check "${1}" || _msg_error "Module ${1} is not available." "1" && echo "${module_dir}/${1}"
     }
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "module_check {}"
 
     # Load modules
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
-    msg_debug "Loaded modules: ${modules[*]}"
-    ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
+    _msg_debug "Loaded modules: ${modules[*]}"
+    ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && _msg_warn "The share module is not loaded."
 
     # Set kernel
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
@@ -401,7 +412,7 @@ prepare_build() {
     [[ "${customized_password}" = false ]] && password="${defaultpassword}"
 
     # gitversion
-    [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+    [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
     # Generate tar file name
@@ -417,7 +428,7 @@ prepare_build() {
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
     tar_filename="${iso_filename%.iso}.tar.${tar_ext}"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-    msg_debug "Iso filename is ${iso_filename}"
+    _msg_debug "Iso filename is ${iso_filename}"
 
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
@@ -425,13 +436,13 @@ prepare_build() {
     # Check architecture for each channel
     local _exit=0
     bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
-    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
         [[ "${customized_logpath}" = false ]] && logging="${out_dir}/${iso_filename%.iso}.log"
         mkdir -p "$(dirname "${logging}")" && touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
+        _msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend --rerun 2>&1 | tee "${logging}"
         exit "${?}"
     fi
@@ -465,12 +476,12 @@ make_pacman_conf() {
         fi
     done
 
-    msg_debug "Use ${build_pacman_conf}"
+    _msg_debug "Use ${build_pacman_conf}"
     sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
 
     [[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
 
-    [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && msg_info "Use cached package files in ${cache_dir}"
+    [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
 
     # Share any architecture packages
     #while read -r _pkg; do
@@ -484,21 +495,21 @@ make_pacman_conf() {
 
 # Base installation (airootfs)
 make_basefs() {
-    msg_info "Creating ext4 image of 32GiB..."
+    _msg_info "Creating ext4 image of 32GiB..."
     truncate -s 32G -- "${airootfs_dir}.img"
     mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
     tune2fs -c "0" -i "0" "${airootfs_dir}.img"
-    msg_info "Done!"
+    _msg_info "Done!"
 
-    msg_info "Mounting ${airootfs_dir}.img on ${airootfs_dir}"
+    _msg_info "Mounting ${airootfs_dir}.img on ${airootfs_dir}"
     mount_airootfs
-    msg_info "Done!"
+    _msg_info "Done!"
     return 0
 }
 
 # Additional packages (airootfs)
 make_packages_repo() {
-    msg_debug "pkglist.sh ${pkglist_args[*]}"
+    _msg_debug "pkglist.sh ${pkglist_args[*]}"
     readarray -t _pkglist_install < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
 
     # Package check
@@ -507,11 +518,11 @@ make_packages_repo() {
         readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
         local _pkg
         for _pkg in "${_pkglist[@]}"; do
-            msg_info "Checking ${_pkg}..."
+            _msg_info "Checking ${_pkg}..."
             if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
                 _pkglist_install+=("${_pkg}")
             else
-                msg_info "${_pkg} was not found. Install it with yay from AUR"
+                _msg_info "${_pkg} was not found. Install it with yay from AUR"
                 norepopkg+=("${_pkg}")
             fi
         done
@@ -556,7 +567,7 @@ make_pkgbuild() {
     # Copy PKGBUILD to work
     mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
-        msg_info "Find $(basename "${_dir}")"
+        _msg_info "Find $(basename "${_dir}")"
         cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
@@ -582,7 +593,7 @@ make_customize_airootfs() {
 
     for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
-            msg_debug "Copying airootfs ${_airootfs} ..."
+            _msg_debug "Copying airootfs ${_airootfs} ..."
             cp -af "${_airootfs}"/* "${airootfs_dir}"
         fi
     done
@@ -634,7 +645,7 @@ make_customize_airootfs() {
             (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
         else
-            msg_debug "${_script} was not found."
+            _msg_debug "${_script} was not found."
         fi
     done
 
@@ -696,11 +707,11 @@ make_boot_extra() {
     fi
 
     local _ucode_image
-    msg_info "Preparing microcode for the ISO 9660 file system..."
+    _msg_info "Preparing microcode for the ISO 9660 file system..."
 
     for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
         if [[ -e "${airootfs_dir}/boot/${_ucode_image}" ]]; then
-            msg_info "Installimg ${_ucode_image} ..."
+            _msg_info "Installimg ${_ucode_image} ..."
             install -m 0644 -- "${airootfs_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
             if [[ -e "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
                 install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
@@ -708,7 +719,7 @@ make_boot_extra() {
             fi
         fi
     done
-    msg_info "Done!"
+    _msg_info "Done!"
 
     return 0
 }
@@ -873,8 +884,8 @@ make_efiboot() {
 # Compress tarball
 make_tarball() {
     # backup airootfs.img for tarball
-    msg_debug "Tarball filename is ${tar_filename}"
-    msg_info "Copying airootfs.img ..."
+    _msg_debug "Tarball filename is ${tar_filename}"
+    _msg_info "Copying airootfs.img ..."
     cp "${airootfs_dir}.img" "${airootfs_dir}.img.org"
 
     # Run script
@@ -887,20 +898,20 @@ make_tarball() {
     # make
     tar_comp_opt+=("--${tar_comp}")
     mkdir -p "${out_dir}"
-    msg_info "Creating tarball..."
+    _msg_info "Creating tarball..."
     cd -- "${airootfs_dir}"
-    msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
+    _msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
     tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
     cd -- "${OLDPWD}"
 
     # checksum
     _mkchecksum "${out_dir}/${tar_filename}"
-    msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
+    _msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
 
     remove "${airootfs_dir}.img"
     mv "${airootfs_dir}.img.org" "${airootfs_dir}.img"
 
-    [[ "${noiso}" = true ]] && msg_info "The password for the live user and root is ${password}."
+    [[ "${noiso}" = true ]] && _msg_info "The password for the live user and root is ${password}."
     
     return 0
 }
@@ -911,7 +922,7 @@ make_prepare() {
     mount_airootfs
 
     # Create packages list
-    msg_info "Creating a list of installed packages on live-enviroment..."
+    _msg_info "Creating a list of installed packages on live-enviroment..."
     pacman-key --init
     pacman -Q --sysroot "${airootfs_dir}" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${build_dir}/packages-full.list" > /dev/null
 
@@ -921,21 +932,21 @@ make_prepare() {
 
     # Create squashfs
     mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
-    msg_info "Creating SquashFS image, this may take some time..."
+    _msg_info "Creating SquashFS image, this may take some time..."
     mksquashfs "${airootfs_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}"
 
     # Create checksum
-    msg_info "Creating checksum file for self-test..."
+    _msg_info "Creating checksum file for self-test..."
     echo "$(sha512sum "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" | getclm 1) airootfs.sfs" > "${isofs_dir}/${install_dir}/${arch}/airootfs.sha512"
-    msg_info "Done!"
+    _msg_info "Done!"
 
     # Sign with gpg
     if [[ -v gpg_key ]] && (( "${#gpg_key}" != 0 )); then
-        msg_info "Creating signature file ($gpg_key) ..."
+        _msg_info "Creating signature file ($gpg_key) ..."
         cd -- "${isofs_dir}/${install_dir}/${arch}"
         gpg --detach-sign --default-key "${gpg_key}" "airootfs.sfs"
         cd -- "${OLDPWD}"
-        msg_info "Done!"
+        _msg_info "Done!"
     fi
 
     umount_work
@@ -976,7 +987,7 @@ make_iso() {
     [[ -f "${build_dir}/efiboot.img" ]] && _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
 
     mkdir -p -- "${out_dir}"
-    msg_info "Creating ISO image..."
+    _msg_info "Creating ISO image..."
     xorriso -as mkisofs \
         -iso-level 3 \
         -full-iso9660-filenames \
@@ -995,11 +1006,43 @@ make_iso() {
         -output "${out_dir}/${iso_filename}" \
         "${build_dir}/iso/"
     _mkchecksum "${out_dir}/${iso_filename}"
-    msg_info "Done! | $(ls -sh -- "${out_dir}/${iso_filename}")"
+    _msg_info "Done! | $(ls -sh -- "${out_dir}/${iso_filename}")"
 
-    msg_info "The password for the live user and root is ${password}."
+    _msg_info "The password for the live user and root is ${password}."
 
     return 0
+}
+
+#-- AlterISO 3.2 functions --#
+_validate_options() {
+    local validation_error=0 _buildmode
+
+    _msg_info "Validating options..."
+
+    # Check if pacman configuration file exists
+    if [[ ! -e "${pacman_conf}" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "File '${pacman_conf}' does not exist." 0
+    fi
+
+    # Check if the specified buildmodes are supported
+    for _buildmode in "${buildmodes[@]}"; do
+        if typeset -f "_build_buildmode_${_buildmode}" &> /dev/null; then
+            if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
+                "_validate_requirements_buildmode_${_buildmode}"
+            else
+                _msg_warning "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
+            fi
+        else
+            (( validation_error=validation_error+1 ))
+            _msg_error "${_buildmode} is not a valid build mode!" 0
+        fi
+    done
+
+    if (( validation_error )); then
+        _msg_error "${validation_error} errors were encountered while validating the profile. Aborting." 1
+    fi
+    _msg_info "Done!"
 }
 
 
@@ -1018,12 +1061,12 @@ while true; do
         -c | --comp-type)
             case "${2}" in
                 "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
-                *) msg_error "Invaild compressors '${2}'" '1' ;;
+                *) _msg_error "Invaild compressors '${2}'" '1' ;;
             esac
             shift 2
             ;;
         -j | --japanese)
-            msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
+            _msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
             customized_kernel=true
@@ -1062,7 +1105,7 @@ while true; do
         --tar-type)
             case "${2}" in
                 "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") tar_comp="${2}" ;;
-                *) msg_error "Invaild compressors '${2}'" '1' ;;
+                *) _msg_error "Invaild compressors '${2}'" '1' ;;
             esac
             shift 2
             ;;
@@ -1072,7 +1115,7 @@ while true; do
             ;;
         --add-module)
             readarray -t -O "${#additional_modules[@]}" additional_modules < <(echo "${2}" | tr "," "\n")
-            msg_debug "Added modules: ${additional_modules[*]}"
+            _msg_debug "Added modules: ${additional_modules[*]}"
             shift 2
             ;;
         -g | --gpgkey               ) gpg_key="${2}"     && shift 2 ;;
@@ -1112,23 +1155,23 @@ while true; do
         --loopmod                   ) noloopmod=false    && shift 1 ;;
         --                          ) shift 1            && break   ;;
         *)
-            msg_error "Argument exception error '${1}'"
-            msg_error "Please report this error to the developer." 1
+            _msg_error "Argument exception error '${1}'"
+            _msg_error "Please report this error to the developer." 1
             ;;
     esac
 done
 
 # Check root.
 if (( ! "${EUID}" == 0 )); then
-    msg_warn "This script must be run as root." >&2
-    msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
+    _msg_warn "This script must be run as root." >&2
+    _msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
     sudo "${0}" "${ARGUMENT[@]}" --rerun
     exit "${?}"
 fi
 
 # Show config message
 msg_debug "Use the default configuration file (${defaultconfig})."
-[[ -f "${script_path}/custom.conf" ]] && msg_debug "The default settings have been overridden by custom.conf"
+[[ -f "${script_path}/custom.conf" ]] && _msg_debug "The default settings have been overridden by custom.conf"
 
 # Debug mode
 [[ "${bash_debug}" = true ]] && set -x -v
@@ -1137,7 +1180,7 @@ msg_debug "Use the default configuration file (${defaultconfig})."
 if [[ -n "${1+SET}" ]]; then
     case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "%d" "${?}")" in
         "2")
-            msg_error "Invalid channel ${1}" "1"
+            _msg_error "Invalid channel ${1}" "1"
             ;;
         "1")
             channel_dir="${1}"
@@ -1158,7 +1201,7 @@ build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airo
 # Create dir
 for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
     mkdir -p "$(eval "echo \$${_dir}")"
-    msg_debug "${_dir} is $(realpath "$(eval "echo \$${_dir}")")"
+    _msg_debug "${_dir} is $(realpath "$(eval "echo \$${_dir}")")"
     eval "${_dir}=\"$(realpath "$(eval "echo \$${_dir}")")\""
 done
 
@@ -1174,11 +1217,11 @@ fi
 # Check channel version
 msg_debug "channel path is ${channel_dir}"
 if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]] && [[ "${nochkver}" = false ]]; then
-    msg_error "This channel does not support Alter ISO 3."
+    _msg_error "This channel does not support Alter ISO 3."
     if [[ -d "${script_path}/.git" ]]; then
-        msg_error "Please run \"git checkout alteriso-2\"" "1"
+        _msg_error "Please run \"git checkout alteriso-2\"" "1"
     else
-        msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
+        _msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
 
