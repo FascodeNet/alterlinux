@@ -1521,9 +1521,9 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.esp() {
         (( validation_error=validation_error+1 ))
         _msg_error "Validating '${bootmode}': The '${script_path}/efiboot/nosplash/entries' directory is missing!" 0
     else
-        if [[ ! -e "${profile}/efiboot/loader.conf" ]]; then
+        if [[ ! -e "${script_path}/efiboot/nosplash/loader.conf" ]]; then
             (( validation_error=validation_error+1 ))
-            _msg_error "Validating '${bootmode}': File '${profile}/efiboot/loader.conf' not found!" 0
+            _msg_error "Validating '${bootmode}': File '${script_path}/efiboot/nosplash/loader.conf' not found!" 0
         fi
         local conffile
         for conffile in "${script_path}/efiboot/nosplash/entries/"*'.conf'; do
