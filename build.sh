@@ -37,6 +37,7 @@ rerun=false
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
 buildmodes=("iso") # buildmodes=("iso" "netboot" "bootstrap")
 pacman_conf="/etc/pacman.conf"
+airootfs_image_type="squashfs"
 declare -A file_permissions=(
   ["/etc/shadow"]="0:0:400"
   ["/root"]="0:0:750"
