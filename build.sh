@@ -1030,7 +1030,7 @@ _validate_options() {
     for _buildmode in "${buildmodes[@]}"; do
         if typeset -f "_build_buildmode_${_buildmode}" &> /dev/null; then
             if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
-                "_validate_requirements_buildmode_${_buildmode}" # isoとbootstrapは実行可能
+                "_validate_requirements_buildmode_${_buildmode}"
             else
                 _msg_warn "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
             fi
@@ -1416,6 +1416,94 @@ _validate_common_requirements_buildmode_all() {
     fi
 }
 
+# build the base for an ISO and/or a netboot target
+_build_iso_base() {
+    local run_once_mode="base"
+    local buildmode_packages="${packages}"
+    # Set the package list to use
+    local buildmode_pkg_list=("${pkg_list[@]}")
+    # Set up essential directory paths
+    #pacstrap_dir="${work_dir}/${arch}/airootfs" 
+    #isofs_dir="${work_dir}/iso"
+
+    # airootfs_dirをpacstrap_dirに変更
+    # isofs_dirは別で定義
+    pacstrap_dir="${airootfs_dir}"
+
+    # Create working directory
+    #[[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
+    # Write build date to file or if the file exists, read it from there
+    if [[ -e "${work_dir}/build_date" ]]; then
+        SOURCE_DATE_EPOCH="$(<"${work_dir}/build_date")"
+    else
+        printf '%s\n' "$SOURCE_DATE_EPOCH" > "${work_dir}/build_date"
+    fi
+
+    [[ "${quiet}" == "y" ]] || _show_config
+    _run_once _make_pacman_conf
+    [[ -z "${gpg_key}" ]] || _run_once _export_gpg_publickey
+    _run_once _make_custom_airootfs
+    _run_once _make_packages
+    _run_once _make_version
+    _run_once _make_customize_airootfs
+    _run_once _make_pkglist
+    _make_bootmodes
+    _run_once _cleanup_pacstrap_dir
+    _run_once _prepare_airootfs_image
+}
+
+
+# Build the bootstrap buildmode
+_build_buildmode_bootstrap() {
+    local image_name="${iso_name}-bootstrap-${iso_version}-${arch}.tar.gz"
+    local run_once_mode="${buildmode}"
+    local buildmode_packages="${bootstrap_packages}"
+    # Set the package list to use
+    local buildmode_pkg_list=("${bootstrap_pkg_list[@]}")
+
+    # Set up essential directory paths
+    pacstrap_dir="${work_dir}/${arch}/bootstrap/root.${arch}"
+    [[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
+    install -d -m 0755 -o 0 -g 0 -- "${pacstrap_dir}"
+
+    [[ "${quiet}" == "y" ]] || _show_config
+    _run_once _make_pacman_conf
+    _run_once _make_packages
+    _run_once _make_version
+    _run_once _make_pkglist
+    _run_once _cleanup_pacstrap_dir
+    _run_once _build_bootstrap_image
+}
+
+# Build the netboot buildmode
+_build_buildmode_netboot() {
+    local run_once_mode="${buildmode}"
+
+    _build_iso_base
+    if [[ -v cert_list ]]; then
+        _run_once _sign_netboot_artifacts
+    fi
+    _run_once _export_netboot_artifacts
+}
+
+# Build the ISO buildmode
+_build_buildmode_iso() {
+    local image_name="${iso_name}-${iso_version}-${arch}.iso"
+    local run_once_mode="${buildmode}"
+    _build_iso_base
+    _run_once _build_iso_image
+}
+
+# build all buildmodes
+_build() {
+    local buildmode
+    local run_once_mode="build"
+
+    for buildmode in "${buildmodes[@]}"; do
+        _run_once "_build_buildmode_${buildmode}"
+    done
+}
+
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod")
 GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
@@ -1599,7 +1687,7 @@ prepare_env
 prepare_build
 show_settings
 _validate_options
-
+_build
 
 
 #run_once make_pacman_conf
