@@ -1015,144 +1015,260 @@ make_iso() {
 }
 
 #-- AlterISO 3.2 functions --#
-_validate_options() {
-    local validation_error=0 _buildmode
-
-    _msg_info "Validating options..."
-
-    # Check if pacman configuration file exists
-    if [[ ! -e "${pacman_conf}" ]]; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "File '${pacman_conf}' does not exist." 0
+# Create a squashfs image and place it in the ISO 9660 file system.
+# $@: options to pass to mksquashfs
+_run_mksquashfs() {
+    local image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
+    rm -f -- "${image_path}"
+    if [[ "${quiet}" == "y" ]]; then
+        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" -no-progress > /dev/null
+    else
+        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}"
     fi
+}
 
-    # Check if the specified buildmodes are supported
-    for _buildmode in "${buildmodes[@]}"; do
-        if typeset -f "_build_buildmode_${_buildmode}" &> /dev/null; then
-            if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
-                "_validate_requirements_buildmode_${_buildmode}"
-            else
-                _msg_warn "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
-            fi
-        else
-            (( validation_error=validation_error+1 ))
-            _msg_error "${_buildmode} is not a valid build mode!" 0
-        fi
-    done
+# Create an ext4 image containing the root file system and pack it inside a squashfs image.
+# Save the squashfs image on the ISO 9660 file system.
+_mkairootfs_ext4+squashfs() {
+    local ext4_hash_seed mkfs_ext4_options=()
+    [[ -e "${pacstrap_dir}" ]] || _msg_error "The path '${pacstrap_dir}' does not exist" 1
 
-    if (( validation_error )); then
-        _msg_error "${validation_error} errors were encountered while validating the profile. Aborting." 1
-    fi
+    _msg_info "Creating ext4 image of 32 GiB and copying '${pacstrap_dir}/' to it..."
+
+    ext4_hash_seed="$(uuidgen --sha1 --namespace 93a870ff-8565-4cf3-a67b-f47299271a96 \
+        --name "${SOURCE_DATE_EPOCH} ext4 hash seed")"
+    mkfs_ext4_options=(
+        '-d' "${pacstrap_dir}"
+        '-O' '^has_journal,^resize_inode'
+        '-E' "lazy_itable_init=0,root_owner=0:0,hash_seed=${ext4_hash_seed}"
+        '-m' '0'
+        '-F'
+        '-U' 'clear'
+    )
+    [[ ! "${quiet}" == "y" ]] || mkfs_ext4_options+=('-q')
+    rm -f -- "${pacstrap_dir}.img"
+    E2FSPROGS_FAKE_TIME="${SOURCE_DATE_EPOCH}" mkfs.ext4 "${mkfs_ext4_options[@]}" -- "${pacstrap_dir}.img" 32G
+    tune2fs -c 0 -i 0 -- "${pacstrap_dir}.img" > /dev/null
+    _msg_info "Done!"
+
+    install -d -m 0755 -- "${isofs_dir}/${install_dir}/${arch}"
+    _msg_info "Creating SquashFS image, this may take some time..."
+    _run_mksquashfs "${pacstrap_dir}.img"
+    _msg_info "Done!"
+    rm -- "${pacstrap_dir}.img"
+}
+
+# Create a squashfs image containing the root file system and saves it on the ISO 9660 file system.
+_mkairootfs_squashfs() {
+    [[ -e "${pacstrap_dir}" ]] || _msg_error "The path '${pacstrap_dir}' does not exist" 1
+
+    install -d -m 0755 -- "${isofs_dir}/${install_dir}/${arch}"
+    _msg_info "Creating SquashFS image, this may take some time..."
+    _run_mksquashfs "${pacstrap_dir}"
+}
+
+# Create an EROFS image containing the root file system and saves it on the ISO 9660 file system.
+_mkairootfs_erofs() {
+    local fsuuid
+    [[ -e "${pacstrap_dir}" ]] || _msg_error "The path '${pacstrap_dir}' does not exist" 1
+
+    install -d -m 0755 -- "${isofs_dir}/${install_dir}/${arch}"
+    local image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.erofs"
+    rm -f -- "${image_path}"
+    # Generate reproducible file system UUID from SOURCE_DATE_EPOCH
+    fsuuid="$(uuidgen --sha1 --namespace 93a870ff-8565-4cf3-a67b-f47299271a96 --name "${SOURCE_DATE_EPOCH}")"
+    _msg_info "Creating EROFS image, this may take some time..."
+    mkfs.erofs -U "${fsuuid}" "${airootfs_image_tool_options[@]}" -- "${image_path}" "${pacstrap_dir}"
     _msg_info "Done!"
 }
 
-_validate_requirements_buildmode_iso() {
-    _validate_common_requirements_buildmode_iso_netboot #ここまで
-    _validate_common_requirements_buildmode_all
-    if ! command -v awk &> /dev/null; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Validating build mode '${_buildmode}': awk is not available on this host. Install 'awk'!" 0
+# Create checksum file for the rootfs image.
+_mkchecksum() {
+    _msg_info "Creating checksum file for self-test..."
+    cd -- "${isofs_dir}/${install_dir}/${arch}"
+    if [[ -e "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" ]]; then
+        sha512sum airootfs.sfs > airootfs.sha512
+    elif [[ -e "${isofs_dir}/${install_dir}/${arch}/airootfs.erofs" ]]; then
+        sha512sum airootfs.erofs > airootfs.sha512
+    fi
+    cd -- "${OLDPWD}"
+    _msg_info "Done!"
+}
+
+# GPG sign the root file system image.
+_mksignature() {
+    local airootfs_image_filename gpg_options=()
+    _msg_info "Signing rootfs image..."
+    if [[ -e "${isofs_dir}/${install_dir}/${arch}/airootfs.sfs" ]]; then
+        airootfs_image_filename="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
+    elif [[ -e "${isofs_dir}/${install_dir}/${arch}/airootfs.erofs" ]]; then
+        airootfs_image_filename="${isofs_dir}/${install_dir}/${arch}/airootfs.erofs"
+    fi
+    rm -f -- "${airootfs_image_filename}.sig"
+    # Add gpg sender option if the value is provided
+    [[ -z "${gpg_sender}" ]] || gpg_options+=('--sender' "${gpg_sender}")
+    # always use the .sig file extension, as that is what mkinitcpio-archiso's hooks expect
+    gpg --batch --no-armor --no-include-key-block --output "${airootfs_image_filename}.sig" --detach-sign \
+        --default-key "${gpg_key}" "${gpg_options[@]}" "${airootfs_image_filename}"
+    _msg_info "Done!"
+}
+
+# Helper function to run functions only one time.
+# $1: function name
+_run_once() {
+    if [[ ! -e "${work_dir}/${run_once_mode}.${1}" ]]; then
+        "$1"
+        touch "${work_dir}/${run_once_mode}.${1}"
     fi
 }
 
-_validate_requirements_buildmode_bootstrap() {
-    local bootstrap_pkg_list_from_file=()
+# Set up custom pacman.conf with custom cache and pacman hook directories.
+_make_pacman_conf() {
+    local _cache_dirs _system_cache_dirs _profile_cache_dirs
+    _system_cache_dirs="$(pacman-conf CacheDir| tr '\n' ' ')"
+    _profile_cache_dirs="$(pacman-conf --config "${pacman_conf}" CacheDir| tr '\n' ' ')"
 
-    # Check if packages for the bootstrap image are specified
-    if [[ -e "${bootstrap_packages}" ]]; then
-        mapfile -t bootstrap_pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-        bootstrap_pkg_list+=("${bootstrap_pkg_list_from_file[@]}")
-        if (( ${#bootstrap_pkg_list_from_file[@]} < 1 )); then
-            (( validation_error=validation_error+1 ))
-            _msg_error "No package specified in '${bootstrap_packages}'." 0
-        fi
+    # Only use the profile's CacheDir, if it is not the default and not the same as the system cache dir.
+    if [[ "${_profile_cache_dirs}" != "/var/cache/pacman/pkg" ]] && \
+        [[ "${_system_cache_dirs}" != "${_profile_cache_dirs}" ]]; then
+        _cache_dirs="${_profile_cache_dirs}"
     else
-        (( validation_error=validation_error+1 ))
-        _msg_error "Bootstrap packages file '${bootstrap_packages}' does not exist." 0
+        _cache_dirs="${_system_cache_dirs}"
     fi
 
-    _validate_common_requirements_buildmode_all
-    if ! command -v bsdtar &> /dev/null; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Validating build mode '${_buildmode}': bsdtar is not available on this host. Install 'libarchive'!" 0
-    fi
+    _msg_info "Copying custom pacman.conf to work directory..."
+    _msg_info "Using pacman CacheDir: ${_cache_dirs}"
+    # take the profile pacman.conf and strip all settings that would break in chroot when using pacman -r
+    # append CacheDir and HookDir to [options] section
+    # HookDir is *always* set to the airootfs' override directory
+    # see `man 8 pacman` for further info
+    pacman-conf --config "${pacman_conf}" | \
+        sed "/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d;/\[options\]/a CacheDir = ${_cache_dirs}
+        /\[options\]/a HookDir = ${pacstrap_dir}/etc/pacman.d/hooks/" > "${work_dir}/${buildmode}.pacman.conf"
 }
 
-_validate_requirements_buildmode_netboot() {
-    local _override_cert_list=()
+# Prepare working directory and copy custom root file system files.
+_make_custom_airootfs() {
+    local passwd=()
+    local filename permissions
 
-    if [[ "${sign_netboot_artifacts}" == "y" ]]; then
-        # Check if the certificate files exist
-        for _cert in "${cert_list[@]}"; do
-            if [[ -e "${_cert}" ]]; then
-                _override_cert_list+=("$(realpath -- "${_cert}")")
+    install -d -m 0755 -o 0 -g 0 -- "${pacstrap_dir}"
+
+    if [[ -d "${profile}/airootfs" ]]; then
+        _msg_info "Copying custom airootfs files..."
+        cp -af --no-preserve=ownership,mode -- "${profile}/airootfs/." "${pacstrap_dir}"
+        # Set ownership and mode for files and directories
+        for filename in "${!file_permissions[@]}"; do
+            IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
+            # Prevent file path traversal outside of $pacstrap_dir
+            if [[ "$(realpath -q -- "${pacstrap_dir}${filename}")" != "${pacstrap_dir}"* ]]; then
+                _msg_error "Failed to set permissions on '${pacstrap_dir}${filename}'. Outside of valid path." 1
+            # Warn if the file does not exist
+            elif [[ ! -e "${pacstrap_dir}${filename}" ]]; then
+                _msg_warning "Cannot change permissions of '${pacstrap_dir}${filename}'. The file or directory does not exist."
             else
-                (( validation_error=validation_error+1 ))
-                _msg_error "File '${_cert}' does not exist." 0
+                if [[ "${filename: -1}" == "/" ]]; then
+                    chown -fhR -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
+                    chmod -fR -- "${permissions[2]}" "${pacstrap_dir}${filename}"
+                else
+                    chown -fh -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
+                    chmod -f -- "${permissions[2]}" "${pacstrap_dir}${filename}"
+                fi
             fi
         done
-        cert_list=("${_override_cert_list[@]}")
-        # Check if there are at least two certificate files
-        if (( ${#cert_list[@]} < 2 )); then
-            (( validation_error=validation_error+1 ))
-            _msg_error "Two certificates are required for codesigning, but '${cert_list[*]}' is provided." 0
-        fi
-    fi
-    _validate_common_requirements_buildmode_iso_netboot
-    _validate_common_requirements_buildmode_all
-    if ! command -v openssl &> /dev/null; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Validating build mode '${_buildmode}': openssl is not available on this host. Install 'openssl'!" 0
+        _msg_info "Done!"
     fi
 }
 
-_validate_common_requirements_buildmode_iso_netboot() {
-    local bootmode
-    local pkg_list_from_file=()
+# Install desired packages to the root file system
+_make_packages() {
+    _msg_info "Installing packages to '${pacstrap_dir}/'..."
 
-    # Check if the package list file exists and read packages from it
-    if [[ -e "${packages}" ]]; then
-        _msg_debug "pkglist.sh ${pkglist_args[*]}"
-        mapfile -t pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-        pkg_list+=("${pkg_list_from_file[@]}")
-        if (( ${#pkg_list_from_file[@]} < 1 )); then
-            (( validation_error=validation_error+1 ))
-            _msg_error "No package specified in '${packages}'." 0
-        fi
+    if [[ -n "${gpg_key}" ]]; then
+        exec {ARCHISO_GNUPG_FD}<>"${work_dir}/pubkey.gpg"
+        export ARCHISO_GNUPG_FD
+    fi
+
+    # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
+    if [[ "${quiet}" = "y" ]]; then
+        env -u TMPDIR pacstrap -C "${work_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" "${buildmode_pkg_list[@]}" &> /dev/null
     else
-        (( validation_error=validation_error+1 ))
-        _msg_error "Packages file '${packages}' does not exist." 0
+        env -u TMPDIR pacstrap -C "${work_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" "${buildmode_pkg_list[@]}"
     fi
 
-    # Check if the specified bootmodes are supported
-    if (( ${#bootmodes[@]} < 1 )); then
-        (( validation_error=validation_error+1 ))
-        _msg_error "No boot modes specified'." 0
+    if [[ -n "${gpg_key}" ]]; then
+        exec {ARCHISO_GNUPG_FD}<&-
+        unset ARCHISO_GNUPG_FD
     fi
-    for bootmode in "${bootmodes[@]}"; do
-        if typeset -f "_make_bootmode_${bootmode}" &> /dev/null; then
-            if typeset -f "_validate_requirements_bootmode_${bootmode}" &> /dev/null; then
-                "_validate_requirements_bootmode_${bootmode}"
+
+    _msg_info "Done! Packages installed successfully."
+}
+
+# Customize installation.
+_make_customize_airootfs() {
+    local passwd=()
+
+    if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
+        _msg_info "Copying /etc/skel/* to user homes..."
+        while IFS=':' read -a passwd -r; do
+            # Only operate on UIDs in range 1000–59999
+            (( passwd[2] >= 1000 && passwd[2] < 60000 )) || continue
+            # Skip invalid home directories
+            [[ "${passwd[5]}" == '/' ]] && continue
+            [[ -z "${passwd[5]}" ]] && continue
+            # Prevent path traversal outside of $pacstrap_dir
+            if [[ "$(realpath -q -- "${pacstrap_dir}${passwd[5]}")" == "${pacstrap_dir}"* ]]; then
+                if [[ ! -d "${pacstrap_dir}${passwd[5]}" ]]; then
+                    install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${pacstrap_dir}${passwd[5]}"
+                fi
+                cp -dnRT --preserve=mode,timestamps,links -- "${pacstrap_dir}/etc/skel/." "${pacstrap_dir}${passwd[5]}"
+                chmod -f 0750 -- "${pacstrap_dir}${passwd[5]}"
+                chown -hR -- "${passwd[2]}:${passwd[3]}" "${pacstrap_dir}${passwd[5]}"
             else
-                _msg_warning "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
+                _msg_error "Failed to set permissions on '${pacstrap_dir}${passwd[5]}'. Outside of valid path." 1
             fi
-        else
-            (( validation_error=validation_error+1 ))
-            _msg_error "${bootmode} is not a valid boot mode!" 0
+        done < "${profile}/airootfs/etc/passwd"
+        _msg_info "Done!"
+    fi
+
+    if [[ -e "${pacstrap_dir}/root/customize_airootfs.sh" ]]; then
+        _msg_info "Running customize_airootfs.sh in '${pacstrap_dir}' chroot..."
+        _msg_warning "customize_airootfs.sh is deprecated! Support for it will be removed in a future archiso version."
+        chmod -f -- +x "${pacstrap_dir}/root/customize_airootfs.sh"
+        # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
+        eval -- env -u TMPDIR arch-chroot "${pacstrap_dir}" "/root/customize_airootfs.sh"
+        rm -- "${pacstrap_dir}/root/customize_airootfs.sh"
+        _msg_info "Done! customize_airootfs.sh run successfully."
+    fi
+}
+
+# Set up boot loaders
+_make_bootmodes() {
+    local bootmode
+    for bootmode in "${bootmodes[@]}"; do
+        _run_once "_make_bootmode_${bootmode}"
+    done
+}
+
+# Copy kernel and initramfs to ISO 9660
+_make_boot_on_iso9660() {
+    local ucode_image
+    _msg_info "Preparing kernel and initramfs for the ISO 9660 file system..."
+    install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/${arch}"
+    install -m 0644 -- "${pacstrap_dir}/boot/initramfs-"*".img" "${isofs_dir}/${install_dir}/boot/${arch}/"
+    install -m 0644 -- "${pacstrap_dir}/boot/vmlinuz-"* "${isofs_dir}/${install_dir}/boot/${arch}/"
+
+    for ucode_image in "${ucodes[@]}"; do
+        if [[ -e "${pacstrap_dir}/boot/${ucode_image}" ]]; then
+            install -m 0644 -- "${pacstrap_dir}/boot/${ucode_image}" "${isofs_dir}/${install_dir}/boot/"
+            if [[ -e "${pacstrap_dir}/usr/share/licenses/${ucode_image%.*}/" ]]; then
+                install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${ucode_image%.*}/"
+                install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/${ucode_image%.*}/"* \
+                    "${isofs_dir}/${install_dir}/boot/licenses/${ucode_image%.*}/"
+            fi
         fi
     done
-
-    # Check if the specified airootfs_image_type is supported
-    if typeset -f "_mkairootfs_${airootfs_image_type}" &> /dev/null; then
-        if typeset -f "_validate_requirements_airootfs_image_type_${airootfs_image_type}" &> /dev/null; then
-            "_validate_requirements_airootfs_image_type_${airootfs_image_type}"
-        else
-            _msg_warning "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
-        fi
-    else
-        (( validation_error=validation_error+1 ))
-        _msg_error "Unsupported image type: '${airootfs_image_type}'" 0
-    fi
+    _msg_info "Done!"
 }
 
 # Prepare syslinux for booting from MBR (isohybrid)
@@ -1194,6 +1310,7 @@ _make_bootmode_bios.syslinux.mbr() {
     fi
     _msg_info "Done! SYSLINUX set up for BIOS booting from a disk successfully."
 }
+
 # Prepare syslinux for El-Torito booting
 _make_bootmode_bios.syslinux.eltorito() {
     _msg_info "Setting up SYSLINUX for BIOS booting from an optical disc..."
@@ -1205,6 +1322,46 @@ _make_bootmode_bios.syslinux.eltorito() {
     _run_once _make_bootmode_bios.syslinux.mbr
 
     _msg_info "Done! SYSLINUX set up for BIOS booting from an optical disc successfully."
+}
+
+# Copy kernel and initramfs to FAT image
+_make_boot_on_fat() {
+    local ucode_image all_ucode_images=()
+    _msg_info "Preparing kernel and initramfs for the FAT file system..."
+    mmd -i "${work_dir}/efiboot.img" \
+        "::/${install_dir}" "::/${install_dir}/boot" "::/${install_dir}/boot/${arch}"
+    mcopy -i "${work_dir}/efiboot.img" "${pacstrap_dir}/boot/vmlinuz-"* \
+        "${pacstrap_dir}/boot/initramfs-"*".img" "::/${install_dir}/boot/${arch}/"
+    for ucode_image in "${ucodes[@]}"; do
+        if [[ -e "${pacstrap_dir}/boot/${ucode_image}" ]]; then
+            all_ucode_images+=("${pacstrap_dir}/boot/${ucode_image}")
+        fi
+    done
+    if (( ${#all_ucode_images[@]} )); then
+        mcopy -i "${work_dir}/efiboot.img" "${all_ucode_images[@]}" "::/${install_dir}/boot/"
+    fi
+    _msg_info "Done!"
+}
+
+# Create a FAT image (efiboot.img) which will serve as the EFI system partition
+# $1: image size in bytes
+_make_efibootimg() {
+    local imgsize="0"
+
+    # Convert from bytes to KiB and round up to the next full MiB with an additional MiB for reserved sectors.
+    imgsize="$(awk 'function ceil(x){return int(x)+(x>int(x))}
+            function byte_to_kib(x){return x/1024}
+            function mib_to_kib(x){return x*1024}
+            END {print mib_to_kib(ceil((byte_to_kib($1)+1024)/1024))}' <<< "${1}"
+    )"
+    # The FAT image must be created with mkfs.fat not mformat, as some systems have issues with mformat made images:
+    # https://lists.gnu.org/archive/html/grub-devel/2019-04/msg00099.html
+    rm -f -- "${work_dir}/efiboot.img"
+    _msg_info "Creating FAT image of size: ${imgsize} KiB..."
+    mkfs.fat -C -n ARCHISO_EFI "${work_dir}/efiboot.img" "${imgsize}"
+
+    # Create the default/fallback boot path in which a boot loaders will be placed later.
+    mmd -i "${work_dir}/efiboot.img" ::/EFI ::/EFI/BOOT
 }
 
 # Prepare system-boot for booting when written to a disk (isohybrid)
@@ -1379,6 +1536,49 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
     _validate_requirements_bootmode_uefi-x64.systemd-boot.esp
 }
 
+# Build airootfs filesystem image
+_prepare_airootfs_image() {
+    _run_once "_mkairootfs_${airootfs_image_type}"
+    _mkchecksum
+    if [[ -n "${gpg_key}" ]]; then
+        _mksignature
+    fi
+}
+
+# export build artifacts for netboot
+_export_netboot_artifacts() {
+    _msg_info "Exporting netboot artifacts..."
+    install -d -m 0755 "${out_dir}"
+    cp -a -- "${isofs_dir}/${install_dir}/" "${out_dir}/"
+    _msg_info "Done!"
+    du -h -- "${out_dir}/${install_dir}"
+}
+
+# sign build artifacts for netboot
+_sign_netboot_artifacts() {
+    local _file _dir
+    local _files_to_sign=()
+    _msg_info "Signing netboot artifacts..."
+    _dir="${isofs_dir}/${install_dir}/boot/"
+    for _file in "${ucodes[@]}"; do
+        if [[ -e "${_dir}${_file}" ]]; then
+            _files_to_sign+=("${_dir}${_file}")
+        fi
+    done
+    for _file in "${_files_to_sign[@]}" "${_dir}${arch}/vmlinuz-"* "${_dir}${arch}/initramfs-"*.img; do
+        openssl cms \
+            -sign \
+            -binary \
+            -noattr \
+            -in "${_file}" \
+            -signer "${cert_list[0]}" \
+            -inkey "${cert_list[1]}" \
+            -outform DER \
+            -out "${_file}".ipxe.sig
+    done
+    _msg_info "Done!"
+}
+
 _validate_requirements_airootfs_image_type_squashfs() {
     if ! command -v mksquashfs &> /dev/null; then
         (( validation_error=validation_error+1 ))
@@ -1414,6 +1614,379 @@ _validate_common_requirements_buildmode_all() {
         (( validation_error=validation_error+1 ))
         _msg_error "Validating build mode '${_buildmode}': gzip is not available on this host. Install 'gzip'!" 0
     fi
+}
+
+_validate_requirements_buildmode_bootstrap() {
+    local bootstrap_pkg_list_from_file=()
+
+    # Check if packages for the bootstrap image are specified
+    if [[ -e "${bootstrap_packages}" ]]; then
+        mapfile -t bootstrap_pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+        bootstrap_pkg_list+=("${bootstrap_pkg_list_from_file[@]}")
+        if (( ${#bootstrap_pkg_list_from_file[@]} < 1 )); then
+            (( validation_error=validation_error+1 ))
+            _msg_error "No package specified in '${bootstrap_packages}'." 0
+        fi
+    else
+        (( validation_error=validation_error+1 ))
+        _msg_error "Bootstrap packages file '${bootstrap_packages}' does not exist." 0
+    fi
+
+    _validate_common_requirements_buildmode_all
+    if ! command -v bsdtar &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': bsdtar is not available on this host. Install 'libarchive'!" 0
+    fi
+}
+
+_validate_common_requirements_buildmode_iso_netboot() {
+    local bootmode
+    local pkg_list_from_file=()
+
+    # Check if the package list file exists and read packages from it
+    if [[ -e "${packages}" ]]; then
+        _msg_debug "pkglist.sh ${pkglist_args[*]}"
+        mapfile -t pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+        pkg_list+=("${pkg_list_from_file[@]}")
+        if (( ${#pkg_list_from_file[@]} < 1 )); then
+            (( validation_error=validation_error+1 ))
+            _msg_error "No package specified in '${packages}'." 0
+        fi
+    else
+        (( validation_error=validation_error+1 ))
+        _msg_error "Packages file '${packages}' does not exist." 0
+    fi
+
+    # Check if the specified bootmodes are supported
+    if (( ${#bootmodes[@]} < 1 )); then
+        (( validation_error=validation_error+1 ))
+        _msg_error "No boot modes specified'." 0
+    fi
+    for bootmode in "${bootmodes[@]}"; do
+        if typeset -f "_make_bootmode_${bootmode}" &> /dev/null; then
+            if typeset -f "_validate_requirements_bootmode_${bootmode}" &> /dev/null; then
+                "_validate_requirements_bootmode_${bootmode}"
+            else
+                _msg_warning "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
+            fi
+        else
+            (( validation_error=validation_error+1 ))
+            _msg_error "${bootmode} is not a valid boot mode!" 0
+        fi
+    done
+
+    # Check if the specified airootfs_image_type is supported
+    if typeset -f "_mkairootfs_${airootfs_image_type}" &> /dev/null; then
+        if typeset -f "_validate_requirements_airootfs_image_type_${airootfs_image_type}" &> /dev/null; then
+            "_validate_requirements_airootfs_image_type_${airootfs_image_type}"
+        else
+            _msg_warning "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
+        fi
+    else
+        (( validation_error=validation_error+1 ))
+        _msg_error "Unsupported image type: '${airootfs_image_type}'" 0
+    fi
+}
+
+_validate_requirements_buildmode_iso() {
+    _validate_common_requirements_buildmode_iso_netboot
+    _validate_common_requirements_buildmode_all
+    if ! command -v awk &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': awk is not available on this host. Install 'awk'!" 0
+    fi
+}
+
+_validate_requirements_buildmode_netboot() {
+    local _override_cert_list=()
+
+    if [[ "${sign_netboot_artifacts}" == "y" ]]; then
+        # Check if the certificate files exist
+        for _cert in "${cert_list[@]}"; do
+            if [[ -e "${_cert}" ]]; then
+                _override_cert_list+=("$(realpath -- "${_cert}")")
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "File '${_cert}' does not exist." 0
+            fi
+        done
+        cert_list=("${_override_cert_list[@]}")
+        # Check if there are at least two certificate files
+        if (( ${#cert_list[@]} < 2 )); then
+            (( validation_error=validation_error+1 ))
+            _msg_error "Two certificates are required for codesigning, but '${cert_list[*]}' is provided." 0
+        fi
+    fi
+    _validate_common_requirements_buildmode_iso_netboot
+    _validate_common_requirements_buildmode_all
+    if ! command -v openssl &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': openssl is not available on this host. Install 'openssl'!" 0
+    fi
+}
+
+# SYSLINUX El Torito
+_add_xorrisofs_options_bios.syslinux.eltorito() {
+    xorrisofs_options+=(
+        # El Torito boot image for x86 BIOS
+        '-eltorito-boot' 'syslinux/isolinux.bin'
+        # El Torito boot catalog file
+        '-eltorito-catalog' 'syslinux/boot.cat'
+        # Required options to boot with ISOLINUX
+        '-no-emul-boot' '-boot-load-size' '4' '-boot-info-table'
+    )
+}
+
+# SYSLINUX MBR (isohybrid)
+_add_xorrisofs_options_bios.syslinux.mbr() {
+    xorrisofs_options+=(
+        # SYSLINUX MBR bootstrap code; does not work without "-eltorito-boot syslinux/isolinux.bin"
+        '-isohybrid-mbr' "${isofs_dir}/syslinux/isohdpfx.bin"
+        # When GPT is used, create an additional partition in the MBR (besides 0xEE) for sectors 0–1 (MBR
+        # bootstrap code area) and mark it as bootable
+        # May allow booting on some systems
+        # https://wiki.archlinux.org/title/Partitioning#Tricking_old_BIOS_into_booting_from_GPT
+        '--mbr-force-bootable'
+        # Move the first partition away from the start of the ISO to match the expectations of partition editors
+        # May allow booting on some systems
+        # https://dev.lovelyhq.com/libburnia/libisoburn/src/branch/master/doc/partition_offset.wiki
+        '-partition_offset' '16'
+    )
+}
+
+# systemd-boot in an attached EFI system partition
+_add_xorrisofs_options_uefi-x64.systemd-boot.esp() {
+    # Move the first partition away from the start of the ISO, otherwise the GPT will not be valid and ISO 9660
+    # partition will not be mountable
+    # shellcheck disable=SC2076
+    [[ " ${xorrisofs_options[*]} " =~ ' -partition_offset ' ]] || xorrisofs_options+=('-partition_offset' '16')
+    # Attach efiboot.img as a second partition and set its partition type to "EFI system partition"
+    xorrisofs_options+=('-append_partition' '2' 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B' "${work_dir}/efiboot.img")
+    # Ensure GPT is used as some systems do not support UEFI booting without it
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.mbr ' ]]; then
+        # A valid GPT prevents BIOS booting on some systems, instead use an invalid GPT (without a protective MBR).
+        # The attached partition will have the EFI system partition type code in MBR, but in the invalid GPT it will
+        # have a Microsoft basic partition type code.
+        if [[ ! " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
+            # If '-isohybrid-gpt-basdat' is specified before '-e', then the appended EFI system partition will have the
+            # EFI system partition type ID/GUID in both MBR and GPT. If '-isohybrid-gpt-basdat' is specified after '-e',
+            # the appended EFI system partition will have the Microsoft basic data type GUID in GPT.
+            if [[ ! " ${xorrisofs_options[*]} " =~ ' -isohybrid-gpt-basdat ' ]]; then
+                xorrisofs_options+=('-isohybrid-gpt-basdat')
+            fi
+        fi
+    else
+        # Use valid GPT if BIOS booting support will not be required
+        xorrisofs_options+=('-appended_part_as_gpt')
+    fi
+}
+
+# systemd-boot via El Torito
+_add_xorrisofs_options_uefi-x64.systemd-boot.eltorito() {
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
+        # systemd-boot in an attached EFI system partition via El Torito
+        xorrisofs_options+=(
+            # Start a new El Torito boot entry for UEFI
+            '-eltorito-alt-boot'
+            # Set the second partition as the El Torito UEFI boot image
+            '-e' '--interval:appended_partition_2:all::'
+            # Boot image is not emulating floppy or hard disk; required for all known boot loaders
+            '-no-emul-boot'
+        )
+        # A valid GPT prevents BIOS booting on some systems, use an invalid GPT instead.
+        if [[ " ${bootmodes[*]} " =~ ' bios.syslinux.mbr ' ]]; then
+            # If '-isohybrid-gpt-basdat' is specified before '-e', then the appended EFI system partition will have the
+            # EFI system partition type ID/GUID in both MBR and GPT. If '-isohybrid-gpt-basdat' is specified after '-e',
+            # the appended EFI system partition will have the Microsoft basic data type GUID in GPT.
+            if [[ ! " ${xorrisofs_options[*]} " =~ ' -isohybrid-gpt-basdat ' ]]; then
+                xorrisofs_options+=('-isohybrid-gpt-basdat')
+            fi
+        fi
+    else
+        # The ISO will not contain a GPT partition table, so to be able to reference efiboot.img, place it as a
+        # file inside the ISO 9660 file system
+        install -d -m 0755 -- "${isofs_dir}/EFI/archiso"
+        cp -a -- "${work_dir}/efiboot.img" "${isofs_dir}/EFI/archiso/efiboot.img"
+        # systemd-boot in an embedded efiboot.img via El Torito
+        xorrisofs_options+=(
+            # Start a new El Torito boot entry for UEFI
+            '-eltorito-alt-boot'
+            # Set efiboot.img as the El Torito UEFI boot image
+            '-e' 'EFI/archiso/efiboot.img'
+            # Boot image is not emulating floppy or hard disk; required for all known boot loaders
+            '-no-emul-boot'
+        )
+    fi
+    # Specify where to save the El Torito boot catalog file in case it is not already set by bios.syslinux.eltorito
+    # shellcheck disable=SC2076
+    [[ " ${bootmodes[*]} " =~ ' bios.' ]] || xorrisofs_options+=('-eltorito-catalog' 'EFI/boot.cat')
+}
+
+# Build bootstrap image
+_build_bootstrap_image() {
+    local _bootstrap_parent
+    _bootstrap_parent="$(dirname -- "${pacstrap_dir}")"
+
+    [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
+
+    cd -- "${_bootstrap_parent}"
+
+    _msg_info "Creating bootstrap image..."
+    bsdtar -cf - "root.${arch}" | gzip -cn9 > "${out_dir}/${image_name}"
+    _msg_info "Done!"
+    du -h -- "${out_dir}/${image_name}"
+    cd -- "${OLDPWD}"
+}
+
+# Build ISO
+_build_iso_image() {
+    local xorrisofs_options=()
+    local bootmode
+
+    [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
+
+    [[ "${quiet}" == "y" ]] && xorrisofs_options+=('-quiet')
+
+    # Add required xorrisofs options for each boot mode
+    for bootmode in "${bootmodes[@]}"; do
+        typeset -f "_add_xorrisofs_options_${bootmode}" &> /dev/null && "_add_xorrisofs_options_${bootmode}"
+    done
+
+    rm -f -- "${out_dir}/${image_name}"
+    _msg_info "Creating ISO image..."
+    xorriso -as mkisofs \
+            -iso-level 3 \
+            -full-iso9660-filenames \
+            -joliet \
+            -joliet-long \
+            -rational-rock \
+            -volid "${iso_label}" \
+            -appid "${iso_application}" \
+            -publisher "${iso_publisher}" \
+            -preparer "prepared by ${app_name}" \
+            "${xorrisofs_options[@]}" \
+            -output "${out_dir}/${image_name}" \
+            "${isofs_dir}/"
+    _msg_info "Done!"
+    du -h -- "${out_dir}/${image_name}"
+}
+
+# Read profile's values from profiledef.sh
+_read_profile() {
+    if [[ -z "${profile}" ]]; then
+        _msg_error "No profile specified!" 1
+    fi
+    if [[ ! -d "${profile}" ]]; then
+        _msg_error "Profile '${profile}' does not exist!" 1
+    elif [[ ! -e "${profile}/profiledef.sh" ]]; then
+        _msg_error "Profile '${profile}' is missing 'profiledef.sh'!" 1
+    else
+        cd -- "${profile}"
+
+        # Source profile's variables
+        # shellcheck source=configs/releng/profiledef.sh
+        . "${profile}/profiledef.sh"
+
+        # Resolve paths of files that are expected to reside in the profile's directory
+        [[ -n "$packages" ]] || packages="${profile}/packages.${arch}"
+        packages="$(realpath -- "${packages}")"
+        pacman_conf="$(realpath -- "${pacman_conf}")"
+
+        # Resolve paths of files that may reside in the profile's directory
+        if [[ -z "$bootstrap_packages" ]] && [[ -e "${profile}/bootstrap_packages.${arch}" ]]; then
+            bootstrap_packages="${profile}/bootstrap_packages.${arch}"
+            bootstrap_packages="$(realpath -- "${bootstrap_packages}")"
+            pacman_conf="$(realpath -- "${pacman_conf}")"
+        fi
+
+        cd -- "${OLDPWD}"
+    fi
+}
+
+# Validate set options
+_validate_options() {
+    local validation_error=0 _buildmode
+
+    _msg_info "Validating options..."
+
+    # Check if pacman configuration file exists
+    if [[ ! -e "${pacman_conf}" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "File '${pacman_conf}' does not exist." 0
+    fi
+
+    # Check if the specified buildmodes are supported
+    for _buildmode in "${buildmodes[@]}"; do
+        if typeset -f "_build_buildmode_${_buildmode}" &> /dev/null; then
+            if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
+                "_validate_requirements_buildmode_${_buildmode}"
+            else
+                _msg_warning "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
+            fi
+        else
+            (( validation_error=validation_error+1 ))
+            _msg_error "${_buildmode} is not a valid build mode!" 0
+        fi
+    done
+
+    if (( validation_error )); then
+        _msg_error "${validation_error} errors were encountered while validating the profile. Aborting." 1
+    fi
+    _msg_info "Done!"
+}
+
+
+_export_gpg_publickey() {
+    rm -f -- "${work_dir}/pubkey.gpg"
+    gpg --batch --no-armor --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
+}
+
+_make_version() {
+    local _os_release
+
+    _msg_info "Creating version files..."
+    # Write version file to system installation dir
+    rm -f -- "${pacstrap_dir}/version"
+    printf '%s\n' "${iso_version}" > "${pacstrap_dir}/version"
+
+    if [[ "${buildmode}" == @("iso"|"netboot") ]]; then
+        install -d -m 0755 -- "${isofs_dir}/${install_dir}"
+        # Write version file to ISO 9660
+        printf '%s\n' "${iso_version}" > "${isofs_dir}/${install_dir}/version"
+        # Write grubenv with version information to ISO 9660
+        printf '%.1024s' "$(printf '# GRUB Environment Block\nNAME=%s\nVERSION=%s\n%s' \
+            "${iso_name}" "${iso_version}" "$(printf '%0.1s' "#"{1..1024})")" \
+            > "${isofs_dir}/${install_dir}/grubenv"
+    fi
+
+    # Append IMAGE_ID & IMAGE_VERSION to os-release
+    _os_release="$(realpath -- "${pacstrap_dir}/etc/os-release")"
+    if [[ ! -e "${pacstrap_dir}/etc/os-release" && -e "${pacstrap_dir}/usr/lib/os-release" ]]; then
+        _os_release="$(realpath -- "${pacstrap_dir}/usr/lib/os-release")"
+    fi
+    if [[ "${_os_release}" != "${pacstrap_dir}"* ]]; then
+        _msg_warning "os-release file '${_os_release}' is outside of valid path."
+    else
+        [[ ! -e "${_os_release}" ]] || sed -i '/^IMAGE_ID=/d;/^IMAGE_VERSION=/d' "${_os_release}"
+        printf 'IMAGE_ID=%s\nIMAGE_VERSION=%s\n' "${iso_name}" "${iso_version}" >> "${_os_release}"
+    fi
+    _msg_info "Done!"
+}
+
+_make_pkglist() {
+    _msg_info "Creating a list of installed packages on live-enviroment..."
+    case "${buildmode}" in
+        "bootstrap")
+            pacman -Q --sysroot "${pacstrap_dir}" > "${pacstrap_dir}/pkglist.${arch}.txt"
+            ;;
+        "iso"|"netboot")
+            install -d -m 0755 -- "${isofs_dir}/${install_dir}"
+            pacman -Q --sysroot "${pacstrap_dir}" > "${isofs_dir}/${install_dir}/pkglist.${arch}.txt"
+            ;;
+    esac
+    _msg_info "Done!"
 }
 
 # build the base for an ISO and/or a netboot target
