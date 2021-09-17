@@ -1078,6 +1078,34 @@ _validate_requirements_buildmode_bootstrap() {
     fi
 }
 
+_validate_requirements_buildmode_netboot() {
+    local _override_cert_list=()
+
+    if [[ "${sign_netboot_artifacts}" == "y" ]]; then
+        # Check if the certificate files exist
+        for _cert in "${cert_list[@]}"; do
+            if [[ -e "${_cert}" ]]; then
+                _override_cert_list+=("$(realpath -- "${_cert}")")
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "File '${_cert}' does not exist." 0
+            fi
+        done
+        cert_list=("${_override_cert_list[@]}")
+        # Check if there are at least two certificate files
+        if (( ${#cert_list[@]} < 2 )); then
+            (( validation_error=validation_error+1 ))
+            _msg_error "Two certificates are required for codesigning, but '${cert_list[*]}' is provided." 0
+        fi
+    fi
+    _validate_common_requirements_buildmode_iso_netboot
+    _validate_common_requirements_buildmode_all
+    if ! command -v openssl &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': openssl is not available on this host. Install 'openssl'!" 0
+    fi
+}
+
 _validate_common_requirements_buildmode_iso_netboot() {
     local bootmode
     local pkg_list_from_file=()
@@ -1570,29 +1598,33 @@ fi
 prepare_env
 prepare_build
 show_settings
-run_once make_pacman_conf
-run_once make_basefs # Mount airootfs
-run_once make_packages_repo
-[[ "${noaur}" = false ]] && run_once make_packages_aur
-[[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
-run_once make_customize_airootfs
-run_once make_setup_mkinitcpio
-[[ "${tarball}" = true ]] && run_once make_tarball
-if [[ "${noiso}" = false ]]; then
-    run_once make_syslinux
-    run_once make_isolinux
-    run_once make_boot
-    run_once make_boot_extra
-    if [[ "${noefi}" = false ]]; then
-        run_once make_efi
-        run_once make_efiboot
-    fi
-    run_once make_alteriso_info
-    run_once make_prepare
-    run_once make_overisofs
-    run_once make_iso
-fi
+_validate_options
 
-[[ "${cleaning}" = true ]] && _run_cleansh
+
+
+#run_once make_pacman_conf
+#run_once make_basefs # Mount airootfs
+#run_once make_packages_repo
+#[[ "${noaur}" = false ]] && run_once make_packages_aur
+#[[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
+#run_once make_customize_airootfs
+#run_once make_setup_mkinitcpio
+#[[ "${tarball}" = true ]] && run_once make_tarball
+#if [[ "${noiso}" = false ]]; then
+#    run_once make_syslinux
+#    run_once make_isolinux
+#    run_once make_boot
+#    run_once make_boot_extra
+#    if [[ "${noefi}" = false ]]; then
+#        run_once make_efi
+#        run_once make_efiboot
+#    fi
+#    run_once make_alteriso_info
+#    run_once make_prepare
+#    run_once make_overisofs
+#    run_once make_iso
+#fi
+
+#[[ "${cleaning}" = true ]] && _run_cleansh
 
 exit 0
