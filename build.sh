@@ -35,6 +35,7 @@ rerun=false
 
 #-- AlterISO 3.2 Variables --#
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
+buildmodes=("iso") # buildmodes=("iso" "netboot" "bootstrap")
 file_permissions=(
   ["/etc/shadow"]="0:0:400"
   ["/root"]="0:0:750"
@@ -1029,9 +1030,9 @@ _validate_options() {
     for _buildmode in "${buildmodes[@]}"; do
         if typeset -f "_build_buildmode_${_buildmode}" &> /dev/null; then
             if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
-                "_validate_requirements_buildmode_${_buildmode}"
+                "_validate_requirements_buildmode_${_buildmode}" # isoは実行可能
             else
-                _msg_warning "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
+                _msg_warn "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
             fi
         else
             (( validation_error=validation_error+1 ))
@@ -1045,6 +1046,324 @@ _validate_options() {
     _msg_info "Done!"
 }
 
+_validate_requirements_buildmode_iso() {
+    _validate_common_requirements_buildmode_iso_netboot #ここまで
+    _validate_common_requirements_buildmode_all
+    if ! command -v awk &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': awk is not available on this host. Install 'awk'!" 0
+    fi
+}
+
+_validate_common_requirements_buildmode_iso_netboot() {
+    local bootmode
+    local pkg_list_from_file=()
+
+    # Check if the package list file exists and read packages from it
+    if [[ -e "${packages}" ]]; then
+        _msg_debug "pkglist.sh ${pkglist_args[*]}"
+        mapfile -t pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+        pkg_list+=("${pkg_list_from_file[@]}")
+        if (( ${#pkg_list_from_file[@]} < 1 )); then
+            (( validation_error=validation_error+1 ))
+            _msg_error "No package specified in '${packages}'." 0
+        fi
+    else
+        (( validation_error=validation_error+1 ))
+        _msg_error "Packages file '${packages}' does not exist." 0
+    fi
+
+    # Check if the specified bootmodes are supported
+    if (( ${#bootmodes[@]} < 1 )); then
+        (( validation_error=validation_error+1 ))
+        _msg_error "No boot modes specified'." 0
+    fi
+    for bootmode in "${bootmodes[@]}"; do
+        if typeset -f "_make_bootmode_${bootmode}" &> /dev/null; then
+            if typeset -f "_validate_requirements_bootmode_${bootmode}" &> /dev/null; then
+                "_validate_requirements_bootmode_${bootmode}"
+            else
+                _msg_warning "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
+            fi
+        else
+            (( validation_error=validation_error+1 ))
+            _msg_error "${bootmode} is not a valid boot mode!" 0
+        fi
+    done
+
+    # Check if the specified airootfs_image_type is supported
+    if typeset -f "_mkairootfs_${airootfs_image_type}" &> /dev/null; then
+        if typeset -f "_validate_requirements_airootfs_image_type_${airootfs_image_type}" &> /dev/null; then
+            "_validate_requirements_airootfs_image_type_${airootfs_image_type}"
+        else
+            _msg_warning "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
+        fi
+    else
+        (( validation_error=validation_error+1 ))
+        _msg_error "Unsupported image type: '${airootfs_image_type}'" 0
+    fi
+}
+
+# Prepare syslinux for booting from MBR (isohybrid)
+_make_bootmode_bios.syslinux.mbr() {
+    _msg_info "Setting up SYSLINUX for BIOS booting from a disk..."
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
+    for _cfg in "${profile}/syslinux/"*.cfg; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+             "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
+    done
+    if [[ -e "${profile}/syslinux/splash.png" ]]; then
+        install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/syslinux/"
+    fi
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux/"
+
+    _run_once _make_boot_on_iso9660
+
+    if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
+        install -d -m 0755 -- "${isofs_dir}/syslinux/hdt"
+        if [[ -e "${pacstrap_dir}/usr/share/hwdata/pci.ids" ]]; then
+            gzip -cn9 "${pacstrap_dir}/usr/share/hwdata/pci.ids" > \
+                "${isofs_dir}/syslinux/hdt/pciids.gz"
+        fi
+        find "${pacstrap_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -cn9 '{}' ';' -quit > \
+            "${isofs_dir}/syslinux/hdt/modalias.gz"
+    fi
+
+    # Add other aditional/extra files to ${install_dir}/boot/
+    if [[ -e "${pacstrap_dir}/boot/memtest86+/memtest.bin" ]]; then
+        # rename for PXE: https://wiki.archlinux.org/title/Syslinux#Using_memtest
+        install -m 0644 -- "${pacstrap_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/common/GPL2/license.txt" \
+            "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+    fi
+    _msg_info "Done! SYSLINUX set up for BIOS booting from a disk successfully."
+}
+# Prepare syslinux for El-Torito booting
+_make_bootmode_bios.syslinux.eltorito() {
+    _msg_info "Setting up SYSLINUX for BIOS booting from an optical disc..."
+    install -d -m 0755 -- "${isofs_dir}/syslinux"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
+
+    # ISOLINUX and SYSLINUX installation is shared
+    _run_once _make_bootmode_bios.syslinux.mbr
+
+    _msg_info "Done! SYSLINUX set up for BIOS booting from an optical disc successfully."
+}
+
+# Prepare system-boot for booting when written to a disk (isohybrid)
+_make_bootmode_uefi-x64.systemd-boot.esp() {
+    local _file efiboot_imgsize
+    local _available_ucodes=()
+    _msg_info "Setting up systemd-boot for UEFI booting..."
+
+    for _file in "${ucodes[@]}"; do
+        if [[ -e "${pacstrap_dir}/boot/${_file}" ]]; then
+            _available_ucodes+=("${pacstrap_dir}/boot/${_file}")
+        fi
+    done
+    # Calculate the required FAT image size in bytes
+    efiboot_imgsize="$(du -bc \
+        "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
+        "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" \
+        "${profile}/efiboot/" \
+        "${pacstrap_dir}/boot/vmlinuz-"* \
+        "${pacstrap_dir}/boot/initramfs-"*".img" \
+        "${_available_ucodes[@]}" \
+        2>/dev/null | awk 'END { print $1 }')"
+    # Create a FAT image for the EFI system partition
+    _make_efibootimg "$efiboot_imgsize"
+
+    # Copy systemd-boot EFI binary to the default/fallback boot path
+    mcopy -i "${work_dir}/efiboot.img" \
+        "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" ::/EFI/BOOT/BOOTx64.EFI
+
+    # Copy systemd-boot configuration files
+    mmd -i "${work_dir}/efiboot.img" ::/loader ::/loader/entries
+    mcopy -i "${work_dir}/efiboot.img" "${profile}/efiboot/loader/loader.conf" ::/loader/
+    for _conf in "${script_path}/efiboot/nosplash/loader/entries/"*".conf"; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+            "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
+    done
+
+    # shellx64.efi is picked up automatically when on /
+    if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        mcopy -i "${work_dir}/efiboot.img" \
+            "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ::/shellx64.efi
+    fi
+
+    # Copy kernel and initramfs to FAT image.
+    # systemd-boot can only access files from the EFI system partition it was launched from.
+    _make_boot_on_fat
+
+    _msg_info "Done! systemd-boot set up for UEFI booting successfully."
+}
+
+# Prepare system-boot for El Torito booting
+_make_bootmode_uefi-x64.systemd-boot.eltorito() {
+    # El Torito UEFI boot requires an image containing the EFI system partition.
+    # uefi-x64.systemd-boot.eltorito has the same requirements as uefi-x64.systemd-boot.esp
+    _run_once _make_bootmode_uefi-x64.systemd-boot.esp
+
+    # Additionally set up system-boot in ISO 9660. This allows creating a medium for the live environment by using
+    # manual partitioning and simply copying the ISO 9660 file system contents.
+    # This is not related to El Torito booting and no firmware uses these files.
+    _msg_info "Preparing an /EFI directory for the ISO 9660 file system..."
+    install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
+
+    # Copy systemd-boot EFI binary to the default/fallback boot path
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
+        "${isofs_dir}/EFI/BOOT/BOOTx64.EFI"
+
+    # Copy systemd-boot configuration files
+    install -d -m 0755 -- "${isofs_dir}/loader/entries"
+    install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${isofs_dir}/loader/"
+    for _conf in "${script_path}/efiboot/nosplash/loader/entries/"*".conf"; do
+        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%INSTALL_DIR%|${install_dir}|g;
+             s|%ARCH%|${arch}|g" \
+            "${_conf}" > "${isofs_dir}/loader/entries/${_conf##*/}"
+    done
+
+    # edk2-shell based UEFI shell
+    # shellx64.efi is picked up automatically when on /
+    if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
+        install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
+    fi
+
+    _msg_info "Done!"
+}
+
+_validate_requirements_bootmode_bios.syslinux.mbr() {
+    # bios.syslinux.mbr requires bios.syslinux.eltorito
+    # shellcheck disable=SC2076
+    if [[ ! " ${bootmodes[*]} " =~ ' bios.syslinux.eltorito ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Using 'bios.syslinux.mbr' boot mode without 'bios.syslinux.eltorito' is not supported." 0
+    fi
+
+    # Check if the syslinux package is in the package list
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' syslinux ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The 'syslinux' package is missing from the package list!" 0
+    fi
+
+    # Check if syslinux configuration files exist
+    if [[ ! -d "${script_path}/syslinux" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The '${script_path}/syslinux' directory is missing!" 0
+    else
+        local cfgfile
+        for cfgfile in "${script_path}/syslinux/"*'.cfg'; do
+            if [[ -e "${cfgfile}" ]]; then
+                break
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "Validating '${bootmode}': No configuration file found in '${script_path}/syslinux'!" 0
+            fi
+        done
+    fi
+
+    # Check for optional packages
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' memtest86+ ' ]]; then
+        _msg_info "Validating '${bootmode}': 'memtest86+' is not in the package list. Memmory testing will not be available from syslinux."
+    fi
+}
+
+_validate_requirements_bootmode_bios.syslinux.eltorito() {
+    # bios.syslinux.eltorito has the exact same requirements as bios.syslinux.mbr
+    _validate_requirements_bootmode_bios.syslinux.mbr
+}
+
+_validate_requirements_bootmode_uefi-x64.systemd-boot.esp() {
+    # Check if mkfs.fat is available
+    if ! command -v mkfs.fat &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': mkfs.fat is not available on this host. Install 'dosfstools'!" 0
+    fi
+
+    # Check if mmd and mcopy are available
+    if ! { command -v mmd &> /dev/null && command -v mcopy &> /dev/null; }; then
+        _msg_error "Validating '${bootmode}': mmd and/or mcopy are not available on this host. Install 'mtools'!" 0
+    fi
+
+    # Check if systemd-boot configuration files exist
+    if [[ ! -d "${script_path}/efiboot/nosplash/loader/entries" ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': The '${script_path}/efiboot/nosplash/loader/entries' directory is missing!" 0
+    else
+        if [[ ! -e "${profile}/efiboot/loader/loader.conf" ]]; then
+            (( validation_error=validation_error+1 ))
+            _msg_error "Validating '${bootmode}': File '${profile}/efiboot/loader/loader.conf' not found!" 0
+        fi
+        local conffile
+        for conffile in "${script_path}/efiboot/nosplash/loader/entries/"*'.conf'; do
+            if [[ -e "${conffile}" ]]; then
+                break
+            else
+                (( validation_error=validation_error+1 ))
+                _msg_error "Validating '${bootmode}': No configuration file found in '${script_path}/efiboot/nosplash/loader/entries/'!" 0
+            fi
+        done
+    fi
+
+    # Check for optional packages
+    # shellcheck disable=SC2076
+    if [[ ! " ${pkg_list[*]} " =~ ' edk2-shell ' ]]; then
+        _msg_info "'edk2-shell' is not in the package list. The ISO will not contain a bootable UEFI shell."
+    fi
+}
+
+_validate_requirements_bootmode_uefi-x64.systemd-boot.eltorito() {
+    # uefi-x64.systemd-boot.eltorito has the exact same requirements as uefi-x64.systemd-boot.esp
+    _validate_requirements_bootmode_uefi-x64.systemd-boot.esp
+}
+
+_validate_requirements_airootfs_image_type_squashfs() {
+    if ! command -v mksquashfs &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${airootfs_image_type}': mksquashfs is not available on this host. Install 'squashfs-tools'!" 0
+    fi
+}
+
+_validate_requirements_airootfs_image_type_ext4+squashfs() {
+    if ! { command -v mkfs.ext4 &> /dev/null && command -v tune2fs &> /dev/null; }; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${airootfs_image_type}': mkfs.ext4 and/or tune2fs is not available on this host. Install 'e2fsprogs'!" 0
+    fi
+    _validate_requirements_airootfs_image_type_squashfs
+}
+
+_validate_requirements_airootfs_image_type_erofs() {
+    if ! command -v mkfs.erofs; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${airootfs_image_type}': mkfs.erofs is not available on this host. Install 'erofs-utils'!" 0
+    fi
+}
+
+_validate_common_requirements_buildmode_all() {
+    if ! command -v pacman &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': pacman is not available on this host. Install 'pacman'!" 0
+    fi
+    if ! command -v find &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': find is not available on this host. Install 'findutils'!" 0
+    fi
+    if ! command -v gzip &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': gzip is not available on this host. Install 'gzip'!" 0
+    fi
+}
 
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod")
