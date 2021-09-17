@@ -36,7 +36,7 @@ rerun=false
 #-- AlterISO 3.2 Variables --#
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
 buildmodes=("iso") # buildmodes=("iso" "netboot" "bootstrap")
-file_permissions=(
+declare -A file_permissions=(
   ["/etc/shadow"]="0:0:400"
   ["/root"]="0:0:750"
   ["/root/.automated_script.sh"]="0:0:755"
@@ -2084,7 +2084,7 @@ getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
 readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
 
 eval set -- "${OPT[@]}"
-msg_debug "Argument: ${OPT[*]}"
+_msg_debug "Argument: ${OPT[*]}"
 unset OPT OPTS OPTL DEFAULT_ARGUMENT GETOPT
 
 while true; do
@@ -2201,7 +2201,7 @@ if (( ! "${EUID}" == 0 )); then
 fi
 
 # Show config message
-msg_debug "Use the default configuration file (${defaultconfig})."
+_msg_debug "Use the default configuration file (${defaultconfig})."
 [[ -f "${script_path}/custom.conf" ]] && _msg_debug "The default settings have been overridden by custom.conf"
 
 # Debug mode
@@ -2246,7 +2246,7 @@ elif [[ "${channel_name}" = "clean" ]]; then
 fi
 
 # Check channel version
-msg_debug "channel path is ${channel_dir}"
+_msg_debug "channel path is ${channel_dir}"
 if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]] && [[ "${nochkver}" = false ]]; then
     _msg_error "This channel does not support Alter ISO 3."
     if [[ -d "${script_path}/.git" ]]; then
