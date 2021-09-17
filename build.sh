@@ -36,6 +36,7 @@ rerun=false
 #-- AlterISO 3.2 Variables --#
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
 buildmodes=("iso") # buildmodes=("iso" "netboot" "bootstrap")
+pacman_conf="/etc/pacman.conf"
 declare -A file_permissions=(
   ["/etc/shadow"]="0:0:400"
   ["/root"]="0:0:750"
@@ -83,7 +84,7 @@ _msg_debug() {
 # ${2}: exit code number (with 0 does not exit)
 _msg_error() {
     msg_common error "${1}"
-    [[ -n "${2:-""}" ]] && exit "${2}" || return 0
+    { [[ -n "${2:-""}" ]] && (( "${2}" > 0 )); } && exit "${2}" || return 0
 }
 
 
@@ -472,15 +473,15 @@ make_pacman_conf() {
     local _pacman_conf _pacman_conf_list=("${script_path}/pacman-${arch}.conf" "${channel_dir}/pacman-${arch}.conf" "${script_path}/system/pacman-${arch}.conf")
     for _pacman_conf in "${_pacman_conf_list[@]}"; do
         if [[ -f "${_pacman_conf}" ]]; then
-            build_pacman_conf="${_pacman_conf}"
+            pacman_conf="${_pacman_conf}"
             break
         fi
     done
 
-    _msg_debug "Use ${build_pacman_conf}"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
+    _msg_debug "Use ${pacman_conf}"
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${pacman_conf}" > "${build_dir}/pacman.conf"
 
-    [[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
+    [[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${pacman_conf}"
 
     [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
 
@@ -516,7 +517,7 @@ make_packages_repo() {
     # Package check
     if [[ "${legacy_mode}" = true ]]; then
         readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-        readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
+        readarray -t repopkgs < <(pacman-conf -c "${pacman_conf}" -l | xargs -I{} pacman -Sql --config "${pacman_conf}" --color=never {} && pacman -Sg)
         local _pkg
         for _pkg in "${_pkglist[@]}"; do
             _msg_info "Checking ${_pkg}..."
@@ -1124,7 +1125,18 @@ _run_once() {
 
 # Set up custom pacman.conf with custom cache and pacman hook directories.
 _make_pacman_conf() {
-    local _cache_dirs _system_cache_dirs _profile_cache_dirs
+    local _cache_dirs _system_cache_dirs _profile_cache_dirs _pacman_conf
+    local _pacman_conf_list=("${script_path}/pacman-${arch}.conf" "${channel_dir}/pacman-${arch}.conf" "${script_path}/system/pacman-${arch}.conf")
+
+    # Pacman configuration file used only when building
+    # If there is pacman.conf for each channel, use that for building
+    for _pacman_conf in "${_pacman_conf_list[@]}"; do
+        if [[ -f "${_pacman_conf}" ]]; then
+            pacman_conf="${_pacman_conf}"
+            break
+        fi
+    done
+
     _system_cache_dirs="$(pacman-conf CacheDir| tr '\n' ' ')"
     _profile_cache_dirs="$(pacman-conf --config "${pacman_conf}" CacheDir| tr '\n' ' ')"
 
@@ -1505,21 +1517,21 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.esp() {
     fi
 
     # Check if systemd-boot configuration files exist
-    if [[ ! -d "${script_path}/efiboot/nosplash/loader/entries" ]]; then
+    if [[ ! -d "${script_path}/efiboot/nosplash/entries" ]]; then
         (( validation_error=validation_error+1 ))
-        _msg_error "Validating '${bootmode}': The '${script_path}/efiboot/nosplash/loader/entries' directory is missing!" 0
+        _msg_error "Validating '${bootmode}': The '${script_path}/efiboot/nosplash/entries' directory is missing!" 0
     else
-        if [[ ! -e "${profile}/efiboot/loader/loader.conf" ]]; then
+        if [[ ! -e "${profile}/efiboot/loader.conf" ]]; then
             (( validation_error=validation_error+1 ))
-            _msg_error "Validating '${bootmode}': File '${profile}/efiboot/loader/loader.conf' not found!" 0
+            _msg_error "Validating '${bootmode}': File '${profile}/efiboot/loader.conf' not found!" 0
         fi
         local conffile
-        for conffile in "${script_path}/efiboot/nosplash/loader/entries/"*'.conf'; do
+        for conffile in "${script_path}/efiboot/nosplash/entries/"*'.conf'; do
             if [[ -e "${conffile}" ]]; then
                 break
             else
                 (( validation_error=validation_error+1 ))
-                _msg_error "Validating '${bootmode}': No configuration file found in '${script_path}/efiboot/nosplash/loader/entries/'!" 0
+                _msg_error "Validating '${bootmode}': No configuration file found in '${script_path}/efiboot/nosplash/entries/'!" 0
             fi
         done
     fi
@@ -1644,17 +1656,12 @@ _validate_common_requirements_buildmode_iso_netboot() {
     local pkg_list_from_file=()
 
     # Check if the package list file exists and read packages from it
-    if [[ -e "${packages}" ]]; then
-        _msg_debug "pkglist.sh ${pkglist_args[*]}"
-        mapfile -t pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-        pkg_list+=("${pkg_list_from_file[@]}")
-        if (( ${#pkg_list_from_file[@]} < 1 )); then
-            (( validation_error=validation_error+1 ))
-            _msg_error "No package specified in '${packages}'." 0
-        fi
-    else
+    _msg_debug "pkglist.sh ${pkglist_args[*]}"
+    mapfile -t pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+    pkg_list+=("${pkg_list_from_file[@]}")
+    if (( ${#pkg_list_from_file[@]} < 1 )); then
         (( validation_error=validation_error+1 ))
-        _msg_error "Packages file '${packages}' does not exist." 0
+        _msg_error "No package specified in '${packages}'." 0
     fi
 
     # Check if the specified bootmodes are supported
