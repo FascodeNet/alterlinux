@@ -1030,7 +1030,7 @@ _validate_options() {
     for _buildmode in "${buildmodes[@]}"; do
         if typeset -f "_build_buildmode_${_buildmode}" &> /dev/null; then
             if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
-                "_validate_requirements_buildmode_${_buildmode}" # isoは実行可能
+                "_validate_requirements_buildmode_${_buildmode}" # isoとbootstrapは実行可能
             else
                 _msg_warn "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
             fi
@@ -1052,6 +1052,29 @@ _validate_requirements_buildmode_iso() {
     if ! command -v awk &> /dev/null; then
         (( validation_error=validation_error+1 ))
         _msg_error "Validating build mode '${_buildmode}': awk is not available on this host. Install 'awk'!" 0
+    fi
+}
+
+_validate_requirements_buildmode_bootstrap() {
+    local bootstrap_pkg_list_from_file=()
+
+    # Check if packages for the bootstrap image are specified
+    if [[ -e "${bootstrap_packages}" ]]; then
+        mapfile -t bootstrap_pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+        bootstrap_pkg_list+=("${bootstrap_pkg_list_from_file[@]}")
+        if (( ${#bootstrap_pkg_list_from_file[@]} < 1 )); then
+            (( validation_error=validation_error+1 ))
+            _msg_error "No package specified in '${bootstrap_packages}'." 0
+        fi
+    else
+        (( validation_error=validation_error+1 ))
+        _msg_error "Bootstrap packages file '${bootstrap_packages}' does not exist." 0
+    fi
+
+    _validate_common_requirements_buildmode_all
+    if ! command -v bsdtar &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating build mode '${_buildmode}': bsdtar is not available on this host. Install 'libarchive'!" 0
     fi
 }
 
