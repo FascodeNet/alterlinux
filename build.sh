@@ -17,21 +17,12 @@ set -Eeu
 # Do not change these values.
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
-tools_dir="${script_path}/tools"
-module_dir="${script_path}/modules"
-customized_username=false
-customized_password=false
-customized_kernel=false
-customized_logpath=false
-pkglist_args=()
-makepkg_script_args=()
-modules=()
-DEFAULT_ARGUMENT=""
-ARGUMENT=("${@}")
+tools_dir="${script_path}/tools" module_dir="${script_path}/modules"
+customized_username=false customized_password=false customized_kernel=false customized_logpath=false
+pkglist_args=() makepkg_script_args=() modules=() norepopkg=()
+legacy_mode=false rerun=false
+DEFAULT_ARGUMENT="" ARGUMENT=("${@}")
 alteriso_version="3.1"
-norepopkg=()
-legacy_mode=false
-rerun=false
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
