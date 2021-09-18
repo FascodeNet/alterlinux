@@ -530,83 +530,6 @@ make_pkgbuild() {
     return 0
 }
 
-# Customize installation (airootfs)
-make_customize_airootfs() {
-    # Overwrite airootfs with customize_airootfs.
-    local _airootfs _airootfs_script_options _script _script_list _airootfs_list=() _main_script
-
-    for_module '_airootfs_list+=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}")'
-    _airootfs_list+=("${channel_dir}/airootfs.any" "${channel_dir}/airootfs.${arch}")
-
-    for _airootfs in "${_airootfs_list[@]}";do
-        if [[ -d "${_airootfs}" ]]; then
-            _msg_debug "Copying airootfs ${_airootfs} ..."
-            cp -af "${_airootfs}"/* "${airootfs_dir}"
-        fi
-    done
-
-    # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
-    if [[ "${boot_splash}" = true ]]; then
-        cp -f "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
-    else
-        cp -f "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
-    fi
-    
-    # customize_airootfs options
-    # -b                        : Enable boot splash.
-    # -d                        : Enable debug mode.
-    # -g <locale_gen_name>      : Set locale-gen.
-    # -i <inst_dir>             : Set install dir
-    # -k <kernel config line>   : Set kernel name.
-    # -o <os name>              : Set os name.
-    # -p <password>             : Set password.
-    # -s <shell>                : Set user shell.
-    # -t                        : Set plymouth theme.
-    # -u <username>             : Set live user name.
-    # -x                        : Enable bash debug mode.
-    # -z <locale_time>          : Set the time zone.
-    # -l <locale_name>          : Set language.
-    #
-    # -j is obsolete in AlterISO3 and cannot be used.
-    # -r is obsolete due to the removal of rebuild.
-    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
-
-    # Generate options of customize_airootfs.sh.
-    _airootfs_script_options=(-p "${password}" -k "${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}" -u "${username}" -o "${os_name}" -i "${install_dir}" -s "${usershell}" -a "${arch}" -g "${locale_gen_name}" -l "${locale_name}" -z "${locale_time}" -t "${theme_name}")
-    [[ "${boot_splash}" = true ]] && _airootfs_script_options+=("-b")
-    [[ "${debug}" = true       ]] && _airootfs_script_options+=("-d")
-    [[ "${bash_debug}" = true  ]] && _airootfs_script_options+=("-x")
-
-    _main_script="root/customize_airootfs.sh"
-
-    _script_list=(
-        "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
-        "${airootfs_dir}/root/customize_airootfs_${channel_name%.add}.sh"
-    )
-
-    for_module '_script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")'
-
-    # Create script
-    for _script in "${_script_list[@]}"; do
-        if [[ -f "${_script}" ]]; then
-            (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
-            remove "${_script}"
-        else
-            _msg_debug "${_script} was not found."
-        fi
-    done
-
-    chmod 755 "${airootfs_dir}/${_main_script}"
-    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
-    _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
-    remove "${airootfs_dir}/${_main_script}"
-
-    # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
-    chmod -f 750 "${airootfs_dir}/root"
-
-    return 0
-}
-
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
     local _hook
@@ -1152,35 +1075,41 @@ _make_pacman_conf() {
 
 # Prepare working directory and copy custom root file system files.
 _make_custom_airootfs() {
-    local passwd=()
+    local passwd=() _airootfs_list=()
     local filename permissions
+
+    for_module '_airootfs_list+=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}")'
+    _airootfs_list+=("${channel_dir}/airootfs.any" "${channel_dir}/airootfs.${arch}")
 
     install -d -m 0755 -o 0 -g 0 -- "${pacstrap_dir}"
 
-    if [[ -d "${profile}/airootfs" ]]; then
-        _msg_info "Copying custom airootfs files..."
-        cp -af --no-preserve=ownership,mode -- "${profile}/airootfs/." "${pacstrap_dir}"
-        # Set ownership and mode for files and directories
-        for filename in "${!file_permissions[@]}"; do
-            IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
-            # Prevent file path traversal outside of $pacstrap_dir
-            if [[ "$(realpath -q -- "${pacstrap_dir}${filename}")" != "${pacstrap_dir}"* ]]; then
-                _msg_error "Failed to set permissions on '${pacstrap_dir}${filename}'. Outside of valid path." 1
-            # Warn if the file does not exist
-            elif [[ ! -e "${pacstrap_dir}${filename}" ]]; then
-                _msg_warning "Cannot change permissions of '${pacstrap_dir}${filename}'. The file or directory does not exist."
+    for _airootfs in "${_airootfs_list[@]}";do
+        if [[ -d "${_airootfs}" ]]; then
+            _msg_info "Copying custom airootfs files..."
+            cp -af --no-preserve=ownership,mode -- "${_airootfs}/." "${pacstrap_dir}"
+        fi
+    done
+
+    # Set ownership and mode for files and directories
+    for filename in "${!file_permissions[@]}"; do
+        IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
+        # Prevent file path traversal outside of $pacstrap_dir
+        if [[ "$(realpath -q -- "${pacstrap_dir}${filename}")" != "${pacstrap_dir}"* ]]; then
+            _msg_error "Failed to set permissions on '${pacstrap_dir}${filename}'. Outside of valid path." 1
+        # Warn if the file does not exist
+        elif [[ ! -e "${pacstrap_dir}${filename}" ]]; then
+            _msg_warning "Cannot change permissions of '${pacstrap_dir}${filename}'. The file or directory does not exist."
+        else
+            if [[ "${filename: -1}" == "/" ]]; then
+                chown -fhR -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
+                chmod -fR -- "${permissions[2]}" "${pacstrap_dir}${filename}"
             else
-                if [[ "${filename: -1}" == "/" ]]; then
-                    chown -fhR -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
-                    chmod -fR -- "${permissions[2]}" "${pacstrap_dir}${filename}"
-                else
-                    chown -fh -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
-                    chmod -f -- "${permissions[2]}" "${pacstrap_dir}${filename}"
-                fi
+                chown -fh -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
+                chmod -f -- "${permissions[2]}" "${pacstrap_dir}${filename}"
             fi
-        done
-        _msg_info "Done!"
-    fi
+        fi
+    done
+    _msg_info "Done!"
 }
 
 # Install desired packages to the root file system
@@ -1232,38 +1161,83 @@ _make_packages() {
 _make_customize_airootfs() {
     local passwd=()
 
-    if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
-        _msg_info "Copying /etc/skel/* to user homes..."
-        while IFS=':' read -a passwd -r; do
-            # Only operate on UIDs in range 1000–59999
-            (( passwd[2] >= 1000 && passwd[2] < 60000 )) || continue
-            # Skip invalid home directories
-            [[ "${passwd[5]}" == '/' ]] && continue
-            [[ -z "${passwd[5]}" ]] && continue
-            # Prevent path traversal outside of $pacstrap_dir
-            if [[ "$(realpath -q -- "${pacstrap_dir}${passwd[5]}")" == "${pacstrap_dir}"* ]]; then
-                if [[ ! -d "${pacstrap_dir}${passwd[5]}" ]]; then
-                    install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${pacstrap_dir}${passwd[5]}"
-                fi
-                cp -dnRT --preserve=mode,timestamps,links -- "${pacstrap_dir}/etc/skel/." "${pacstrap_dir}${passwd[5]}"
-                chmod -f 0750 -- "${pacstrap_dir}${passwd[5]}"
-                chown -hR -- "${passwd[2]}:${passwd[3]}" "${pacstrap_dir}${passwd[5]}"
-            else
-                _msg_error "Failed to set permissions on '${pacstrap_dir}${passwd[5]}'. Outside of valid path." 1
-            fi
-        done < "${profile}/airootfs/etc/passwd"
-        _msg_info "Done!"
-    fi
+    #if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
+    #    _msg_info "Copying /etc/skel/* to user homes..."
+    #    while IFS=':' read -a passwd -r; do
+    #       # Only operate on UIDs in range 1000–59999
+    #        (( passwd[2] >= 1000 && passwd[2] < 60000 )) || continue
+    #        # Skip invalid home directories
+    #        [[ "${passwd[5]}" == '/' ]] && continue
+    #        [[ -z "${passwd[5]}" ]] && continue
+    #        # Prevent path traversal outside of $pacstrap_dir
+    #        if [[ "$(realpath -q -- "${pacstrap_dir}${passwd[5]}")" == "${pacstrap_dir}"* ]]; then
+    #            if [[ ! -d "${pacstrap_dir}${passwd[5]}" ]]; then
+    #                install -d -m 0750 -o "${passwd[2]}" -g "${passwd[3]}" -- "${pacstrap_dir}${passwd[5]}"
+    #            fi
+    #            cp -dnRT --preserve=mode,timestamps,links -- "${pacstrap_dir}/etc/skel/." "${pacstrap_dir}${passwd[5]}"
+    #            chmod -f 0750 -- "${pacstrap_dir}${passwd[5]}"
+    #            chown -hR -- "${passwd[2]}:${passwd[3]}" "${pacstrap_dir}${passwd[5]}"
+    #        else
+    #            _msg_error "Failed to set permissions on '${pacstrap_dir}${passwd[5]}'. Outside of valid path." 1
+    #        fi
+    #    done < "${profile}/airootfs/etc/passwd"
+    #    _msg_info "Done!"
+    #fi
 
-    if [[ -e "${pacstrap_dir}/root/customize_airootfs.sh" ]]; then
-        _msg_info "Running customize_airootfs.sh in '${pacstrap_dir}' chroot..."
-        _msg_warning "customize_airootfs.sh is deprecated! Support for it will be removed in a future archiso version."
-        chmod -f -- +x "${pacstrap_dir}/root/customize_airootfs.sh"
-        # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
-        eval -- env -u TMPDIR arch-chroot "${pacstrap_dir}" "/root/customize_airootfs.sh"
-        rm -- "${pacstrap_dir}/root/customize_airootfs.sh"
-        _msg_info "Done! customize_airootfs.sh run successfully."
-    fi
+
+    # customize_airootfs options
+    # -b                        : Enable boot splash.
+    # -d                        : Enable debug mode.
+    # -g <locale_gen_name>      : Set locale-gen.
+    # -i <inst_dir>             : Set install dir
+    # -k <kernel config line>   : Set kernel name.
+    # -o <os name>              : Set os name.
+    # -p <password>             : Set password.
+    # -s <shell>                : Set user shell.
+    # -t                        : Set plymouth theme.
+    # -u <username>             : Set live user name.
+    # -x                        : Enable bash debug mode.
+    # -z <locale_time>          : Set the time zone.
+    # -l <locale_name>          : Set language.
+    #
+    # -j is obsolete in AlterISO3 and cannot be used.
+    # -r is obsolete due to the removal of rebuild.
+    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
+
+    # Generate options of customize_airootfs.sh.
+    _airootfs_script_options=(-p "${password}" -k "${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}" -u "${username}" -o "${os_name}" -i "${install_dir}" -s "${usershell}" -a "${arch}" -g "${locale_gen_name}" -l "${locale_name}" -z "${locale_time}" -t "${theme_name}")
+    [[ "${boot_splash}" = true ]] && _airootfs_script_options+=("-b")
+    [[ "${debug}" = true       ]] && _airootfs_script_options+=("-d")
+    [[ "${bash_debug}" = true  ]] && _airootfs_script_options+=("-x")
+
+    _main_script="root/customize_airootfs.sh"
+
+    _script_list=(
+        "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
+        "${airootfs_dir}/root/customize_airootfs_${channel_name%.add}.sh"
+    )
+
+    for_module '_script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")'
+
+    # Create script
+    for _script in "${_script_list[@]}"; do
+        if [[ -f "${_script}" ]]; then
+            (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
+            remove "${_script}"
+        else
+            _msg_debug "${_script} was not found."
+        fi
+    done
+
+    _msg_info "Running ${_main_script} in '${pacstrap_dir}' chroot..."
+    chmod 755 "${airootfs_dir}/${_main_script}"
+    chmod -f -- +x "${pacstrap_dir}/${_main_script}"
+    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
+    _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
+    # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
+    eval -- env -u TMPDIR arch-chroot "${pacstrap_dir}" "/${_main_script}"
+    rm -- "${pacstrap_dir}/root/customize_airootfs.sh"
+_msg_info "Done! customize_airootfs.sh run successfully."
 }
 
 # Set up boot loaders
