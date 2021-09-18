@@ -1042,7 +1042,7 @@ _make_custom_airootfs() {
 
     for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
-            _msg_info "Copying custom airootfs files..."
+            _msg_info "Copying ${_airootfs}..."
             cp -af --no-preserve=ownership,mode -- "${_airootfs}/." "${pacstrap_dir}"
         fi
     done
@@ -1051,6 +1051,7 @@ _make_custom_airootfs() {
     for filename in "${!file_permissions[@]}"; do
         IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
         # Prevent file path traversal outside of $pacstrap_dir
+        [[ ! -f "${pacstrap_dir}${filename}" ]] && continue
         if [[ "$(realpath -q -- "${pacstrap_dir}${filename}")" != "${pacstrap_dir}"* ]]; then
             _msg_error "Failed to set permissions on '${pacstrap_dir}${filename}'. Outside of valid path." 1
         # Warn if the file does not exist
