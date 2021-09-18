@@ -485,50 +485,7 @@ make_basefs() {
     return 0
 }
 
-make_packages_aur() {
-    readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
-    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
 
-    # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
-
-    # prepare for yay
-    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    _pacstrap --asdeps --needed "go" # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
-
-    # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
-
-    # Remove script
-    remove "${airootfs_dir}/root/aur.sh"
-
-    return 0
-}
-
-make_pkgbuild() {
-    # Get PKGBUILD List
-    local _pkgbuild_dirs=("${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
-    for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
-
-    # Copy PKGBUILD to work
-    mkdir -p "${airootfs_dir}/pkgbuilds/"
-    for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
-        _msg_info "Find $(basename "${_dir}")"
-        cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
-    done
-    
-    # copy buold script
-    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
-
-    # Run build script
-    _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
-
-    # Remove script
-    remove "${airootfs_dir}/root/pkgbuild.sh"
-
-    return 0
-}
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
@@ -1155,6 +1112,51 @@ _make_packages() {
     printf "%s\n" "${buildmode_pkg_list[@]}" >> "${build_dir}/packages.list"
 
     _msg_info "Done! Packages installed successfully."
+}
+
+_make_aur() {
+    readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
+    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
+
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
+    printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
+
+    # prepare for yay
+    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    _pacstrap --asdeps --needed "go" # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
+
+    # Run aur script
+    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
+
+    # Remove script
+    remove "${airootfs_dir}/root/aur.sh"
+
+    return 0
+}
+
+_make_pkgbuild() {
+    # Get PKGBUILD List
+    local _pkgbuild_dirs=("${channel_dir}/pkgbuild.any" "${channel_dir}/pkgbuild.${arch}")
+    for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
+
+    # Copy PKGBUILD to work
+    mkdir -p "${airootfs_dir}/pkgbuilds/"
+    for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
+        _msg_info "Find $(basename "${_dir}")"
+        cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
+    done
+    
+    # copy buold script
+    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
+
+    # Run build script
+    _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
+
+    # Remove script
+    remove "${airootfs_dir}/root/pkgbuild.sh"
+
+    return 0
 }
 
 # Customize installation.
@@ -2010,6 +2012,8 @@ _build_iso_base() {
     [[ -z "${gpg_key}" ]] || _run_once _export_gpg_publickey
     _run_once _make_custom_airootfs
     _run_once _make_packages
+    _run_once _make_aur
+    _run_once _make_pkgbuild
     _run_once _make_version
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
@@ -2035,6 +2039,8 @@ _build_buildmode_bootstrap() {
     [[ "${quiet}" == "y" ]] || _show_config
     _run_once _make_pacman_conf
     _run_once _make_packages
+    _run_once _make_aur
+    _run_once _make_pkgbuild
     _run_once _make_version
     _run_once _make_pkglist
     _run_once _cleanup_pacstrap_dir
