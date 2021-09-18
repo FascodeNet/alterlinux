@@ -147,21 +147,6 @@ mount_airootfs () {
     _mount "${airootfs_dir}.img" "${airootfs_dir}"
 }
 
-
-# Helper function to run make_*() only one time.
-run_once() {
-    if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
-        umount_work
-        _msg_debug "Running ${1} ..."
-        mount_airootfs
-        eval "${@}"
-        mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
-        
-    else
-        _msg_debug "Skipped because ${1} has already been executed."
-    fi
-}
-
 # Show message when file is removed
 # remove <file> <file> ...
 remove() {
@@ -993,9 +978,14 @@ _mksignature() {
 # Helper function to run functions only one time.
 # $1: function name
 _run_once() {
-    if [[ ! -e "${work_dir}/${run_once_mode}.${1}" ]]; then
-        "$1"
-        touch "${work_dir}/${run_once_mode}.${1}"
+    if [[ ! -e "${lockfile_dir}/${run_once_mode}.${1}" ]]; then
+        umount_work
+        _msg_debug "Running ${1} ..."
+        mount_airootfs
+        "${@}"
+        mkdir -p "${lockfile_dir}" ; touch "${lockfile_dir}/${run_once_mode}.${1}"
+    else
+        _msg_debug "Skipped because ${1} has already been executed."
     fi
 }
 
@@ -1125,7 +1115,14 @@ _make_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    _pacstrap --asdeps --needed "go" # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
+
+    # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
+    # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
+    if [[ "${quiet}" = "y" ]]; then
+        env -u TMPDIR pacstrap -C "${work_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "go" &> /dev/null
+    else
+        env -u TMPDIR pacstrap -C "${work_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "go"
+    fi
 
     # Run aur script
     _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
