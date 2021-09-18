@@ -480,37 +480,6 @@ make_basefs() {
     return 0
 }
 
-# Additional packages (airootfs)
-make_packages_repo() {
-    _msg_debug "pkglist.sh ${pkglist_args[*]}"
-    readarray -t _pkglist_install < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-
-    # Package check
-    if [[ "${legacy_mode}" = true ]]; then
-        readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-        readarray -t repopkgs < <(pacman-conf -c "${pacman_conf}" -l | xargs -I{} pacman -Sql --config "${pacman_conf}" --color=never {} && pacman -Sg)
-        local _pkg
-        for _pkg in "${_pkglist[@]}"; do
-            _msg_info "Checking ${_pkg}..."
-            if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
-                _pkglist_install+=("${_pkg}")
-            else
-                _msg_info "${_pkg} was not found. Install it with yay from AUR"
-                norepopkg+=("${_pkg}")
-            fi
-        done
-    fi
-
-    # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist_install[@]}" >> "${build_dir}/packages.list"
-
-    # Install packages on airootfs
-    _pacstrap "${_pkglist_install[@]}"
-
-    return 0
-}
-
 make_packages_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
     _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
@@ -1160,12 +1129,29 @@ _make_custom_airootfs() {
 
 # Install desired packages to the root file system
 _make_packages() {
+    #_msg_debug "pkglist.sh ${pkglist_args[*]}" #pkglist.shを実行するタイミングで表示
     _msg_info "Installing packages to '${pacstrap_dir}/'..."
 
     if [[ -n "${gpg_key}" ]]; then
         exec {ARCHISO_GNUPG_FD}<>"${work_dir}/pubkey.gpg"
         export ARCHISO_GNUPG_FD
     fi
+
+    # Package check
+    #if [[ "${legacy_mode}" = true ]]; then
+    #    readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+    #    readarray -t repopkgs < <(pacman-conf -c "${pacman_conf}" -l | xargs -I{} pacman -Sql --config "${pacman_conf}" --color=never {} && pacman -Sg)
+    #    local _pkg
+    #    for _pkg in "${_pkglist[@]}"; do
+    #        _msg_info "Checking ${_pkg}..."
+    #        if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
+    #            _pkglist_install+=("${_pkg}")
+    #        else
+    #            _msg_info "${_pkg} was not found. Install it with yay from AUR"
+    #            norepopkg+=("${_pkg}")
+    #        fi
+    #    done
+    #fi
 
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     if [[ "${quiet}" = "y" ]]; then
@@ -1178,6 +1164,10 @@ _make_packages() {
         exec {ARCHISO_GNUPG_FD}<&-
         unset ARCHISO_GNUPG_FD
     fi
+
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
+    printf "%s\n" "${buildmode_pkg_list[@]}" >> "${build_dir}/packages.list"
 
     _msg_info "Done! Packages installed successfully."
 }
