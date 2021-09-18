@@ -33,7 +33,7 @@ norepopkg=()
 legacy_mode=false
 rerun=false
 
-#-- AlterISO 3.2 Variables --#
+#-- AlterISO 4.0 Variables --#
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
 buildmodes=("iso") # buildmodes=("iso" "netboot" "bootstrap")
 pacman_conf="/etc/pacman.conf"
@@ -46,6 +46,8 @@ declare -A file_permissions=(
   ["/usr/local/bin/Installation_guide"]="0:0:755"
   ["/usr/local/bin/livecd-sound"]="0:0:755"
 )
+quiet=n
+app_name="AlterISO"
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
@@ -53,7 +55,10 @@ for config in "${defaultconfig}" "${script_path}/custom.conf"; do
     [[ -f "${config}" ]] && source "${config}" && loaded_files+=("${config}")
 done
 
+# Control the environment
 umask 0022
+export LC_ALL="C"
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 
 # Message common function
 # msg_common [type] [-n] [string]
@@ -956,6 +961,57 @@ make_iso() {
 }
 
 #-- AlterISO 3.2 functions --#
+# Shows configuration options.
+_show_config() {
+    local build_date
+    build_date="$(date --utc --iso-8601=seconds -d "@${SOURCE_DATE_EPOCH}")"
+    _msg_info "${app_name} configuration settings"
+    _msg_info "             Architecture:   ${arch}"
+    _msg_info "        Working directory:   ${work_dir}"
+    _msg_info "   Installation directory:   ${install_dir}"
+    _msg_info "               Build date:   ${build_date}"
+    _msg_info "         Output directory:   ${out_dir}"
+    _msg_info "       Current build mode:   ${buildmode}"
+    _msg_info "              Build modes:   ${buildmodes[*]}"
+    _msg_info "                  GPG key:   ${gpg_key:-None}"
+    _msg_info "               GPG signer:   ${gpg_sender:-None}"
+    _msg_info "Code signing certificates:   ${cert_list[*]}"
+    _msg_info "                  Profile:   ${channel_name}"
+    _msg_info "Pacman configuration file:   ${pacman_conf}"
+    _msg_info "          Image file name:   ${image_name:-None}"
+    _msg_info "         ISO volume label:   ${iso_label}"
+    _msg_info "            ISO publisher:   ${iso_publisher}"
+    _msg_info "          ISO application:   ${iso_application}"
+    _msg_info "               Boot modes:   ${bootmodes[*]}"
+    #_msg_info "            Packages File:   ${buildmode_packages}"
+    #_msg_info "                 Packages:   ${buildmode_pkg_list[*]}"
+}
+
+# Cleanup airootfs
+_cleanup_pacstrap_dir() {
+    _msg_info "Cleaning up in pacstrap location..."
+
+    # Delete all files in /boot
+    [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
+    # Delete pacman database sync cache files (*.tar.gz)
+    [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+    # Delete pacman database sync cache
+    [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
+    # Delete pacman package cache
+    [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
+    # Delete all log files, keeps empty dirs.
+    [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
+    # Delete all temporary files and dirs
+    [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
+    # Delete package pacman related files.
+    find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
+    # Create an empty /etc/machine-id
+    rm -f -- "${pacstrap_dir}/etc/machine-id"
+    printf '' > "${pacstrap_dir}/etc/machine-id"
+
+    _msg_info "Done!"
+}
+
 # Create a squashfs image and place it in the ISO 9660 file system.
 # $@: options to pass to mksquashfs
 _run_mksquashfs() {
@@ -1955,7 +2011,7 @@ _make_pkglist() {
 # build the base for an ISO and/or a netboot target
 _build_iso_base() {
     local run_once_mode="base"
-    local buildmode_packages="${packages}"
+    #local buildmode_packages="${packages}"
     # Set the package list to use
     local buildmode_pkg_list=("${pkg_list[@]}")
     # Set up essential directory paths
@@ -1993,7 +2049,7 @@ _build_iso_base() {
 _build_buildmode_bootstrap() {
     local image_name="${iso_name}-bootstrap-${iso_version}-${arch}.tar.gz"
     local run_once_mode="${buildmode}"
-    local buildmode_packages="${bootstrap_packages}"
+    #local buildmode_packages="${bootstrap_packages}"
     # Set the package list to use
     local buildmode_pkg_list=("${bootstrap_pkg_list[@]}")
 
