@@ -141,10 +141,10 @@ umount_work () {
     "${tools_dir}/umount.sh" "${_args[@]}"
 }
 
-# Mount airootfs on "${airootfs_dir}"
+# Mount airootfs on "${pacstrap_dir}"
 mount_airootfs () {
-    mkdir -p "${airootfs_dir}"
-    _mount "${airootfs_dir}.img" "${airootfs_dir}"
+    mkdir -p "${pacstrap_dir}"
+    _mount "${pacstrap_dir}.img" "${pacstrap_dir}"
 }
 
 # Show message when file is removed
@@ -183,8 +183,8 @@ for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/
 
 # pacstrapを実行
 _pacstrap(){
-    _msg_info "Installing packages to ${airootfs_dir}/'..."
-    local _args=("-c" "-G" "-M" "--" "${airootfs_dir}" "${@}")
+    _msg_info "Installing packages to ${pacstrap_dir}/'..."
+    local _args=("-c" "-G" "-M" "--" "${pacstrap_dir}" "${@}")
     [[ "${pacman_debug}" = true ]] && _args+=(--debug)
     pacstrap -C "${build_dir}/pacman.conf" "${_args[@]}"
     _msg_info "Packages installed successfully!"
@@ -193,43 +193,68 @@ _pacstrap(){
 # chroot環境でpacmanコマンドを実行
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
-    sed "s|^CacheDir     =|#CacheDir    =|g" "${build_dir}/pacman.conf" > "${airootfs_dir}/etc/alteriso-pacman.conf"
+    cp "${work_dir}/${buildmode}.pacman.conf" "${pacstrap_dir}/etc/alteriso-pacman.conf"
     eval -- "${@}"
-    remove "${airootfs_dir}/etc/alteriso-pacman.conf"
+    remove "${pacstrap_dir}/etc/alteriso-pacman.conf"
 }
 
 # コマンドをchrootで実行する
 _chroot_run() {
     _msg_debug "Run command in chroot\nCommand: ${*}"
-    arch-chroot "${airootfs_dir}" "${@}" || return "${?}"
+    arch-chroot "${pacstrap_dir}" "${@}" || return "${?}"
 }
 
 _cleanup_common () {
     _msg_info "Cleaning up what we can on airootfs..."
 
     # Delete pacman database sync cache files (*.tar.gz)
-    [[ -d "${airootfs_dir}/var/lib/pacman" ]] && find "${airootfs_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+    [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
 
     # Delete pacman database sync cache
-    [[ -d "${airootfs_dir}/var/lib/pacman/sync" ]] && find "${airootfs_dir}/var/lib/pacman/sync" -delete
+    [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
 
     # Delete pacman package cache
-    [[ -d "${airootfs_dir}/var/cache/pacman/pkg" ]] && find "${airootfs_dir}/var/cache/pacman/pkg" -type f -delete
+    [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
 
     # Delete all log files, keeps empty dirs.
-    [[ -d "${airootfs_dir}/var/log" ]] && find "${airootfs_dir}/var/log" -type f -delete
+    [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
 
     # Delete all temporary files and dirs
-    [[ -d "${airootfs_dir}/var/tmp" ]] && find "${airootfs_dir}/var/tmp" -mindepth 1 -delete
+    [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
 
     # Delete package pacman related files.
     find "${build_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
 
     # Delete all cache file
-    [[ -d "${airootfs_dir}/var/cache" ]] && find "${airootfs_dir}/var/cache" -mindepth 1 -delete
+    [[ -d "${pacstrap_dir}/var/cache" ]] && find "${pacstrap_dir}/var/cache" -mindepth 1 -delete
 
     # Create an empty /etc/machine-id
-    printf '' > "${airootfs_dir}/etc/machine-id"
+    printf '' > "${pacstrap_dir}/etc/machine-id"
+
+    _msg_info "Done!"
+}
+
+# Cleanup airootfs
+_cleanup_pacstrap_dir() {
+    _msg_info "Cleaning up in pacstrap location..."
+
+    # Delete all files in /boot
+    [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
+    # Delete pacman database sync cache files (*.tar.gz)
+    [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+    # Delete pacman database sync cache
+    [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
+    # Delete pacman package cache
+    [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
+    # Delete all log files, keeps empty dirs.
+    [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
+    # Delete all temporary files and dirs
+    [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
+    # Delete package pacman related files.
+    find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
+    # Create an empty /etc/machine-id
+    rm -f -- "${pacstrap_dir}/etc/machine-id"
+    printf '' > "${pacstrap_dir}/etc/machine-id"
 
     _msg_info "Done!"
 }
@@ -237,7 +262,7 @@ _cleanup_common () {
 _cleanup_airootfs(){
     _cleanup_common
     # Delete all files in /boot
-    [[ -d "${airootfs_dir}/boot" ]] && find "${airootfs_dir}/boot" -mindepth 1 -delete
+    [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
 }
 
 _mkchecksum() {
@@ -456,38 +481,22 @@ prepare_build() {
     return 0
 }
 
-# Base installation (airootfs)
-make_basefs() {
-    _msg_info "Creating ext4 image of 32GiB..."
-    truncate -s 32G -- "${airootfs_dir}.img"
-    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${airootfs_dir}.img" 32G
-    tune2fs -c "0" -i "0" "${airootfs_dir}.img"
-    _msg_info "Done!"
-
-    _msg_info "Mounting ${airootfs_dir}.img on ${airootfs_dir}"
-    mount_airootfs
-    _msg_info "Done!"
-    return 0
-}
-
-
-
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 make_setup_mkinitcpio() {
     local _hook
-    mkdir -p "${airootfs_dir}/etc/initcpio/hooks" "${airootfs_dir}/etc/initcpio/install"
+    mkdir -p "${pacstrap_dir}/etc/initcpio/hooks" "${pacstrap_dir}/etc/initcpio/install"
 
     for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
-        cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
+        cp "${script_path}/system/initcpio/hooks/${_hook}" "${pacstrap_dir}/etc/initcpio/hooks"
+        cp "${script_path}/system/initcpio/install/${_hook}" "${pacstrap_dir}/etc/initcpio/install"
     done
 
-    sed -i "s|%COWSPACE%|${cowspace}|g" "${airootfs_dir}/etc/initcpio/hooks/archiso"
-    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
-    cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
-    cp "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
-    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
-    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+    sed -i "s|%COWSPACE%|${cowspace}|g" "${pacstrap_dir}/etc/initcpio/hooks/archiso"
+    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${pacstrap_dir}/etc/initcpio/install/archiso_shutdown"
+    cp "${script_path}/system/initcpio/install/archiso_kms" "${pacstrap_dir}/etc/initcpio/install"
+    cp "${script_path}/system/initcpio/script/archiso_shutdown" "${pacstrap_dir}/etc/initcpio"
+    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
+    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
 
     if [[ "${gpg_key}" ]]; then
       gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
@@ -504,30 +513,30 @@ make_setup_mkinitcpio() {
 # Prepare kernel/initramfs ${install_dir}/boot/
 make_boot() {
     mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
-    cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
-    cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
+    cp "${pacstrap_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
+    cp "${pacstrap_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
 
     return 0
 }
 
 # Add other aditional/extra files to ${install_dir}/boot/
 make_boot_extra() {
-    if [[ -e "${airootfs_dir}/boot/memtest86+/memtest.bin" ]]; then
-        install -m 0644 -- "${airootfs_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
+    if [[ -e "${pacstrap_dir}/boot/memtest86+/memtest.bin" ]]; then
+        install -m 0644 -- "${pacstrap_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
         install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
-        install -m 0644 -- "${airootfs_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
+        install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
     fi
 
     local _ucode_image
     _msg_info "Preparing microcode for the ISO 9660 file system..."
 
     for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
-        if [[ -e "${airootfs_dir}/boot/${_ucode_image}" ]]; then
+        if [[ -e "${pacstrap_dir}/boot/${_ucode_image}" ]]; then
             _msg_info "Installimg ${_ucode_image} ..."
-            install -m 0644 -- "${airootfs_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
-            if [[ -e "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
+            install -m 0644 -- "${pacstrap_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
+            if [[ -e "${pacstrap_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
                 install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
-                install -m 0644 -- "${airootfs_dir}/usr/share/licenses/${_ucode_image%.*}/"* "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
+                install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/${_ucode_image%.*}/"* "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
             fi
         fi
     done
@@ -580,17 +589,17 @@ make_syslinux() {
     [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
 
     # copy files
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
+    cp "${pacstrap_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
+    cp "${pacstrap_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
+    cp "${pacstrap_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
 
 
     if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
         install -d -m 0755 -- "${isofs_dir}/syslinux/hdt"
-        if [[ -e "${airootfs_dir}/usr/share/hwdata/pci.ids" ]]; then
-            gzip -c -9 "${airootfs_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/syslinux/hdt/pciids.gz"
+        if [[ -e "${pacstrap_dir}/usr/share/hwdata/pci.ids" ]]; then
+            gzip -c -9 "${pacstrap_dir}/usr/share/hwdata/pci.ids" > "${isofs_dir}/syslinux/hdt/pciids.gz"
         fi
-        find "${airootfs_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > "${isofs_dir}/syslinux/hdt/modalias.gz"
+        find "${pacstrap_dir}/usr/lib/modules" -name 'modules.alias' -print -exec gzip -c -9 '{}' ';' -quit > "${isofs_dir}/syslinux/hdt/modalias.gz"
     fi
 
     return 0
@@ -600,8 +609,8 @@ make_syslinux() {
 make_isolinux() {
     install -d -m 0755 -- "${isofs_dir}/syslinux"
     sed "s|%INSTALL_DIR%|${install_dir}|g" "${script_path}/system/isolinux.cfg" > "${isofs_dir}/syslinux/isolinux.cfg"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/isolinux.bin" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/isohdpfx.bin" "${isofs_dir}/syslinux/"
 
     return 0
 }
@@ -610,10 +619,10 @@ make_isolinux() {
 make_efi() {
     local _bootfile _use_config_name="nosplash" _efi_config_list=() _efi_config
     [[ "${boot_splash}" = true ]] && _use_config_name="splash"
-    _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+    _bootfile="$(basename "$(ls "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
 
     install -d -m 0755 -- "${isofs_dir}/EFI/boot"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
 
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
@@ -632,12 +641,12 @@ make_efi() {
 
     # edk2-shell based UEFI shell
     local _efi_shell_arch
-    if [[ -d "${airootfs_dir}/usr/share/edk2-shell" ]]; then
-        for _efi_shell_arch in $(find "${airootfs_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
-            if [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
-                cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-            elif [[ -f "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
-                cp "${airootfs_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+    if [[ -d "${pacstrap_dir}/usr/share/edk2-shell" ]]; then
+        for _efi_shell_arch in $(find "${pacstrap_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
+            if [[ -f "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
+                cp "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
+            elif [[ -f "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
+                cp "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
             else
                 continue
             fi
@@ -661,14 +670,14 @@ make_efiboot() {
     cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${build_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
 
     local _ucode_image _efi_config _use_config_name="nosplash" _bootfile
-    for _ucode_image in "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
+    for _ucode_image in "${pacstrap_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
         [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${build_dir}/efiboot/EFI/alteriso/"
     done
 
-    cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
+    cp "${pacstrap_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
 
-    _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
+    _bootfile="$(basename "$(ls "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
+    cp "${pacstrap_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
 
     [[ "${boot_splash}" = true ]] && _use_config_name="splash"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
@@ -698,20 +707,20 @@ make_tarball() {
     # backup airootfs.img for tarball
     _msg_debug "Tarball filename is ${tar_filename}"
     _msg_info "Copying airootfs.img ..."
-    cp "${airootfs_dir}.img" "${airootfs_dir}.img.org"
+    cp "${pacstrap_dir}.img" "${pacstrap_dir}.img.org"
 
     # Run script
     mount_airootfs
-    [[ -f "${airootfs_dir}/root/optimize_for_tarball.sh" ]] && _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
+    [[ -f "${pacstrap_dir}/root/optimize_for_tarball.sh" ]] && _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
     _cleanup_common
     _chroot_run "mkinitcpio -P"
-    remove "${airootfs_dir}/root/optimize_for_tarball.sh"
+    remove "${pacstrap_dir}/root/optimize_for_tarball.sh"
 
     # make
     tar_comp_opt+=("--${tar_comp}")
     mkdir -p "${out_dir}"
     _msg_info "Creating tarball..."
-    cd -- "${airootfs_dir}"
+    cd -- "${pacstrap_dir}"
     _msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
     tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
     cd -- "${OLDPWD}"
@@ -720,8 +729,8 @@ make_tarball() {
     _mkchecksum "${out_dir}/${tar_filename}"
     _msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
 
-    remove "${airootfs_dir}.img"
-    mv "${airootfs_dir}.img.org" "${airootfs_dir}.img"
+    remove "${pacstrap_dir}.img"
+    mv "${pacstrap_dir}.img.org" "${pacstrap_dir}.img"
 
     [[ "${noiso}" = true ]] && _msg_info "The password for the live user and root is ${password}."
     
@@ -736,16 +745,16 @@ make_prepare() {
     # Create packages list
     _msg_info "Creating a list of installed packages on live-enviroment..."
     pacman-key --init
-    pacman -Q --sysroot "${airootfs_dir}" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${build_dir}/packages-full.list" > /dev/null
+    pacman -Q --sysroot "${pacstrap_dir}" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${build_dir}/packages-full.list" > /dev/null
 
     # Cleanup
-    remove "${airootfs_dir}/root/optimize_for_tarball.sh"
+    remove "${pacstrap_dir}/root/optimize_for_tarball.sh"
     _cleanup_airootfs
 
     # Create squashfs
     mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
     _msg_info "Creating SquashFS image, this may take some time..."
-    mksquashfs "${airootfs_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}"
+    mksquashfs "${pacstrap_dir}" "${build_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}"
 
     # Create checksum
     _msg_info "Creating checksum file for self-test..."
@@ -763,7 +772,7 @@ make_prepare() {
 
     umount_work
 
-    [[ "${cleaning}" = true ]] && remove "${airootfs_dir}" "${airootfs_dir}.img"
+    [[ "${cleaning}" = true ]] && remove "${pacstrap_dir}" "${pacstrap_dir}.img"
 
     return 0
 }
@@ -989,6 +998,20 @@ _run_once() {
     fi
 }
 
+# Base installation (airootfs)
+_make_basefs() {
+    _msg_info "Creating ext4 image of 32GiB..."
+    truncate -s 32G -- "${pacstrap_dir}.img"
+    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${pacstrap_dir}.img" 32G
+    tune2fs -c "0" -i "0" "${pacstrap_dir}.img"
+    _msg_info "Done!"
+
+    _msg_info "Mounting ${pacstrap_dir}.img on ${pacstrap_dir}"
+    mount_airootfs
+    _msg_info "Done!"
+    return 0
+}
+
 # Set up custom pacman.conf with custom cache and pacman hook directories.
 _make_pacman_conf() {
     local _cache_dirs _system_cache_dirs _profile_cache_dirs _pacman_conf
@@ -1114,7 +1137,7 @@ _make_aur() {
     printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
 
     # prepare for yay
-    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${pacstrap_dir}/root/aur.sh"
 
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
@@ -1128,7 +1151,7 @@ _make_aur() {
     _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
 
     # Remove script
-    remove "${airootfs_dir}/root/aur.sh"
+    remove "${pacstrap_dir}/root/aur.sh"
 
     return 0
 }
@@ -1139,20 +1162,20 @@ _make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     # Copy PKGBUILD to work
-    mkdir -p "${airootfs_dir}/pkgbuilds/"
+    mkdir -p "${pacstrap_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
         _msg_info "Find $(basename "${_dir}")"
-        cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
+        cp -r "${_dir}" "${pacstrap_dir}/pkgbuilds/"
     done
     
     # copy buold script
-    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
+    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${pacstrap_dir}/root/pkgbuild.sh"
 
     # Run build script
     _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
 
     # Remove script
-    remove "${airootfs_dir}/root/pkgbuild.sh"
+    remove "${pacstrap_dir}/root/pkgbuild.sh"
 
     return 0
 }
@@ -1213,16 +1236,16 @@ _make_customize_airootfs() {
     _main_script="root/customize_airootfs.sh"
 
     _script_list=(
-        "${airootfs_dir}/root/customize_airootfs_${channel_name}.sh"
-        "${airootfs_dir}/root/customize_airootfs_${channel_name%.add}.sh"
+        "${pacstrap_dir}/root/customize_airootfs_${channel_name}.sh"
+        "${pacstrap_dir}/root/customize_airootfs_${channel_name%.add}.sh"
     )
 
-    for_module '_script_list+=("${airootfs_dir}/root/customize_airootfs_{}.sh")'
+    for_module '_script_list+=("${pacstrap_dir}/root/customize_airootfs_{}.sh")'
 
     # Create script
     for _script in "${_script_list[@]}"; do
         if [[ -f "${_script}" ]]; then
-            (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
+            (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${pacstrap_dir}/${_main_script}"
             remove "${_script}"
         else
             _msg_debug "${_script} was not found."
@@ -1230,9 +1253,9 @@ _make_customize_airootfs() {
     done
 
     _msg_info "Running ${_main_script} in '${pacstrap_dir}' chroot..."
-    chmod 755 "${airootfs_dir}/${_main_script}"
+    chmod 755 "${pacstrap_dir}/${_main_script}"
     chmod -f -- +x "${pacstrap_dir}/${_main_script}"
-    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
+    cp "${pacstrap_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
     _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     eval -- env -u TMPDIR arch-chroot "${pacstrap_dir}" "/${_main_script}"
@@ -1992,9 +2015,9 @@ _build_iso_base() {
     #pacstrap_dir="${work_dir}/${arch}/airootfs" 
     #isofs_dir="${work_dir}/iso"
 
-    # airootfs_dirをpacstrap_dirに変更
+    # pacstrap_dirをpacstrap_dirに変更
     # isofs_dirは別で定義
-    pacstrap_dir="${airootfs_dir}"
+    pacstrap_dir="${pacstrap_dir}"
 
     # Create working directory
     #[[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
@@ -2006,12 +2029,13 @@ _build_iso_base() {
     fi
 
     [[ "${quiet}" == "y" ]] || _show_config
+    _run_once _make_basefs
     _run_once _make_pacman_conf
     [[ -z "${gpg_key}" ]] || _run_once _export_gpg_publickey
-    _run_once _make_custom_airootfs
     _run_once _make_packages
     _run_once _make_aur
     _run_once _make_pkgbuild
+    _run_once _make_custom_airootfs
     _run_once _make_version
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
@@ -2224,10 +2248,10 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" pacstrap_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
 
 # Create dir
-for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
+for _dir in build_dir cache_dir pacstrap_dir isofs_dir lockfile_dir out_dir; do
     mkdir -p "$(eval "echo \$${_dir}")"
     _msg_debug "${_dir} is $(realpath "$(eval "echo \$${_dir}")")"
     eval "${_dir}=\"$(realpath "$(eval "echo \$${_dir}")")\""
