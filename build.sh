@@ -466,36 +466,6 @@ prepare_build() {
     return 0
 }
 
-
-# Setup custom pacman.conf with current cache directories.
-make_pacman_conf() {
-    # Pacman configuration file used only when building
-    # If there is pacman.conf for each channel, use that for building
-    local _pacman_conf _pacman_conf_list=("${script_path}/pacman-${arch}.conf" "${channel_dir}/pacman-${arch}.conf" "${script_path}/system/pacman-${arch}.conf")
-    for _pacman_conf in "${_pacman_conf_list[@]}"; do
-        if [[ -f "${_pacman_conf}" ]]; then
-            pacman_conf="${_pacman_conf}"
-            break
-        fi
-    done
-
-    _msg_debug "Use ${pacman_conf}"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${pacman_conf}" > "${build_dir}/pacman.conf"
-
-    [[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${pacman_conf}"
-
-    [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
-
-    # Share any architecture packages
-    #while read -r _pkg; do
-    #    if [[ ! -f "${cache_dir}/$(basename "${_pkg}")" ]]; then
-    #        ln -s "${_pkg}" "${cache_dir}"
-    #    fi
-    #done < <(find "${cache_dir}/../" -type d -name "$(basename "${cache_dir}")" -prune -o -type f -name "*-any.pkg.tar.*" -printf "%p\n")
-
-    return 0
-}
-
 # Base installation (airootfs)
 make_basefs() {
     _msg_info "Creating ext4 image of 32GiB..."
@@ -1137,27 +1107,22 @@ _make_pacman_conf() {
             break
         fi
     done
-
-    _system_cache_dirs="$(pacman-conf CacheDir| tr '\n' ' ')"
-    _profile_cache_dirs="$(pacman-conf --config "${pacman_conf}" CacheDir| tr '\n' ' ')"
-
-    # Only use the profile's CacheDir, if it is not the default and not the same as the system cache dir.
-    if [[ "${_profile_cache_dirs}" != "/var/cache/pacman/pkg" ]] && \
-        [[ "${_system_cache_dirs}" != "${_profile_cache_dirs}" ]]; then
-        _cache_dirs="${_profile_cache_dirs}"
-    else
-        _cache_dirs="${_system_cache_dirs}"
-    fi
+    _msg_debug "Use ${pacman_conf}"
 
     _msg_info "Copying custom pacman.conf to work directory..."
-    _msg_info "Using pacman CacheDir: ${_cache_dirs}"
+    _msg_info "Using pacman CacheDir: ${cache_dir}"
     # take the profile pacman.conf and strip all settings that would break in chroot when using pacman -r
     # append CacheDir and HookDir to [options] section
     # HookDir is *always* set to the airootfs' override directory
     # see `man 8 pacman` for further info
     pacman-conf --config "${pacman_conf}" | \
-        sed "/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d;/\[options\]/a CacheDir = ${_cache_dirs}
+        sed "/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d;/\[options\]/a CacheDir = ${cache_dir}
         /\[options\]/a HookDir = ${pacstrap_dir}/etc/pacman.d/hooks/" > "${work_dir}/${buildmode}.pacman.conf"
+
+
+    #[[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${pacman_conf}"
+
+    #[[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
 }
 
 # Prepare working directory and copy custom root file system files.
