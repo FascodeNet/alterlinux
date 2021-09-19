@@ -1060,6 +1060,13 @@ _make_custom_airootfs() {
         fi
     done
 
+    # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
+    #if [[ "${boot_splash}" = true ]]; then
+    #    cp -f "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+    #else
+    #    cp -f "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+    #fi
+
     # Set ownership and mode for files and directories
     for filename in "${!file_permissions[@]}"; do
         IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
@@ -1259,7 +1266,7 @@ _make_customize_airootfs() {
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     env -u TMPDIR arch-chroot "${pacstrap_dir}" "/${_main_script}" "${_airootfs_script_options[@]}"
     rm -- "${pacstrap_dir}/root/customize_airootfs.sh"
-_msg_info "Done! customize_airootfs.sh run successfully."
+    _msg_info "Done! customize_airootfs.sh run successfully."
 }
 
 # Set up boot loaders
