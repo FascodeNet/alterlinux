@@ -489,70 +489,6 @@ prepare_build() {
     return 0
 }
 
-# Copy mkinitcpio archiso hooks and build initramfs (airootfs)
-make_setup_mkinitcpio() {
-    local _hook
-    mkdir -p "${pacstrap_dir}/etc/initcpio/hooks" "${pacstrap_dir}/etc/initcpio/install"
-
-    for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        cp "${script_path}/system/initcpio/hooks/${_hook}" "${pacstrap_dir}/etc/initcpio/hooks"
-        cp "${script_path}/system/initcpio/install/${_hook}" "${pacstrap_dir}/etc/initcpio/install"
-    done
-
-    sed -i "s|%COWSPACE%|${cowspace}|g" "${pacstrap_dir}/etc/initcpio/hooks/archiso"
-    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${pacstrap_dir}/etc/initcpio/install/archiso_shutdown"
-    cp "${script_path}/system/initcpio/install/archiso_kms" "${pacstrap_dir}/etc/initcpio/install"
-    cp "${script_path}/system/initcpio/script/archiso_shutdown" "${pacstrap_dir}/etc/initcpio"
-    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
-    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
-
-    if [[ "${gpg_key}" ]]; then
-      gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
-      exec 17<>"${build_dir}/gpgkey"
-    fi
-
-    _chroot_run mkinitcpio -c "/etc/mkinitcpio-archiso.conf" -k "/boot/${kernel_filename}" -g "/boot/archiso.img"
-
-    [[ "${gpg_key}" ]] && exec 17<&-
-    
-    return 0
-}
-
-# Prepare kernel/initramfs ${install_dir}/boot/
-make_boot() {
-    mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
-    cp "${pacstrap_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
-    cp "${pacstrap_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
-
-    return 0
-}
-
-# Add other aditional/extra files to ${install_dir}/boot/
-make_boot_extra() {
-    if [[ -e "${pacstrap_dir}/boot/memtest86+/memtest.bin" ]]; then
-        install -m 0644 -- "${pacstrap_dir}/boot/memtest86+/memtest.bin" "${isofs_dir}/${install_dir}/boot/memtest"
-        install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
-        install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/common/GPL2/license.txt" "${isofs_dir}/${install_dir}/boot/licenses/memtest86+/"
-    fi
-
-    local _ucode_image
-    _msg_info "Preparing microcode for the ISO 9660 file system..."
-
-    for _ucode_image in {intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
-        if [[ -e "${pacstrap_dir}/boot/${_ucode_image}" ]]; then
-            _msg_info "Installimg ${_ucode_image} ..."
-            install -m 0644 -- "${pacstrap_dir}/boot/${_ucode_image}" "${isofs_dir}/${install_dir}/boot/"
-            if [[ -e "${pacstrap_dir}/usr/share/licenses/${_ucode_image%.*}/" ]]; then
-                install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
-                install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/${_ucode_image%.*}/"* "${isofs_dir}/${install_dir}/boot/licenses/${_ucode_image%.*}/"
-            fi
-        fi
-    done
-    _msg_info "Done!"
-
-    return 0
-}
-
 # Prepare /${install_dir}/boot/syslinux
 make_syslinux() {
     mkdir -p "${isofs_dir}/syslinux"
@@ -1277,6 +1213,35 @@ _make_customize_airootfs() {
     _msg_info "Done! customize_airootfs.sh run successfully."
 }
 
+# Copy mkinitcpio archiso hooks and build initramfs (airootfs)
+_make_setup_mkinitcpio() {
+    local _hook
+    mkdir -p "${pacstrap_dir}/etc/initcpio/hooks" "${pacstrap_dir}/etc/initcpio/install"
+
+    for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
+        cp "${script_path}/system/initcpio/hooks/${_hook}" "${pacstrap_dir}/etc/initcpio/hooks"
+        cp "${script_path}/system/initcpio/install/${_hook}" "${pacstrap_dir}/etc/initcpio/install"
+    done
+
+    sed -i "s|%COWSPACE%|${cowspace}|g" "${pacstrap_dir}/etc/initcpio/hooks/archiso"
+    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${pacstrap_dir}/etc/initcpio/install/archiso_shutdown"
+    cp "${script_path}/system/initcpio/install/archiso_kms" "${pacstrap_dir}/etc/initcpio/install"
+    cp "${script_path}/system/initcpio/script/archiso_shutdown" "${pacstrap_dir}/etc/initcpio"
+    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
+    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
+
+    if [[ "${gpg_key}" ]]; then
+      gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
+      exec 17<>"${build_dir}/gpgkey"
+    fi
+
+    _chroot_run mkinitcpio -c "/etc/mkinitcpio-archiso.conf" -k "/boot/${kernel_filename}" -g "/boot/archiso.img"
+
+    [[ "${gpg_key}" ]] && exec 17<&-
+    
+    return 0
+}
+
 # Set up boot loaders
 _make_bootmodes() {
     local bootmode
@@ -1290,11 +1255,13 @@ _make_boot_on_iso9660() {
     local ucode_image
     _msg_info "Preparing kernel and initramfs for the ISO 9660 file system..."
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/${arch}"
-    install -m 0644 -- "${pacstrap_dir}/boot/initramfs-"*".img" "${isofs_dir}/${install_dir}/boot/${arch}/"
+    #install -m 0644 -- "${pacstrap_dir}/boot/initramfs-"*".img" "${isofs_dir}/${install_dir}/boot/${arch}/"
+    install -m 0644 -- "${pacstrap_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
     install -m 0644 -- "${pacstrap_dir}/boot/vmlinuz-"* "${isofs_dir}/${install_dir}/boot/${arch}/"
 
     for ucode_image in "${ucodes[@]}"; do
         if [[ -e "${pacstrap_dir}/boot/${ucode_image}" ]]; then
+        _msg_info "Installimg ${_ucode_image} ..."
             install -m 0644 -- "${pacstrap_dir}/boot/${ucode_image}" "${isofs_dir}/${install_dir}/boot/"
             if [[ -e "${pacstrap_dir}/usr/share/licenses/${ucode_image%.*}/" ]]; then
                 install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/licenses/${ucode_image%.*}/"
@@ -2081,6 +2048,7 @@ _build_iso_base() {
     _run_once _make_custom_airootfs
     _run_once _make_version
     _run_once _make_customize_airootfs
+    _run_once _make_setup_mkinitcpio
     _run_once _make_pkglist
     _make_bootmodes
     _run_once _cleanup_pacstrap_dir
@@ -2107,6 +2075,7 @@ _build_buildmode_bootstrap() {
     _run_once _make_aur
     _run_once _make_pkgbuild
     _run_once _make_version
+    _run_once _make_setup_mkinitcpio
     _run_once _make_pkglist
     _run_once _cleanup_pacstrap_dir
     _run_once _build_bootstrap_image
