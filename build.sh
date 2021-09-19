@@ -1256,9 +1256,8 @@ _make_customize_airootfs() {
     chmod 755 "${pacstrap_dir}/${_main_script}"
     chmod -f -- +x "${pacstrap_dir}/${_main_script}"
     cp "${pacstrap_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
-    _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
-    eval -- env -u TMPDIR arch-chroot "${pacstrap_dir}" "/${_main_script}"
+    env -u TMPDIR arch-chroot "${pacstrap_dir}" "/${_main_script}" "${_airootfs_script_options[@]}"
     rm -- "${pacstrap_dir}/root/customize_airootfs.sh"
 _msg_info "Done! customize_airootfs.sh run successfully."
 }
