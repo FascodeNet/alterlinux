@@ -2028,10 +2028,10 @@ _build_iso_base() {
     # Create working directory
     #[[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
     # Write build date to file or if the file exists, read it from there
-    if [[ -e "${work_dir}/build_date" ]]; then
-        SOURCE_DATE_EPOCH="$(<"${work_dir}/build_date")"
+    if [[ -e "${build_dir}/build_date" ]]; then
+        SOURCE_DATE_EPOCH="$(<"${build_dir}/build_date")"
     else
-        printf '%s\n' "$SOURCE_DATE_EPOCH" > "${work_dir}/build_date"
+        printf '%s\n' "$SOURCE_DATE_EPOCH" > "${build_dir}/build_date"
     fi
 
     [[ "${quiet}" == "y" ]] || _show_config
