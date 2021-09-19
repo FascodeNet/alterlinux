@@ -1017,13 +1017,11 @@ while true; do
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
-            customized_kernel=true
-            kernel="${2}"
+            customized_kernel=true kernel="${2}"
             shift 2
             ;;
         -p | --password)
-            customized_password=true
-            password="${2}"
+            customized_password=true password="${2}"
             shift 2
             ;;
         -t | --comp-opts)
@@ -1040,14 +1038,11 @@ while true; do
             shift 2
             ;;
         --nodebug)
-            debug=false
-            msgdebug=false
-            bash_debug=false
+            debug=false msgdebug=false bash_debug=false
             shift 1
             ;;
         --logpath)
-            logging="${2}"
-            customized_logpath=true
+            logging="${2}" customized_logpath=true
             shift 2
             ;;
         --tar-type)
