@@ -48,6 +48,8 @@ declare -A file_permissions=(
 )
 quiet=n
 app_name="AlterISO"
+# adapted from GRUB_EARLY_INITRD_LINUX_STOCK in https://git.savannah.gnu.org/cgit/grub.git/tree/util/grub-mkconfig.in
+readonly ucodes=('intel-uc.img' 'intel-ucode.img' 'amd-uc.img' 'amd-ucode.img' 'early_ucode.cpio' 'microcode.cpio')
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
@@ -1301,15 +1303,47 @@ _make_boot_on_iso9660() {
 # Prepare syslinux for booting from MBR (isohybrid)
 _make_bootmode_bios.syslinux.mbr() {
     _msg_info "Setting up SYSLINUX for BIOS booting from a disk..."
+
+    # 一時ディレクトリに設定ファイルをコピー
+    mkdir -p "${build_dir}/syslinux/"
+    cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
+    [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]] && cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
+
     install -d -m 0755 -- "${isofs_dir}/syslinux"
-    for _cfg in "${profile}/syslinux/"*.cfg; do
+    for _cfg in "${build_dir}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+             s|%OS_NAME%|${os_name}|g;
+             s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
              s|%ARCH%|${arch}|g" \
              "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
-    if [[ -e "${profile}/syslinux/splash.png" ]]; then
-        install -m 0644 -- "${profile}/syslinux/splash.png" "${isofs_dir}/syslinux/"
+
+    # Replace the SYSLINUX configuration file with or without boot splash.
+    #local _use_config_name="nosplash" _no_use_config_name="splash" _pxe_or_sys
+    #if [[ "${boot_splash}" = true ]]; then
+    #    _use_config_name=splash
+    #    _no_use_config_name=nosplash
+    #fi
+    #for _pxe_or_sys in "sys" "pxe"; do
+    #    remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+    #    mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}.cfg"
+    #done
+
+    # remove config
+    #local _remove_config
+    #function _remove_config() {
+    #    remove "${isofs_dir}/syslinux/${1}"
+    #    sed -i "s|$(grep "${1}" "${isofs_dir}/syslinux/archiso_sys_load.cfg")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
+    #}
+
+    #[[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
+    #[[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
+    
+    if [[ -e "${channel_dir}/splash.png" ]]; then
+        install -m 0644 -- "${channel_dir}/splash.png" "${isofs_dir}/syslinux/"
+    else
+        install -m 0644 -- "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
     fi
     install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux/"
     install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux/"
