@@ -1440,13 +1440,13 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
     efiboot_imgsize="$(du -bc \
         "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
         "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" \
-        "${profile}/efiboot/" \
+        "${script_path}/efiboot/nosplash" \
         "${pacstrap_dir}/boot/vmlinuz-"* \
         "${pacstrap_dir}/boot/initramfs-"*".img" \
         "${_available_ucodes[@]}" \
         2>/dev/null | awk 'END { print $1 }')"
     # Create a FAT image for the EFI system partition
-    _make_efibootimg "$efiboot_imgsize"
+    _make_efibootimg "${efiboot_imgsize}"
 
     # Copy systemd-boot EFI binary to the default/fallback boot path
     mcopy -i "${work_dir}/efiboot.img" \
@@ -1454,10 +1454,12 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
 
     # Copy systemd-boot configuration files
     mmd -i "${work_dir}/efiboot.img" ::/loader ::/loader/entries
-    mcopy -i "${work_dir}/efiboot.img" "${profile}/efiboot/loader/loader.conf" ::/loader/
-    for _conf in "${script_path}/efiboot/nosplash/loader/entries/"*".conf"; do
+    mcopy -i "${work_dir}/efiboot.img" "${script_path}/efiboot/nosplash/loader.conf" ::/loader/
+    for _conf in "${script_path}/efiboot/nosplash/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
+             s|%OS_NAME%|${os_name}|g;
+             s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%ARCH%|${arch}|g" \
             "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
     done
@@ -1493,8 +1495,8 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
 
     # Copy systemd-boot configuration files
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
-    install -m 0644 -- "${profile}/efiboot/loader/loader.conf" "${isofs_dir}/loader/"
-    for _conf in "${script_path}/efiboot/nosplash/loader/entries/"*".conf"; do
+    install -m 0644 -- "${script_path}/efiboot/nosplash/loader.conf" "${isofs_dir}/loader/"
+    for _conf in "${script_path}/efiboot/nosplash/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
              s|%ARCH%|${arch}|g" \
