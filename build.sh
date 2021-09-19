@@ -2043,8 +2043,8 @@ _build_iso_base() {
     _run_once _make_pacman_conf
     [[ -z "${gpg_key}" ]] || _run_once _export_gpg_publickey
     _run_once _make_packages
-    _run_once _make_aur
-    _run_once _make_pkgbuild
+    [[ "${noaur}" = false ]] && _run_once _make_aur
+    [[ "${nopkgbuild}" = false ]] && _run_once _make_pkgbuild
     _run_once _make_custom_airootfs
     _run_once _make_version
     _run_once _make_customize_airootfs
