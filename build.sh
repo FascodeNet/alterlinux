@@ -2159,30 +2159,6 @@ show_settings
 _validate_options
 _build
 
-
-#run_once make_pacman_conf
-#run_once make_basefs # Mount airootfs
-#run_once make_packages_repo
-#[[ "${noaur}" = false ]] && run_once make_packages_aur
-#[[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
-#run_once make_customize_airootfs
-#run_once make_setup_mkinitcpio
-#[[ "${tarball}" = true ]] && run_once make_tarball
-#if [[ "${noiso}" = false ]]; then
-#    run_once make_syslinux
-#    run_once make_isolinux
-#    run_once make_boot
-#    run_once make_boot_extra
-#    if [[ "${noefi}" = false ]]; then
-#        run_once make_efi
-#        run_once make_efiboot
-#    fi
-#    run_once make_alteriso_info
-#    run_once make_prepare
-#    run_once make_overisofs
-#    run_once make_iso
-#fi
-
 #[[ "${cleaning}" = true ]] && _run_cleansh
 
 exit 0
