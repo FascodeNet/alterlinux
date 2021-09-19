@@ -745,39 +745,6 @@ make_overisofs() {
     return 0
 }
 
-# Build ISO
-make_iso() {
-    local _iso_efi_boot_args=()
-    # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    [[ -f "${build_dir}/efiboot.img" ]] && _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
-
-    mkdir -p -- "${out_dir}"
-    _msg_info "Creating ISO image..."
-    xorriso -as mkisofs \
-        -iso-level 3 \
-        -full-iso9660-filenames \
-        -joliet \
-        -joliet-long \
-        -rational-rock \
-        -volid "${iso_label}" \
-        -appid "${iso_application}" \
-        -publisher "${iso_publisher}" \
-        -preparer "prepared by AlterISO" \
-        -eltorito-boot syslinux/isolinux.bin \
-        -eltorito-catalog syslinux/boot.cat \
-        -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -isohybrid-mbr "${build_dir}/iso/syslinux/isohdpfx.bin" \
-        "${_iso_efi_boot_args[@]}" \
-        -output "${out_dir}/${iso_filename}" \
-        "${build_dir}/iso/"
-    _mkchecksum "${out_dir}/${iso_filename}"
-    _msg_info "Done! | $(ls -sh -- "${out_dir}/${iso_filename}")"
-
-    _msg_info "The password for the live user and root is ${password}."
-
-    return 0
-}
-
 #-- AlterISO 3.2 functions --#
 # Shows configuration options.
 _show_config() {
@@ -1895,8 +1862,10 @@ _build_iso_image() {
             "${xorrisofs_options[@]}" \
             -output "${out_dir}/${image_name}" \
             "${isofs_dir}/"
+    _mkchecksum "${out_dir}/${iso_filename}"
     _msg_info "Done!"
     du -h -- "${out_dir}/${image_name}"
+    _msg_info "The password for the live user and root is ${password}."
 }
 
 # Read profile's values from profiledef.sh
@@ -2058,7 +2027,8 @@ _build_iso_base() {
 
 # Build the bootstrap buildmode
 _build_buildmode_bootstrap() {
-    local image_name="${iso_name}-bootstrap-${iso_version}-${arch}.tar.gz"
+    #local image_name="${iso_name}-bootstrap-${iso_version}-${arch}.tar.gz"
+    local image_name="${tar_filename}"
     local run_once_mode="${buildmode}"
     #local buildmode_packages="${bootstrap_packages}"
     # Set the package list to use
@@ -2094,7 +2064,7 @@ _build_buildmode_netboot() {
 
 # Build the ISO buildmode
 _build_buildmode_iso() {
-    local image_name="${iso_name}-${iso_version}-${arch}.iso"
+    local image_name="${iso_filename}"
     local run_once_mode="${buildmode}"
     _build_iso_base
     _run_once _build_iso_image
