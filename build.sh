@@ -1320,25 +1320,25 @@ _make_bootmode_bios.syslinux.mbr() {
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
-    #local _use_config_name="nosplash" _no_use_config_name="splash" _pxe_or_sys
-    #if [[ "${boot_splash}" = true ]]; then
-    #    _use_config_name=splash
-    #    _no_use_config_name=nosplash
-    #fi
-    #for _pxe_or_sys in "sys" "pxe"; do
-    #    remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
-    #    mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}.cfg"
-    #done
+    local _use_config_name="nosplash" _no_use_config_name="splash" _pxe_or_sys
+    if [[ "${boot_splash}" = true ]]; then
+        _use_config_name=splash
+        _no_use_config_name=nosplash
+    fi
+    for _pxe_or_sys in "sys" "pxe"; do
+        remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
+        mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}-linux.cfg"
+    done
 
     # remove config
-    #local _remove_config
-    #function _remove_config() {
-    #    remove "${isofs_dir}/syslinux/${1}"
-    #    sed -i "s|$(grep "${1}" "${isofs_dir}/syslinux/archiso_sys_load.cfg")||g" "${isofs_dir}/syslinux/archiso_sys_load.cfg" 
-    #}
+    local _remove_config
+    function _remove_config() {
+        remove "${isofs_dir}/syslinux/${1}"
+        sed -i "|$(grep "${1}" "${isofs_dir}/syslinux/archiso_sys.cfg")|d" "${isofs_dir}/syslinux/archiso_sys.cfg" 
+    }
 
-    #[[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
-    #[[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
+    [[ "${norescue_entry}" = true  ]] && _remove_config archiso_sys_rescue.cfg
+    [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
     
     if [[ -e "${channel_dir}/splash.png" ]]; then
         install -m 0644 -- "${channel_dir}/splash.png" "${isofs_dir}/syslinux/"
