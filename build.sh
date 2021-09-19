@@ -356,32 +356,6 @@ error_exit_trap(){
     exit "${_exit}"
 }
 
-# Show settings.
-show_settings() {
-    if [[ "${boot_splash}" = true ]]; then
-        _msg_info "Boot splash is enabled."
-        _msg_info "Theme is used ${theme_name}."
-    fi
-    _msg_info "Language is ${locale_fullname}."
-    _msg_info "Use the ${kernel} kernel."
-    _msg_info "Live username is ${username}."
-    _msg_info "Live user password is ${password}."
-    _msg_info "The compression method of squashfs is ${sfs_comp}."
-    _msg_info "Use the ${channel_name%.add} channel."
-    _msg_info "Build with architecture ${arch}."
-    (( "${#additional_exclude_pkg[@]}" != 0 )) && _msg_info "Excluded packages: ${additional_exclude_pkg[*]}"
-    if [[ "${noconfirm}" = false ]]; then
-        echo -e "\nPress Enter to continue or Ctrl + C to cancel."
-        read -r
-    fi
-    trap HUP INT QUIT TERM
-    trap 'umount_trap' HUP INT QUIT TERM
-    trap 'error_exit_trap $LINENO' ERR
-
-    return 0
-}
-
-
 # Preparation for build
 prepare_build() {
     # Debug mode
@@ -676,6 +650,18 @@ make_overisofs() {
 }
 
 #-- AlterISO 3.2 functions --#
+# Build confirm
+_build_confirm() {
+    if [[ "${noconfirm}" = false ]]; then
+        echo -e "\nPress Enter to continue or Ctrl + C to cancel."
+        read -r
+    fi
+    trap HUP INT QUIT TERM
+    trap 'umount_trap' HUP INT QUIT TERM
+    trap 'error_exit_trap $LINENO' ERR
+    return 0
+}
+
 # Shows configuration options.
 _show_config() {
     local build_date
@@ -698,8 +684,11 @@ _show_config() {
     _msg_info "            ISO publisher:   ${iso_publisher}"
     _msg_info "          ISO application:   ${iso_application}"
     _msg_info "               Boot modes:   ${bootmodes[*]}"
-    #_msg_info "            Packages File:   ${buildmode_packages}"
-    #_msg_info "                 Packages:   ${buildmode_pkg_list[*]}"
+    _msg_info "                 Plymouth:   ${boot_splash}"
+    _msg_info "           Plymouth theme:   ${theme_name}"
+    _msg_info "                 Language:   ${locale_name}"
+
+    _build_confirm
 }
 
 # Cleanup airootfs
@@ -1803,38 +1792,6 @@ _build_iso_image() {
     _msg_info "Done!"
     du -h -- "${out_dir}/${image_name}"
     _msg_info "The password for the live user and root is ${password}."
-}
-
-# Read profile's values from profiledef.sh
-_read_profile() {
-    if [[ -z "${profile}" ]]; then
-        _msg_error "No profile specified!" 1
-    fi
-    if [[ ! -d "${profile}" ]]; then
-        _msg_error "Profile '${profile}' does not exist!" 1
-    elif [[ ! -e "${profile}/profiledef.sh" ]]; then
-        _msg_error "Profile '${profile}' is missing 'profiledef.sh'!" 1
-    else
-        cd -- "${profile}"
-
-        # Source profile's variables
-        # shellcheck source=configs/releng/profiledef.sh
-        . "${profile}/profiledef.sh"
-
-        # Resolve paths of files that are expected to reside in the profile's directory
-        [[ -n "$packages" ]] || packages="${profile}/packages.${arch}"
-        packages="$(realpath -- "${packages}")"
-        pacman_conf="$(realpath -- "${pacman_conf}")"
-
-        # Resolve paths of files that may reside in the profile's directory
-        if [[ -z "$bootstrap_packages" ]] && [[ -e "${profile}/bootstrap_packages.${arch}" ]]; then
-            bootstrap_packages="${profile}/bootstrap_packages.${arch}"
-            bootstrap_packages="$(realpath -- "${bootstrap_packages}")"
-            pacman_conf="$(realpath -- "${pacman_conf}")"
-        fi
-
-        cd -- "${OLDPWD}"
-    fi
 }
 
 # Validate set options
