@@ -32,6 +32,9 @@ alteriso_version="3.1"
 norepopkg=()
 legacy_mode=false
 rerun=false
+use_bootloader_type="nosplash"
+not_use_bootloader_type="splash"
+
 
 #-- AlterISO 4.0 Variables --#
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
@@ -479,6 +482,9 @@ prepare_build() {
     # Set argument of aur.sh and pkgbuild.sh
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
+
+    # Set bootloader type
+    [[ "${boot_splash}" = true ]] && use_bootloader_type="splash" && not_use_bootloader_type="nosplash"
 
     return 0
 }
@@ -1320,18 +1326,13 @@ _make_bootmode_bios.syslinux.mbr() {
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
-    local _use_config_name="nosplash" _no_use_config_name="splash" _pxe_or_sys
-    if [[ "${boot_splash}" = true ]]; then
-        _use_config_name=splash
-        _no_use_config_name=nosplash
-    fi
+    local _pxe_or_sys _remove_config
     for _pxe_or_sys in "sys" "pxe"; do
-        remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
-        mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_use_config_name}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}-linux.cfg"
+        remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${not_use_bootloader_type}.cfg"
+        mv "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${use_bootloader_type}.cfg" "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}-linux.cfg"
     done
 
     # remove config
-    local _remove_config
     function _remove_config() {
         remove "${isofs_dir}/syslinux/${1}"
         sed -i "|$(grep "${1}" "${isofs_dir}/syslinux/archiso_sys.cfg")|d" "${isofs_dir}/syslinux/archiso_sys.cfg" 
@@ -1440,7 +1441,7 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
     efiboot_imgsize="$(du -bc \
         "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
         "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" \
-        "${script_path}/efiboot/nosplash" \
+        "${script_path}/efiboot/${use_bootloader_type}" \
         "${pacstrap_dir}/boot/vmlinuz-"* \
         "${pacstrap_dir}/boot/initramfs-"*".img" \
         "${_available_ucodes[@]}" \
@@ -1454,8 +1455,8 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
 
     # Copy systemd-boot configuration files
     mmd -i "${work_dir}/efiboot.img" ::/loader ::/loader/entries
-    mcopy -i "${work_dir}/efiboot.img" "${script_path}/efiboot/nosplash/loader.conf" ::/loader/
-    for _conf in "${script_path}/efiboot/nosplash/entries/"*".conf"; do
+    mcopy -i "${work_dir}/efiboot.img" "${script_path}/efiboot/${use_bootloader_type}/loader.conf" ::/loader/
+    for _conf in "${script_path}/efiboot/${use_bootloader_type}/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
              s|%OS_NAME%|${os_name}|g;
@@ -1495,8 +1496,8 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
 
     # Copy systemd-boot configuration files
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
-    install -m 0644 -- "${script_path}/efiboot/nosplash/loader.conf" "${isofs_dir}/loader/"
-    for _conf in "${script_path}/efiboot/nosplash/entries/"*".conf"; do
+    install -m 0644 -- "${script_path}/efiboot/${use_bootloader_type}/loader.conf" "${isofs_dir}/loader/"
+    for _conf in "${script_path}/efiboot/${use_bootloader_type}/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
              s|%ARCH%|${arch}|g" \
@@ -1568,21 +1569,21 @@ _validate_requirements_bootmode_uefi-x64.systemd-boot.esp() {
     fi
 
     # Check if systemd-boot configuration files exist
-    if [[ ! -d "${script_path}/efiboot/nosplash/entries" ]]; then
+    if [[ ! -d "${script_path}/efiboot/${use_bootloader_type}/entries" ]]; then
         (( validation_error=validation_error+1 ))
-        _msg_error "Validating '${bootmode}': The '${script_path}/efiboot/nosplash/entries' directory is missing!" 0
+        _msg_error "Validating '${bootmode}': The '${script_path}/efiboot/${use_bootloader_type}/entries' directory is missing!" 0
     else
-        if [[ ! -e "${script_path}/efiboot/nosplash/loader.conf" ]]; then
+        if [[ ! -e "${script_path}/efiboot/${use_bootloader_type}/loader.conf" ]]; then
             (( validation_error=validation_error+1 ))
-            _msg_error "Validating '${bootmode}': File '${script_path}/efiboot/nosplash/loader.conf' not found!" 0
+            _msg_error "Validating '${bootmode}': File '${script_path}/efiboot/${use_bootloader_type}/loader.conf' not found!" 0
         fi
         local conffile
-        for conffile in "${script_path}/efiboot/nosplash/entries/"*'.conf'; do
+        for conffile in "${script_path}/efiboot/${use_bootloader_type}/entries/"*'.conf'; do
             if [[ -e "${conffile}" ]]; then
                 break
             else
                 (( validation_error=validation_error+1 ))
-                _msg_error "Validating '${bootmode}': No configuration file found in '${script_path}/efiboot/nosplash/entries/'!" 0
+                _msg_error "Validating '${bootmode}': No configuration file found in '${script_path}/efiboot/${use_bootloader_type}/entries/'!" 0
             fi
         done
     fi
