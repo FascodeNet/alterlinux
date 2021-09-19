@@ -270,7 +270,7 @@ _cleanup_airootfs(){
     [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
 }
 
-_mkchecksum() {
+_mkimagechecksum() {
     _msg_info "Creating md5 checksum ..."
     echo "$(md5sum "${1}" | getclm 1) $(basename "${1}")" > "${1}.md5"
     _msg_info "Creating sha256 checksum ..."
@@ -670,7 +670,7 @@ make_tarball() {
     cd -- "${OLDPWD}"
 
     # checksum
-    _mkchecksum "${out_dir}/${tar_filename}"
+    _mkimagechecksum "${out_dir}/${tar_filename}"
     _msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
 
     remove "${pacstrap_dir}.img"
@@ -1862,7 +1862,7 @@ _build_iso_image() {
             "${xorrisofs_options[@]}" \
             -output "${out_dir}/${image_name}" \
             "${isofs_dir}/"
-    _mkchecksum "${out_dir}/${iso_filename}"
+    _mkimagechecksum "${out_dir}/${iso_filename}"
     _msg_info "Done!"
     du -h -- "${out_dir}/${image_name}"
     _msg_info "The password for the live user and root is ${password}."
