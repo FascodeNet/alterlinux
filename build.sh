@@ -1434,6 +1434,8 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
     for _conf in "${script_path}/efiboot/${use_bootloader_type}/entries/"*".conf"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
              s|%INSTALL_DIR%|${install_dir}|g;
+             s|%OS_NAME%|${os_name}|g;
+             s|%KERNEL_FILENAME%|${kernel_filename}|g;
              s|%ARCH%|${arch}|g" \
             "${_conf}" > "${isofs_dir}/loader/entries/${_conf##*/}"
     done
