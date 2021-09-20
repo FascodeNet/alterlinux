@@ -1881,16 +1881,8 @@ _make_pkglist() {
 # build the base for an ISO and/or a netboot target
 _build_iso_base() {
     local run_once_mode="base"
-    #local buildmode_packages="${packages}"
     # Set the package list to use
     local buildmode_pkg_list=("${pkg_list[@]}")
-    # Set up essential directory paths
-    #pacstrap_dir="${work_dir}/${arch}/airootfs" 
-    #isofs_dir="${work_dir}/iso"
-
-    # pacstrap_dirをpacstrap_dirに変更
-    # isofs_dirは別で定義
-    pacstrap_dir="${pacstrap_dir}"
 
     # Create working directory
     #[[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
@@ -2158,6 +2150,6 @@ prepare_build
 _validate_options
 _build
 
-#[[ "${cleaning}" = true ]] && _run_cleansh
+[[ "${cleaning}" = true ]] && _run_cleansh
 
 exit 0
