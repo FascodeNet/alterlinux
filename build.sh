@@ -2155,7 +2155,7 @@ fi
 
 prepare_env
 prepare_build
-show_settings
+_show_config
 _validate_options
 _build
 
