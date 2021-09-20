@@ -666,29 +666,28 @@ _build_confirm() {
 _show_config() {
     local build_date
     build_date="$(date --utc --iso-8601=seconds -d "@${SOURCE_DATE_EPOCH}")"
-    for buildmode in "${buildmodes[@]}"; do
-        _msg_info "${app_name} configuration settings"
-        _msg_info "             Architecture:   ${arch}"
-        _msg_info "        Working directory:   ${work_dir}"
-        _msg_info "   Installation directory:   ${install_dir}"
-        _msg_info "               Build date:   ${build_date}"
-        _msg_info "         Output directory:   ${out_dir}"
-        _msg_info "       Current build mode:   ${buildmode}"
-        _msg_info "              Build modes:   ${buildmodes[*]}"
-        _msg_info "                  GPG key:   ${gpg_key:-None}"
-        _msg_info "               GPG signer:   ${gpg_sender:-None}"
-        _msg_info "Code signing certificates:   ${cert_list[*]}"
-        _msg_info "                  Profile:   ${channel_name}"
-        _msg_info "Pacman configuration file:   ${pacman_conf}"
-        _msg_info "          Image file name:   ${image_name:-None}"
-        _msg_info "         ISO volume label:   ${iso_label}"
-        _msg_info "            ISO publisher:   ${iso_publisher}"
-        _msg_info "          ISO application:   ${iso_application}"
-        _msg_info "               Boot modes:   ${bootmodes[*]}"
-        _msg_info "                 Plymouth:   ${boot_splash}"
-        _msg_info "           Plymouth theme:   ${theme_name}"
-        _msg_info "                 Language:   ${locale_name}"
-    done
+    _msg_info "${app_name} configuration settings"
+    _msg_info "             Architecture:   ${arch}"
+    _msg_info "        Working directory:   ${work_dir}"
+    _msg_info "   Installation directory:   ${install_dir}"
+    _msg_info "               Build date:   ${build_date}"
+    _msg_info "         Output directory:   ${out_dir}"
+    _msg_info "       Current build mode:   ${buildmode}"
+    _msg_info "              Build modes:   ${buildmodes[*]}"
+    _msg_info "                  GPG key:   ${gpg_key:-None}"
+    _msg_info "               GPG signer:   ${gpg_sender:-None}"
+    _msg_info "Code signing certificates:   ${cert_list[*]}"
+    _msg_info "                  Profile:   ${channel_name}"
+    _msg_info "Pacman configuration file:   ${pacman_conf}"
+    _msg_info "          Image file name:   ${image_name:-None}"
+    _msg_info "         ISO volume label:   ${iso_label}"
+    _msg_info "            ISO publisher:   ${iso_publisher}"
+    _msg_info "          ISO application:   ${iso_application}"
+    _msg_info "               Boot modes:   ${bootmodes[*]}"
+    _msg_info "                 Plymouth:   ${boot_splash}"
+    _msg_info "           Plymouth theme:   ${theme_name}"
+    _msg_info "                 Language:   ${locale_name}"
+    
     _build_confirm
 }
 
@@ -2156,7 +2155,6 @@ fi
 
 prepare_env
 prepare_build
-_show_config
 _validate_options
 _build
 
