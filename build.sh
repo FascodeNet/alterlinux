@@ -141,6 +141,7 @@ umount_work () {
 
 # Mount airootfs on "${pacstrap_dir}"
 mount_airootfs () {
+    [[ ! -v pacstrap_dir ]] && return 0
     mkdir -p "${pacstrap_dir}"
     _mount "${pacstrap_dir}.img" "${pacstrap_dir}"
 }
@@ -815,11 +816,11 @@ _make_custom_airootfs() {
         IFS=':' read -ra permissions <<< "${file_permissions["${filename}"]}"
         # Prevent file path traversal outside of $pacstrap_dir
         [[ ! -f "${pacstrap_dir}${filename}" ]] && continue
-        if [[ "$(realpath -q -- "${pacstrap_dir}${filename}")" != "${pacstrap_dir}"* ]]; then
+        if [[ "$(realpath -q -- "${pacstrap_dir}${filename}")" != "$(realpath -q -- "${pacstrap_dir}")"* ]]; then
             _msg_error "Failed to set permissions on '${pacstrap_dir}${filename}'. Outside of valid path." 1
         # Warn if the file does not exist
         elif [[ ! -e "${pacstrap_dir}${filename}" ]]; then
-            _msg_warning "Cannot change permissions of '${pacstrap_dir}${filename}'. The file or directory does not exist."
+            _msg_warn "Cannot change permissions of '${pacstrap_dir}${filename}'. The file or directory does not exist."
         else
             if [[ "${filename: -1}" == "/" ]]; then
                 chown -fhR -- "${permissions[0]}:${permissions[1]}" "${pacstrap_dir}${filename}"
@@ -1026,9 +1027,10 @@ _make_customize_bootstrap(){
     cp "${pacstrap_dir}.img" "${pacstrap_dir}.img.org"
 
     # Run script
+    umount_work
     mount_airootfs
     if [[ -f "${pacstrap_dir}/root/optimize_for_tarball.sh" ]]; then 
-        _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
+        _chroot_run "bash" "/root/optimize_for_tarball.sh" -u "${username}"
         remove "${pacstrap_dir}/root/optimize_for_tarball.sh"
     fi
 }
@@ -1516,7 +1518,7 @@ _validate_common_requirements_buildmode_iso_netboot() {
             if typeset -f "_validate_requirements_bootmode_${bootmode}" &> /dev/null; then
                 "_validate_requirements_bootmode_${bootmode}"
             else
-                _msg_warning "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
+                _msg_warn "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
             fi
         else
             (( validation_error=validation_error+1 ))
@@ -1529,7 +1531,7 @@ _validate_common_requirements_buildmode_iso_netboot() {
         if typeset -f "_validate_requirements_airootfs_image_type_${airootfs_image_type}" &> /dev/null; then
             "_validate_requirements_airootfs_image_type_${airootfs_image_type}"
         else
-            _msg_warning "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
+            _msg_warn "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
         fi
     else
         (( validation_error=validation_error+1 ))
@@ -1744,7 +1746,7 @@ _validate_options() {
             if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
                 "_validate_requirements_buildmode_${_buildmode}"
             else
-                _msg_warning "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
+                _msg_warn "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
             fi
         else
             (( validation_error=validation_error+1 ))
@@ -1788,7 +1790,7 @@ _make_version() {
         _os_release="$(realpath -- "${pacstrap_dir}/usr/lib/os-release")"
     fi
     if [[ "${_os_release}" != "${pacstrap_dir}"* ]]; then
-        _msg_warning "os-release file '${_os_release}' is outside of valid path."
+        _msg_warn "os-release file '${_os_release}' is outside of valid path."
     else
         [[ ! -e "${_os_release}" ]] || sed -i '/^IMAGE_ID=/d;/^IMAGE_VERSION=/d' "${_os_release}"
         printf 'IMAGE_ID=%s\nIMAGE_VERSION=%s\n' "${iso_name}" "${iso_version}" >> "${_os_release}"
@@ -1815,6 +1817,7 @@ _build_iso_base() {
     local run_once_mode="base"
     # Set the package list to use
     local buildmode_pkg_list=("${pkg_list[@]}")
+    pacstrap_dir="${build_dir}/airootfs"
 
     # Create working directory
     #[[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
@@ -1853,11 +1856,14 @@ _build_buildmode_bootstrap() {
     local buildmode_pkg_list=("${bootstrap_pkg_list[@]}")
 
     # Set up essential directory paths
-    pacstrap_dir="${work_dir}/${arch}/bootstrap/root.${arch}"
+    #pacstrap_dir="${work_dir}/${arch}/bootstrap/root.${arch}"
+    pacstrap_dir="${build_dir}/bootstrap"
+
     [[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
     install -d -m 0755 -o 0 -g 0 -- "${pacstrap_dir}"
 
     [[ "${quiet}" == "y" ]] || _show_config
+    _run_once _make_basefs
     _run_once _make_pacman_conf
     _run_once _make_packages
     [[ "${noaur}" = false ]] && _run_once _make_aur
@@ -2049,10 +2055,11 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" pacstrap_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
+
 
 # Create dir
-for _dir in build_dir cache_dir pacstrap_dir isofs_dir lockfile_dir out_dir; do
+for _dir in build_dir cache_dir isofs_dir lockfile_dir out_dir; do
     mkdir -p "$(eval "echo \$${_dir}")"
     _msg_debug "${_dir} is $(realpath "$(eval "echo \$${_dir}")")"
     eval "${_dir}=\"$(realpath "$(eval "echo \$${_dir}")")\""
