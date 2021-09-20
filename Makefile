@@ -41,7 +41,6 @@ xfce-pro-ja-64 xfce-pro-en-64                                \
 		"64") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_x86_64} -l ${LOCALE} ${CHANNEL};;\
 		*   ) echo "Unknown Architecture"; exit 1  ;; \
 	esac
-	@make clean
 
 menuconfig/build/mconf::
 	@mkdir -p menuconfig/build

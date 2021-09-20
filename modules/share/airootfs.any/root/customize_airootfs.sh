@@ -12,6 +12,7 @@ set -e -u
 
 # Default value
 # All values can be changed by arguments.
+arch="x86_64"
 password=alter
 boot_splash=false
 kernel_config_line=("zen" "vmlinuz-linux-zen" "linux-zen")
@@ -25,6 +26,7 @@ timezone="UTC"
 localegen="en_US\\.UTF-8\\"
 language="en"
 
+(( "${#}" < 2 )) && echo "There are too few arguments !!" >&2 
 
 # Parse arguments
 while getopts 'p:bt:k:xu:o:i:s:da:g:z:l:' arg; do
