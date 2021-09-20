@@ -186,20 +186,11 @@ show_channel_list() {
 # for_module <command>
 for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
 
-# pacstrapを実行
-_pacstrap(){
-    _msg_info "Installing packages to ${pacstrap_dir}/'..."
-    local _args=("-c" "-G" "-M" "--" "${pacstrap_dir}" "${@}")
-    [[ "${pacman_debug}" = true ]] && _args+=(--debug)
-    pacstrap -C "${build_dir}/pacman.conf" "${_args[@]}"
-    _msg_info "Packages installed successfully!"
-}
-
 # chroot環境でpacmanコマンドを実行
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
     cp "${build_dir}/${buildmode}.pacman.conf" "${pacstrap_dir}/etc/alteriso-pacman.conf"
-    eval -- "${@}"
+    "${@}"
     remove "${pacstrap_dir}/etc/alteriso-pacman.conf"
 }
 
@@ -849,6 +840,8 @@ _make_pacman_conf() {
     [[ "${nosigcheck}" = true ]] && sed -i "/SigLevel/d; /\[options\]/a SigLebel = Never" "${pacman_conf}"
 
     [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
+
+    _msg_info "Done!"
 }
 
 # Prepare working directory and copy custom root file system files.
@@ -924,6 +917,9 @@ _make_packages() {
     #    done
     #fi
 
+    # Set up for pacman_debug
+    [[ "${pacman_debug}" = true ]] && buildmode_pkg_list=("--debug" "${buildmode_pkg_list[@]}")
+
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     if [[ "${quiet}" = "y" ]]; then
         env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" "${buildmode_pkg_list[@]}" &> /dev/null
@@ -935,6 +931,9 @@ _make_packages() {
         exec {ARCHISO_GNUPG_FD}<&-
         unset ARCHISO_GNUPG_FD
     fi
+
+    # Remove --debug from packages list
+    readarray -t buildmode_pkg_list < <(printf "%s\n" "${buildmode_pkg_list[@]}" | grep -qx "--debug")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
@@ -956,10 +955,11 @@ _make_aur() {
 
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
+    _pacstrap_args=("go") && [[ "${pacman_debug}" = true ]] && _pacstrap_args=("--debug" "${_pacstrap_args[@]}")
     if [[ "${quiet}" = "y" ]]; then
-        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "go" &> /dev/null
+        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}" &> /dev/null
     else
-        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "go"
+        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}"
     fi
 
     # Run aur script
@@ -968,7 +968,7 @@ _make_aur() {
     # Remove script
     remove "${pacstrap_dir}/root/aur.sh"
 
-    return 0
+    _msg_info "Done! Packages installed successfully."
 }
 
 _make_pkgbuild() {
@@ -992,7 +992,7 @@ _make_pkgbuild() {
     # Remove script
     remove "${pacstrap_dir}/root/pkgbuild.sh"
 
-    return 0
+    _msg_info "Done! Packages built successfully."
 }
 
 # Customize installation.
