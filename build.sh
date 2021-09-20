@@ -289,12 +289,14 @@ prepare_env() {
         _run_cleansh
     fi
 
-    # Set gpg key
-    if [[ -n "${gpg_key}" ]]; then
-        gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
-        exec {ARCHISO_GNUPG_FD}<>"${build_dir}/pubkey.gpg"
-        export ARCHISO_GNUPG_FD
-    fi
+    # Debug mode
+    [[ "${bash_debug}" = true ]] && set -x -v
+
+    # Show alteriso version
+    [[ -n "${gitrev-""}" ]] && _msg_debug "The version of alteriso is ${gitrev}"
+
+    # Set bootloader type
+    [[ "${boot_splash}" = true ]] && use_bootloader_type="splash" && not_use_bootloader_type="nosplash"
 
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
@@ -318,12 +320,6 @@ error_exit_trap(){
 
 # Preparation for build
 prepare_build() {
-    # Debug mode
-    [[ "${bash_debug}" = true ]] && set -x -v
-
-    # Show alteriso version
-    [[ -n "${gitrev-""}" ]] && _msg_debug "The version of alteriso is ${gitrev}"
-
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
@@ -372,18 +368,10 @@ prepare_build() {
     [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
-    # Generate tar file name
-    tar_ext=""
-    case "${tar_comp}" in
-        "gzip" ) tar_ext="gz"                        ;;
-        "zstd" ) tar_ext="zst"                       ;;
-        "xz" | "lzo" | "lzma") tar_ext="${tar_comp}" ;;
-    esac
-
     # Generate iso file name
     local _channel_name="${channel_name%.add}-${locale_version}" 
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    tar_filename="${iso_filename%.iso}.tar.${tar_ext}"
+    tar_filename="${iso_filename%.iso}.tar.gz"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     _msg_debug "Iso filename is ${iso_filename}"
 
@@ -416,9 +404,6 @@ prepare_build() {
     # Set argument of aur.sh and pkgbuild.sh
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
-
-    # Set bootloader type
-    [[ "${boot_splash}" = true ]] && use_bootloader_type="splash" && not_use_bootloader_type="nosplash"
 
     return 0
 }
@@ -512,42 +497,6 @@ make_efiboot() {
 
     return 0
 }
-
-# Compress tarball
-make_tarball() {
-    # backup airootfs.img for tarball
-    _msg_debug "Tarball filename is ${tar_filename}"
-    _msg_info "Copying airootfs.img ..."
-    cp "${pacstrap_dir}.img" "${pacstrap_dir}.img.org"
-
-    # Run script
-    mount_airootfs
-    [[ -f "${pacstrap_dir}/root/optimize_for_tarball.sh" ]] && _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
-    _cleanup_common
-    _chroot_run "mkinitcpio -P"
-    remove "${pacstrap_dir}/root/optimize_for_tarball.sh"
-
-    # make
-    tar_comp_opt+=("--${tar_comp}")
-    mkdir -p "${out_dir}"
-    _msg_info "Creating tarball..."
-    cd -- "${pacstrap_dir}"
-    _msg_debug "Run tar -c -v -p -f \"${out_dir}/${tar_filename}\" ${tar_comp_opt[*]} ./*"
-    tar -c -v -p -f "${out_dir}/${tar_filename}" "${tar_comp_opt[@]}" ./*
-    cd -- "${OLDPWD}"
-
-    # checksum
-    _mkimagechecksum "${out_dir}/${tar_filename}"
-    _msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
-
-    remove "${pacstrap_dir}.img"
-    mv "${pacstrap_dir}.img.org" "${pacstrap_dir}.img"
-
-    [[ "${noiso}" = true ]] && _msg_info "The password for the live user and root is ${password}."
-    
-    return 0
-}
-
 
 # Build airootfs filesystem image
 make_prepare() {
@@ -1069,6 +1018,21 @@ _make_customize_airootfs() {
     rm -- "${pacstrap_dir}/root/customize_airootfs.sh"
     _msg_info "Done! customize_airootfs.sh run successfully."
 }
+
+_make_customize_bootstrap(){
+    # backup airootfs.img for tarball
+    _msg_debug "Tarball filename is ${tar_filename}"
+    _msg_info "Copying airootfs.img ..."
+    cp "${pacstrap_dir}.img" "${pacstrap_dir}.img.org"
+
+    # Run script
+    mount_airootfs
+    if [[ -f "${pacstrap_dir}/root/optimize_for_tarball.sh" ]]; then 
+        _chroot_run "bash /root/optimize_for_tarball.sh -u ${username}"
+        remove "${pacstrap_dir}/root/optimize_for_tarball.sh"
+    fi
+}
+
 
 # Copy mkinitcpio archiso hooks and build initramfs (airootfs)
 _make_setup_mkinitcpio() {
@@ -1725,8 +1689,10 @@ _build_bootstrap_image() {
 
     _msg_info "Creating bootstrap image..."
     bsdtar -cf - "root.${arch}" | gzip -cn9 > "${out_dir}/${image_name}"
-    _msg_info "Done!"
-    du -h -- "${out_dir}/${image_name}"
+
+    # checksum
+    _mkimagechecksum "${out_dir}/${tar_filename}"
+    _msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
     cd -- "${OLDPWD}"
 }
 
@@ -1899,13 +1865,18 @@ _build_buildmode_bootstrap() {
     [[ "${quiet}" == "y" ]] || _show_config
     _run_once _make_pacman_conf
     _run_once _make_packages
-    _run_once _make_aur
-    _run_once _make_pkgbuild
+    [[ "${noaur}" = false ]] && _run_once _make_aur
+    [[ "${nopkgbuild}" = false ]] && _run_once _make_pkgbuild
+    _run_once _make_custom_airootfs
     _run_once _make_version
-    _run_once _make_setup_mkinitcpio
+    _run_once _make_customize_airootfs
+    _run_once _make_customize_bootstrap
     _run_once _make_pkglist
     _run_once _cleanup_pacstrap_dir
     _run_once _build_bootstrap_image
+
+    remove "${pacstrap_dir}.img"
+    mv "${pacstrap_dir}.img.org" "${pacstrap_dir}.img"
 }
 
 # Build the netboot buildmode
@@ -1938,7 +1909,7 @@ _build() {
 }
 
 # Parse options
-ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod" "cert:")
+ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod" "cert:")
 GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
 getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
 readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
@@ -1991,17 +1962,6 @@ while true; do
         --logpath)
             logging="${2}"
             customized_logpath=true
-            shift 2
-            ;;
-        --tar-type)
-            case "${2}" in
-                "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") tar_comp="${2}" ;;
-                *) _msg_error "Invaild compressors '${2}'" '1' ;;
-            esac
-            shift 2
-            ;;
-        --tar-opts)
-            IFS=" " read -r -a tar_comp_opt <<< "${2}"
             shift 2
             ;;
         --add-module)
