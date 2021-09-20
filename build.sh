@@ -1685,7 +1685,7 @@ _build_bootstrap_image() {
     cd -- "${_bootstrap_parent}"
 
     _msg_info "Creating bootstrap image..."
-    bsdtar -cf - "bootstrap" | gzip -cn9 > "${out_dir}/${image_name}"
+    bsdtar -cf - "bootstrap" | pv -p |  gzip -cn9 > "${out_dir}/${image_name}"
 
     # checksum
     _mkimagechecksum "${out_dir}/${tar_filename}"
