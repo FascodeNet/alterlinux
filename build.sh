@@ -1479,16 +1479,11 @@ _validate_requirements_buildmode_bootstrap() {
     local bootstrap_pkg_list_from_file=()
 
     # Check if packages for the bootstrap image are specified
-    if [[ -e "${bootstrap_packages}" ]]; then
-        mapfile -t bootstrap_pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
-        bootstrap_pkg_list+=("${bootstrap_pkg_list_from_file[@]}")
-        if (( ${#bootstrap_pkg_list_from_file[@]} < 1 )); then
-            (( validation_error=validation_error+1 ))
-            _msg_error "No package specified in '${bootstrap_packages}'." 0
-        fi
-    else
+    mapfile -t bootstrap_pkg_list_from_file < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+    bootstrap_pkg_list+=("${bootstrap_pkg_list_from_file[@]}")
+    if (( ${#bootstrap_pkg_list_from_file[@]} < 1 )); then
         (( validation_error=validation_error+1 ))
-        _msg_error "Bootstrap packages file '${bootstrap_packages}' does not exist." 0
+        _msg_error "No package specified in '${bootstrap_packages}'." 0
     fi
 
     _validate_common_requirements_buildmode_all
