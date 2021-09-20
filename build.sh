@@ -209,6 +209,7 @@ _chroot_run() {
     arch-chroot "${pacstrap_dir}" "${@}" || return "${?}"
 }
 
+# _cleanup_commonは_cleanup_pacstrap_dirとほぼ一緒ですが、まだ削除しないでください
 _cleanup_common () {
     _msg_info "Cleaning up what we can on airootfs..."
 
@@ -234,31 +235,6 @@ _cleanup_common () {
     [[ -d "${pacstrap_dir}/var/cache" ]] && find "${pacstrap_dir}/var/cache" -mindepth 1 -delete
 
     # Create an empty /etc/machine-id
-    printf '' > "${pacstrap_dir}/etc/machine-id"
-
-    _msg_info "Done!"
-}
-
-# Cleanup airootfs
-_cleanup_pacstrap_dir() {
-    _msg_info "Cleaning up in pacstrap location..."
-
-    # Delete all files in /boot
-    [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
-    # Delete pacman database sync cache files (*.tar.gz)
-    [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
-    # Delete pacman database sync cache
-    [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
-    # Delete pacman package cache
-    [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
-    # Delete all log files, keeps empty dirs.
-    [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
-    # Delete all temporary files and dirs
-    [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
-    # Delete package pacman related files.
-    find "${work_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
-    # Create an empty /etc/machine-id
-    rm -f -- "${pacstrap_dir}/etc/machine-id"
     printf '' > "${pacstrap_dir}/etc/machine-id"
 
     _msg_info "Done!"
@@ -462,6 +438,9 @@ prepare_build() {
 
     return 0
 }
+
+#-- AlterISO 3.1 functions --#
+# これらの関数は現在実行されません。それぞれの関数はAlterISO 4.0への移植後に削除してください。
 
 # Prepare /EFI
 make_efi() {
@@ -867,10 +846,9 @@ _make_pacman_conf() {
         sed "/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d;/\[options\]/a CacheDir = ${cache_dir}
         /\[options\]/a HookDir = ${pacstrap_dir}/etc/pacman.d/hooks/" > "${build_dir}/${buildmode}.pacman.conf"
 
+    [[ "${nosigcheck}" = true ]] && sed -i "/SigLevel/d; /\[options\]/a SigLebel = Never" "${pacman_conf}"
 
-    #[[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${pacman_conf}"
-
-    #[[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
+    [[ -n "$(find "${cache_dir}" -maxdepth 1 -name '*.pkg.tar.*' 2> /dev/null)" ]] && _msg_info "Use cached package files in ${cache_dir}"
 }
 
 # Prepare working directory and copy custom root file system files.
