@@ -1820,7 +1820,7 @@ _build_iso_base() {
     pacstrap_dir="${build_dir}/airootfs"
 
     # Create working directory
-    #[[ -d "${work_dir}" ]] || install -d -- "${work_dir}"
+    [[ -d "${pacstrap_dir}" ]] || install -d -- "${pacstrap_dir}"
     # Write build date to file or if the file exists, read it from there
     if [[ -e "${build_dir}/build_date" ]]; then
         SOURCE_DATE_EPOCH="$(<"${build_dir}/build_date")"
