@@ -1230,7 +1230,7 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
     # Calculate the required FAT image size in bytes
     efiboot_imgsize="$(du -bc \
         "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
-        "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" \
+        "${pacstrap_dir}/usr/share/edk2-shell/"* \
         "${script_path}/efiboot/${use_bootloader_type}" \
         "${pacstrap_dir}/boot/vmlinuz-"* \
         "${pacstrap_dir}/boot/initramfs-"*".img" \
@@ -1255,10 +1255,15 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
             "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
     done
 
+    # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
-    if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ]]; then
-        mcopy -i "${work_dir}/efiboot.img" \
-            "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" ::/shellx64.efi
+    local _shell
+    if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/" ]]; then
+        #install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
+        for _shell in "${pacstrap_dir}/usr/share/edk2-shell"*; do
+            [[ -e "${_shell}/Shell_Full.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell_Full.efi" "::/shell$(basename "${_shell}").efi" && continue
+            [[ -e "${_shell}/Shell.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell.efi" "::/shell$(basename "${_shell}").efi"
+        done
     fi
 
     # Copy kernel and initramfs to FAT image.
