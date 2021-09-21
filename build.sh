@@ -876,7 +876,7 @@ _make_packages() {
     fi
 
     # Remove --debug from packages list
-    readarray -t buildmode_pkg_list < <(printf "%s\n" "${buildmode_pkg_list[@]}" | grep -qx "--debug")
+    readarray -t buildmode_pkg_list < <(printf "%s\n" "${buildmode_pkg_list[@]}" | grep -xv -- "--debug")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
