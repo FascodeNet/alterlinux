@@ -1240,8 +1240,11 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
     _make_efibootimg "${efiboot_imgsize}"
 
     # Copy systemd-boot EFI binary to the default/fallback boot path
-    mcopy -i "${work_dir}/efiboot.img" \
-        "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" ::/EFI/BOOT/BOOTx64.EFI
+    local _boot
+    for _boot in "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi"; do
+        mcopy -i "${work_dir}/efiboot.img" "${_boot}" \
+        "::/EFI/BOOT/BOOT$(basename "${_boot}" | cut -d . -f 1 | sed "s|systemd-boot||g").EFI"
+    done
 
     # Copy systemd-boot configuration files
     mmd -i "${work_dir}/efiboot.img" ::/loader ::/loader/entries
@@ -1286,8 +1289,11 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
     install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
 
     # Copy systemd-boot EFI binary to the default/fallback boot path
-    install -m 0644 -- "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
-        "${isofs_dir}/EFI/BOOT/BOOTx64.EFI"
+    local _boot
+    for _boot in "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi"; do
+        install -m 0644 --" ${_boot}" \
+            "${isofs_dir}/EFI/BOOT/BOOT$(basename "${_boot}" | cut -d . -f 1 | sed "s|systemd-boot||g").EFI"
+    done
 
     # Copy systemd-boot configuration files
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
