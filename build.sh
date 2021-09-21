@@ -1291,7 +1291,7 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
     # Copy systemd-boot EFI binary to the default/fallback boot path
     local _boot
     for _boot in "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi"; do
-        install -m 0644 --" ${_boot}" \
+        install -m 0644 -- "${_boot}" \
             "${isofs_dir}/EFI/BOOT/BOOT$(basename "${_boot}" | cut -d . -f 1 | sed "s|systemd-boot||g").EFI"
     done
 
