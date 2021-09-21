@@ -786,8 +786,8 @@ make_efi() {
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
 
-    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-usb*.conf" -printf "%f\n" | grep -v "rescue")
-    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-usb*.conf" -printf "%f\n")
+    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "*-archiso-usb*.conf" -printf "%f\n" | grep -v "rescue")
+    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "*-archiso-usb*.conf" -printf "%f\n")
 
     for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
@@ -843,8 +843,8 @@ make_efiboot() {
 
     find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
 
-    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-cd*.conf" -printf "%f\n" | grep -v "rescue")
-    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-cd*.conf" -printf "%f\n")
+    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "*-archiso-cd*.conf" -printf "%f\n" | grep -v "rescue")
+    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "*-archiso-cd*.conf" -printf "%f\n")
 
     for _efi_config in "${_efi_config_list[@]}"; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
