@@ -1260,7 +1260,7 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
     local _shell
     if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/" ]]; then
         #install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
-        for _shell in "${pacstrap_dir}/usr/share/edk2-shell"*; do
+        for _shell in "${pacstrap_dir}/usr/share/edk2-shell/"*; do
             [[ -e "${_shell}/Shell_Full.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell_Full.efi" "::/shell$(basename "${_shell}").efi" && continue
             [[ -e "${_shell}/Shell.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell.efi" "::/shell$(basename "${_shell}").efi"
         done
@@ -1303,14 +1303,16 @@ _make_bootmode_uefi-x64.systemd-boot.eltorito() {
 
     # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
+    set -xv
     local _shell
     if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/" ]]; then
         #install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
-        for _shell in "${pacstrap_dir}/usr/share/edk2-shell"*; do
+        for _shell in "${pacstrap_dir}/usr/share/edk2-shell/"*; do
             [[ -e "${_shell}/Shell_Full.efi" ]] && install -m 0644 -- "${_shell}/Shell_Full.efi" "${isofs_dir}/shell$(basename "${_shell}").efi" && continue
             [[ -e "${_shell}/Shell.efi" ]] && install -m 0644 -- "${_shell}/Shell.efi" "${isofs_dir}/shell$(basename "${_shell}").efi"
         done
     fi
+    set +xv
 
     _msg_info "Done!"
 }
