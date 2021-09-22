@@ -406,98 +406,17 @@ prepare_build() {
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
 
-    return 0
+    # Set bootmodes
+    { [[ "${tarball}" = true ]] && ! printf "%s\n" "${buildmodes[@]}" | grep -qx "bootstrap"; } && buildmodes+=("tarball")
+    [[ "${noiso}" = true ]] && readarray -t buildmodes < <(printf "%s\n" "${buildmodes[@]}" | grep -xv "iso")
+
+    _msg_info "Done build preparation!"
 }
 
 #-- AlterISO 3.1 functions --#
 # これらの関数は現在実行されません。それぞれの関数はAlterISO 4.0への移植後に削除してください。
 
-# Prepare /EFI
-make_efi() {
-    local _bootfile _use_config_name="nosplash" _efi_config_list=() _efi_config
-    [[ "${boot_splash}" = true ]] && _use_config_name="splash"
-    _bootfile="$(basename "$(ls "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
 
-    install -d -m 0755 -- "${isofs_dir}/EFI/boot"
-    install -m 0644 -- "${pacstrap_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
-
-    install -d -m 0755 -- "${isofs_dir}/loader/entries"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
-
-    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-usb*.conf" -printf "%f\n" | grep -v "rescue")
-    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-usb*.conf" -printf "%f\n")
-
-    for _efi_config in "${_efi_config_list[@]}"; do
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%OS_NAME%|${os_name}|g;
-            s|%KERNEL_FILENAME%|${kernel_filename}|g;
-            s|%ARCH%|${arch}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/efiboot/${_use_config_name}/${_efi_config}" > "${isofs_dir}/loader/entries/$(basename "${_efi_config}" | sed "s|usb|${arch}|g")"
-    done
-
-    # edk2-shell based UEFI shell
-    local _efi_shell_arch
-    if [[ -d "${pacstrap_dir}/usr/share/edk2-shell" ]]; then
-        for _efi_shell_arch in $(find "${pacstrap_dir}/usr/share/edk2-shell" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I{} basename {}); do
-            if [[ -f "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" ]]; then
-                cp "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell_Full.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-            elif [[ -f "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" ]]; then
-                cp "${pacstrap_dir}/usr/share/edk2-shell/${_efi_shell_arch}/Shell.efi" "${isofs_dir}/EFI/shell_${_efi_shell_arch}.efi"
-            else
-                continue
-            fi
-            echo -e "title  UEFI Shell ${_efi_shell_arch}\nefi    /EFI/shell_${_efi_shell_arch}.efi" > "${isofs_dir}/loader/entries/uefi-shell-${_efi_shell_arch}.conf"
-        done
-    fi
-
-    return 0
-}
-
-# Prepare efiboot.img::/EFI for "El Torito" EFI boot mode
-make_efiboot() {
-    truncate -s 128M "${build_dir}/efiboot.img"
-    mkfs.fat -n ARCHISO_EFI "${build_dir}/efiboot.img"
-
-    mkdir -p "${build_dir}/efiboot"
-    mount "${build_dir}/efiboot.img" "${build_dir}/efiboot"
-
-    mkdir -p "${build_dir}/efiboot/EFI/alteriso/${arch}" "${build_dir}/efiboot/EFI/boot" "${build_dir}/efiboot/loader/entries"
-    cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${build_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
-    cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${build_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
-
-    local _ucode_image _efi_config _use_config_name="nosplash" _bootfile
-    for _ucode_image in "${pacstrap_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
-        [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${build_dir}/efiboot/EFI/alteriso/"
-    done
-
-    cp "${pacstrap_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
-
-    _bootfile="$(basename "$(ls "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    cp "${pacstrap_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
-
-    [[ "${boot_splash}" = true ]] && _use_config_name="splash"
-    sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
-
-    find "${isofs_dir}/loader/entries/" -maxdepth 1 -mindepth 1 -name "uefi-shell*" -type f -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/loader/entries/"
-
-    readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f -name "archiso-cd*.conf" -printf "%f\n" | grep -v "rescue")
-    [[ "${norescue_entry}" = false ]] && readarray -t _efi_config_list < <(find "${script_path}/efiboot/${_use_config_name}/" -mindepth 1 -maxdepth 1 -type f  -name "archiso-cd*.conf" -printf "%f\n")
-
-    for _efi_config in "${_efi_config_list[@]}"; do
-        sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-            s|%OS_NAME%|${os_name}|g;
-            s|%KERNEL_FILENAME%|${kernel_filename}|g;
-            s|%ARCH%|${arch}|g;
-            s|%INSTALL_DIR%|${install_dir}|g" \
-        "${script_path}/efiboot/${_use_config_name}/${_efi_config}" > "${build_dir}/efiboot/loader/entries/$(basename "${_efi_config}" | sed "s|cd|${arch}|g")"
-    done
-
-    find "${isofs_dir}/EFI" -maxdepth 1 -mindepth 1 -name "shell*.efi" -printf "%p\0" | xargs -0 -I{} cp {} "${build_dir}/efiboot/EFI/"
-    umount -d "${build_dir}/efiboot"
-
-    return 0
-}
 
 # Build airootfs filesystem image
 make_prepare() {
