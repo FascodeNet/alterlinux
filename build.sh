@@ -74,6 +74,9 @@ getclm() { cut -d " " -f "${1}"; }
 # 指定されたぶんの半角空白文字を出力します
 echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 
+# cpコマンドのラッパー
+_cp(){ cp -af --no-preserve=ownership,mode -- "${@}"; }
+
 _usage () {
     cat "${script_path}/docs/build.sh/help.1"
     local blank="29" _arch _dirname _type _output _first
@@ -527,7 +530,7 @@ make_packages_aur() {
     printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
 
     # prepare for yay
-    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    _cp "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
     _pacstrap --asdeps --needed "go" # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
 
     # Run aur script
@@ -548,11 +551,11 @@ make_pkgbuild() {
     mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
         msg_info "Find $(basename "${_dir}")"
-        cp -r "${_dir}" "${airootfs_dir}/pkgbuilds/"
+        _cp "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
     # copy buold script
-    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
+    _cp "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
     # Run build script
     _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
@@ -574,15 +577,15 @@ make_customize_airootfs() {
     for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
             msg_debug "Copying airootfs ${_airootfs} ..."
-            cp -af "${_airootfs}"/* "${airootfs_dir}"
+            _cp "${_airootfs}"/* "${airootfs_dir}"
         fi
     done
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
-        cp -f "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+        _cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     else
-        cp -f "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+        _cp "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     fi
     
     # customize_airootfs options
@@ -630,7 +633,7 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
+    _cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
     _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
     remove "${airootfs_dir}/${_main_script}"
 
@@ -646,15 +649,15 @@ make_setup_mkinitcpio() {
     mkdir -p "${airootfs_dir}/etc/initcpio/hooks" "${airootfs_dir}/etc/initcpio/install"
 
     for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
-        cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
+        _cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
+        _cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
     done
 
     sed -i "s|%COWSPACE%|${cowspace}|g" "${airootfs_dir}/etc/initcpio/hooks/archiso"
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
-    cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
-    cp "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
-    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+    _cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
+    _cp "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
+    _cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
     [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
 
     if [[ "${gpg_key}" ]]; then
@@ -672,8 +675,8 @@ make_setup_mkinitcpio() {
 # Prepare kernel/initramfs ${install_dir}/boot/
 make_boot() {
     mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
-    cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
-    cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
+    _cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
+    _cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
 
     return 0
 }
@@ -710,7 +713,7 @@ make_syslinux() {
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${build_dir}/syslinux/"
-    cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
+    _cp "${script_path}/syslinux/"* "${build_dir}/syslinux/"
     [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]] && cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
 
     # copy all syslinux config to work dir
@@ -734,8 +737,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
-    [[ -f "${channel_dir}/splash.png" ]] && cp -f "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
+    _cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
+    [[ -f "${channel_dir}/splash.png" ]] && _cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
 
     # remove config
     local _remove_config
@@ -748,9 +751,9 @@ make_syslinux() {
     [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
 
     # copy files
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
-    cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
+    _cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
+    _cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
+    _cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
 
 
     if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
@@ -825,18 +828,18 @@ make_efiboot() {
     mount "${build_dir}/efiboot.img" "${build_dir}/efiboot"
 
     mkdir -p "${build_dir}/efiboot/EFI/alteriso/${arch}" "${build_dir}/efiboot/EFI/boot" "${build_dir}/efiboot/loader/entries"
-    cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${build_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
-    cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${build_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
+    _cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${build_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
+    _cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${build_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
 
     local _ucode_image _efi_config _use_config_name="nosplash" _bootfile
     for _ucode_image in "${airootfs_dir}/boot/"{intel-uc.img,intel-ucode.img,amd-uc.img,amd-ucode.img,early_ucode.cpio,microcode.cpio}; do
-        [[ -e "${_ucode_image}" ]] && cp "${_ucode_image}" "${build_dir}/efiboot/EFI/alteriso/"
+        [[ -e "${_ucode_image}" ]] && _cp "${_ucode_image}" "${build_dir}/efiboot/EFI/alteriso/"
     done
 
-    cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
+    _cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
 
     _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
+    _cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
 
     [[ "${boot_splash}" = true ]] && _use_config_name="splash"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
