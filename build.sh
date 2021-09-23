@@ -675,8 +675,8 @@ make_setup_mkinitcpio() {
 # Prepare kernel/initramfs ${install_dir}/boot/
 make_boot() {
     mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
-    _cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
-    _cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
+    install -m 0644 --  "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
+    install -m 0644 --  "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
 
     return 0
 }
@@ -737,8 +737,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    _cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
-    [[ -f "${channel_dir}/splash.png" ]] && _cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
+    install -m 0644 -- "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux/"
+    [[ -f "${channel_dir}/splash.png" ]] && install -m 0644 -- "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
 
     # remove config
     local _remove_config
@@ -751,9 +751,9 @@ make_syslinux() {
     [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
 
     # copy files
-    _cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
-    _cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
-    _cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${pacstrap_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux/"
 
 
     if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
