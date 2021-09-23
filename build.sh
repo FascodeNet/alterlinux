@@ -583,9 +583,9 @@ make_customize_airootfs() {
 
     # Replace /etc/mkinitcpio.conf if Plymouth is enabled.
     if [[ "${boot_splash}" = true ]]; then
-        _cp "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+        install -m 0644 -- "${script_path}/mkinitcpio/mkinitcpio-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     else
-        _cp "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
+        install -m 0644 -- "${script_path}/mkinitcpio/mkinitcpio.conf" "${airootfs_dir}/etc/mkinitcpio.conf"
     fi
     
     # customize_airootfs options
@@ -633,7 +633,7 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    _cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
+    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
     _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
     remove "${airootfs_dir}/${_main_script}"
 
@@ -649,15 +649,15 @@ make_setup_mkinitcpio() {
     mkdir -p "${airootfs_dir}/etc/initcpio/hooks" "${airootfs_dir}/etc/initcpio/install"
 
     for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
-        _cp "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
-        _cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
+        install -m 0644 -- "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
+        install -m 0644 -- "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
     done
 
     sed -i "s|%COWSPACE%|${cowspace}|g" "${airootfs_dir}/etc/initcpio/hooks/archiso"
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
-    _cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
-    _cp "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
-    _cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+    install -m 0644 -- "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
+    install -m 0755 -- "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
+    install -m 0644 -- "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
     [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
 
     if [[ "${gpg_key}" ]]; then
@@ -675,8 +675,8 @@ make_setup_mkinitcpio() {
 # Prepare kernel/initramfs ${install_dir}/boot/
 make_boot() {
     mkdir -p "${isofs_dir}/${install_dir}/boot/${arch}"
-    _cp "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
-    _cp "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
+    install -m 0644 --  "${airootfs_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img"
+    install -m 0644 --  "${airootfs_dir}/boot/${kernel_filename}" "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}"
 
     return 0
 }
@@ -737,8 +737,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    _cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
-    [[ -f "${channel_dir}/splash.png" ]] && _cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
+    install -m 0644 -- "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux/"
+    [[ -f "${channel_dir}/splash.png" ]] && install -m 0644 -- "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
 
     # remove config
     local _remove_config
@@ -751,9 +751,9 @@ make_syslinux() {
     [[ "${memtest86}"      = false ]] && _remove_config memtest86.cfg
 
     # copy files
-    _cp "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux"
-    _cp "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux"
-    _cp "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/"*.c32 "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/lpxelinux.0" "${isofs_dir}/syslinux/"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/syslinux/bios/memdisk" "${isofs_dir}/syslinux/"
 
 
     if [[ -e "${isofs_dir}/syslinux/hdt.c32" ]]; then
