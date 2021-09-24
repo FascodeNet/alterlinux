@@ -49,7 +49,7 @@ readonly ucodes=('intel-uc.img' 'intel-ucode.img' 'amd-uc.img' 'amd-ucode.img' '
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
-for config in "${defaultconfig}" "${script_path}/custom.conf"; do
+for config in "${defaultconfig}" "${script_path}/custom.conf" "${script_path}/lib/"*".sh"; do
     [[ -f "${config}" ]] && source "${config}" && loaded_files+=("${config}")
 done
 
@@ -106,7 +106,7 @@ _usage () {
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
-            echo "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")$("${tools_dir}/${_type}.sh" -a "${_arch}" show)"
+            echo "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")$("_${_type}_list" | sed "/^$/d" | tr "\n" " ")"
         done
         echo
     done
@@ -358,7 +358,7 @@ prepare_build() {
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
 
     # Parse files
-    eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
+    eval "$(_locale_get)"
     eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
     # Set username and password
