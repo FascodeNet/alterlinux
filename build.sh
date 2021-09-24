@@ -460,18 +460,6 @@ make_prepare() {
     return 0
 }
 
-make_alteriso_info(){
-    # iso version info
-    if [[ "${include_info}" = true ]]; then
-        local _info_file="${isofs_dir}/alteriso-info" _version="${iso_version}"
-        remove "${_info_file}"; touch "${_info_file}"
-        [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]] && _version="${iso_version}-${gitrev}"
-        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" -m "$(printf "%s," "${modules[@]}")" > "${_info_file}"
-    fi
-
-    return 0
-}
-
 # Add files to the root of isofs
 make_overisofs() {
     local _over_isofs_list _isofs
@@ -993,6 +981,16 @@ _make_bootmodes() {
     for bootmode in "${bootmodes[@]}"; do
         _run_once "_make_bootmode_${bootmode}"
     done
+}
+
+# Create alteriso-info file
+_make_alteriso_info(){
+    # iso version info
+    if [[ "${include_info}" = true ]]; then
+        local _info_file="${isofs_dir}/alteriso-info"
+        remove "${_info_file}"; touch "${_info_file}"
+        _alteriso_info > "${_info_file}"
+    fi
 }
 
 # Copy kernel and initramfs to ISO 9660
@@ -1774,6 +1772,7 @@ _build_iso_base() {
     _run_once _make_setup_mkinitcpio
     _run_once _make_pkglist
     _make_bootmodes
+    _run_once _make_alteriso_info
     _run_once _cleanup_pacstrap_dir
     _run_once _prepare_airootfs_image
 }
