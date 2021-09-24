@@ -22,7 +22,7 @@ _kernel_list() {
 }
 
 _kernel_check() {
-    _kernel_list | grep -qx "${kernel_name}"
+    _kernel_list | grep -qx "${kernel}"
 }
 
 _kernel_get() {
@@ -31,8 +31,8 @@ _kernel_get() {
 
     # 不正なカーネル名なら終了する
     if ! _kernel_check; then
-        msg_error "Invalid kernel ${kernel_name}"
-        exit 1
+        msg_error "Invalid kernel ${kernel}"
+        echo "exit 1" && exit 1
     fi
 
     # 設定ファイルを探す
@@ -43,7 +43,7 @@ _kernel_get() {
     fi
 
     # カーネル設定ファイルから該当の行を抽出
-    readarray -t _kernel_config_line < <(awk "{if(\$1 == \"${kernel_name}\"){printf \$0\"\n\"}}" < "${_kernel_config_file}" | tr " " "\n" | sed "/^$/d")
+    readarray -t _kernel_config_line < <(awk "{if(\$1 == \"${kernel}\"){printf \$0\"\n\"}}" < "${_kernel_config_file}" | tr " " "\n" | sed "/^$/d")
 
     # 抽出された行に書かれた設定をそれぞれの変数に代入
     # ここで定義された変数のみがグローバル変数

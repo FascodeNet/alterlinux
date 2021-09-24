@@ -359,7 +359,7 @@ prepare_build() {
 
     # Parse files
     eval "$(_locale_get)"
-    eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
+    eval "$(_kernel_get)"
 
     # Set username and password
     [[ "${customized_username}" = false ]] && username="${defaultusername}"

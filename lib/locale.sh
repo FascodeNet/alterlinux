@@ -25,7 +25,7 @@ _locale_get() {
     # 不正なロケール名なら終了する
     if ! _locale_check; then
         _msg_error "${locale_name} is not a valid language."
-        exit 1
+        echo "exit 1" && exit 1
     fi
 
     # ロケール設定ファイルから該当の行を抽出
