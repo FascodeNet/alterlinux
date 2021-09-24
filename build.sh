@@ -410,6 +410,9 @@ prepare_build() {
     { [[ "${tarball}" = true ]] && ! printf "%s\n" "${buildmodes[@]}" | grep -qx "bootstrap"; } && buildmodes+=("tarball")
     [[ "${noiso}" = true ]] && readarray -t buildmodes < <(printf "%s\n" "${buildmodes[@]}" | grep -xv "iso")
 
+    # Set squashfs option
+    airootfs_image_tool_options=(-noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}")
+
     _msg_info "Done build preparation!"
 }
 
