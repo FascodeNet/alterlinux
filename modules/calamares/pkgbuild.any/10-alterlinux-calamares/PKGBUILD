@@ -1,14 +1,13 @@
 # Maintainer: lap1sid <development@fascode.net>
 
 pkgname=alterlinux-calamares
-_reponame=alterlinux-calamares-old
-pkgver="3.2.35"
-pkgrel=3
-_pkgrel='b2'
+_reponame=calamares
+pkgver="3.2.44.2"
+pkgrel=1
 pkgdesc='Distribution-independent installer framework'
 arch=('i686' 'x86_64')
 license=(GPL)
-url="https://github.com/FascodeNet/alterlinux-calamares"
+url="https://github.com/calamares/calamares"
 license=('LGPL')
 depends=('kconfig' 'kcoreaddons' 'kiconthemes' 'ki18n' 'kio' 'solid' 'yaml-cpp' 'kpmcore'
          'boost-libs' 'hwinfo' 'qt5-svg' 'polkit-qt5' 'gtk-update-icon-cache' 'plasma-framework'
@@ -21,27 +20,22 @@ backup=(
         'usr/share/calamares/modules/unpackfs.conf'
         'usr/share/calamares/modules/removeuser.conf'
         'usr/share/calamares/modules/users.conf'
-        'usr/share/calamares/branding/alter/branding.desc'
 )
 
-source+=("${url}/archive/${pkgver}-${pkgrel}.tar.gz")
-#source+=("$url/archive/$pkgver-$_pkgrel.tar.gz")
-
+source+=("${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
 prepare() {
-    # rename
-    mv "${srcdir}/${_reponame}-${pkgver}-${pkgrel}" "${srcdir}/${pkgver}-${pkgrel}"
-    #mv ${srcdir}/${pkgname}-${pkgver}-${_pkgrel} ${srcdir}/${pkgver}-${pkgrel}
-    cd "${srcdir}/${pkgver}-${pkgrel}"
+    cd "${srcdir}/${_reponame}-${pkgver}"
     sed -i -e 's/"Install configuration files" OFF/"Install configuration files" ON/' CMakeLists.txt
 
-    # change branding
-    sed -i -e "s/default/alter/g" src/branding/CMakeLists.txt
+    for _desktop in "calamares.desktop" "calamares.desktop.in"; do
+        sed -ie 's|sh -c "pkexec calamares"|sh -c "pkexec QT_QPA_PLATFORMTHEME=qt5ct calamares"|g' "${srcdir}/${_dir}/${_desktop}"
+    done
 }
 
 build() {
-    cd ${srcdir}/${pkgver}-${pkgrel}
+    cd "${srcdir}/${_reponame}-${pkgver}"
 
     mkdir -p build
     cd build
@@ -60,18 +54,6 @@ build() {
 }
 
 package() {
-    cd ${srcdir}/${pkgver}-${pkgrel}/build
+    cd "${srcdir}/${_reponame}-${pkgver}/build"
     DESTDIR="$pkgdir" ninja install
-    install -Dm755 "../data/final-process" "$pkgdir/usr/share/calamares/final-process"
-    install -Dm644 "../data/alter-icon.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/calamares.svg"
-    install -Dm644 "../data/calamares.desktop" "$pkgdir/usr/share/applications/calamares.desktop"
-    install -Dm755 "../data/calamares_polkit" "$pkgdir/usr/bin/calamares_polkit"
-    install -Dm644 "../data/49-nopasswd-calamares.rules" "$pkgdir/etc/polkit-1/rules.d/49-nopasswd-calamares.rules"
-    chmod 750      "$pkgdir"/etc/polkit-1/rules.d
-
-    # rename services-systemd back to services
-    mv "$pkgdir/usr/lib/calamares/modules/services-systemd" "$pkgdir/usr/lib/calamares/modules/services"
-    mv "$pkgdir/usr/share/calamares/modules/services-systemd.conf" "$pkgdir/usr/share/calamares/modules/services.conf"
-    sed -i -e 's/-systemd//' "$pkgdir/usr/lib/calamares/modules/services/module.desc"
-    sed -i -e 's/-systemd//' "$pkgdir/usr/share/calamares/settings.conf"
 }
