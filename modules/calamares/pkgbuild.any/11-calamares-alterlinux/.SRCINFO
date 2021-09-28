@@ -1,0 +1,12 @@
+pkgbase = calamares-alterlinux
+	pkgdesc = Calamares configs for AlterLinux
+	pkgver = 1.0
+	pkgrel = 1
+	url = https://github.com/FascodeNet/calamares-extensions
+	arch = any
+	license = GPLv3
+	makedepends = git
+	source = git+https://github.com/FascodeNet/calamares-extensions.git#tag=v1.0
+	md5sums = SKIP
+
+pkgname = calamares-alterlinux

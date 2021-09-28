@@ -1,0 +1,53 @@
+# Maintaoner: Yamada Hayao <development@fascode.net>
+
+_pkgname="calamares-extensions"
+pkgname="calamares-alterlinux"
+pkgver=1.0
+pkgrel=1
+pkgdesc="Calamares configs for AlterLinux"
+arch=('any')
+url="https://github.com/FascodeNet/calamares-extensions"
+license=('GPLv3')
+depends=(
+    #"calamares"
+    #"alterlinux-calamares"
+)
+makedepends=('git')
+source=("git+${url}.git#tag=v${pkgver}")
+md5sums=('SKIP')
+
+_dir="${_pkgname}"
+
+
+build(){
+    mkdir -p "${srcdir}/${_dir}/build"
+    cd "${srcdir}/${_dir}/build"
+    cmake .. \
+        -Wno-dev \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DWITH_PYTHONQT:BOOL=ON \
+        -DBoost_NO_BOOST_CMAKE=ON
+    make
+}
+
+package() {
+    # Install extensions
+    cd "${srcdir}/${_dir}/build"
+    DESTDIR="${pkgdir}" make install
+
+    # Install configs
+    install -Dm644 "${srcdir}/${_dir}/settings.conf" "${pkgdir}/etc/calamares/settings.conf"
+    for _conf in "${srcdir}/${_dir}/module-conf/"*".conf"; do
+        install -Dm644 "${_conf}" "${pkgdir}/etc/calamares/modules/$(basename "${_conf}")"
+    done
+
+    # Install data
+    install -Dm755 "${srcdir}/${_dir}/data/final-process" "$pkgdir/etc/calamares/final-process"
+    #install -Dm644 "${srcdir}/${_dir}/data/alter-icon.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/calamares.svg"
+    #install -Dm644 "${srcdir}/${_dir}/data/calamares.desktop" "$pkgdir/usr/share/applications/calamares.desktop"
+    #install -Dm755 "${srcdir}/${_dir}/data/calamares_polkit" "$pkgdir/usr/bin/calamares_polkit"
+    install -Dm644 "${srcdir}/${_dir}/data/49-nopasswd-calamares.rules" "$pkgdir/etc/polkit-1/rules.d/49-nopasswd-calamares.rules"
+    chmod 750      "$pkgdir"/etc/polkit-1/rules.d
+}
