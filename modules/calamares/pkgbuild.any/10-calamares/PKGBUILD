@@ -1,6 +1,6 @@
 # Maintainer: lap1sid <development@fascode.net>
 
-pkgname=alterlinux-calamares
+pkgname=calamares
 _reponame=calamares
 pkgver="3.2.44.2"
 pkgrel=1
@@ -21,6 +21,7 @@ backup=(
         'usr/share/calamares/modules/removeuser.conf'
         'usr/share/calamares/modules/users.conf'
 )
+provides=("alterlinux-calamares")
 
 source+=("${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')

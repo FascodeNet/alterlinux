@@ -1,4 +1,4 @@
-pkgbase = alterlinux-calamares
+pkgbase = calamares
 	pkgdesc = Distribution-independent installer framework
 	pkgver = 3.2.44.2
 	pkgrel = 1
@@ -30,6 +30,7 @@ pkgbase = alterlinux-calamares
 	depends = squashfs-tools
 	depends = ckbcomp
 	depends = libffi
+	provides = alterlinux-calamares
 	backup = usr/share/calamares/modules/bootloader.conf
 	backup = usr/share/calamares/modules/displaymanager.conf
 	backup = usr/share/calamares/modules/initcpio.conf
@@ -39,4 +40,4 @@ pkgbase = alterlinux-calamares
 	source = https://github.com/calamares/calamares/archive/refs/tags/v3.2.44.2.tar.gz
 	sha256sums = SKIP
 
-pkgname = alterlinux-calamares
+pkgname = calamares
