@@ -312,8 +312,7 @@ prepare_env() {
 error_exit_trap(){
     local _exit="${?}" _line="${1}" && shift 1
     msg_error "An exception error occurred in the function"
-    msg_error "Exit Code: ${_exit}\nLine: ${_line}\nArgument: ${ARGUMENT[*]}"
-    exit "${_exit}"
+    msg_error "Exit Code: ${_exit}\nLine: ${_line}\nArgument: ${ARGUMENT[*]}" "${_exit}"
 }
 
 # Show settings.
