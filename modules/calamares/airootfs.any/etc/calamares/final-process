@@ -12,12 +12,13 @@ function remove () {
 while getopts 'u:' arg; do
     case "${arg}" in
         u) user="${OPTARG}";;
+        *) true            ;;
     esac
 done
 
 function remove_user_file(){
-    remove "/etc/skel/${@}"
-    remove "/home/${user}/${@}"
+    remove "/etc/skel/${*}"
+    remove "/home/${user}/${*}"
 }
 
 
