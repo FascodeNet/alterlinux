@@ -4,17 +4,10 @@ set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 script_name="$(basename "$(realpath "${0}")")"
+user="${1-"alter"}"
 
-function remove () {
-    rm -rf "${@}"
-}
+function remove () { rm -rf "${@}"; }
 
-while getopts 'u:' arg; do
-    case "${arg}" in
-        u) user="${OPTARG}";;
-        *) true            ;;
-    esac
-done
 
 function remove_user_file(){
     remove "/etc/skel/${*}"
@@ -63,10 +56,3 @@ fi
 
 # Remove sudo files
 remove "/etc/sudoers.d/alterlive"
-
-# 追加のスクリプトを実行
-if [[ -d "${script_path}/${script_name}.d/" ]]; then
-    for extra_script in "${script_path}/${script_name}.d/"*; do
-        bash -c "${extra_script} ${user}"
-    done
-fi
