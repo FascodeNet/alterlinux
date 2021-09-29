@@ -426,7 +426,7 @@ prepare_build() {
         mkdir -p "$(dirname "${logging}")" && touch "${logging}"
         msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend --rerun 2>&1 | tee "${logging}"
-        exit "${?}"
+        exit "${PIPESTATUS[0]}"
     fi
 
     # Set argument of pkglist.sh
@@ -1196,6 +1196,6 @@ if [[ "${noiso}" = false ]]; then
     run_once make_iso
 fi
 
-[[ "${cleaning}" = true ]] && _run_cleansh
+[[ "${cleaning}" = true ]] || true && _run_cleansh
 
 exit
