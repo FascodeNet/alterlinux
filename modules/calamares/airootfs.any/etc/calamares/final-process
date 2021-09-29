@@ -61,6 +61,9 @@ if type dconf > /dev/null 2>&1 ; then
     dconf update
 fi
 
+# Remove sudo files
+remove "/etc/sudoers.d/alterlive"
+
 # 追加のスクリプトを実行
 if [[ -d "${script_path}/${script_name}.d/" ]]; then
     for extra_script in "${script_path}/${script_name}.d/"*; do
