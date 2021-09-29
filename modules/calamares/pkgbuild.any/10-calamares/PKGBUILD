@@ -31,7 +31,7 @@ prepare() {
     sed -i -e 's/"Install configuration files" OFF/"Install configuration files" ON/' CMakeLists.txt
 
     for _desktop in "calamares.desktop" "calamares.desktop.in"; do
-        sed -ie 's|sh -c "pkexec calamares"|sh -c "pkexec QT_QPA_PLATFORMTHEME=qt5ct calamares"|g' "${srcdir}/${_dir}/${_desktop}"
+        sed -ie 's|sh -c "pkexec calamares"|sh -c "pkexec QT_QPA_PLATFORMTHEME=qt5ct calamares"|g' "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
     done
 }
 

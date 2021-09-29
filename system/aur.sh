@@ -65,7 +65,7 @@ if ! user_check "${aur_username}"; then
     useradd -m -d "/aurbuild_temp" "${aur_username}"
 fi
 mkdir -p "/aurbuild_temp"
-chmod 700 -R "/aurbuild_temp"
+chmod 700 "/aurbuild_temp"
 chown "${aur_username}:${aur_username}" -R "/aurbuild_temp"
 echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
