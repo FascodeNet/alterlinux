@@ -1198,4 +1198,4 @@ fi
 
 [[ "${cleaning}" = true ]] && _run_cleansh
 
-exit 0
+exit
