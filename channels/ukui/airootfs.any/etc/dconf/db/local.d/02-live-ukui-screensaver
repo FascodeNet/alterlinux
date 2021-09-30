@@ -1,0 +1,4 @@
+[org/ukui/screensaver]
+idle-activation-enabled=false
+lock-enabled=false
+mode='default-ukui'

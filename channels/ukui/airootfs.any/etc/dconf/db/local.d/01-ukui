@@ -1,0 +1,18 @@
+[org/gnome/desktop/wm/preferences]
+titlebar-font='Noto Sans CJK JP 11'
+
+[org/mate/desktop/background]
+picture-filename='/usr/share/backgrounds/calla.png'
+
+[org/mate/desktop/interface]
+document-font-name='Noto Sans CJK JP 10'
+font-name='Noto Sans CJK JP 10'
+gtk-theme='ukui-dark'
+monospace-font-name='SauceCodePro Nerd Font Mono 10'
+
+[org/ukui/control-center/panel/plugins]
+calendar='solarlunar'
+
+[org/ukui/style]
+style-name='ukui-dark'
+system-font='Noto Sans CJK JP'
