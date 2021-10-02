@@ -26,13 +26,23 @@ provides=("alterlinux-calamares")
 source+=("${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
+# Set this variable false to disable patch for Alter Linux
+patch_alterlinux=true
+
+is_patch_enabled(){ [[ "${patch_alterlinux}" = true ]]; }
+
 prepare() {
     cd "${srcdir}/${_reponame}-${pkgver}"
     sed -i -e 's/"Install configuration files" OFF/"Install configuration files" ON/' CMakeLists.txt
 
-    for _desktop in "calamares.desktop" "calamares.desktop.in"; do
-        sed -ie 's|sh -c "pkexec calamares"|sh -c "pkexec QT_QPA_PLATFORMTHEME=qt5ct calamares"|g' "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
-    done
+    if is_patch_enabled; then
+        for _desktop in "calamares.desktop" "calamares.desktop.in"; do
+            sed -ie 's|sh -c "pkexec calamares"|sh -c "pkexec QT_QPA_PLATFORMTHEME=qt5ct calamares"|g' "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+            sed -i "s|^Icon=calamares$|Icon=/usr/share/icons/hicolor/scalable/apps/calamares-alterlinux.svg|g" "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+            sed -i "s|^Name=Install System$|Name=Install Alter Linux|g;
+                    s|システム|Alter Linux|g" "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+        done
+    fi
 }
 
 build() {
