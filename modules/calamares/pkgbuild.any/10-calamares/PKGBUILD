@@ -37,7 +37,7 @@ prepare() {
 
     if is_patch_enabled; then
         for _desktop in "calamares.desktop" "calamares.desktop.in"; do
-            sed -ie 's|sh -c "pkexec calamares"|sh -c "pkexec QT_QPA_PLATFORMTHEME=qt5ct calamares"|g' "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+            sed -ie 's|sh -c "pkexec calamares"|sh -c "sudo -E calamares|g"' "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
             sed -i "s|^Icon=calamares$|Icon=/usr/share/icons/hicolor/scalable/apps/calamares-alterlinux.svg|g" "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
             sed -i "s|^Name=Install System$|Name=Install Alter Linux|g;
                     s|システム|Alter Linux|g" "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
