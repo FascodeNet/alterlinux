@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # Create Calamares Entry
-if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then
-    cp -a "/etc/skel/Desktop/calamares.desktop" "/usr/share/applications/calamares.desktop"
-fi
+#if [[ -f "/etc/skel/Desktop/calamares.desktop" ]]; then
+#    cp -a "/etc/skel/Desktop/calamares.desktop" "/usr/share/applications/calamares.desktop"
+#fi
 
 # Configure Plymouth settings
 if [[ "${boot_splash}" = true ]]; then
