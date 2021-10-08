@@ -195,41 +195,41 @@ _chroot_run() {
 }
 
 # _cleanup_commonは_cleanup_pacstrap_dirとほぼ一緒ですが、まだ削除しないでください
-_cleanup_common () {
-    _msg_info "Cleaning up what we can on airootfs..."
+# _cleanup_common () {
+#     _msg_info "Cleaning up what we can on airootfs..."
 
-    # Delete pacman database sync cache files (*.tar.gz)
-    [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
+#     # Delete pacman database sync cache files (*.tar.gz)
+#     [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
 
-    # Delete pacman database sync cache
-    [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
+#     # Delete pacman database sync cache
+#     [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
 
-    # Delete pacman package cache
-    [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
+#     # Delete pacman package cache
+#     [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
 
-    # Delete all log files, keeps empty dirs.
-    [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
+#     # Delete all log files, keeps empty dirs.
+#     [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
 
-    # Delete all temporary files and dirs
-    [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
+#     # Delete all temporary files and dirs
+#     [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
 
-    # Delete package pacman related files.
-    find "${build_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
+#     # Delete package pacman related files.
+#     find "${build_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
 
-    # Delete all cache file
-    [[ -d "${pacstrap_dir}/var/cache" ]] && find "${pacstrap_dir}/var/cache" -mindepth 1 -delete
+#     # Delete all cache file
+#     [[ -d "${pacstrap_dir}/var/cache" ]] && find "${pacstrap_dir}/var/cache" -mindepth 1 -delete
 
-    # Create an empty /etc/machine-id
-    printf '' > "${pacstrap_dir}/etc/machine-id"
+#     # Create an empty /etc/machine-id
+#     printf '' > "${pacstrap_dir}/etc/machine-id"
 
-    _msg_info "Done!"
-}
+#     _msg_info "Done!"
+# }
 
-_cleanup_airootfs(){
-    _cleanup_common
-    # Delete all files in /boot
-    [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
-}
+# _cleanup_airootfs(){
+#     _cleanup_common
+#     # Delete all files in /boot
+#     [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
+# }
 
 _mkimagechecksum() {
     _msg_info "Creating md5 checksum ..."
@@ -432,7 +432,7 @@ make_prepare() {
 
     # Cleanup
     remove "${pacstrap_dir}/root/optimize_for_tarball.sh"
-    _cleanup_airootfs
+    _cleanup_pacstrap_dir
 
     # Create squashfs
     mkdir -p -- "${isofs_dir}/${install_dir}/${arch}"
