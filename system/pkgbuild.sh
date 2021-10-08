@@ -74,7 +74,7 @@ if ! user_check "${build_username}"; then
     useradd -m -d "${pkgbuild_dir}" "${build_username}"
 fi
 mkdir -p "${pkgbuild_dir}"
-chmod 700 -R "${pkgbuild_dir}"
+chmod 700 "${pkgbuild_dir}"
 chown -R "${build_username}" "${pkgbuild_dir}"
 echo "${build_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/pkgbuild"
 

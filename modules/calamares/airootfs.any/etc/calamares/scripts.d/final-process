@@ -4,22 +4,18 @@ set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 script_name="$(basename "$(realpath "${0}")")"
+user="${1-"alter"}"
 
-function remove () {
-    rm -rf "${@}"
-}
+function remove () { rm -rf "${@}"; }
 
-while getopts 'u:' arg; do
-    case "${arg}" in
-        u) user="${OPTARG}";;
-    esac
-done
 
 function remove_user_file(){
-    remove "/etc/skel/${@}"
-    remove "/home/${user}/${@}"
+    remove "/etc/skel/${*}"
+    remove "/home/${user}/${*}"
 }
 
+
+(( UID != 0 )) && echo "You need run the script with root permission!" >&2 && exit 1
 
 remove /etc/skel/Desktop
 remove /usr/share/calamares/
@@ -60,9 +56,5 @@ if type dconf > /dev/null 2>&1 ; then
     dconf update
 fi
 
-# 追加のスクリプトを実行
-if [[ -d "${script_path}/${script_name}.d/" ]]; then
-    for extra_script in "${script_path}/${script_name}.d/"*; do
-        bash -c "${extra_script} ${user}"
-    done
-fi
+# Remove sudo files
+remove "/etc/sudoers.d/alterlive"

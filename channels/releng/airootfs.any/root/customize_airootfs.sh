@@ -93,5 +93,6 @@ touch /etc/arch-release
 
 remove "/etc/plymouth"
 remove "/usr/share/calamares"
+remove "/etc/calamares"
 remove "/home/hayao/Git/alterlinux/channels/share/airootfs.any/etc/polkit-1/rules.d/01-nopasswork.rules"
 remove "/home/hayao/Git/alterlinux/channels/share/airootfs.any/etc/polkit-1/rules.d/10-enable-mount.rules"

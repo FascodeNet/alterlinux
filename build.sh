@@ -105,6 +105,9 @@ getclm() { cut -d " " -f "${1}"; }
 # 指定されたぶんの半角空白文字を出力します
 echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 
+# cpコマンドのラッパー
+_cp(){ cp -af --no-preserve=ownership,mode -- "${@}"; }
+
 _usage () {
     cat "${script_path}/docs/build.sh/help.1"
     local blank="29" _arch _dirname _type _output _first
@@ -358,7 +361,7 @@ prepare_build() {
         mkdir -p "$(dirname "${logging}")" && touch "${logging}"
         _msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend --rerun 2>&1 | tee "${logging}"
-        exit "${?}"
+        exit "${PIPESTATUS[0]}"
     fi
 
     # Set argument of pkglist.sh
@@ -989,7 +992,7 @@ _make_bootmode_bios.syslinux.mbr() {
 
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${build_dir}/syslinux/"
-    cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
+    _cp "${script_path}/syslinux/"* "${build_dir}/syslinux/"
     [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]] && cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
 
     install -d -m 0755 -- "${isofs_dir}/syslinux"
@@ -1926,13 +1929,11 @@ while true; do
             _msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
-            customized_kernel=true
-            kernel="${2}"
+            customized_kernel=true kernel="${2}"
             shift 2
             ;;
         -p | --password)
-            customized_password=true
-            password="${2}"
+            customized_password=true password="${2}"
             shift 2
             ;;
         -t | --comp-opts)
@@ -1949,14 +1950,11 @@ while true; do
             shift 2
             ;;
         --nodebug)
-            debug=false
-            msgdebug=false
-            bash_debug=false
+            debug=false msgdebug=false bash_debug=false
             shift 1
             ;;
         --logpath)
-            logging="${2}"
-            customized_logpath=true
+            logging="${2}" customized_logpath=true
             shift 2
             ;;
         --add-module)
@@ -2084,8 +2082,8 @@ prepare_build
 _validate_options
 _build
 
-[[ "${cleaning}" = true ]] && _run_cleansh
+[[ "${cleaning}" = true ]] || true && _run_cleansh
 
-exit 0
+exit
 
 # vim:ts=4:sw=4:et:

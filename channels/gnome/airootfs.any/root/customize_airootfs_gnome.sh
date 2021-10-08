@@ -29,7 +29,8 @@ remove_userfile "Desktop/calamares.desktop"
 
 # Optimize for i686
 if [[ "${arch}" = "i686" ]]; then
-    for _file in "/etc/dconf/db/local.d/01-alter-gnome" "/etc/dconf/db/local.d/02-live-installer-panel"; do
+    # shellcheck disable=SC2043
+    for _file in "/etc/dconf/db/local.d/01-alter-gnome"; do
         sed -i "s|chromium.desktop|firefox.desktop|g; s|Chromium|FireFox|g; s|chromium|firefox|g" "${_file}"
     done
 fi
