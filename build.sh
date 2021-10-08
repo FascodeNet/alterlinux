@@ -11,6 +11,10 @@
 # The main script that runs the build
 #
 
+# Control the environment
+umask 0022
+export LC_ALL="C"
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 set -Eeu
 
 # Internal config
@@ -76,6 +80,7 @@ _msg_info() { msg_common info "${@}"; }
 # Show an Warning message
 # ${1}: message string
 _msg_warn() { msg_common warn "${@}"; }
+_msg_warning() { _msg_warn "${@}"; }
 
 # Show an debug message
 # ${1}: message string
@@ -84,8 +89,8 @@ _msg_debug() {
 }
 
 # Show an ERROR message then exit with status
-# ${1}: message string
-# ${2}: exit code number (with 0 does not exit)
+# $1: message string
+# $2: exit code number (with 0 does not exit)
 _msg_error() {
     msg_common error "${1}"
     { [[ -n "${2:-""}" ]] && (( "${2}" > 0 )); } && exit "${2}" || return 0
@@ -193,43 +198,6 @@ _chroot_run() {
     _msg_debug "Run command in chroot\nCommand: ${*}"
     arch-chroot "${pacstrap_dir}" "${@}" || return "${?}"
 }
-
-# _cleanup_commonは_cleanup_pacstrap_dirとほぼ一緒ですが、まだ削除しないでください
-# _cleanup_common () {
-#     _msg_info "Cleaning up what we can on airootfs..."
-
-#     # Delete pacman database sync cache files (*.tar.gz)
-#     [[ -d "${pacstrap_dir}/var/lib/pacman" ]] && find "${pacstrap_dir}/var/lib/pacman" -maxdepth 1 -type f -delete
-
-#     # Delete pacman database sync cache
-#     [[ -d "${pacstrap_dir}/var/lib/pacman/sync" ]] && find "${pacstrap_dir}/var/lib/pacman/sync" -delete
-
-#     # Delete pacman package cache
-#     [[ -d "${pacstrap_dir}/var/cache/pacman/pkg" ]] && find "${pacstrap_dir}/var/cache/pacman/pkg" -type f -delete
-
-#     # Delete all log files, keeps empty dirs.
-#     [[ -d "${pacstrap_dir}/var/log" ]] && find "${pacstrap_dir}/var/log" -type f -delete
-
-#     # Delete all temporary files and dirs
-#     [[ -d "${pacstrap_dir}/var/tmp" ]] && find "${pacstrap_dir}/var/tmp" -mindepth 1 -delete
-
-#     # Delete package pacman related files.
-#     find "${build_dir}" \( -name '*.pacnew' -o -name '*.pacsave' -o -name '*.pacorig' \) -delete
-
-#     # Delete all cache file
-#     [[ -d "${pacstrap_dir}/var/cache" ]] && find "${pacstrap_dir}/var/cache" -mindepth 1 -delete
-
-#     # Create an empty /etc/machine-id
-#     printf '' > "${pacstrap_dir}/etc/machine-id"
-
-#     _msg_info "Done!"
-# }
-
-# _cleanup_airootfs(){
-#     _cleanup_common
-#     # Delete all files in /boot
-#     [[ -d "${pacstrap_dir}/boot" ]] && find "${pacstrap_dir}/boot" -mindepth 1 -delete
-# }
 
 _mkimagechecksum() {
     _msg_info "Creating md5 checksum ..."
@@ -699,7 +667,8 @@ _make_pacman_conf() {
 
 # Prepare working directory and copy custom root file system files.
 _make_custom_airootfs() {
-    local passwd=() _airootfs_list=()
+    local passwd=()
+    local _airootfs_list=()
     local filename permissions
 
     for_module '_airootfs_list+=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}")'
@@ -746,7 +715,6 @@ _make_custom_airootfs() {
 
 # Install desired packages to the root file system
 _make_packages() {
-    #_msg_debug "pkglist.sh ${pkglist_args[*]}" #pkglist.shを実行するタイミングで表示
     _msg_info "Installing packages to '${pacstrap_dir}/'..."
 
     if [[ -n "${gpg_key}" ]]; then
@@ -998,7 +966,6 @@ _make_boot_on_iso9660() {
     local ucode_image
     _msg_info "Preparing kernel and initramfs for the ISO 9660 file system..."
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/boot/${arch}"
-    #install -m 0644 -- "${pacstrap_dir}/boot/initramfs-"*".img" "${isofs_dir}/${install_dir}/boot/${arch}/"
     install -m 0644 -- "${pacstrap_dir}/boot/archiso.img" "${isofs_dir}/${install_dir}/boot/${arch}/"
     install -m 0644 -- "${pacstrap_dir}/boot/vmlinuz-"* "${isofs_dir}/${install_dir}/boot/${arch}/"
 
@@ -1157,7 +1124,7 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
         "${_available_ucodes[@]}" \
         2>/dev/null | awk 'END { print $1 }')"
     # Create a FAT image for the EFI system partition
-    _make_efibootimg "${efiboot_imgsize}"
+    _make_efibootimg "$efiboot_imgsize"
 
     # Copy systemd-boot EFI binary to the default/fallback boot path
     local _boot
@@ -1178,7 +1145,6 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
             "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
     done
 
-    # edk2-shell based UEFI shell
     # shellx64.efi is picked up automatically when on /
     local _shell
     if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/" ]]; then
@@ -1449,7 +1415,7 @@ _validate_common_requirements_buildmode_iso_netboot() {
             if typeset -f "_validate_requirements_bootmode_${bootmode}" &> /dev/null; then
                 "_validate_requirements_bootmode_${bootmode}"
             else
-                _msg_warn "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
+                _msg_warning "Function '_validate_requirements_bootmode_${bootmode}' does not exist. Validating the requirements of '${bootmode}' boot mode will not be possible."
             fi
         else
             (( validation_error=validation_error+1 ))
@@ -1462,7 +1428,7 @@ _validate_common_requirements_buildmode_iso_netboot() {
         if typeset -f "_validate_requirements_airootfs_image_type_${airootfs_image_type}" &> /dev/null; then
             "_validate_requirements_airootfs_image_type_${airootfs_image_type}"
         else
-            _msg_warn "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
+            _msg_warning "Function '_validate_requirements_airootfs_image_type_${airootfs_image_type}' does not exist. Validating the requirements of '${airootfs_image_type}' airootfs image type will not be possible."
         fi
     else
         (( validation_error=validation_error+1 ))
@@ -1617,7 +1583,7 @@ _build_bootstrap_image() {
 
     _msg_info "Creating bootstrap image..."
     bsdtar -cf - "bootstrap" | pv -p |  gzip -cn9 > "${out_dir}/${image_name}"
-
+    _msg_info "Done!"
     # checksum
     _mkimagechecksum "${out_dir}/${tar_filename}"
     _msg_info "Done! | $(ls -sh "${out_dir}/${tar_filename}")"
@@ -1659,6 +1625,38 @@ _build_iso_image() {
     _msg_info "The password for the live user and root is ${password}."
 }
 
+# Read profile's values from profiledef.sh
+_read_profile() {
+    if [[ -z "${profile}" ]]; then
+        _msg_error "No profile specified!" 1
+    fi
+    if [[ ! -d "${profile}" ]]; then
+        _msg_error "Profile '${profile}' does not exist!" 1
+    elif [[ ! -e "${profile}/profiledef.sh" ]]; then
+        _msg_error "Profile '${profile}' is missing 'profiledef.sh'!" 1
+    else
+        cd -- "${profile}"
+
+        # Source profile's variables
+        # shellcheck source=configs/releng/profiledef.sh
+        . "${profile}/profiledef.sh"
+
+        # Resolve paths of files that are expected to reside in the profile's directory
+        [[ -n "$packages" ]] || packages="${profile}/packages.${arch}"
+        packages="$(realpath -- "${packages}")"
+        pacman_conf="$(realpath -- "${pacman_conf}")"
+
+        # Resolve paths of files that may reside in the profile's directory
+        if [[ -z "$bootstrap_packages" ]] && [[ -e "${profile}/bootstrap_packages.${arch}" ]]; then
+            bootstrap_packages="${profile}/bootstrap_packages.${arch}"
+            bootstrap_packages="$(realpath -- "${bootstrap_packages}")"
+            pacman_conf="$(realpath -- "${pacman_conf}")"
+        fi
+
+        cd -- "${OLDPWD}"
+    fi
+}
+
 # Validate set options
 _validate_options() {
     local validation_error=0 _buildmode
@@ -1677,7 +1675,7 @@ _validate_options() {
             if typeset -f "_validate_requirements_buildmode_${_buildmode}" &> /dev/null; then
                 "_validate_requirements_buildmode_${_buildmode}"
             else
-                _msg_warn "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
+                _msg_warning "Function '_validate_requirements_buildmode_${_buildmode}' does not exist. Validating the requirements of '${_buildmode}' build mode will not be possible."
             fi
         else
             (( validation_error=validation_error+1 ))
@@ -1691,6 +1689,70 @@ _validate_options() {
     _msg_info "Done!"
 }
 
+# Set defaults and, if present, overrides from mkarchiso command line option parameters
+_set_overrides() {
+    # Set variables that have command line overrides
+    [[ ! -v override_buildmodes ]] || buildmodes=("${override_buildmodes[@]}")
+    if (( ${#buildmodes[@]} < 1 )); then
+        buildmodes+=('iso')
+    fi
+    if [[ -v override_work_dir ]]; then
+        work_dir="$override_work_dir"
+    elif [[ -z "$work_dir" ]]; then
+        work_dir='./work'
+    fi
+    work_dir="$(realpath -- "$work_dir")"
+    if [[ -v override_out_dir ]]; then
+        out_dir="$override_out_dir"
+    elif [[ -z "$out_dir" ]]; then
+        out_dir='./out'
+    fi
+    out_dir="$(realpath -- "$out_dir")"
+    if [[ -v override_pacman_conf ]]; then
+        pacman_conf="$override_pacman_conf"
+    elif [[ -z "$pacman_conf" ]]; then
+        pacman_conf="/etc/pacman.conf"
+    fi
+    pacman_conf="$(realpath -- "$pacman_conf")"
+    [[ ! -v override_pkg_list ]] || pkg_list+=("${override_pkg_list[@]}")
+    # TODO: allow overriding bootstrap_pkg_list
+    if [[ -v override_iso_label ]]; then
+        iso_label="$override_iso_label"
+    elif [[ -z "$iso_label" ]]; then
+        iso_label="${app_name^^}"
+    fi
+    if [[ -v override_iso_publisher ]]; then
+        iso_publisher="$override_iso_publisher"
+    elif [[ -z "$iso_publisher" ]]; then
+        iso_publisher="${app_name}"
+    fi
+    if [[ -v override_iso_application ]]; then
+        iso_application="$override_iso_application"
+    elif [[ -z "$iso_application" ]]; then
+        iso_application="${app_name} iso"
+    fi
+    if [[ -v override_install_dir ]]; then
+        install_dir="$override_install_dir"
+    elif [[ -z "$install_dir" ]]; then
+        install_dir="${app_name}"
+    fi
+    [[ ! -v override_gpg_key ]] || gpg_key="$override_gpg_key"
+    [[ ! -v override_gpg_sender ]] || gpg_sender="$override_gpg_sender"
+    if [[ -v override_cert_list ]]; then
+        sign_netboot_artifacts="y"
+    fi
+    [[ ! -v override_cert_list ]] || cert_list+=("${override_cert_list[@]}")
+    if [[ -v override_quiet ]]; then
+        quiet="$override_quiet"
+    elif [[ -z "$quiet" ]]; then
+        quiet="y"
+    fi
+
+    # Set variables that do not have overrides
+    [[ -n "$arch" ]] || arch="$(uname -m)"
+    [[ -n "$airootfs_image_type" ]] || airootfs_image_type="squashfs"
+    [[ -n "$iso_name" ]] || iso_name="${app_name}"
+}
 
 _export_gpg_publickey() {
     rm -f -- "${work_dir}/pubkey.gpg"
@@ -1721,7 +1783,7 @@ _make_version() {
         _os_release="$(realpath -- "${pacstrap_dir}/usr/lib/os-release")"
     fi
     if [[ "${_os_release}" != "${pacstrap_dir}"* ]]; then
-        _msg_warn "os-release file '${_os_release}' is outside of valid path."
+        _msg_warning "os-release file '${_os_release}' is outside of valid path."
     else
         [[ ! -e "${_os_release}" ]] || sed -i '/^IMAGE_ID=/d;/^IMAGE_VERSION=/d' "${_os_release}"
         printf 'IMAGE_ID=%s\nIMAGE_VERSION=%s\n' "${iso_name}" "${iso_version}" >> "${_os_release}"
@@ -2025,3 +2087,5 @@ _build
 [[ "${cleaning}" = true ]] && _run_cleansh
 
 exit 0
+
+# vim:ts=4:sw=4:et:
