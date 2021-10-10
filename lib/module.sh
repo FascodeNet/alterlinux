@@ -12,12 +12,12 @@
 #
 
 _module_get_alteriso(){
-    [[ -f "${module_dir}/${1}/alteriso" ]] && (
+    [[ -f "${module_dir}/${1}/alteriso" ]] || (
+        echo 0
+    ) && (
         source "${module_dir}/${1}/alteriso"
         echo "${alteriso}"
         unset alteriso
-    ) || (
-        echo 0
     )
 }
 
