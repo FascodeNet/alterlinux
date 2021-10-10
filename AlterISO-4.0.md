@@ -12,10 +12,11 @@
   - [x] `/tools/kernel.sh` -> `/lib/kernel.sh`
   - [x] `/tools/locale.sh` -> `/lib/locale.sh`
   - [x] `/tools/alteriso-info.sh` -> `/lib/alteriso-info.sh`
+  - [x] `/tools/module.sh` -> `/lib/module.sh`
 
-- [ ] `mkinitcpio-archiso`との統合は行わず、引き続き`/system/initcpio`を使用する(※2)
+- [x] `mkinitcpio-archiso`との統合は行わず、引き続き`/system/initcpio`を使用する(※2)
 - [ ] `/system/`の各アーキテクチャのファイルを整理する
-- [ ] カーネルパラメータを統一し、現在boot_splashの有無で分かれているEFIやSyslinuxの設定ファイルを統一する
+- [ ] ~~カーネルパラメータを統一し、現在boot_splashの有無で分かれているEFIやSyslinuxの設定ファイルを統一する~~
 - [ ] menuconfigのディレクトリ構成を整理する
 - [ ] ドキュメントを整理する
 - [ ] 2022年後半の完成を目指す
@@ -28,7 +29,6 @@
 
 ## tools内のスクリプトについて
 ### 変更なし・現状を維持
-- `/tools/allpkglist.sh`
 - `/tools/build_helper.py`
 - `/tools/docker-build.sh`
 - `/tools/channel.sh`
@@ -37,7 +37,6 @@
 - `/tools/msg.sh`
 - `/tools/package.py`
 - `/tools/run_archiso.sh`
-- `/tools/testpkg.sh`
 - `/tools/umount.sh`
 - `/tools/wizard.sh`
 
@@ -46,7 +45,6 @@
 
 ### /libへの移行を検討中
 - `/tools/pkglist.sh`
-- `/tools/module.sh`
 - `/tools/clean.sh`
 
 ### menuconfig用につき別の場所へ移動予定
