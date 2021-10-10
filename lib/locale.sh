@@ -22,6 +22,12 @@ _locale_check() {
 
 _locale_get() {
     local _locale_config_line
+
+    if [[ ! -f "${script_path}/system/locale-${arch}" ]]; then
+        msg_error "Missing architecture ${arch}"
+        echo "exit 1" && exit 1
+    fi
+
     # 不正なロケール名なら終了する
     if ! _locale_check; then
         _msg_error "${locale_name} is not a valid language."
