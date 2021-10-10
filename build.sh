@@ -313,12 +313,8 @@ prepare_build() {
     unset _modules
 
     # Check modules
-    module_check(){
-        _msg_debug -n "Checking ${1} module ... "
-        bash "${tools_dir}/module.sh" check "${1}" || _msg_error "Module ${1} is not available." "1" && echo "${module_dir}/${1}"
-    }
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
-    for_module "module_check {}"
+    for_module "_module_check_with_msg {}"
 
     # Load modules
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
