@@ -177,11 +177,6 @@ load_config() {
     return 0
 }
 
-# Display channel list
-show_channel_list() {
-    _channel_full_list | xargs -I{} basename 
-}
-
 # Execute command for each module. It will be executed with {} replaced with the module name.
 # for_module <command>
 for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
@@ -1963,42 +1958,42 @@ while true; do
             unset override_cert_list
             shift 2
             ;;
-        -g | --gpgkey               ) gpg_key="${2}"     && shift 2 ;;
+        -g | --gpgkey               ) gpg_key="${2}"           && shift 2 ;;
         -h | --help                 ) _usage 0                      ;;
-        -a | --arch                 ) arch="${2}"        && shift 2 ;;
-        -d | --debug                ) debug=true         && shift 1 ;;
-        -e | --cleaning | --cleanup ) cleaning=true      && shift 1 ;;
-        -b | --boot-splash          ) boot_splash=true   && shift 1 ;;
-        -l | --lang                 ) locale_name="${2}" && shift 2 ;;
-        -o | --out                  ) out_dir="${2}"     && shift 2 ;;
-        -r | --tarball              ) tarball=true       && shift 1 ;;
-        -w | --work                 ) work_dir="${2}"    && shift 2 ;;
-        -x | --bash-debug           ) bash_debug=true    && shift 1 ;;
-        --gitversion                ) gitversion=true    && shift 1 ;;
-        --noconfirm                 ) noconfirm=true     && shift 1 ;;
-        --confirm                   ) noconfirm=false    && shift 1 ;;
-        --nodepend                  ) nodepend=true      && shift 1 ;;
-        --nocolor                   ) nocolor=true       && shift 1 ;;
-        --msgdebug                  ) msgdebug=true      && shift 1 ;;
-        --noloopmod                 ) noloopmod=true     && shift 1 ;;
-        --noiso                     ) noiso=true         && shift 1 ;;
-        --noaur                     ) noaur=true         && shift 1 ;;
-        --nochkver                  ) nochkver=true      && shift 1 ;;
-        --noefi                     ) noefi=true         && shift 1 ;;
-        --channellist               ) show_channel_list  && exit  0 ;;
-        --config                    ) source "${2}"      ;  shift 2 ;;
-        --pacman-debug              ) pacman_debug=true  && shift 1 ;;
-        --nosigcheck                ) nosigcheck=true    && shift 1 ;;
-        --normwork                  ) normwork=true      && shift 1 ;;
-        --log                       ) logging=true       && shift 1 ;;
-        --nolog                     ) logging=false      && shift 1 ;;
-        --nopkgbuild                ) nopkgbuild=true    && shift 1 ;;
-        --nogitversion              ) gitversion=false   && shift 1 ;;
-        --cowspace                  ) cowspace="${2}"    && shift 2 ;;
-        --rerun                     ) rerun=true         && shift 1 ;;
-        --depend                    ) nodepend=false     && shift 1 ;;
-        --loopmod                   ) noloopmod=false    && shift 1 ;;
-        --                          ) shift 1            && break   ;;
+        -a | --arch                 ) arch="${2}"              && shift 2 ;;
+        -d | --debug                ) debug=true               && shift 1 ;;
+        -e | --cleaning | --cleanup ) cleaning=true            && shift 1 ;;
+        -b | --boot-splash          ) boot_splash=true         && shift 1 ;;
+        -l | --lang                 ) locale_name="${2}"       && shift 2 ;;
+        -o | --out                  ) out_dir="${2}"           && shift 2 ;;
+        -r | --tarball              ) tarball=true             && shift 1 ;;
+        -w | --work                 ) work_dir="${2}"          && shift 2 ;;
+        -x | --bash-debug           ) bash_debug=true          && shift 1 ;;
+        --gitversion                ) gitversion=true          && shift 1 ;;
+        --noconfirm                 ) noconfirm=true           && shift 1 ;;
+        --confirm                   ) noconfirm=false          && shift 1 ;;
+        --nodepend                  ) nodepend=true            && shift 1 ;;
+        --nocolor                   ) nocolor=true             && shift 1 ;;
+        --msgdebug                  ) msgdebug=true            && shift 1 ;;
+        --noloopmod                 ) noloopmod=true           && shift 1 ;;
+        --noiso                     ) noiso=true               && shift 1 ;;
+        --noaur                     ) noaur=true               && shift 1 ;;
+        --nochkver                  ) nochkver=true            && shift 1 ;;
+        --noefi                     ) noefi=true               && shift 1 ;;
+        --channellist               ) _channel_name_full_list  && exit  0 ;;
+        --config                    ) source "${2}"            ;  shift 2 ;;
+        --pacman-debug              ) pacman_debug=true        && shift 1 ;;
+        --nosigcheck                ) nosigcheck=true          && shift 1 ;;
+        --normwork                  ) normwork=true            && shift 1 ;;
+        --log                       ) logging=true             && shift 1 ;;
+        --nolog                     ) logging=false            && shift 1 ;;
+        --nopkgbuild                ) nopkgbuild=true          && shift 1 ;;
+        --nogitversion              ) gitversion=false         && shift 1 ;;
+        --cowspace                  ) cowspace="${2}"          && shift 2 ;;
+        --rerun                     ) rerun=true               && shift 1 ;;
+        --depend                    ) nodepend=false           && shift 1 ;;
+        --loopmod                   ) noloopmod=false          && shift 1 ;;
+        --                          ) shift 1                  && break   ;;
         *)
             _msg_error "Argument exception error '${1}'"
             _msg_error "Please report this error to the developer." 1

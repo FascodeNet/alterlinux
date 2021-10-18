@@ -60,12 +60,24 @@ _channel_full_list() {
     done < <(find "${script_path}/channels" -mindepth 1 -maxdepth 1 -printf "%f\n")
 }
 
+_channel_path_to_name(){
+    xargs -I{} basename {} | sed "s|.add$||g" | sort
+}
+
+_channel_name_full_list(){
+    _channel_full_list | _channel_path_to_name
+}
+
 _channel_checked_list(){
     while read -r _channel_dir; do
         _channel_check_arch "${_channel_dir}" || continue
         _channel_check_kernel "${_channel_dir}" || continue
         echo "${_channel_dir}"
     done < <(_channel_full_list)
+}
+
+_channel_name_checked_list(){
+    _channel_checked_list | _channel_path_to_name
 }
 
 # _channel_check <channel name or channel dir>
