@@ -70,8 +70,8 @@ _channel_name_full_list(){
 
 _channel_checked_list(){
     while read -r _channel_dir; do
-        _channel_check_arch "${_channel_dir}" || continue
-        _channel_check_kernel "${_channel_dir}" || continue
+        #_channel_check_arch "${_channel_dir}" || continue
+        #_channel_check_kernel "${_channel_dir}" || continue
         echo "${_channel_dir}"
     done < <(_channel_full_list)
 }
@@ -82,20 +82,22 @@ _channel_name_checked_list(){
 
 # _channel_check <channel name or channel dir>
 # This function returns only exit code. Means is following.
-# 0: Correct
-# 1: Correct (Unmanaged directory)
+# 0: Correct (By channel name)
+# 1: Correct (By managed directory)
 # 2: Incorrect
+# 3: Correct (Unmanaged directory)
 _channel_check() {
     if ! grep -q "/" <<< "${1}"; then
-        _channel_checked_list | grep -qx "${script_path}/channels/${1}" && return 0
+        [[ -d "${script_path}/channels/${1}.add" ]] && _channel_checked_list | grep -qx "${script_path}/channels/${1}.add" && echo "${script_path}/channels/${1}.add" && return 0
+        _channel_checked_list | grep -qx "${script_path}/channels/${1}" && echo "${script_path}/channels/${1}" && return 0
         return 2
     fi
 
     _channel_check_file "${1}" || return 2
-    _channel_check_arch "${1}" || return 2
+    #_channel_check_arch "${1}" || return 2
     _channel_check_version "${1}" || return 2
-    ! grep -qx "${script_path}/channels" < <(realpath "${1}")  || return 1
-    return 0
+    ! grep -qx "${script_path}/channels" < <(realpath "${1}")  || return 3
+    return 1
 }
 
 _channel_desc() {

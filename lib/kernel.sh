@@ -31,7 +31,9 @@ _kernel_get() {
 
     # 不正なカーネル名なら終了する
     if ! _kernel_check; then
-        msg_error "Invalid kernel ${kernel}"
+        _msg_error "Invalid kernel ${kernel}"
+        _msg_error "Supported kernel on this architecture and channel is here"
+        _msg_error "$(_kernel_list | xargs -I{} echo -n "{} ")"
         echo "exit 1" && exit 1
     fi
 

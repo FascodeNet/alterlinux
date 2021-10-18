@@ -292,7 +292,7 @@ prepare_build() {
     modules+=("${additional_modules[@]}")
 
     # Legacy mode
-    if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
+    if [[ "$(_channel_get_version "${channel_dir}")" = "3.0" ]]; then
         _msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         modules=("legacy")
         legacy_mode=true
@@ -338,11 +338,6 @@ prepare_build() {
 
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
-
-    # Check architecture for each channel
-    local _exit=0
-    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
-    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
@@ -2017,23 +2012,27 @@ _msg_debug "Use the default configuration file (${defaultconfig})."
 [[ "${bash_debug}" = true ]] && set -x -v
 
 # Check for a valid channel name
+_msg_debug "Channel check status is $(_channel_check "${1}" >/dev/null ; printf "%d" "${?}")"
 if [[ -n "${1+SET}" ]]; then
-    case "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -n check "${1}"; printf "%d" "${?}")" in
+    case "$(_channel_check "${1}" >/dev/null ; printf "%d" "${?}")" in
         "2")
             _msg_error "Invalid channel ${1}" "1"
             ;;
-        "1")
+        "1" | "3")
             channel_dir="${1}"
-            channel_name="$(basename "${1%/}")"
+            channel_name="$(basename "${1}")"
             ;;
         "0")
-            channel_dir="${script_path}/channels/${1}"
+            channel_dir="$(_channel_check "${1}")"
             channel_name="${1}"
             ;;
     esac
 else
     channel_dir="${script_path}/channels/${channel_name}"
 fi
+
+# Check architecture for each channel
+_channel_check_arch "${channel_dir}" || _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
 # Set vars
 build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
@@ -2047,10 +2046,7 @@ for _dir in build_dir cache_dir isofs_dir lockfile_dir out_dir; do
 done
 
 # Set for special channels
-if [[ -d "${channel_dir}.add" ]]; then
-    channel_name="${1}"
-    channel_dir="${channel_dir}.add"
-elif [[ "${channel_name}" = "clean" ]]; then
+if [[ "${channel_name}" = "clean" ]]; then
    _run_cleansh
     exit 0
 fi
