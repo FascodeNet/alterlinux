@@ -63,8 +63,8 @@ export LC_ALL="C"
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
 
 # Message common function
-# msg_common [type] [-n] [string]
-msg_common(){
+# _msg_common [type] [-n] [string]
+_msg_common(){
     local _msg_opts=("-a" "build.sh") _type="${1}" && shift 1
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
     [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
@@ -75,24 +75,24 @@ msg_common(){
 
 # Show an INFO message
 # ${1}: message string
-_msg_info() { msg_common info "${@}"; }
+_msg_info() { _msg_common info "${@}"; }
 
 # Show an Warning message
 # ${1}: message string
-_msg_warn() { msg_common warn "${@}"; }
+_msg_warn() { _msg_common warn "${@}"; }
 _msg_warning() { _msg_warn "${@}"; }
 
 # Show an debug message
 # ${1}: message string
 _msg_debug() { 
-    [[ "${debug}" = true ]] && msg_common debug "${@}" || return 0
+    [[ "${debug}" = true ]] && _msg_common debug "${@}" || return 0
 }
 
 # Show an ERROR message then exit with status
 # $1: message string
 # $2: exit code number (with 0 does not exit)
 _msg_error() {
-    msg_common error "${1}"
+    _msg_common error "${1}"
     { [[ -n "${2:-""}" ]] && (( "${2}" > 0 )); } && exit "${2}" || return 0
 }
 
