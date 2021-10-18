@@ -179,9 +179,7 @@ load_config() {
 
 # Display channel list
 show_channel_list() {
-    local _args=("-v" "${alteriso_version}" show)
-    [[ "${nochkver}" = true ]] && _args+=("-n")
-    bash "${tools_dir}/channel.sh" "${_args[@]}"
+    _channel_full_list | xargs -I{} basename 
 }
 
 # Execute command for each module. It will be executed with {} replaced with the module name.
