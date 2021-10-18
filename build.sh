@@ -110,7 +110,7 @@ _cp(){ cp -af --no-preserve=ownership,mode -- "${@}"; }
 
 _usage () {
     cat "${script_path}/docs/build.sh/help.1"
-    local blank="29" _arch _dirname _type _output _first
+    local blank="29" _arch _dirname _type _output _first _channel_dir
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
@@ -120,15 +120,15 @@ _usage () {
     done
 
     echo " Channel:"
-    for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n --line show | sed "s|.add$||g"); do
-        readarray -t _output < <("${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}")
-        _first=true
+    while read -r _channel_dir; do
+        readarray -t _output < <(_channel_desc "${_channel_dir}")
+        _first=true _dirname="$(basename "${_channel_dir}")"
         echo -n "    ${_dirname}"
         for _out in "${_output[@]}"; do
             "${_first}" && echo -e "    $(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")${_out}" || echo -e "    $(echo_blank "$(( "${blank}" + 5 - "${#_dirname}" ))")${_out}"
             _first=false
         done
-    done
+    done < <(_channel_full_list)
     cat "${script_path}/docs/build.sh/help.2"
     [[ -n "${1:-}" ]] && exit "${1}"
 }
