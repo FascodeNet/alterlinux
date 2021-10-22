@@ -4,7 +4,7 @@
 - チャンネル、モジュールの構成は維持
 - Archiso 58に準拠し、少しずつbuild.shを書き直す
   - [x] 最初はAlterISO 3.1のコードを残しつつ、Archisoのコードを無理やり追加してビルドが通るようにする
-  - [ ] ある程度のコードが固まったら余分な部分の削除を行う
+  - [ ] ~~ある程度のコードが固まったら余分な部分の削除を行う~~
   - [ ] AlterISO 3.1の機能を再実装する
   - [ ] Archisoからの変更を最小限にするために再実装
 - [x] 関数名を整理する
@@ -14,6 +14,7 @@
   - [x] `/tools/alteriso-info.sh` -> `/lib/alteriso-info.sh`
   - [x] `/tools/module.sh` -> `/lib/module.sh`
   - [x] `/tools/channel.sh` -> `/lib/channel.sh`
+  - [ ] `/tools/pkglist.sh` -> `/lib/pkglist.sh`
 
 - [x] `mkinitcpio-archiso`との統合は行わず、引き続き`/system/initcpio`を使用する(※2)
 - [ ] `/system/`の各アーキテクチャのファイルを整理する
@@ -21,12 +22,19 @@
 - [ ] menuconfigのディレクトリ構成を整理する
 - [ ] ドキュメントを整理する
 - [ ] 2022年後半の完成を目指す
-- [ ] kokkiemouse主導だった旧AlterISO-4は`obs_alteriso-4`に変更。
+- [x] kokkiemouse主導だった旧AlterISO-4は`obs_alteriso-4`に変更。
 - [ ] モジュールの依存関係を実装
+-  menuconfig用のスクリプトを別の場所へ移動
+- [x] `/tools/menuconf-to-alterconf.sh`
+- [x] `/tools/kernel-choice-conf-gen.sh`
+- [x] `/tools/channel-choice-conf-gen.sh`
 
 
 ## 当分のあいだの開発目標
-当分の間はArchisoのコードを少しずつ取り込んでいく。  
+~~ 当分の間はArchisoのコードを少しずつ取り込んでいく。 ~~
+だいたい終わったので今後はソースコードの整理と安定化。
+
+mkarchisoからの変更を最小限にするために無駄な部分も削除しない
 
 ## tools内のスクリプトについて
 ### 変更なし・現状を維持
@@ -39,19 +47,10 @@
 - `/tools/run_archiso.sh`
 - `/tools/umount.sh`
 - `/tools/wizard.sh`
+- `/tools/clean.sh`
 
 ### /libへ再実装
 上記を参照
-
-### /libへの移行を検討中
-- `/tools/pkglist.sh`
-- `/tools/clean.sh`
-
-### menuconfig用につき別の場所へ移動予定
-- `/tools/menuconf-to-alterconf.sh`
-- `/tools/kernel-choice-conf-gen.sh`
-- `/tools/channel-choice-conf-gen.sh`
-
 
 ## 注脚
 ### ※1
