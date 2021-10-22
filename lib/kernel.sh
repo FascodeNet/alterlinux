@@ -18,7 +18,7 @@ _kernel_list() {
             [[ -f "${_file}" ]] && _list="${_file}"
         done
     fi
-    grep -h -v ^'#' "${_list}" | cut -d " " -f 1
+    grep -h -v ^'#' "${_list}" | cut -d " " -f 1 | grep -v "^$"
 }
 
 _kernel_check() {
