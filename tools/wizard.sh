@@ -68,6 +68,15 @@ msg_n() {
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
 getclm() { cut -d " " -f "${1}"; }
 
+# /lib内のスクリプトを実行する
+Func_Global_Use_Lib(){
+    local arch="${Var_Global_Wizard_Option_build_arch}"
+    local channel_dir="$Var_Global_Wizard_Env_script_path/channels"
+    local nochkver=true
+    local alteriso_version=3.1
+    "${@}"
+}
+
 # 使い方
 Func_Global_help() {
     echo "usage ${0} [options]"
@@ -299,13 +308,21 @@ Func_Global_Ask_locale() {
         "ビルドする言語を以下の番号から選択して下さい " \
         "Please select the language to build from the following numbers"
 
+    source "${Var_Global_Wizard_Env_script_path}/lib/locale.sh"
+
     local Var_Local_locale_list Var_Local_locale Var_Local_count=1 Var_Local_input_locale
     #Var_Local_locale_list=($("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
-    readarray -t Var_Local_locale_list < <("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show)
+    #readarray -t Var_Local_locale_list < <("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" show)
+    readarray -t Var_Local_locale_list < <(Func_Global_Use_Lib _locale_list)
     for Var_Local_locale in "${Var_Local_locale_list[@]}"; do
         (
             local locale_name locale_gen_name locale_version locale_time locale_fullname
-            eval "$("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )"
+            #eval "$("${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}" )"
+            eval "$(
+                #"${Var_Global_Wizard_Env_script_path}/tools/locale.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_locale}"
+                locale_name="${Var_Local_locale}"
+                Func_Global_Use_Lib _locale_get
+            )"
             echo -n "$(printf %02d "${Var_Local_count}")    ${locale_name}"
             for Var_Local_int in $( seq 1 $(( 10 - ${#kernel} )) ); do echo -ne " "; done
             echo -ne "(${locale_fullname})\n"
@@ -548,23 +565,14 @@ Func_Global_Ask_kernel () {
     #カーネルの一覧を取得
     local Var_Local_kernel_list
     source "${Var_Global_Wizard_Env_script_path}/lib/kernel.sh"
-    readarray -t Var_Local_kernel_list < <(
-        arch="${Var_Global_Wizard_Option_build_arch}"
-        channel_dir="$Var_Global_Wizard_Env_script_path/channels"
-        _kernel_list
-    )
+    readarray -t Var_Local_kernel_list < <(Func_Global_Use_Lib _kernel_list)
 
     #選択肢の生成
     local Var_Local_kernel Var_Local_count=1 Var_Local_int
     for Var_Local_kernel in "${Var_Local_kernel_list[@]}"; do
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
-            eval "$(
-                arch="${Var_Global_Wizard_Option_build_arch}"
-                channel_dir="$Var_Global_Wizard_Env_script_path/channels"
-                kernel="${Var_Local_kernel}"
-                _kernel_get
-            )"
+            eval "$(kernel="${Var_Local_kernel}" Func_Global_Use_Lib _kernel_get)"
             echo -n "$(printf %02d "${Var_Local_count}")    ${kernel}"
             for Var_Local_int in $( seq 1 $(( 19 - ${#kernel} )) ); do echo -ne " "; done
             echo -ne "(${kernel_filename})\n"
@@ -613,14 +621,18 @@ Func_Global_Ask_channel () {
     #Var_Local_channel_list=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show))
     #Var_Local_channel_dir=($("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show))
 
-    readarray -t Var_Local_channel_list < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show)
-    readarray -t Var_Local_channel_dir  < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show)
+    #readarray -t Var_Local_channel_list < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --nobuiltin show)
+    #readarray -t Var_Local_channel_dir  < <("${Var_Global_Wizard_Env_script_path}/tools/channel.sh" --dirname --nobuiltin show)
+
+    source "${Var_Global_Wizard_Env_script_path}/lib/channel.sh"
+    readarray -t Var_Local_channel_list < <(Func_Global_Use_Lib _channel_name_full_list)
+    readarray -t Var_Local_channel_dir < <(Func_Global_Use_Lib _channel_full_list)
 
     msg "チャンネルを以下の番号から選択してください。" "Select a channel from the numbers below."
     # 選択肢を生成
     for Var_Local_channel in "${Var_Local_channel_list[@]}"; do
-        if [[ -f "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt" ]]; then
-            Var_Local_description=$(cat "${Var_Global_Wizard_Env_script_path}/channels/${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt")
+        if [[ -f "${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt" ]]; then
+            Var_Local_description=$(cat "${Var_Local_channel_dir[$(( Var_Local_count - 1 ))]}/description.txt")
         else
             if [[ "${Var_Global_Wizard_Option_language}"  = "jp" ]]; then
                 Var_Local_description="このチャンネルにはdescription.txtがありません。"
@@ -630,7 +642,7 @@ Func_Global_Ask_channel () {
         fi
         echo -ne "$(printf %02d "${Var_Local_count}")    ${Var_Local_channel}"
         for Var_Local_int in $( seq 1 $(( 19 - ${#Var_Local_channel} )) ); do echo -ne " "; done
-        echo -ne "${Var_Local_description}\n"
+        echo -e "${Var_Local_description}" | tr "\n" " "; echo
         Var_Local_count="$(( Var_Local_count + 1 ))"
     done
     echo -n ":"
