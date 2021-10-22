@@ -144,7 +144,7 @@ _usage () {
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
-            echo "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")$("_${_type}_list" | sed "/^$/d" | tr "\n" " ")"
+            echo "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")$(arch=${_arch} "_${_type}_list" | sed "/^$/d" | tr "\n" " ")"
         done
         echo
     done
