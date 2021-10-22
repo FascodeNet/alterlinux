@@ -9,10 +9,6 @@ Alter Linuxのビルドに使用する処理をコマンド化したものです
 ## build_helper.py
 GUIのビルドヘルパーです。PyGobjectが必要です。  
 
-## channel.sh
-チャンネルの一覧や`description.txt`の取得、確認を行います。  
-詳細は`channel.sh -h`を実行してください。  
-
 ## clean.sh
 作業ディレクトリの削除を行います。  
 詳細は`clean.sh -h`を実行してください。  

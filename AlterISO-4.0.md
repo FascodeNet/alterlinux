@@ -13,6 +13,7 @@
   - [x] `/tools/locale.sh` -> `/lib/locale.sh`
   - [x] `/tools/alteriso-info.sh` -> `/lib/alteriso-info.sh`
   - [x] `/tools/module.sh` -> `/lib/module.sh`
+  - [x] `/tools/channel.sh` -> `/lib/channel.sh`
 
 - [x] `mkinitcpio-archiso`との統合は行わず、引き続き`/system/initcpio`を使用する(※2)
 - [ ] `/system/`の各アーキテクチャのファイルを整理する
@@ -31,7 +32,6 @@
 ### 変更なし・現状を維持
 - `/tools/build_helper.py`
 - `/tools/docker-build.sh`
-- `/tools/channel.sh`
 - `/tools/fullbuild.sh`
 - `/tools/keyring.sh`
 - `/tools/msg.sh`
