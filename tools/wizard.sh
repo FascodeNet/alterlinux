@@ -546,15 +546,24 @@ Function_Global_Ask_kernel () {
 
     #カーネルの一覧を取得
     local Var_Local_kernel_list
-    #Var_Local_kernel_list=($("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" show))
-    readarray -t Var_Local_kernel_list < <("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" show)
+    source "${Var_Global_Wizard_Env_script_path}/lib/kernel.sh"
+    readarray -t Var_Local_kernel_list < <(
+        arch="${Var_Global_Wizard_Option_build_arch}"
+        channel_dir="$Var_Global_Wizard_Env_script_path/channels"
+        _kernel_list
+    )
 
     #選択肢の生成
     local Var_Local_kernel Var_Local_count=1 Var_Local_int
     for Var_Local_kernel in "${Var_Local_kernel_list[@]}"; do
         (
             local kernel kernel_filename kernel_mkinitcpio_profile
-            eval "$("${Var_Global_Wizard_Env_script_path}/tools/kernel.sh" -a "${Var_Global_Wizard_Option_build_arch}" get "${Var_Local_kernel}" )"
+            eval "$(
+                arch="${Var_Global_Wizard_Option_build_arch}"
+                channel_dir="$Var_Global_Wizard_Env_script_path/channels"
+                kernel="${Var_Local_kernel}"
+                _kernel_get
+            )"
             echo -n "$(printf %02d "${Var_Local_count}")    ${kernel}"
             for Var_Local_int in $( seq 1 $(( 19 - ${#kernel} )) ); do echo -ne " "; done
             echo -ne "(${kernel_filename})\n"
