@@ -505,7 +505,7 @@ make_packages_repo() {
             if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
                 _pkglist_install+=("${_pkg}")
             else
-                msg_info "${_pkg} was not found. Install it with yay from AUR"
+                msg_info "${_pkg} was not found. Install it from AUR"
                 norepopkg+=("${_pkg}")
             fi
         done
@@ -529,9 +529,9 @@ make_packages_aur() {
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
     printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
 
-    # prepare for yay
+    # prepare for aur helper
     _cp "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    _pacstrap --asdeps --needed "go" # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
+    _pacstrap --asdeps --needed "go"
 
     # Run aur script
     _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
