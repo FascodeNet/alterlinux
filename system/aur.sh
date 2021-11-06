@@ -41,9 +41,9 @@ _help() {
 
 while getopts "a:cd:e:p:u:xh" arg; do
     case "${arg}" in
-        a) aur_helper="${OPTARG}" ;;
+        a) aur_helper_command="${OPTARG}" ;;
         c) pacman_debug=true ;;
-        e) aur_helper_command="${OPTARG}" ;;
+        e) aur_helper_package="${OPTARG}" ;;
         p) readarray -t pkglist < <(sed "s|,$||g" <<< "${OPTARG}" | tr "," "\n") ;;
         d) readarray -t aur_helper_depends < <(sed "s|,$||g" <<< "${OPTARG}" | tr "," "\n") ;;
         u) aur_username="${OPTARG}" ;;
