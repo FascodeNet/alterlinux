@@ -34,4 +34,8 @@
 aur_helper_package="wfa-git"
 aur_helper_command="wfa"
 aur_helper_depends=('sudo' 'pacman' 'jq' 'python3' 'curl' 'pyalpm' 'python-srcinfo')
-aur_helper_args=()
+aur_helper_args=(
+    --mflags "-AcC"
+    --mflags "--skippgpcheck"
+    --aur
+)
