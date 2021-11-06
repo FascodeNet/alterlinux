@@ -100,9 +100,7 @@ fi
 
 # Install
 if ! pacman -Qq "${aur_helper_package}" 1> /dev/null 2>&1; then
-    # Update database
     _oldpwd="$(pwd)"
-    pacman -Syy "${pacman_args[@]}"
 
     # Install depends
     for _pkg in "${aur_helper_depends[@]}"; do
@@ -134,9 +132,12 @@ if ! type -p "${aur_helper_command}" > /dev/null; then
     exit 1
 fi
 
+# Update database
+pacman -Syy "${pacman_args[@]}"
+
 installpkg(){
     yes | sudo -u "${aur_username}" \
-        "${aur_helper_command}" -Sy \
+        "${aur_helper_command}" -S \
             --color always \
             --cachedir "/var/cache/pacman/pkg/" \
             "${pacman_args[@]}" \
