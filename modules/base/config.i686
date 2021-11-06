@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Config files for all i686 channel
+#
+
+aur_helper_command="pikaur"
+aur_helper_package="pikaur"
+aur_helper_depends=(
+	'pyalpm'
+	'git'
+	'python-commonmark'
+	'asp'
+)
+aur_helper_args=(
+    #--useask
+    --mflags "-AcC,--skippgpcheck"
+    --aur
+    --noedit
+    --nodiff
+)

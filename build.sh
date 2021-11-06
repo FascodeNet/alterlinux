@@ -382,6 +382,7 @@ prepare_build() {
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
     ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
+    ! printf "%s\n" "${modules[@]}" | grep -x "base" >/dev/null 2>&1 && msg_error "The base module is not loaded." 1
 
     # Set kernel
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
@@ -440,9 +441,8 @@ prepare_build() {
     pkglist_args+=("${modules[@]}")
 
     # Set argument of aur.sh and pkgbuild.sh
-    makepkg_script_args+=("-a" "${aur_helper}" "-p" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")" )
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
-    [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
+    [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-c")
 
     return 0
 }
@@ -525,6 +525,12 @@ make_packages_repo() {
 make_packages_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
     _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
+    _aursh_args=(
+        "-a" "${aur_helper_command}" -e "${aur_helper_package}"
+        "-d" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")"
+        "-p" "$(printf "%s\n" "${_pkglist_aur[@]}" | tr "\n" ",")"
+        "${makepkg_script_args[@]}" -- "${aur_helper_args[@]}"
+    )
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
@@ -535,7 +541,7 @@ make_packages_aur() {
     _pacstrap --asdeps --needed "${aur_helper_depend[@]}"
 
     # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" -a "${aur_helper}"  "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
+    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${_aursh_args[@]}"
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
