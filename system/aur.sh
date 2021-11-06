@@ -6,6 +6,8 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
+#shellcheck disable=SC2001
+
 set -e -u
 
 aur_username="aurbuild"
@@ -42,8 +44,8 @@ while getopts "a:cd:e:p:u:xh" arg; do
         a) aur_helper="${OPTARG}" ;;
         c) pacman_debug=true ;;
         e) aur_helper_command="${OPTARG}" ;;
-        p) readarray -t pkglist < <(tr "," "\n" <<< "${OPTARG}") ;;
-        d) readarray -t aur_helper_depends < <(tr "," "\n" <<< "${OPTARG}") ;;
+        p) readarray -t pkglist < <(sed "s|,$||g" <<< "${OPTARG}" | tr "," "\n") ;;
+        d) readarray -t aur_helper_depends < <(sed "s|,$||g" <<< "${OPTARG}" | tr "," "\n") ;;
         u) aur_username="${OPTARG}" ;;
         x) set -xv ;;
         h) 
