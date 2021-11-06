@@ -13,14 +13,15 @@ pacman_debug=false
 pacman_args=()
 failedpkg=()
 remove_list=()
-yay_depends=("go")
+aur_helper_depends=("go")
+aur_helper="yay"
 
 trap 'exit 1' 1 2 3 15
 
 _help() {
     echo "usage ${0} [option]"
     echo
-    echo "Install aur packages with yay" 
+    echo "Install aur packages with ${aur_helper}" 
     echo
     echo " General options:"
     echo "    -d                       Enable pacman debug message"
@@ -82,44 +83,44 @@ if [[ "${pacman_debug}" = true ]]; then
     pacman_args+=("--debug")
 fi
 
-# Install yay
-if ! pacman -Qq yay 1> /dev/null 2>&1; then
+# Install
+if ! pacman -Qq "${aur_helper}" 1> /dev/null 2>&1; then
     # Update database
     _oldpwd="$(pwd)"
     pacman -Syy "${pacman_args[@]}"
 
     # Install depends
-    for _pkg in "${yay_depends[@]}"; do
+    for _pkg in "${aur_helper_depends[@]}"; do
         if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
             pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
             remove_list+=("${_pkg}")
         fi
     done
 
-    # Build yay
-    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-    cd "/tmp/yay"
+    # Build
+    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/${aur_helper}.git" "/tmp/${aur_helper}"
+    cd "/tmp/${aur_helper}"
     sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
 
-    # Install yay
+    # Install
     for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
         pacman "${pacman_args[@]}" -U "${_pkg}"
     done
 
     # Remove debtis
     cd ..
-    remove "/tmp/yay"
+    remove "/tmp/${aur_helper}"
     cd "${_oldpwd}"
 fi
 
-if ! type -p yay > /dev/null; then
-    echo "Failed to install yay"
+if ! type -p "${aur_helper}" > /dev/null; then
+    echo "Failed to install ${aur_helper}"
     exit 1
 fi
 
 installpkg(){
     yes | sudo -u "${aur_username}" \
-        yay -Sy \
+        "${aur_helper}" -Sy \
             --mflags "-AcC" \
             --aur \
             --nocleanmenu \
@@ -163,7 +164,7 @@ readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
 (( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
 # Clean up
-yay -Sccc "${pacman_args[@]}"
+"${aur_helper}" -Sccc "${pacman_args[@]}"
 
 # remove user and file
 userdel "${aur_username}"
