@@ -440,6 +440,7 @@ prepare_build() {
     pkglist_args+=("${modules[@]}")
 
     # Set argument of aur.sh and pkgbuild.sh
+    makepkg_script_args+=("-a" "${aur_helper}" "-p" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")" )
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
 
@@ -531,10 +532,10 @@ make_packages_aur() {
 
     # prepare for aur helper
     _cp "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    _pacstrap --asdeps --needed "go"
+    _pacstrap --asdeps --needed "${aur_helper_depend[@]}"
 
     # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
+    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" -a "${aur_helper}"  "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"

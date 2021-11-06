@@ -19,22 +19,26 @@ aur_helper="yay"
 trap 'exit 1' 1 2 3 15
 
 _help() {
-    echo "usage ${0} [option]"
+    echo "usage ${0} [option] [package1] [package2] ..."
     echo
     echo "Install aur packages with ${aur_helper}" 
     echo
     echo " General options:"
+    echo "    -a [command]             Set the command of aur helper"
+    echo "    -p [pkg1,pkg2...]        Set the oackage of the depends of aur helper"
     echo "    -d                       Enable pacman debug message"
     echo "    -u [user]                Set the user name to build packages"
     echo "    -x                       Enable bash debug message"
     echo "    -h                       This help message"
 }
 
-while getopts "du:xh" arg; do
+while getopts "a:p:du:xh" arg; do
     case "${arg}" in
+        a) aur_helper="${OPTARG}" ;;
         d) pacman_debug=true ;;
         u) aur_username="${OPTARG}" ;;
         x) set -xv ;;
+        p) readarray -t aur_helper_depends < <(tr "," "\n" <<< "${OPTARG}") ;;
         h) 
             _help
             exit 0
