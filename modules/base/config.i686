@@ -9,23 +9,29 @@
 # Config files for all i686 channel
 #
 
-aur_helper_command="trizen"
-aur_helper_package="trizen"
-aur_helper_depends=(
-    'git'
-    'pacutils'
-    'perl'
-    'perl-libwww'
-    'perl-term-ui'
-    'pacman'
-    'perl-json'
-    'perl-data-dump'
-    'perl-lwp-protocol-https'
-    'perl-term-readline-gnu'
-    'highlight'
-)
-aur_helper_args=(
-    #--mflags "-AcC,--skippgpcheck"
-    --aur
-    --noedit
-)
+#aur_helper_command="trizen"
+#aur_helper_package="trizen"
+#aur_helper_depends=(
+#    'git'
+#    'pacutils'
+#    'perl'
+#    'perl-libwww'
+#    'perl-term-ui'
+#    'pacman'
+#   'perl-json'
+#   'perl-data-dump'
+#    'perl-lwp-protocol-https'
+#   'perl-term-readline-gnu'
+#   'highlight'
+#)
+#aur_helper_args=(
+#    #--mflags "-AcC,--skippgpcheck"
+#    --aur
+#    --noedit
+#)
+
+
+aur_helper_package="wfa-git"
+aur_helper_command="wfa"
+aur_helper_depends=('sudo' 'pacman' 'jq' 'python3' 'curl' 'pyalpm' 'python-srcinfo')
+aur_helper_args=()
