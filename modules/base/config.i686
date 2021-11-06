@@ -14,7 +14,7 @@ aur_helper_package="trizen"
 aur_helper_depends=(
     'git'
     'pacutils'
-    'perl>=5.20.0'
+    'perl'
     'perl-libwww'
     'perl-term-ui'
     'pacman'
