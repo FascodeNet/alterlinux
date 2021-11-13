@@ -1,12 +1,12 @@
 #
+# Alter Linux package list
+#
 # Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Supported architecture list
+# Gnome extensions
 
-x86_64
-i686
-pen4
+gnome-shell-extension-appindicator
