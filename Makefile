@@ -46,7 +46,7 @@ xfce-pro-ja-64 xfce-pro-en-64                                                   
 	@$(eval CHANNEL=${shell echo ${@} | sed "s/-${LOCALE}-${ARCHITECTURE}//g"})
 	@[[ -z "${CHANNEL}" ]] && echo "Empty Channel" && exit 1 || :
 	@case ${ARCHITECTURE} in\
-		"i686") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_pen4}   -l ${LOCALE} ${CHANNEL} ;;\
+		"pen4") sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_pen4}   -l ${LOCALE} ${CHANNEL} ;;\
 		"32"  ) sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_i686}   -l ${LOCALE} ${CHANNEL} ;;\
 		"64"  ) sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} ${ARCH_x86_64} -l ${LOCALE} ${CHANNEL};;\
 		*     ) echo "Unknown Architecture"; exit 1  ;; \
