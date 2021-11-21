@@ -252,6 +252,7 @@ prepare_build() {
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     _msg_debug "Loaded modules: ${modules[*]}"
     ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && _msg_warn "The share module is not loaded."
+    ! printf "%s\n" "${modules[@]}" | grep -x "base" >/dev/null 2>&1 && msg_error "The base module is not loaded." 1
 
     # Set kernel
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
@@ -298,7 +299,7 @@ prepare_build() {
 
     # Set argument of aur.sh and pkgbuild.sh
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
-    [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-d")
+    [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-c")
 
     # Set bootmodes
     { [[ "${tarball}" = true ]] && ! printf "%s\n" "${buildmodes[@]}" | grep -qx "bootstrap"; } && buildmodes+=("tarball")
@@ -369,6 +370,12 @@ make_overisofs() {
 _make_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
     _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
+    _aursh_args=(
+        "-a" "${aur_helper_command}" -e "${aur_helper_package}"
+        "-d" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")"
+        "-p" "$(printf "%s\n" "${_pkglist_aur[@]}" | tr "\n" ",")"
+        "${makepkg_script_args[@]}" -- "${aur_helper_args[@]}"
+    )
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
@@ -379,7 +386,9 @@ _make_aur() {
 
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
     # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
-    _pacstrap_args=("go") && [[ "${pacman_debug}" = true ]] && _pacstrap_args=("--debug" "${_pacstrap_args[@]}")
+    local _pacstrap_args=()
+    [[ "${pacman_debug}" = true ]] && _pacstrap_args+=("--debug")
+    _pacstrap_args=("${aur_helper_depend[@]}")
     if [[ "${quiet}" = "y" ]]; then
         env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}" &> /dev/null
     else
@@ -387,7 +396,7 @@ _make_aur() {
     fi
 
     # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
+    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${_aursh_args[@]}"
 
     # Remove script
     remove "${pacstrap_dir}/root/aur.sh"
