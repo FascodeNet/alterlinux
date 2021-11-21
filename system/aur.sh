@@ -11,6 +11,9 @@ set -e -u
 aur_username="aurbuild"
 pacman_debug=false
 pacman_args=()
+failedpkg=()
+remove_list=()
+yay_depends=("go")
 
 trap 'exit 1' 1 2 3 15
 
@@ -63,7 +66,7 @@ if ! user_check "${aur_username}"; then
 fi
 mkdir -p "/aurbuild_temp"
 chmod 700 -R "/aurbuild_temp"
-chown ${aur_username}:${aur_username} -R "/aurbuild_temp"
+chown "${aur_username}:${aur_username}" -R "/aurbuild_temp"
 echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
 # Setup keyring
@@ -81,20 +84,32 @@ fi
 
 # Install yay
 if ! pacman -Qq yay 1> /dev/null 2>&1; then
-    (
-        _oldpwd="$(pwd)"
-        pacman -Syy "${pacman_args[@]}"
-        pacman -S --asdeps --needed "${pacman_args[@]}" go
-        sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-        cd "/tmp/yay"
-        sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
-        for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
-            pacman "${pacman_args[@]}" -U "${_pkg}"
-        done
-        cd ..
-        remove "/tmp/yay"
-        cd "${_oldpwd}"
-    )
+    # Update database
+    _oldpwd="$(pwd)"
+    pacman -Syy "${pacman_args[@]}"
+
+    # Install depends
+    for _pkg in "${yay_depends[@]}"; do
+        if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
+            pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
+            remove_list+=("${_pkg}")
+        fi
+    done
+
+    # Build yay
+    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
+    cd "/tmp/yay"
+    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+
+    # Install yay
+    for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
+        pacman "${pacman_args[@]}" -U "${_pkg}"
+    done
+
+    # Remove debtis
+    cd ..
+    remove "/tmp/yay"
+    cd "${_oldpwd}"
 fi
 
 if ! type -p yay > /dev/null; then
@@ -102,10 +117,7 @@ if ! type -p yay > /dev/null; then
     exit 1
 fi
 
-
-# Build and install
-chmod +s /usr/bin/sudo
-for _pkg in "${@}"; do
+installpkg(){
     yes | sudo -u "${aur_username}" \
         yay -Sy \
             --mflags "-AcC" \
@@ -121,14 +133,36 @@ for _pkg in "${@}"; do
             --mflags "--skippgpcheck" \
             "${pacman_args[@]}" \
             --cachedir "/var/cache/pacman/pkg/" \
-            "${_pkg}"
+            "${@}" || true
+}
 
+
+# Build and install
+chmod +s /usr/bin/sudo
+for _pkg in "${@}"; do
+    pacman -Qq "${_pkg}" > /dev/null 2>&1  && continue
+    installpkg "${_pkg}"
+
+    if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
+        echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+        failedpkg+=("${_pkg}")
+    fi
+done
+
+# Reinstall failed package
+for _pkg in "${failedpkg[@]}"; do
+    installpkg "${_pkg}"
     if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
         echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
         exit 1
     fi
 done
 
+# Remove packages
+readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
+(( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
+
+# Clean up
 yay -Sccc "${pacman_args[@]}"
 
 # remove user and file

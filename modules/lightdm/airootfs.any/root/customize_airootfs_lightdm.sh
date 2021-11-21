@@ -39,3 +39,9 @@ if [[ -f "/etc/lightdm/lightdm.conf.d/02-autologin-session.conf" ]] && cat "/etc
         exit 1
     fi
 fi
+
+
+# For calamares
+if [[ -f "/usr/share/calamares/modules/services.conf" ]]; then
+    sed -i "s|%DM%|lightdm|g" "/usr/share/calamares/modules/services.conf"
+fi

@@ -42,7 +42,7 @@ msg_common(){
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
     _msg_opts+=("${_type}" "${@}")
-    "${tools_dir}/msg.sh" "${_msg_opts[@]}"
+    "${tools_dir}/msg.sh" "${_msg_opts[@]}" &
 }
 
 # Show an INFO message

@@ -17,23 +17,17 @@ set -Eeu
 # Do not change these values.
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 defaultconfig="${script_path}/default.conf"
-tools_dir="${script_path}/tools"
-module_dir="${script_path}/modules"
-customized_username=false
-customized_password=false
-customized_kernel=false
-customized_logpath=false
-pkglist_args=()
-makepkg_script_args=()
-modules=()
-DEFAULT_ARGUMENT=""
-ARGUMENT=("${@}")
+tools_dir="${script_path}/tools" module_dir="${script_path}/modules"
+customized_username=false customized_password=false customized_kernel=false customized_logpath=false
+pkglist_args=() makepkg_script_args=() modules=() norepopkg=()
+legacy_mode=false rerun=false
+DEFAULT_ARGUMENT="" ARGUMENT=("${@}")
 alteriso_version="3.1"
 
 # Load config file
 [[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
 for config in "${defaultconfig}" "${script_path}/custom.conf"; do
-    [[ -f "${config}" ]] && source "${config}"
+    [[ -f "${config}" ]] && source "${config}" && loaded_files+=("${config}")
 done
 
 umask 0022
@@ -41,8 +35,7 @@ umask 0022
 # Message common function
 # msg_common [type] [-n] [string]
 msg_common(){
-    local _msg_opts=("-a" "build.sh") _type="${1}"
-    shift 1
+    local _msg_opts=("-a" "build.sh") _type="${1}" && shift 1
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
     [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
@@ -82,86 +75,32 @@ getclm() { cut -d " " -f "${1}"; }
 echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 
 _usage () {
-    echo "usage ${0} [options] [channel]"
-    echo
-    echo "A channel is a profile of AlterISO settings."
-    echo
-    echo " General options:"
-    echo "    -b | --boot-splash           Enable boot splash"
-    echo "    -e | --cleanup | --cleaning  Enable post-build cleaning"
-    echo "         --tarball               Build rootfs in tar.xz format"
-    echo "    -h | --help                  This help message and exit"
-    echo
-    echo "    -a | --arch <arch>           Set iso architecture"
-    echo "                                  Default: ${arch}"
-    echo "    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "                                  Default: ${sfs_comp}"
-    echo "    -g | --gpgkey <key>          Set gpg key"
-    echo "                                  Default: ${gpg_key}"
-    echo "    -l | --lang <lang>           Specifies the default language for the live environment"
-    echo "                                  Default: ${locale_name}"
-    echo "    -k | --kernel <kernel>       Set special kernel type.See below for available kernels"
-    echo "                                  Default: ${defaultkernel}"
-    echo "    -o | --out <out_dir>         Set the output directory"
-    echo "                                  Default: ${out_dir}"
-    echo "    -p | --password <password>   Set a live user password"
-    echo "                                  Default: ${password}"
-    echo "    -t | --comp-opts <options>   Set compressor-specific options."
-    echo "                                  Default: empty"
-    echo "    -u | --user <username>       Set user name"
-    echo "                                  Default: ${username}"
-    echo "    -w | --work <work_dir>       Set the working directory"
-    echo "                                  Default: ${work_dir}"
-    echo
-
-    local blank="33" _arch _dirname _type
-
+    cat "${script_path}/docs/build.sh/help.1"
+    local blank="29" _arch _dirname _type _output _first
     for _type in "locale" "kernel"; do
         echo " ${_type} for each architecture:"
         for _arch in $(find "${script_path}/system/" -maxdepth 1 -mindepth 1 -name "${_type}-*" -print0 | xargs -I{} -0 basename {} | sed "s|${_type}-||g"); do
-            echo -n "    ${_arch}$(echo_blank "$(( "${blank}" - 4 - "${#_arch}" ))")"
-            "${tools_dir}/${_type}.sh" -a "${_arch}" show
+            echo "    ${_arch}$(echo_blank "$(( "${blank}" - "${#_arch}" ))")$("${tools_dir}/${_type}.sh" -a "${_arch}" show)"
         done
         echo
     done
 
     echo " Channel:"
     for _dirname in $(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -d -b -n --line show | sed "s|.add$||g"); do
-        echo -ne "    ${_dirname}$(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")"
-        "${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}"
+        readarray -t _output < <("${tools_dir}/channel.sh" --version "${alteriso_version}" --nocheck desc "${_dirname}")
+        _first=true
+        echo -n "    ${_dirname}"
+        for _out in "${_output[@]}"; do
+            "${_first}" && echo -e "    $(echo_blank "$(( "${blank}" - 4 - "${#_dirname}" ))")${_out}" || echo -e "    $(echo_blank "$(( "${blank}" + 5 - "${#_dirname}" ))")${_out}"
+            _first=false
+        done
     done
-
-    echo
-    echo " Debug options: Please use at your own risk."
-    echo "    -d | --debug                 Enable debug messages"
-    echo "    -x | --bash-debug            Enable bash debug mode(set -xv)"
-    echo "         --channellist           Output the channel list and exit"
-    echo "         --gitversion            Add Git commit hash to image file version"
-    echo "         --logpath <file>        Set log file path (use with --log)"
-    echo "         --[no]log               (No) log ;re-run script with tee"
-    echo "         --msgdebug              Enables output debugging"
-    echo "         --noaur                 Ignore aur packages (Use only for debugging)"
-    echo "         --nocolor               No output colored output"
-    echo "         --[no]confirm           (No) check the settings before building"
-    echo "         --nochkver              No check the version of the channel"
-    echo "         --nodebug               No debug message"
-    echo "         --noefi                 No efi boot (Use only for debugging)"
-    echo "         --noloopmod             No check and load kernel module automatically"
-    echo "         --nodepend              No check package dependencies before building"
-    echo "         --noiso                 No build iso image (Use with --tarball)"
-    echo "         --pacman-debug          Enable pacman debug mode"
-    echo "         --normwork              No remove working dir"
-    echo "         --nopkgbuild            Ignore PKGBUILD (Use only for debugging)"
-    echo "         --tar-type <comp_type>  Set compression type (gzip, lzma, lzo, xz, zstd)"
-    echo "         --tar-opts <option>     Set tar command argument (Use with --tarball)"
-    echo
-    echo " Many packages are installed from AUR, so specifying --noaur can cause problems."
-    echo
+    cat "${script_path}/docs/build.sh/help.2"
     [[ -n "${1:-}" ]] && exit "${1}"
 }
 
 # Unmount helper Usage: _umount <target>
-_umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
+_umount() { mountpoint -q "${1}" && umount -lf "${1}"; return 0; }
 
 # Mount helper Usage: _mount <source> <target>
 _mount() { ! mountpoint -q "${2}" && [[ -f "${1}" ]] && [[ -d "${2}" ]] && mount "${1}" "${2}"; return 0; }
@@ -183,13 +122,13 @@ mount_airootfs () {
 
 # Helper function to run make_*() only one time.
 run_once() {
-    set -eu
     if [[ ! -e "${lockfile_dir}/build.${1}" ]]; then
+        umount_work
         msg_debug "Running ${1} ..."
         mount_airootfs
         eval "${@}"
         mkdir -p "${lockfile_dir}"; touch "${lockfile_dir}/build.${1}"
-        umount_work
+        
     else
         msg_debug "Skipped because ${1} has already been executed."
     fi
@@ -227,10 +166,7 @@ show_channel_list() {
 
 # Execute command for each module. It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){
-    local module
-    for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done
-}
+for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
 
 # pacstrapを実行
 _pacstrap(){
@@ -252,7 +188,7 @@ _run_with_pacmanconf(){
 # コマンドをchrootで実行する
 _chroot_run() {
     msg_debug "Run command in chroot\nCommand: ${*}"
-    eval -- arch-chroot "${airootfs_dir}" "${@}"
+    arch-chroot "${airootfs_dir}" "${@}" || return "${?}"
 }
 
 _cleanup_common () {
@@ -304,7 +240,8 @@ check_bool() {
     for _variable in "${@}"; do
         msg_debug -n "Checking ${_variable}..."
         eval ": \${${_variable}:=''}"
-        _value="$(eval echo "\$${_variable}")"
+        _value="$(eval echo "\${${_variable},,}")"
+        eval "${_variable}=${_value}"
         if [[ ! -v "${1}" ]] || [[ "${_value}"  = "" ]]; then
             [[ "${debug}" = true ]] && echo ; msg_error "The variable name ${_variable} is empty." "1"
         elif [[ ! "${_value}" = "true" ]] && [[ ! "${_value}" = "false" ]]; then
@@ -340,7 +277,7 @@ prepare_env() {
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
         [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        lsmod | getclm 1 | grep -x "loop" || modprobe loop
+        lsmod | getclm 1 | grep -qx "loop" || modprobe loop
     fi
 
     # Check work dir
@@ -389,6 +326,7 @@ show_settings() {
     msg_info "The compression method of squashfs is ${sfs_comp}."
     msg_info "Use the ${channel_name%.add} channel."
     msg_info "Build with architecture ${arch}."
+    (( "${#additional_exclude_pkg[@]}" != 0 )) && msg_info "Excluded packages: ${additional_exclude_pkg[*]}"
     if [[ "${noconfirm}" = false ]]; then
         echo -e "\nPress Enter to continue or Ctrl + C to cancel."
         read -r
@@ -403,40 +341,41 @@ show_settings() {
 
 # Preparation for build
 prepare_build() {
+    # Debug mode
+    [[ "${bash_debug}" = true ]] && set -x -v
+
     # Show alteriso version
-    if [[ -d "${script_path}/.git" ]]; then
-        cd  "${script_path}"
-        msg_debug "The version of alteriso is $(git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g')."
-        cd "${OLDPWD}"
-    fi
+    [[ -n "${gitrev-""}" ]] && msg_debug "The version of alteriso is ${gitrev}"
 
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
-    # Debug mode
-    if [[ "${bash_debug}" = true ]]; then
-        set -x -v
-    fi
+    # Additional modules
+    modules+=("${additional_modules[@]}")
 
     # Legacy mode
     if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
         msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
-        if [[ -n "${include_extra+SET}" ]]; then
-            if [[ "${include_extra}" = true ]]; then
-                modules=("base" "share" "share-extra" "calamares" "zsh-powerline")
-            else
-                modules=("base" "share")
-            fi
-        fi
+        modules=("legacy")
+        legacy_mode=true
+        [[ "${include_extra-"unset"}" = true ]] && modules=("legacy-extra")
     fi
 
-    local module_check
+    # Load presets
+    local _modules=() module_check
+    for_module '[[ -f "${preset_dir}/{}" ]] && readarray -t -O "${#_modules[@]}" _modules < <(grep -h -v ^'#' "${preset_dir}/{}") || _modules+=("{}")'
+    modules=("${_modules[@]}")
+    unset _modules
+
+    # Check modules
     module_check(){
-        msg_debug "Checking ${1} module ..."
-        bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1";
+        msg_debug -n "Checking ${1} module ... "
+        bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1" && echo "${module_dir}/${1}"
     }
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "module_check {}"
+
+    # Load modules
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     msg_debug "Loaded modules: ${modules[*]}"
     ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
@@ -453,6 +392,7 @@ prepare_build() {
     [[ "${customized_password}" = false ]] && password="${defaultpassword}"
 
     # gitversion
+    [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && msg_error "There is no git directory. You need to use git clone to use this feature." "1"
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
     # Generate tar file name
@@ -476,16 +416,14 @@ prepare_build() {
     # Check architecture for each channel
     local _exit=0
     bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
-    if (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )); then
-        msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
-    fi
+    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
         [[ "${customized_logpath}" = false ]] && logging="${out_dir}/${iso_filename%.iso}.log"
         mkdir -p "$(dirname "${logging}")" && touch "${logging}"
-        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor 2>&1 | tee ${logging}"
-        sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend 2>&1 | tee "${logging}"
+        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
+        sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend --rerun 2>&1 | tee "${logging}"
         exit "${?}"
     fi
 
@@ -552,20 +490,37 @@ make_basefs() {
 # Additional packages (airootfs)
 make_packages_repo() {
     msg_debug "pkglist.sh ${pkglist_args[*]}"
-    readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+    readarray -t _pkglist_install < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+
+    # Package check
+    if [[ "${legacy_mode}" = true ]]; then
+        readarray -t _pkglist < <("${tools_dir}/pkglist.sh" "${pkglist_args[@]}")
+        readarray -t repopkgs < <(pacman-conf -c "${build_pacman_conf}" -l | xargs -I{} pacman -Sql --config "${build_pacman_conf}" --color=never {} && pacman -Sg)
+        local _pkg
+        for _pkg in "${_pkglist[@]}"; do
+            msg_info "Checking ${_pkg}..."
+            if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
+                _pkglist_install+=("${_pkg}")
+            else
+                msg_info "${_pkg} was not found. Install it with yay from AUR"
+                norepopkg+=("${_pkg}")
+            fi
+        done
+    fi
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n" > "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist[@]}" >> "${build_dir}/packages.list"
+    printf "%s\n" "${_pkglist_install[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
-    _pacstrap "${_pkglist[@]}"
+    _pacstrap "${_pkglist_install[@]}"
 
     return 0
 }
 
 make_packages_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
+    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
 
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
@@ -573,6 +528,7 @@ make_packages_aur() {
 
     # prepare for yay
     cp -rf --preserve=mode "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
+    _pacstrap --asdeps --needed "go" # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
 
     # Run aur script
     _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${makepkg_script_args[@]}" "${_pkglist_aur[@]}"
@@ -649,10 +605,10 @@ make_customize_airootfs() {
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
 
     # Generate options of customize_airootfs.sh.
-    _airootfs_script_options="-p '${password}' -k '${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}' -u '${username}' -o '${os_name}' -i '${install_dir}' -s '${usershell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' -t ${theme_name}"
-    [[ "${boot_splash}" = true ]] && _airootfs_script_options="${_airootfs_script_options} -b"
-    [[ "${debug}" = true       ]] && _airootfs_script_options="${_airootfs_script_options} -d"
-    [[ "${bash_debug}" = true  ]] && _airootfs_script_options="${_airootfs_script_options} -x"
+    _airootfs_script_options=(-p "${password}" -k "${kernel} ${kernel_filename} ${kernel_mkinitcpio_profile}" -u "${username}" -o "${os_name}" -i "${install_dir}" -s "${usershell}" -a "${arch}" -g "${locale_gen_name}" -l "${locale_name}" -z "${locale_time}" -t "${theme_name}")
+    [[ "${boot_splash}" = true ]] && _airootfs_script_options+=("-b")
+    [[ "${debug}" = true       ]] && _airootfs_script_options+=("-d")
+    [[ "${bash_debug}" = true  ]] && _airootfs_script_options+=("-x")
 
     _main_script="root/customize_airootfs.sh"
 
@@ -666,7 +622,7 @@ make_customize_airootfs() {
     # Create script
     for _script in "${_script_list[@]}"; do
         if [[ -f "${_script}" ]]; then
-            echo -e "\n$(cat "${_script}")" >> "${airootfs_dir}/${_main_script}"
+            (echo -e "\n#--$(basename "${_script}")--#\n" && cat "${_script}")  >> "${airootfs_dir}/${_main_script}"
             remove "${_script}"
         else
             msg_debug "${_script} was not found."
@@ -674,8 +630,8 @@ make_customize_airootfs() {
     done
 
     chmod 755 "${airootfs_dir}/${_main_script}"
-    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename ${_main_script})"
-    _chroot_run "${_main_script} ${_airootfs_script_options}"
+    cp "${airootfs_dir}/${_main_script}" "${build_dir}/$(basename "${_main_script}")"
+    _chroot_run "${_main_script}" "${_airootfs_script_options[@]}"
     remove "${airootfs_dir}/${_main_script}"
 
     # /root permission https://github.com/archlinux/archiso/commit/d39e2ba41bf556674501062742190c29ee11cd59
@@ -694,20 +650,19 @@ make_setup_mkinitcpio() {
         cp "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
     done
 
+    sed -i "s|%COWSPACE%|${cowspace}|g" "${airootfs_dir}/etc/initcpio/hooks/archiso"
     sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
     cp "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
-    cp "${script_path}/system/initcpio/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
-    if [[ "${boot_splash}" = true ]]; then
-        cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
-    else
-        cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
-    fi
+    cp "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
+    cp "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+    [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
+
     if [[ "${gpg_key}" ]]; then
       gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
       exec 17<>"${build_dir}/gpgkey"
     fi
 
-    _chroot_run "mkinitcpio -c /etc/mkinitcpio-archiso.conf -k /boot/${kernel_filename} -g /boot/archiso.img"
+    _chroot_run mkinitcpio -c "/etc/mkinitcpio-archiso.conf" -k "/boot/${kernel_filename}" -g "/boot/archiso.img"
 
     [[ "${gpg_key}" ]] && exec 17<&-
     
@@ -756,9 +711,7 @@ make_syslinux() {
     # 一時ディレクトリに設定ファイルをコピー
     mkdir -p "${build_dir}/syslinux/"
     cp -a "${script_path}/syslinux/"* "${build_dir}/syslinux/"
-    if [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]]; then
-        cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
-    fi
+    [[ -d "${channel_dir}/syslinux" ]] && [[ "${customized_syslinux}" = true ]] && cp -af "${channel_dir}/syslinux"* "${build_dir}/syslinux/"
 
     # copy all syslinux config to work dir
     for _cfg in "${build_dir}/syslinux/"*.cfg; do
@@ -770,13 +723,10 @@ make_syslinux() {
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
-    local _use_config_name _no_use_config_name _pxe_or_sys
+    local _use_config_name="nosplash" _no_use_config_name="splash" _pxe_or_sys
     if [[ "${boot_splash}" = true ]]; then
         _use_config_name=splash
         _no_use_config_name=nosplash
-    else
-        _use_config_name=nosplash
-        _no_use_config_name=splash
     fi
     for _pxe_or_sys in "sys" "pxe"; do
         remove "${isofs_dir}/syslinux/archiso_${_pxe_or_sys}_${_no_use_config_name}.cfg"
@@ -784,11 +734,8 @@ make_syslinux() {
     done
 
     # Set syslinux wallpaper
-    if [[ -f "${channel_dir}/splash.png" ]]; then
-        cp "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
-    else
-        cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
-    fi
+    cp "${script_path}/syslinux/splash.png" "${isofs_dir}/syslinux"
+    [[ -f "${channel_dir}/splash.png" ]] && cp -f "${channel_dir}/splash.png" "${isofs_dir}/syslinux"
 
     # remove config
     local _remove_config
@@ -995,7 +942,7 @@ make_alteriso_info(){
         local _info_file="${isofs_dir}/alteriso-info" _version="${iso_version}"
         remove "${_info_file}"; touch "${_info_file}"
         [[ -d "${script_path}/.git" ]] && [[ "${gitversion}" = false ]] && _version="${iso_version}-${gitrev}"
-        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" > "${_info_file}"
+        "${tools_dir}/alteriso-info.sh" -a "${arch}" -b "${boot_splash}" -c "${channel_name%.add}" -d "${iso_publisher}" -k "${kernel}" -o "${os_name}" -p "${password}" -u "${username}" -v "${_version}" -m "$(printf "%s," "${modules[@]}")" > "${_info_file}"
     fi
 
     return 0
@@ -1005,9 +952,9 @@ make_alteriso_info(){
 make_overisofs() {
     local _over_isofs_list _isofs
     _over_isofs_list=("${channel_dir}/over_isofs.any""${channel_dir}/over_isofs.${arch}")
-    for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any""${module_dir}/{}/over_isofs.${arch}")'
+    for_module '_over_isofs_list+=("${module_dir}/{}/over_isofs.any" "${module_dir}/{}/over_isofs.${arch}")'
     for _isofs in "${_over_isofs_list[@]}"; do
-        [[ -d "${_isofs}" ]] && cp -af "${_isofs}"/* "${isofs_dir}"
+        [[ -d "${_isofs}" ]] && [[ -n "$(find "${_isofs}" -mindepth 1 -maxdepth 2)" ]] &&  cp -af "${_isofs}"/* "${isofs_dir}"
     done
 
     return 0
@@ -1017,9 +964,7 @@ make_overisofs() {
 make_iso() {
     local _iso_efi_boot_args=()
     # If exists, add an EFI "El Torito" boot image (FAT filesystem) to ISO-9660 image.
-    if [[ -f "${build_dir}/efiboot.img" ]]; then
-        _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
-    fi
+    [[ -f "${build_dir}/efiboot.img" ]] && _iso_efi_boot_args=(-append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "${build_dir}/efiboot.img" -appended_part_as_gpt -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot -isohybrid-gpt-basdat)
 
     mkdir -p -- "${out_dir}"
     msg_info "Creating ISO image..."
@@ -1050,30 +995,17 @@ make_iso() {
 
 
 # Parse options
-ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}")
-OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x")
-OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:")
-if ! OPT=$(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
-#if ! readarray OPT < <(getopt -o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" --  "${ARGUMENT[@]}"); then
-    exit 1
-fi
+ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "tar-type:" "tar-opts:" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod")
+GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
+getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
+readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
 
-#eval set -- "${OPT[@]}"4
-#msg_debug "Argument: ${OPT[@]}"
-eval set -- "${OPT}"
-msg_debug "Argument: ${OPT}"
-unset OPT OPTS OPTL DEFAULT_ARGUMENT
+eval set -- "${OPT[@]}"
+msg_debug "Argument: ${OPT[*]}"
+unset OPT OPTS OPTL DEFAULT_ARGUMENT GETOPT
 
 while true; do
     case "${1}" in
-        -a | --arch)
-            arch="${2}"
-            shift 2
-            ;;
-        -b | --boot-splash)
-            boot_splash=true
-            shift 1
-            ;;
         -c | --comp-type)
             case "${2}" in
                 "gzip" | "lzma" | "lzo" | "lz4" | "xz" | "zstd") sfs_comp="${2}" ;;
@@ -1081,45 +1013,16 @@ while true; do
             esac
             shift 2
             ;;
-        -d | --debug)
-            debug=true
-            shift 1
-            ;;
-        -e | --cleaning | --cleanup)
-            cleaning=true
-            shift 1
-            ;;
-        -g | --gpgkey)
-            gpg_key="${2}"
-            shift 2
-            ;;
-        -h | --help)
-            _usage 0
-            ;;
         -j | --japanese)
             msg_error "This option is obsolete in AlterISO 3. To use Japanese, use \"-l ja\"." "1"
             ;;
         -k | --kernel)
-            customized_kernel=true
-            kernel="${2}"
-            shift 2
-            ;;
-        -l | --lang)
-            locale_name="${2}"
-            shift 2
-            ;;
-        -o | --out)
-            out_dir="${2}"
+            customized_kernel=true kernel="${2}"
             shift 2
             ;;
         -p | --password)
-            customized_password=true
-            password="${2}"
+            customized_password=true password="${2}"
             shift 2
-            ;;
-        -r | --tarball)
-            tarball=true
-            shift 1
             ;;
         -t | --comp-opts)
             if [[ "${2}" = "reset" ]]; then
@@ -1134,105 +1037,13 @@ while true; do
             username="$(echo -n "${2}" | sed 's/ //g' | tr '[:upper:]' '[:lower:]')"
             shift 2
             ;;
-        -w | --work)
-            work_dir="${2}"
-            shift 2
-            ;;
-        -x | --bash-debug)
-            debug=true
-            bash_debug=true
-            shift 1
-            ;;
-        --noconfirm)
-            noconfirm=true
-            shift 1
-            ;;
-        --confirm)
-            noconfirm=false
-            shift 1
-            ;;
-        --nodepend)
-            nodepend=true
-            shift 1
-            ;;
-        --nocolor)
-            nocolor=true
-            shift 1
-            ;;
-        --gitversion)
-            if [[ -d "${script_path}/.git" ]]; then
-                gitversion=true
-            else
-                msg_error "There is no git directory. You need to use git clone to use this feature." "1"
-            fi
-            shift 1
-            ;;
-        --msgdebug)
-            msgdebug=true;
-            shift 1
-            ;;
-        --noloopmod)
-            noloopmod=true
-            shift 1
-            ;;
-        --noiso)
-            noiso=true
-            shift 1
-            ;;
-        --noaur)
-            noaur=true
-            shift 1
-            ;;
-        --nochkver)
-            nochkver=true
-            shift 1
-            ;;
         --nodebug)
-            debug=false
-            msgdebug=false
-            bash_debug=false
-            shift 1
-            ;;
-        --noefi)
-            noefi=true
-            shift 1
-            ;;
-        --channellist)
-            show_channel_list
-            exit 0
-            ;;
-        --config)
-            source "${2}"
-            shift 2
-            ;;
-        --pacman-debug)
-            pacman_debug=true
-            shift 1
-            ;;
-        --nosigcheck)
-            nosigcheck=true
-            shift 1
-            ;;
-        --normwork)
-            normwork=true
-            shift 1
-            ;;
-        --log)
-            logging=true
+            debug=false msgdebug=false bash_debug=false
             shift 1
             ;;
         --logpath)
-            logging="${2}"
-            customized_logpath=true
+            logging="${2}" customized_logpath=true
             shift 2
-            ;;
-        --nolog)
-            logging=false
-            shift 1
-            ;;
-        --nopkgbuild)
-            nopkgbuild=true
-            shift 1
             ;;
         --tar-type)
             case "${2}" in
@@ -1245,10 +1056,47 @@ while true; do
             IFS=" " read -r -a tar_comp_opt <<< "${2}"
             shift 2
             ;;
-        --)
-            shift
-            break
+        --add-module)
+            readarray -t -O "${#additional_modules[@]}" additional_modules < <(echo "${2}" | tr "," "\n")
+            msg_debug "Added modules: ${additional_modules[*]}"
+            shift 2
             ;;
+        -g | --gpgkey               ) gpg_key="${2}"     && shift 2 ;;
+        -h | --help                 ) _usage 0                      ;;
+        -a | --arch                 ) arch="${2}"        && shift 2 ;;
+        -d | --debug                ) debug=true         && shift 1 ;;
+        -e | --cleaning | --cleanup ) cleaning=true      && shift 1 ;;
+        -b | --boot-splash          ) boot_splash=true   && shift 1 ;;
+        -l | --lang                 ) locale_name="${2}" && shift 2 ;;
+        -o | --out                  ) out_dir="${2}"     && shift 2 ;;
+        -r | --tarball              ) tarball=true       && shift 1 ;;
+        -w | --work                 ) work_dir="${2}"    && shift 2 ;;
+        -x | --bash-debug           ) bash_debug=true    && shift 1 ;;
+        --gitversion                ) gitversion=true    && shift 1 ;;
+        --noconfirm                 ) noconfirm=true     && shift 1 ;;
+        --confirm                   ) noconfirm=false    && shift 1 ;;
+        --nodepend                  ) nodepend=true      && shift 1 ;;
+        --nocolor                   ) nocolor=true       && shift 1 ;;
+        --msgdebug                  ) msgdebug=true      && shift 1 ;;
+        --noloopmod                 ) noloopmod=true     && shift 1 ;;
+        --noiso                     ) noiso=true         && shift 1 ;;
+        --noaur                     ) noaur=true         && shift 1 ;;
+        --nochkver                  ) nochkver=true      && shift 1 ;;
+        --noefi                     ) noefi=true         && shift 1 ;;
+        --channellist               ) show_channel_list  && exit  0 ;;
+        --config                    ) source "${2}"      ;  shift 2 ;;
+        --pacman-debug              ) pacman_debug=true  && shift 1 ;;
+        --nosigcheck                ) nosigcheck=true    && shift 1 ;;
+        --normwork                  ) normwork=true      && shift 1 ;;
+        --log                       ) logging=true       && shift 1 ;;
+        --nolog                     ) logging=false      && shift 1 ;;
+        --nopkgbuild                ) nopkgbuild=true    && shift 1 ;;
+        --nogitversion              ) gitversion=false   && shift 1 ;;
+        --cowspace                  ) cowspace="${2}"    && shift 2 ;;
+        --rerun                     ) rerun=true         && shift 1 ;;
+        --depend                    ) nodepend=false     && shift 1 ;;
+        --loopmod                   ) noloopmod=false    && shift 1 ;;
+        --                          ) shift 1            && break   ;;
         *)
             msg_error "Argument exception error '${1}'"
             msg_error "Please report this error to the developer." 1
@@ -1260,7 +1108,7 @@ done
 if (( ! "${EUID}" == 0 )); then
     msg_warn "This script must be run as root." >&2
     msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
-    sudo "${0}" "${ARGUMENT[@]}"
+    sudo "${0}" "${ARGUMENT[@]}" --rerun
     exit "${?}"
 fi
 
@@ -1291,12 +1139,7 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}"
-cache_dir="${work_dir}/cache/${arch}"
-airootfs_dir="${build_dir}/airootfs"
-isofs_dir="${build_dir}/iso"
-lockfile_dir="${build_dir}/lockfile"
-gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
 
 # Create dir
 for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
@@ -1304,7 +1147,6 @@ for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
     msg_debug "${_dir} is $(realpath "$(eval "echo \$${_dir}")")"
     eval "${_dir}=\"$(realpath "$(eval "echo \$${_dir}")")\""
 done
-
 
 # Set for special channels
 if [[ -d "${channel_dir}.add" ]]; then
@@ -1325,8 +1167,6 @@ if [[ ! "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "$
         msg_error "Please download old version here.\nhttps://github.com/FascodeNet/alterlinux/releases" "1"
     fi
 fi
-
-set -eu
 
 prepare_env
 prepare_build

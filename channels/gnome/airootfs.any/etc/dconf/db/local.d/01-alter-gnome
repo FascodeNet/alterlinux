@@ -12,7 +12,7 @@ clock-show-weekday=false
 enable-animations=false
 enable-hot-corners=false
 gtk-im-module='gtk-im-context-simple'
-gtk-theme='Adapta-Blue-Nokto-Eta'
+gtk-theme='Materia-dark-compact'
 icon-theme='Papirus-Dark'
 show-battery-percentage=true
 
@@ -64,29 +64,9 @@ hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 0
-disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com' ]
-enabled-extensions=['extensions@abteil.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'CoverflowAltTab@palatis.blogspot.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'horizontal-workspaces@gnome-shell-extensions.gcampax.github.com', 'CoverflowAltTab@dmo60.de', 'arcmenu@arcmenu.com', 'clipboard-indicator@tudmotu.com', 'appindicatorsupport@rgcjonas.gmail.com']
+disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'launch-new-instance@gnome-shell-extensions.gcampax.github.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'CoverflowAltTab@dmo60.de', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'clipboard-indicator@tudmotu.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com']
 favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'gnome-control-center.desktop']
-
-[org/gnome/shell/extensions/arc-menu]
-application-shortcuts-list=[['Software', 'system-software-install-symbolic', 'ArcMenu_Software'], ['Settings', 'preferences-system-symbolic', 'gnome-control-center.desktop'], ['Tweaks', 'org.gnome.tweaks-symbolic', 'org.gnome.tweaks.desktop'], ['Terminal', 'utilities-terminal-symbolic', 'org.gnome.Terminal.desktop']]
-arc-menu-placement='DTD'
-button-icon-padding=0
-custom-menu-button-icon='/usr/share/icons/hicolor/128x128/apps/alter.png'
-custom-menu-button-icon-size=24.0
-disable-activities-button=true
-disable-tooltips=false
-dtp-dtd-state=[true, true]
-enable-custom-arc-menu=false
-enable-menu-button-arrow=false
-menu-button-icon='Custom_Icon'
-pinned-app-list=['Chromium', 'chromium', 'chromium.desktop', 'LibreOffice', 'libreoffice-startcenter', 'libreoffice-startcenter.desktop', 'VLC Media Player', 'vlc', 'vlc.desktop', 'System Monitor', 'org.gnome.SystemMonitor', 'gnome-system-monitor.desktop', 'Terminal', 'org.gnome.Terminal', 'org.gnome.Terminal.desktop', 'Settings', 'org.gnome.Settings', 'gnome-control-center.desktop']
-position-in-panel='Left'
-recently-installed-apps=@as []
-show-external-devices=true
-show-lock-button=false
-show-logout-button=false
-show-suspend-button=false
 
 [org/gnome/shell/extensions/arcmenu]
 application-shortcuts-list=[['Software', 'system-software-install-symbolic', 'ArcMenu_Software'], ['Settings', 'preferences-system-symbolic', 'gnome-control-center.desktop'], ['Tweaks', 'org.gnome.tweaks-symbolic', 'org.gnome.tweaks.desktop'], ['Terminal', 'utilities-terminal-symbolic', 'org.gnome.Terminal.desktop']]
@@ -105,9 +85,11 @@ enable-sub-menus=false
 extra-categories=[(0, true), (1, true), (2, true), (3, true), (4, false)]
 menu-button-icon='Custom_Icon'
 menu-height=550
+menu-hotkey='Super_L'
 menu-layout='Windows'
 menu-width=290
 pinned-app-list=['Chromium', '', 'chromium.desktop', 'Thunderbird', '', 'thunderbird.desktop', 'LibreOffice Writer', '', 'libreoffice-writer.desktop', 'LibreOffice Impress', '', 'libreoffice-impress.desktop', 'LibreOffice Calc', '', 'libreoffice-calc.desktop', 'System Monitor', '', 'gnome-system-monitor.desktop', 'Extensions', '', 'org.gnome.Extensions.desktop', 'VLC media player', '', 'vlc.desktop', 'medit', '', 'medit.desktop']
+prefs-visible-page=0
 right-panel-width=205
 searchbar-default-bottom-location='Bottom'
 searchbar-default-top-location='Bottom'
@@ -135,23 +117,33 @@ position='Bottom'
 switcher-style='Timeline'
 
 [org/gnome/shell/extensions/dash-to-panel]
-appicon-margin=4
+animate-appicon-hover-animation-extent={'RIPPLE': 4, 'PLANK': 4, 'SIMPLE': 1}
+appicon-margin=8
+appicon-padding=4
 available-monitors=[0]
 dot-position='BOTTOM'
 group-apps=true
+hide-overview-on-startup=true
 hotkeys-overlay-combo='TEMPORARILY'
 intellihide=false
 isolate-workspaces=true
-panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+leftbox-padding=-1
+overview-click-to-exit=true
+panel-anchors='{"0":"MIDDLE"}'
+panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+panel-lengths='{"0":100}'
 panel-positions='{"0":"BOTTOM"}'
-panel-size=32
+panel-sizes='{"0":32}'
 secondarymenu-contains-showdetails=true
 show-appmenu=false
 show-apps-icon-file=''
+status-icon-padding=-1
 stockgs-keep-dash=true
 stockgs-keep-top-panel=false
 stockgs-panelbtn-click-only=false
 taskbar-locked=false
+tray-padding=-1
+window-preview-title-position='TOP'
 
 [org/gnome/shell/extensions/ding]
 icon-size='small'
@@ -160,13 +152,13 @@ show-network-volumes=false
 show-volumes=false
 
 [org/gnome/shell/extensions/user-theme]
-name='Adapta-Blue-Nokto'
+name='Materia-dark-compact'
 
 [org/gnome/shell/keybindings]
 toggle-overview=@as []
 
 [org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
-background-color='rgb(19,25,28)'
+background-color='rgb(18,18,18)'
 default-size-columns=80
 font='SauceCodePro Nerd Font 10'
 foreground-color='rgb(208,207,204)'
