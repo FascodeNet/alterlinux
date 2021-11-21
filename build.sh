@@ -373,7 +373,7 @@ _make_packages() {
     #        if printf "%s\n" "${repopkgs[@]}" | grep -qx "${_pkg}"; then
     #            _pkglist_install+=("${_pkg}")
     #        else
-    #            _msg_info "${_pkg} was not found. Install it with yay from AUR"
+    #            _msg_info "${_pkg} was not found. Install it from AUR"
     #            norepopkg+=("${_pkg}")
     #        fi
     #    done
