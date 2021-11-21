@@ -120,7 +120,7 @@ check_color(){
 ARGUMENT=("${@}")
 OPTS="a:c:l:no:p:r:s:t:xh"
 OPTL="appname:,chr:,label:,nocolor,echo-option:,output:,label-color:,label-space:,text-color:,bash-debug,help,nolabel,noappname,noadjust"
-if ! OPT=($(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")); then
+if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")"; then
     exit 1
 fi
 
@@ -147,7 +147,8 @@ while true; do
             shift 1
             ;;
         -o | --echo-option)
-            echo_opts+=(${2})
+            #echo_opts+=(${2})
+            IFS=" " read -r -a echo_opts <<< "${2}"
             shift 2
             ;;
         -p | --output)
@@ -288,26 +289,21 @@ message="${*}"
 
 echo_type() {
     if [[ "${nolabel}" = false ]]; then
-        if [[ "${noadjust}" = false ]]; then
-            yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
-        fi
+        [[ "${noadjust}" = false ]] && yes "${adjust_chr}" 2> /dev/null  | head -n "$(( label_space - word_count))" | tr -d "\n"
         text -c "${labelcolor}" "${msg_label}"
     fi
+    return 0
 }
 
 echo_appname() {
-    if [[ "${noappname}" = false ]]; then
-        text -c "cyan" "[${appname}]"
-    fi
+    [[ "${noappname}" = false ]] && text -c "cyan" "[${appname}]"
+    return 0
 }
 
 # echo_message <message>
 echo_message() {
-    if [[ "${customized_text_color}" = false ]]; then
-        text -n "${1}"
-    else
-        text -c "${textcolor}" "${1}"
-    fi
+    [[ "${customized_text_color}" = false ]] && text -n "${1}" || text -c "${textcolor}" "${1}"
+    return 0
 }
 
 for count in $(seq "1" "$(echo -ne "${message}\n" | wc -l)"); do

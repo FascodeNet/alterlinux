@@ -9,14 +9,6 @@
 #
 # Media
 
-
-#-- audio --#
-pavucontrol
-pipewire
-pipewire-alsa
-pipewire-pulse
-
-
 #-- bluetooth --#
 blueman
 bluez

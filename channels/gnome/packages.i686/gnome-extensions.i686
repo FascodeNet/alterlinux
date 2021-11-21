@@ -7,5 +7,6 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
+# Gnome extensions
 
-pipewire-enable-bluez5
+gnome-shell-extension-appindicator

@@ -16,11 +16,11 @@ build() {
     add_binary "$(readlink -f /usr/lib/libnss_dns.so.2)"
 
     add_dir /etc
-    echo "hosts: files dns" > "$BUILDROOT/etc/nsswitch.conf"
+    printf "hosts: files dns\n" >"$BUILDROOT/etc/nsswitch.conf"
 }
 
 help() {
-cat<<HELPEOF
+    cat <<HELPEOF
   This hook loads the necessary modules for boot via PXE.
 HELPEOF
 }

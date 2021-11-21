@@ -43,12 +43,7 @@ _help() {
 # Execute command for each module
 # It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){
-    local module
-    for module in "${modules[@]}"; do
-        eval $(echo "${@}" | sed "s|{}|${module}|g")
-    done
-}
+for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
 
 # Message functions
 msg_common(){
@@ -58,16 +53,16 @@ msg_common(){
 }
 
 msg_error() {
-    msg_common -l "Error" -r "red" -p "stderr" error "${1}"
+    msg_common -l "Error" -r "red" -p "stderr" error "${1}" &
 }
 
 msg_info() {
-    msg_common -l "Info" -r "green" -p "stderr" info "${1}"
+    msg_common -l "Info" -r "green" -p "stderr" info "${1}" &
 }
 
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        msg_common -l "Debug" -r "magenta" -p "stderr" debug "${1}"
+        msg_common -l "Debug" -r "magenta" -p "stderr" debug "${1}" &
     fi
 }
 
@@ -102,7 +97,7 @@ while true; do
             shift 1
             ;;
         -e | --exclude)
-            additional_exclude_pkg=(${2})
+            IFS=" " read -r -a additional_exclude_pkg <<< "${2}"
             shift 2
             ;;
         -k | --kernel)
@@ -165,11 +160,18 @@ fi
 
 set +e
 
+get_filelist(){
+    if [[ -d "${1}" ]]; then
+        find "${1}" -mindepth 1 -name "*.${arch}" -type f -or -type l 2> /dev/null
+    fi
+}
+
 #-- Detect package list to load --#
 # Add the files for each channel to the list of files to read.
-_loadfilelist=(
-    #-- channel packages --#
-    $(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+#readarray -t _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/*.${arch} 2> /dev/null)
+readarray -t _loadfilelist < <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}")
+
+_loadfilelist+=(
     "${channel_dir}/${pkgdir_name}.${arch}/lang/${locale_name}.${arch}"
     "${channel_dir}/${pkgdir_name}.${arch}/kernel/${kernel}.${arch}"
 )
@@ -181,23 +183,27 @@ for_module '_loadfilelist+=(${module_dir}/{}/${pkgdir_name}.${arch}/kernel/${ker
 
 # Plymouth package list
 if [[ "${boot_splash}" = true ]]; then
-    _loadfilelist+=($(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))
+    #readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null)
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}/plymouth")
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/plymouth/*.${arch} 2> /dev/null))'
 fi
 
 # memtest86 package list
 if [[ "${memtest86}" = true ]]; then
-    _loadfilelist+=($(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))
+    #readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(ls ${channel_dir}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null)
+    readarray -t -O "${#_loadfilelist[@]}" _loadfilelist < <(get_filelist "${channel_dir}/${pkgdir_name}.${arch}/memtest86")
 
     for_module '_loadfilelist+=($(ls ${module_dir}/{}/${pkgdir_name}.${arch}/memtest86/*.${arch} 2> /dev/null))'
 fi
 
 #-- Read package list --#
 # Read the file and remove comments starting with # and add it to the list of packages to install.
+_pkglist=()
 for _file in "${_loadfilelist[@]}"; do
     if [[ -f "${_file}" ]]; then
         msg_debug "Loaded package file ${_file}"
-        _pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        #_pkglist=( ${_pkglist[@]} "$(grep -h -v ^'#' ${_file})" )
+        readarray -t -O "${#_pkglist[@]}" _pkglist < <(grep -h -v ^'#' "${_file}")
     else
         msg_debug "The file was not found ${_file}"
     fi
@@ -210,22 +216,25 @@ for_module '_excludefile+=("${module_dir}/{}/packages.${arch}/exclude" "${module
 
 for _file in "${_excludefile[@]}"; do
     if [[ -f "${_file}" ]]; then
-        _excludelist+=($(grep -h -v ^'#' "${_file}") )
+        #_excludelist+=($(grep -h -v ^'#' "${_file}") )
+        readarray -t -O "${#_excludelist[@]}" _excludelist < <(grep -h -v ^'#' "${_file}")
     fi
 done
 
 #-- additional_exclude_pkg のパッケージを_excludelistに追加 --#
 if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
-    _excludelist+=(${additional_exclude_pkg[@]})
+    _excludelist+=("${additional_exclude_pkg[@]}")
     msg_debug "Additional excluded packages: ${additional_exclude_pkg[*]}"
 fi
 
 #-- パッケージリストをソートし重複を削除 --#
-_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
+#_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
+readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | grep -v ^$)
 
 #-- excludeに記述されたパッケージを除外 --#
 for _pkg in "${_excludelist[@]}"; do
-    _pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
+    #_pkglist=($(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}" | tr "\n" " "))
+    readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | grep -xv "${_pkg}")
 done
 
 #-- excludeされたパッケージを表示 --#
@@ -236,10 +245,10 @@ else
     msg_debug "No packages are excluded."
 fi
 
-OLD_IFS="${IFS}"
-if [[ "${line}" = true ]]; then
-    IFS=$'\n'
-fi
+wait
 
-echo "${_pkglist[*]}" >&1
-IFS="${OLD_IFS}"
+if [[ "${line}" = true ]]; then
+    printf "%s\n" "${_pkglist[@]}"
+else
+    echo "${_pkglist[*]}" >&1
+fi

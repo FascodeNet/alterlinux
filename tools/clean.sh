@@ -58,7 +58,8 @@ remove() {
 _umount() { if mountpoint -q "${1}"; then umount -lf "${1}"; fi; }
 
 # Unmount chroot dir
-umount_chroot () { "${tools_dir}/umount.sh" -d "${work_dir}" -m 3 "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"; }
+#umount_chroot () { "${tools_dir}/umount.sh" -d "${work_dir}" -m 3 "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")"; }
+umount_chroot () { "${tools_dir}/umount.sh" "${work_dir}" -m 3 "$([[ "${nocolor}" = true ]] && printf "%s" "--nocolor")" "$([[ "${debug}" = true ]] && printf "%s" "-d")"; }
 
 # Usage: getclm <number>
 # 標準入力から値を受けとり、引数で指定された列を抽出します。
@@ -144,8 +145,8 @@ work_dir="$(realpath "${work_dir}")"
 if [[ ! "${noconfirm}" = true ]] && (( "$(find "${work_dir}" -type f 2> /dev/null | wc -l)" != 0 )); then
     msg_warn "Forcibly unmount all devices mounted under the following directories and delete them recursively."
     msg_warn "${work_dir}"
-    echo -e "Press Enter to continue or Ctrl + C to cancel."
-    read
+    msg_info "Press Enter to continue or Ctrl + C to cancel."
+    read -r
 fi
 
 

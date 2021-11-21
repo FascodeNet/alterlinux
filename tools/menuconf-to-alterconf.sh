@@ -4,8 +4,9 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 build_arch="x86_64"
 
 machine_arch="$(uname -m)"
-cd "${script_path}"
-if [ ${#} -ne 1 ]; then
+cd "${script_path}" || exit 1
+
+if [ "${#}" -ne 1 ]; then
     echo "error!" 1>&2
     echo "You must set one arg!" 1>&2
     exit 1
