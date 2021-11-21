@@ -19,15 +19,15 @@ _help() {
     echo "Build and install PKGBUILD" 
     echo
     echo " General options:"
-    echo "    -d                       Enable pacman debug message"
+    echo "    -c                       Enable pacman debug message"
     echo "    -u [user]                Set the user name to build packages"
     echo "    -x                       Enable bash debug message"
     echo "    -h                       This help message"
 }
 
-while getopts "du:xh" arg; do
+while getopts "cu:xh" arg; do
     case "${arg}" in
-        d) pacman_debug=true ;;
+        c) pacman_debug=true ;;
         u) build_username="${OPTARG}" ;;
         x) set -xv ;;
         h) 
