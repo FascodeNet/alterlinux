@@ -66,9 +66,9 @@ aur_helper_args=(
     --mflags "--skippgpcheck"
     --aur
 #    --nocleanmenu
-    --nodiffmenu
+#    --nodiffmenu
+    --skipreview
     --noeditmenu
     --noupgrademenu
-    --noprovides
     --removemake
 )
