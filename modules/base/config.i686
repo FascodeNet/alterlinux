@@ -44,14 +44,19 @@
 #)
 
 #-- Use pikaur --#
-aur_helper_package="pikaur"
-aur_helper_command="pikaur"
-aur_helper_depends=("pyalpm" "asp" "python-commonmark")
-aur_helper_args=(
-    --aur
-    --noedit
-    --noconfirm
-    --nodiff
-    --rebuild
-    --mflags="-AcC,--skippgpcheck"
-)
+#aur_helper_package="pikaur"
+#aur_helper_command="pikaur"
+#aur_helper_depends=("pyalpm" "asp" "python-commonmark")
+#aur_helper_args=(
+#    --aur
+#    --noedit
+#    --noconfirm
+#    --nodiff
+#    --rebuild
+#    --mflags="-AcC,--skippgpcheck"
+#)
+
+#-- Use paru --#
+aur_helper_package="paru"
+aur_helper_command="paru"
+aur_helper_depends=("cargo" "asp" "bat")
