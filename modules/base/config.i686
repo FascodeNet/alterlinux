@@ -60,3 +60,15 @@
 aur_helper_package="paru"
 aur_helper_command="paru"
 aur_helper_depends=("cargo" "asp" "bat")
+aur_helper_args=(
+    --useask
+    --mflags "-AcC"
+    --mflags "--skippgpcheck"
+    --aur
+#    --nocleanmenu
+    --nodiffmenu
+    --noeditmenu
+    --noupgrademenu
+    --noprovides
+    --removemake
+)
