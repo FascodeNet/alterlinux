@@ -9,6 +9,9 @@
 # Config files for all i686 channel
 #
 
+
+#-- Use trizen --#
+
 #aur_helper_command="trizen"
 #aur_helper_package="trizen"
 #aur_helper_depends=(
@@ -30,12 +33,42 @@
 #    --noedit
 #)
 
+#-- Use wfa --#
+#aur_helper_package="wfa-git"
+#aur_helper_command="wfa"
+#aur_helper_depends=('sudo' 'pacman' 'jq' 'python3' 'curl' 'pyalpm' 'python-srcinfo')
+#aur_helper_args=(
+#    --mflags "-AcC"
+#    --mflags "--skippgpcheck"
+#    --aur
+#)
 
-aur_helper_package="wfa-git"
-aur_helper_command="wfa"
-aur_helper_depends=('sudo' 'pacman' 'jq' 'python3' 'curl' 'pyalpm' 'python-srcinfo')
+#-- Use pikaur --#
+#aur_helper_package="pikaur"
+#aur_helper_command="pikaur"
+#aur_helper_depends=("pyalpm" "asp" "python-commonmark")
+#aur_helper_args=(
+#    --aur
+#    --noedit
+#    --noconfirm
+#    --nodiff
+#    --rebuild
+#    --mflags="-AcC,--skippgpcheck"
+#)
+
+#-- Use paru --#
+aur_helper_package="paru"
+aur_helper_command="paru"
+aur_helper_depends=("cargo" "asp" "bat")
 aur_helper_args=(
+    --useask
     --mflags "-AcC"
     --mflags "--skippgpcheck"
     --aur
+#    --nocleanmenu
+#    --nodiffmenu
+    --skipreview
+#    --noeditmenu
+    --noupgrademenu
+    --removemake
 )
