@@ -114,7 +114,7 @@ if ! pacman -Qq "${aur_helper_package}" 1> /dev/null 2>&1; then
     # Build
     sudo -u "${aur_username}" git clone "https://aur.archlinux.org/${aur_helper_package}.git" "/tmp/${aur_helper_package}"
     cd "/tmp/${aur_helper_package}"
-    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --install
+    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --install --syncdeps
 
     # Install
     for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
