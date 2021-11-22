@@ -68,7 +68,7 @@ aur_helper_args=(
 #    --nocleanmenu
 #    --nodiffmenu
     --skipreview
-    --noeditmenu
+#    --noeditmenu
     --noupgrademenu
     --removemake
 )
