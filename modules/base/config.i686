@@ -46,7 +46,7 @@
 #-- Use pikaur --#
 aur_helper_package="pikaur"
 aur_helper_command="pikaur"
-aur_helper_depends=("pyalpm" "asp")
+aur_helper_depends=("pyalpm" "asp" "python-commonmark")
 aur_helper_args=(
     --aur
     --noedit
