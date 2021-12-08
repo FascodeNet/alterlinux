@@ -35,7 +35,7 @@ exec_always --no-startup-id light-locker
 exec --no-startup-id xfce4-clipman
 exec --no-startup-id dex -ae i3
 exec --no-startup-id nm-applet
-exec --no-startup-id compton
+exec --no-startup-id picom
 exec --no-startup-id conky
 exec --no-startup-id fcitx
 
