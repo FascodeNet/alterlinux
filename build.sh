@@ -35,7 +35,7 @@ not_use_bootloader_type="splash"
 
 
 #-- AlterISO 4.0 Variables --#
-bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
+bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito' 'uefi-ia32.grub')
 buildmodes=("iso") # buildmodes=("iso" "netboot" "bootstrap")
 pacman_conf="/etc/pacman.conf"
 airootfs_image_type="squashfs"
