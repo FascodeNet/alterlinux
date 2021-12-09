@@ -28,7 +28,7 @@ _make_bootmode_uefi-ia32.grub(){
     local _grubcfg="${work_dir}/grub.cfg"
 
     # UEFI ia32 requires EFI config files for systemd-boot
-    run_once _make_bootmode_uefi-x64.systemd-boot.eltorito
+    _run_once _make_bootmode_uefi-x64.systemd-boot.eltorito
 
     # _get_efiboot_entry <path> <key>
     _get_efiboot_entry(){
