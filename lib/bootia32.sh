@@ -10,6 +10,9 @@
 #
 # Add support for IA32 UEFI with Grub
 # This script provides uefi-ia32.grub bootmode
+#
+# Special Thanks: https://github.com/ElXreno/archlinux-bootia32
+#
 
 
 _validate_requirements_bootmode_uefi-ia32.grub(){
