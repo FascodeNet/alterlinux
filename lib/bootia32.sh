@@ -53,7 +53,7 @@ _make_bootmode_uefi-ia32.grub(){
             $(
                 while read -r _initrd; do
                     echo "|^initrd %EFI_INITRD%$|a initrd ${_initrd}"
-                done < <(_get_efiboot_entry initrd)                    
+                done < <(_get_efiboot_entry "${_cfg}" initrd)
             )
         " "${script_path}/system/grub/grub-entry.cfg" | grep -xv "initrd %EFI_INITRD%">> "${_grubcfg}"
     done
