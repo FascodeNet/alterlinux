@@ -32,7 +32,7 @@ _make_bootmode_uefi-ia32.grub(){
 
     # _get_efiboot_entry <path> <key>
     _get_efiboot_entry(){
-        awk "BEGIN {
+        awk "{
             if (\$1 == \"${2}\"){
                 print \$2
             }
