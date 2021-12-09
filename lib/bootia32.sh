@@ -43,7 +43,7 @@ _make_bootmode_uefi-ia32.grub(){
     cat "${script_path}/system/grub/grub-head.cfg" > "${_grubcfg}"
 
     local _cfg
-    for _cfg in "${isofs_dir}/loader/entries/"*".cfg"; do
+    for _cfg in "${isofs_dir}/loader/entries/"*".conf"; do
         sed -e "
             s|%EFI_TITLE%|$(_get_efiboot_entry "${_cfg}" "title")|g;
             s|%EFI_LINUX%|$(_get_efiboot_entry "${_cfg}" "linux")|g;
