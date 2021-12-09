@@ -25,7 +25,7 @@ _validate_requirements_bootmode_uefi-ia32.grub(){
 }
 
 _make_bootmode_uefi-ia32.grub(){
-    local _grubcfg="${work_dir}/grub.cfg"
+    local _grubcfg="${build_dir}/grub.cfg"
 
     # UEFI ia32 requires EFI config files for systemd-boot
     _run_once _make_bootmode_uefi-x64.systemd-boot.eltorito
@@ -58,7 +58,18 @@ _make_bootmode_uefi-ia32.grub(){
         " "${script_path}/system/grub/grub-entry.cfg" | grep -Exv " +initrd %EFI_INITRD%">> "${_grubcfg}"
     done
     
-    
 
+    # Remove old bootia32.efi
+    remove "${isofs_dir}/EFI/BOOT/bootia32.efi"
+    
+    # Create bootia32.efi
+    grub-mkstandalone \
+        -d /usr/lib/grub/i386-efi/ \
+        -O i386-efi \
+        --modules="part_gpt part_msdos" \
+        --fonts="unicode" \
+        --locales="en@cyrillic" \
+        --themes="" \
+        -o "${isofs_dir}/EFI/BOOT/bootia32.efi" "boot/grub/grub.cfg=${_grubcfg}" -v
 
 }
