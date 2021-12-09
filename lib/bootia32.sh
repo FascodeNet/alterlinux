@@ -34,9 +34,9 @@ _make_bootmode_uefi-ia32.grub(){
     _get_efiboot_entry(){
         awk "{
             if (\$1 == \"${2}\"){
-                print \$2
+                print \$0
             }
-        }" "${1}"
+        }" "${1}" | cut -d " " -f 2-
     }
 
     # Setup grub.cfg
@@ -45,17 +45,17 @@ _make_bootmode_uefi-ia32.grub(){
     local _cfg
     for _cfg in "${isofs_dir}/loader/entries/"*".conf"; do
         sed -e "
-            s|%EFI_TITLE%|$(_get_efiboot_entry "${_cfg}" "title")|g;
+            s|%EFI_TITLE%|$(_get_efiboot_entry "${_cfg}" "title" | sed -e "s|^ *||g")|g;
             s|%EFI_LINUX%|$(_get_efiboot_entry "${_cfg}" "linux")|g;
             s|%EFI_OPTIONS%|$(_get_efiboot_entry "${_cfg}" "options")|g;
             s|%ARCHISO_LABEL%|${iso_label}|g;
 
             $(
                 while read -r _initrd; do
-                    echo "|^initrd %EFI_INITRD%$|a initrd ${_initrd}"
+                    echo "/initrd %EFI_INITRD%/a\    initrd ${_initrd};"
                 done < <(_get_efiboot_entry "${_cfg}" initrd)
             )
-        " "${script_path}/system/grub/grub-entry.cfg" | grep -xv "initrd %EFI_INITRD%">> "${_grubcfg}"
+        " "${script_path}/system/grub/grub-entry.cfg" | grep -Exv " +initrd %EFI_INITRD%">> "${_grubcfg}"
     done
     
     
