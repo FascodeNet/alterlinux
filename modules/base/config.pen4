@@ -9,4 +9,4 @@
 # Config files for all pen4 channel
 #
 
-bootmodes+=('uefi-ia32.grub')
+bootmodes+=('uefi-ia32.grub.esp' 'uefi-ia32.grub.eltorito')
