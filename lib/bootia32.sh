@@ -19,6 +19,19 @@ _validate_requirements_bootmode_uefi-ia32.grub(){
     _validate_requirements_bootmode_bios.syslinux.mbr
     _validate_requirements_bootmode_uefi-x64.systemd-boot.esp
 
+    # uefi-ia32.grub conflicts with uefi-x64.systemd-boot.esp
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Using 'uefi-ia32.grub' boot mode with 'uefi-x64.systemd-boot.esp' is not supported." 0
+    fi
+
+    # uefi-ia32.grub conflicts with uefi-x64.systemd-boot.eltorito
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Using 'uefi-ia32.grub' boot mode with 'uefi-x64.systemd-boot.eltorito' is not supported." 0
+    fi
 
     # Check if grub-mkstandalone is available
     if ! command -v grub-mkstandalone &> /dev/null; then
@@ -64,6 +77,9 @@ _make_bootmode_uefi-ia32.grub(){
 
     # Remove old bootia32.efi
     remove "${isofs_dir}/EFI/BOOT/bootia32.efi"
+
+    # Remove files for systemd-boot
+    remove "${isofs_dir}/loader/entries"
     
     # Create bootia32.efi
     grub-mkstandalone \

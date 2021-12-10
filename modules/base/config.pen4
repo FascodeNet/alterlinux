@@ -6,7 +6,7 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Config files for all i686 channel
+# Config files for all pen4 channel
 #
 
 bootmodes+=('uefi-ia32.grub')

@@ -6,7 +6,7 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Config files for all i686 channel
+# Config files for all x86_64 channel
 #
 
-bootmodes+=('uefi-ia32.grub')
+bootmodes+=('uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
