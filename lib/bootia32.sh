@@ -9,28 +9,21 @@
 # bootia32.sh
 #
 # Add support for IA32 UEFI with Grub
-# This script provides uefi-ia32.grub bootmode
+# This script provides uefi-ia32.grub.esp and uefi-ia32.grub.eltorito bootmode
 #
 # Special Thanks: https://github.com/ElXreno/archlinux-bootia32
 #
 
 
-_validate_requirements_bootmode_uefi-ia32.grub(){
+_validate_requirements_bootmode_uefi-ia32.grub.esp(){
     _validate_requirements_bootmode_bios.syslinux.mbr
     _validate_requirements_bootmode_uefi-x64.systemd-boot.esp
 
-    # uefi-ia32.grub conflicts with uefi-x64.systemd-boot.esp
+    # uefi-ia32.grub.esp conflicts with uefi-x64.systemd-boot.esp
     # shellcheck disable=SC2076
     if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
         (( validation_error=validation_error+1 ))
-        _msg_error "Using 'uefi-ia32.grub' boot mode with 'uefi-x64.systemd-boot.esp' is not supported." 0
-    fi
-
-    # uefi-ia32.grub conflicts with uefi-x64.systemd-boot.eltorito
-    # shellcheck disable=SC2076
-    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Using 'uefi-ia32.grub' boot mode with 'uefi-x64.systemd-boot.eltorito' is not supported." 0
+        _msg_error "Using 'uefi-ia32.grub.esp' boot mode with 'uefi-x64.systemd-boot.esp' is not supported." 0
     fi
 
     # Check if grub-mkstandalone is available
@@ -40,7 +33,25 @@ _validate_requirements_bootmode_uefi-ia32.grub(){
     fi
 }
 
-_make_bootmode_uefi-ia32.grub(){
+_validate_requirements_bootmode_uefi-ia32.grub.eltorito(){
+    _validate_requirements_bootmode_uefi-ia32.grub.esp
+
+    # uefi-ia32.grub.eltorito requires uefi-ia32.grub.esp
+    # shellcheck disable=SC2076
+    if [[ ! " ${bootmodes[*]} " =~ ' uefi-ia32.grub.esp ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Using 'uefi-ia32.grub.eltorito' boot mode without 'uefi-ia32.grub.esp' is not supported." 0
+    fi
+
+    # uefi-ia32.grub.eltorito conflicts with uefi-x64.systemd-boot.eltorito
+    # shellcheck disable=SC2076
+    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Using 'uefi-ia32.grub.eltorito' boot mode with 'uefi-x64.systemd-boot.eltorito' is not supported." 0
+    fi
+}
+
+_make_bootmode_uefi-ia32.grub.eltorito(){
     local _grubcfg="${build_dir}/grub.cfg"
 
     # UEFI ia32 requires EFI config files for systemd-boot
@@ -91,4 +102,10 @@ _make_bootmode_uefi-ia32.grub(){
         --themes="" \
         -o "${isofs_dir}/EFI/BOOT/bootia32.efi" "boot/grub/grub.cfg=${_grubcfg}" -v
 
+}
+
+_make_bootmode_uefi-ia32.grub.esp(){
+    mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/
+    mmd -i "${work_dir}/efiboot.img" ::/EFI/BOOT/
+    mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/bootia32.efi" ::/EFI/BOOT/
 }
