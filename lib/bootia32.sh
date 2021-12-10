@@ -76,7 +76,7 @@ _make_bootmode_uefi-ia32.grub(){
     
 
     # Remove old bootia32.efi
-    remove "${isofs_dir}/EFI/BOOT/bootia32.efi"
+    remove "${isofs_dir}/EFI/BOOT/BOOT"*
 
     # Remove files for systemd-boot
     remove "${isofs_dir}/loader/entries"
