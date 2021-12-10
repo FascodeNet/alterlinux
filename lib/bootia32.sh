@@ -102,6 +102,9 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
         --themes="" \
         -o "${isofs_dir}/EFI/BOOT/bootia32.efi" "boot/grub/grub.cfg=${_grubcfg}" -v
 
+    # Copy grub.cfg to iso image
+    install -m 0644 -- "${_grubcfg}" "${isofs_dir}/EFI/BOOT/"
+
 }
 
 _make_bootmode_uefi-ia32.grub.esp(){
