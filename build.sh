@@ -17,7 +17,8 @@ set -e -u
 # Control the environment
 umask 0022
 export LC_ALL="C"
-export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-"$(date +%s)"}"
+[[ -v SOURCE_DATE_EPOCH ]] || printf -v SOURCE_DATE_EPOCH '%(%s)T' -1
+export SOURCE_DATE_EPOCH
 set -E
 
 # Internal config
@@ -165,13 +166,10 @@ _cleanup_pacstrap_dir() {
 # Create a squashfs image and place it in the ISO 9660 file system.
 # $@: options to pass to mksquashfs
 _run_mksquashfs() {
-    local image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
+    local mksquashfs_options=() image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.sfs"
     rm -f -- "${image_path}"
-    if [[ "${quiet}" == "y" ]]; then
-        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" -no-progress > /dev/null
-    else
-        mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}"
-    fi
+    [[ ! "${quiet}" == "y" ]] || mksquashfs_options+=('-no-progress' '-quiet')
+    mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" "${mksquashfs_options[@]}"
 }
 
 # Create an ext4 image containing the root file system and pack it inside a squashfs image.
@@ -216,16 +214,18 @@ _mkairootfs_squashfs() {
 
 # Create an EROFS image containing the root file system and saves it on the ISO 9660 file system.
 _mkairootfs_erofs() {
-    local fsuuid
+    local fsuuid mkfs_erofs_options=()
     [[ -e "${pacstrap_dir}" ]] || _msg_error "The path '${pacstrap_dir}' does not exist" 1
 
     install -d -m 0755 -- "${isofs_dir}/${install_dir}/${arch}"
     local image_path="${isofs_dir}/${install_dir}/${arch}/airootfs.erofs"
     rm -f -- "${image_path}"
+    [[ ! "${quiet}" == "y" ]] || mkfs_erofs_options+=('--quiet')
     # Generate reproducible file system UUID from SOURCE_DATE_EPOCH
     fsuuid="$(uuidgen --sha1 --namespace 93a870ff-8565-4cf3-a67b-f47299271a96 --name "${SOURCE_DATE_EPOCH}")"
+    mkfs_erofs_options+=('-U' "${fsuuid}" "${airootfs_image_tool_options[@]}")
     _msg_info "Creating EROFS image, this may take some time..."
-    mkfs.erofs -U "${fsuuid}" "${airootfs_image_tool_options[@]}" -- "${image_path}" "${pacstrap_dir}"
+    mkfs.erofs "${mkfs_erofs_options[@]}" -- "${image_path}" "${pacstrap_dir}"
     _msg_info "Done!"
 }
 
@@ -872,7 +872,7 @@ _export_netboot_artifacts() {
     install -d -m 0755 "${out_dir}"
     cp -a -- "${isofs_dir}/${install_dir}/" "${out_dir}/"
     _msg_info "Done!"
-    du -h -- "${out_dir}/${install_dir}"
+    du -hs -- "${out_dir}/${install_dir}"
 }
 
 # sign build artifacts for netboot
@@ -916,7 +916,7 @@ _validate_requirements_airootfs_image_type_ext4+squashfs() {
 }
 
 _validate_requirements_airootfs_image_type_erofs() {
-    if ! command -v mkfs.erofs; then
+    if ! command -v mkfs.erofs &> /dev/null; then
         (( validation_error=validation_error+1 ))
         _msg_error "Validating '${airootfs_image_type}': mkfs.erofs is not available on this host. Install 'erofs-utils'!" 0
     fi
@@ -1160,7 +1160,12 @@ _build_iso_image() {
 
     [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
 
-    [[ "${quiet}" == "y" ]] && xorrisofs_options+=('-quiet')
+    if [[ "${quiet}" == "y" ]]; then
+        # The when xorriso is run in mkisofs compatibility mode (xorrisofs), the mkisofs option -quiet is interpreted
+        # too late (e.g. messages about SOURCE_DATE_EPOCH still get shown).
+        # Instead use native xorriso option to silence the output.
+        xorriso_options=('-report_about' 'SORRY' "${xorriso_options[@]}")
+    fi
 
     # Add required xorrisofs options for each boot mode
     for bootmode in "${bootmodes[@]}"; do
@@ -1169,7 +1174,7 @@ _build_iso_image() {
 
     rm -f -- "${out_dir}/${image_name}"
     _msg_info "Creating ISO image..."
-    xorriso -as mkisofs \
+    xorriso "${xorriso_options[@]}" -as mkisofs \
             -iso-level 3 \
             -full-iso9660-filenames \
             -joliet \
@@ -1402,7 +1407,6 @@ _build_iso_base() {
     _run_once _prepare_airootfs_image
 }
 
-
 # Build the bootstrap buildmode
 _build_buildmode_bootstrap() {
     #local image_name="${iso_name}-bootstrap-${iso_version}-${arch}.tar.gz"
@@ -1600,7 +1604,6 @@ else
     channel_dir="${script_path}/channels/${channel_name}"
 fi
 
-# Check root.
 if (( EUID != 0 )); then
     _msg_warn "This script must be run as root." >&2
     _msg_warn "Re-run 'sudo ${0} ${ARGUMENT[*]}'"
