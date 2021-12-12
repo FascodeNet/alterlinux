@@ -31,6 +31,12 @@ _validate_requirements_bootmode_uefi-ia32.grub.esp(){
         (( validation_error=validation_error+1 ))
         _msg_error "Validating '${bootmode}': grub-mkstandalone is not available on this host. Install 'grub'!" 0
     fi
+
+    # Check if fatresize is available
+    if ! command -v fatresize &> /dev/null; then
+        (( validation_error=validation_error+1 ))
+        _msg_error "Validating '${bootmode}': grub-mkstandalone is not available on this host. Install 'fatresize'!" 0
+    fi
 }
 
 _validate_requirements_bootmode_uefi-ia32.grub.eltorito(){
@@ -110,28 +116,16 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
 _make_bootmode_uefi-ia32.grub.esp(){
     _run_once _make_bootmode_uefi-ia32.grub.eltorito
 
-    #-- Create efiboot.img --#
-    local _file efiboot_imgsize
-    local _available_ucodes=()
-    _msg_info "Setting up grub for UEFI booting..."
-
-    for _file in "${ucodes[@]}"; do
-        if [[ -e "${pacstrap_dir}/boot/${_file}" ]]; then
-            _available_ucodes+=("${pacstrap_dir}/boot/${_file}")
-        fi
-    done
-    # Calculate the required FAT image size in bytes
-    efiboot_imgsize="$(du -bc \
-        "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
-        "${pacstrap_dir}/usr/share/edk2-shell/"* \
-        "${script_path}/efiboot/${use_bootloader_type}" \
-        "${pacstrap_dir}/boot/vmlinuz-"* \
-        "${pacstrap_dir}/boot/initramfs-"*".img" \
-        "${_available_ucodes[@]}" \
+    #-- Increase efiboot.img size--#
+    local _increase_size _loop_device
+    _increase_size="$(du -bc \
         "${isofs_dir}/EFI/BOOT/BOOTia32.efi" \
-        2>/dev/null | awk 'END { print $1 }')"
-    # Create a FAT image for the EFI system partition
-    _make_efibootimg "$efiboot_imgsize"
+        "${isofs_dir}/EFI/BOOT/grub.cfg" \
+    2>/dev/null | awk 'END { print $1 }')"
+
+    dd if=/dev/zero bs=1B count="${_increase_size}" >> "${work_dir}/efiboot.img"
+    _loop_device="$(losetup -f -P --show "${work_dir}/efiboot.img")"
+    fatresize -s max "${work_dir}/efiboot.img" 2> /dev/null || true
 
     #-- Put EFI Shell --#
     # shellx64.efi is picked up automatically when on /
