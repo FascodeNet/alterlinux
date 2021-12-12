@@ -43,8 +43,8 @@ _validate_requirements_bootmode_uefi-ia32.grub.eltorito(){
         _msg_error "Using 'uefi-ia32.grub.eltorito' boot mode without 'uefi-ia32.grub.esp' is not supported." 0
     fi
 
-    # uefi-ia32.grub.eltorito conflicts with uefi-x64.systemd-boot.eltorito
-    # shellcheck disable=SC2076
+    ## uefi-ia32.grub.eltorito conflicts with uefi-x64.systemd-boot.eltorito
+    ## shellcheck disable=SC2076
     #if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
     #    (( validation_error=validation_error+1 ))
     #    _msg_error "Using 'uefi-ia32.grub.eltorito' boot mode with 'uefi-x64.systemd-boot.eltorito' is not supported." 0
