@@ -100,7 +100,7 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
         --fonts="unicode" \
         --locales="en@cyrillic" \
         --themes="" \
-        -o "${isofs_dir}/EFI/BOOT/bootia32.efi" "boot/grub/grub.cfg=${_grubcfg}" -v
+        -o "${isofs_dir}/EFI/BOOT/BOOTia32.efi" "boot/grub/grub.cfg=${_grubcfg}" -v
 
     # Copy grub.cfg to iso image
     install -m 0644 -- "${_grubcfg}" "${isofs_dir}/EFI/BOOT/"
@@ -153,6 +153,7 @@ _make_bootmode_uefi-ia32.grub.esp(){
     mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/ 2> /dev/null || true
     mmd -i "${work_dir}/efiboot.img" "::/EFI" "::/EFI/BOOT"
     mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/bootia32.efi" ::/EFI/BOOT/
+    mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/grub.cfg" ::/EFI/BOOT/
 
     _msg_info "Done! grub set up for UEFI booting successfully."
 }
