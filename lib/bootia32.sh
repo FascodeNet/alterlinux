@@ -86,13 +86,13 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
     done
     
 
-    # Remove old bootia32.efi
+    # Remove old BOOTia32.efi
     remove "${isofs_dir}/EFI/BOOT/BOOT"*
 
     # Remove files for systemd-boot
     remove "${isofs_dir}/loader/entries"
     
-    # Create bootia32.efi
+    # Create BOOTia32.efi
     grub-mkstandalone \
         -d "/usr/lib/grub/i386-efi/" \
         -O i386-efi \
@@ -128,7 +128,7 @@ _make_bootmode_uefi-ia32.grub.esp(){
         "${pacstrap_dir}/boot/vmlinuz-"* \
         "${pacstrap_dir}/boot/initramfs-"*".img" \
         "${_available_ucodes[@]}" \
-        "${isofs_dir}/EFI/BOOT/bootia32.efi" \
+        "${isofs_dir}/EFI/BOOT/BOOTia32.efi" \
         2>/dev/null | awk 'END { print $1 }')"
     # Create a FAT image for the EFI system partition
     _make_efibootimg "$efiboot_imgsize"
@@ -152,7 +152,7 @@ _make_bootmode_uefi-ia32.grub.esp(){
     #-- Copy grub --#
     mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/ 2> /dev/null || true
     mmd -i "${work_dir}/efiboot.img" "::/EFI" "::/EFI/BOOT"
-    mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/bootia32.efi" ::/EFI/BOOT/
+    mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/BOOTia32.efi" ::/EFI/BOOT/
     mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/grub.cfg" ::/EFI/BOOT/
 
     _msg_info "Done! grub set up for UEFI booting successfully."
