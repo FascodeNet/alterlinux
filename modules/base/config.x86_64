@@ -10,3 +10,4 @@
 #
 
 bootmodes+=('uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
+bootmodes+=('uefi-ia32.grub.esp' 'uefi-ia32.grub.eltorito')
