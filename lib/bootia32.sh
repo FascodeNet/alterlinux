@@ -157,3 +157,13 @@ _make_bootmode_uefi-ia32.grub.esp(){
 
     _msg_info "Done! grub set up for UEFI booting successfully."
 }
+
+# systemd-boot in an attached EFI system partition
+_add_xorrisofs_options_uefi-ia32.grub.esp() {
+    _add_xorrisofs_options_uefi-x64.systemd-boot.esp
+}
+
+# systemd-boot via El Torito
+_add_xorrisofs_options_uefi-ia32.grub.eltorito() {
+    _add_xorrisofs_options_uefi-x64.systemd-boot.eltorito
+}
