@@ -21,10 +21,10 @@ _validate_requirements_bootmode_uefi-ia32.grub.esp(){
 
     # uefi-ia32.grub.esp conflicts with uefi-x64.systemd-boot.esp
     # shellcheck disable=SC2076
-    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Using 'uefi-ia32.grub.esp' boot mode with 'uefi-x64.systemd-boot.esp' is not supported." 0
-    fi
+    #if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]]; then
+    #    (( validation_error=validation_error+1 ))
+    #    _msg_error "Using 'uefi-ia32.grub.esp' boot mode with 'uefi-x64.systemd-boot.esp' is not supported." 0
+    #fi
 
     # Check if grub-mkstandalone is available
     if ! command -v grub-mkstandalone &> /dev/null; then
@@ -45,10 +45,10 @@ _validate_requirements_bootmode_uefi-ia32.grub.eltorito(){
 
     # uefi-ia32.grub.eltorito conflicts with uefi-x64.systemd-boot.eltorito
     # shellcheck disable=SC2076
-    if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
-        (( validation_error=validation_error+1 ))
-        _msg_error "Using 'uefi-ia32.grub.eltorito' boot mode with 'uefi-x64.systemd-boot.eltorito' is not supported." 0
-    fi
+    #if [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.eltorito ' ]]; then
+    #    (( validation_error=validation_error+1 ))
+    #    _msg_error "Using 'uefi-ia32.grub.eltorito' boot mode with 'uefi-x64.systemd-boot.eltorito' is not supported." 0
+    #fi
 }
 
 _make_bootmode_uefi-ia32.grub.eltorito(){
@@ -87,10 +87,10 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
     
 
     # Remove old BOOTia32.efi
-    remove "${isofs_dir}/EFI/BOOT/BOOT"*
+    #remove "${isofs_dir}/EFI/BOOT/BOOT"*
 
     # Remove files for systemd-boot
-    remove "${isofs_dir}/loader/entries"
+    #remove "${isofs_dir}/loader/entries"
     
     # Create BOOTia32.efi
     grub-mkstandalone \
@@ -150,8 +150,8 @@ _make_bootmode_uefi-ia32.grub.esp(){
     _make_boot_on_fat
 
     #-- Copy grub --#
-    mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/ 2> /dev/null || true
-    mmd -i "${work_dir}/efiboot.img" "::/EFI" "::/EFI/BOOT"
+    #mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/ 2> /dev/null || true
+    #mmd -i "${work_dir}/efiboot.img" "::/EFI" "::/EFI/BOOT"
     mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/BOOTia32.efi" ::/EFI/BOOT/
     mcopy -i "${work_dir}/efiboot.img" "${isofs_dir}/EFI/BOOT/grub.cfg" ::/EFI/BOOT/
 
