@@ -123,7 +123,7 @@ _make_bootmode_uefi-ia32.grub.esp(){
         "${isofs_dir}/EFI/BOOT/grub.cfg" \
     2>/dev/null | awk 'END { print $1 }')"
 
-    dd if=/dev/zero bs=1B count="${_increase_size}" >> "${work_dir}/efiboot.img"
+    dd if=/dev/zero bs=1 count="${_increase_size}" >> "${work_dir}/efiboot.img"
     _loop_device="$(losetup -f -P --show "${work_dir}/efiboot.img")"
     fatresize -s max "${work_dir}/efiboot.img" 2> /dev/null || true
 
