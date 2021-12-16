@@ -61,7 +61,7 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
     local _grubcfg="${build_dir}/grub.cfg"
 
     # UEFI ia32 requires EFI config files for systemd-boot
-    _run_once _make_bootmode_uefi-x64.systemd-boot.eltorito
+    #_run_once _make_bootmode_uefi-x64.systemd-boot.eltorito
 
     # _get_efiboot_entry <path> <key>
     _get_efiboot_entry(){
@@ -76,19 +76,24 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
     cat "${script_path}/system/grub/grub-head.cfg" > "${_grubcfg}"
 
     local _cfg
-    for _cfg in "${isofs_dir}/loader/entries/"*".conf"; do
+    for _cfg in "${script_path}/efiboot/${use_bootloader_type}/entries/"*".conf"; do
         sed -e "
             s|%EFI_TITLE%|$(_get_efiboot_entry "${_cfg}" "title" | sed -e "s|^ *||g")|g;
             s|%EFI_LINUX%|$(_get_efiboot_entry "${_cfg}" "linux")|g;
             s|%EFI_OPTIONS%|$(_get_efiboot_entry "${_cfg}" "options")|g;
-            s|%ARCHISO_LABEL%|${iso_label}|g;
 
             $(
                 while read -r _initrd; do
                     echo "/initrd %EFI_INITRD%/a\    initrd ${_initrd};"
                 done < <(_get_efiboot_entry "${_cfg}" initrd)
             )
-        " "${script_path}/system/grub/grub-entry.cfg" | grep -Exv " +initrd %EFI_INITRD%">> "${_grubcfg}"
+        " "${script_path}/system/grub/grub-entry.cfg" | sed "
+            s|%ARCHISO_LABEL%|${iso_label}|g;
+            s|%INSTALL_DIR%|${install_dir}|g;
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g
+        " | grep -Exv " +initrd %EFI_INITRD%">> "${_grubcfg}"
     done
     
 
