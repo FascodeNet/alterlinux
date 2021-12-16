@@ -104,6 +104,7 @@ _make_bootmode_uefi-ia32.grub.eltorito(){
     #remove "${isofs_dir}/loader/entries"
     
     # Create BOOTia32.efi
+    mkdir -p "${isofs_dir}/EFI/BOOT"
     grub-mkstandalone \
         -d "/usr/lib/grub/i386-efi/" \
         -O i386-efi \
