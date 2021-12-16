@@ -123,25 +123,25 @@ _make_bootmode_uefi-ia32.grub.esp(){
         "${isofs_dir}/EFI/BOOT/grub.cfg" \
     2>/dev/null | awk 'END { print $1 }')"
 
-    dd if=/dev/zero bs=1 count="${_increase_size}" >> "${work_dir}/efiboot.img"
+    dd if=/dev/zero bs=2 count="${_increase_size}" >> "${work_dir}/efiboot.img"
     _loop_device="$(losetup -f -P --show "${work_dir}/efiboot.img")"
     fatresize -s max "${work_dir}/efiboot.img" 2> /dev/null || true
 
     #-- Put EFI Shell --#
     # shellx64.efi is picked up automatically when on /
-    local _shell
-    if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/" ]]; then
-        #install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
-        for _shell in "${pacstrap_dir}/usr/share/edk2-shell/"*; do
-            [[ -e "${_shell}/Shell_Full.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell_Full.efi" "::/shell$(basename "${_shell}").efi" && continue
-            [[ -e "${_shell}/Shell.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell.efi" "::/shell$(basename "${_shell}").efi"
-        done
-    fi
+    # local _shell
+    # if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/" ]]; then
+    #     #install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "${isofs_dir}/shellx64.efi"
+    #     for _shell in "${pacstrap_dir}/usr/share/edk2-shell/"*; do
+    #         [[ -e "${_shell}/Shell_Full.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell_Full.efi" "::/shell$(basename "${_shell}").efi" && continue
+    #         [[ -e "${_shell}/Shell.efi" ]] && mcopy -i "${work_dir}/efiboot.img" "${_shell}/Shell.efi" "::/shell$(basename "${_shell}").efi"
+    #     done
+    # fi
 
     #-- Put kernel and initrd --#
     # Copy kernel and initramfs to FAT image.
     # grub can only access files from the EFI system partition it was launched from.
-    _make_boot_on_fat
+    # _make_boot_on_fat
 
     #-- Copy grub --#
     #mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/ 2> /dev/null || true
