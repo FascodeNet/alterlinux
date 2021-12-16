@@ -692,11 +692,18 @@ _make_bootmode_uefi-x64.systemd-boot.esp() {
             _available_ucodes+=("${pacstrap_dir}/boot/${_file}")
         fi
     done
+
+    # shellcheck disable=SC2076
+    [[ " ${bootmodes[*]} " =~ ' uefi-ia32.grub.esp ' ]] && _run_once _make_bootmode_uefi-ia32.grub.eltorito
+
+
     # Calculate the required FAT image size in bytes
     efiboot_imgsize="$(du -bc \
         "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
         "${pacstrap_dir}/usr/share/edk2-shell/"* \
         "${script_path}/efiboot/${use_bootloader_type}" \
+        "/usr/lib/grub/"* \
+        "${isofs_dir}/EFI/BOOT/BOOTia32.efi" \
         "${pacstrap_dir}/boot/vmlinuz-"* \
         "${pacstrap_dir}/boot/initramfs-"*".img" \
         "${_available_ucodes[@]}" \

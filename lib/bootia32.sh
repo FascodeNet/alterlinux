@@ -117,15 +117,15 @@ _make_bootmode_uefi-ia32.grub.esp(){
     _run_once _make_bootmode_uefi-ia32.grub.eltorito
 
     #-- Increase efiboot.img size--#
-    local _increase_size _loop_device
-    _increase_size="$(du -bc \
-        "${isofs_dir}/EFI/BOOT/BOOTia32.efi" \
-        "${isofs_dir}/EFI/BOOT/grub.cfg" \
-    2>/dev/null | awk 'END { print $1 }')"
+    # local _increase_size _loop_device
+    # _increase_size="$(du -bc \
+    #     "${isofs_dir}/EFI/BOOT/BOOTia32.efi" \
+    #     "${isofs_dir}/EFI/BOOT/grub.cfg" \
+    # 2>/dev/null | awk 'END { print $1 }')"
 
-    dd if=/dev/zero bs=2 count="${_increase_size}" >> "${work_dir}/efiboot.img"
-    _loop_device="$(losetup -f -P --show "${work_dir}/efiboot.img")"
-    fatresize -s max "${work_dir}/efiboot.img" 2> /dev/null || true
+    # dd if=/dev/zero bs=2 count="${_increase_size}" >> "${work_dir}/efiboot.img"
+    # _loop_device="$(losetup -f -P --show "${work_dir}/efiboot.img")"
+    # fatresize -s max "${work_dir}/efiboot.img" 2> /dev/null || true
 
     #-- Put EFI Shell --#
     # shellx64.efi is picked up automatically when on /
