@@ -34,13 +34,13 @@ _configure_calamares(){
     # Replace the configuration file.
     # initcpio
     #sed -i "s/%MKINITCPIO_PROFILE%/${kernel_mkinitcpio_profile}/g" /usr/share/calamares/modules/initcpio.configs
-    if [[ -e "/etc/calamares/modules/initcpio.conf" ]]; then
+    if [[ -e "/usr/share/calamares/modules/initcpio.conf" ]]; then
         sed "s|^kernel:.*$|kernel: ${kernel_mkinitcpio_profile}|g" "/usr/share/calamares/modules/initcpio.conf" > "/etc/calamares/modules/initcpio.conf"
     fi
 
     # Set up calamares removeuser
     #sed -i "s/%USERNAME%/${username}/g" "/usr/share/calamares/modules/removeuser.conf"
-    if [[ -e "/etc/calamares/modules/removeuser.conf" ]]; then
+    if [[ -e "/usr/share/calamares/modules/removeuser.conf" ]]; then
         sed "s|^username:.*$|username: ${username}|g" "/usr/share/calamares/modules/removeuser.conf" > "/etc/calamares/modules/removeuser.conf"
     fi
 
