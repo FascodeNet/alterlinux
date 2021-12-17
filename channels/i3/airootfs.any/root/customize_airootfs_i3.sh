@@ -28,12 +28,12 @@ remove "/home/${username}/.config/conky/conky-jp.conf"
 
 # Change browser that open help file
 if [[ "${arch}" = "i686" ]]; then
-    sed -i -e s/chromium/firefox/g /etc/skel/.config/i3/config
-    sed -i -e s/chromium/firefox/g /home/${username}/.config/i3/config
+    sed -i -e s/chromium/firefox/g "/etc/skel/.config/i3/config"
+    sed -i -e s/chromium/firefox/g "/home/${username}/.config/i3/config"
 fi
 
 # disable light-locker on live
-sed -i "/light/s/^/# /g" /home/${username}/.config/i3/config
+sed -i "/light/s/^/# /g" "/home/${username}/.config/i3/config"
 
 # disable auto screen lock
 rm /etc/xdg/autostart/light-locker.desktop
