@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Config files for all pen4 channel
+#
+
+bootmodes+=('uefi-ia32.grub.esp' 'uefi-ia32.grub.eltorito')

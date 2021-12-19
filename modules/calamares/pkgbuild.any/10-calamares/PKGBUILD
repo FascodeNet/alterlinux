@@ -1,0 +1,70 @@
+# Maintainer: lap1sid <development@fascode.net>
+
+pkgname=calamares
+_reponame=calamares
+pkgver="3.2.44.2"
+pkgrel=1
+pkgdesc='Distribution-independent installer framework'
+arch=('i686' 'x86_64')
+license=(GPL)
+url="https://github.com/calamares/calamares"
+license=('LGPL')
+depends=('kconfig' 'kcoreaddons' 'kiconthemes' 'ki18n' 'kio' 'solid' 'yaml-cpp' 'kpmcore'
+         'boost-libs' 'hwinfo' 'qt5-svg' 'polkit-qt5' 'gtk-update-icon-cache' 'plasma-framework'
+         'qt5-xmlpatterns' 'squashfs-tools' 'ckbcomp' 'libffi')
+makedepends=('extra-cmake-modules' 'qt5-tools' 'qt5-translations' 'git' 'boost' 'ninja')
+backup=(
+        'usr/share/calamares/modules/bootloader.conf'
+        'usr/share/calamares/modules/displaymanager.conf'
+        'usr/share/calamares/modules/initcpio.conf'
+        'usr/share/calamares/modules/unpackfs.conf'
+        'usr/share/calamares/modules/removeuser.conf'
+        'usr/share/calamares/modules/users.conf'
+)
+provides=("alterlinux-calamares")
+
+source+=("${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+# Set this variable false to disable patch for Alter Linux
+patch_alterlinux=true
+
+is_patch_enabled(){ [[ "${patch_alterlinux}" = true ]]; }
+
+prepare() {
+    cd "${srcdir}/${_reponame}-${pkgver}"
+    sed -i -e 's/"Install configuration files" OFF/"Install configuration files" ON/' CMakeLists.txt
+
+    if is_patch_enabled; then
+        for _desktop in "calamares.desktop" "calamares.desktop.in"; do
+            sed -ie 's|sh -c "pkexec calamares"|sh -c "sudo -E calamares"|g' "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+            sed -i "s|^Icon=calamares$|Icon=/usr/share/icons/hicolor/scalable/apps/calamares-alterlinux.svg|g" "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+            sed -i "s|^Name=Install System$|Name=Install Alter Linux|g;
+                    s|システム|Alter Linux|g" "${srcdir}/${_reponame}-${pkgver}/${_desktop}"
+        done
+    fi
+}
+
+build() {
+    cd "${srcdir}/${_reponame}-${pkgver}"
+
+    mkdir -p build
+    cd build
+        cmake .. \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr \
+              -DCMAKE_INSTALL_LIBDIR=lib \
+              -DWITH_PYTHONQT:BOOL=ON \
+              -DBoost_NO_BOOST_CMAKE=ON \
+              -GNinja \
+              -DSKIP_MODULES="tracking webview interactiveterminal initramfs \
+                              initramfscfg dracut dracutlukscfg \
+                              dummyprocess dummypython dummycpp \
+                              dummypythonqt services-openrc"
+        ninja
+}
+
+package() {
+    cd "${srcdir}/${_reponame}-${pkgver}/build"
+    DESTDIR="$pkgdir" ninja install
+}
