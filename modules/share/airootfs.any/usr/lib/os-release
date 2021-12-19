@@ -1,0 +1,11 @@
+NAME="%OS_NAME%"
+PRETTY_NAME="%OS_NAME%"
+ID=arch
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="0;36"
+HOME_URL="https://alter.fascode.net/"
+DOCUMENTATION_URL="https://github.com/FascodeNet/alterlinux/docs/"
+SUPPORT_URL="https://fascode.net/contact/"
+BUG_REPORT_URL="https://github.com/FascodeNet/alterlinux/issues"
+LOGO=alter

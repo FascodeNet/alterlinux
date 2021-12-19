@@ -46,9 +46,7 @@ Add here basic packages and common files that will be installed on all channels.
 
 ## rebuild
 
-This channel is visible in the help, but it is not a directory entity. This channel is embedded in the script.  
-This channel is a channel to read the file which saved the build option generated in the working directory and rebuild.  
-This channel is embedded in the script.  
+Rebuild is obsolete in AlterISO3. 
 
 # Specifications of each channel
 
