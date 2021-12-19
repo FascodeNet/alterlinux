@@ -11,15 +11,25 @@ alterisoではビルドに様々な設定が存在しています。
 変更できる値の完全な一覧は`default.conf`にかかれています。  
 設定を別ファイルにコピーして変更する際はそのコメントも一緒にコピーすることを推奨します。  
 
+# custom.confについて
+`custom.conf`は`defaulf.conf`を上書きするために使用されます。  
+デフォルト値を書き換えたい場合やよく使用するビルド設定はこのファイルに記述しておくと楽です。  
+また、`build.sh`の引数で変更できない細かい設定を変更することもできるようになります。  
+
+# モジュールについて
+モジュールの設定ファイルは、モジュールが設定された順番で読み込まれます。つまり`config`で配列の後ろのほうに記述したモジュールほど優先順位が高くなります。  
+
 # 読み込まれるファイル一覧
 上から順番に読み込まれます。`<arch>`と`<ch_name>`はそれぞれアーキテクチャとチャンネル名に置き換えてください。 
-同じ変数が設定されていた場合、設定ファイルが読み込まれるごとに上書きされます。
+同じ変数が設定されていた場合、設定ファイルが読み込まれるごとに上書きされます。  
   
 ファイルパス | 備考
 --- | ---
 default.conf | 全ての値がここで設定されます（必須）
+custom.conf
 channels/share/config.any | 
 channels/share/config.<arch> | 
 channels/<ch_name>/config.any | 
 channels/<ch_name>/config.<arch> | 
-work/build_options | `rebuild`や`retry`時に読み込まれます
+modules/<md_name>/config.any | 
+modules/<md_name>/config.<arch> | 

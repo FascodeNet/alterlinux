@@ -9,12 +9,5 @@
 #
 # look and feel
 
-
-
-
 # theme
 arc-gtk-theme
-
-
-# Qt configs
-qt5ct

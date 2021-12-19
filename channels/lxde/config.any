@@ -15,7 +15,11 @@
 # Set the user's default shell.
 usershell="/bin/zsh"
 
-# Add extra files
-# Include files of share-extra channel
+# Modules to include
+# An array of module directory names to include.
 # This setting cannot be changed by an argument.
-include_extra=true
+modules=(
+    "cli-modules"
+    "lightdm-modules"
+    "gtk-modules"
+)

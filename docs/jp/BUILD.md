@@ -2,10 +2,17 @@
 ビルドは実機のArch Linuxを利用する方法とDocker上でビルドする方法があります。  
 Dockerでビルドする方法は[この手順](DOCKER.md)を参照してください。  
   
-実機でビルドする場合は、必ずOSがArch LinuxかAlter Linuxでなければなりません。  
+実機でビルドする場合は、OSがArch LinuxかAlter Linuxでなければなりません。  
+（Manjaroや他のディストリビューションでも必要なコマンドをインストールすれば理論上は可能ですが動作は保証されません。）
 以下では実機でビルドする方法を解説します。  
   
 ArchやAlter上で直接ビルドする場合、ビルドはいくつかの方法で行うことができます。
+
+## アーキテクチャについて
+現在Alter Linuxは主に`i686`と`x86_64`をサポートしています。限定的に`i486`のサポートも行っています。  
+また、現在`aarch64`のサポートもテストされています。  
+ビルドを行うホスト環境と互換性のあるアーキテクチャでしかビルドできませんので十分注意してください。  
+(x86_64上でi686のビルドはできますがaarh64上でi486のビルドを行うといったことはできません。)  
 
 ### 準備
 
@@ -25,7 +32,7 @@ sudo ./tools/keyring.sh --alter-add --arch32-add
 ビルドに必要なパッケージをインストールします。
 
 ```bash
-sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libisoburn dosfstools ninja cmake
+sudo pacman -S --needed curl dosfstools git libburn libisofs lz4 lzo make pyalpm squashfs-tools libisoburn xz zlib zstd qt5-base
 ```
 
 ### TUIを使用する
@@ -35,11 +42,17 @@ sudo pacman -S --needed git make ninja arch-install-scripts squashfs-tools libis
 make menuconfig
 ```
 
-### GUIを使用する
-GUIで設定を行ってビルドできます。
+設定が完了したら以下のコマンドでビルドできます
 
 ```bash
-python ./build-wizard.py
+sudo make build
+```
+
+### GUIを使用する
+GUIで設定を行ってビルドできます。GUIには`python-gobject`が必須です。  
+
+```bash
+python ./tools/build-helper.py
 ```
 
 ### ビルドウィザードを使用する
@@ -47,10 +60,10 @@ python ./build-wizard.py
 下記の鍵の追加や依存関係のインストールなどを全て自動で行います。  
 bashで書かれていますのでターミナルから実行してください。  
 「はい」か「いいえ」の質問は`y`か`n`で応えてください。数値を入力する場合は半角で入力してください。  
-ウィザードの使い方の詳細は[公式ブログ](https://blog.fascode.net/2021/04/17/build-alterlinux/)で紹介しています。  
+ウィザードの使い方の詳細は[公式ブログ](https://blog.fascode.net/2020/04/17/build-alterlinux/)で紹介しています。  
 
 ```bash
-./wizard.sh
+sudo make wizard
 ```
 
 ### 手動でオプションを指定してビルドする
@@ -64,6 +77,7 @@ sudo ./build.sh [options] [channel]
 ### build.shの使い方
 
 主なオプションは以下のとおりです。完全なオプションと使い方は`./build -h`を実行して下さい。  
+（以下のオプション以外にもデバッグ用の様々なオプションが用意されています。）  
 
 用途 | 使い方
 --- | ---
@@ -77,19 +91,19 @@ sudo ./build.sh [options] [channel]
 出力先ディレクトリを指定する| -o [dir]
 作業ディレクトリを指定する | -w [dir]
 
-##### 注意
-チャンネル名以降に記述されたオプションは全て無視されます。必ずチャンネル名の前にオプションを入れて下さい。
+また引数では設定できない細かい挙動を変更する方法もあります。詳しくは[CONFIG.md](CONFIG.md)を参照してください。  
 
 #### 例
 以下の条件でビルドするにはこのようにします。
 
 - Plymouthを有効化
 - 圧縮方式は`gzip`
-- カーネルは`linux-lqx`
+- カーネルは`linux-lts`
 - パスワードは`ilovearch`
+- チャンネルは`xfce`
 
 ```bash
-./build.sh -b -c "gzip" -k "lqx" -p 'ilovearch' xfce
+./build.sh -b -c "gzip" -k "lts" -p 'ilovearch' xfce
 ```
 
 
@@ -97,7 +111,7 @@ sudo ./build.sh [options] [channel]
 #### チャンネルについて
 チャンネルは、インストールするパッケージと含めるファイルを切り替えます。  
 この仕組みにより様々なバージョンのAlter Linuxをビルドすることが可能になります。  
-2021年8月17日現在でサポートされているチャンネルは以下のとおりです。  
+2021年5月07日現在でサポートされているチャンネルは以下のとおりです。  
 完全なチャンネルの一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 目的
@@ -109,20 +123,21 @@ i3 | i3とカスタマイズ可能なpolybarを搭載したrelengを除いて最
 lxde | LXDEと最小限のアプリケーションのみが入っている軽量なチャンネル
 plasma | PlasmaとQtアプリを搭載した現在開発中のチャンネル
 releng | 純粋なArchLinuxのライブ起動ディスクをビルドできるチャンネル
+serene | Serene Linuxを移植したチャンネル
 xfce | デスクトップ環境にXfce4を使用し、様々なソフトウェアを追加したデフォルトのチャンネル
 xfce-pro | xfceチャンネルのウィンドウマネージャを変更し、多くのソフトを追加したチャンネル
-rebuild | 作業ディレクトリにある設定を利用して再ビルドを行う特殊なチャンネル
 
 
 #### カーネルについて
 `i686`アーキテクチャと`x86_64`アーキテクチャでは共にArchLinuxの公式カーネルである`linux`や`linux-lts`、`linux-zen`をサポートしています。  
-また`x86_64`では公式カーネルに加えて以下のカーネルをサポートしています。
-カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。
+また`x86_64`では公式カーネルに加えて以下ようなカーネルをサポートしています。  
+カーネルの説明は[ArchWiki](https://wiki.archlinux.jp/index.php/%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB)を引用しています。  
+AlterISO3からは非公式なカーネルはyayによりコンパイル、インストールされます。カーネルのコンパイルに時間がかかる場合が有るので注意してください。  
+この一覧に無いカーネルもサポートしています。完全な一覧は`./build.sh -h`を参照して下さい。  
 
 名前 | 特徴
 --- | ---
 ck | linux-ck にはシステムのレスポンスを良くするためのパッチが含まれています。
-lts | coreリポジトリにある長期サポート版 (Long term support, LTS) の Linux カーネルとモジュール。
 lqx | デスクトップ・マルチメディア・ゲーム用途に Debian 用の設定と ZEN カーネルソースを使ってビルドされたディストロカーネル代替
 rt | このパッチを使うことでカーネルのほとんど全てをリアルタイム実行できるようになります。
 zen-letsnote | Let's Noteでサスペンドの問題が発生しないようにパッチを当てた`linux-zen`カーネル（Alter Linux独自）

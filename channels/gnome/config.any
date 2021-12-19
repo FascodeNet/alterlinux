@@ -15,10 +15,18 @@
 # Set the user's default shell.
 usershell="/bin/zsh"
 
-# Force install the AUR package.
-noaur=false
+# aur Warning
+if [[ "${noaur-""}" = true ]]; then
+    msg_warn "===== Warning of Gnome channel ====="
+    msg_warn "If noaur is true, many extensions will not be installed."
+    msg_warn "===================================="
+fi
 
-# Add extra files
-# Include files of share-extra channel
+# Modules to include
+# An array of module directory names to include.
 # This setting cannot be changed by an argument.
-include_extra=true
+modules=(
+    "cli-modules"
+    "gdm"
+    "gtk-modules"
+)

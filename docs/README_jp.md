@@ -5,20 +5,20 @@
     <img src="../images/logo/color-black-catchcopy/AlterV6-LogowithCopy-Colored-DarkText-256px.png" alt="Alter Linux logo">
 </p>
 <p align="center">
-    <a href="https://fascode.net/en/projects/linux/alter/">
+    <a href="https://alter.fascode.net/">
         <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=flat-square">
     </a>
     <a href="../LICENSE">
-        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square" alt="License: GPLv3.0">
+        <img src="https://img.shields.io/github/license/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://www.archlinux.org/">
         <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=flat-square&logo=arch-linux" alt="Base">
     </a>
-    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
-        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
+    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v59">
+        <img src="https://img.shields.io/badge/archiso--version-59--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
-    <a href="https://travis-ci.com/github/FascodeNet/alterlinux">
-        <img src="https://img.shields.io/travis/com/FascodeNet/alterlinux?style=flat-square">
+    <a href="https://github.com/FascodeNet/alterlinux/actions">
+        <img src="https://img.shields.io/github/workflow/status/fascodenet/alterlinux/ShellCheck%20CL?style=flat-square">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/issues">
         <img src="https://img.shields.io/github/issues/FascodeNet/alterlinux?color=violet&style=flat-square&logo=github" alt="Issues">
@@ -32,14 +32,14 @@
     <a href="https://github.com/FascodeNet/alterlinux/releases">
         <img src="https://img.shields.io/github/v/release/FascodeNet/alterlinux?color=blue&include_prereleases&style=flat-square" alt="release">
     </a>
-    <a href="https://fascode.net/en/projects/linux/alter/downloads/">
-        <img src="https://img.shields.io/github/downloads/FascodeNet/alterlinux/total?style=flat-square">
-    </a>
     <a href="https://github.com/FascodeNet/alterlinux/commits/">
         <img src="https://img.shields.io/github/last-commit/FascodeNet/alterlinux?style=flat-square">
     </a>
     <a href="https://github.com/fascodeNet/alterlinux/">
         <img src="https://img.shields.io/github/repo-size/fascodenet/alterlinux?style=flat-square">
+    </a>
+    <a href="https://github.com/FascodeNet/alterlinux">
+        <img src="https://img.shields.io/tokei/lines/github/fascodenet/alterlinux?style=flat-square">
     </a>
 </p>
 
@@ -57,25 +57,35 @@
 </table>
 
 <h2>〈概要〉</h2>
-
 Alter LinuxはArch Linuxをベースに開発されている新しいOSです。<br>
 Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNet/projects/2">プロジェクトボード</a>を確認してください。<br>
-ユーザ向けのアナウンスや不具合等の情報は<a href="https://fascode.net/projects/linux/alter/">公式サイト</a>をご覧ください。
+ユーザ向けのアナウンスや不具合等の情報は<a href="https://alter.fascode.net/">公式サイト</a>をご覧ください。
 
+<h2>〈ダウンロード〉</h2>
+イメージファイルは<a href="https://alter.fascode.net/#downloads">公式サイト</a>からダウンロードできます。
+<br>
+<b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
+<br>
+もし私達にミラーを提供して頂ける場合は開発者のTwitterまでお願いします。
+
+<h2>〈Screenshots〉</h2>
 <h3>Xfce</h3>
-<img src="../images/screenshot/desktop-xfce.png" alt="screenshot">
+<img src="../images/screenshot/desktop-xfce.png" alt="screenshot" width="50%">
+
+<h3>Plasma</h3>
+<img src="../images/screenshot/desktop-plasma.png" alt="screenshot" width="50%">
 
 <h3>Lxde</h3>
-<img src="../images/screenshot/desktop-lxde.png" alt="screenshot">
+<img src="../images/screenshot/desktop-lxde.png" alt="screenshot" width="50%">
 
 <h3>Gnome</h3>
-<img src="../images/screenshot/desktop-gnome.png" alt="screenshot">
+<img src="../images/screenshot/desktop-gnome.png" alt="screenshot" width="50%">
 
 <h3>Cinnamon</h3>
-<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot">
+<img src="../images/screenshot/desktop-cinnamon.png" alt="screenshot" width="50%">
 
 <h3>i3wm</h3>
-<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot">
+<img src="../images/screenshot/desktop-i3wm.png" alt="screenshot" width="50%">
 
 <h2>〈特徴〉</h2>
 <ul>
@@ -86,16 +96,9 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
     <li>デフォルトでZENカーネルを採用</li>
     <li>洗練されたUIやテーマ、アイコンを搭載しています</li>
     <li><code>aptpac</code>で<cpde>apt</code>の構文をそのまま使用できます</li>
+    <li>デフォルトでPipewireによる、高品質なオーディオが使えます</li>
     <li>archisoをベースとしたフレームワークにより簡単に派生OSを開発できます</li>
 </ul>
-
-<h2>〈ダウンロード〉</h2>
-イメージファイルは<a href="https://fascode.net/projects/linux/alter/#downloads">公式サイト</a>からダウンロードできます。
-<br>
-<b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
-<br>
-もし私達にミラーを提供して頂ける場合は開発者のTwitterまでお願いします。
-
 
 <h2>〈ブランチ〉</h2>
 主要なブランチは以下のとおりです。これ以外のブランチは一時的なものや特定の用途で使われているものです。
@@ -168,7 +171,7 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 
 <h2>〈FascodeNetworkと開発者について〉</h2>
 <a href="https://fascode.net/">Fascode Network</a>は学生を主体とする創作チームです。<br>
-<a href="https://fascode.net/projects/linux/alter/">Alter Linux</a>と<a href="https://fascode.net/projects/linux/serene/">SereneLinux</a>の開発を行っています。
+<a href="https://alter.fascode.net/">Alter Linux</a>と<a href="https://serene.fascode.net/">SereneLinux</a>の開発を行っています。
 
 <h3>公式Twitterアカウント</h3>
 <a href="https://twitter.com/FascodeNetwork">
