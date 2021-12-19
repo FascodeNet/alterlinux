@@ -13,8 +13,8 @@
     <a href="https://www.archlinux.org/">
         <img src="https://img.shields.io/badge/BASE-ArchLinux-blue?style=flat-square&logo=arch-linux" alt="Base">
     </a>
-    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v48">
-        <img src="https://img.shields.io/badge/archiso--version-48--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
+    <a href="https://gitlab.archlinux.org/archlinux/archiso/-/tree/v59">
+        <img src="https://img.shields.io/badge/archiso--version-59--1-blue?style=flat-square&logo=arch-linux" alt="archiso-version">
     </a>
     <a href="https://github.com/FascodeNet/alterlinux/actions">
         <img src="https://img.shields.io/github/workflow/status/fascodenet/alterlinux/ShellCheck%20CL?style=flat-square">
