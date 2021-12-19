@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Config files for all x86_64 channel
+#
+
+bootmodes+=('uefi-x64.systemd-boot.esp' 'uefi-x64.systemd-boot.eltorito')
+bootmodes+=('uefi-ia32.grub.esp' 'uefi-ia32.grub.eltorito')

@@ -95,6 +95,7 @@ while (( ${#} > 0 )); do
             then
                 SHARE_PKG_DIR="${2}/pkg"
                 SHARE_DB_DIR="${2}/sync"
+		shift 2
             else
                 echo "Error: The directory is not found or cannot make directory." 1>&2
                 exit 1
