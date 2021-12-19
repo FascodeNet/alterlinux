@@ -1,0 +1,21 @@
+usage build.sh [options] [channel]
+
+A channel is a profile of AlterISO settings.
+
+ General options:
+    -b | --boot-splash           Enable boot splash
+    -e | --cleanup | --cleaning  Enable post-build cleaning
+    -r |  --tarball               Build rootfs in tar.xz format
+    -h | --help                  This help message and exit
+
+    -a | --arch <arch>           Set iso architecture
+    -c | --comp-type <comp_type> Set SquashFS compression type (gzip, lzma, lzo, xz, zstd)
+    -g | --gpgkey <key>          Set gpg key
+    -l | --lang <lang>           Specifies the default language for the live environment
+    -k | --kernel <kernel>       Set special kernel type. See below for available kernels
+    -o | --out <out_dir>         Set the output directory
+    -p | --password <password>   Set a live user password
+    -t | --comp-opts <options>   Set compressor-specific options.
+    -u | --user <username>       Set user name
+    -w | --work <work_dir>       Set the working directory
+

@@ -19,15 +19,15 @@ _help() {
     echo "Build and install PKGBUILD" 
     echo
     echo " General options:"
-    echo "    -d                       Enable pacman debug message"
+    echo "    -c                       Enable pacman debug message"
     echo "    -u [user]                Set the user name to build packages"
     echo "    -x                       Enable bash debug message"
     echo "    -h                       This help message"
 }
 
-while getopts "du:xh" arg; do
+while getopts "cu:xh" arg; do
     case "${arg}" in
-        d) pacman_debug=true ;;
+        c) pacman_debug=true ;;
         u) build_username="${OPTARG}" ;;
         x) set -xv ;;
         h) 
@@ -74,7 +74,7 @@ if ! user_check "${build_username}"; then
     useradd -m -d "${pkgbuild_dir}" "${build_username}"
 fi
 mkdir -p "${pkgbuild_dir}"
-chmod 700 -R "${pkgbuild_dir}"
+chmod 700 "${pkgbuild_dir}"
 chown -R "${build_username}" "${pkgbuild_dir}"
 echo "${build_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/pkgbuild"
 

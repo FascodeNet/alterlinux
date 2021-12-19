@@ -64,19 +64,9 @@ hinting='slight'
 
 [org/gnome/shell]
 app-picker-view=uint32 0
-disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
-enabled-extensions=['extensions@abteil.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'CoverflowAltTab@palatis.blogspot.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'horizontal-workspaces@gnome-shell-extensions.gcampax.github.com', 'CoverflowAltTab@dmo60.de', 'arcmenu@arcmenu.com', 'clipboard-indicator@tudmotu.com', 'appindicatorsupport@rgcjonas.gmail.com']
+disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'launch-new-instance@gnome-shell-extensions.gcampax.github.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'CoverflowAltTab@dmo60.de', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'pamac-updates@manjaro.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'clipboard-indicator@tudmotu.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com']
 favorite-apps=['chromium.desktop', 'org.gnome.Nautilus.desktop', 'thunderbird.desktop', 'libreoffice-startcenter.desktop', 'medit.desktop', 'vlc.desktop', 'org.gnome.Screenshot.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Extensions.desktop', 'gnome-control-center.desktop']
-welcome-dialog-last-shown-version='999999999'
-
-[org/gnome/shell/extensions/arc-menu]
-button-icon-padding=0
-dtp-dtd-state=[true, true]
-enable-menu-button-arrow=false
-position-in-panel='Left'
-recently-installed-apps=@as []
-show-external-devices=true
-show-suspend-button=false
 
 [org/gnome/shell/extensions/arcmenu]
 application-shortcuts-list=[['Software', 'system-software-install-symbolic', 'ArcMenu_Software'], ['Settings', 'preferences-system-symbolic', 'gnome-control-center.desktop'], ['Tweaks', 'org.gnome.tweaks-symbolic', 'org.gnome.tweaks.desktop'], ['Terminal', 'utilities-terminal-symbolic', 'org.gnome.Terminal.desktop']]
@@ -98,6 +88,7 @@ menu-height=550
 menu-hotkey='Super_L'
 menu-layout='Windows'
 menu-width=290
+multi-monitor=true
 pinned-app-list=['Chromium', '', 'chromium.desktop', 'Thunderbird', '', 'thunderbird.desktop', 'LibreOffice Writer', '', 'libreoffice-writer.desktop', 'LibreOffice Impress', '', 'libreoffice-impress.desktop', 'LibreOffice Calc', '', 'libreoffice-calc.desktop', 'System Monitor', '', 'gnome-system-monitor.desktop', 'Extensions', '', 'org.gnome.Extensions.desktop', 'VLC media player', '', 'vlc.desktop', 'medit', '', 'medit.desktop']
 prefs-visible-page=0
 right-panel-width=205
@@ -128,16 +119,19 @@ switcher-style='Timeline'
 
 [org/gnome/shell/extensions/dash-to-panel]
 animate-appicon-hover-animation-extent={'RIPPLE': 4, 'PLANK': 4, 'SIMPLE': 1}
+appicon-margin=8
 appicon-padding=4
 available-monitors=[0]
 dot-position='BOTTOM'
 group-apps=true
+hide-overview-on-startup=true
 hotkeys-overlay-combo='TEMPORARILY'
 intellihide=false
 isolate-workspaces=true
 leftbox-padding=-1
+overview-click-to-exit=true
 panel-anchors='{"0":"MIDDLE"}'
-panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+panel-element-positions='{"0":[{"element":"showAppsButton","visible":false,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
 panel-lengths='{"0":100}'
 panel-positions='{"0":"BOTTOM"}'
 panel-sizes='{"0":32}'

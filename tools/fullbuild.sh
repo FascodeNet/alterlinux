@@ -21,7 +21,7 @@ channels=(
 architectures=("x86_64" "i686")
 locale_list=("ja" "en")
 share_options=()
-default_options=("--boot-splash" "--cleanup" "--user" "alter" "--password" "alter" "--log")
+default_options=("--boot-splash" "--user" "alter" "--password" "alter" "--log")
 failed=()
 abort=false
 
