@@ -28,12 +28,22 @@ remove "/home/${username}/.config/conky/conky-jp.conf"
 
 # Change browser that open help file
 if [[ "${arch}" = "i686" ]]; then
-    sed -i -e s/chromium/firefox/g /etc/skel/.config/i3/config
-    sed -i -e s/chromium/firefox/g /home/${username}/.config/i3/config
+    sed -i -e s/chromium/firefox/g "/etc/skel/.config/i3/config"
+    sed -i -e s/chromium/firefox/g "/home/${username}/.config/i3/config"
 fi
 
+# Set permission for script
+for _dir in "/etc/skel/" "/home/${username}/"; do
+    for _script in ".config/"{"polybar/launch.sh","rofi/power.sh"}; do
+        [[ -e "${_dir}/${_script}" ]] && {
+            echo "Change permission of ${_dir}/${_script} to 755"
+            chmod 755 "${_dir}/${_script}"
+        }
+    done
+done
+
 # disable light-locker on live
-sed -i "/light/s/^/# /g" /home/${username}/.config/i3/config
+sed -i "/light/s/^/# /g" "/home/${username}/.config/i3/config"
 
 # disable auto screen lock
 rm /etc/xdg/autostart/light-locker.desktop
