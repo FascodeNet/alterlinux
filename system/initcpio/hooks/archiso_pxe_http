@@ -1,4 +1,6 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 run_hook() {
     # shellcheck disable=SC2154
@@ -35,8 +37,9 @@ _curl_get() {
     fi
 }
 
-archiso_pxe_http_mount_handler () {
+archiso_pxe_http_mount_handler() {
     newroot="${1}"
+    local img_type="sfs"
 
     msg ":: Mounting /run/archiso/httpspace (tmpfs) filesystem, size='${archiso_http_spc}'"
     mkdir -p "/run/archiso/httpspace"
@@ -44,7 +47,12 @@ archiso_pxe_http_mount_handler () {
 
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
-    _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs" "/${arch}"
+    if ! curl -L -f -o /dev/null -s -r 0-0 "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs"; then
+        if curl -L -f -o /dev/null -s -r 0-0 "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.erofs"; then
+            img_type="erofs"
+        fi
+    fi
+    _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.${img_type}" "/${arch}"
 
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
@@ -54,7 +62,7 @@ archiso_pxe_http_mount_handler () {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${verify}" = "y" ]; then
-        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs.sig" "/${arch}"
+        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.${img_type}.sig" "/${arch}"
     fi
 
     mkdir -p "/run/archiso/bootmnt"

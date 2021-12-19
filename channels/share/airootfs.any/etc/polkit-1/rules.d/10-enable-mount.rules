@@ -1,5 +1,0 @@
-polkit.addRule(function(action, subject) {
-	if (action.id == "org.freedesktop.udisks2.filesystem-mount-system" && subject.isInGroup("storage")) {
-	    return polkit.Result.YES;
-	}
-});

@@ -5,7 +5,7 @@
 # Twitter: @Pixel_3a
 # Email  : lap1sid@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # look and feel
 
@@ -16,12 +16,7 @@ noto-fonts-cjk
 noto-fonts-emoji
 
 
-# Wallpaper
-alterlinux-wallpapers
-
-
 # icon
-#paper-icon-theme
 papirus-icon-theme
 
 

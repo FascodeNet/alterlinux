@@ -1,6 +1,8 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-run_hook () {
+run_hook() {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     [ -n "${img_label}" ] && img_dev="/dev/disk/by-label/${img_label}"
@@ -12,7 +14,7 @@ run_hook () {
     fi
 }
 
-archiso_loop_mount_handler () {
+archiso_loop_mount_handler() {
     newroot="${1}"
 
     local _dev_loop
@@ -22,7 +24,7 @@ archiso_loop_mount_handler () {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${copytoram}" != "y" ]; then
-        readlink -f "${img_dev}" >> /run/archiso/used_block_devices
+        readlink -f "${img_dev}" >>/run/archiso/used_block_devices
     fi
 
     if _dev_loop=$(losetup --find --show --read-only "/run/archiso/img_dev/${img_loop}"); then

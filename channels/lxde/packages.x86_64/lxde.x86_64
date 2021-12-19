@@ -1,11 +1,11 @@
-# 
+#
 # Alter Linux package list
 #
-# Yamada Hayao 
+# Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # Lxde Desktop Environment
 
@@ -22,7 +22,7 @@ lxinput
 lxlauncher
 # lxmusic  VLCがインストールされているため（Issues #51）
 lxpanel
-# lxrandr  arandrで代用 仮想マシンで使えないため arandrはother.x86_64に記述
+lxrandr
 lxsession
 lxtask
 lxterminal
@@ -34,6 +34,5 @@ pcmanfm
 adapta-gtk-theme
 papirus-icon-theme
 
-
-#-- wallpaper --#
-alterlinux-wallpapers
+#-- To run fascode-live-tools on lxde session --#
+python-pyxdg

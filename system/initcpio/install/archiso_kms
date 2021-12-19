@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 build() {
     add_module "amdgpu"
@@ -9,6 +11,12 @@ build() {
     add_module "via-agp"
     add_module "sis-agp"
     add_module "intel-agp"
+
+    add_module "nvidia?"
+    add_module "nvidia_modeset?"
+    add_module "nvidia_uvm?"
+    add_module "nvidia_drm?"
+
 
     if [[ $(uname -m) == i686 ]]; then
         add_module "amd64-agp"
@@ -22,7 +30,7 @@ build() {
 }
 
 help() {
-    cat << HELPEOF
+    cat <<HELPEOF
 Adds all common KMS drivers to the initramfs image.
 HELPEOF
 }

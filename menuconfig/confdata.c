@@ -72,7 +72,7 @@ const char *conf_get_configname(void)
 const char *conf_get_autoconfig_name(void)
 {
 // 	char *name = getenv("KCONFIG_AUTOCONFIG");
-// 
+//
 // 	return name ? name : "include/config/auto.conf";
 	return autoconfig_name;
 }
@@ -1001,7 +1001,7 @@ int conf_write_autoconf(const char* filename)
 	fclose(tristate);
 	fclose(out_h);
 
-	
+
 	if (rename(".tmpconfig.h", name)) {
 		return 1;
 	}

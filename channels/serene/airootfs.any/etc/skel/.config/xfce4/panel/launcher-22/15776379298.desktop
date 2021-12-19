@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Google Sheets
+Type=Link
+URL=https://docs.google.com/spreadsheets
+Icon=/usr/share/icons/google-app/xofficespreadsheet_92797.png
+Categories=GTK;Office;
+X-XFCE-Source=file:///home/serene/.local/share/applications/Google%20Sheets.desktop

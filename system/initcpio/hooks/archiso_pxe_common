@@ -1,6 +1,8 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-run_hook () {
+run_hook() {
     # Do *not* declare 'bootif_dev' local! We need it in run_latehook().
     local i net_mac bootif_mac
     local DNSDOMAIN HOSTNAME IPV4DNS0 IPV4DNS1 ROOTSERVER
@@ -11,11 +13,11 @@ run_hook () {
     if [ -n "${ip}" ]; then
         if [ -n "${BOOTIF}" ]; then
             bootif_mac="${BOOTIF#01-}"
-            # shellcheck disable=SC2169
+            # shellcheck disable=SC2169,SC3060
             # ash supports bash-like string replacment
             bootif_mac="${bootif_mac//-/:}"
             for i in /sys/class/net/*/address; do
-                read -r net_mac < "${i}"
+                read -r net_mac <"${i}"
                 if [ "${bootif_mac}" = "${net_mac}" ]; then
                     bootif_dev=${i#/sys/class/net/}
                     bootif_dev=${bootif_dev%/address}
@@ -45,32 +47,34 @@ run_hook () {
 
         # setup DNS resolver
         if [ "${IPV4DNS0}" != "0.0.0.0" ]; then
-            echo "# added by archiso_pxe_common hook" > /etc/resolv.conf
-            echo "nameserver ${IPV4DNS0}" >> /etc/resolv.conf
+            echo "# added by archiso_pxe_common hook" >/etc/resolv.conf
+            echo "nameserver ${IPV4DNS0}" >>/etc/resolv.conf
         fi
         if [ "${IPV4DNS1}" != "0.0.0.0" ]; then
-            echo "nameserver ${IPV4DNS1}" >> /etc/resolv.conf
+            echo "nameserver ${IPV4DNS1}" >>/etc/resolv.conf
         fi
         if [ -n "${DNSDOMAIN}" ]; then
-            echo "search ${DNSDOMAIN}" >> /etc/resolv.conf
-            echo "domain ${DNSDOMAIN}" >> /etc/resolv.conf
+            echo "search ${DNSDOMAIN}" >>/etc/resolv.conf
+            echo "domain ${DNSDOMAIN}" >>/etc/resolv.conf
         fi
     fi
 }
 
-run_latehook () {
+run_latehook() {
     if [ -n "${ip}" ]; then
         [ -z "${copy_resolvconf}" ] && copy_resolvconf="y"
 
         # shellcheck disable=SC2154
         # defined via initcpio's parse_cmdline()
         if [ "${copytoram}" = "y" ]; then
-            if [ -n "${bootif_dev}" ]; then
-                ip addr flush dev "${bootif_dev}"
-                ip link set "${bootif_dev}" down
-            fi
+            for curif in /sys/class/net/*; do
+                netdev=${curif#/sys/class/net/}
+                ip addr flush dev "${netdev}"
+                ip link set "${netdev}" down
+            done
         elif [ "${copy_resolvconf}" != "n" ] && [ -f /etc/resolv.conf ]; then
-            cp /etc/resolv.conf /new_root/etc/resolv.conf
+            rm -f -- /new_root/etc/resolv.conf
+            cp -- /etc/resolv.conf /new_root/etc/resolv.conf
         fi
     fi
 }

@@ -1,0 +1,19 @@
+#
+# Alter Linux package list
+#
+# Yamada Hayao
+# Twitter: @Hayao0819
+# Email  : hayao@fascode.net
+#
+# (c) 2019-2021 Fascode Network.
+#
+# Media
+
+#-- bluetooth --#
+blueman
+bluez
+bluez-utils
+
+
+#-- media player --#
+vlc

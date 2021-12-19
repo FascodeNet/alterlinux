@@ -5,23 +5,15 @@
 # Twitter: @Pixel_3a
 # Email  : lap1sid@fascode.net
 #
-# (c) 2019-2020 Fascode Network.
+# (c) 2019-2021 Fascode Network.
 #
 # Media
 
+#-- audio --#
+plasma-pa
 
 #-- bluetooth --#
 bluedevil
-bluez
-bluez-utils
-pulseaudio-bluetooth
-
-
-#-- audio --#
-pulseaudio
-plasma-pa
-
 
 #-- media player --#
 gwenview
-vlc

@@ -1,11 +1,13 @@
 #!/bin/ash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 run_earlyhook() {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ -n "${ip}" ] && [ -n "${archiso_nbd_srv}" ]; then
         # Module autoloading like with loop devices does not work, doing manually...
-        modprobe nbd 2> /dev/null
+        modprobe nbd 2>/dev/null
     fi
 }
 
@@ -19,7 +21,7 @@ run_hook() {
     fi
 }
 
-archiso_pxe_nbd_mount_handler () {
+archiso_pxe_nbd_mount_handler() {
     newroot="${1}"
 
     msg ":: Waiting for boot device..."

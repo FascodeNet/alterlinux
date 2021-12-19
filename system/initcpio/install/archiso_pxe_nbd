@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 build() {
     add_module "nbd"
@@ -9,7 +11,7 @@ build() {
 }
 
 help() {
-cat<<HELPEOF
+    cat <<HELPEOF
   This hook loads the necessary modules for boot via PXE and NBD.
 HELPEOF
 }
