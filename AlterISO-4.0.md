@@ -1,15 +1,37 @@
 ## AlterISO 4.0について
-以下にAlterISO 4.0の今後の開発方針を示す。
 
+### 概要
 - チャンネル、モジュールの構成は維持
 - Archiso 58に準拠し、少しずつbuild.shを書き直す
+- Archisoからの変更を最小限にするために再実装
+- 2022年後半の完成を目指す
+
+### 現在の進捗状況
   - [x] 最初はAlterISO 3.1のコードを残しつつ、Archisoのコードを無理やり追加してビルドが通るようにする
+  - [x] 関数名を整理する
+  - [x] `mkinitcpio-archiso`との統合は行わず、引き続き`/system/initcpio`を使用する(※2)
+  - [x] ~~カーネルパラメータを統一し、現在boot_splashの有無で分かれているEFIやSyslinuxの設定ファイルを統一する~~
+  - [x] kokkiemouse主導だった旧AlterISO-4は`obs_alteriso-4`に変更。
+  - [x] menuconfig用のスクリプトを別の場所へ移動
+  - [x] `/tools/menuconf-to-alterconf.sh`
+  - [x] `/tools/kernel-choice-conf-gen.sh`
+  - [x] `/tools/channel-choice-conf-gen.sh`
+
   - [ ] ~~ある程度のコードが固まったら余分な部分の削除を行う~~
-  - [ ] AlterISO 3.1の機能を再実装する
-    - [ ] ロングオプションの大半は未実装
-    - 
-  - [ ] Archisoからの変更を最小限にするために再実装
-- [x] 関数名を整理する
+  - [ ] AlterISO 3.1の機能を再実装する(ロングオプションの大半は未実装)
+    - [ ] AlterISO 3.1独自の機能
+      - [ ] `-b`: Boot Splash Plymouth (`boot_splash` `theme_name`)
+      - [ ] `dependance`: 依存関係の検証をパッケージベースからコマンド、ファイルベースに変更
+        - [ ] `package.py`を削除
+        - [ ] `pyalpm`依存を削除
+        - [ ] Arch Linux依存の処理を削除
+    - [ ] ArchISOから構造が変更された機能
+      - [ ] BuildMode
+        - [ ] `--tarball`: Bootstrap Tarball (`tarball` `tar_comp` `tar_comp_opt`)
+        - [ ] `--comp-typr`: Compressors Type (`sfs_comp` `sfs_comp_opt`)
+      - [ ] BootMode
+        - [ ] `--noefi`: Build without EFI (`noefi`)
+        - [ ] `--noiso`: Build without ISO (`noiso`)
 - [ ] `tools`にある`build.sh`からしか呼び出されない外部コマンドを削除し、関数として再実装(※1)
   - [x] `/tools/kernel.sh` -> `/lib/kernel.sh`
   - [x] `/tools/locale.sh` -> `/lib/locale.sh`
@@ -17,19 +39,10 @@
   - [x] `/tools/module.sh` -> `/lib/module.sh`
   - [x] `/tools/channel.sh` -> `/lib/channel.sh`
   - [ ] `/tools/pkglist.sh` -> `/lib/pkglist.sh`
-
-- [x] `mkinitcpio-archiso`との統合は行わず、引き続き`/system/initcpio`を使用する(※2)
 - [ ] `/system/`の各アーキテクチャのファイルを整理する
-- [ ] ~~カーネルパラメータを統一し、現在boot_splashの有無で分かれているEFIやSyslinuxの設定ファイルを統一する~~
 - [ ] menuconfigのディレクトリ構成を整理する
 - [ ] ドキュメントを整理する
-- [ ] 2022年後半の完成を目指す
-- [x] kokkiemouse主導だった旧AlterISO-4は`obs_alteriso-4`に変更。
 - [ ] モジュールの依存関係を実装
--  menuconfig用のスクリプトを別の場所へ移動
-- [x] `/tools/menuconf-to-alterconf.sh`
-- [x] `/tools/kernel-choice-conf-gen.sh`
-- [x] `/tools/channel-choice-conf-gen.sh`
 
 
 ## 当分のあいだの開発目標
