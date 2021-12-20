@@ -2,7 +2,7 @@
 
 pkgname=calamares
 _reponame=calamares
-pkgver="3.2.44.2"
+pkgver="3.2.49.1"
 pkgrel=1
 pkgdesc='Distribution-independent installer framework'
 arch=('i686' 'x86_64')
