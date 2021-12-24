@@ -8,9 +8,4 @@
 # (c) 2019-2021 Fascode Network.
 #
 
-#-- system monitor --#
-cpu-x
-
-#-- other --#
-ipad_charge-git
-tlpui
+snapd

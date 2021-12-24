@@ -11,11 +11,6 @@
 rfkill unblock all
 _safe_systemctl enable bluetooth
 
-# Snap
-_safe_systemctl enable snapd.apparmor.service
-_safe_systemctl enable apparmor.service
-_safe_systemctl enable snapd.socket
-_safe_systemctl enable snapd.service
 _safe_systemctl enable ufw.service
 
 
