@@ -98,7 +98,8 @@ for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/
 # chroot環境でpacmanコマンドを実行
 # /etc/alteriso-pacman.confを準備してコマンドを実行します
 _run_with_pacmanconf(){
-    cp "${build_dir}/${buildmode}.pacman.conf" "${pacstrap_dir}/etc/alteriso-pacman.conf"
+    #cp "${build_dir}/${buildmode}.pacman.conf" "${pacstrap_dir}/etc/alteriso-pacman.conf"
+    sed -e "s|^CacheDir|#CacheDir|g" "${build_dir}/${buildmode}.pacman.conf" > "${pacstrap_dir}/etc/alteriso-pacman.conf"
     "${@}"
     remove "${pacstrap_dir}/etc/alteriso-pacman.conf"
 }
