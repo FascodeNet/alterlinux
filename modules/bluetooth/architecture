@@ -1,13 +1,12 @@
 #
-# Alter Linux package list
-#
 # Yamada Hayao
 # Twitter: @Hayao0819
 # Email  : hayao@fascode.net
 #
 # (c) 2019-2021 Fascode Network.
 #
-# Media
+# Supported architecture list
 
-#-- media player --#
-vlc
+x86_64
+i686
+pen4
