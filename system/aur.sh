@@ -6,6 +6,8 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
+#shellcheck disable=SC2001
+
 set -e -u
 
 aur_username="aurbuild"
@@ -13,25 +15,37 @@ pacman_debug=false
 pacman_args=()
 failedpkg=()
 remove_list=()
-yay_depends=("go")
+aur_helper_depends=("go")
+aur_helper_command="yay"
+aur_helper_package="yay"
+aur_helper_args=()
+pkglist=()
 
 trap 'exit 1' 1 2 3 15
 
 _help() {
-    echo "usage ${0} [option]"
+    echo "usage ${0} [option] [aur helper args] ..."
     echo
-    echo "Install aur packages with yay" 
+    echo "Install aur packages with ${aur_helper_command}" 
     echo
     echo " General options:"
-    echo "    -d                       Enable pacman debug message"
+    echo "    -a [command]             Set the command of aur helper"
+    echo "    -c                       Enable pacman debug message"
+    echo "    -e [pkg]                 Set the package name of aur helper"
+    echo "    -d [pkg1,pkg2...]        Set the oackage of the depends of aur helper"
+    echo "    -p [pkg1,pkg2...]        Set the AUR package to install"
     echo "    -u [user]                Set the user name to build packages"
     echo "    -x                       Enable bash debug message"
     echo "    -h                       This help message"
 }
 
-while getopts "du:xh" arg; do
+while getopts "a:cd:e:p:u:xh" arg; do
     case "${arg}" in
-        d) pacman_debug=true ;;
+        a) aur_helper_command="${OPTARG}" ;;
+        c) pacman_debug=true ;;
+        e) aur_helper_package="${OPTARG}" ;;
+        p) readarray -t pkglist < <(sed "s|,$||g" <<< "${OPTARG}" | tr "," "\n") ;;
+        d) readarray -t aur_helper_depends < <(sed "s|,$||g" <<< "${OPTARG}" | tr "," "\n") ;;
         u) aur_username="${OPTARG}" ;;
         x) set -xv ;;
         h) 
@@ -46,6 +60,8 @@ while getopts "du:xh" arg; do
 done
 
 shift "$((OPTIND - 1))"
+aur_helper_args=("${@}")
+eval set -- "${pkglist[@]}"
 
 # Show message when file is removed
 # remove <file> <file> ...
@@ -82,57 +98,50 @@ if [[ "${pacman_debug}" = true ]]; then
     pacman_args+=("--debug")
 fi
 
-# Install yay
-if ! pacman -Qq yay 1> /dev/null 2>&1; then
-    # Update database
+# Install
+if ! pacman -Qq "${aur_helper_package}" 1> /dev/null 2>&1; then
     _oldpwd="$(pwd)"
-    pacman -Syy "${pacman_args[@]}"
 
     # Install depends
-    for _pkg in "${yay_depends[@]}"; do
+    for _pkg in "${aur_helper_depends[@]}"; do
         if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
+            # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
             pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
-            remove_list+=("${_pkg}")
+            #remove_list+=("${_pkg}")
         fi
     done
 
-    # Build yay
-    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/yay.git" "/tmp/yay"
-    cd "/tmp/yay"
-    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm
+    # Build
+    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/${aur_helper_package}.git" "/tmp/${aur_helper_package}"
+    cd "/tmp/${aur_helper_package}"
+    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
 
-    # Install yay
-    for _pkg in $(sudo -u "${aur_username}" makepkg --packagelist); do
+    # Install
+    for _pkg in $(cd "/tmp/${aur_helper_package}"; sudo -u "${aur_username}" makepkg --packagelist); do
         pacman "${pacman_args[@]}" -U "${_pkg}"
     done
 
     # Remove debtis
     cd ..
-    remove "/tmp/yay"
+    remove "/tmp/${aur_helper_package}"
     cd "${_oldpwd}"
 fi
 
-if ! type -p yay > /dev/null; then
-    echo "Failed to install yay"
+if ! type -p "${aur_helper_command}" > /dev/null; then
+    echo "Failed to install ${aur_helper_package}"
     exit 1
 fi
 
+# Update database
+pacman -Syy "${pacman_args[@]}"
+
 installpkg(){
     yes | sudo -u "${aur_username}" \
-        yay -Sy \
-            --mflags "-AcC" \
-            --aur \
-            --nocleanmenu \
-            --nodiffmenu \
-            --noeditmenu \
-            --noupgrademenu \
-            --noprovides \
-            --removemake \
-            --useask \
+        "${aur_helper_command}" -S \
             --color always \
-            --mflags "--skippgpcheck" \
-            "${pacman_args[@]}" \
             --cachedir "/var/cache/pacman/pkg/" \
+            "${pacman_args[@]}" \
+            "${aur_helper_args[@]}" \
             "${@}" || true
 }
 
@@ -163,7 +172,7 @@ readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
 (( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
 # Clean up
-yay -Sccc "${pacman_args[@]}"
+"${aur_helper_command}" -Sccc "${pacman_args[@]}"
 
 # remove user and file
 userdel "${aur_username}"

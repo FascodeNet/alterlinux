@@ -45,6 +45,10 @@ gen_locale_list() {
         msg_error "No architecture specified." 
         exit 1
     fi
+    if [[ ! -f "${script_path}/system/locale-${arch}" ]]; then
+        msg_error "Missing architecture ${arch}"
+        exit 1
+    fi
     local _locale
     for _locale in $(grep -h -v ^'#' "${script_path}/system/locale-${arch}" | grep -v ^$ | getclm 1); do 
         localelist+=("${_locale}")
