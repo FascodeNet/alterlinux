@@ -8,11 +8,11 @@
 #
 
 # Enable gdm to auto login
-if [[ "${boot_splash}" =  true ]]; then
-    _safe_systemctl enable gdm-plymouth.service
-else
+#if [[ "${boot_splash}" =  true ]]; then
+#    _safe_systemctl enable gdm-plymouth.service
+#else
     _safe_systemctl enable gdm.service
-fi
+#fi
 
 
 # Replace auto login user
