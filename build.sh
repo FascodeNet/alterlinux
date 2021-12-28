@@ -123,7 +123,7 @@ _show_config() {
     _msg_info "              Build modes:   ${buildmodes[*]}"
     _msg_info "                  GPG key:   ${gpg_key:-None}"
     _msg_info "               GPG signer:   ${gpg_sender:-None}"
-    _msg_info "Code signing certificates:   ${cert_list[*]}"
+    _msg_info "Code signing certificates:   ${cert_list[*]:-None}"
     _msg_info "                  Profile:   ${channel_name}"
     _msg_info "Pacman configuration file:   ${pacman_conf}"
     _msg_info "          Image file name:   ${image_name:-None}"
