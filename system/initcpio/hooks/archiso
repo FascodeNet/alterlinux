@@ -13,7 +13,6 @@ _mnt_dmsnapshot() {
     local ro_dev ro_dev_size rw_dev
 
     ro_dev="$(losetup --find --show --read-only -- "${img}")"
-    printf '%s\n' "${ro_dev}" >>/run/archiso/used_block_devices
     ro_dev_size="$(blockdev --getsz "${ro_dev}")"
 
     if [ "${cow_persistent}" = "P" ]; then
@@ -33,7 +32,6 @@ _mnt_dmsnapshot() {
     fi
 
     rw_dev="$(losetup --find --show "/run/archiso/cowspace/${cow_directory}/${img_name}.cow")"
-    printf '%s\n' "${rw_dev}" >>/run/archiso/used_block_devices
 
     dmsetup create "${dm_snap_name}" --table \
         "0 ${ro_dev_size} snapshot ${ro_dev} ${rw_dev} ${cow_persistent} ${cow_chunksize}"
@@ -43,7 +41,6 @@ _mnt_dmsnapshot() {
     fi
 
     _mnt_dev "/dev/mapper/${dm_snap_name}" "${newroot}${mnt}" "-w" "defaults"
-    readlink -f "/dev/mapper/${dm_snap_name}" >>/run/archiso/used_block_devices
 }
 
 # args: source, newroot, mountpoint
@@ -89,7 +86,6 @@ _mnt_sfs() {
         msg "done."
     fi
     sfs_dev="$(losetup --find --show --read-only -- "${img}")"
-    echo "${sfs_dev}" >>/run/archiso/used_block_devices
     _mnt_dev "${sfs_dev}" "${mnt}" "-r" "defaults"
 }
 
@@ -112,8 +108,7 @@ _mnt_erofs() {
         msg "done."
     fi
     erofs_dev="$(losetup --find --show --read-only -- "${img}")"
-    echo "${erofs_dev}" >>/run/archiso/used_block_devices
-    _mnt_dev "${erofs_dev}" "${mnt}" "-r" "defaults" "erofs"
+    _mnt_dev "${erofs_dev}" "${mnt}" "-r" "defaults"
 }
 
 # args: device, mountpoint, flags, opts
@@ -122,7 +117,6 @@ _mnt_dev() {
     local mnt="${2}"
     local flg="${3}"
     local opts="${4}"
-    local fstype="${5:-auto}"
 
     mkdir -p "${mnt}"
 
@@ -135,7 +129,7 @@ _mnt_dev() {
         launch_interactive_shell
     done
 
-    if mount -t "${fstype}" -o "${opts}" "${flg}" "${dev}" "${mnt}"; then
+    if mount -o "${opts}" "${flg}" "${dev}" "${mnt}"; then
         msg ":: Device '${dev}' mounted successfully."
     else
         echo "ERROR; Failed to mount '${dev}'"
@@ -158,7 +152,7 @@ _verify_signature() {
     local _status
     local sigfile="${1}"
     cd "/run/archiso/bootmnt/${archisobasedir}/${arch}" || exit 1
-    gpg --homedir /gpg --status-fd 1 --verify "${sigfile}" 2>/dev/null | grep -qE '^\[GNUPG:\] GOODSIG'
+    gpg --homedir /gpg --status-fd 1 --verify "${sigfile}" 2>/dev/null | grep -E '^\[GNUPG:\] GOODSIG'
     _status=$?
     cd -- "${OLDPWD}" || exit 1
     return ${_status}
@@ -201,18 +195,15 @@ archiso_mount_handler() {
 
     if ! mountpoint -q "/run/archiso/bootmnt"; then
         _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
-        if [ "${copytoram}" != "y" ]; then
-            readlink -f "${archisodevice}" >>/run/archiso/used_block_devices
-        fi
     fi
 
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${checksum}" = "y" ]; then
         if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sha512" ]; then
-            msg -n ":: Self-test requested, please wait..."
+            msg ":: Self-test requested, please wait..."
             if _verify_checksum; then
-                msg "done. Checksum is OK, continue booting."
+                msg "Checksum is OK, continue booting."
             else
                 echo "ERROR: one or more files are corrupted"
                 echo "see /tmp/checksum.log for details"
@@ -233,9 +224,9 @@ archiso_mount_handler() {
             sigfile="airootfs.erofs.sig"
         fi
         if [ -n "${sigfile}" ]; then
-            msg -n ":: Signature verification requested, please wait..."
+            msg ":: Signature verification requested, please wait..."
             if _verify_signature "${sigfile}"; then
-                msg "done. Signature is OK, continue booting."
+                msg "Signature is OK, continue booting."
             else
                 echo "ERROR: one or more files are corrupted"
                 launch_interactive_shell
@@ -253,9 +244,7 @@ archiso_mount_handler() {
     fi
 
     if [ -n "${cow_device}" ]; then
-        _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-r" "${cow_flags}"
-        readlink -f "${cow_device}" >>/run/archiso/used_block_devices
-        mount -o remount,rw "/run/archiso/cowspace"
+        _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-w" "${cow_flags}"
     else
         msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cow_spacesize}..."
         mkdir -p /run/archiso/cowspace

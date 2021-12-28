@@ -12,12 +12,6 @@ build() {
     add_module "sis-agp"
     add_module "intel-agp"
 
-    add_module "nvidia?"
-    add_module "nvidia_modeset?"
-    add_module "nvidia_uvm?"
-    add_module "nvidia_drm?"
-
-
     if [[ $(uname -m) == i686 ]]; then
         add_module "amd64-agp"
         add_module "ati-agp"
