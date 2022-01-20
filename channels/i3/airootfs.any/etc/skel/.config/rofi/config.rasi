@@ -17,4 +17,4 @@ configuration {
   icon-theme : "Inverse-blue";
   kb-cancel  : "Escape";
 }
-@theme "~/.config/rofi/alter-dark.rasi";
+@theme "~/.config/rofi/alter-dark.rasi"
