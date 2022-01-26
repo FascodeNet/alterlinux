@@ -21,7 +21,7 @@ pub enum Color {
 	bright_white   = 17
 }
 
-fn get_font_color(color Color) int{
+pub fn get_font_color(color Color) int{
 	if int(color) < 8{
 		return 30 + int(color)
 	}else{
@@ -29,7 +29,7 @@ fn get_font_color(color Color) int{
 	}
 }
 
-fn get_bg_color(color Color) int{
+pub fn get_bg_color(color Color) int{
 	return get_font_color(color) + 10
 }
 
