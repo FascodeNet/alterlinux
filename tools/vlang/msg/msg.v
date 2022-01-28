@@ -242,6 +242,6 @@ fn print_msg_error(str string){
 			newline: true
 		}
 	}
-	print(msg_error.print())
+	eprint(msg_error.print())
 	exit(1)
 }
