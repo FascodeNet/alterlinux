@@ -23,7 +23,7 @@ pub fn ecs_deco(deco Deco) string{
 pub struct ColoredText{
 	font Color = .default
 	bg   Color = .default
-	decos []Deco 
+	decos []Deco
 	newline bool = true
 }
 
