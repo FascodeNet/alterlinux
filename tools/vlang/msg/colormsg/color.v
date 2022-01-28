@@ -33,3 +33,26 @@ pub fn get_bg_color(color Color) int{
 	return get_font_color(color) + 10
 }
 
+
+pub fn get_color_from_str(str string) ?Color{
+	match str{
+		"black"          { return .black          }
+		"red"            { return .red            }
+		"green"          { return .green          }
+		"yellow"         { return .yellow         }
+		"blue"           { return .blue           }
+		"maganta"        { return .magenta        }
+		"cyan"           { return .cyan           }
+		"white"          { return .white          }
+		"default"        { return .default        }
+		"gray"           { return .gray           }
+		"bright_red"     { return .bright_red     }
+		"bright_green"   { return .bright_green   }
+		"bright_yellow"  { return .bright_yellow  }
+		"bright_blue"    { return .bright_blue    }
+		"bright_magenta" { return .bright_magenta }
+		"bright_cyan"    { return .bright_cyan    }
+		"bright_white"   { return .bright_white   }
+		else             { return none            }
+	}
+}
