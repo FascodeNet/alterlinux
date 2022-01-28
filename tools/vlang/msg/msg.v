@@ -81,8 +81,9 @@ fn main(){
 
 	// 最終処理
     args := fp.finalize() or {
-        print_msg_error("You should at least 2 args")
-		return 
+        //print_msg_error("You should at least 2 args")
+		print(fp.usage())
+		exit(1)
     }
 
 	// ラベルタイプ、本文を取得
