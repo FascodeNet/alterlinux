@@ -59,18 +59,53 @@ fn get_chr_byte(s string) ?byte{
 	}
 }
 
+fn print_to(str string, path string){
+	if path == "stdout"{
+			print(str)
+			return
+	}else if path == "stderr"{
+			eprint(str)
+			return
+	}
+
+	mut output := os.stdout()
+	if os.exists(path){
+		output = os.open_file(path, "a")or{
+			print_msg_error("Failed to open $path")
+			return
+		}
+	}else{
+		output = os.create(path)or{
+			print_msg_error("Failed to create $path")
+			return
+		}
+	}
+	
+	output.write_string(str)or{}
+}
+
 fn main(){
 	//== Parse args formats ==\\
 	mut fp := flag.new_flag_parser(os.args)
 	fp.application("msg")
 	fp.limit_free_args_to_at_least(2) or {}
 	fp.description("Display a message with a colored app name and message type label")
+	fp.args_description = "[type] [message]"
+	fp.footers << [
+		"", 
+		"Type:",
+		"  info                      General message",
+		"  warn                      Warning message",
+		"  error                     Error message",
+		"  debug                     Debug message"
+	]
 	fp.skip_executable()
 	//fp.disable_help = true
-	fp.disable_version = true
+	//fp.disable_version = true
 
 	appname   := fp.string ("appname", get_chr_byte("a")?, "msg", "Specify the app name")
 	labelsize := fp.int("labelsize", get_chr_byte("s")?, 7, "Specifies the label space")
+	output    := fp.string("output", get_chr_byte("p")?, "stderr", "Specify the output destination\n                            standard output: stdout\n                            error output   : stderr")
 	//custom_label := fp.string ("label", get_chr_byte("l")?, "", "Specify the label")
 	//custom_labelcolor := cm.get_color_from_str(fp.string("label-color", 0, "default", "Specify the color of label"))?
 
@@ -195,19 +230,23 @@ fn main(){
 	match msg_type{
 		"info"{
 			format_info.body=body
-			print(format_info.print())
+			//print(format_info.print())
+			print_to(format_info.print(), output)
 		}
 		"warn"{
 			format_warn.body=body
-			print(format_warn.print())
+			//print(format_warn.print())
+			print_to(format_warn.print(), output)
 		}
 		"error"{
 			format_error.body=body
-			print(format_error.print())
+			//print(format_error.print())
+			print_to(format_error.print(), output)
 		}
 		"debug"{
 			format_debug.body=body
-			print(format_debug.print())
+			//print(format_debug.print())
+			print_to(format_debug.print(), output)
 		}
 		else{
 			print_msg_error("Unknown message type (${msg_type})")
