@@ -289,6 +289,13 @@ prepare_build() {
         exit "${PIPESTATUS[0]}"
     fi
 
+    # Compile V tools
+    local _dir
+    while read -r _dir; do
+        _msg_info "Compile $(basename "$_dir") ..."
+        v -o "$tools_dir/vlang" "$_dir"
+    done < <(find "${tools_dir}/vlang" -mindepth 1 -maxdepth 1 -type d)
+
     # Set argument of pkglist.sh
     pkglist_args=("-a" "${arch}" "-k" "${kernel}" "-c" "${channel_dir}" "-l" "${locale_name}" --line)
     [[ "${boot_splash}"              = true ]] && pkglist_args+=("-b")
