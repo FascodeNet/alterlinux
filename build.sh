@@ -56,7 +56,7 @@ cert_list=()
 readonly ucodes=('intel-uc.img' 'intel-ucode.img' 'amd-uc.img' 'amd-ucode.img' 'early_ucode.cpio' 'microcode.cpio')
 
 # Load config file
-[[ ! -f "${defaultconfig}" ]] && "${tools_dir}/msg.sh" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
+[[ ! -f "${defaultconfig}" ]] && "${tools_dir}/vlang/msg/msg" -a 'build.sh' error "${defaultconfig} was not found." && exit 1
 for config in "${defaultconfig}" "${script_path}/custom.conf" "${script_path}/lib/"*".sh"; do
     [[ -f "${config}" ]] && source "${config}" && loaded_files+=("${config}")
 done
@@ -69,7 +69,7 @@ _msg_common(){
     [[ "${msgdebug}" = true ]] && _msg_opts+=("-x")
     [[ "${nocolor}"  = true ]] && _msg_opts+=("-n")
     _msg_opts+=("${_type}" "${@}")
-    "${tools_dir}/msg.sh" "${_msg_opts[@]}"
+    "${tools_dir}/vlang/msg/msg"  "${_msg_opts[@]}"
 }
 
 # Show an INFO message
@@ -97,8 +97,7 @@ _msg_error() {
 
 #-- Compile V Tools --#
 while read -r _dir; do
-    _msg_info "Compile $(basename "$_dir") ..."
-    v -o "$tools_dir/vlang" "$_dir"
+    v -o "$_dir/$(basename "$_dir")" "$_dir/main.v"
 done < <(find "${tools_dir}/vlang" -mindepth 1 -maxdepth 1 -type d)
 unset _dir
 
@@ -1483,10 +1482,9 @@ _build() {
 
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod" "cert:")
-#GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
-#getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
-#readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
-
+PARSEOPT=(SHORT="$(printf "%s," "${OPTS[@]}")" LONG="$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
+_vlang_tool parseopt "${PARSEOPT[@]}" 1> /dev/null|| exit 1
+readarray -t OPT < <(_vlang_tool parseopt "${PARSEOPT[@]}") # 配列に代入
 
 eval set -- "${OPT[@]}"
 _msg_debug "Argument: ${OPT[*]}"
@@ -1597,8 +1595,8 @@ _msg_debug "Use the default configuration file (${defaultconfig})."
 [[ "${bash_debug}" = true ]] && set -x -v
 
 # Check for a valid channel name
-_msg_debug "Channel check status is $(_channel_check "${1}" >/dev/null ; printf "%d" "${?}")"
 if [[ -n "${1+SET}" ]]; then
+    _msg_debug "Channel check status is $(_channel_check "${1}" >/dev/null ; printf "%d" "${?}")"
     case "$(_channel_check "${1}" >/dev/null ; printf "%d" "${?}")" in
         "2")
             _msg_error "Invalid channel ${1}" "1"
