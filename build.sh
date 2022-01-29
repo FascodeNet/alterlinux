@@ -23,7 +23,7 @@ set -E
 
 # Internal config
 # Do not change these values.
-script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
+script_path="$(cd "$(dirname "${0}")" || exit 1 ; pwd)"
 defaultconfig="${script_path}/default.conf"
 tools_dir="${script_path}/tools" module_dir="${script_path}/modules"
 customized_username=false customized_password=false customized_kernel=false customized_logpath=false
@@ -95,6 +95,12 @@ _msg_error() {
     { [[ -n "${2:-""}" ]] && (( "${2}" > 0 )); } && exit "${2}" || return 0
 }
 
+#-- Compile V Tools --#
+while read -r _dir; do
+    _msg_info "Compile $(basename "$_dir") ..."
+    v -o "$tools_dir/vlang" "$_dir"
+done < <(find "${tools_dir}/vlang" -mindepth 1 -maxdepth 1 -type d)
+unset _dir
 
 #-- AlterISO 3.2 functions --#
 # Build confirm
@@ -1477,9 +1483,10 @@ _build() {
 
 # Parse options
 ARGUMENT=("${DEFAULT_ARGUMENT[@]}" "${@}") OPTS=("a:" "b" "c:" "d" "e" "g:" "h" "j" "k:" "l:" "o:" "p:" "r" "t:" "u:" "w:" "x") OPTL=("arch:" "boot-splash" "comp-type:" "debug" "cleaning" "cleanup" "gpgkey:" "help" "lang:" "japanese" "kernel:" "out:" "password:" "comp-opts:" "user:" "work:" "bash-debug" "nocolor" "noconfirm" "nodepend" "gitversion" "msgdebug" "noloopmod" "tarball" "noiso" "noaur" "nochkver" "channellist" "config:" "noefi" "nodebug" "nosigcheck" "normwork" "log" "logpath:" "nolog" "nopkgbuild" "pacman-debug" "confirm" "add-module:" "nogitversion" "cowspace:" "rerun" "depend" "loopmod" "cert:")
-GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
-getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
-readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
+#GETOPT=(-o "$(printf "%s," "${OPTS[@]}")" -l "$(printf "%s," "${OPTL[@]}")" -- "${ARGUMENT[@]}")
+#getopt -Q "${GETOPT[@]}" || exit 1 # 引数エラー判定
+#readarray -t OPT < <(getopt "${GETOPT[@]}") # 配列に代入
+
 
 eval set -- "${OPT[@]}"
 _msg_debug "Argument: ${OPT[*]}"
