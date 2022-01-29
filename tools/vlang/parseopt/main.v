@@ -50,10 +50,10 @@ fn main (){
 
 	// 使い方を表示
 	if args.len == 0{
-		println("parseopt parses and sorts the arguments.\n Use it with eval in shell scripts.")
-		println(" Usage : parseopt LONG=\"<LONG OPTIONS>\" SHORT=\"<SHORT OPTIONS>\" -- \"\${@}\"")
-		println("Example: parseopt LONG=\"help,path:\" SHOTR=\"hs:\" -- \"\${@}\"")
-		exit(0)
+		eprintln("parseopt parses and sorts the arguments.Use it with eval in shell scripts.")
+		eprintln(" Usage : parseopt LONG=\"<LONG OPTIONS>\" SHORT=\"<SHORT OPTIONS>\" -- \"\${@}\"")
+		eprintln("Example: parseopt LONG=\"help,path:\" SHOTR=\"hs:\" -- \"\${@}\"")
+		exit(1)
 	}
 
 	// オプションの定義を取得

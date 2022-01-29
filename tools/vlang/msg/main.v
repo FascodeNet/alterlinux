@@ -44,7 +44,7 @@ fn (fm MsgFormat) print () (string){
 	mut appname := "[${fm.appname}]"
 
 	for bdlines in fm.body{
-		for bd in bdlines.split("\n"){
+		for bd in bdlines.split("\\n"){
 			print += fm.appnameconf.print(appname) + fm.labelconf.print(label) + fm.bodyconf.print(bd)
 		}
 	}
@@ -137,7 +137,7 @@ fn main(){
 	// アプリ名（共通）
 	mut common_appname := cm.ColoredText{
 		//font: cm.Color.default
-		//font: cm.get_color_from_str("blue") or { exit(1) }
+		font: cm.Color.cyan
 		bg:   cm.Color.default
 		decos: []cm.Deco{}
 		newline: false
@@ -145,7 +145,7 @@ fn main(){
 
 	// info
 	mut format_info := MsgFormat{
-		label: "INFO"
+		label: "Info"
 		labelsize: labelsize
 		labelconf: cm.ColoredText{
 			font: cm.Color.green
@@ -165,7 +165,7 @@ fn main(){
 	}
 
 	mut format_warn := MsgFormat{
-		label: "WARN"
+		label: "Warn"
 		labelsize: labelsize
 		labelconf: cm.ColoredText{
 			font: cm.Color.yellow
@@ -185,7 +185,7 @@ fn main(){
 	}
 
 	mut format_error := MsgFormat{
-		label: "ERROR"
+		label: "Error"
 		labelsize: labelsize
 		labelconf: cm.ColoredText{
 			font: cm.Color.red
