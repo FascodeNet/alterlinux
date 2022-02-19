@@ -86,7 +86,10 @@ install_aur_pkg(){
     _SnapShotURL="$(GetAurURLPath <<< "$_Json")"
     _SnapShot="${builddir}/SnapShot/$(basename "$_SnapShotURL")"
     curl -sL -o "$_SnapShot" "https://aur.archlinux.org/$_SnapShotURL"
-    tar -xv -f "${_SnapShot}" -C "${builddir}/build/" > /dev/null 2>&1
+    tar -xv -f "${_SnapShot}" -C "${builddir}/Build/" > /dev/null 2>&1
+
+    # Move to PKGBUILD dir
+    cd "$builddir/Build/${1}"
 
     # Get depends
     local _Depends=() _RepoPkgs=()
@@ -98,7 +101,6 @@ install_aur_pkg(){
     PrintEvalArray _AURDepend | ForEach install_aur_pkg "{}"
 
     # Create Pkg
-    cd "$builddir/build/${1}"
     sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
 
     # Install
