@@ -48,8 +48,8 @@ _help() {
 prepare_env(){
     # Creating a aur user.
     check_user "${aur_username}" || useradd -m -d "${builddir}" "${aur_username}"
-    #mkdir -p "${builddir}"
-    #chmod 777 -R "${builddir}"
+    mkdir -p "${builddir}"
+    chmod 777 -R "${builddir}"
     chown "${aur_username}:${aur_username}" -R "${builddir}"
     echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
