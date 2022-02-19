@@ -125,7 +125,7 @@ run_install(){
 
     # Retry
     while read -r _Pkg; do
-        install_aur_pkg {} || exit 1
+        install_aur_pkg "$_Pkg" || exit 1
     done < <(PrintEvalArray failedpkg)
 }
 
