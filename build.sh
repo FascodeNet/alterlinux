@@ -526,9 +526,9 @@ make_packages_aur() {
     readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
     _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
     _aursh_args=(
-        "-a" "${aur_helper_command}" -e "${aur_helper_package}"
-        "-d" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")"
-        "-p" "$(printf "%s\n" "${_pkglist_aur[@]}" | tr "\n" ",")"
+        #"-a" "${aur_helper_command}" -e "${aur_helper_package}"
+        #"-d" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")"
+        "-p" "$(printf "%s\n" "${_pkglist_aur[@]}" | tr "\n" "," | sed "s|,$||g")"
         "${makepkg_script_args[@]}" -- "${aur_helper_args[@]}"
     )
 
