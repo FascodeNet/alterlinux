@@ -76,10 +76,11 @@ install_aur_pkg(){
     _Json="$(GetRawAurInfo "$1")"
 
     # Check JSON
-    CheckAurJson <<< "$_Json" || {
+    CheckAurJson <<< "$_Json" > /dev/null || {
         MsgErr "No $1 package is found."
         return 1
     }
+    _Json="$(CheckAurJson <<< "$_Json")"
 
     # Get PkgBuild
     _SnapShotURL="$(GetAurURLPath <<< "$_Json")"
