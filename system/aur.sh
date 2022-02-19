@@ -23,7 +23,7 @@ pkglist=()
 builddir="/aurbuild_temp"
 
 #-- Load shell library --#
-source /dev/stdin < <(curl -sL https://raw.githubusercontent.com/Hayao0819/FasBashLib/build-dev/fasbashlib.sh)
+source "/dev/stdin" < <(curl -sL "https://raw.githubusercontent.com/Hayao0819/FasBashLib/build-dev/fasbashlib.sh")
 
 #-- Functions --#
 # CheckUser <name>
@@ -52,6 +52,7 @@ prepare_env(){
     chmod 777 -R "${builddir}"
     chown "${aur_username}:${aur_username}" -R "${builddir}"
     echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
+    curl -sL "https://raw.githubusercontent.com/Hayao0819/FasBashLib/build-dev/fasbashlib.sh" > "$builddir/fasbashlib.sh"
 
     # Setup keyring
     pacman-key --init
@@ -74,6 +75,8 @@ prepare_env(){
 # install_aur_pkg <pkg>
 install_aur_pkg(){
     local _Json _PkgName _SnapShotURL _SnapShot
+    source "$builddir/fasbashlib.sh"
+
     _Json="$(GetRawAurInfo "$1")"
 
     # Check JSON
@@ -86,8 +89,8 @@ install_aur_pkg(){
     # Get PkgBuild
     _SnapShotURL="$(GetAurURLPath <<< "$_Json")"
     _SnapShot="${builddir}/SnapShot/$(basename "$_SnapShotURL")"
-    curl -sL -o "$_SnapShot" "https://aur.archlinux.org/$_SnapShotURL"
-    tar -xv -f "${_SnapShot}" -C "${builddir}/Build/" > /dev/null 2>&1
+    sudo -u "${aur_username}" curl -L -o "$_SnapShot" "https://aur.archlinux.org/$_SnapShotURL"
+    sudo -u "${aur_username}" tar -xv -f "${_SnapShot}" -C "${builddir}/Build/"
 
     # Move to PKGBUILD dir
     cd "$builddir/Build/${1}"
@@ -103,6 +106,7 @@ install_aur_pkg(){
 
     # Create Pkg
     sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
+    #makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
 
     # Install
     for _pkg in $(cd "$builddir/Build/${1}"; sudo -u "${aur_username}" makepkg --packagelist); do
@@ -118,9 +122,10 @@ install_aur_pkg(){
 
 run_install(){
     # Install
-    export -f install_aur_pkg
+    #export -f install_aur_pkg
     while read -r _Pkg; do
-        su "${aur_username}" -c install_aur_pkg "$_Pkg" || failedpkg+=("$_Pkg")
+        #su "${aur_username}" -c install_aur_pkg "$_Pkg" || failedpkg+=("$_Pkg")
+        install_aur_pkg "$_Pkg" || failedpkg+=("$_Pkg")
     done < <(PrintEvalArray pkglist)
 
     # Retry
