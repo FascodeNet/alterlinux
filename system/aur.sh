@@ -9,7 +9,7 @@
 #shellcheck disable=SC2001
 
 #-- Initilize --#
-set -e -u
+set -e -u -E
 trap 'exit 1' 1 2 3 15
 
 #-- Set variables --#
@@ -104,7 +104,7 @@ install_aur_pkg(){
     sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
 
     # Install
-    for _pkg in $(cd "$builddir/build/${1}"; sudo -u "${aur_username}" makepkg --packagelist); do
+    for _pkg in $(cd "$builddir/Build/${1}"; sudo -u "${aur_username}" makepkg --packagelist); do
         pacman "${pacman_args[@]}" -U "${_pkg}"
     done
 
