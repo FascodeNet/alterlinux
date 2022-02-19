@@ -47,7 +47,7 @@ _help() {
 prepare_env(){
     # Creating a aur user.
     check_user "${aur_username}" || useradd -m -d "${builddir}" "${aur_username}"
-    mkdir -p "${builddir}"
+    #mkdir -p "${builddir}"
     #chmod 700 -R "${builddir}"
     #chown "${aur_username}:${aur_username}" -R "${builddir}"
     echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
@@ -85,8 +85,8 @@ install_aur_pkg(){
     # Get PkgBuild
     _SnapShotURL="$(GetAurURLPath <<< "$_Json")"
     _SnapShot="${builddir}/SnapShot/$(basename "$_SnapShotURL")"
-    curl -sL -o "$_SnapShot" "https://aur.archlinux.org/$_SnapShotURL"
-    tar -xv -f "${_SnapShot}" -C "${builddir}/Build/" > /dev/null 2>&1
+    sudo -u "${aur_username}" curl -sL -o "$_SnapShot" "https://aur.archlinux.org/$_SnapShotURL"
+    sudo -u "${aur_username}" tar -xv -f "${_SnapShot}" -C "${builddir}/Build/" > /dev/null 2>&1
 
     # Move to PKGBUILD dir
     cd "$builddir/Build/${1}"
