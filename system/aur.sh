@@ -22,13 +22,25 @@ remove_list=()
 pkglist=()
 builddir="/aurbuild_temp"
 
+export PACMAN_CONF="/etc/alteriso-pacman.conf"
+
 #-- Load shell library --#
 source "/dev/stdin" < <(curl -sL "https://raw.githubusercontent.com/Hayao0819/FasBashLib/build-dev/fasbashlib.sh")
+
+RunPacmanKey(){
+    pacman-key --config "${PACMAN_CONF-"/etc/pacman.conf"}" "$@"
+}
 
 #-- Functions --#
 # CheckUser <name>
 check_user () {
     getent passwd "${1}" > /dev/null
+}
+
+
+remove() {
+    echo "Removing ${*}" >&2
+    rm -rf "${@}"
 }
 
 _help() {
@@ -55,8 +67,8 @@ prepare_env(){
     curl -sL "https://raw.githubusercontent.com/Hayao0819/FasBashLib/build-dev/fasbashlib.sh" > "$builddir/fasbashlib.sh"
 
     # Setup keyring
-    pacman-key --init
-    pacman-key --populate
+    RunPacmanKey --init
+    RunPacmanKey --populate
 
     # Un comment the mirror list.
     #sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
@@ -75,8 +87,11 @@ prepare_env(){
 # install_aur_pkg <pkg>
 install_aur_pkg(){
     local _Json _PkgName _SnapShotURL _SnapShot
-    source "$builddir/fasbashlib.sh"
+    CheckPacmanPkg "$1" && return 0
 
+    #source "$builddir/fasbashlib.sh"
+
+    sudo rm -rf "/var/lib/pacman/db.lck"
     _Json="$(GetRawAurInfo "$1")"
 
     # Check JSON
@@ -96,12 +111,23 @@ install_aur_pkg(){
     cd "$builddir/Build/${1}"
 
     # Get depends
-    local _Depends=() _RepoPkgs=()
-    ArrayAppend _Depends < <(GetSrcInfoValue depends < ./.SRCINFO)
-    readarray -t _RepoPkgs < <(GetPacmanRepoPkgList)    
+    local _Depends=() _RepoPkgs=() _Arch
+    _Arch="$(GetPacmanConf Architecture)"
+
+    ArrayAppend _Depends < <(GetSrcInfoValue "depends" "$1" "$_Arch" < ./.SRCINFO | GetPacmanName)
+    ArrayAppend _Depends < <(GetSrcInfoValue "makedepends" "$1" "$_Arch" < ./.SRCINFO | GetPacmanName)
+    readarray -t _RepoPkgs < <(GetPacmanRepoPkgList)
+    _AURDepend=() _RepoDepend=()
     for _Pkg in "${_Depends[@]}" ; do
-        ArrayAppend _AURDepend < <(ArrayIncludes _RepoPkgs "$_Pkg" || echo "$_Pkg")
+        if ArrayIncludes _RepoPkgs "$_Pkg"; then
+            echo "Found repo depend: $_Pkg"
+            ArrayAppend _RepoDepend <<< "$_Pkg"
+        else
+            echo "Found AUR depend: $_Pkg"
+            ArrayAppend _AURDepend <<< "$_Pkg"
+        fi
     done
+    PrintEvalArray _RepoDepend | ForEach pacman -S --asdeps --needed "${pacman_args[@]}" "{}"
     PrintEvalArray _AURDepend | ForEach install_aur_pkg "{}"
 
     # Create Pkg
@@ -114,9 +140,9 @@ install_aur_pkg(){
     done
 
     # Check
-    if ! type -p "${1}" > /dev/null; then
+    if ! CheckPacmanPkg "${1}" > /dev/null; then
         echo "[aur.sh] Failed to install ${1}"
-        return 1
+        exit 1
     fi
 }
 
@@ -140,7 +166,7 @@ cleanup(){
     (( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
     # Clean up
-    "${aur_helper_command}" -Sccc "${pacman_args[@]}"
+    RunPacman -Sccc "${pacman_args[@]}"
 
     # remove user and file
     userdel "${aur_username}"
@@ -168,7 +194,7 @@ while true; do
             aur_username="$2"
             shift 2
             ;;
-        "x")
+        "-x")
             set -xv
             shift 1
             ;;
@@ -179,6 +205,10 @@ while true; do
         "--")
             shift 1
             break
+            ;;
+        *)
+            MsgErr "Unknown option: ${1}"
+            exit 1
             ;;
     esac
 done

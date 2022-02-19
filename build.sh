@@ -538,7 +538,7 @@ make_packages_aur() {
 
     # prepare for aur helper
     _cp "${script_path}/system/aur.sh" "${airootfs_dir}/root/aur.sh"
-    _pacstrap --asdeps --needed "${aur_helper_depend[@]}"
+    #_pacstrap --asdeps --needed "${aur_helper_depend[@]}"
 
     # Run aur script
     _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${_aursh_args[@]}"
