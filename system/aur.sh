@@ -147,7 +147,7 @@ while true; do
             shift 1
             ;;
         "-p")
-            ArrayAppend pkglist < <(tr "," "\n" | sed "/^$/d" | RemoveBlank)
+            ArrayAppend pkglist < <(tr "," "\n" <<< "$2" | sed "/^$/d" | RemoveBlank)
             shift 2
             ;;
         "-u")
