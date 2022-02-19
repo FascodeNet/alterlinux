@@ -71,69 +71,10 @@ remove() {
 }
 
 # user_check <name>
-function user_check () {
+user_check () {
     if [[ ! -v 1 ]]; then return 2; fi
     getent passwd "${1}" > /dev/null
 }
-
-# Creating a aur user.
-if ! user_check "${aur_username}"; then
-    useradd -m -d "/aurbuild_temp" "${aur_username}"
-fi
-mkdir -p "/aurbuild_temp"
-chmod 700 -R "/aurbuild_temp"
-chown "${aur_username}:${aur_username}" -R "/aurbuild_temp"
-echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
-
-# Setup keyring
-pacman-key --init
-pacman-key --populate
-
-# Un comment the mirror list.
-#sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
-
-# Set pacman args
-pacman_args=("--config" "/etc/alteriso-pacman.conf" "--noconfirm")
-if [[ "${pacman_debug}" = true ]]; then
-    pacman_args+=("--debug")
-fi
-
-# Install
-if ! pacman -Qq "${aur_helper_package}" 1> /dev/null 2>&1; then
-    _oldpwd="$(pwd)"
-
-    # Install depends
-    for _pkg in "${aur_helper_depends[@]}"; do
-        if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
-            # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
-            pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
-            #remove_list+=("${_pkg}")
-        fi
-    done
-
-    # Build
-    sudo -u "${aur_username}" git clone "https://aur.archlinux.org/${aur_helper_package}.git" "/tmp/${aur_helper_package}"
-    cd "/tmp/${aur_helper_package}"
-    sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
-
-    # Install
-    for _pkg in $(cd "/tmp/${aur_helper_package}"; sudo -u "${aur_username}" makepkg --packagelist); do
-        pacman "${pacman_args[@]}" -U "${_pkg}"
-    done
-
-    # Remove debtis
-    cd ..
-    remove "/tmp/${aur_helper_package}"
-    cd "${_oldpwd}"
-fi
-
-if ! type -p "${aur_helper_command}" > /dev/null; then
-    echo "Failed to install ${aur_helper_package}"
-    exit 1
-fi
-
-# Update database
-pacman -Syy "${pacman_args[@]}"
 
 installpkg(){
     yes | sudo -u "${aur_username}" \
@@ -146,37 +87,113 @@ installpkg(){
 }
 
 
-# Build and install
-chmod +s /usr/bin/sudo
-for _pkg in "${@}"; do
-    pacman -Qq "${_pkg}" > /dev/null 2>&1  && continue
-    installpkg "${_pkg}"
-
-    if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
-        echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
-        failedpkg+=("${_pkg}")
+#-- main funtions --#
+prepare_env(){
+    # Creating a aur user.
+    if ! user_check "${aur_username}"; then
+        useradd -m -d "/aurbuild_temp" "${aur_username}"
     fi
-done
+    mkdir -p "/aurbuild_temp"
+    chmod 700 -R "/aurbuild_temp"
+    chown "${aur_username}:${aur_username}" -R "/aurbuild_temp"
+    echo "${aur_username} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/aurbuild"
 
-# Reinstall failed package
-for _pkg in "${failedpkg[@]}"; do
-    installpkg "${_pkg}"
-    if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
-        echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+    # Setup keyring
+    pacman-key --init
+    pacman-key --populate
+
+    # Un comment the mirror list.
+    #sed -i "s/#Server/Server/g" "/etc/pacman.d/mirrorlist"
+
+
+    # Set pacman args
+    pacman_args=("--config" "/etc/alteriso-pacman.conf" "--noconfirm")
+    if [[ "${pacman_debug}" = true ]]; then
+        pacman_args+=("--debug")
+    fi
+}
+
+install_aur_helper(){
+    # Install
+    if ! pacman -Qq "${aur_helper_package}" 1> /dev/null 2>&1; then
+        _oldpwd="$(pwd)"
+
+        # Install depends
+        for _pkg in "${aur_helper_depends[@]}"; do
+            if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
+                # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
+                pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
+                #remove_list+=("${_pkg}")
+            fi
+        done
+
+        # Build
+        sudo -u "${aur_username}" git clone "https://aur.archlinux.org/${aur_helper_package}.git" "/tmp/${aur_helper_package}"
+        cd "/tmp/${aur_helper_package}"
+        sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
+
+        # Install
+        for _pkg in $(cd "/tmp/${aur_helper_package}"; sudo -u "${aur_username}" makepkg --packagelist); do
+            pacman "${pacman_args[@]}" -U "${_pkg}"
+        done
+
+        # Remove debtis
+        cd ..
+        remove "/tmp/${aur_helper_package}"
+        cd "${_oldpwd}"
+    fi
+
+    if ! type -p "${aur_helper_command}" > /dev/null; then
+        echo "Failed to install ${aur_helper_package}"
         exit 1
     fi
-done
+}
 
-# Remove packages
-readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
-(( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
+install_aur_pkgs(){
+    # Update database
+    pacman -Syy "${pacman_args[@]}"
 
-# Clean up
-"${aur_helper_command}" -Sccc "${pacman_args[@]}"
+    # Build and install
+    chmod +s /usr/bin/sudo
+    for _pkg in "${@}"; do
+        pacman -Qq "${_pkg}" > /dev/null 2>&1  && continue
+        installpkg "${_pkg}"
 
-# remove user and file
-userdel "${aur_username}"
-remove /aurbuild_temp
-remove /etc/sudoers.d/aurbuild
-remove "/etc/alteriso-pacman.conf"
-remove "/var/cache/pacman/pkg/"
+        if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
+            echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+            failedpkg+=("${_pkg}")
+        fi
+    done
+
+    # Reinstall failed package
+    for _pkg in "${failedpkg[@]}"; do
+        installpkg "${_pkg}"
+        if ! pacman -Qq "${_pkg}" > /dev/null 2>&1; then
+            echo -e "\n[aur.sh] Failed to install ${_pkg}\n"
+            exit 1
+        fi
+    done
+}
+
+cleanup(){
+    # Remove packages
+    readarray -t -O "${#remove_list[@]}" remove_list < <(pacman -Qttdq)
+    (( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
+
+    # Clean up
+    "${aur_helper_command}" -Sccc "${pacman_args[@]}"
+
+    # remove user and file
+    userdel "${aur_username}"
+    remove /aurbuild_temp
+    remove /etc/sudoers.d/aurbuild
+    remove "/etc/alteriso-pacman.conf"
+    remove "/var/cache/pacman/pkg/"
+}
+
+
+prepare_env
+install_aur_helper
+install_aur_pkgs "$@"
+cleanup
+
