@@ -9,74 +9,74 @@
 # Config files for all i686 channel
 #
 
+# この設定ファイルだけで使える変数
+AURHELPER="paru"
 
-#-- Use trizen --#
-#aur_helper_command="trizen"
-#aur_helper_package="trizen"
-#aur_helper_depends=(
-#    'git'
-#    'pacutils'
-#    'perl'
-#    'perl-libwww'
-#    'perl-term-ui'
-#    'pacman'
-#   'perl-json'
-#   'perl-data-dump'
-#    'perl-lwp-protocol-https'
-#   'perl-term-readline-gnu'
-#   'highlight'
-#)
-#aur_helper_args=(
-#    #--mflags "-AcC,--skippgpcheck"
-#    --aur
-#    --noedit
-#)
-
-#-- Use wfa --#
-#aur_helper_package="wfa-git"
-#aur_helper_command="wfa"
-#aur_helper_depends=('sudo' 'pacman' 'jq' 'python3' 'curl' 'pyalpm' 'python-srcinfo')
-#aur_helper_args=(
-#    --mflags "-AcC"
-#    --mflags "--skippgpcheck"
-#    --aur
-#)
-
-#-- Use pikaur --#
-#aur_helper_package="pikaur"
-#aur_helper_command="pikaur"
-#aur_helper_depends=("pyalpm" "asp" "python-commonmark")
-#aur_helper_args=(
-#    --aur
-#    --noedit
-#    --noconfirm
-#    --nodiff
-#    --rebuild
-#    --mflags="-AcC,--skippgpcheck"
-#)
-
-#-- Use paru --#
-#aur_helper_package="paru"
-#aur_helper_command="paru"
-#aur_helper_depends=("cargo" "asp" "bat")
-#aur_helper_args=(
-#    --useask
-#    --mflags "-AcC"
-#    --mflags "--skippgpcheck"
-#    --aur
-#    --skipreview
-#    --noupgrademenu
-#    --removemake
-#)
-
-
-#-- Use pikaur --#
-aur_helper_package="pikaur"
-aur_helper_command="pikaur"
-aur_helper_depends=('pyalpm' 'git' 'python-commonmark')
-aur_helper_args=(
-    "--aur"
-    "--noedit"
-    "--rebuild"
-    "--pikaur-debug"
-)
+case "$AURHELPER" in
+    "trizen")
+        #-- Use trizen --#
+        aur_helper_command="trizen"
+        aur_helper_package="trizen"
+        aur_helper_depends=(
+            'git'
+            'pacutils'
+            'perl'
+            'perl-libwww'
+            'perl-term-ui'
+            'pacman'
+            'perl-json'
+            'perl-data-dump'
+            'perl-lwp-protocol-https'
+            'perl-term-readline-gnu'
+            'highlight'
+        )
+        aur_helper_args=(
+            #--mflags "-AcC,--skippgpcheck"
+            --aur
+            --noedit
+        )
+    ;;
+    "wfa")
+        #-- Use wfa --#
+        aur_helper_package="wfa-git"
+        aur_helper_command="wfa"
+        aur_helper_depends=('sudo' 'pacman' 'jq' 'python3' 'curl' 'pyalpm' 'python-srcinfo')
+        aur_helper_args=(
+            --mflags "-AcC"
+            --mflags "--skippgpcheck"
+            --aur
+        )
+    ;;
+    "paru")
+        #-- Use paru --#
+        aur_helper_package="paru"
+        aur_helper_command="paru"
+        aur_helper_depends=("cargo" "asp" "bat")
+        aur_helper_args=(
+            --useask
+            --mflags "-AcC"
+            --mflags "--skippgpcheck"
+            --aur
+            --skipreview
+            --noupgrademenu
+            --removemake
+        )
+    ;;
+    "pikaur")
+        #-- Use pikaur --#
+        aur_helper_package="pikaur"
+        aur_helper_command="pikaur"
+        aur_helper_depends=('pyalpm' 'git' 'python-commonmark')
+        aur_helper_args=(
+            "--aur"
+            "--noedit"
+            "--rebuild"
+            "--pikaur-debug"
+        )
+    ;;
+    *)
+        echo "module/base/config.i686: Unknown AUR Helper name \"$AURHELPER\"" >&2
+        exit 1
+    ;;
+esac
+unset AURHELPER
