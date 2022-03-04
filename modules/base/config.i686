@@ -16,6 +16,7 @@ if [[ -z "${AURHELPER-""}" ]]; then
     UNSETVAR=true
 fi
 
+
 case "$AURHELPER" in
     "trizen")
         #-- Use trizen --#
@@ -83,5 +84,6 @@ case "$AURHELPER" in
         exit 1
     ;;
 esac
+msg_debug "Use AUR helper $AURHELPER" >&2
 
 [[ "$UNSETVAR" = false ]] || unset AURHELPER
