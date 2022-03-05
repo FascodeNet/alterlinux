@@ -181,7 +181,7 @@ cleanup(){
     (( "${#remove_list[@]}" != 0 )) && pacman -Rsnc "${remove_list[@]}" "${pacman_args[@]}"
 
     # Clean up
-    "${aur_helper_command}" -Sccc "${pacman_args[@]}"
+    "${aur_helper_command}" -Sccc "${pacman_args[@]}" || true
 
     # remove user and file
     userdel "${aur_username}"
