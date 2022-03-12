@@ -87,7 +87,7 @@ prepare_env(){
 # install_aur_pkg <pkg>
 install_aur_pkg(){
     local _Json _PkgName _SnapShotURL _SnapShot
-    CheckPacmanPkg "$1" && return 0
+    Pm.CheckPacmanPkg "$1" && return 0
 
     #source "$builddir/fasbashlib.sh"
 
@@ -95,14 +95,14 @@ install_aur_pkg(){
     _Json="$(GetRawAurInfo "$1")"
 
     # Check JSON
-    CheckAurJson <<< "$_Json" > /dev/null || {
+    Aur.CheckJson <<< "$_Json" > /dev/null || {
         MsgErr "No $1 package is found."
         return 1
     }
-    _Json="$(CheckAurJson <<< "$_Json")"
+    _Json="$(Aur.CheckJson <<< "$_Json")"
 
     # Get PkgBuild
-    _SnapShotURL="$(GetAurURLPath <<< "$_Json")"
+    _SnapShotURL="$(Aur.GetURLPath <<< "$_Json")"
     _SnapShot="${builddir}/SnapShot/$(basename "$_SnapShotURL")"
     sudo -u "${aur_username}" curl -L -o "$_SnapShot" "https://aur.archlinux.org/$_SnapShotURL"
     sudo -u "${aur_username}" tar -xv -f "${_SnapShot}" -C "${builddir}/Build/"
@@ -112,10 +112,10 @@ install_aur_pkg(){
 
     # Get depends
     local _Depends=() _RepoPkgs=() _Arch
-    _Arch="$(GetPacmanConf Architecture)"
+    _Arch="$(Pm.GetConfig Architecture)"
 
-    ArrayAppend _Depends < <(GetSrcInfoValue "depends" "$1" "$_Arch" < ./.SRCINFO | GetPacmanName)
-    ArrayAppend _Depends < <(GetSrcInfoValue "makedepends" "$1" "$_Arch" < ./.SRCINFO | GetPacmanName)
+    ArrayAppend _Depends < <(SrcInfo.GetValue "depends" "$1" "$_Arch" < ./.SRCINFO | Pm.GetName)
+    ArrayAppend _Depends < <(SrcInfo.GetValue "makedepends" "$1" "$_Arch" < ./.SRCINFO | Pm.GetName)
     readarray -t _RepoPkgs < <(GetPacmanRepoPkgList)
     _AURDepend=() _RepoDepend=()
     for _Pkg in "${_Depends[@]}" ; do
