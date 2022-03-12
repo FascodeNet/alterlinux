@@ -1,6 +1,6 @@
 pkgbase = calamares
 	pkgdesc = Distribution-independent installer framework
-	pkgver = 3.2.49.1
+	pkgver = 3.2.53
 	pkgrel = 1
 	url = https://github.com/calamares/calamares
 	arch = i686
@@ -37,7 +37,7 @@ pkgbase = calamares
 	backup = usr/share/calamares/modules/unpackfs.conf
 	backup = usr/share/calamares/modules/removeuser.conf
 	backup = usr/share/calamares/modules/users.conf
-	source = https://github.com/calamares/calamares/archive/refs/tags/v3.2.49.1.tar.gz
+	source = https://github.com/calamares/calamares/archive/refs/tags/v3.2.53.tar.gz
 	sha256sums = SKIP
 
 pkgname = calamares
