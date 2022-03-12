@@ -92,11 +92,11 @@ install_aur_pkg(){
     #source "$builddir/fasbashlib.sh"
 
     sudo rm -rf "/var/lib/pacman/db.lck"
-    _Json="$(GetRawAurInfo "$1")"
+    _Json="$(Aur.GetRawInfo "$1")"
 
     # Check JSON
     Aur.CheckJson <<< "$_Json" > /dev/null || {
-        MsgErr "No $1 package is found."
+        Msg.Err "No $1 package is found."
         return 1
     }
     _Json="$(Aur.CheckJson <<< "$_Json")"
