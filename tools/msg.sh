@@ -117,11 +117,15 @@ check_color(){
     esac
 }
 
+
 OPTS="a:c:l:no:p:r:s:t:xh"
 OPTL="appname:,chr:,label:,nocolor,echo-option:,output:,label-color:,label-space:,text-color:,bash-debug,help,nolabel,noappname,noadjust"
-"$(dirname "$msgsh")/vlang/parseopt/parseopt" SHORT="$OPTS" LONG="$OPTL" -- "$@" > /dev/null|| exit 1
-eval set -- "$("$(dirname "$msgsh")/vlang/parseopt/parseopt" SHORT="$OPTS" LONG="$OPTL" -- "$@")"
-unset OPTS OPTL
+if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${@}")"; then
+    exit 1
+fi
+
+eval set -- "${OPT[@]}"
+unset OPT OPTS OPTL ARGUMENT
 
 while true; do
     case "${1}" in
