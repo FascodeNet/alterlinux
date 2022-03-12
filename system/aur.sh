@@ -87,7 +87,7 @@ prepare_env(){
 # install_aur_pkg <pkg>
 install_aur_pkg(){
     local _Json _PkgName _SnapShotURL _SnapShot
-    Pm.CheckPacmanPkg "$1" && return 0
+    Pm.CheckPkg "$1" && return 0
 
     #source "$builddir/fasbashlib.sh"
 
@@ -116,7 +116,7 @@ install_aur_pkg(){
 
     ArrayAppend _Depends < <(SrcInfo.GetValue "depends" "$1" "$_Arch" < ./.SRCINFO | Pm.GetName)
     ArrayAppend _Depends < <(SrcInfo.GetValue "makedepends" "$1" "$_Arch" < ./.SRCINFO | Pm.GetName)
-    readarray -t _RepoPkgs < <(GetPacmanRepoPkgList)
+    readarray -t _RepoPkgs < <(Pm.GetRepoPkgList)
     _AURDepend=() _RepoDepend=()
     for _Pkg in "${_Depends[@]}" ; do
         if ArrayIncludes _RepoPkgs "$_Pkg"; then
