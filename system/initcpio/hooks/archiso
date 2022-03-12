@@ -55,16 +55,16 @@ _mnt_overlayfs() {
 }
 
 # args: /path/to/image_file, mountpoint
-_mnt_sfs() {
+_mnt_fs() {
     local img="${1}"
     local mnt="${2}"
     local img_fullname="${img##*/}"
-    local sfs_dev
+    local img_loopdev
 
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${copytoram}" = "y" ]; then
-        msg -n ":: Copying squashfs image to RAM..."
+        msg -n ":: Copying rootfs image to RAM..."
 
         # in case we have pv use it to display copy progress feedback otherwise
         # fallback to using plain cp
@@ -85,30 +85,8 @@ _mnt_sfs() {
         img="/run/archiso/copytoram/${img_fullname}"
         msg "done."
     fi
-    sfs_dev="$(losetup --find --show --read-only -- "${img}")"
-    _mnt_dev "${sfs_dev}" "${mnt}" "-r" "defaults"
-}
-
-# args: /path/to/image_file, mountpoint
-_mnt_erofs() {
-    local img="${1}"
-    local mnt="${2}"
-    local img_fullname="${img##*/}"
-    local erofs_dev
-
-    # shellcheck disable=SC2154
-    # defined via initcpio's parse_cmdline()
-    if [ "${copytoram}" = "y" ]; then
-        msg -n ":: Copying EROFS image to RAM..."
-        if ! cp -- "${img}" "/run/archiso/copytoram/${img_fullname}"; then
-            echo "ERROR: while copy '${img}' to '/run/archiso/copytoram/${img_fullname}'"
-            launch_interactive_shell
-        fi
-        img="/run/archiso/copytoram/${img_fullname}"
-        msg "done."
-    fi
-    erofs_dev="$(losetup --find --show --read-only -- "${img}")"
-    _mnt_dev "${erofs_dev}" "${mnt}" "-r" "defaults"
+    img_loopdev="$(losetup --find --show --read-only -- "${img}")"
+    _mnt_dev "${img_loopdev}" "${mnt}" "-r" "defaults"
 }
 
 # args: device, mountpoint, flags, opts
@@ -191,7 +169,7 @@ run_hook() {
 # args: /path/to/newroot
 archiso_mount_handler() {
     local newroot="${1}"
-    local sigfile
+    local sigfile fs_img
 
     if ! mountpoint -q "/run/archiso/bootmnt"; then
         _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
@@ -244,7 +222,10 @@ archiso_mount_handler() {
     fi
 
     if [ -n "${cow_device}" ]; then
-        _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-w" "${cow_flags}"
+        # Mount cow_device read-only at first and remount it read-write right after. This prevents errors when the
+        # device is already mounted read-only somewhere else (e.g. if cow_device and archisodevice are the same).
+        _mnt_dev "${cow_device}" "/run/archiso/cowspace" "-r" "${cow_flags}"
+        mount -o remount,rw "/run/archiso/cowspace"
     else
         msg ":: Mounting /run/archiso/cowspace (tmpfs) filesystem, size=${cow_spacesize}..."
         mkdir -p /run/archiso/cowspace
@@ -254,10 +235,14 @@ archiso_mount_handler() {
     chmod 0700 "/run/archiso/cowspace/${cow_directory}"
 
     if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" ]; then
-        _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" "/run/archiso/airootfs"
+        fs_img="/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs"
     elif [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.erofs" ]; then
-        _mnt_erofs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.erofs" "/run/archiso/airootfs"
+        fs_img="/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.erofs"
+    else
+        echo "ERROR: no root file system image found"
+        launch_interactive_shell
     fi
+    _mnt_fs "${fs_img}" "/run/archiso/airootfs"
     if [ -f "/run/archiso/airootfs/airootfs.img" ]; then
         _mnt_dmsnapshot "/run/archiso/airootfs/airootfs.img" "${newroot}" "/"
     else
