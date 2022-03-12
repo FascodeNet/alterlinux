@@ -2,7 +2,7 @@
 
 set -eu
 
-msgsh="$( cd -P "$( dirname "$(readlink -f "$0")" )" && pwd )/$(basename "${0}")"
+msgsh="$(cd "$(dirname "${0}")" || exit 1 ; pwd)/$(basename "$0")"
 
 msg_type="info"
 echo_opts=()
@@ -117,15 +117,11 @@ check_color(){
     esac
 }
 
-ARGUMENT=("${@}")
 OPTS="a:c:l:no:p:r:s:t:xh"
 OPTL="appname:,chr:,label:,nocolor,echo-option:,output:,label-color:,label-space:,text-color:,bash-debug,help,nolabel,noappname,noadjust"
-if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")"; then
-    exit 1
-fi
-
-eval set -- "${OPT[@]}"
-unset OPT OPTS OPTL ARGUMENT
+"$(dirname "$msgsh")/vlang/parseopt/parseopt" SHORT="$OPTS" LONG="$OPTL" -- "$@" > /dev/null|| exit 1
+eval set -- "$("$(dirname "$msgsh")/vlang/parseopt/parseopt" SHORT="$OPTS" LONG="$OPTL" -- "$@")"
+unset OPTS OPTL
 
 while true; do
     case "${1}" in

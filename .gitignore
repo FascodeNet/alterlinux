@@ -28,3 +28,4 @@ out
 /pacman-*.conf
 /.config
 menuconfig-script/channels_menuconfig-*
+.DS_Store
