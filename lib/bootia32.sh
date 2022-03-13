@@ -149,6 +149,59 @@ _make_bootmode_uefi-ia32.grub.esp(){
     # grub can only access files from the EFI system partition it was launched from.
     # _make_boot_on_fat
 
+
+    #-- i686のみの場合はefiboot.imgを作成する --#
+    # shellcheck disable=SC2076
+    [[ " ${bootmodes[*]} " =~ ' uefi-x64.systemd-boot.esp ' ]] || {
+        local _file efiboot_imgsize
+        local _available_ucodes=()
+        _msg_info "Setting up systemd-boot for UEFI booting..."
+
+        for _file in "${ucodes[@]}"; do
+            if [[ -e "${pacstrap_dir}/boot/${_file}" ]]; then
+                _available_ucodes+=("${pacstrap_dir}/boot/${_file}")
+            fi
+        done
+
+        # Calculate the required FAT image size in bytes
+        efiboot_imgsize="$(du -bc \
+            "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootx64.efi" \
+            "${pacstrap_dir}/usr/share/edk2-shell/"* \
+            "${script_path}/efiboot/${use_bootloader_type}" \
+            "/usr/lib/grub/"* \
+            "${isofs_dir}/EFI/BOOT/BOOTia32.efi" \
+            "${pacstrap_dir}/boot/vmlinuz-"* \
+            "${pacstrap_dir}/boot/initramfs-"*".img" \
+            "${_available_ucodes[@]}" \
+            2>/dev/null | awk 'END { print $1 }')"
+        # Create a FAT image for the EFI system partition
+        _make_efibootimg "$efiboot_imgsize"
+
+        # Copy systemd-boot configuration files
+        mmd -i "${work_dir}/efiboot.img" ::/loader ::/loader/entries
+        mcopy -i "${work_dir}/efiboot.img" "${script_path}/efiboot/${use_bootloader_type}/loader.conf" ::/loader/
+        for _conf in "${script_path}/efiboot/${use_bootloader_type}/entries/"*".conf"; do
+            sed "s|%ARCHISO_LABEL%|${iso_label}|g;
+                s|%INSTALL_DIR%|${install_dir}|g;
+                s|%OS_NAME%|${os_name}|g;
+                s|%KERNEL_FILENAME%|${kernel_filename}|g;
+                s|%ARCH%|${arch}|g" \
+                "${_conf}" | mcopy -i "${work_dir}/efiboot.img" - "::/loader/entries/${_conf##*/}"
+        done
+
+        # shellx64.efi is picked up automatically when on /
+        if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi" ]]; then
+            mcopy -i "${work_dir}/efiboot.img" \
+                "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi" ::/shellx64.efi
+        fi
+
+        # Copy kernel and initramfs to FAT image.
+        # systemd-boot can only access files from the EFI system partition it was launched from.
+        _make_boot_on_fat
+
+        #_msg_info "Done! Set up for UEFI booting successfully."
+    }
+
     #-- Copy grub --#
     #mdeltree -i "${work_dir}/efiboot.img" ::/loader/ ::/EFI/ 2> /dev/null || true
     #mmd -i "${work_dir}/efiboot.img" "::/EFI" "::/EFI/BOOT"
