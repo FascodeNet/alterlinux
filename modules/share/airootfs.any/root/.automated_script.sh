@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-#
-# Yamada Hayao
-# Twitter: @Hayao0819
-# Email  : hayao@fascode.net
-#
-# (c) 2019-2021 Fascode Network.
-#
 
 script_cmdline ()
 {
@@ -23,7 +16,7 @@ automated_script ()
     script="$(script_cmdline)"
     if [[ -n "${script}" && ! -x /tmp/startup_script ]]; then
         if [[ "${script}" =~ ^((http|https|ftp)://) ]]; then
-            curl "${script}" --retry-connrefused -s -o /tmp/startup_script >/dev/null
+            curl "${script}" --location --retry-connrefused --retry 10 -s -o /tmp/startup_script >/dev/null
             rt=$?
         else
             cp "${script}" /tmp/startup_script
@@ -36,6 +29,6 @@ automated_script ()
     fi
 }
 
-if [[ "$(tty)" = "/dev/tty1" ]]; then
+if [[ $(tty) == "/dev/tty1" ]]; then
     automated_script
 fi
