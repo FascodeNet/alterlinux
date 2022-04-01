@@ -76,23 +76,12 @@ nochname=true
 # List of packages required for build
 # The following packages are checked to see if they are installed before running build.sh
 # Also, wizard.sh will install it automatically.
-dependence=(
-#   "alterlinux-keyring"
-#   "archiso"
-    "arch-install-scripts"
-    "curl"
-    "dosfstools"
-    "edk2-shell"
-    "git"
-    "libburn"
-    "libisofs"
-    "lz4"
-    "lzo"
-    "make"
-    "squashfs-tools"
-    "libisoburn"
- #  "lynx"
-    "xz"
-    "zlib"
-    "zstd"
+readarray -t dependence < <(printf "%s\n" "${dependence[@]}" | grep -xv "alterlinux-keyring")
+
+# Modules to include
+# An array of module directory names to include.
+# This setting cannot be changed by an argument.
+modules=(
+    base
+    share
 )
