@@ -370,6 +370,12 @@ prepare_build() {
     modules=("${_modules[@]}")
     unset _modules
 
+    # Ignore modules
+    local _m
+    for _m in "${exclude_modules[@]}"; do
+        readarray -t modules < <(printf "%s\n" "${modules[@]}" | grep -xv "${_m}")
+    done
+
     # Check modules
     module_check(){
         msg_debug -n "Checking ${1} module ... "
