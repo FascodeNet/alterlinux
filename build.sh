@@ -668,8 +668,8 @@ make_setup_mkinitcpio() {
     [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
 
     if [[ "${gpg_key}" ]]; then
-      gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
-      exec 17<>"${build_dir}/gpgkey"
+        gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
+        exec 17<>"${build_dir}/gpgkey"
     fi
 
     _chroot_run mkinitcpio -c "/etc/mkinitcpio-archiso.conf" -k "/boot/${kernel_filename}" -g "/boot/archiso.img"
@@ -726,10 +726,10 @@ make_syslinux() {
     # copy all syslinux config to work dir
     for _cfg in "${build_dir}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-             s|%KERNEL_FILENAME%|${kernel_filename}|g;
-             s|%ARCH%|${arch}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
@@ -1163,7 +1163,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "clean" ]]; then
-   _run_cleansh
+    _run_cleansh
     exit 0
 fi
 
