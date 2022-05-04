@@ -77,6 +77,16 @@ echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 # cpコマンドのラッパー
 _cp(){ cp -af --no-preserve=ownership,mode -- "${@}"; }
 
+# gitコマンドのラッパー
+# https://stackoverflow.com/questions/71901632/fatal-unsafe-repository-home-repon-is-owned-by-someone-else
+# https://qiita.com/megane42/items/5375b54ea3570506e296
+git(){
+    command git config --global safe.directory "$script_path"
+    command git "$@"
+    command git config --global --unset safe.directory
+}
+
+
 _usage () {
     cat "${script_path}/docs/build.sh/help.1"
     local blank="29" _arch _dirname _type _output _first
@@ -1155,7 +1165,8 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" preset_dir="${script_path}/presets"
+gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 
 # Create dir
 for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
