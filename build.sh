@@ -83,7 +83,7 @@ _cp(){ cp -af --no-preserve=ownership,mode -- "${@}"; }
 git(){
     command git config --global safe.directory "$script_path"
     command git "$@"
-    command git config --global --unset safe.directory
+    command git config --global --unset safe.directory "$script_path"
 }
 
 
