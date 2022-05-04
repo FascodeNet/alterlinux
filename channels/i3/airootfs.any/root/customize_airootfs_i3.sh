@@ -42,6 +42,8 @@ for _dir in "/etc/skel/" "/home/${username}/"; do
     done
 done
 
+chmod 755 "/usr/bin/alter-system-menu"
+
 # disable light-locker on live
 sed -i "/light/s/^/# /g" "/home/${username}/.config/i3/config"
 
