@@ -21,9 +21,6 @@ conky
 # launcher
 rofi
 
-# terminal emulator
-sakura
-
 # theme manager
 alterlinux-i3-manager
 
