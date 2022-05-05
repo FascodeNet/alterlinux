@@ -67,6 +67,8 @@ Please see the <a href="https://alter.fascode.net/">official website</a> for inf
 <h2>〈Download〉</h2>
 The image file can be downloaded from the official <a href="https://alter.fascode.net/#downloads">website</a>.
 <br>
+You can download the development version and the old version from <a href="http://hayao.fascode.net/alter/index.html">this website</a>
+<br>
 <b>We are looking for a mirror server provider for repositories and image file distribution.</b>
 <br>
 If you would like us to provide a mirror please contact the developer's Twitter.

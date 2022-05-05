@@ -64,6 +64,8 @@ Alter Linuxの最新の開発状況は<a href="https://github.com/orgs/FascodeNe
 <h2>〈ダウンロード〉</h2>
 イメージファイルは<a href="https://alter.fascode.net/#downloads">公式サイト</a>からダウンロードできます。
 <br>
+最新の開発バージョンや過去のバージョンは開発者の<a href="http://hayao.fascode.net/alter/index.html">個人サイト</a>からダウンロードできます。
+<br>
 <b>私達はリポジトリやイメージファイル配布用のミラーサーバ提供者を募集しております。</b>
 <br>
 もし私達にミラーを提供して頂ける場合は開発者のTwitterまでお願いします。
