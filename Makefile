@@ -9,7 +9,8 @@ ARCH_Pen4    := --arch pen4
 FULLBUILD    := -d -g -e -r 5 --noconfirm
 DEBUG_OPTION := --debug --log
 DEBUG        := false
-FULL_x86_64  := xfce cinnamon i3 plasma gnome
+#FULL_x86_64  := xfce cinnamon i3 plasma gnome
+FULL_x86_64  := xfce i3 plasma
 FULL_i686    := xfce lxde
 FULL_Pen4    := xfce lxde
 

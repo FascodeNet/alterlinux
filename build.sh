@@ -526,8 +526,8 @@ _make_setup_mkinitcpio() {
     [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${pacstrap_dir}/etc/mkinitcpio-archiso.conf"
 
     if [[ "${gpg_key}" ]]; then
-      gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
-      exec 17<>"${build_dir}/gpgkey"
+        gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
+        exec 17<>"${build_dir}/gpgkey"
     fi
 
     _chroot_run mkinitcpio -c "/etc/mkinitcpio-archiso.conf" -k "/boot/${kernel_filename}" -g "/boot/archiso.img"

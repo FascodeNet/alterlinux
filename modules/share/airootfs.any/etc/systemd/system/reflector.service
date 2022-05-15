@@ -3,4 +3,4 @@ Description=Pacman mirrorlist update
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/reflector --protocol https --latest 30 --number 20 --sort rate --save /etc/pacman.d/mirrorlist
+ExecStart=/usr/bin/reflector --protocol https --latest 20 --number 20 --sort rate --save /etc/pacman.d/mirrorlist
