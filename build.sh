@@ -77,6 +77,16 @@ echo_blank(){ yes " " 2> /dev/null  | head -n "${1}" | tr -d "\n"; }
 # cpコマンドのラッパー
 _cp(){ cp -af --no-preserve=ownership,mode -- "${@}"; }
 
+# gitコマンドのラッパー
+# https://stackoverflow.com/questions/71901632/fatal-unsafe-repository-home-repon-is-owned-by-someone-else
+# https://qiita.com/megane42/items/5375b54ea3570506e296
+git(){
+    command git config --global safe.directory "$script_path"
+    command git "$@"
+    command git config --global --unset safe.directory "$script_path"
+}
+
+
 _usage () {
     cat "${script_path}/docs/build.sh/help.1"
     local blank="29" _arch _dirname _type _output _first
@@ -369,6 +379,12 @@ prepare_build() {
     for_module '[[ -f "${preset_dir}/{}" ]] && readarray -t -O "${#_modules[@]}" _modules < <(grep -h -v ^'#' "${preset_dir}/{}") || _modules+=("{}")'
     modules=("${_modules[@]}")
     unset _modules
+
+    # Ignore modules
+    local _m
+    for _m in "${exclude_modules[@]}"; do
+        readarray -t modules < <(printf "%s\n" "${modules[@]}" | grep -xv "${_m}")
+    done
 
     # Check modules
     module_check(){
@@ -668,8 +684,8 @@ make_setup_mkinitcpio() {
     [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
 
     if [[ "${gpg_key}" ]]; then
-      gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
-      exec 17<>"${build_dir}/gpgkey"
+        gpg --export "${gpg_key}" >"${build_dir}/gpgkey"
+        exec 17<>"${build_dir}/gpgkey"
     fi
 
     _chroot_run mkinitcpio -c "/etc/mkinitcpio-archiso.conf" -k "/boot/${kernel_filename}" -g "/boot/archiso.img"
@@ -726,10 +742,10 @@ make_syslinux() {
     # copy all syslinux config to work dir
     for _cfg in "${build_dir}/syslinux/"*.cfg; do
         sed "s|%ARCHISO_LABEL%|${iso_label}|g;
-             s|%OS_NAME%|${os_name}|g;
-             s|%KERNEL_FILENAME%|${kernel_filename}|g;
-             s|%ARCH%|${arch}|g;
-             s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
+            s|%OS_NAME%|${os_name}|g;
+            s|%KERNEL_FILENAME%|${kernel_filename}|g;
+            s|%ARCH%|${arch}|g;
+            s|%INSTALL_DIR%|${install_dir}|g" "${_cfg}" > "${isofs_dir}/syslinux/${_cfg##*/}"
     done
 
     # Replace the SYSLINUX configuration file with or without boot splash.
@@ -1149,7 +1165,8 @@ else
 fi
 
 # Set vars
-build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)" preset_dir="${script_path}/presets"
+build_dir="${work_dir}/build/${arch}" cache_dir="${work_dir}/cache/${arch}" airootfs_dir="${build_dir}/airootfs" isofs_dir="${build_dir}/iso" lockfile_dir="${build_dir}/lockfile" preset_dir="${script_path}/presets"
+gitrev="$(cd "${script_path}"; git rev-parse --short HEAD)"
 
 # Create dir
 for _dir in build_dir cache_dir airootfs_dir isofs_dir lockfile_dir out_dir; do
@@ -1163,7 +1180,7 @@ if [[ -d "${channel_dir}.add" ]]; then
     channel_name="${1}"
     channel_dir="${channel_dir}.add"
 elif [[ "${channel_name}" = "clean" ]]; then
-   _run_cleansh
+    _run_cleansh
     exit 0
 fi
 

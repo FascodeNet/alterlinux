@@ -7,10 +7,6 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# i3wm relation packages
+# wallpaper
 
-# i3wm
-polybar
-
-# terminal emulator
-sakura
+alterlinux-wallpapers

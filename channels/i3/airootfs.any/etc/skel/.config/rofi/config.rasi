@@ -15,6 +15,6 @@ configuration {
   font       : "hack 10";
   show-icons : true;
   icon-theme : "Inverse-blue";
-  theme      : "~/.config/rofi/alter-dark.rasi";
   kb-cancel  : "Escape";
 }
+@theme "~/.config/rofi/alter-dark.rasi"
