@@ -29,6 +29,7 @@ xdg-user-dirs
 #-- linux --#
 linux-atm
 linux-firmware
+linux-firmware-marvell
 
 
 #-- man --#

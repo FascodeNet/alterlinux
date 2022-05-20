@@ -12,7 +12,6 @@ max-tab-name-length=100
 mouse-display=false
 open-tab-cwd=true
 prompt-on-quit=true
-quick-open-command-line='medit -t %(file_path)s'
 quick-open-enable=true
 restore-tabs-notify=true
 restore-tabs-startup=false
