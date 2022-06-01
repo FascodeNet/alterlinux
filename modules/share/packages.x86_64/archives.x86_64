@@ -10,19 +10,19 @@
 # Archives
 
 
-arj
+#arj
 binutils
 bzip2
 cpio
 gzip
-lha
-lrzip
+#lha
+#lrzip
 lz4
-lzip
-lzop
-p7zip
+#lzip
+#lzop
+#p7zip
 tar
-unarj
+#unarj
 unrar
 xz
 zip

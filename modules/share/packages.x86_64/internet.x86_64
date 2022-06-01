@@ -11,7 +11,7 @@
 
 
 #-- chat --#
-irssi
+#irssi
 
 
 #-- connection --#
@@ -28,11 +28,12 @@ wvdial
 #-- client --#
 openssh
 wget
+aria2
 
 
 #-- server --#
-darkhttpd
-dnsmasq
+#darkhttpd
+#dnsmasq
 
 
 
@@ -41,7 +42,7 @@ crda
 iwd
 wireless-regdb
 wireless_tools
-wpa_supplicant
+#wpa_supplicant
 
 
 #-- vpn --#

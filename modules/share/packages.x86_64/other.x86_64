@@ -23,7 +23,7 @@ python-srcinfo
 neofetch
 sudo
 tlp
-xdg-user-dirs
+#xdg-user-dirs
 
 
 #-- linux --#

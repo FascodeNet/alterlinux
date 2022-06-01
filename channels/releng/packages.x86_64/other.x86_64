@@ -12,6 +12,6 @@
 grml-zsh-config
 
 #-- gui --#
-gpm
+#gpm
 
 #-- tools --#
