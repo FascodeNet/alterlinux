@@ -17,6 +17,7 @@ i3-gaps
 nitrogen
 picom
 conky
+polybar
 
 # launcher
 rofi
