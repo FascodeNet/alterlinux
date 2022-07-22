@@ -12,6 +12,16 @@
 #
 
 
+# gitコマンドのラッパー
+# https://stackoverflow.com/questions/71901632/fatal-unsafe-repository-home-repon-is-owned-by-someone-else
+# https://qiita.com/megane42/items/5375b54ea3570506e296
+git(){
+    command git config --global safe.directory "$script_path"
+    command git "$@"
+    command git config --global --unset safe.directory "$script_path"
+}
+
+
 # Base installation (airootfs)
 _make_basefs() {
     _msg_info "Creating ext4 image of 32GiB..."
