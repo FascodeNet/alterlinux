@@ -4,7 +4,7 @@
 - チャンネル、モジュールの構成は維持
 - Archiso 58に準拠し、少しずつbuild.shを書き直す
 - Archisoからの変更を最小限にするために再実装
-- 2022年後半の完成を目指す
+- 2023年後半の完成を目指す
 
 ### 現在の進捗状況
   - [x] 最初はAlterISO 3.1のコードを残しつつ、Archisoのコードを無理やり追加してビルドが通るようにする
@@ -51,6 +51,7 @@
   - [ ] v62 to v62.1 ([Compare](https://github.com/archlinux/archiso/compare/v61...v62.1))
   - [ ] v62.1 to v63 ([Compare](https://github.com/archlinux/archiso/compare/v62.1...v63))
   - [ ] v63 to v64 ([Compare](https://github.com/archlinux/archiso/compare/v63...v64))
+    - [ ] 独自実装のbootia32.efiの実装をArchiso準拠に書き換える
   - [ ] v64 to v65 ([Compare](https://github.com/archlinux/archiso/compare/v64...v65))
 
 ## 当分のあいだの開発目標
