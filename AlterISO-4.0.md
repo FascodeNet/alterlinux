@@ -42,8 +42,16 @@
 - [ ] `/system/`の各アーキテクチャのファイルを整理する
 - [ ] menuconfigのディレクトリ構成を整理する
 - [ ] ドキュメントを整理する
-- [ ] モジュールの依存関係を実装
-
+- [ ] モジュールの依存関係を実装 (参考: [FasBashLibの依存関係解決](https://github.com/Hayao0819/FasBashLib/blob/dev-0.2.x/lib/SolveRequire.sh))
+- [ ] Archiso v58からv65への更新
+  - [ ] v58 to v59 ([Compare](https://github.com/archlinux/archiso/compare/v58...v59))
+  - [ ] v59 to v60 ([Compare](https://github.com/archlinux/archiso/compare/v59...v60))
+  - [ ] v60 to v61 ([Compare](https://github.com/archlinux/archiso/compare/v60...v61))
+  - [ ] v61 to v62 ([Compare](https://github.com/archlinux/archiso/compare/v61...v62))
+  - [ ] v62 to v62.1 ([Compare](https://github.com/archlinux/archiso/compare/v61...v62.1))
+  - [ ] v62.1 to v63 ([Compare](https://github.com/archlinux/archiso/compare/v62.1...v63))
+  - [ ] v63 to v64 ([Compare](https://github.com/archlinux/archiso/compare/v63...v64))
+  - [ ] v64 to v65 ([Compare](https://github.com/archlinux/archiso/compare/v64...v65))
 
 ## 当分のあいだの開発目標
 ~~ 当分の間はArchisoのコードを少しずつ取り込んでいく。 ~~
