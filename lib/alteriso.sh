@@ -310,9 +310,9 @@ prepare_build() {
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
 
     # Check architecture for each channel
-    local _exit=0
-    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
-    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
+    #local _exit=0
+    #bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
+    #( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
