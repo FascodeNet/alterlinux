@@ -175,13 +175,13 @@ _usage () {
 }
 
 
-# Check the build environment and create a directory.
+## Check the build environment and create a directory.
 prepare_env() {
     # Check packages
     if [[ "${nodepend}" = false ]]; then
         local _check_failed=false _pkg _result=0
-        _msg_info "Checking dependencies ..."
-        ! pacman -Qq pyalpm > /dev/null 2>&1 && _msg_error "pyalpm is not installed." 1
+        msg_info "Checking dependencies ..."
+        ! pacman -Qq pyalpm > /dev/null 2>&1 && msg_error "pyalpm is not installed." 1
         for _pkg in "${dependence[@]}"; do
             eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
             if (( _result == 3 )) || (( _result == 4 )); then
@@ -194,24 +194,22 @@ prepare_env() {
 
     # Load loop kernel module
     if [[ "${noloopmod}" = false ]]; then
-        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && _msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
+        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
         lsmod | getclm 1 | grep -qx "loop" || modprobe loop
     fi
 
     # Check work dir
     if [[ "${normwork}" = false ]]; then
-        _msg_info "Deleting the contents of ${build_dir}..."
+        msg_info "Deleting the contents of ${build_dir}..."
         _run_cleansh
     fi
 
-    # Debug mode
-    [[ "${bash_debug}" = true ]] && set -x -v
-
-    # Show alteriso version
-    [[ -n "${gitrev-""}" ]] && _msg_debug "The version of alteriso is ${gitrev}"
-
-    # Set bootloader type
-    [[ "${boot_splash}" = true ]] && use_bootloader_type="splash" && not_use_bootloader_type="nosplash"
+    # Set gpg key
+    if [[ -n "${gpg_key}" ]]; then
+        gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
+        exec {ARCHISO_GNUPG_FD}<>"${build_dir}/pubkey.gpg"
+        export ARCHISO_GNUPG_FD
+    fi
 
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
@@ -225,6 +223,7 @@ prepare_env() {
     return 0
 }
 
+
 # Error message
 error_exit_trap(){
     local _exit="${?}" _line="${1}" && shift 1
@@ -235,6 +234,12 @@ error_exit_trap(){
 
 # Preparation for build
 prepare_build() {
+    # Debug mode
+    [[ "${bash_debug}" = true ]] && set -x -v
+
+    # Show alteriso version
+    [[ -n "${gitrev-""}" ]] && msg_debug "The version of alteriso is ${gitrev}"
+
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
@@ -242,8 +247,8 @@ prepare_build() {
     modules+=("${additional_modules[@]}")
 
     # Legacy mode
-    if [[ "$(_channel_get_version "${channel_dir}")" = "3.0" ]]; then
-        _msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
+    if [[ "$(bash "${tools_dir}/channel.sh" --version "${alteriso_version}" ver "${channel_name}")" = "3.0" ]]; then
+        msg_warn "The module cannot be used because it works with Alter ISO3.0 compatibility."
         modules=("legacy")
         legacy_mode=true
         [[ "${include_extra-"unset"}" = true ]] && modules=("legacy-extra")
@@ -255,46 +260,69 @@ prepare_build() {
     modules=("${_modules[@]}")
     unset _modules
 
+    # Ignore modules
+    local _m
+    for _m in "${exclude_modules[@]}"; do
+        readarray -t modules < <(printf "%s\n" "${modules[@]}" | grep -xv "${_m}")
+    done
+
     # Check modules
+    module_check(){
+        msg_debug -n "Checking ${1} module ... "
+        bash "${tools_dir}/module.sh" check "${1}" || msg_error "Module ${1} is not available." "1" && msg_debug "Load ${module_dir}/${1}"
+    }
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
-    for_module "_module_check_with_msg {}"
+    for_module "module_check {}"
 
     # Load modules
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
-    _msg_debug "Loaded modules: ${modules[*]}"
-    ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && _msg_warn "The share module is not loaded."
+    msg_debug "Loaded modules: ${modules[*]}"
+    ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && msg_warn "The share module is not loaded."
     ! printf "%s\n" "${modules[@]}" | grep -x "base" >/dev/null 2>&1 && msg_error "The base module is not loaded." 1
 
     # Set kernel
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
 
     # Parse files
-    eval "$(_locale_get)"
-    eval "$(_kernel_get)"
+    eval "$(bash "${tools_dir}/locale.sh" -s -a "${arch}" get "${locale_name}")"
+    eval "$(bash "${tools_dir}/kernel.sh" -s -c "${channel_name}" -a "${arch}" get "${kernel}")"
 
     # Set username and password
     [[ "${customized_username}" = false ]] && username="${defaultusername}"
     [[ "${customized_password}" = false ]] && password="${defaultpassword}"
 
     # gitversion
-    [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
+    [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && msg_error "There is no git directory. You need to use git clone to use this feature." "1"
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
+
+    # Generate tar file name
+    tar_ext=""
+    case "${tar_comp}" in
+        "gzip" ) tar_ext="gz"                        ;;
+        "zstd" ) tar_ext="zst"                       ;;
+        "xz" | "lzo" | "lzma") tar_ext="${tar_comp}" ;;
+    esac
 
     # Generate iso file name
     local _channel_name="${channel_name%.add}-${locale_version}" 
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    tar_filename="${iso_filename%.iso}.tar.gz"
+    tar_filename="${iso_filename%.iso}.tar.${tar_ext}"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-    _msg_debug "Iso filename is ${iso_filename}"
+    msg_debug "Iso filename is ${iso_filename}"
 
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
+
+    # Check architecture for each channel
+    local _exit=0
+    bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
+    ( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
         [[ "${customized_logpath}" = false ]] && logging="${out_dir}/${iso_filename%.iso}.log"
         mkdir -p "$(dirname "${logging}")" && touch "${logging}"
-        _msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
+        msg_warn "Re-run sudo ${0} ${ARGUMENT[*]} --nodepend --nolog --nocolor --rerun 2>&1 | tee ${logging}"
         sudo "${0}" "${ARGUMENT[@]}" --nolog --nocolor --nodepend --rerun 2>&1 | tee "${logging}"
         exit "${PIPESTATUS[0]}"
     fi
@@ -312,14 +340,7 @@ prepare_build() {
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-c")
 
-    # Set bootmodes
-    { [[ "${tarball}" = true ]] && ! printf "%s\n" "${buildmodes[@]}" | grep -qx "bootstrap"; } && buildmodes+=("tarball")
-    [[ "${noiso}" = true ]] && readarray -t buildmodes < <(printf "%s\n" "${buildmodes[@]}" | grep -xv "iso")
-
-    # Set squashfs option
-    airootfs_image_tool_options=(-noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}")
-
-    _msg_info "Done build preparation!"
+    return 0
 }
 
 _make_aur() {
@@ -365,21 +386,21 @@ _make_pkgbuild() {
     for_module '_pkgbuild_dirs+=("${module_dir}/{}/pkgbuild.any" "${module_dir}/{}/pkgbuild.${arch}")'
 
     # Copy PKGBUILD to work
-    mkdir -p "${pacstrap_dir}/pkgbuilds/"
+    mkdir -p "${airootfs_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
-        _msg_info "Find $(basename "${_dir}")"
-        cp -r "${_dir}" "${pacstrap_dir}/pkgbuilds/"
+        msg_info "Find $(basename "${_dir}")"
+        _cp "${_dir}" "${airootfs_dir}/pkgbuilds/"
     done
     
     # copy buold script
-    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${pacstrap_dir}/root/pkgbuild.sh"
+    _cp "${script_path}/system/pkgbuild.sh" "${airootfs_dir}/root/pkgbuild.sh"
 
     # Run build script
     _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
 
     # Remove script
-    remove "${pacstrap_dir}/root/pkgbuild.sh"
+    remove "${airootfs_dir}/root/pkgbuild.sh"
 
-    _msg_info "Done! Packages built successfully."
+    return 0
 }
 
