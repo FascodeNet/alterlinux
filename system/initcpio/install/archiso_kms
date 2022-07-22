@@ -3,34 +3,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 build() {
-    add_module "amdgpu"
-    add_module "radeon"
-    add_module "nouveau"
-    add_module "i915"
-    add_module "mgag200"
-    add_module "via-agp"
-    add_module "sis-agp"
-    add_module "intel-agp"
-
-    add_module "nvidia?"
-    add_module "nvidia_modeset?"
-    add_module "nvidia_uvm?"
-    add_module "nvidia_drm?"
-
-
-    if [[ $(uname -m) == i686 ]]; then
-        add_module "amd64-agp"
-        add_module "ati-agp"
-        add_module "sworks-agp"
-        add_module "ali-agp"
-        add_module "amd-k7-agp"
-        add_module "nvidia-agp"
-        add_module "efficeon-agp"
-    fi
+    map add_checked_modules '/drivers/char/agp/' '/drivers/gpu/drm/'
 }
 
 help() {
     cat <<HELPEOF
-Adds all common KMS drivers to the initramfs image.
+Adds KMS drivers to the initramfs image. To minimize the modules in the image,
+add the autodetect hook too.
 HELPEOF
 }
