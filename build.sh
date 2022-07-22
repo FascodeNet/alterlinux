@@ -120,7 +120,7 @@ _build_confirm() {
 # Shows configuration options.
 _show_config() {
     local build_date
-    build_date="$(date --utc --iso-8601=seconds -d "@${SOURCE_DATE_EPOCH}")"
+    printf -v build_date '%(%FT%R%z)T' "${SOURCE_DATE_EPOCH}"
     _msg_info "${app_name} configuration settings"
     _msg_info "             Architecture:   ${arch}"
     _msg_info "        Working directory:   ${work_dir}"
@@ -138,7 +138,7 @@ _show_config() {
     _msg_info "         ISO volume label:   ${iso_label}"
     _msg_info "            ISO publisher:   ${iso_publisher}"
     _msg_info "          ISO application:   ${iso_application}"
-    _msg_info "               Boot modes:   ${bootmodes[*]}"
+    _msg_info "               Boot modes:   ${bootmodes[*]:-None}"
     _msg_info "                 Plymouth:   ${boot_splash}"
     _msg_info "           Plymouth theme:   ${theme_name}"
     _msg_info "                 Language:   ${locale_name}"
@@ -681,7 +681,14 @@ _make_efibootimg() {
     # https://lists.gnu.org/archive/html/grub-devel/2019-04/msg00099.html
     rm -f -- "${work_dir}/efiboot.img"
     _msg_info "Creating FAT image of size: ${imgsize} KiB..."
-    mkfs.fat -C -n ARCHISO_EFI "${work_dir}/efiboot.img" "${imgsize}"
+
+    if [[ "${quiet}" == "y" ]]; then
+        # mkfs.fat does not have a -q/--quiet option, so redirect stdout to /dev/null instead
+        # https://github.com/dosfstools/dosfstools/issues/103
+        mkfs.fat -C -n ARCHISO_EFI "${work_dir}/efiboot.img" "${imgsize}" > /dev/null
+    else
+        mkfs.fat -C -n ARCHISO_EFI "${work_dir}/efiboot.img" "${imgsize}"
+    fi
 
     # Create the default/fallback boot path in which a boot loaders will be placed later.
     mmd -i "${work_dir}/efiboot.img" ::/EFI ::/EFI/BOOT
@@ -1168,7 +1175,7 @@ _build_bootstrap_image() {
 
 # Build ISO
 _build_iso_image() {
-    local xorrisofs_options=()
+    local xorriso_options=() xorrisofs_options=()
     local bootmode
 
     [[ -d "${out_dir}" ]] || install -d -- "${out_dir}"
@@ -1414,7 +1421,12 @@ _build_iso_base() {
     _run_once _make_customize_airootfs
     _run_once _make_setup_mkinitcpio
     _run_once _make_pkglist
-    _make_bootmodes
+    #_make_bootmodes
+    if [[ "${buildmode}" == 'netboot' ]]; then
+        _run_once _make_boot_on_iso9660
+    else
+        _make_bootmodes
+    fi
     _run_once _make_alteriso_info
     _run_once _cleanup_pacstrap_dir
     _run_once _prepare_airootfs_image
