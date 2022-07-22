@@ -7,9 +7,9 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
+# look and feel
 
-#-- system monitor --#
-gnome-system-monitor
+# theme
+adapta-gtk-theme-colorpack
 
-#-- GUI Text Editor --#
-xed
+numix-cursor-theme

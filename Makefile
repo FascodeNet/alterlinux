@@ -85,3 +85,11 @@ wizard:
 check:
 	@bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error **/*.{sh,ksh,bash}'
 	@bash -c 'shopt -s globstar nullglob; shellcheck -s bash --exclude=SC2068 -S error tools/*.{sh,ksh,bash}'
+
+
+# デバッグ用
+ARCH         := x86_64
+CHANNEL      := xfce
+LOCALE       := ja
+custom:
+	sudo ${CURRENT_DIR}/${BUILD_SCRIPT} ${ARGS} ${SHARE_OPTION} --arch ${ARCH} -l ${LOCALE} ${CHANNEL}
