@@ -806,8 +806,8 @@ make_efi() {
     [[ "${boot_splash}" = true ]] && _use_config_name="splash"
     _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
 
-    install -d -m 0755 -- "${isofs_dir}/EFI/boot"
-    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/boot/${_bootfile#systemd-}"
+    install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
+    install -m 0644 -- "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${isofs_dir}/EFI/BOOT/${_bootfile#systemd-}"
 
     install -d -m 0755 -- "${isofs_dir}/loader/entries"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${isofs_dir}/loader/loader.conf"
@@ -850,7 +850,7 @@ make_efiboot() {
     mkdir -p "${build_dir}/efiboot"
     mount "${build_dir}/efiboot.img" "${build_dir}/efiboot"
 
-    mkdir -p "${build_dir}/efiboot/EFI/alteriso/${arch}" "${build_dir}/efiboot/EFI/boot" "${build_dir}/efiboot/loader/entries"
+    mkdir -p "${build_dir}/efiboot/EFI/alteriso/${arch}" "${build_dir}/efiboot/EFI/BOOT" "${build_dir}/efiboot/loader/entries"
     _cp "${isofs_dir}/${install_dir}/boot/${arch}/${kernel_filename}" "${build_dir}/efiboot/EFI/alteriso/${arch}/${kernel_filename}.efi"
     _cp "${isofs_dir}/${install_dir}/boot/${arch}/archiso.img" "${build_dir}/efiboot/EFI/alteriso/${arch}/archiso.img"
 
@@ -859,10 +859,10 @@ make_efiboot() {
         [[ -e "${_ucode_image}" ]] && _cp "${_ucode_image}" "${build_dir}/efiboot/EFI/alteriso/"
     done
 
-    _cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/boot/"
+    _cp "${airootfs_dir}/usr/share/efitools/efi/HashTool.efi" "${build_dir}/efiboot/EFI/BOOT/"
 
     _bootfile="$(basename "$(ls "${airootfs_dir}/usr/lib/systemd/boot/efi/systemd-boot"*".efi" )")"
-    _cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/boot/${_bootfile#systemd-}"
+    _cp "${airootfs_dir}/usr/lib/systemd/boot/efi/${_bootfile}" "${build_dir}/efiboot/EFI/BOOT/${_bootfile#systemd-}"
 
     [[ "${boot_splash}" = true ]] && _use_config_name="splash"
     sed "s|%ARCH%|${arch}|g;" "${script_path}/efiboot/${_use_config_name}/loader.conf" > "${build_dir}/efiboot/loader/loader.conf"
