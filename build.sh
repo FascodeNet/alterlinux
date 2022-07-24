@@ -671,15 +671,15 @@ make_setup_mkinitcpio() {
     local _hook
     mkdir -p "${airootfs_dir}/etc/initcpio/hooks" "${airootfs_dir}/etc/initcpio/install"
 
-    for _hook in "archiso" "archiso_shutdown" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
+    for _hook in "archiso" "archiso_pxe_common" "archiso_pxe_nbd" "archiso_pxe_http" "archiso_pxe_nfs" "archiso_loop_mnt"; do
         install -m 0644 -- "${script_path}/system/initcpio/hooks/${_hook}" "${airootfs_dir}/etc/initcpio/hooks"
         install -m 0644 -- "${script_path}/system/initcpio/install/${_hook}" "${airootfs_dir}/etc/initcpio/install"
     done
 
     sed -i "s|%COWSPACE%|${cowspace}|g" "${airootfs_dir}/etc/initcpio/hooks/archiso"
-    sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
+    #sed -i "s|/usr/lib/initcpio/|/etc/initcpio/|g" "${airootfs_dir}/etc/initcpio/install/archiso_shutdown"
     install -m 0644 -- "${script_path}/system/initcpio/install/archiso_kms" "${airootfs_dir}/etc/initcpio/install"
-    install -m 0755 -- "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
+    #install -m 0755 -- "${script_path}/system/initcpio/script/archiso_shutdown" "${airootfs_dir}/etc/initcpio"
     install -m 0644 -- "${script_path}/mkinitcpio/mkinitcpio-archiso.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
     [[ "${boot_splash}" = true ]] && cp "${script_path}/mkinitcpio/mkinitcpio-archiso-plymouth.conf" "${airootfs_dir}/etc/mkinitcpio-archiso.conf"
 
