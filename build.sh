@@ -477,7 +477,9 @@ make_pacman_conf() {
     done
 
     msg_debug "Use ${build_pacman_conf}"
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
+    sed -r \
+        -e "s|^#?\\s*CacheDir.+|CacheDir     = ${cache_dir}|g" \
+        -e   "s|^#?\\s*DBPath.+|DBPath       = ${airootfs_dir}/var/lib/pacman/|g" "${build_pacman_conf}" > "${build_dir}/pacman.conf"
 
     [[ "${nosigcheck}" = true ]] && sed -ir "s|^s*SigLevel.+|SigLevel = Never|g" "${build_pacman_conf}"
 
@@ -533,6 +535,7 @@ make_packages_repo() {
     printf "%s\n" "${_pkglist_install[@]}" >> "${build_dir}/packages.list"
 
     # Install packages on airootfs
+    mkdir -p "${airootfs_dir}/var/lib/pacman/"
     _pacstrap "${_pkglist_install[@]}"
 
     return 0
