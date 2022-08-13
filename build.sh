@@ -305,7 +305,8 @@ _make_pacman_conf() {
     # see `man 8 pacman` for further info
     pacman-conf --config "${pacman_conf}" | \
         sed "/CacheDir/d;/DBPath/d;/HookDir/d;/LogFile/d;/RootDir/d;/\[options\]/a CacheDir = ${cache_dir}
-        /\[options\]/a HookDir = ${pacstrap_dir}/etc/pacman.d/hooks/" > "${build_dir}/${buildmode}.pacman.conf"
+        /\[options\]/a HookDir = ${pacstrap_dir}/etc/pacman.d/hooks/
+        /\[options\]/a DBPath  = ${pacstrap_dir}/var/lib/pacman/" > "${build_dir}/${buildmode}.pacman.conf"
 
     [[ "${nosigcheck}" = true ]] && sed -i "/SigLevel/d; /\[options\]/a SigLebel = Never" "${pacman_conf}"
 
@@ -391,6 +392,7 @@ _make_packages() {
     [[ "${pacman_debug}" = true ]] && buildmode_pkg_list=("--debug" "${buildmode_pkg_list[@]}")
 
     # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
+    mkdir -p "${pacstrap_dir}/var/lib/pacman/"
     if [[ "${quiet}" = "y" ]]; then
         env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" "${buildmode_pkg_list[@]}" &> /dev/null
     else
