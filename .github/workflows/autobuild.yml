@@ -4,13 +4,6 @@
 name: Build Alter Image
 
 on:
-  push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
-
-  schedule:
-    - cron: '0 0 1 * *'
   workflow_dispatch:
 
 jobs:
@@ -19,7 +12,7 @@ jobs:
     container:
       image: archlinux:latest
       volumes:
-        - /home/runner/work/alterdir/uhurudir:/tmp/alterdir
+        - /home/runner/work/alterdir/alterdir:/tmp/alterdir
       options: "--privileged"
 
     steps:
@@ -62,9 +55,13 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+      - name: Set title
+        id: title
+        run: echo "::set-output name=title::Alter Linux $(date +'%Y%m%d')"
+
+      - name: Set body
+        id: body
+        run: echo "::set-output name=body::これはautobuild.ymlによって自動生成されたイメージです。"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -76,8 +73,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.date.outputs.date }}
-          name: ${{ steps.date.outputs.date }}
+          tag_name: ${{ steps.title.outputs.title }}
+          name: ${{ steps.title.outputs.title }}
+          body: ${{steps.body.outputs.body }}
           draft: false
           prerelease: false
           files: |
