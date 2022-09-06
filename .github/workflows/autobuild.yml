@@ -4,6 +4,9 @@
 name: Build Alter Image
 
 on:
+  pull_request:
+    branches: [ dev ]
+
   workflow_dispatch:
 
 jobs:
@@ -40,7 +43,7 @@ jobs:
           ./tools/keyring.sh -a
         
       - name: Build AlterLinux
-        run: ./build.sh -c zstd --noloopmod --noconfirm --cleanup xfce
+        run: ./build.sh -c zstd --noloopmod --noconfirm --cleanup plasma
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
@@ -79,6 +82,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-           alterlinux-xfce-*-x86_64.iso
+           alterlinux-plasma-*-x86_64.iso
 
 
