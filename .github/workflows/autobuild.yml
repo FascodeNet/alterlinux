@@ -24,6 +24,7 @@ jobs:
 
       - name: Modify mirrorlist
         run: |
+          env
           echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
       - name: Sync reflector
