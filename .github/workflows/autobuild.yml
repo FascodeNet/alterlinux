@@ -44,7 +44,7 @@ jobs:
           ./tools/keyring.sh -a
         
       - name: Build AlterLinux
-        run: ./build.sh -c zstd --noloopmod --noconfirm --cleanup $GITHUB_REF_NAME
+        run: ./build.sh -c zstd --bash-debug --noloopmod --noconfirm --cleanup $GITHUB_REF_NAME
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
