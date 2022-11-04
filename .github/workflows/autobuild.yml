@@ -45,12 +45,12 @@ jobs:
           ./tools/keyring.sh -a
         
       - name: Build AlterLinux
-        run: ./build.sh -c zstd --noloopmod --noconfirm --cleanup plasma
+        run: ./build.sh -c zstd --noloopmod --noconfirm --cleanup $GITHUB_REF_NAME
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: alter_x86_64
+          name: alter_x86_64_$GITHUB_REF_NAME
           path: out
 
   release:
@@ -62,7 +62,7 @@ jobs:
 
       - name: Set title
         id: title
-        run: echo "::set-output name=title::Alter Linux $(date +'%Y%m%d')"
+        run: echo "::set-output name=title::Alter Linux $GITHUB_RUN_NUMBER"
 
       - name: Set body
         id: body
@@ -71,7 +71,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: alter_x86_64
+          name: alter_x86_64_$GITHUB_REF_NAME
 
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -84,6 +84,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-           alterlinux-plasma-*-x86_64.iso
+           alterlinux-$GITHUB_REF_NAME-*-x86_64.iso
 
 
