@@ -4,7 +4,9 @@
 name: Build Alter Image
 
 on:
-  push
+  push:
+    branches:
+      - '*'
   workflow_dispatch:
 
 jobs:
