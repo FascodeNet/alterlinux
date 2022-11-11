@@ -557,7 +557,7 @@ make_packages_aur() {
     _pacstrap --asdeps --needed "${aur_helper_depend[@]}"
 
     # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${_aursh_args[@]}"
+    _run_with_pacmanconf _chroot_run "bash" "-x" "/root/aur.sh" "${_aursh_args[@]}"
 
     # Remove script
     remove "${airootfs_dir}/root/aur.sh"
