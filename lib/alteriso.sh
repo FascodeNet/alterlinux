@@ -178,7 +178,7 @@ _usage () {
 ## Check the build environment and create a directory.
 prepare_env() {
     # Check packages
-    if [[ "${nodepend}" = false ]]; then
+    if false; then
         local _check_failed=false _pkg _result=0
         _msg_info "Checking dependencies ..."
         ! pacman -Qq pyalpm > /dev/null 2>&1 && _msg_error "pyalpm is not installed." 1
