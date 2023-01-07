@@ -29,7 +29,9 @@ _channel_get_version(){
 _channel_check_version(){
     #if [[ "$(get_alteriso_version "${1%.add}")" = "${alteriso_version}" ]]; then
     [[ "${nochkver}" = true ]] && return 0
-    [[ "$(_channel_get_version "${1}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]]
+    #[[ "$(_channel_get_version "${1}" | cut -d "." -f 1)" = "$(echo "${alteriso_version}" | cut -d "." -f 1)" ]]
+
+    printf '%s\n' "${alteriso_version[@]}" | grep -qx "$(_channel_get_version "${1}" )"
 }
 
 _channel_check_arch(){
