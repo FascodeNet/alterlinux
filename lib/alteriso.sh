@@ -22,20 +22,6 @@ git(){
 }
 
 
-# Base installation (airootfs)
-_make_basefs() {
-    _msg_info "Creating ext4 image of 32GiB..."
-    truncate -s 32G -- "${pacstrap_dir}.img"
-    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${pacstrap_dir}.img" 32G
-    tune2fs -c "0" -i "0" "${pacstrap_dir}.img"
-    _msg_info "Done!"
-
-    _msg_info "Mounting ${pacstrap_dir}.img on ${pacstrap_dir}"
-    mount_airootfs
-    _msg_info "Done!"
-    return 0
-}
-
 # Create alteriso-info file
 _make_alteriso_info(){
     # iso version info
@@ -177,27 +163,6 @@ _usage () {
 
 ## Check the build environment and create a directory.
 prepare_env() {
-    # Check packages
-    if false; then
-        local _check_failed=false _pkg _result=0
-        _msg_info "Checking dependencies ..."
-        ! pacman -Qq pyalpm > /dev/null 2>&1 && _msg_error "pyalpm is not installed." 1
-        for _pkg in "${dependence[@]}"; do
-            eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
-            if (( _result == 3 )) || (( _result == 4 )); then
-                _check_failed=true
-            fi
-            _result=0
-        done
-        [[ "${_check_failed}" = true ]] && exit 1
-    fi
-
-    # Load loop kernel module
-    if [[ "${noloopmod}" = false ]]; then
-        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && _msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        lsmod | getclm 1 | grep -qx "loop" || modprobe loop
-    fi
-
     # Check work dir
     if [[ "${normwork}" = false ]]; then
         _msg_info "Deleting the contents of ${build_dir}..."
@@ -337,43 +302,6 @@ prepare_build() {
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-c")
 
     return 0
-}
-
-_make_aur() {
-    readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
-    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
-    _aursh_args=(
-        "-a" "${aur_helper_command}" -e "${aur_helper_package}"
-        "-d" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")"
-        "-p" "$(printf "%s\n" "${_pkglist_aur[@]}" | tr "\n" ",")"
-        "${makepkg_script_args[@]}" -- "${aur_helper_args[@]}"
-    )
-
-    # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
-
-    # prepare for yay
-    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${pacstrap_dir}/root/aur.sh"
-
-    # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
-    # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
-    local _pacstrap_args=()
-    [[ "${pacman_debug}" = true ]] && _pacstrap_args+=("--debug")
-    _pacstrap_args=("${aur_helper_depend[@]}")
-    if [[ "${quiet}" = "y" ]]; then
-        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}" &> /dev/null
-    else
-        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}"
-    fi
-
-    # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${_aursh_args[@]}"
-
-    # Remove script
-    remove "${pacstrap_dir}/root/aur.sh"
-
-    _msg_info "Done! Packages installed successfully."
 }
 
 _make_pkgbuild() {
