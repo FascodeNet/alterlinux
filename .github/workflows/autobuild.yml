@@ -37,7 +37,7 @@ jobs:
         run: |
           pacman -Syyu --noconfirm git sudo python3 base-devel cmake ninja qt5-base archiso arch-install-scripts pyalpm
 
-      - name: Populate keyrings
+      - name: Populate Keyrings
         run: |
           pacman-key --init
           ./tools/keyring.sh -a
