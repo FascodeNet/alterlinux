@@ -25,7 +25,7 @@ jobs:
         run: |
           echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
-      - name: Sync reflector
+      - name: Sync Reflector
         run: |
           pacman -Sy --noconfirm reflector
 
