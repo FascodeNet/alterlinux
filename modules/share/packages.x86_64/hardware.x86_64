@@ -13,8 +13,6 @@
 
 #-- drivers --#
 b43-fwcutter
-ipw2100-fw
-ipw2200-fw
 sof-firmware
 
 #-- interface support --#
