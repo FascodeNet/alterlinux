@@ -12,7 +12,6 @@
 system/mkalteriso
 system/cpp-src/mkalteriso/build/
 pkg/
-src/
 out/
 work/
 *.ignore*
