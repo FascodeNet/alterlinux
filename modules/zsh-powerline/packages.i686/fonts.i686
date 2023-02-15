@@ -7,7 +7,6 @@
 #
 # (c) 2019-2021 Fascode Network.
 #
-# kmscon packages
+# Fonts
 
-#-- Fonts --#
-nerd-fonts-source-code-pro
+ttf-sourcecodepro-nerd

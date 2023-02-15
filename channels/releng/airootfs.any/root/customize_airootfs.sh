@@ -81,6 +81,10 @@ cp -aT /etc/skel/ /root/
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
 sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist
 
+if [[ -e "/root/.automated_script.sh" ]]; then
+    chmod 755 "/root/.automated_script.sh"
+fi
+
 # Enable services.
 systemctl enable NetworkManager
 systemctl enable pacman-init.service

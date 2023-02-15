@@ -12,19 +12,15 @@
 #
 
 
-# Base installation (airootfs)
-_make_basefs() {
-    _msg_info "Creating ext4 image of 32GiB..."
-    truncate -s 32G -- "${pacstrap_dir}.img"
-    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${pacstrap_dir}.img" 32G
-    tune2fs -c "0" -i "0" "${pacstrap_dir}.img"
-    _msg_info "Done!"
-
-    _msg_info "Mounting ${pacstrap_dir}.img on ${pacstrap_dir}"
-    mount_airootfs
-    _msg_info "Done!"
-    return 0
+# gitコマンドのラッパー
+# https://stackoverflow.com/questions/71901632/fatal-unsafe-repository-home-repon-is-owned-by-someone-else
+# https://qiita.com/megane42/items/5375b54ea3570506e296
+git(){
+    command git config --global safe.directory "$script_path"
+    command git "$@"
+    command git config --global --unset safe.directory "$script_path"
 }
+
 
 # Create alteriso-info file
 _make_alteriso_info(){
@@ -165,43 +161,20 @@ _usage () {
 }
 
 
-# Check the build environment and create a directory.
+## Check the build environment and create a directory.
 prepare_env() {
-    # Check packages
-    if [[ "${nodepend}" = false ]]; then
-        local _check_failed=false _pkg _result=0
-        _msg_info "Checking dependencies ..."
-        ! pacman -Qq pyalpm > /dev/null 2>&1 && _msg_error "pyalpm is not installed." 1
-        for _pkg in "${dependence[@]}"; do
-            eval "${tools_dir}/package.py" "${_pkg}" "$( [[ "${debug}" = false ]] && echo "> /dev/null")" || _result="${?}"
-            if (( _result == 3 )) || (( _result == 4 )); then
-                _check_failed=true
-            fi
-            _result=0
-        done
-        [[ "${_check_failed}" = true ]] && exit 1
-    fi
-
-    # Load loop kernel module
-    if [[ "${noloopmod}" = false ]]; then
-        [[ ! -d "/usr/lib/modules/$(uname -r)" ]] && _msg_error "The currently running kernel module could not be found.\nProbably the system kernel has been updated.\nReboot your system to run the latest kernel." "1"
-        lsmod | getclm 1 | grep -qx "loop" || modprobe loop
-    fi
-
     # Check work dir
     if [[ "${normwork}" = false ]]; then
         _msg_info "Deleting the contents of ${build_dir}..."
         _run_cleansh
     fi
 
-    # Debug mode
-    [[ "${bash_debug}" = true ]] && set -x -v
-
-    # Show alteriso version
-    [[ -n "${gitrev-""}" ]] && _msg_debug "The version of alteriso is ${gitrev}"
-
-    # Set bootloader type
-    [[ "${boot_splash}" = true ]] && use_bootloader_type="splash" && not_use_bootloader_type="nosplash"
+    # Set gpg key
+    if [[ -n "${gpg_key}" ]]; then
+        gpg --batch --output "${work_dir}/pubkey.gpg" --export "${gpg_key}"
+        exec {ARCHISO_GNUPG_FD}<>"${build_dir}/pubkey.gpg"
+        export ARCHISO_GNUPG_FD
+    fi
 
     # 強制終了時に作業ディレクトリを削除する
     local _trap_remove_work
@@ -215,6 +188,7 @@ prepare_env() {
     return 0
 }
 
+
 # Error message
 error_exit_trap(){
     local _exit="${?}" _line="${1}" && shift 1
@@ -225,6 +199,12 @@ error_exit_trap(){
 
 # Preparation for build
 prepare_build() {
+    # Debug mode
+    [[ "${bash_debug}" = true ]] && set -x -v
+
+    # Show alteriso version
+    [[ -n "${gitrev-""}" ]] && _msg_debug "The version of alteriso is ${gitrev}"
+
     # Load configs
     load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
@@ -245,6 +225,12 @@ prepare_build() {
     modules=("${_modules[@]}")
     unset _modules
 
+    # Ignore modules
+    local _m
+    for _m in "${exclude_modules[@]}"; do
+        readarray -t modules < <(printf "%s\n" "${modules[@]}" | grep -xv "${_m}")
+    done
+
     # Check modules
     readarray -t modules < <(printf "%s\n" "${modules[@]}" | awk '!a[$0]++')
     for_module "_module_check_with_msg {}"
@@ -253,7 +239,7 @@ prepare_build() {
     for_module load_config "${module_dir}/{}/config.any" "${module_dir}/{}/config.${arch}"
     _msg_debug "Loaded modules: ${modules[*]}"
     ! printf "%s\n" "${modules[@]}" | grep -x "share" >/dev/null 2>&1 && _msg_warn "The share module is not loaded."
-    ! printf "%s\n" "${modules[@]}" | grep -x "base" >/dev/null 2>&1 && msg_error "The base module is not loaded." 1
+    ! printf "%s\n" "${modules[@]}" | grep -x "base" >/dev/null 2>&1 && _msg_error "The base module is not loaded." 1
 
     # Set kernel
     [[ "${customized_kernel}" = false ]] && kernel="${defaultkernel}"
@@ -270,15 +256,28 @@ prepare_build() {
     [[ ! -d "${script_path}/.git" ]] && [[ "${gitversion}" = true ]] && _msg_error "There is no git directory. You need to use git clone to use this feature." "1"
     [[ "${gitversion}" = true ]] && iso_version="${iso_version}-${gitrev}"
 
+    # Generate tar file name
+    tar_ext=""
+    case "${tar_comp}" in
+        "gzip" ) tar_ext="gz"                        ;;
+        "zstd" ) tar_ext="zst"                       ;;
+        "xz" | "lzo" | "lzma") tar_ext="${tar_comp}" ;;
+    esac
+
     # Generate iso file name
     local _channel_name="${channel_name%.add}-${locale_version}" 
     iso_filename="${iso_name}-${_channel_name}-${iso_version}-${arch}.iso"
-    tar_filename="${iso_filename%.iso}.tar.gz"
+    tar_filename="${iso_filename%.iso}.tar.${tar_ext}"
     [[ "${nochname}" = true ]] && iso_filename="${iso_name}-${iso_version}-${arch}.iso"
     _msg_debug "Iso filename is ${iso_filename}"
 
     # check bool
     check_bool boot_splash cleaning noconfirm nodepend customized_username customized_password noloopmod nochname tarball noiso noaur customized_syslinux norescue_entry debug bash_debug nocolor msgdebug noefi nosigcheck gitversion
+
+    # Check architecture for each channel
+    #local _exit=0
+    #bash "${tools_dir}/channel.sh" --version "${alteriso_version}" -a "${arch}" -n -b check "${channel_name}" || _exit="${?}"
+    #( (( "${_exit}" != 0 )) && (( "${_exit}" != 1 )) ) && _msg_error "${channel_name} channel does not support current architecture (${arch})." "1"
 
     # Run with tee
     if [[ ! "${logging}" = false ]]; then
@@ -302,51 +301,7 @@ prepare_build() {
     [[ "${bash_debug}"   = true ]] && makepkg_script_args+=("-x")
     [[ "${pacman_debug}" = true ]] && makepkg_script_args+=("-c")
 
-    # Set bootmodes
-    { [[ "${tarball}" = true ]] && ! printf "%s\n" "${buildmodes[@]}" | grep -qx "bootstrap"; } && buildmodes+=("tarball")
-    [[ "${noiso}" = true ]] && readarray -t buildmodes < <(printf "%s\n" "${buildmodes[@]}" | grep -xv "iso")
-
-    # Set squashfs option
-    airootfs_image_tool_options=(-noappend -comp "${sfs_comp}" "${sfs_comp_opt[@]}")
-
-    _msg_info "Done build preparation!"
-}
-
-_make_aur() {
-    readarray -t _pkglist_aur < <("${tools_dir}/pkglist.sh" --aur "${pkglist_args[@]}")
-    _pkglist_aur=("${_pkglist_aur[@]}" "${norepopkg[@]}")
-    _aursh_args=(
-        "-a" "${aur_helper_command}" -e "${aur_helper_package}"
-        "-d" "$(printf "%s\n" "${aur_helper_depends[@]}" | tr "\n" ",")"
-        "-p" "$(printf "%s\n" "${_pkglist_aur[@]}" | tr "\n" ",")"
-        "${makepkg_script_args[@]}" -- "${aur_helper_args[@]}"
-    )
-
-    # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "\n# AUR packages.\n#\n" >> "${build_dir}/packages.list"
-    printf "%s\n" "${_pkglist_aur[@]}" >> "${build_dir}/packages.list"
-
-    # prepare for yay
-    cp -rf --preserve=mode "${script_path}/system/aur.sh" "${pacstrap_dir}/root/aur.sh"
-
-    # Unset TMPDIR to work around https://bugs.archlinux.org/task/70580
-    # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
-    local _pacstrap_args=()
-    [[ "${pacman_debug}" = true ]] && _pacstrap_args+=("--debug")
-    _pacstrap_args=("${aur_helper_depend[@]}")
-    if [[ "${quiet}" = "y" ]]; then
-        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}" &> /dev/null
-    else
-        env -u TMPDIR pacstrap -C "${build_dir}/${buildmode}.pacman.conf" -c -G -M -- "${pacstrap_dir}" --asdeps --needed "${_pacstrap_args[@]}"
-    fi
-
-    # Run aur script
-    _run_with_pacmanconf _chroot_run "bash" "/root/aur.sh" "${_aursh_args[@]}"
-
-    # Remove script
-    remove "${pacstrap_dir}/root/aur.sh"
-
-    _msg_info "Done! Packages installed successfully."
+    return 0
 }
 
 _make_pkgbuild() {
@@ -358,11 +313,11 @@ _make_pkgbuild() {
     mkdir -p "${pacstrap_dir}/pkgbuilds/"
     for _dir in $(find "${_pkgbuild_dirs[@]}" -type f -name "PKGBUILD" -print0 2>/dev/null | xargs -0 -I{} realpath {} | xargs -I{} dirname {}); do
         _msg_info "Find $(basename "${_dir}")"
-        cp -r "${_dir}" "${pacstrap_dir}/pkgbuilds/"
+        _cp "${_dir}" "${pacstrap_dir}/pkgbuilds/"
     done
     
     # copy buold script
-    cp -rf --preserve=mode "${script_path}/system/pkgbuild.sh" "${pacstrap_dir}/root/pkgbuild.sh"
+    _cp "${script_path}/system/pkgbuild.sh" "${pacstrap_dir}/root/pkgbuild.sh"
 
     # Run build script
     _run_with_pacmanconf _chroot_run "bash" "/root/pkgbuild.sh" "${makepkg_script_args[@]}" "/pkgbuilds"
@@ -370,6 +325,6 @@ _make_pkgbuild() {
     # Remove script
     remove "${pacstrap_dir}/root/pkgbuild.sh"
 
-    _msg_info "Done! Packages built successfully."
+    return 0
 }
 

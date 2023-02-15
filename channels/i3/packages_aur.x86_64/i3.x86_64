@@ -10,4 +10,7 @@
 # i3wm relation packages
 
 # i3wm
-polybar
+#polybar
+
+# terminal emulator
+sakura

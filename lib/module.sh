@@ -31,7 +31,12 @@ _module_check(){
 
 _module_check_with_msg(){
     _msg_debug -n "Checking ${1} module ... "
-    _module_check "${1}" || ([[ "${debug}" = true ]] && echo; _msg_error "Module ${1} is not available." "1" )&& echo "${module_dir}/${1}"
+    [[ "${debug}" = true ]] && echo
+    if ! _module_check "${1}"; then
+        _msg_error "Module ${1} is not available." "1"
+    else
+        _msg_debug "Load ${module_dir}/${1}"
+    fi
 }
 
 _module_list(){
