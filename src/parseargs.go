@@ -1,8 +1,8 @@
-package src
+package main
 
 import flag "github.com/spf13/pflag"
 
-func ParseArgs(args []string)(*Config, error){
+func ParseArgs(args []string) (*Config, error) {
 	conf := &BuildConfig
 	defConf := &DefaultConfig
 

@@ -1,8 +1,5 @@
-package src
+package main
 
-
-type Module struct{
+type Module struct {
 	Channel
 }
-
-

@@ -1,4 +1,3 @@
-package src
+package main
 
 type Path string
-

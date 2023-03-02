@@ -1,14 +1,12 @@
-package src
+package main
 
-import(
-	//flag "github.com/spf13/pflag"
-)
+//flag "github.com/spf13/pflag"
 
 var (
 	DefaultConfig Config
-	BuildConfig Config
+	BuildConfig   Config
 )
 
-func Run(){
+func main(){
 	
 }

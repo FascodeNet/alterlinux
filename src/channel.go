@@ -1,15 +1,14 @@
-package src
+package main
 
-type Channel struct{
-	Config map[*Architecture]*Config
-	Version string
-	Arches []*Architecture
+type Channel struct {
+	Config      map[*Architecture]*Config
+	Version     string
+	Arches      []*Architecture
 	Description string
-	Airootfs Path
+	Airootfs    Path
 }
 
-
 // ディレクトリからチャンネルを読み取ります
-func MakeChannel(dir Path)(*Channel, error){
+func MakeChannel(dir Path) (*Channel, error) {
 	return nil, nil
 }
