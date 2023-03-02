@@ -1,6 +1,6 @@
 package conf
 
-type BuildConf struct {
+type Build struct {
 	Arch               string
 	OSName             string
 	IsoName            string
@@ -32,32 +32,30 @@ type BuildConf struct {
 	Memtest86          bool
 	CowSpace           string
 	LocaleName         string
-	NoChName       bool
-	NoCheckVersion bool
-	NoEfi          bool
-	NoISO          bool
-	NoAur          bool
-	NoPkgBuild     bool
-	NoSigCheck     bool
-	NoRmWork       bool
+	NoChName           bool
+	NoCheckVersion     bool
+	NoEfi              bool
+	NoISO              bool
+	NoAur              bool
+	NoPkgBuild         bool
+	NoSigCheck         bool
+	NoRmWork           bool
 
-	GitVersion     bool
+	GitVersion bool
 }
 
-
-
-type Debug struct{
-	Debug          bool
-	PacmanDebug    bool
-	Cleaning           bool
-	NoConfirm          bool
-	NoColor            bool
-	WorkDir            string
-	OutDir             string
+type Debug struct {
+	Debug       bool
+	PacmanDebug bool
+	Cleaning    bool
+	NoConfirm   bool
+	NoColor     bool
+	WorkDir     string
+	OutDir      string
 	//Nodepend bool
 }
 
-type Config struct{
+type Config struct {
 	Degug Debug
-	Build BuildConf
+	Build Build
 }

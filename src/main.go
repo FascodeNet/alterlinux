@@ -9,6 +9,6 @@ var (
 	BuildConfig   conf.Config
 )
 
-func main(){
-	
+func main() {
+
 }

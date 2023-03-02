@@ -1,5 +1,3 @@
 package conf
 
-
-
-type Module BuildConf
+type Module Build

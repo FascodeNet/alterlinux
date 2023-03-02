@@ -1,10 +1,9 @@
 package main
 
 import (
-	flag "github.com/spf13/pflag"
 	"github.com/FascodeNet/alterlinux/src/conf"
+	flag "github.com/spf13/pflag"
 )
-
 
 func ParseArgs(args []string) (*conf.Config, error) {
 	config := &BuildConfig
