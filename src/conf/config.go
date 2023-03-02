@@ -1,6 +1,6 @@
 package conf
 
-type Build struct {
+type BuildConf struct {
 	Arch               string
 	OSName             string
 	IsoName            string
@@ -59,5 +59,5 @@ type Debug struct{
 
 type Config struct{
 	Degug Debug
-	Build Build
+	Build BuildConf
 }
