@@ -1,3 +1,3 @@
-package main
+package conf
 
 type Path string

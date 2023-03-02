@@ -1,4 +1,4 @@
-package main
+package conf
 
 type Architecture string
 

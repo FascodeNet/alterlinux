@@ -1,6 +1,6 @@
-package main
+package conf
 
-type Config struct {
+type Build struct {
 	Arch               string
 	OSName             string
 	IsoName            string
@@ -9,8 +9,6 @@ type Config struct {
 	IsoApplication     string
 	IsoVersion         string
 	InstallDir         string
-	WorkDir            string
-	OutDir             string
 	GpgKey             string
 	BootSplash         bool
 	ThemeName          string
@@ -34,10 +32,6 @@ type Config struct {
 	Memtest86          bool
 	CowSpace           string
 	LocaleName         string
-	Cleaning           bool
-	NoConfirm          bool
-	NoColor            bool
-	//Nodepend bool
 	NoChName       bool
 	NoCheckVersion bool
 	NoEfi          bool
@@ -46,7 +40,24 @@ type Config struct {
 	NoPkgBuild     bool
 	NoSigCheck     bool
 	NoRmWork       bool
+
+	GitVersion     bool
+}
+
+
+
+type Debug struct{
 	Debug          bool
 	PacmanDebug    bool
-	GitVersion     bool
+	Cleaning           bool
+	NoConfirm          bool
+	NoColor            bool
+	WorkDir            string
+	OutDir             string
+	//Nodepend bool
+}
+
+type Config struct{
+	Degug Debug
+	Build Build
 }

@@ -1,4 +1,6 @@
-package main
+package conf
+
+
 
 type Package string
 
