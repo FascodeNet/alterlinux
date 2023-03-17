@@ -1,0 +1,129 @@
+name: Build Alter Image (channels == xfce)
+
+on:
+  pull_request:
+    branches: [ dev ]
+
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      volumes:
+        - /github/home:/root/home
+      options: "--privileged"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Modify mirrorlist
+        run: |
+          echo 'Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirror.misakamikoto.network/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://ftp.lysator.liu.se/pub/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://ftp.jaist.ac.jp/pub/Linux/ArchLinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirror.moson.org/arch/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://theswissbay.ch/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://ftp.acc.umu.se/mirror/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirror.lyrahosting.com/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirror.0x.sg/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirrors.melbourne.co.uk/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirror.bytemark.co.uk/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://mirrors.nic.cz/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://ftp.halifax.rwth-aachen.de/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+          echo 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+
+      - name: Install Required Packages
+        run: |
+          pacman -Syyu --noconfirm --overwrite="*" procps gcc neofetch unzip p7zip curl rsync wget git make fakeroot sudo python3 base-devel cmake ninja qt5-base arch-install-scripts pyalpm squashfs-tools libisoburn dosfstools
+
+      - name: Information about running specs
+        run: |
+          uname -a 2> /dev/null || true
+          lspci -v | grep VGA 2> /dev/null || true
+          lspci -v | grep Ethernet 2> /dev/null || true
+          lspci -v | grep Audio 2> /dev/null || true
+          cat /proc/cpuinfo 2> /dev/null || true
+          lscpu 2> /dev/null || true
+          neofetch 2> /dev/null || true
+          free -tm 2> /dev/null || true
+          lsblk 2> /dev/null || true
+          lsusb -v 2> /dev/null || true
+          lspci -v 2> /dev/null || true
+          gcc -march=native -Q --help=target 2> /dev/null || true
+          lshw -short 2> /dev/null || true
+
+      - name: Populate keyrings
+        run: |
+          pacman-key --init
+          pacman-key --populate
+
+      - name: Install AlterLinux keys and Fetch alterlinux-mirrorlist (one from aachen, another from Hayao)
+        run: |
+          pacman-key --recv-key F50544048389DA36 --keyserver keyserver.ubuntu.com
+          pacman-key --lsign-key F50544048389DA36
+          # ./tools/keyring.sh -a
+          wget -O alterlinux-keyring-latest-any.pkg.tar.zst https://ftp.halifax.rwth-aachen.de/osdn/storage/g/s/se/serene/repo/alter-stable/x86_64/alterlinux-keyring-20201117-2-any.pkg.tar.zst && \
+          pacman --noconfirm --overwrite="*" -U alterlinux-keyring-latest-any.pkg.tar.zst
+          wget -P /etc/pacman.d/ -O mirrorlist-alter https://gist.github.com/Hayao0819/4a95c4928cf0f17672a03bdc398d9e83
+
+      - name: Build AlterLinux (xfce)
+        run: |
+          ./build.sh --noloopmod --noconfirm --cleanup xfce
+
+      - name: Prepare artifact
+        run: |
+          pushd ./out
+
+          # check geq 1890(MiB) -> 7za a <dst> <src> -mx=0 -v630m if oversized
+          find . -mindepth 1 -type f -size +1890M 2> /dev/null | \
+             xargs -I{} 7za a {}.7z {} -mx=0 -v630m \
+             || true
+
+          # after then delete geq 1890(MiB)
+          find . -mindepth 1 -type f -size +1890M -delete 2> /dev/null || true
+
+          popd
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: assets-for-download
+          path: out
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: label
+        id: label
+        run: |
+          echo "tag_name=$(echo "$(date +'%s' | cut -c 1-6)00000")" >> $GITHUB_OUTPUT
+          echo "name=$(date)" >> $GITHUB_OUTPUT
+          echo "body=$(echo "Used VM built on $(uname -a)")" >> $GITHUB_OUTPUT
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: assets-for-download
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.label.outputs.tag_name }}
+          name: ${{ steps.label.outputs.name }}
+          body: ${{ steps.label.outputs.body }}
+          draft: false
+          prerelease: false
+          files: |
+           [0-z]*.iso.*[0-z]

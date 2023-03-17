@@ -4,6 +4,9 @@ script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
 
 channels=(
 ##  Current official channel
+    "madeleine"
+    "selene"
+    "xfce-pro"
     "xfce"
     "i3"
     "plasma"
@@ -13,9 +16,7 @@ channels=(
     "cinnamon"
 
 ## They are unstable channel
-#   "xfce-pro"
-#   "gnome"
-#   "serene"
+    "gnome"
 )
 
 architectures=("x86_64" "i686")
@@ -75,7 +76,7 @@ trap_exit() {
 build() {
     local _exit_code=0 _options=("${share_options[@]}")
 
-    _options+=("--arch" "${arch}" "--lang" "${lang}" "--out" "${out_dir}/${cha}/${lang}" "${cha}")
+    _options+=("--arch" "${arch}" "--lang" "${lang}" "--out" "${out_dir}/${cha}/${lang}" "${cha}" "--noloopmod" "--noconfirm" "--cleanup")
 
     if [[ "${simulation}" = false ]] && [[ "${remove_cache}" = true ]]; then
         msg_info "Removing package cache for ${arch}"

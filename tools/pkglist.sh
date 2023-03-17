@@ -228,8 +228,8 @@ if (( "${#additional_exclude_pkg[@]}" >= 1 )); then
 fi
 
 #-- パッケージリストをソートし重複を削除 --#
-#_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort | uniq | tr "\n" " "))
-readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort | uniq | grep -v ^$)
+#_pkglist=($(printf "%s\n" "${_pkglist[@]}" | sort -V | uniq | tr "\n" " "))
+readarray -t _pkglist < <(printf "%s\n" "${_pkglist[@]}" | sort -V | uniq | grep -v ^$)
 
 #-- excludeに記述されたパッケージを除外 --#
 for _pkg in "${_excludelist[@]}"; do

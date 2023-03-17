@@ -1,0 +1,25 @@
+# Maintainer: robertfoster
+
+pkgname='eselect'
+pkgver='1.4.21'
+pkgrel='1'
+pkgdesc="Gentoo's multi-purpose configuration and management tool"
+url="http://www.gentoo.org/proj/en/eselect/"
+arch=('any')
+license=('GPL')
+source=("git://anongit.gentoo.org/proj/eselect.git")
+checkdepends=('bash')
+optdepends=('rsync' 'git')
+md5sums=('SKIP')
+
+build(){
+    cd "${srcdir}/${pkgname}"
+    ./autogen.bash
+    ./configure --prefix=/usr
+    make
+}
+
+package(){
+    cd "${srcdir}/${pkgname}"
+    DESTDIR="${pkgdir}" make install
+}

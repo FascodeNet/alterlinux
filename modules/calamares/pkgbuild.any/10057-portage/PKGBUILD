@@ -1,0 +1,32 @@
+# Maintainer: robertfoster
+# Compile Flags (env/*.conf) https://github.com/orsonteodoro/gentoo-cflags
+# First Read as Handbook https://leo3418.github.io/2020/11/20/gentoo-hands-on.html
+# CosmicMod https://github.com/cosmicoz/CosmicMod
+# WSL https://github.com/VPraharsha03/GentooWSL2
+# data/config/repos.conf https://github.com/pkgcore/pkgcore
+# More https://github.com/flatcar-linux/portage-stable
+# All (profiles/use.local.desc) https://github.com/DestroyFX/nxtoo-portage
+
+pkgname=portage
+pkgver='3.0.45.2'
+pkgrel='1'
+pkgdesc="Gentoo's package management system"
+url="http://www.gentoo.org/proj/en/portage/index.xml"
+arch=('any')
+license=('GPL')
+checkdepends=('bash' 'python' 'rsync')
+makedepends=('mailutils')
+optdepends=('git' 'doxygen' 'docbook-xsl' 'xmlto')
+source=("https://github.com/gentoo/portage/archive/refs/tags/${pkgname}-${pkgver}.tar.gz")
+md5sums=('SKIP')
+install="${pkgname}.install"
+
+build(){
+    cd "${srcdir}/portage-${pkgname}-${pkgver}"
+    python setup.py build build_ext --portage-ext-modules
+}
+
+package(){
+    cd "${srcdir}/portage-${pkgname}-${pkgver}"
+    python setup.py install --root="${pkgdir}" --sbindir=/usr/bin
+}

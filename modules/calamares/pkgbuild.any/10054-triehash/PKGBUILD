@@ -1,0 +1,17 @@
+# Maintainer: MarkWalters.pw
+pkgname='triehash'
+srcver='0.3-3'
+pkgver='0.3_3'
+pkgrel='1'
+pkgdesc='Generator for order-preserving minimal perfect hash functions in C'
+arch=('any')
+url='https://github.com/julian-klode/triehash'
+license=('MIT')
+depends=('perl')
+source=("https://github.com/julian-klode/triehash/archive/refs/tags/debian/${srcver}.tar.gz")
+sha512sums=('SKIP')
+
+package() {
+  cd "${srcdir}/${pkgname}-debian-${srcver}"
+  install -Dm755 "${pkgname}.pl" "${pkgdir}/usr/bin/${pkgname}"
+}

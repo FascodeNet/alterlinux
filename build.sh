@@ -535,6 +535,18 @@ make_packages_repo() {
     # Install packages on airootfs
     _pacstrap "${_pkglist_install[@]}"
 
+    local _airootfs _airootfs_script_options _script _script_list _airootfs_list=() _main_script
+
+    for_module '_airootfs_list+=("${module_dir}/{}/airootfs.any" "${module_dir}/{}/airootfs.${arch}")'
+    _airootfs_list+=("${channel_dir}/airootfs.any" "${channel_dir}/airootfs.${arch}")
+
+    for _airootfs in "${_airootfs_list[@]}";do
+        if [[ -d "${_airootfs}" ]]; then
+            msg_debug "Copying airootfs ${_airootfs} ..."
+            _cp "${_airootfs}"/* "${airootfs_dir}"
+        fi
+    done
+
     return 0
 }
 
@@ -600,7 +612,7 @@ make_customize_airootfs() {
     for _airootfs in "${_airootfs_list[@]}";do
         if [[ -d "${_airootfs}" ]]; then
             msg_debug "Copying airootfs ${_airootfs} ..."
-            _cp "${_airootfs}"/* "${airootfs_dir}"
+            #_cp "${_airootfs}"/* "${airootfs_dir}"
         fi
     done
 
@@ -929,7 +941,6 @@ make_prepare() {
 
     # Create packages list
     msg_info "Creating a list of installed packages on live-enviroment..."
-    pacman-key --init
     pacman -Q --sysroot "${airootfs_dir}" | tee "${isofs_dir}/${install_dir}/pkglist.${arch}.txt" "${build_dir}/packages-full.list" > /dev/null
 
     # Cleanup
@@ -1201,8 +1212,8 @@ show_settings
 run_once make_pacman_conf
 run_once make_basefs # Mount airootfs
 run_once make_packages_repo
-[[ "${noaur}" = false ]] && run_once make_packages_aur
 [[ "${nopkgbuild}" = false ]] && run_once make_pkgbuild
+[[ "${noaur}" = false ]] && run_once make_packages_aur
 run_once make_customize_airootfs
 run_once make_setup_mkinitcpio
 [[ "${tarball}" = true ]] && run_once make_tarball

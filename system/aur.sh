@@ -15,9 +15,10 @@ pacman_debug=false
 pacman_args=()
 failedpkg=()
 remove_list=()
-aur_helper_depends=("go")
-aur_helper_command="yay"
-aur_helper_package="yay"
+aur_helper_package='paru-bin'
+aur_helper_command="${aur_helper_package%-bin}"
+aur_helper_depends=('pacman' 'git' 'jansson' 'cargo')
+aur_helper_args=()
 aur_helper_args=()
 pkglist=()
 
@@ -122,7 +123,7 @@ install_aur_helper(){
         for _pkg in "${aur_helper_depends[@]}"; do
             if ! pacman -Qq "${_pkg}" > /dev/null 2>&1 | grep -q "${_pkg}"; then
                 # --asdepsをつけているのでaur.shで削除される --neededをつけているので明示的にインストールされている場合削除されない
-                pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
+                pacman -S --asdeps --needed --overwrite="*" "${pacman_args[@]}" "${_pkg}"
                 #remove_list+=("${_pkg}")
             fi
         done
@@ -130,11 +131,11 @@ install_aur_helper(){
         # Build
         sudo -u "${aur_username}" git clone "https://aur.archlinux.org/${aur_helper_package}.git" "/tmp/${aur_helper_package}"
         cd "/tmp/${aur_helper_package}"
-        sudo -u "${aur_username}" makepkg --ignorearch --clean --cleanbuild --force --skippgpcheck --noconfirm --syncdeps
+        sudo -u "${aur_username}" makepkg -i --noconfirm
 
         # Install
         for _pkg in $(cd "/tmp/${aur_helper_package}"; sudo -u "${aur_username}" makepkg --packagelist); do
-            pacman "${pacman_args[@]}" -U "${_pkg}"
+            pacman -U --needed --overwrite="*" "${pacman_args[@]}" "${_pkg}"
         done
 
         # Remove debtis

@@ -105,13 +105,13 @@ if (( "${#pkgbuild_dirs[@]}" != 0 )); then
         if (( ${#depends[@]} + ${#makedepends[@]} != 0 )); then
             for _pkg in "${depends[@]}" "${makedepends[@]}"; do
                 if pacman -Ssq "${_pkg}" | grep -x "${_pkg}" 1> /dev/null; then
-                    pacman -S --asdeps --needed "${pacman_args[@]}" "${_pkg}"
+                    pacman -S --asdeps --needed --overwrite="*" "${pacman_args[@]}" "${_pkg}"
                 fi
             done
         fi
-        run_user makepkg -fACcs --noconfirm --skippgpcheck
+        run_user makepkg -i --noconfirm
         for pkg in $(run_user makepkg -f --packagelist); do
-            pacman --needed "${pacman_args[@]}" -U "${pkg}"
+            pacman -U --needed --overwrite="*" "${pacman_args[@]}" "${pkg}"
         done
         cd - >/dev/null
     done

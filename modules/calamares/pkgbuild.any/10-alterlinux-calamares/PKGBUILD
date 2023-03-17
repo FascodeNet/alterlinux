@@ -1,3 +1,4 @@
+# will requires; 'qt5-styleplugins'
 # Maintainer: lap1sid <development@fascode.net>
 
 pkgname=alterlinux-calamares
@@ -10,10 +11,23 @@ arch=('i686' 'x86_64')
 license=(GPL)
 url="https://github.com/FascodeNet/alterlinux-calamares"
 license=('LGPL')
-depends=('kconfig' 'kcoreaddons' 'kiconthemes' 'ki18n' 'kio' 'solid' 'yaml-cpp' 'kpmcore'
-         'boost-libs' 'hwinfo' 'qt5-svg' 'polkit-qt5' 'gtk-update-icon-cache' 'plasma-framework'
-         'qt5-xmlpatterns' 'squashfs-tools' 'ckbcomp' 'libffi')
-makedepends=('extra-cmake-modules' 'qt5-tools' 'qt5-translations' 'git' 'boost' 'ninja')
+checkdepends=('linux-api-headers' 'python' 'libatasmart' 'icu' 'mkinitcpio' 'rsync' 'squashfs-tools' 'squashfuse')
+depends=( 'libffi' 'icu' 'fftw' 'qt5-base' 'qt5-declarative' 'qt5-multimedia' \
+          'qt5-svg' 'qt5-webengine' 'yaml-cpp' 'networkmanager' 'upower' \
+          'kcoreaddons' 'kconfig' 'kpmcore' 'kio' 'ki18n' 'kservice' 'kparts' 'kiconthemes' 'kwidgetsaddons' \
+          'ckbcomp' 'cryptsetup' 'qt5-xmlpatterns' 'doxygen' 'dmidecode' 'qt5-quickcontrols2' 'qt5-quickcontrols' \
+          'gptfdisk' 'hwinfo' 'udisks2' 'solid' 'libpwquality' 'polkit-qt5' \
+          'python-jsonschema' 'python-yaml' 'boost-libs' 'boost' 'extra-cmake-modules' 'yaml-cpp' \
+          'gtk-update-icon-cache' 'qt5-tools' )
+makedepends=( 'parted' 'fatresize' 'yaml-cpp' \
+              'git' 'cmake' 'extra-cmake-modules' 'qt5-tools' 'qt5-translations' 'boost-libs' 'boost' \
+              'python-jsonschema' 'python-pyaml' 'python-unidecode' 'ninja' )
+optdepends=( 'systemd' \
+             'qt5-tools' 'libpwquality' 'git' 'solid' 'partitionmanager' \
+             'kconfig' 'ki18n' 'kio' 'kdbusaddons' 'kparts' 'kpackage' 'kiconthemes' \
+             'qt5-xmlpatterns' 'qt5-translations' 'qt5-svg' 'gtk-update-icon-cache' 'qt5-location' \
+             'appstream-qt' 'plasma-framework' )
+
 backup=(
         'usr/share/calamares/modules/bootloader.conf'
         'usr/share/calamares/modules/displaymanager.conf'
@@ -74,4 +88,7 @@ package() {
     mv "$pkgdir/usr/share/calamares/modules/services-systemd.conf" "$pkgdir/usr/share/calamares/modules/services.conf"
     sed -i -e 's/-systemd//' "$pkgdir/usr/lib/calamares/modules/services/module.desc"
     sed -i -e 's/-systemd//' "$pkgdir/usr/share/calamares/settings.conf"
+
+    # bloat
+    rm -f "$pkgdir/usr/share/calamares/modules/packages.conf"
 }

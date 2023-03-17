@@ -8,14 +8,29 @@
 #
 
 # Replace wallpaper.
-:<<DISABLED
-if [[ -f /usr/share/backgrounds/xfce/xfce-stripes.png ]]; then
-    remove /usr/share/backgrounds/xfce/xfce-stripes.png
-    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
-fi
-[[ -f /usr/share/backgrounds/alter.png ]] && chmod 644 /usr/share/backgrounds/alter.png
-DISABLED
+:<< DISABLED
+if [[ -d /usr/share/backgrounds/xfce/ ]]; then
+    # blaot default
+    remove /usr/share/backgrounds/xfce/xfce-*.{jpg,png,svg}
 
+    # replace alter-nochr
+    ln -s /usr/share/backgrounds/alter-nochr.png /usr/share/backgrounds/xfce/xfce-verticals.png
+
+    # replace alter
+    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-stripes.png
+    ln -s /usr/share/backgrounds/alter.png /usr/share/backgrounds/xfce/xfce-shapes.svg
+
+    # replace alter-jiju
+    ln -s /usr/share/backgrounds/alter-jiju.png /usr/share/backgrounds/xfce/xfce-blue.png
+    ln -s /usr/share/backgrounds/alter-jiju.png /usr/share/backgrounds/xfce/xfce-leaves.svg
+
+    # replace alter-old
+    ln -s /usr/share/backgrounds/alter-old.png /usr/share/backgrounds/xfce/xfce-teal.png
+    ln -s /usr/share/backgrounds/alter-old.png /usr/share/backgrounds/xfce/xfce-flower.svg
+fi
+
+    find /usr/share/backgrounds -mindepth 1 -maxdepth 1 -type f -name "alter*" 2> /dev/null | xargs -n1 chmod 644
+DISABLED
 
 # Replace right menu
 :<< DISABLED
