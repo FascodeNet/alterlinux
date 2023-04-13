@@ -40,13 +40,67 @@ _err_unknown(){
 
 _err_noarg(){
     msg_err "Missing argument: $1"
+    exit 1
 }
 
 parsearg(){
-    local _args=("$@")
+    local _args=("$@") _noarg=()
     local _current="" _arg="" _var="" _setarg=false
     while [[ -n "$1" ]]; do
         _current="$1" _arg="$2" _var="" _setarg=false
+
+        if [[ "$_current" = "--" ]]; then
+            shift 1
+            _noarg=("$@")
+            set -- "${_noarg[@]}"
+            break
+        fi
+
+        if [[ "$_current" = "-"* ]] && ! [[ "$_current" = "--"* ]]; then
+            _current="${_current#"-"}"
+            local _shorts=()
+            readarray -t _shorts < <(grep -o . <<< "$_current") # 1文字ずつsplit
+
+
+            # 連結したショートオプションを分解
+            for _s in "${_shorts[@]}"; do
+                # 定義されている場合
+                local _p="${short_alias["${_s}"]}" # エイリアス置き換え
+
+                # エイリアスが存在しているなら
+                if [[ -n "${_p-""}"  ]]; then
+                    if [[ -n "${long_option_arg["$_p"]}" ]]; then
+                        _var="${long_option_arg["$_p"]}"
+
+                        # 連結したロングオプションの末尾
+                        if [[ "$_current" = *"$_s" ]] && ! [[ "$_arg" = "-"* ]]; then
+                            _setarg=true
+                        else
+                            _err_noarg "-${_s}"
+                        fi
+                    elif [[ -n "${long_option_noarg["$_p"]}" ]]; then
+                        _var="${long_option_noarg["$_p"]}"
+                        _setarg=false
+                    else
+                        _err_unknown "-${_s}"
+                    fi
+
+                    # 変数を設定
+                    if [[ "$_setarg" = true ]]; then
+                        printf -v "$_var" "%s" "$_arg"
+                        shift 2
+                    else
+                        printf -v "$_var" true
+                        shift 1
+                    fi
+                else
+                    _err_unknown "-${_s}"
+                fi
+            done
+
+            continue
+        fi
+
         if [[ "$_current" = "--"* ]]; then
             #-- ロングオプション --#
             _current="${_current#"--"}"  # 先頭の--を削除
