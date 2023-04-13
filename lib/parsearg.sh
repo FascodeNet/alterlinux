@@ -18,7 +18,7 @@ declare -A short_alias=(
     ["w"]="work"
 )
 
-# ロングオプションと
+# ロングオプションと代入先の変数名
 declare -A long_option_arg=(
     ["arch"]="arch"
     ["comp-type"]="sfs_comp"
@@ -52,7 +52,6 @@ parsearg(){
         if [[ "$_current" = "--" ]]; then
             shift 1
             _noarg=("$@")
-            set -- "${_noarg[@]}"
             break
         fi
 
@@ -130,6 +129,10 @@ parsearg(){
                 shift 1
             fi
         fi
-    done
 
+        _noarg+=("$1")
+        shift 1
+    done
+    
+    printf "%s\n" "${_noarg[@]}"
 }
