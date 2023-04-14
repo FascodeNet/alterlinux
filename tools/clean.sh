@@ -11,20 +11,11 @@ noconfirm=false
 nocolor=false
 
 
-# 設定ファイルを読み込む
-# load_config [file1] [file2] ...
-load_config() {
-    local _file
-    for _file in "${@}"; do
-        if [[ -f "${_file}" ]]; then
-            source "${_file}"
-        fi
-    done
-}
-
 work_dir="$(
-    load_config "${script_path}/default.conf"
-    load_config "${script_path}/custom.conf"
+    # shellcheck source=../default.conf
+    source "${script_path}/default.conf"
+    # shellcheck source=../custom.conf disable=SC1091
+    source "${script_path}/custom.conf" || true
     cd "${script_path}"
     realpath "${work_dir}"
 )"
@@ -33,6 +24,7 @@ work_dir="$(
 msg_common(){
     local _msg_opts=("-a" "clean.sh") _msg_type="${1}" && shift 1
     [[ "${1}" = "-n" ]] && _msg_opts+=("-o" "-n") && shift 1
+    # shellcheck disable=SC2031
     [[ "${nocolor}" = true ]] && _msg_opts+=("-n")
     "${script_path}/tools/msg.sh" "${_msg_opts[@]}" "${_msg_type[@]}" "${1}"
     [[ -n "${2:-}" ]] && exit "${2}"

@@ -15,7 +15,7 @@
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-arch="$(uname -m)"
+#arch="$(uname -m)"
 archlinux32_repo="http://mirror.juniorjpdj.pl/archlinux32/i486/core/"
 
 # Set pacman.conf when build alterlinux
@@ -88,7 +88,7 @@ checkpkg() {
 
 run() {
     msg_info "Running ${*}"
-    eval "${@}"
+    "${@}"
 }
 
 

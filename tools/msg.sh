@@ -4,9 +4,9 @@ set -eu
 
 msgsh="$(cd "$(dirname "${0}")" || exit 1 ; pwd)/$(basename "$0")"
 
-msg_type="info"
+#msg_type="info"
 echo_opts=()
-bash_debug=false
+#bash_debug=false
 nocolor=false
 
 # appname
@@ -124,7 +124,7 @@ if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${@}")"; then
     exit 1
 fi
 
-eval set -- "${OPT[@]}"
+set -- "${OPT[@]}"
 unset OPT OPTS OPTL ARGUMENT
 
 while true; do
@@ -181,7 +181,7 @@ while true; do
             shift 2
             ;;
         -x | --bash_debug)
-            bash_debug=true
+            #bash_debug=true
             set -xv
             shift 1
             ;;
@@ -247,28 +247,28 @@ done
 
 case "${1-""}" in
     "info")
-        msg_type="type"
+        #msg_type="type"
         [[ "${customized_output}"      = false ]] && output="stdout"
         [[ "${customized_label_color}" = false ]] && labelcolor="green"
         [[ "${customized_label}"       = false ]] && msg_label="Info"
         shift 1
         ;;
     "warn")
-        msg_type="warn"
+        #msg_type="warn"
         [[ "${customized_output}"      = false ]] && output="stdout"
         [[ "${customized_label_color}" = false ]] && labelcolor="yellow"
         [[ "${customized_label}"       = false ]] && msg_label="Warning"
         shift 1
         ;;
     "debug")
-        msg_type="debug"
+        #msg_type="debug"
         [[ "${customized_output}"      = false ]] && output="stdout"
         [[ "${customized_label_color}" = false ]] && labelcolor="magenta"
         [[ "${customized_label}"       = false ]] && msg_label="Debug"
         shift 1
         ;;
     "error")
-        msg_type="error"
+        #msg_type="error"
         [[ "${customized_output}"      = false ]] && output="stderr"
         [[ "${customized_label_color}" = false ]] && labelcolor="red"
         [[ "${customized_label}"       = false ]] && msg_label="Error"

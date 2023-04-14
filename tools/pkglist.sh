@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016
 
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-module_dir="${script_path}/modules"
+#module_dir="${script_path}/modules"
 modules=()
 
 boot_splash=false
@@ -43,7 +44,7 @@ _help() {
 # Execute command for each module
 # It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){ local module && for module in "${modules[@]}"; do eval "${@//"{}"/${module}}"; done; }
+for_module(){ local module && for module in "${modules[@]}"; do "${@//"{}"/${module}}"; done; }
 
 # Message functions
 msg_common(){

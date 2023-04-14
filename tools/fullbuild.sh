@@ -34,6 +34,7 @@ remove_cache=false
 all_channel=false
 customized_work=false
 noconfirm=false
+nocolor=false
 
 # Message common function
 # msg_common [type] [-n] [string]
@@ -85,7 +86,7 @@ build() {
     if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "sudo bash build.sh ${_options[*]}"
-            _exit_code="${?}"
+            _exit_code="0"
         else
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash "${script_path}/build.sh" "${_options[@]}"
