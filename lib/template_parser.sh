@@ -10,37 +10,46 @@ build_template_parser(){
 }
 
 parse_template(){
-    "$template_parser" "$@"
+    local _file="$1"
+    shift 1 || return 1
+    "$template_parser" "$_file" "$(make_parser_args "$@")"
+}
+
+_array_to_json(){
+    local _json
+    _json="$(eval "printf \"\\\"%s\\\",\" \"\${${1}[@]}\"")"
+    echo "\"${1}\": [${_json%,}]"
+}
+
+_dic_to_json(){
+    local _array="" _i="" _dic="$1"
+    while read -r _i; do
+        _array="${_array}\"${_i}\": \"$(eval "echo \"\${${_dic}[${_i}]}\"")\","
+    done < <(eval "printf \"%s\n\" \"\${!${_dic}[@]}\" ")
+    echo "\"${_dic}\": {${_array%,}}"
+}
+
+_var_to_json(){
+    local _json _var="$1"
+    echo "\"${_var}\": \"$(eval "echo \"\${${_var}}\"")\""
 }
 
 make_parser_args(){
-    local _v _args=()
+    local _v 
+    local _json_var _json_arr _json_dic
     for _v in "$@"; do
         if declare -p "$_v" | grep -- "declare -a" 2> /dev/null 1>&2; then
-            # 配列
-            _args+=("$_v=$( array_to_csv "$_v" )")
+            _json_arr="${_json_arr}$(_array_to_json "$_v"),"
         elif declare -p "$_v" | grep -- "declare -A" 2> /dev/null  1>&2; then
-            _args+=("$_v=$( dic_to_csv "$_v" )")
+            _json_dic="${_json_dic}$(_dic_to_json "${_v}")"
         else
-            _args+=("${_v}=$(eval "echo \"\${$_v}\"")")
+            _json_var="${_json_var}$(_var_to_json "${_v}")"
         fi
     done
-    printf "%s\n" "${_args[@]}"
-}
 
-array_to_csv(){
-    local _csv
-    _csv="$(eval "printf \"%s,\" \"\${${1}[@]}\"")"
-    echo "${_csv%,}"
-}
+    _json_arr="\"array\": {${_json_arr%,}}"
+    _json_dic="\"dictionary\": { ${_json_dic%,} }"
+    _json_var="\"variables\": {${_json_var%,}}"
 
-# 連想配列をCSVにする
-# 文字列の仕様が雑なのであとでJSONで渡せるように再実装したほうがいいかもしれない
-# というか明日実装します
-dic_to_csv(){
-    local _csv="" _i="" _dic="$1"
-    while read -r _i; do
-        _csv="${_csv}${_dic};${_i}=$(eval "echo \"\${${_dic}[${_i}]}\""),"
-    done < <(eval "printf \"%s\n\" \"\${!${_dic}[@]}\" ")
-    echo "${_csv%,}"
+    echo "{${_json_var},${_json_dic},${_json_arr}}"
 }

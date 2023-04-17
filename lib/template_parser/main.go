@@ -1,14 +1,21 @@
 package main
 
 import (
-	//"errors"
 	"fmt"
 	"os"
 	"path"
 	"strings"
 	"text/template"
+	"encoding/json"
 )
 
+type bash_vars_json struct{
+	Variables map[string]string `json:"variables"`
+	Array map[string][]string `json:"array"`
+	Dictionary map[string]map[string]string `json:"dictionary"`
+}
+
+type bash_vars map[string]any
 
 func handle_error(err error){
 	if err ==nil{
@@ -43,7 +50,6 @@ func parse_template(file string, data map[string]interface{})(error){
 		},
 	}
 
-
 	tpl, err := template.New(path.Base(file)).Funcs(funcmap).ParseFiles(file)   //.FuncMap(funcmap).ParseFiles(file)
 	if err !=nil{
 		return err
@@ -58,31 +64,37 @@ func parse_template(file string, data map[string]interface{})(error){
 	return nil
 }
 
-func parse_args()(*map[string]any, error){
-	rtn := map[string]any{}
+func parse_args()(*bash_vars, error){
+	rtn := bash_vars_json{}
 
 	// 1つめの引数はファイル
 	TargetFile=os.Args[1]
 
-	if len(os.Args) < 2{
+	if len(os.Args) < 3{
 		return nil, fmt.Errorf("no argument")
 	}
 
-	for _ , raw := range os.Args[2:]{
-		s  := strings.Split(raw, "=")
-		if len(s) < 2{
-			return nil, fmt.Errorf("wrong syntax: %s", raw)
-		}
+	json.Unmarshal([]byte(os.Args[2]), &rtn)
 
-		var_name := s[0]
-		value := strings.Join(s[1:], "=")
+	flat := *rtn.Flat()
 
-		if len(strings.TrimSpace(value)) == 0{
-			fmt.Fprintf(os.Stderr, "the value of %s is empty\n", var_name)
-		}
+	return &flat,nil
+}
 
-		rtn[var_name]=value
+func (j *bash_vars_json)Flat()(*bash_vars){
+	rtn := bash_vars{}
+	
+	for i, s := range j.Array{
+		rtn[i]=s
 	}
 
-	return &rtn,nil
+	for i, s := range j.Dictionary{
+		rtn[i]=s
+	}
+
+	for i, s := range j.Variables{
+		rtn[i]=s
+	}
+
+	return &rtn
 }

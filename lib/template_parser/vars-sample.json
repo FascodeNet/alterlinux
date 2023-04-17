@@ -1,0 +1,16 @@
+{
+    "variables":{
+        "hoge": "fugofugo",
+        "hogehoge": "piyo"
+    },
+    "array": {"poco": ["pika", "ponpon"],"piyo": ["s", "e"]},
+    "dictionary": {
+        "gigogigo": {
+            "hoge": "fugo",
+            "fugo": "piyo"
+        },
+        "bokeboke":{
+            "ponpon": "hoge"
+        }
+    }
+}
