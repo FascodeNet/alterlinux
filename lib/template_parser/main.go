@@ -4,6 +4,7 @@ import (
 	//"errors"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"text/template"
 )
@@ -30,7 +31,20 @@ func main(){
 }
 
 func parse_template(file string, data map[string]interface{})(error){
-	tpl, err := template.ParseFiles(file)
+	funcmap := template.FuncMap{
+		// csv to shell array
+		"print_csv": func(csv string)(string){
+			csv_array := []string{}
+			for _, s := range strings.Split(csv, ","){
+				csv_array=append(csv_array, fmt.Sprintf("\"%s\"", strings.TrimSpace(s)))
+			}
+
+			return strings.Join(csv_array, " ")
+		},
+	}
+
+
+	tpl, err := template.New(path.Base(file)).Funcs(funcmap).ParseFiles(file)   //.FuncMap(funcmap).ParseFiles(file)
 	if err !=nil{
 		return err
 	}
@@ -62,6 +76,10 @@ func parse_args()(*map[string]any, error){
 
 		var_name := s[0]
 		value := strings.Join(s[1:], "=")
+
+		if len(strings.TrimSpace(value)) == 0{
+			fmt.Fprintf(os.Stderr, "the value of %s is empty\n", var_name)
+		}
 
 		rtn[var_name]=value
 	}

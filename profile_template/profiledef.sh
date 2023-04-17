@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC1083
 
 iso_name="{{ .iso_name }}"
-iso_label="ARCH_$(date +%Y%m)"
-iso_publisher="Arch Linux <https://archlinux.org>"
-iso_application="Arch Linux Live/Rescue CD"
-iso_version="$(date +%Y.%m.%d)"
-install_dir="arch"
-buildmodes=('iso')
+iso_label="{{ .iso_label }}"
+iso_publisher="{{ .iso_publisher }}"
+iso_application="{{ .iso_application }}"
+iso_version="{{ .iso_version }}"
+install_dir="{{ .install_dir }}"
+buildmodes=("iso")
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito'
            'uefi-ia32.grub.esp' 'uefi-x64.grub.esp'
            'uefi-ia32.grub.eltorito' 'uefi-x64.grub.eltorito')
