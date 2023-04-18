@@ -35,21 +35,28 @@ _var_to_json(){
 }
 
 make_parser_args(){
-    local _v 
+    local _v _j
     local _json_var _json_arr _json_dic
     for _v in "$@"; do
-        if declare -p "$_v" | grep -- "declare -a" 2> /dev/null 1>&2; then
+        [[ -n "${_v}"  ]] || continue
+        if declare -p "$_v" 2> /dev/null | grep -- "declare -a" 2> /dev/null 1>&2; then
             _json_arr="${_json_arr}$(_array_to_json "$_v"),"
-        elif declare -p "$_v" | grep -- "declare -A" 2> /dev/null  1>&2; then
-            _json_dic="${_json_dic}$(_dic_to_json "${_v}")"
+        elif declare -p "$_v" 2> /dev/null | grep -- "declare -A" 2> /dev/null  1>&2; then
+            _json_dic="${_json_dic}$(_dic_to_json "${_v}"),"
         else
-            _json_var="${_json_var}$(_var_to_json "${_v}")"
+            _json_var="${_json_var}$(_var_to_json "${_v}"),"
         fi
     done
 
-    _json_arr="\"array\": {${_json_arr%,}}"
-    _json_dic="\"dictionary\": { ${_json_dic%,} }"
-    _json_var="\"variables\": {${_json_var%,}}"
+    _json_arr="${_json_arr%,}"
+    _json_dic="${_json_dic%,}"
+    _json_var="${_json_var%,}"
 
-    echo "{${_json_var},${_json_dic},${_json_arr}}"
+    local _json
+    for _j in "$_json_arr" "$_json_dic" "$_json_var"; do
+        [[ -n "${_j}" ]] || continue
+        _json="${_json}${_j},"
+    done
+    
+    echo "{${_json%,}}"
 }

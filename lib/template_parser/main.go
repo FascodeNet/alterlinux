@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"fmt"
 	"os"
 	"path"
@@ -9,11 +10,13 @@ import (
 	"encoding/json"
 )
 
+/*
 type bash_vars_json struct{
 	Variables map[string]string `json:"variables"`
 	Array map[string][]string `json:"array"`
 	Dictionary map[string]map[string]string `json:"dictionary"`
 }
+*/
 
 type bash_vars map[string]any
 
@@ -21,7 +24,7 @@ func handle_error(err error){
 	if err ==nil{
 		return
 	}
-	fmt.Println(err)
+	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
 }
 
@@ -31,8 +34,6 @@ var TargetFile string
 func main(){
 	data, err := parse_args()
 	handle_error(err)
-
-
 	handle_error(parse_template(TargetFile, *data))
 	
 }
@@ -47,6 +48,10 @@ func parse_template(file string, data map[string]interface{})(error){
 			}
 
 			return strings.Join(csv_array, " ")
+		},
+		"bool": func(value string)(bool){
+			b, _ := strconv.ParseBool(value)
+			return b
 		},
 	}
 
@@ -65,7 +70,7 @@ func parse_template(file string, data map[string]interface{})(error){
 }
 
 func parse_args()(*bash_vars, error){
-	rtn := bash_vars_json{}
+	rtn := bash_vars{}
 
 	// 1つめの引数はファイル
 	TargetFile=os.Args[1]
@@ -76,25 +81,7 @@ func parse_args()(*bash_vars, error){
 
 	json.Unmarshal([]byte(os.Args[2]), &rtn)
 
-	flat := *rtn.Flat()
+	//flat := *rtn.Flat()
 
-	return &flat,nil
-}
-
-func (j *bash_vars_json)Flat()(*bash_vars){
-	rtn := bash_vars{}
-	
-	for i, s := range j.Array{
-		rtn[i]=s
-	}
-
-	for i, s := range j.Dictionary{
-		rtn[i]=s
-	}
-
-	for i, s := range j.Variables{
-		rtn[i]=s
-	}
-
-	return &rtn
+	return &rtn,nil
 }
