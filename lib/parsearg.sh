@@ -31,6 +31,8 @@ declare -A long_option_noarg=(
     ["cleaning"]="cleaning"
     ["tarball"]="tarball"
     ["help"]="show_help"
+    ["noiso"]="noiso"
+    ["noefi"]="noefi"
 )
 
 _err_unknown(){
