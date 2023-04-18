@@ -71,7 +71,7 @@ parsearg(){
                     if [[ -n "${long_option_arg["$_p"]}" ]]; then
                         _var="${long_option_arg["$_p"]}"
 
-                        # 連結したロングオプションの末尾
+                        # 連結したショートオプションの末尾
                         if [[ "$_current" = *"$_s" ]] && ! [[ "$_arg" = "-"* ]]; then
                             _setarg=true
                         else
@@ -128,11 +128,13 @@ parsearg(){
                 printf -v "$_var" true
                 shift 1
             fi
+
+            continue
         fi
 
         _noarg+=("$1")
         shift 1
     done
     
-    printf "%s\n" "--"  "${_noarg[@]}"
+    printf "%s\n" "${_noarg[@]}"
 }
