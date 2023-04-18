@@ -1,13 +1,14 @@
 package main
 
 import (
-	"strconv"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
+	"reflect"
+	"strconv"
 	"strings"
 	"text/template"
-	"encoding/json"
 )
 
 /*
@@ -52,6 +53,9 @@ func parse_template(file string, data map[string]interface{})(error){
 		"bool": func(value string)(bool){
 			b, _ := strconv.ParseBool(value)
 			return b
+		},
+		"typeof": func(v any)(string){
+			return reflect.TypeOf(v).String()
 		},
 	}
 
