@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC1083
+# shellcheck disable=all
 
 iso_name="{{ .iso_name }}"
 iso_label="{{ .iso_label }}"
@@ -7,11 +7,10 @@ iso_publisher="{{ .iso_publisher }}"
 iso_application="{{ .iso_application }}"
 iso_version="{{ .iso_version }}"
 install_dir="{{ .install_dir }}"
-buildmodes=("iso")
-bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito'
-           'uefi-ia32.grub.esp' 'uefi-x64.grub.esp'
-           'uefi-ia32.grub.eltorito' 'uefi-x64.grub.eltorito')
-arch="x86_64"
+{{ if not (bool .noiso) }}buildmodes=("iso"){{ end }}
+bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito')
+{{ if not (bool .noefi) }}bootmodes+=('uefi-ia32.grub.esp' 'uefi-x64.grub.esp' 'uefi-ia32.grub.eltorito' 'uefi-x64.grub.eltorito'){{ end }}
+arch="{{ .arch }}"
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
