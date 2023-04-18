@@ -134,5 +134,5 @@ parsearg(){
         shift 1
     done
     
-    printf "%s\n" "${_noarg[@]}"
+    printf "%s\n" "--"  "${_noarg[@]}"
 }

@@ -25,6 +25,14 @@ source "${script_path}/default.conf"
 #-- Parse argument --#
 readarray -t _noflag < <(parsearg "$@")
 set -- "${_noflag[@]}"
+case "$1"  in
+    "--")
+        shift 1
+        ;;
+    *)
+        exit 1
+        ;;
+esac
 unset _noflag
 
 #-- Set channel dir --#
@@ -35,6 +43,5 @@ if [[ -z "$channel_dir" ]]; then
 fi
 
 #-- Run functions --#
-
 make_prepare
 make_profiledef
