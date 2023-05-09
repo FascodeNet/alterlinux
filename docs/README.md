@@ -59,6 +59,14 @@
     日本語版は<a href="README_jp.md">こちら</a>にあります
 </b>
 
+<h2>Warning</h2>
+The dev branch source code and AlterISO 3.1 are <b>no longer maintained</b>. 
+
+We are currently redeveloping the core code from full scratch, so please be patient.
+
+devブランチのソースコード及びAlterISO 3.1はもはやメンテナンスされていません。現在基幹コードをフルスクラッチから再開発しているのでしばらくお待ち下さい。
+
+
 <h2>〈Overview〉</h2>
 Alter Linux is a new OS developed based on Arch Linux.<br>
 Check the <a href="https://github.com/orgs/FascodeNet/projects/2">project board</a> for the latest status of Alter Linux.<br>
