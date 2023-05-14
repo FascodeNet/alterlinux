@@ -85,7 +85,6 @@ build() {
     if [[ ! -e "${fullbuild_dir}/fullbuild.${cha}_${arch}_${lang}" ]]; then
         if [[ "${simulation}" = true ]]; then
             echo "sudo bash build.sh ${_options[*]}"
-            _exit_code="${?}"
         else
             msg_info "Build the ${lang} version of ${cha} on the ${arch} architecture."
             sudo bash "${script_path}/build.sh" "${_options[@]}"
