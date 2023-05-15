@@ -16,6 +16,10 @@ source "${script_path}/lib/make_prepare.sh"
 source "${script_path}/lib/make_profiledef.sh"
 # shellcheck source=./lib/template_parser.sh
 source "${script_path}/lib/template_parser.sh"
+# shellcheck source=./lib/list_parser.sh
+source "${script_path}/lib/list_parser.sh"
+# shellcheck source=./lib/make_packages.sh
+source "${script_path}/lib/make_packages.sh"
 
 
 #-- Load default --#
@@ -39,4 +43,8 @@ fi
 
 #-- Run functions --#
 make_prepare
+make_default
+make_parsed_vars
 make_profiledef
+make_packages
+

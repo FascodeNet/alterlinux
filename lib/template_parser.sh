@@ -3,10 +3,10 @@
 
 
 build_template_parser(){
-    {
+    (
         cd "${script_path}/lib/template_parser" || exit 1
         go build -o "$template_parser" .
-    }
+    )
 }
 
 parse_template(){
