@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2016
+# shellcheck disable=SC2016,SC2034
 
 set -e
 
 script_path="$( cd -P "$( dirname "$(readlink -f "$0")" )" && cd .. && pwd )"
-#module_dir="${script_path}/modules"
+module_dir="${script_path}/modules"
 modules=()
 
 boot_splash=false
@@ -12,7 +12,7 @@ pkgdir_name="packages"
 line=false
 debug=false
 memtest86=false
-nocolor=false
+#nocolor=false
 
 additional_exclude_pkg=()
 
@@ -44,26 +44,25 @@ _help() {
 # Execute command for each module
 # It will be executed with {} replaced with the module name.
 # for_module <command>
-for_module(){ local module && for module in "${modules[@]}"; do "${@//"{}"/${module}}"; done; }
-
-# Message functions
-msg_common(){
-    local _args=(-s "5" -a "pkglist.sh")
-    [[ "${nocolor}" = true ]] && _args+=("--nocolor")
-    "${script_path}/tools/msg.sh" "${_args[@]}" "${@}"
+for_module(){
+    local module
+    for module in "${modules[@]}"; do
+        eval "${*//"{}"/${module}}"
+    done
 }
 
 msg_error() {
-    msg_common -l "Error" -r "red" -p "stderr" error "${1}" &
+    #msg_common -l "Error" -r "red" -p "stderr" error "${1}" &
+    echo "Error: $*" >&2
 }
 
 msg_info() {
-    msg_common -l "Info" -r "green" -p "stderr" info "${1}" &
+    echo "Info: $*" >&1
 }
 
 msg_debug() {
     if [[ "${debug}" = true ]]; then
-        msg_common -l "Debug" -r "magenta" -p "stderr" debug "${1}" &
+        echo "Debug: $*" >&2
     fi
 }
 
@@ -126,7 +125,7 @@ while true; do
             exit 0
             ;;
         --nocolor)
-            nocolor=true
+            #nocolor=true
             shift 1
             ;;
         --)

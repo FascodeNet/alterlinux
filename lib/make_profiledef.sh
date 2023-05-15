@@ -7,7 +7,8 @@ make_profiledef(){
 
     parse_template "$_base" \
         iso_name iso_label iso_publisher iso_application \
-        iso_version install_dir arch noiso noefi
+        iso_version install_dir arch noiso noefi \
+    > "$work_dir/profile/profiledef.sh"
 }
 
 
