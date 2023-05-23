@@ -28,6 +28,8 @@ source "${script_path}/lib/make_packages.sh"
 source "${script_path}/lib/make_bootloader.sh"
 # shellcheck source=./lib/make_airootfs.sh
 source "${script_path}/lib/make_airootfs.sh"
+# shellckeck source=./lib/make_alteriso_files.sh
+source "${script_path}/lib/make_alteriso_files.sh"
 # shellcheck source=./lib/exec_archiso.sh
 source "${script_path}/lib/exec_archiso.sh"
 
@@ -59,5 +61,6 @@ call_func make_profiledef
 call_func make_packages
 call_func make_bootloader
 call_func make_airootfs
+call_func make_alteriso_files
 #call_func exec_archiso
 
