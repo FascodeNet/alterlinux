@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e -E -u -o pipefail
+
 #-- Define base vars --#
 script_path="$(cd "$(dirname "$0")" || exit 1; pwd)"
 template_dir="$script_path/profile_template"
@@ -55,5 +57,5 @@ make_profiledef
 make_packages
 make_bootloader
 make_airootfs
-exec_archiso
+#exec_archiso
 
