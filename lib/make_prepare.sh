@@ -3,6 +3,7 @@
 
 make_prepare(){
     # set up dir
+    mkdir -p "$work_dir"
     work_dir="$(realpath "$work_dir")"
     mkdir -p "$work_dir/profile"
 
