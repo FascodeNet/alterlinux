@@ -29,3 +29,7 @@ make_aur_packages(){
     readarray -t _pkgs < <("$script_path/tools/pkglist.sh" "${_args[@]}")
     printf "%s\n" "${_pkgs[@]}" > "$work_dir/profile/aur_packages.${arch}"
 }
+
+make_bootstrap_packages(){
+    printf "%s\n" "base" "arch-install-scripts" > "$work_dir/profile/bootstrap_packages.${arch}"
+}

@@ -59,6 +59,8 @@ call_func make_default
 call_func make_parsed_vars
 call_func make_profiledef
 call_func make_packages
+call_func make_aur_packages
+call_func make_bootstrap_packages
 call_func make_bootloader
 call_func make_airootfs
 call_func make_alteriso_files
