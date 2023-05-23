@@ -36,7 +36,7 @@ _var_to_json(){
 
 make_parser_args(){
     local _v _j
-    local _json_var _json_arr _json_dic
+    local _json_var="" _json_arr="" _json_dic=""
     for _v in "$@"; do
         [[ -n "${_v}"  ]] || continue
         if declare -p "$_v" 2> /dev/null | grep -- "declare -a" 2> /dev/null 1>&2; then
@@ -52,7 +52,7 @@ make_parser_args(){
     _json_dic="${_json_dic%,}"
     _json_var="${_json_var%,}"
 
-    local _json
+    local _json=""
     for _j in "$_json_arr" "$_json_dic" "$_json_var"; do
         [[ -n "${_j}" ]] || continue
         _json="${_json}${_j},"
