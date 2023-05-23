@@ -10,6 +10,8 @@ channel_dir=""
 #-- Load lib --#
 # shellcheck source=./lib/parsearg.sh
 source "${script_path}/lib/parsearg.sh"
+# shellcheck source=./lib/common.sh
+source "${script_path}/lib/common.sh"
 # shellcheck source=./lib/msg.sh
 source "${script_path}/lib/msg.sh"
 # shellcheck source=./lib/make_prepare.sh
@@ -50,12 +52,12 @@ if [[ -z "$channel_dir" ]]; then
 fi
 
 #-- Run functions --#
-make_prepare
-make_default
-make_parsed_vars
-make_profiledef
-make_packages
-make_bootloader
-make_airootfs
-#exec_archiso
+call_func make_prepare
+call_func make_default
+call_func make_parsed_vars
+call_func make_profiledef
+call_func make_packages
+call_func make_bootloader
+call_func make_airootfs
+#call_func exec_archiso
 
