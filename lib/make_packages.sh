@@ -25,7 +25,8 @@ make_packages(){
 
 make_aur_packages(){
     local _args=() _pkgs=()
-    readarray -t _args < <(make_packages_common_args "--aur")
+    readarray -t _args < <(make_packages_common_args )
+    _args+=("--aur")
     readarray -t _pkgs < <("$script_path/tools/pkglist.sh" "${_args[@]}")
     printf "%s\n" "${_pkgs[@]}" > "$work_dir/profile/aur_packages.${arch}"
 }
