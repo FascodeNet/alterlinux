@@ -16,7 +16,7 @@ make_prepare(){
 }
 
 make_default(){
-    if [[ -z "$kernel" ]]; then
+    if [[ -z "${kernel-""}" ]]; then
         kernel="$defaultkernel"
     fi
     
