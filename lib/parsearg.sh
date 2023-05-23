@@ -48,7 +48,7 @@ _err_noarg(){
 parsearg(){
     local _args=("$@") _noarg=()
     local _current="" _arg="" _var="" _setarg=false
-    while [[ -n "$1" ]]; do
+    while [[ -n "${1-""}" ]]; do
         _current="$1" _arg="$2" _var="" _setarg=false
 
         if [[ "$_current" = "--" ]]; then
