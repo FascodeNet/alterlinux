@@ -23,6 +23,8 @@ source "${script_path}/lib/make_channel.sh"
 source "$script_path/lib/make_prepare_modules.sh"
 # shellcheck source=./lib/make_profiledef.sh
 source "${script_path}/lib/make_profiledef.sh"
+# shellcheck source=./lib/make_pacmanconf.sh
+source "${script_path}/lib/make_pacmanconf.sh"
 # shellcheck source=./lib/template_parser.sh
 source "${script_path}/lib/template_parser.sh"
 # shellcheck source=./lib/list_parser.sh
@@ -65,6 +67,7 @@ call_func make_prepare_modules
 call_func make_default
 call_func make_parsed_vars
 call_func make_profiledef
+call_func make_pacmanconf
 call_func make_packages
 call_func make_aur_packages
 call_func make_bootstrap_packages
