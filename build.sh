@@ -6,6 +6,7 @@ set -e -E -u -o pipefail
 script_path="$(cd "$(dirname "$0")" || exit 1; pwd)"
 template_dir="$script_path/profile_template"
 channel_dir=""
+modules_dir="${script_path}/modules"
 
 #-- Load lib --#
 # shellcheck source=./lib/parsearg.sh
@@ -16,6 +17,10 @@ source "${script_path}/lib/common.sh"
 source "${script_path}/lib/msg.sh"
 # shellcheck source=./lib/make_prepare.sh
 source "${script_path}/lib/make_prepare.sh"
+# shellcheck source=./lib/make_channel.sh
+source "${script_path}/lib/make_channel.sh"
+# shellcheck source=./lib/make_prepare_modules.sh
+source "$script_path/lib/make_prepare_modules.sh"
 # shellcheck source=./lib/make_profiledef.sh
 source "${script_path}/lib/make_profiledef.sh"
 # shellcheck source=./lib/template_parser.sh
@@ -55,6 +60,8 @@ fi
 
 #-- Run functions --#
 call_func make_prepare
+call_func make_channel
+call_func make_prepare_modules
 call_func make_default
 call_func make_parsed_vars
 call_func make_profiledef

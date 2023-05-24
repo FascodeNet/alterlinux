@@ -7,10 +7,11 @@ make_prepare(){
     work_dir="$(realpath "$work_dir")"
     mkdir -p "$work_dir/profile"
 
-    # build tool
+    # build template parser
     template_parser="${work_dir}/template_parser"
     build_template_parser
 
+    # build list parser
     list_parser="${work_dir}/list_parser"
     build_list_parser
 }
@@ -19,7 +20,6 @@ make_default(){
     if [[ -z "${kernel-""}" ]]; then
         kernel="$defaultkernel"
     fi
-    
 }
 
 make_parsed_vars(){
