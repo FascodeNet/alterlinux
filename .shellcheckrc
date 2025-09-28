@@ -1,0 +1,11 @@
+# Suggest explicitly using -n in `[ $var ]`
+enable=avoid-nullary-conditions
+
+# Suggest 'command -v' instead of 'which'
+enable=deprecate-which
+
+# Suggest quoting variables without metacharacters
+enable=quote-safe-variables
+
+# Require [[ and warn about [ in Bash/Ksh
+enable=require-double-brackets
