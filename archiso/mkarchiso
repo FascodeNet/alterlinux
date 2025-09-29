@@ -267,9 +267,22 @@ _mk_pgp_signature() {
 # Helper function to run functions only one time.
 # $1: function name
 _run_once() {
+    if type -t "pre_$1" >/dev/null 2>&1 && [[ ! -e "${work_dir}/${run_once_mode}.pre_$1" ]]; then
+        "pre_$1"
+        touch "${work_dir}/${run_once_mode}.pre_$1"
+    fi
     if [[ ! -e "${work_dir}/${run_once_mode}.${1}" ]]; then
-        "$1"
+        if type -t "override_$1" >/dev/null 2>&1; then
+            "override_$1"
+        else
+            "$1"
+        fi
+
         touch "${work_dir}/${run_once_mode}.${1}"
+    fi
+    if type -t "post_$1" >/dev/null 2>&1 && [[ ! -e "${work_dir}/${run_once_mode}.post_$1" ]]; then
+        "post_$1"
+        touch "${work_dir}/${run_once_mode}.post_$1"
     fi
 }
 
