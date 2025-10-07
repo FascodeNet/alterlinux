@@ -13,3 +13,7 @@ func Wrap(err error) error {
 func Print(err error) {
 	tracerr.PrintSourceColor(err)
 }
+
+func Newf(format string, args ...interface{}) error {
+	return tracerr.Errorf(format, args...)
+}

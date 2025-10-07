@@ -1,6 +1,7 @@
 package shutils
 
 import (
+	"bytes"
 	"io"
 	"os"
 
@@ -24,4 +25,9 @@ func ParseFile(path string, opts ...syntax.ParserOption) (*syntax.File, error) {
 	}
 
 	return Parse(f, path, opts...)
+}
+
+func ParseBytes(data []byte, name string, opts ...syntax.ParserOption) (*syntax.File, error) {
+	buf := bytes.NewBuffer(data)
+	return Parse(buf, name, opts...)
 }
