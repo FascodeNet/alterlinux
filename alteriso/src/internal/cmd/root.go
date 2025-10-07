@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Hayao0819/nahi/cobrautils"
 	"github.com/spf13/cobra"
@@ -28,6 +31,8 @@ func Execute() error {
 	if err := rootCmd().Execute(); err != nil {
 		if debug {
 			errors.Print(err)
+		} else {
+			fmt.Fprintln(os.Stderr, err.Error())
 		}
 		return err
 	}

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cd "$(dirname "${BASH_SOURCE[0]}")/src" || exit 1
-go run . profile generate --bootloaders ../bootloaders -o ../out "$@"
+script_path=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+go run "$script_path/src" profile generate --bootloaders "$script_path/bootloaders" -o "$script_path/out" "$@"

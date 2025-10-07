@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/FascodeNet/alterlinux/src/internal/archiso"
@@ -31,6 +32,7 @@ func profileGenCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			dir := args[0]
+
 			if !futils.Exists(dir) {
 				return errors.Newf("directory %s does not exist", dir)
 			}
@@ -42,23 +44,16 @@ func profileGenCmd() *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-
-			archisoProfileDef := archiso.ArchisoProfile{
+			archisoProfileDef := archiso.ProfileDef{
 				Arch: "x86_64",
 			}
 
-			profile := archiso.ProfileDef{
+			profile := archiso.Profile{
 				Archiso:         archisoProfileDef,
 				BootloadersPath: bootloadersPath,
 			}
 
-			// fmt.Println(string(profile.ProfileDefSh()))
-			profileBytes, err := profile.ProfileDefSh()
-			if err != nil {
-				return errors.Wrap(err)
-			}
-
-			cmd.Println(string(profileBytes))
+			fmt.Println(profile)
 
 			return nil
 
