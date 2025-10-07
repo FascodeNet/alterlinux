@@ -9,8 +9,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FascodeNet/alterlinux/src/pkg/shutils"
 	"mvdan.cc/sh/v3/syntax"
 )
+
+func Unmarshal(d string, out interface{}) error {
+	ast, err := shutils.ParseBytes([]byte(d), "")
+	if err != nil {
+		return err
+	}
+	return UnmarshalAst(ast, out)
+}
 
 // UnmarshalAst prints the AST to text and extracts variables into out (pointer to struct).
 // It supports simple assignments, arrays like name=(a b) and associative arrays like

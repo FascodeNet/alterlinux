@@ -6,18 +6,30 @@ import (
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Hayao0819/nahi/cputils"
+	"github.com/samber/lo"
 )
 
 func (p *Profile) copyBootloaders(outDir string) error {
-	bootloadersDst := path.Join(outDir, "bootloaders")
-	cptask := cputils.CopyTask{
-		Source: p.BootloadersPath,
-		Dest:   bootloadersDst,
-	}
-	if err := cptask.Copy(); err != nil {
+	bootloadersDst := path.Join(outDir)
+
+	dirs, err := os.ReadDir(p.BootloadersPath)
+	if err != nil {
 		return errors.Wrap(err)
 	}
-	return nil
+
+	copyTargets := lo.Filter(dirs, func(item os.DirEntry, index int) bool {
+		return item.IsDir()
+	})
+
+	tasks := lo.Map(copyTargets, func(item os.DirEntry, index int) cputils.CopyTask {
+		// slog.Info("Copying bootloader", "source", item.Name(), "dest", bootloadersDst)
+		return cputils.CopyTask{
+			Source: path.Join(p.BootloadersPath, item.Name()),
+			Dest:   path.Join(bootloadersDst, item.Name()),
+		}
+	})
+
+	return errors.Wrap(cputils.CopyAll(tasks...))
 }
 
 func (p *Profile) GenArchisoProfile(outDir string) error {

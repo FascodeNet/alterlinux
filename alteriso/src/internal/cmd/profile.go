@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
+	"path"
 
 	"github.com/FascodeNet/alterlinux/src/internal/archiso"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
+	"github.com/FascodeNet/alterlinux/src/internal/utils"
 	"github.com/Hayao0819/nahi/cobrautils"
 	"github.com/Hayao0819/nahi/futils"
 	"github.com/spf13/cobra"
@@ -44,18 +45,34 @@ func profileGenCmd() *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			archisoProfileDef := archiso.ProfileDef{
-				Arch: "x86_64",
+
+			configDir := args[0]
+			configName := path.Base(configDir)
+
+			// archisoProfileDef := archiso.ProfileDef{
+			// 	Arch: "x86_64",
+			// }
+
+			data, err := os.ReadFile(path.Join(configDir, "profiledef.sh"))
+			if err != nil {
+				return errors.Wrap(err)
 			}
+
+			archisoProfileDef, err := archiso.UnmarshalProfileDef(data)
+			if err != nil {
+				return errors.Wrap(err)
+			}
+
+			utils.PrintJSON(archisoProfileDef)
 
 			profile := archiso.Profile{
 				Archiso:         archisoProfileDef,
 				BootloadersPath: bootloadersPath,
 			}
 
-			fmt.Println(profile)
+			return profile.GenArchisoProfile(path.Join(outDir, configName))
 
-			return nil
+			// return nil
 
 		},
 	}
