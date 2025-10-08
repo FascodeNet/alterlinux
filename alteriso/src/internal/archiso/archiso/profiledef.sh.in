@@ -5,3 +5,4 @@
 
 {{ .ProfileDefContent }}
 
+__alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
