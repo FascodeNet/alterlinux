@@ -1,0 +1,6 @@
+openvpn
+broadcom-wl
+wireless-regdb
+wireless_tools
+wpa_supplicant
+systemd-resolvconf

@@ -1,13 +1,12 @@
 package shkv
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/FascodeNet/alterlinux/src/pkg/shutils"
 	"mvdan.cc/sh/v3/syntax"
@@ -25,12 +24,6 @@ func Unmarshal(d string, out interface{}) error {
 // It supports simple assignments, arrays like name=(a b) and associative arrays like
 // name=( ["k"]="v" ... ) or declare -A name=( ... ).
 func UnmarshalAst(f *syntax.File, out interface{}) error {
-	var buf bytes.Buffer
-	if err := syntax.NewPrinter().Print(&buf, f); err != nil {
-		return err
-	}
-	script := buf.String()
-
 	rv := reflect.ValueOf(out)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
 		return fmt.Errorf("out must be non-nil pointer to struct")
@@ -49,15 +42,14 @@ func UnmarshalAst(f *syntax.File, out interface{}) error {
 		}
 	}
 
-	assocRe := regexp.MustCompile(`\[\s*(['"])(.*?)['"]\s*\]\s*=\s*(['"])(.*?)['"]`)
-
-	for _, raw := range strings.Split(script, "\n") {
-		line := strings.TrimSpace(raw)
-		if line == "" || strings.HasPrefix(line, "#") {
+	// Process each statement by printing it and parsing the resulting text.
+	for _, stmt := range f.Stmts {
+		txt := strings.TrimSpace(nodeToString(stmt))
+		if txt == "" || strings.HasPrefix(txt, "#") {
 			continue
 		}
-		if strings.HasPrefix(line, "declare -A ") {
-			parts := strings.SplitN(line, "=", 2)
+		if strings.HasPrefix(txt, "declare -A ") {
+			parts := strings.SplitN(txt, "=", 2)
 			if len(parts) != 2 {
 				continue
 			}
@@ -74,6 +66,7 @@ func UnmarshalAst(f *syntax.File, out interface{}) error {
 						fld.Set(reflect.MakeMap(fld.Type()))
 					}
 					right := parts[1]
+					assocRe := regexp.MustCompile(`\[\s*(['"])(.*?)['"]\s*\]\s*=\s*(['"])(.*?)['"]`)
 					for _, m := range assocRe.FindAllStringSubmatch(right, -1) {
 						k := m[2]
 						v := m[4]
@@ -84,28 +77,15 @@ func UnmarshalAst(f *syntax.File, out interface{}) error {
 			continue
 		}
 
-		if eq := strings.Index(line, "="); eq >= 0 {
-			name := strings.TrimSpace(line[:eq])
-			rhs := strings.TrimSpace(line[eq+1:])
+		if eq := strings.Index(txt, "="); eq >= 0 {
+			name := strings.TrimSpace(txt[:eq])
+			rhs := strings.TrimSpace(txt[eq+1:])
 			if fi, ok := tagToField[name]; ok {
 				fld := rv.Field(fi)
-				if strings.HasPrefix(rhs, "(") && strings.Contains(rhs, "[") {
-					if fld.Kind() != reflect.Map {
-						continue
-					}
-					if fld.IsNil() {
-						fld.Set(reflect.MakeMap(fld.Type()))
-					}
-					for _, m := range assocRe.FindAllStringSubmatch(rhs, -1) {
-						k := m[2]
-						v := m[4]
-						fld.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v))
-					}
-					continue
-				}
-				if strings.HasPrefix(rhs, "(") {
+				if strings.HasPrefix(rhs, "(") && strings.HasSuffix(rhs, ")") {
+					// array or empty
+					inside := strings.TrimSpace(rhs[1 : len(rhs)-1])
 					if fld.Kind() == reflect.Slice {
-						inside := strings.TrimSpace(rhs[1 : len(rhs)-1])
 						if inside == "" {
 							fld.Set(reflect.MakeSlice(fld.Type(), 0, 0))
 							continue
@@ -123,41 +103,13 @@ func UnmarshalAst(f *syntax.File, out interface{}) error {
 					}
 					continue
 				}
-				// scalar types
-				if fld.Kind() == reflect.String {
-					fld.SetString(strings.Trim(rhs, "'\""))
-				} else if fld.Kind() == reflect.Bool {
-					b, _ := strconv.ParseBool(rhs)
-					fld.SetBool(b)
-				} else if fld.Kind() >= reflect.Int && fld.Kind() <= reflect.Int64 {
-					if iv, err := strconv.ParseInt(rhs, 10, 64); err == nil {
-						fld.SetInt(iv)
-					}
-				} else if fld.Kind() >= reflect.Uint && fld.Kind() <= reflect.Uint64 {
-					if uv, err := strconv.ParseUint(rhs, 10, 64); err == nil {
-						fld.SetUint(uv)
-					}
-				}
+				// scalar
+				setScalarValue(fld, rhs, rt.Field(fi).Name)
 			}
-
 		}
 	}
 
 	return nil
-}
-
-// parseAssocPairs extracts associative array pairs from a string like:
-// ( ["/etc/shadow"]="0:0:400" ["/root"]='0:0:750' )
-func parseAssocPairs(s string) map[string]string {
-	m := map[string]string{}
-	// use regex to find ["k"]="v" occurrences
-	re := regexp.MustCompile(`\[\s*(['"])([^'"]*)['"]\s*\]\s*=\s*(['"])([^'"]*)['"]`)
-	for _, sub := range re.FindAllStringSubmatch(s, -1) {
-		k := sub[2]
-		v := sub[4]
-		m[k] = v
-	}
-	return m
 }
 
 // splitShellFields splits a parenthesis-inside shell arg list into fields (naive but sufficient for quoted words).
@@ -185,7 +137,7 @@ func splitShellFields(s string) []string {
 			inDq = !inDq
 			continue
 		}
-		if r == ' ' && !inSq && !inDq {
+		if unicode.IsSpace(r) && !inSq && !inDq {
 			if cur.Len() > 0 {
 				out = append(out, cur.String())
 				cur.Reset()
@@ -200,16 +152,37 @@ func splitShellFields(s string) []string {
 	return out
 }
 
-// parseWithMvdan parses reader into *syntax.File using mvdan parser (helper for MarshalAst if needed)
-func parseWithMvdan(r io.Reader) (*syntax.File, error) {
-	b, err := io.ReadAll(r)
-	if err != nil {
-		return nil, err
+// nodeToString prints a syntax.Node into source-like text using syntax printer.
+func nodeToString(n syntax.Node) string {
+	var b strings.Builder
+	_ = syntax.NewPrinter().Print(&b, n)
+	return b.String()
+}
+
+// (removed wordToString; using nodeToString for stringification)
+
+// setScalarValue sets a scalar value into fld from txt (shell-quoted or raw).
+func setScalarValue(fld reflect.Value, txt, fieldName string) {
+	// unquote simple single or double quotes
+	if len(txt) >= 2 {
+		if (txt[0] == '\'' && txt[len(txt)-1] == '\'') || (txt[0] == '"' && txt[len(txt)-1] == '"') {
+			txt = txt[1 : len(txt)-1]
+		}
 	}
-	p := syntax.NewParser()
-	f, err := p.Parse(bytes.NewReader(b), "")
-	if err != nil {
-		return nil, err
+	switch fld.Kind() {
+	case reflect.String:
+		fld.SetString(txt)
+	case reflect.Bool:
+		if b, err := strconv.ParseBool(txt); err == nil {
+			fld.SetBool(b)
+		}
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if iv, err := strconv.ParseInt(txt, 10, 64); err == nil {
+			fld.SetInt(iv)
+		}
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		if uv, err := strconv.ParseUint(txt, 10, 64); err == nil {
+			fld.SetUint(uv)
+		}
 	}
-	return f, nil
 }

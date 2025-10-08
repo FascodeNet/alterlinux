@@ -1,15 +1,8 @@
 alsa-utils
-amd-ucode
-arch-install-scripts
-archinstall
 b43-fwcutter
-base
-bcachefs-tools
 bind
 bolt
 brltty
-broadcom-wl
-btrfs-progs
 clonezilla
 cloud-init
 cryptsetup
@@ -38,7 +31,6 @@ grml-zsh-config
 grub
 hdparm
 hyperv
-intel-ucode
 irssi
 iw
 iwd
@@ -53,7 +45,6 @@ linux
 linux-atm
 linux-firmware
 linux-firmware-marvell
-livecd-sounds
 lsscsi
 lvm2
 lynx
@@ -61,11 +52,6 @@ man-db
 man-pages
 mc
 mdadm
-memtest86+
-memtest86+-efi
-mkinitcpio
-mkinitcpio-archiso
-mkinitcpio-nfs-utils
 mmc-utils
 modemmanager
 mtools
@@ -82,7 +68,6 @@ open-vm-tools
 openconnect
 openpgp-card-tools
 openssh
-openvpn
 partclone
 parted
 partimage
@@ -104,7 +89,6 @@ sof-firmware
 squashfs-tools
 sudo
 syslinux
-systemd-resolvconf
 tcpdump
 terminus-font
 testdisk
@@ -118,9 +102,6 @@ usbutils
 vim
 virtualbox-guest-utils-nox
 vpnc
-wireless-regdb
-wireless_tools
-wpa_supplicant
 wvdial
 xdg-utils
 xfsprogs
