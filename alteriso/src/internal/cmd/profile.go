@@ -6,7 +6,6 @@ import (
 
 	"github.com/FascodeNet/alterlinux/src/internal/archiso"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
-	"github.com/FascodeNet/alterlinux/src/internal/utils"
 	"github.com/Hayao0819/nahi/cobrautils"
 	"github.com/Hayao0819/nahi/futils"
 	"github.com/spf13/cobra"
@@ -63,11 +62,12 @@ func profileGenCmd() *cobra.Command {
 				return errors.Wrap(err)
 			}
 
-			utils.PrintJSON(archisoProfileDef)
+			// utils.PrintJSON(archisoProfileDef)
 
 			profile := archiso.Profile{
 				Archiso:         archisoProfileDef,
 				BootloadersPath: bootloadersPath,
+				ConfigPath:      configDir,
 			}
 
 			return profile.GenArchisoProfile(path.Join(outDir, configName))
