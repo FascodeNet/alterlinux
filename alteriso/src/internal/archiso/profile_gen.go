@@ -34,33 +34,6 @@ func (p *Profile) copyBootloaders(outDir string) error {
 	return errors.Wrap(cputils.CopyAll(tasks...))
 }
 
-func (p *Profile) copyPackages(outDir string) error {
-	dst := path.Join(outDir, "packages.x86_64")
-	src := path.Join(p.ConfigPath, "packages.x86_64")
-	if !futils.Exists(src) {
-		return errors.Newf("packages.x86_64 file does not exist in %s", p.ConfigPath)
-	}
-
-	baseDst := path.Join(outDir, "bootstrap_packages.x86_64")
-	baseSrc := path.Join(p.ConfigPath, "bootstrap_packages.x86_64")
-	if !futils.Exists(baseSrc) {
-		return errors.Newf("bootstrap_packages.x86_64 file does not exist in %s", p.ConfigPath)
-	}
-
-	tasks := []cputils.CopyTask{
-		{
-			Source: src,
-			Dest:   dst,
-		},
-		{
-			Source: baseSrc,
-			Dest:   baseDst,
-		},
-	}
-
-	return errors.Wrap(cputils.CopyAll(tasks...))
-}
-
 func (p *Profile) pacmanConf(outDir string) error {
 	dst := path.Join(outDir, "pacman.conf")
 	src := path.Join(p.ConfigPath, "pacman.conf")
@@ -124,7 +97,7 @@ func (p *Profile) GenArchisoProfile(outDir string) error {
 		p.generateProfileDefSh,
 		p.copyInjecter,
 		p.copyAirootfs,
-		p.copyPackages,
+		p.generatePackagesFile,
 		p.pacmanConf,
 	}
 
