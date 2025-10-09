@@ -7,7 +7,6 @@ import (
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Hayao0819/nahi/cputils"
 	"github.com/Hayao0819/nahi/futils"
-	cp "github.com/otiai10/copy"
 	"github.com/samber/lo"
 )
 
@@ -45,17 +44,6 @@ func (p *Profile) pacmanConf(outDir string) error {
 		Source: src,
 		Dest:   dst,
 	}))
-}
-
-func (p *Profile) copyAirootfs(outDir string) error {
-	dst := path.Join(outDir, "airootfs")
-
-	src := path.Join(p.ConfigPath, "airootfs")
-	if !futils.Exists(src) {
-		return errors.Newf("airootfs directory does not exist in %s", p.ConfigPath)
-	}
-
-	return cp.Copy(src, dst)
 }
 
 func (p *Profile) copyInjecter(outDir string) error {

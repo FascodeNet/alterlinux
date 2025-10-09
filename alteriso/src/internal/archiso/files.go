@@ -4,17 +4,17 @@ import (
 	"embed"
 )
 
-//go:embed archiso/*
+//go:embed injects/*
 var archisoScripts embed.FS
 
 func injecter() ([]byte, error) {
-	return archisoScripts.ReadFile("archiso/injecter.sh")
+	return archisoScripts.ReadFile("injects/injecter.sh")
 }
 
 func profileDefTemplate() ([]byte, error) {
-	return archisoScripts.ReadFile("archiso/profiledef.sh.in")
+	return archisoScripts.ReadFile("injects/profiledef.sh.in")
 }
 
 func loader() ([]byte, error) {
-	return archisoScripts.ReadFile("archiso/loader.sh")
+	return archisoScripts.ReadFile("injects/loader.sh")
 }

@@ -15,6 +15,7 @@ type ProfileDef struct {
 	AirootfsImageToolOptions    []string          `shkv:"airootfs_image_tool_options"`
 	BootstrapTarballCompression []string          `shkv:"bootstrap_tarball_compression"`
 	FilePermissions             map[string]string `shkv:"file_permissions"`
+	modules                     []string          `shkv:"alteriso_modules"`
 }
 
 type Profile struct {
