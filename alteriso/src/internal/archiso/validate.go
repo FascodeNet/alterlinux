@@ -10,9 +10,12 @@ func (p *Profile) Validate() error {
 }
 
 func (p *Profile) validateModules() error {
-	valid := moduleNames()
+	valid := p.Modules()
+	names := lo.Map(valid, func(item Module, index int) string {
+		return item.Name
+	})
 	for _, mod := range p.Archiso.modules {
-		if !lo.Contains(valid, mod) {
+		if !lo.Contains(names, mod) {
 			return errors.Newf("invalid module: %s", mod)
 		}
 	}

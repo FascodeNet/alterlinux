@@ -20,6 +20,8 @@ type ProfileDef struct {
 
 type Profile struct {
 	Archiso         ProfileDef
+	modules         []Module
 	ConfigPath      string
+	ModulesPath     string
 	BootloadersPath string
 }

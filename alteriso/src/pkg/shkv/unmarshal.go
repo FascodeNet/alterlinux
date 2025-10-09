@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unsafe"
 
 	"github.com/FascodeNet/alterlinux/src/pkg/shutils"
 	"mvdan.cc/sh/v3/syntax"
@@ -99,7 +100,9 @@ func UnmarshalAst(f *syntax.File, out interface{}) error {
 								return fmt.Errorf("unsupported slice element type for field %s", rt.Field(fi).Name)
 							}
 						}
-						fld.Set(slv)
+						// use settable value helper to allow unexported fields
+						settable := makeSettableValue(fld)
+						settable.Set(slv)
 					}
 					continue
 				}
@@ -169,20 +172,35 @@ func setScalarValue(fld reflect.Value, txt, fieldName string) {
 			txt = txt[1 : len(txt)-1]
 		}
 	}
-	switch fld.Kind() {
+	// ensure we have a settable value (handles unexported fields via unsafe)
+	sv := makeSettableValue(fld)
+	switch sv.Kind() {
 	case reflect.String:
-		fld.SetString(txt)
+		sv.SetString(txt)
 	case reflect.Bool:
 		if b, err := strconv.ParseBool(txt); err == nil {
-			fld.SetBool(b)
+			sv.SetBool(b)
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if iv, err := strconv.ParseInt(txt, 10, 64); err == nil {
-			fld.SetInt(iv)
+			sv.SetInt(iv)
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		if uv, err := strconv.ParseUint(txt, 10, 64); err == nil {
-			fld.SetUint(uv)
+			sv.SetUint(uv)
 		}
 	}
+}
+
+// makeSettableValue returns a reflect.Value that can be Set(). If the original
+// value is unexported but addressable, use unsafe to create a settable Value.
+func makeSettableValue(v reflect.Value) reflect.Value {
+	if v.CanSet() {
+		return v
+	}
+	if v.CanAddr() {
+		// create a new addressable Value that points to the same address
+		return reflect.NewAt(v.Type(), unsafe.Pointer(v.UnsafeAddr())).Elem()
+	}
+	return v
 }

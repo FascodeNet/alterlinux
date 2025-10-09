@@ -13,11 +13,13 @@ pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
 bootstrap_tarball_compression=('zstd' '-c' '-T0' '--auto-threads=logical' '--long' '-19')
+alteriso_modules=("base" "network-manager")
 `
 	to := struct {
 		Buildmodes []string `shkv:"buildmodes"`
 		Bootmodes  []string `shkv:"bootmodes"`
 		Arch       string   `shkv:"arch"`
+		modules    []string `shkv:"alteriso_modules"`
 	}{}
 
 	if err := Unmarshal(script, &to); err != nil {
@@ -36,4 +38,13 @@ bootstrap_tarball_compression=('zstd' '-c' '-T0' '--auto-threads=logical' '--lon
 	if to.Arch != "x86_64" {
 		t.Fatalf("to.Arch != x86_64: %s", to.Arch)
 	}
+    if len(to.modules) != 2 {
+        t.Fatalf("len(to.modules) != 2: %d", len(to.modules))
+    }
+    if to.modules[0] != "base" {
+        t.Fatalf("to.modules[0] != base: %s", to.modules[0])
+    }
+    if to.modules[1] != "network-manager" {
+        t.Fatalf("to.modules[1] != network-manager: %s", to.modules[1])
+    }
 }

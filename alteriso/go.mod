@@ -3,10 +3,10 @@ module github.com/FascodeNet/alterlinux
 go 1.25.1
 
 require (
-	github.com/Hayao0819/nahi v0.0.3
+	github.com/Hayao0819/nahi v0.0.4-0.20250226153401-b90a5060c85a
 	github.com/otiai10/copy v1.14.1
 	github.com/samber/lo v1.51.0
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/ztrue/tracerr v0.4.0
 	mvdan.cc/sh/v3 v3.12.0
 )
