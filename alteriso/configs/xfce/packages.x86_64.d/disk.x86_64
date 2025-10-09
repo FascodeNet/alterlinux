@@ -1,0 +1,8 @@
+dmraid
+ddrescue
+gpart
+gptfdisk
+nvme-cli
+testdisk
+parted
+clonezilla

@@ -1,0 +1,6 @@
+virtualbox-guest-utils-nox
+linux-firmware
+linux-firmware-marvell
+open-vm-tools
+qemu-guest-agent
+

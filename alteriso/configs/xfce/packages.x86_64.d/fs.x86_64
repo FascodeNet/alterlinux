@@ -1,2 +1,11 @@
 btrfs-progs
 bcachefs-tools
+dosfstools
+e2fsprogs
+f2fs-tools
+exfatprogs
+ntfs-3g
+xfsprogs
+squashfs-tools
+mtools
+nfs-utils
