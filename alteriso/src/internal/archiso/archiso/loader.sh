@@ -11,13 +11,29 @@ __alteriso_loadfile() {
     fi
 }
 
+__alteriso_injected_list() {
+    local _funcs=()
+
+    readarray -t _funcs < <(compgen -A function)
+
+    local _f _f_org
+    while read -r _f; do
+        _f_org=$(echo "${_f}" | sed -E 's/^(pre|post|override)_(.+)$/\2/')
+        if printf '%s\n' "${_funcs[@]}" | grep -qx "$_f_org"; then
+            _msg_info "Injected function: $_f_org"
+        fi
+
+    done < <(printf '%s\n' "${_funcs[@]}" | grep -E '^(pre|post|override)_(.+)$' | sort -u)
+}
+
 __alteriso_cleanup() {
     unset __alteriso_profile_dir
 }
 
 # _run_onceのinjectのテストにおいて、メインターゲットとして呼び出されるダミー関数
 alteriso_inject_test() {
-    :
+    unset alteriso_inject_test
+    unset pre_alteriso_inject_test
 }
 
 # pre_run_onceのinjectのテストにおいて、alteriso_inject_testの前に呼び出される関数

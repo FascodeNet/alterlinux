@@ -6,3 +6,5 @@
 {{ .ProfileDefContent }}
 
 __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
+
+__alteriso_injected_list
