@@ -27,6 +27,19 @@ func quoteShell(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'"
 }
 
+// quoteShellDouble double-quotes a string for shell with variable expansion, escaping $ ` " \
+func quoteShellDouble(s string) string {
+	if s == "" {
+		return "\"\""
+	}
+	// escape $ ` " \ for double quotes
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "\"", "\\\"")
+	s = strings.ReplaceAll(s, "$", "\\$")
+	s = strings.ReplaceAll(s, "`", "\\`")
+	return "\"" + s + "\""
+}
+
 // sanitizeKey creates a safe identifier fragment from an arbitrary string.
 func sanitizeKey(s string) string {
 	var b strings.Builder
@@ -66,9 +79,14 @@ func Marshal(v interface{}) (string, error) {
 		parts := strings.Split(tagRaw, ",")
 		tag := parts[0]
 		omitEmpty := false
+		expansion := false
 		for _, p := range parts[1:] {
-			if strings.TrimSpace(p) == "omitempty" {
+			p = strings.TrimSpace(p)
+			if p == "omitempty" {
 				omitEmpty = true
+			}
+			if p == "expansion" {
+				expansion = true
 			}
 		}
 
@@ -87,7 +105,13 @@ func Marshal(v interface{}) (string, error) {
 			if omitEmpty && s == "" {
 				continue
 			}
-			sb.WriteString(fmt.Sprintf("%s=%s\n", tag, quoteShell(s)))
+			var quoted string
+			if expansion {
+				quoted = quoteShellDouble(s)
+			} else {
+				quoted = quoteShell(s)
+			}
+			sb.WriteString(fmt.Sprintf("%s=%s\n", tag, quoted))
 		case reflect.Bool:
 			b := fv.Bool()
 			if omitEmpty && !b {
@@ -114,7 +138,13 @@ func Marshal(v interface{}) (string, error) {
 				if j > 0 {
 					sb.WriteByte(' ')
 				}
-				sb.WriteString(quoteShell(fv.Index(j).String()))
+				var quoted string
+				if expansion {
+					quoted = quoteShellDouble(fv.Index(j).String())
+				} else {
+					quoted = quoteShell(fv.Index(j).String())
+				}
+				sb.WriteString(quoted)
 			}
 			sb.WriteString(")\n")
 		case reflect.Map:
@@ -129,9 +159,17 @@ func Marshal(v interface{}) (string, error) {
 				for _, k := range fv.MapKeys() {
 					v := fv.MapIndex(k)
 					sb.WriteString("[")
-					sb.WriteString(quoteShell(k.String()))
+					var quotedKey, quotedVal string
+					if expansion {
+						quotedKey = quoteShellDouble(k.String())
+						quotedVal = quoteShellDouble(v.String())
+					} else {
+						quotedKey = quoteShell(k.String())
+						quotedVal = quoteShell(v.String())
+					}
+					sb.WriteString(quotedKey)
 					sb.WriteString("]=")
-					sb.WriteString(quoteShell(v.String()))
+					sb.WriteString(quotedVal)
 					sb.WriteByte(' ')
 				}
 				sb.WriteString(")\n")

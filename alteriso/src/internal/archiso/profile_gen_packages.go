@@ -1,6 +1,7 @@
 package archiso
 
 import (
+	"log/slog"
 	"os"
 	"path"
 	"sort"
@@ -8,23 +9,39 @@ import (
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Hayao0819/nahi/cputils"
-	"github.com/Hayao0819/nahi/flist"
 	"github.com/Hayao0819/nahi/futils"
 	"github.com/samber/lo"
 )
 
 func (p *Profile) Packages(filename string) ([]string, error) {
-	src := path.Join(p.ConfigPath, filename)
-	srcdir := path.Join(p.ConfigPath, filename+".d")
 
-	files := []string{src}
-	if futils.Exists(srcdir) {
-		dirFiles, err := flist.Get(srcdir, flist.WithFileOnly(), flist.WithExactDepth(1))
-		if err != nil {
-			return nil, errors.Wrap(err)
-		}
-		files = append(files, *dirFiles...)
+	srcdirs := []string{
+		p.Path,
 	}
+
+	for _, m := range p.Modules() {
+		srcdirs = append(srcdirs, m.Path)
+	}
+
+	files := []string{}
+	for _, d := range srcdirs {
+		file := path.Join(d, filename)
+		filedir := file + ".d"
+		if futils.Exists(filedir) {
+			entries, err := os.ReadDir(filedir)
+			if err != nil {
+				slog.Warn("failed to read packages dir", "dir", filedir, "error", err)
+				continue
+			}
+			for _, entry := range entries {
+				if entry.IsDir() {
+					continue
+				}
+				files = append(files, path.Join(filedir, entry.Name()))
+			}
+		}
+	}
+
 	pkgs := []string{}
 	for _, f := range files {
 		if !futils.Exists(f) {
@@ -49,15 +66,15 @@ func (p *Profile) Packages(filename string) ([]string, error) {
 
 func (p *Profile) copyPackages(outDir string) error {
 	dst := path.Join(outDir, "packages.x86_64")
-	src := path.Join(p.ConfigPath, "packages.x86_64")
+	src := path.Join(p.Path, "packages.x86_64")
 	if !futils.Exists(src) {
-		return errors.Newf("packages.x86_64 file does not exist in %s", p.ConfigPath)
+		return errors.Newf("packages.x86_64 file does not exist in %s", p.Path)
 	}
 
 	baseDst := path.Join(outDir, "bootstrap_packages.x86_64")
-	baseSrc := path.Join(p.ConfigPath, "bootstrap_packages.x86_64")
+	baseSrc := path.Join(p.Path, "bootstrap_packages.x86_64")
 	if !futils.Exists(baseSrc) {
-		return errors.Newf("bootstrap_packages.x86_64 file does not exist in %s", p.ConfigPath)
+		return errors.Newf("bootstrap_packages.x86_64 file does not exist in %s", p.Path)
 	}
 
 	tasks := []cputils.CopyTask{

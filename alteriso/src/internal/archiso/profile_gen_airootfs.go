@@ -6,26 +6,30 @@ import (
 
 	"github.com/Hayao0819/nahi/futils"
 	cp "github.com/otiai10/copy"
+	"github.com/samber/lo"
 )
 
 func (p *Profile) copyAirootfs(outDir string) error {
 	dst := path.Join(outDir, "airootfs")
 
-	slog.Info("modules", "list", p.Archiso.modules)
+	slog.Info("modules", "list", lo.Map(p.Modules(), func(m Module, i int) string {
+		return m.Name
+	}))
+
 	slog.Info("Copying airootfs", "dest", dst)
 
 	srcdirs := []string{}
 
-	for _, modName := range p.Modules() {
+	for _, m := range p.Modules() {
 		srcdirs = append(srcdirs,
-			path.Join(p.ModulesPath, modName.Name, "airootfs.any"),
-			path.Join(p.ModulesPath, modName.Name, "airootfs."+p.Archiso.Arch),
+			path.Join(m.Path, "airootfs.any"),
+			path.Join(m.Path, "airootfs."+p.Config.Arch),
 		)
 	}
 
 	srcdirs = append(srcdirs,
-		path.Join(p.ConfigPath, "airootfs.any"),
-		path.Join(p.ConfigPath, "airootfs."+p.Archiso.Arch),
+		path.Join(p.Path, "airootfs.any"),
+		path.Join(p.Path, "airootfs."+p.Config.Arch),
 	)
 
 	for _, src := range srcdirs {

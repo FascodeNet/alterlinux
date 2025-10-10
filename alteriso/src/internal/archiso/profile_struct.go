@@ -1,27 +1,47 @@
 package archiso
 
-type ProfileDef struct {
-	ISOName                     string            `shkv:"iso_name"`
-	ISOLavel                    string            `shkv:"iso_label"`
-	ISOPublisher                string            `shkv:"iso_publisher"`
-	ISOApplication              string            `shkv:"iso_application"`
-	ISOVersion                  string            `shkv:"iso_version"`
-	InstallDir                  string            `shkv:"install_dir"`
-	BuildModes                  []string          `shkv:"buildmodes"`
-	Bootmodes                   []string          `shkv:"bootmodes"`
-	Arch                        string            `shkv:"arch"`
-	PacmanConf                  string            `shkv:"pacman_conf"`
-	AirootfsImageType           string            `shkv:"airootfs_image_type"`
-	AirootfsImageToolOptions    []string          `shkv:"airootfs_image_tool_options"`
-	BootstrapTarballCompression []string          `shkv:"bootstrap_tarball_compression"`
-	FilePermissions             map[string]string `shkv:"file_permissions"`
-	modules                     []string          `shkv:"alteriso_modules"`
-}
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path"
+)
 
 type Profile struct {
-	Archiso         ProfileDef
+	Config          ProfileDef
 	modules         []Module
-	ConfigPath      string
-	ModulesPath     string
+	Path            string
 	BootloadersPath string
+}
+
+type ProfileDef struct {
+	Arch    string   `json:"arch"`
+	Modules []string `json:"modules"`
+}
+
+func NewProfile(dir, bootloadersPath, modulesPath string) (*Profile, error) {
+	configFile, err := os.ReadFile(path.Join(dir, "profiledef.json"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read profile config: %w", err)
+	}
+
+	profile := Profile{}
+
+	if err := json.Unmarshal(configFile, &profile.Config); err != nil {
+		return nil, fmt.Errorf("failed to parse profile config: %w", err)
+	}
+
+	profile.Path = dir
+	profile.BootloadersPath = bootloadersPath
+
+	for _, modName := range profile.Config.Modules {
+		modDir := path.Join(modulesPath, modName)
+		mod, err := NewModule(modDir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load module %s: %w", modName, err)
+		}
+		profile.modules = append(profile.modules, *mod)
+	}
+
+	return &profile, nil
 }

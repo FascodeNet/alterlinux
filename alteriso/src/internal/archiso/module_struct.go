@@ -48,15 +48,11 @@ func NewModule(dir string) (*Module, error) {
 	}, nil
 }
 
-func (p *Profile) Modules() []Module {
-	if p.modules != nil {
-		return p.modules
-	}
-
-	slog.Info("Listing available modules", "path", p.ModulesPath)
+func AvailableModules(modulesDir string) []Module {
+	slog.Info("Listing available modules", "path", modulesDir)
 
 	modules := []Module{}
-	l, err := os.ReadDir(p.ModulesPath)
+	l, err := os.ReadDir(modulesDir)
 	if err != nil {
 		slog.Error("Failed to read modules directory", "error", err)
 		return nil
@@ -65,7 +61,7 @@ func (p *Profile) Modules() []Module {
 		if !entry.IsDir() {
 			continue
 		}
-		modDir := path.Join(p.ModulesPath, entry.Name())
+		modDir := path.Join(modulesDir, entry.Name())
 		mod, err := NewModule(modDir)
 		if err != nil {
 			slog.Warn("Failed to load module", "module", entry.Name(), "error", err)
@@ -74,7 +70,9 @@ func (p *Profile) Modules() []Module {
 		modules = append(modules, *mod)
 	}
 
-	p.modules = modules
-
 	return modules
+}
+
+func (p *Profile) Modules() []Module {
+	return p.modules
 }

@@ -35,9 +35,9 @@ func (p *Profile) copyBootloaders(outDir string) error {
 
 func (p *Profile) pacmanConf(outDir string) error {
 	dst := path.Join(outDir, "pacman.conf")
-	src := path.Join(p.ConfigPath, "pacman.conf")
+	src := path.Join(p.Path, "pacman.conf")
 	if !futils.Exists(src) {
-		return errors.Newf("pacman.conf file does not exist in %s", p.ConfigPath)
+		return errors.Newf("pacman.conf file does not exist in %s", p.Path)
 	}
 
 	return errors.Wrap(cputils.CopyAll(cputils.CopyTask{

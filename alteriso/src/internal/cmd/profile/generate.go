@@ -33,39 +33,15 @@ func generateCmd() *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			configDir := args[0]
 			configName := path.Base(configDir)
 
-			// archisoProfileDef := archiso.ProfileDef{
-			// 	Arch: "x86_64",
-			// }
-
-			data, err := os.ReadFile(path.Join(configDir, "profiledef.sh"))
+			profile, err := archiso.NewProfile(configDir, bootloadersPath, modulesPath)
 			if err != nil {
-				return errors.Wrap(err)
-			}
-
-			archisoProfileDef, err := archiso.UnmarshalProfileDef(data)
-			if err != nil {
-				return errors.Wrap(err)
-			}
-
-			profile := archiso.Profile{
-				Archiso:         archisoProfileDef,
-				BootloadersPath: bootloadersPath,
-				ModulesPath:     modulesPath,
-				ConfigPath:      configDir,
-			}
-
-			if err := profile.Validate(); err != nil {
 				return err
 			}
 
 			return profile.GenArchisoProfile(path.Join(outDir, configName))
-
-			// return nil
-
 		},
 	}
 
