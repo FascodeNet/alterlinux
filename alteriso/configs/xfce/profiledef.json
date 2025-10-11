@@ -2,7 +2,9 @@
     "arch": "x86_64",
     "modules": [
         "base",
-        "network-manager"
+        "user",
+        "network-manager",
+        "lightdm"
     ],
     "kernel_name": "linux",
     "username": "live"
