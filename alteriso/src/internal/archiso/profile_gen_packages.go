@@ -40,6 +40,7 @@ func (p *Profile) Packages(filename string) ([]string, error) {
 				files = append(files, path.Join(filedir, entry.Name()))
 			}
 		}
+		files = append(files, file)
 	}
 
 	pkgs := []string{}
@@ -47,6 +48,7 @@ func (p *Profile) Packages(filename string) ([]string, error) {
 		if !futils.Exists(f) {
 			continue
 		}
+		slog.Info("Loading packages file", "file", f)
 		content, err := futils.ReadFileLine(f)
 		if err != nil {
 			return nil, errors.Wrap(err)
