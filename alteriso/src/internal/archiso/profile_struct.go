@@ -15,10 +15,11 @@ type Profile struct {
 }
 
 type ProfileDef struct {
-	Arch       string   `json:"arch"`
-	Modules    []string `json:"modules"`
-	KernelName string   `json:"kernel_name"`
-	UserName   string   `json:"username"`
+	Arch       string              `json:"arch"`
+	Modules    []string            `json:"modules"`
+	KernelName string              `json:"kernel_name"`
+	UserName   string              `json:"username"`
+	Injects    map[string][]string `json:"injects"`
 }
 
 func NewProfile(dir, bootloadersPath, modulesPath string) (*Profile, error) {

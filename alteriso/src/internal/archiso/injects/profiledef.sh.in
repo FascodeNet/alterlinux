@@ -3,8 +3,20 @@
 
 {{ .LoaderContent }}
 
-{{ .ProfileDefContent }}
-
 __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
+
+{{ range $index, $module := .EmbedScripts }}
+{{ inject_script $module }}
+{{ end }}
+
+{{ range $func, $codes := .Injects }}
+{{ $func }}{{ "()" }} {{ "{" }}
+    {{ range $index, $code := $codes }}
+    {{ $code }}
+    {{ end }}
+{{ "}" }}
+{{ end }}
+
+{{ .ProfileDefContent }}
 
 __alteriso_injected_list

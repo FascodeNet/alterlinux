@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
-	"github.com/Hayao0819/nahi/cputils"
 	"github.com/Hayao0819/nahi/futils"
 	"github.com/samber/lo"
 )

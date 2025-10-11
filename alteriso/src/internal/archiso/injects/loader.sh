@@ -111,6 +111,10 @@ __alteriso_profiledef_arch() {
     __alteriso_profiledef | jq -r ".arch"
 }
 
+__alteriso_profiledef_modules() {
+    __alteriso_profiledef | jq -r '.modules[]'
+}
+
 __alteriso_show_config() {
     if [[ "$__alteriso_compatible_mode" = "y" ]]; then
         return 0
