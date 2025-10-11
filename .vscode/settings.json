@@ -1,0 +1,9 @@
+{
+    "search.exclude": {
+        "alteriso/out/**": true,
+        "alteriso/work/**": true
+    },
+    "files.associations": {
+        "*.sh.in": "gotmpl"
+    }
+}
