@@ -1,36 +1,51 @@
 package archiso
 
 import (
+	"encoding/json"
 	"os"
 	"path"
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
+	"github.com/FascodeNet/alterlinux/src/internal/utils"
 	"github.com/Hayao0819/nahi/cputils"
 	"github.com/Hayao0819/nahi/futils"
 	"github.com/samber/lo"
+
+	cp "github.com/otiai10/copy"
 )
 
-func (p *Profile) copyBootloaders(outDir string) error {
-	bootloadersDst := path.Join(outDir)
-
+func (p *Profile) generateBootloaderConfigs(outDir string) error {
 	dirs, err := os.ReadDir(p.BootloadersPath)
 	if err != nil {
 		return errors.Wrap(err)
 	}
 
-	copyTargets := lo.Filter(dirs, func(item os.DirEntry, index int) bool {
-		return item.IsDir()
+	copyTargets := lo.FilterMap(dirs, func(item os.DirEntry, index int) (string, bool) {
+		return path.Join(p.BootloadersPath, item.Name()), item.IsDir()
 	})
 
-	tasks := lo.Map(copyTargets, func(item os.DirEntry, index int) cputils.CopyTask {
-		// slog.Info("Copying bootloader", "source", item.Name(), "dest", bootloadersDst)
-		return cputils.CopyTask{
-			Source: path.Join(p.BootloadersPath, item.Name()),
-			Dest:   path.Join(bootloadersDst, item.Name()),
+	// tasks := lo.Map(copyTargets, func(item os.DirEntry, index int) cputils.CopyTask {
+	// 	// slog.Info("Copying bootloader", "source", item.Name(), "dest", bootloadersDst)
+	// 	return cputils.CopyTask{
+	// 		Source: path.Join(p.BootloadersPath, item.Name()),
+	// 		Dest:   path.Join(bootloadersDst, item.Name()),
+	// 	}
+	// })
+
+	// return errors.Wrap(cputils.CopyAll(tasks...))
+
+	kv := map[string]string{
+		"ALTERISO_KERNEL_NAME": p.Config.KernelName,
+	}
+
+	for _, item := range copyTargets {
+		dst := path.Join(outDir, path.Base(item))
+		if err := utils.CopyDirWithKV(item, dst, kv); err != nil {
+			return errors.Wrap(err)
 		}
-	})
+	}
 
-	return errors.Wrap(cputils.CopyAll(tasks...))
+	return nil
 }
 
 func (p *Profile) pacmanConf(outDir string) error {
@@ -68,20 +83,28 @@ func (p *Profile) generateProfileDefSh(outDir string) error {
 	if err := os.WriteFile(path.Join(outDir, "profiledef.sh"), profileDefSh, 0o644); err != nil {
 		return errors.Wrap(err)
 	}
+
+	alterisoConfigBytes, err := json.Marshal(p.Config)
+	if err != nil {
+		return errors.Wrap(err)
+	}
+	if err := os.WriteFile(path.Join(outDir, "profiledef.json"), alterisoConfigBytes, 0o644); err != nil {
+		return errors.Wrap(err)
+	}
 	return nil
 }
 
 func (p *Profile) GenArchisoProfile(outDir string) error {
-	// tempDir, err := os.MkdirTemp(os.TempDir(), "alteriso-*")
-	// defer func() {
-	// 	_ = os.RemoveAll(tempDir)
-	// }()
-	// if err != nil {
-	// 	return errors.Wrap(err)
-	// }
+	tempDir, err := os.MkdirTemp(os.TempDir(), "alteriso-*")
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
+	if err != nil {
+		return errors.Wrap(err)
+	}
 
 	tasks := []func(outDir string) error{
-		p.copyBootloaders,
+		p.generateBootloaderConfigs,
 		p.generateProfileDefSh,
 		p.copyInjecter,
 		p.copyAirootfs,
@@ -90,9 +113,14 @@ func (p *Profile) GenArchisoProfile(outDir string) error {
 	}
 
 	for _, task := range tasks {
-		if err := task(outDir); err != nil {
+		if err := task(tempDir); err != nil {
 			return err
 		}
 	}
+
+	if err := cp.Copy(tempDir, outDir); err != nil {
+		return errors.Wrap(err)
+	}
+
 	return nil
 }

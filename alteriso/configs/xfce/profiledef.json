@@ -3,5 +3,7 @@
     "modules": [
         "base",
         "network-manager"
-    ]
+    ],
+    "kernel_name": "linux",
+    "username": "live"
 }
