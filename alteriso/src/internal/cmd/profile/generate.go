@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"log/slog"
 	"os"
 	"path"
 
@@ -41,7 +42,18 @@ func generateCmd() *cobra.Command {
 				return err
 			}
 
-			return profile.GenArchisoProfile(path.Join(outDir, configName))
+			dstDir := path.Join(outDir, configName)
+			if futils.Exists(dstDir) {
+				return errors.New("output directory already exists")
+			}
+
+			if err := profile.GenArchisoProfile(dstDir); err != nil {
+				return errors.Wrap(err)
+			}
+
+			slog.Info("Generated archiso profile", "dir", dstDir)
+
+			return nil
 		},
 	}
 
