@@ -66,33 +66,6 @@ func (p *Profile) Packages(filename string) ([]string, error) {
 	return pkgs, nil
 }
 
-func (p *Profile) copyPackages(outDir string) error {
-	dst := path.Join(outDir, "packages.x86_64")
-	src := path.Join(p.Path, "packages.x86_64")
-	if !futils.Exists(src) {
-		return errors.Newf("packages.x86_64 file does not exist in %s", p.Path)
-	}
-
-	baseDst := path.Join(outDir, "bootstrap_packages.x86_64")
-	baseSrc := path.Join(p.Path, "bootstrap_packages.x86_64")
-	if !futils.Exists(baseSrc) {
-		return errors.Newf("bootstrap_packages.x86_64 file does not exist in %s", p.Path)
-	}
-
-	tasks := []cputils.CopyTask{
-		{
-			Source: src,
-			Dest:   dst,
-		},
-		{
-			Source: baseSrc,
-			Dest:   baseDst,
-		},
-	}
-
-	return errors.Wrap(cputils.CopyAll(tasks...))
-}
-
 func (p *Profile) generatePackagesFile(outDir string) error {
 	for _, filename := range []string{"packages.x86_64", "bootstrap_packages.x86_64"} {
 		pkgs, err := p.Packages(filename)
