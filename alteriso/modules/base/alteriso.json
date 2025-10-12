@@ -1,4 +1,12 @@
 {
     "module_version": 1,
-    "manifest_version": 1
+    "manifest_version": 1,
+    "load_scripts": [
+        "module.sh"
+    ],
+    "injects": {
+        "post__make_custom_airootfs": [
+            "__alteriso_base_setup_mkinitcpio_presets"
+        ]
+    }
 }

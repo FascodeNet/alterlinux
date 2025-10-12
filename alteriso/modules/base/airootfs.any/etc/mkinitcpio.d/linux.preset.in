@@ -1,0 +1,8 @@
+# mkinitcpio preset file for the '%ALTERISO_KERNEL_NAME%' package on archiso
+
+PRESETS=('archiso')
+
+ALL_kver='/boot/vmlinuz-%ALTERISO_KERNEL_NAME%'
+archiso_config='/etc/mkinitcpio.conf.d/archiso.conf'
+
+archiso_image="/boot/initramfs-%ALTERISO_KERNEL_NAME%.img"
