@@ -12,6 +12,9 @@ override__make_customize_airootfs() {
             # Skip invalid home directories
             [[ "${passwd[5]}" == '/' ]] && continue
             [[ -z "${passwd[5]}" ]] && continue
+
+            _msg_info "Setting up home directory for user: ${passwd[0]} (${passwd[5]})"
+
             # Prevent path traversal outside of $pacstrap_dir
             if [[ "$(realpath -q -- "${pacstrap_dir}${passwd[5]}")" == "${pacstrap_dir}"* ]]; then
                 if [[ ! -d "${pacstrap_dir}${passwd[5]}" ]]; then
