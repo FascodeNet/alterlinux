@@ -124,6 +124,47 @@ __alteriso_profiledef_modules() {
     __alteriso_profiledef | jq -r '.modules[]'
 }
 
+# __alteriso_add_user_to_group USER_NAME GROUP_NAME
+__alteriso_add_user_to_group() {
+    local USER_NAME="$1"
+    local GROUP_NAME="$2"
+    local GROUP_FILE="$pacstrap_dir/etc/group"
+
+    awk -v group="${GROUP_NAME}" -v user="${USER_NAME}" '
+    BEGIN { FS=OFS=":" }
+    $1 == group {
+        if ($4 == "") {
+            $4 = user
+        } else {
+            $4 = $4 "," user
+        }
+    }
+    { print }
+    ' "$GROUP_FILE" >"${GROUP_FILE}.tmp" && mv "${GROUP_FILE}.tmp" "$GROUP_FILE"
+}
+
+# __alteriso_new_group USER_NAME
+__alteriso_new_group() {
+    local GROUP_NAME="$1"
+    local GROUP_FILE="$pacstrap_dir/etc/group"
+    local MIN_GID=1000
+    local MAX_GID
+
+    MAX_GID=$(awk -F: '$3 >= 1000 { print $3 }' "$GROUP_FILE" | sort -nr | head -n 1)
+
+    if [[ -z "$MAX_GID" ]]; then
+        MAX_GID=$MIN_GID
+    fi
+
+    local NEW_GID=$((MAX_GID + 1))
+
+    while grep -q ":x:${NEW_GID}:" "$GROUP_FILE"; do
+        NEW_GID=$((NEW_GID + 1))
+    done
+
+    echo "${GROUP_NAME}:x:${NEW_GID}:" >>"$GROUP_FILE"
+}
+
 __alteriso_show_config() {
     if [[ "$__alteriso_compatible_mode" = "y" ]]; then
         return 0

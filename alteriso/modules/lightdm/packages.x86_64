@@ -2,3 +2,4 @@ lightdm
 xorg-server
 xf86-video-fbdev
 xf86-video-vesa
+lightdm-gtk-greeter

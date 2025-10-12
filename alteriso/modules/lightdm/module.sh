@@ -65,8 +65,21 @@ __alteriso_lightdm_setup_calamares() {
     fi
 }
 
+__alteriso_lightdm_setup_autologin() {
+    __alteriso_new_group "autologin"
+    __alteriso_add_user_to_group "$(__alteriso_profiledef_username)" "autologin"
+}
+
+__alteriso_lightdm_disable_getty_autologin() {
+    local _autologin_conf="$pacstrap_dir/etc/systemd/system/getty@tty1.service.d/autologin.conf"
+    if [[ -e "${_autologin_conf}" ]]; then
+        rm -f "${_autologin_conf}"
+    fi
+}
 __alteriso_lightdm_customize_airootfs() {
     __alteriso_lightdm_replace_username
     __alteriso_lightdm_replace_session
     __alteriso_lightdm_setup_calamares
+    __alteriso_lightdm_disable_getty_autologin
+    __alteriso_lightdm_setup_autologin
 }

@@ -4,11 +4,11 @@
 override__make_customize_airootfs() {
     local passwd=()
 
-    if [[ -e "${profile}/airootfs/etc/passwd" ]]; then
+    if [[ -e "${pacstrap_dir}/etc/passwd" ]]; then
         _msg_info "Copying /etc/skel/* to user homes..."
         while IFS=':' read -a passwd -r; do
-            # Only operate on UIDs in range 1001–59999
-            ((passwd[2] >= 1001 && passwd[2] < 60000)) || continue
+            # Only operate on UIDs in range 1000–59999
+            ((passwd[2] >= 1000 && passwd[2] < 60000)) || continue
             # Skip invalid home directories
             [[ "${passwd[5]}" == '/' ]] && continue
             [[ -z "${passwd[5]}" ]] && continue
@@ -26,7 +26,7 @@ override__make_customize_airootfs() {
             else
                 _msg_error "Failed to set permissions on '${pacstrap_dir}${passwd[5]}'. Outside of valid path." 1
             fi
-        done <"${profile}/airootfs/etc/passwd"
+        done <"${pacstrap_dir}/etc/passwd"
         _msg_info "Done!"
     fi
 

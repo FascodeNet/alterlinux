@@ -26,5 +26,5 @@ _make_customize_airootfs_user() {
 
     echo "${_username} ALL=NOPASSWD: ALL" >> "$pacstrap_dir/etc/sudoers.d/alteriso_live"
 
-    _msg_info "Setting up user for auto-login: $_username"
+    _msg_info "Done!"
 }
