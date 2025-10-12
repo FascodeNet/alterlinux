@@ -18,8 +18,8 @@ func profileFormatCmd() *cobra.Command {
 				return errors.Newf("directory %s does not exist", configPath)
 			}
 
-			bootloadersPath := cmd.PersistentFlags().Lookup("bootloaders").Value.String()
-			modulesPath := cmd.PersistentFlags().Lookup("modules").Value.String()
+			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
+			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
 
 			profile, err := archiso.NewProfile(configPath, bootloadersPath, modulesPath)
 			if err != nil {

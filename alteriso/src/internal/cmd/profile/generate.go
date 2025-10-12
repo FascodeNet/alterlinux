@@ -36,8 +36,8 @@ func generateCmd() *cobra.Command {
 			configDir := args[0]
 			configName := path.Base(configDir)
 
-			bootloadersPath := cmd.PersistentFlags().Lookup("bootloaders").Value.String()
-			modulesPath := cmd.PersistentFlags().Lookup("modules").Value.String()
+			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
+			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
 
 			profile, err := archiso.NewProfile(configDir, bootloadersPath, modulesPath)
 			if err != nil {

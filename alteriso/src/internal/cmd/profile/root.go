@@ -16,8 +16,8 @@ func Cmd() *cobra.Command {
 		Short: "Manage archiso profiles",
 	}
 
-	cmd.Flags().StringVarP(&modulesPath, "modules", "", modulesPath, "Path to modules config dir")
-	cmd.Flags().StringVarP(&bootloadersPath, "bootloaders", "", bootloadersPath, "Path to bootloaders config dir")
+	cmd.PersistentFlags().StringVarP(&modulesPath, "modules", "", modulesPath, "Path to modules config dir")
+	cmd.PersistentFlags().StringVarP(&bootloadersPath, "bootloaders", "", bootloadersPath, "Path to bootloaders config dir")
 
 	profileReg.Bind(cmd)
 	return cmd
