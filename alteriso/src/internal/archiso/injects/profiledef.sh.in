@@ -20,3 +20,4 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 {{ .ProfileDefContent }}
 
 __alteriso_injected_list
+__alteriso_validate_profile
