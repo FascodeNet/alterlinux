@@ -6,7 +6,7 @@
     ],
     "injects": {
         "pre__make_customize_airootfs": [
-            "_make_customize_airootfs_passwd"
+            "_make_customize_airootfs_user"
         ]
     }
 }

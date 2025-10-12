@@ -3,9 +3,7 @@ openpgp-card-tools
 sequoia-sq
 pcsclite
 rsync
-n-db
 mc
-ma
 
 # firmware tools
 tpm2-tools
