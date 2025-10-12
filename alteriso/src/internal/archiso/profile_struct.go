@@ -17,6 +17,7 @@ type Profile struct {
 type ProfileDef struct {
 	Arch       string              `json:"arch"`
 	Modules    []string            `json:"modules"`
+	OSName     string              `json:"os_name"`
 	KernelName string              `json:"kernel_name"`
 	UserName   string              `json:"username"`
 	Injects    map[string][]string `json:"injects"`
