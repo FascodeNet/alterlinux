@@ -1,16 +1,10 @@
 openvpn
-broadcom-wl
-wireless-regdb
-wireless_tools
-wpa_supplicant
-systemd-resolvconf
-dhcpcd
 dnsmasq
-lynx
-openssh
 tcpdump
 nmap
 lftp
 ethtool
 openconnect
-# darkhttpd
+nbd
+open-iscsi
+iscsi-initiator-utils

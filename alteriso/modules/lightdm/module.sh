@@ -58,9 +58,9 @@ __alteriso_lightdm_replace_session() {
 }
 
 __alteriso_lightdm_setup_calamares() {
-    local _calamares_service_conf="/usr/share/calamares/modules/services.conf"
+    local _calamares_service_conf="$pacstrap_dir/usr/share/calamares/modules/services.conf"
     if [[ -e "${_calamares_service_conf}" ]]; then
-        sed -i "s|%DM%|lightdm|g" "/usr/share/calamares/modules/services.conf"
+        sed -i "s|%DM%|lightdm|g" "$_calamares_service_conf"
 
     fi
 }

@@ -6,4 +6,11 @@ screen
 pv
 nano
 less
+grml-zsh-config
+man-pages
+foot-terminfo
+kitty-terminfo
+rxvt-unicode-terminfo
+terminus-font
+
 

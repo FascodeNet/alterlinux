@@ -1,0 +1,12 @@
+libfido2
+openpgp-card-tools
+sequoia-sq
+pcsclite
+rsync
+n-db
+mc
+ma
+
+# firmware tools
+tpm2-tools
+tpm2-tss

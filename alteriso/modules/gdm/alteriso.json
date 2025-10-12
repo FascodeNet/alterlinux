@@ -6,7 +6,7 @@
     ],
     "injects":{
         "post__make_customize_airootfs": [
-            "__alteriso_lightdm_customize_airootfs"
+            "__alteriso_gdm_customize_airootfs"
         ]
     }
 }

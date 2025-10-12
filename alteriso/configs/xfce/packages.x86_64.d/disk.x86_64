@@ -6,3 +6,12 @@ nvme-cli
 testdisk
 parted
 clonezilla
+partimage
+sdparm
+hdparm
+smartmontools
+mdadm
+udftools
+partclone
+fsarchiver
+

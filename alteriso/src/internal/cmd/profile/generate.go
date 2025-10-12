@@ -12,8 +12,7 @@ import (
 )
 
 func generateCmd() *cobra.Command {
-	bootloadersPath := "/usr/share/alteriso/bootloaders"
-	modulesPath := "/usr/share/alteriso/modules/"
+
 	outDir := "./out"
 
 	cmd := cobra.Command{
@@ -37,6 +36,9 @@ func generateCmd() *cobra.Command {
 			configDir := args[0]
 			configName := path.Base(configDir)
 
+			bootloadersPath := cmd.PersistentFlags().Lookup("bootloaders").Value.String()
+			modulesPath := cmd.PersistentFlags().Lookup("modules").Value.String()
+
 			profile, err := archiso.NewProfile(configDir, bootloadersPath, modulesPath)
 			if err != nil {
 				return err
@@ -56,10 +58,8 @@ func generateCmd() *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVarP(&modulesPath, "modules", "", modulesPath, "Path to modules config dir")
-	cmd.Flags().StringVarP(&bootloadersPath, "bootloaders", "", bootloadersPath, "Path to bootloaders config dir")
 	cmd.Flags().StringVarP(&outDir, "out", "o", outDir, "Output directory")
+
 	return &cmd
 }
 
