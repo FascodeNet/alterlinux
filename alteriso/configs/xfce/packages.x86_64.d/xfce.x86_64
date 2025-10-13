@@ -1,1 +1,14 @@
 xfce4
+xfce4-clipman-plugin
+xfce4-pulseaudio-plugin
+xfce4-docklike-plugin
+xfce4-whiskermenu-plugin
+
+gnome-keyring
+
+thunar-archive-plugin
+thunar-media-tags-plugin
+
+papirus-icon-theme
+materia-gtk-theme
+materia-kde

@@ -37,6 +37,7 @@ func (p *Profile) generateBootloaderConfigs(outDir string) error {
 	kv := map[string]string{
 		"ALTERISO_KERNEL_NAME": p.Config.KernelName,
 		"ALTERISO_OS_NAME":     p.Config.OSName,
+        "ALTERISO_COW_SPACESIZE": p.Config.COWSpaceSize,
 	}
 
 	for _, item := range copyTargets {
