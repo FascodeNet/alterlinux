@@ -8,5 +8,6 @@
         "lightdm"
     ],
     "kernel_name": "linux",
-    "username": "live"
+    "username": "live",
+    "cow_spacesize": "1G"
 }
