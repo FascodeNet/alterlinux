@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 
 <channel name="xfce4-desktop" version="1.0">
   <property name="backdrop" type="empty">
@@ -7,22 +7,22 @@
         <property name="workspace0" type="empty">
           <property name="color-style" type="int" value="0"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.png"/>
+          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.svg"/>
         </property>
         <property name="workspace1" type="empty">
           <property name="color-style" type="int" value="0"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.png"/>
+          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.svg"/>
         </property>
         <property name="workspace2" type="empty">
           <property name="color-style" type="int" value="0"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.png"/>
+          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.svg"/>
         </property>
         <property name="workspace3" type="empty">
           <property name="color-style" type="int" value="0"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.png"/>
+          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-stripes.svg"/>
         </property>
       </property>
     </property>
@@ -45,4 +45,5 @@
     <property name="window-width" type="int" value="722"/>
     <property name="window-height" type="int" value="626"/>
   </property>
+  <property name="last-settings-migration-version" type="uint" value="1"/>
 </channel>

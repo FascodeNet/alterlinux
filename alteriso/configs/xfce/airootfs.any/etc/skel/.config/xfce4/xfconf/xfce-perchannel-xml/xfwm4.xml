@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
@@ -85,5 +85,7 @@
       <value type="string" value="Workspace 3"/>
       <value type="string" value="Workspace 4"/>
     </property>
+    <property name="cycle_minimized" type="bool" value="false"/>
+    <property name="zoom_pointer" type="bool" value="true"/>
   </property>
 </channel>

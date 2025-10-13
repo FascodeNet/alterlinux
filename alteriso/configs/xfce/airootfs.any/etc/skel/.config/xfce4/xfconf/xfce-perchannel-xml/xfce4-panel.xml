@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 
 <channel name="xfce4-panel" version="1.0">
   <property name="configver" type="int" value="2"/>
@@ -20,10 +20,10 @@
       <property name="autohide-behavior" type="uint" value="1"/>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="1.000000"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="1"/>
       </property>
       <property name="enter-opacity" type="uint" value="75"/>
       <property name="leave-opacity" type="uint" value="75"/>
@@ -40,12 +40,12 @@
       </property>
       <property name="enter-opacity" type="uint" value="100"/>
       <property name="leave-opacity" type="uint" value="100"/>
-      <property name="background-style" type="uint" value="1"/>
+      <property name="background-style" type="uint" value="0"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
       </property>
     </property>
     <property name="panel-3" type="empty">
@@ -60,12 +60,12 @@
         <value type="int" value="13"/>
         <value type="int" value="12"/>
       </property>
-      <property name="background-style" type="uint" value="1"/>
+      <property name="background-style" type="uint" value="0"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
       </property>
     </property>
     <property name="panel-4" type="empty">
@@ -81,12 +81,12 @@
         <value type="int" value="23"/>
         <value type="int" value="24"/>
       </property>
-      <property name="background-style" type="uint" value="1"/>
+      <property name="background-style" type="uint" value="0"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
-        <value type="double" value="0.000000"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
+        <value type="double" value="0"/>
       </property>
       <property name="enter-opacity" type="uint" value="100"/>
       <property name="leave-opacity" type="uint" value="100"/>
@@ -100,10 +100,10 @@
       <property name="leave-opacity" type="uint" value="0"/>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.750000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.000000"/>
+        <value type="double" value="0.75"/>
+        <value type="double" value="0.25"/>
+        <value type="double" value="0.25"/>
+        <value type="double" value="0"/>
       </property>
       <property name="autohide-behavior" type="uint" value="1"/>
     </property>
@@ -114,10 +114,10 @@
       <property name="position-locked" type="bool" value="true"/>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.750000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.250000"/>
-        <value type="double" value="0.000000"/>
+        <value type="double" value="0.75"/>
+        <value type="double" value="0.25"/>
+        <value type="double" value="0.25"/>
+        <value type="double" value="0"/>
       </property>
       <property name="autohide-behavior" type="uint" value="1"/>
       <property name="enter-opacity" type="uint" value="0"/>
@@ -126,7 +126,26 @@
   </property>
   <property name="plugins" type="empty">
     <property name="plugin-2" type="string" value="docklike"/>
-    <property name="plugin-3" type="string" value="whiskermenu"/>
+    <property name="plugin-3" type="string" value="whiskermenu">
+      <property name="button-title" type="string" value="Alter"/>
+      <property name="button-icon" type="string" value="/usr/share/icons/hicolor/96x96/apps/alter.png"/>
+      <property name="show-button-title" type="bool" value="true"/>
+      <property name="view-mode" type="int" value="0"/>
+      <property name="recent-items-max" type="int" value="0"/>
+      <property name="favorites-in-recent" type="bool" value="true"/>
+      <property name="position-search-alternate" type="bool" value="true"/>
+      <property name="menu-width" type="int" value="509"/>
+      <property name="menu-height" type="int" value="521"/>
+      <property name="show-command-lockscreen" type="bool" value="false"/>
+      <property name="command-switchuser" type="string" value="gdmflexiserver"/>
+      <property name="show-command-switchuser" type="bool" value="true"/>
+      <property name="show-command-menueditor" type="bool" value="false"/>
+      <property name="show-command-profile" type="bool" value="false"/>
+      <property name="favorites" type="array">
+      </property>
+      <property name="recent" type="array">
+      </property>
+    </property>
     <property name="plugin-11" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
@@ -137,6 +156,8 @@
     </property>
     <property name="plugin-13" type="string" value="clock">
       <property name="digital-format" type="string" value="%m/%d %a %l:%M:%S"/>
+      <property name="digital-time-format" type="string" value="%m/%d %a %l:%M:%S"/>
+      <property name="digital-layout" type="uint" value="3"/>
     </property>
     <property name="plugin-14" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
