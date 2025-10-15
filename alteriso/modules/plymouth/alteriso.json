@@ -1,0 +1,8 @@
+{
+    "module_version": 1,
+    "manifest_version": 1,
+    "append_kernel_param": [
+        "quiet",
+        "splash"
+    ]
+}

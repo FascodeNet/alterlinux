@@ -5,7 +5,8 @@
         "base",
         "user",
         "network-manager",
-        "lightdm"
+        "lightdm",
+        "plymouth"
     ],
     "kernel_name": "linux",
     "username": "live",

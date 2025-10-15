@@ -6,49 +6,11 @@ import (
 	"path"
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
-	"github.com/FascodeNet/alterlinux/src/internal/utils"
 	"github.com/Hayao0819/nahi/cputils"
 	"github.com/Hayao0819/nahi/futils"
-	"github.com/samber/lo"
 
 	cp "github.com/otiai10/copy"
 )
-
-func (p *Profile) generateBootloaderConfigs(outDir string) error {
-	dirs, err := os.ReadDir(p.BootloadersPath)
-	if err != nil {
-		return errors.Wrap(err)
-	}
-
-	copyTargets := lo.FilterMap(dirs, func(item os.DirEntry, index int) (string, bool) {
-		return path.Join(p.BootloadersPath, item.Name()), item.IsDir()
-	})
-
-	// tasks := lo.Map(copyTargets, func(item os.DirEntry, index int) cputils.CopyTask {
-	// 	// slog.Info("Copying bootloader", "source", item.Name(), "dest", bootloadersDst)
-	// 	return cputils.CopyTask{
-	// 		Source: path.Join(p.BootloadersPath, item.Name()),
-	// 		Dest:   path.Join(bootloadersDst, item.Name()),
-	// 	}
-	// })
-
-	// return errors.Wrap(cputils.CopyAll(tasks...))
-
-	kv := map[string]string{
-		"ALTERISO_KERNEL_NAME": p.Config.KernelName,
-		"ALTERISO_OS_NAME":     p.Config.OSName,
-        "ALTERISO_COW_SPACESIZE": p.Config.COWSpaceSize,
-	}
-
-	for _, item := range copyTargets {
-		dst := path.Join(outDir, path.Base(item))
-		if err := utils.CopyDirWithKV(item, dst, kv); err != nil {
-			return errors.Wrap(err)
-		}
-	}
-
-	return nil
-}
 
 func (p *Profile) pacmanConf(outDir string) error {
 	dst := path.Join(outDir, "pacman.conf")

@@ -18,10 +18,11 @@ type Module struct {
 }
 
 type ModuleConfig struct {
-	ManifestVersion int                 `json:"manifest_version"`
-	ModuleVersion   int                 `json:"module_version"`
-	LoadScripts     []string            `json:"load_scripts"`
-	Injects         map[string][]string `json:"injects"`
+	ManifestVersion   int                 `json:"manifest_version"`
+	ModuleVersion     int                 `json:"module_version"`
+	LoadScripts       []string            `json:"load_scripts"`
+	Injects           map[string][]string `json:"injects"`
+	Appendkernelparam []string            `json:"append_kernel_param"`
 }
 
 func NewModule(dir string) (*Module, error) {
