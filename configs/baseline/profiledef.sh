@@ -10,7 +10,6 @@ install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
            'uefi.grub')
-arch="x86_64"
 pacman_conf="pacman.conf"
 airootfs_image_type="erofs"
 airootfs_image_tool_options=('-zlzma,109' -E 'ztailpacking')

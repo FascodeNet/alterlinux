@@ -45,10 +45,12 @@ The image file is constructed from some of the variables in ``profiledef.sh``: `
   understood:
 
   - ``bios.syslinux``: Syslinux for x86 BIOS booting
-  - ``uefi.grub``: GRUB for x64 and IA32 UEFI booting
-  - ``uefi.systemd-boot``: systemd-boot for x64 and IA32 UEFI booting
-* ``arch``: The architecture (e.g. ``x86_64``) to build the image for. This is also used to resolve the name of the packages
-  file (e.g. ``packages.x86_64``)
+  - ``uefi.grub``: GRUB for UEFI booting. For the x86_64 architecture, in addition to x64 UEFI, support for mixed-mode
+    booting (IA32 UEFI) will also be added.
+  - ``uefi.systemd-boot``: systemd-boot for UEFI booting. For the x86_64 architecture, in addition to x64 UEFI, support
+    for mixed-mode booting (IA32 UEFI) will also be added.
+* ``arch``: The architecture (e.g. ``x86_64``) to build the image for (defaults to the value returned by ``uname -m``).
+  This is also used to resolve the name of the packages file (e.g. ``packages.x86_64``)
 * ``packages``: File path to a text file containing a list of packages to install into the environment in ``iso`` and
   ``netboot`` build modes (defaults to ``packages.${arch}``).
 * ``bootstrap_packages``: File path to a text file containing a list of packages to install into the environment in the
@@ -72,8 +74,9 @@ bootstrap_packages.arch
 =======================
 
 All packages to be installed into the environment of a bootstrap image have to be listed in a file specified by the
-``bootstrap_packages`` variable or the architecture specific ``bootstrap_packages.${arch}`` file
-(e.g. ``bootstrap_packages.x86_64``) which resides top-level in the profile, otherwise.
+``bootstrap_packages`` variable. If the variable is not specified, the architecture specific
+``bootstrap_packages.${arch}`` file (e.g. ``bootstrap_packages.x86_64``) or the ``bootstrap_packages`` file which reside
+top-level in the profile will be used instead.
 
 Packages have to be listed one per line. Lines starting with a ``#`` and blank lines are ignored.
 
@@ -83,8 +86,8 @@ packages.arch
 =============
 
 All packages to be installed into the environment of an ISO image have to be listed in a file specified by the
-``packages`` variable or the architecture specific ``packages.${arch}`` file (e.g. ``packages.x86_64``) which resides
-top-level in the profile, otherwise.
+``packages`` variable. If the variable is not specified, the architecture specific ``packages.${arch}`` file (e.g.
+``packages.x86_64``) or the ``packages`` file which reside top-level in the profile will be used instead.
 
 Packages have to be listed one per line. Lines starting with a ``#`` and blank lines are ignored.
 
@@ -162,7 +165,8 @@ It contains configuration for `systemd-boot
     root of an EFI system partition.
 
 The *custom template identifiers* are **only** understood in the boot loader entry `.conf` files (i.e. **not** in
-``loader.conf``).
+``loader.conf``). Boot entries for foreign UEFI architectures will be skipped with the exception of IA32 boot entries
+when building for the x86_64 architecture.
 
 syslinux
 --------

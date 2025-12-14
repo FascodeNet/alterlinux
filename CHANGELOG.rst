@@ -20,6 +20,40 @@ Fixed
 Removed
 -------
 
+[87] - 2025-10-29
+=================
+
+Added
+-----
+
+- Support other architectures. In theory it should now be possible to create UEFI bootable ISOs on AArch64, RISC-V 64
+  and LoongArch 64. Cross-architecture building is not supported.
+- Read package lists from ``bootstrap_packages`` and ``packages`` if they exist, but ``bootstrap_packages.${arch}`` and
+  ``packages.${arch}`` do not.
+- Support i686, aarch64 and riscv64 in the ``run_archiso`` script.
+
+Changed
+-------
+
+- Show the FAT image size in MiB instead of KiB to make it easier to comprehend.
+- ``reflector.service`` is no longer enabled by default in the releng profile since it takes too long to rate the
+  mirrors. The default mirrorlist's top mirror is fast enough for most people.
+- Only uncomment HTTPS mirrors in ``/etc/pacman.d/mirrorlist``. Those who want to use HTTP mirrors can uncomment them
+  manually.
+- The profiles do not hardcode the ``arch`` variable  in ``profiledef.sh`` anymore and instead rely on ``mkarchiso``
+  filling it in from ``uname -m``.
+- UEFI-architecture-specific systemd-boot boot entry files for foreign UEFI architectures are not added to the ISO. IA32
+  entries for x86_64 are an exception to support x86_64 systems with IA32 UEFI.
+- Rename ``bootstrap_packages.x86_64`` to ``bootstrap_packages`` to simplify reusing them when porting to non-x86_64
+  architectures.
+- Print ``run_archiso`` errors to stderr and show the application name in them.
+
+Fixed
+-----
+
+- Fixed deprecated boot mode upgrading.
+- Ensure the ISO always contains the kernel and initramfs regardless of the used boot modes, so that an installation
+  medium created via file system transposition is bootable.
 
 [86] - 2025-09-25
 =================
