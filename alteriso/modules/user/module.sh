@@ -3,12 +3,25 @@
 
 _make_customize_airootfs_user() {
     local _username
-    _username=$(__alteriso_profiledef | jq -r ".username")
+    _username=$(__alteriso_profiledef_username)
+	local _usershell
+	_usershell=$(__alteriso_profiledef_usershell)
+	if [[ -z "${_usershell}" || "${_usershell}" == "null" ]]; then
+		_usershell="/bin/bash"
+	fi
+
+    if [[ -z "${_username}" || "${_username}" == "null" ]]; then
+        _username="live"
+    fi
+
+    if [[ ${_username} == "root" ]]; then
+        return 0
+    fi
 
     _msg_info "Setting up auto-login for user: $_username"
 
     local passwd=()
-    passwd+=("${_username}:x:1000:1000:Live User:/home/${_username}:/bin/zsh")
+    passwd+=("${_username}:x:1000:1000:Live User:/home/${_username}:${_usershell}")
     printf '%s\n' "${passwd[@]}" >>"${pacstrap_dir}/etc/passwd"
 
     local shadow=()
@@ -24,7 +37,7 @@ _make_customize_airootfs_user() {
         sed -i "s|%ALTERISO_USERNAME%|${_username}|g" "${_autologin_conf}"
     fi
 
-    echo "${_username} ALL=NOPASSWD: ALL" >> "$pacstrap_dir/etc/sudoers.d/alteriso_live"
+    echo "${_username} ALL=NOPASSWD: ALL" >>"$pacstrap_dir/etc/sudoers.d/alteriso_live"
 
     _msg_info "Done!"
 }

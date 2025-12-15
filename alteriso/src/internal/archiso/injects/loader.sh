@@ -114,19 +114,23 @@ __alteriso_profiledef() {
 }
 
 __alteriso_profiledef_username() {
-    __alteriso_profiledef | jq -r ".username"
+    __alteriso_profiledef | jq -r ".username // empty"
+}
+
+__alteriso_profiledef_usershell() {
+    __alteriso_profiledef | jq -r ".usershell // empty"
 }
 
 __alteriso_profiledef_kernelname() {
-    __alteriso_profiledef | jq -r ".kernel_name"
+    __alteriso_profiledef | jq -r ".kernel_name // empty"
 }
 
 __alteriso_profiledef_arch() {
-    __alteriso_profiledef | jq -r ".arch"
+    __alteriso_profiledef | jq -r ".arch // empty"
 }
 
 __alteriso_profiledef_modules() {
-    __alteriso_profiledef | jq -r '.modules[]'
+    __alteriso_profiledef | jq -r '.modules[] // empty'
 }
 
 # __alteriso_add_user_to_group USER_NAME GROUP_NAME
