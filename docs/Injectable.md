@@ -166,4 +166,5 @@ pre__make_customize_airootfs() {
 
 ### 3. 関数の読み込み
 
-インジェクション関数は `profiledef.sh` から読み込まれている必要があります。別ファイルに分割する場合は、`profiledef.sh` 内で `source` してください。
+インジェクション関数は `profiledef.sh` から読み込まれている必要があります。
+別ファイルに分割する場合は、`profiledef.sh` 内で `source` してください。
