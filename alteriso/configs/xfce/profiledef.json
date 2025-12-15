@@ -3,10 +3,13 @@
     "arch": "x86_64",
     "modules": [
         "base",
-        "user",
-        "network-manager",
         "lightdm",
-        "plymouth"
+        "network-manager",
+        "plymouth",
+        "reflector",
+        "ssh",
+        "user",
+        "vmguest"
     ],
     "kernel_name": "linux",
     "username": "live",
