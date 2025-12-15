@@ -1,0 +1,9 @@
+{
+    "os_name": "Alter Linux",
+    "arch": "x86_64",
+
+    "kernel_name": "linux",
+    "username": "live",
+    "usershell": "/bin/bash",
+    "cow_spacesize": "1G"
+}
