@@ -1,11 +1,7 @@
-virtualbox-guest-utils
 linux-firmware
 linux-firmware-marvell
-open-vm-tools
-qemu-guest-agent
 b43-fwcutter
 usbutils
 usbmuxd
 usb_modeswitch
-hyperv
 broadcom-wl
