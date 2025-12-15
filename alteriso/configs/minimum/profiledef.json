@@ -1,7 +1,12 @@
 {
     "os_name": "Alter Linux",
     "arch": "x86_64",
-
+    "modules": [
+        "base",
+        "lightdm",
+        "network-manager",
+        "user"
+    ],
     "kernel_name": "linux",
     "username": "live",
     "usershell": "/bin/bash",
