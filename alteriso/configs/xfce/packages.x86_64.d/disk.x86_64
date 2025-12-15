@@ -1,6 +1,7 @@
 dmraid
 ddrescue
 gpart
+gparted
 gptfdisk
 nvme-cli
 testdisk
@@ -14,4 +15,3 @@ mdadm
 udftools
 partclone
 fsarchiver
-
