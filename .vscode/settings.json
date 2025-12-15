@@ -5,5 +5,10 @@
     },
     "files.associations": {
         "*.sh.in": "gotmpl"
-    }
+    },
+    "hadolint.cliOptions": [
+        "--no-color",
+        "--config",
+        "./alteriso/.hadolint.yaml"
+    ],
 }
