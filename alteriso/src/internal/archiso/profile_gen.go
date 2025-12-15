@@ -74,6 +74,7 @@ func (p *Profile) GenArchisoProfile(outDir string) error {
 		p.copyAirootfs,
 		p.generatePackagesFile,
 		p.pacmanConf,
+		p.generateInfoFile,
 	}
 
 	for _, task := range tasks {
