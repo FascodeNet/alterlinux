@@ -26,7 +26,7 @@ func profileFormatCmd() *cobra.Command {
 				return err
 			}
 
-			if profile.Format(); err != nil {
+			if err := profile.Format(); err != nil {
 				return errors.Wrap(err)
 			}
 
