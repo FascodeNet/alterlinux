@@ -92,7 +92,12 @@ __alteriso_validate() {
 __alteriso_validate_profile() {
     local _arch
     _arch=$(__alteriso_profiledef_arch)
-    if [[ "$_arch" != "$arch" ]]; then
+
+    if [[ -z "${arch-""}" && -n "$_arch" ]]; then
+        arch="$_arch"
+    fi
+
+    if [[ -n "${arch-""}" && -n "${_arch-""}" ]] && [[ "$_arch" != "$arch" ]]; then
         echo "[alteriso] ERROR: Profile architecture ($_arch) does not match the current architecture ($arch)." >&2
         exit 1
     fi
