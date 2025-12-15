@@ -19,5 +19,13 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 
 {{ .ProfileDefContent }}
 
-__alteriso_injected_list
+__alteriso_validate
 __alteriso_validate_profile
+
+if [[ "$__alteriso_compatible_mode" = "y" ]]; then
+    echo "[alteriso] INFO: Running in compatible mode. Injection features are disabled." >&2
+    __alteriso_cleanup
+    return 0
+fi
+__alteriso_injected_list
+__alteriso_show_config

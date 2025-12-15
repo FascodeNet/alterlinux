@@ -196,10 +196,3 @@ __alteriso_show_config() {
         exit 0
     fi
 }
-__alteriso_validate
-__alteriso_show_config
-if [[ "$__alteriso_compatible_mode" = "y" ]]; then
-    echo "[alteriso] INFO: Running in compatible mode. Injection features are disabled." >&2
-    __alteriso_cleanup
-    return 0
-fi
