@@ -13,4 +13,4 @@ fi
 mount | cut -d ' ' -f 3 | grep "$script_path/work" | sort -r | xargs -r umount -lf || true
 
 # Clean
-rm -rf "$script_path/work" "$script_path/out"
+rm -rf "$script_path/work"

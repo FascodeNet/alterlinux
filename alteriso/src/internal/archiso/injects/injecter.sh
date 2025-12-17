@@ -62,3 +62,16 @@ __alteriso_make_version() {
 post__make_version() {
     __alteriso_make_version
 }
+
+# Inject pacman cache directory into pacman.conf
+pre__make_pacman_conf() {
+    [[ -n "${ALTERISO_PACMAN_CACHE-""}" ]] || return 0
+
+    local __alteriso_cachedir="$ALTERISO_PACMAN_CACHE"
+    local __alteriso_pacman_conf="$work_dir/alteriso_pacman.conf"
+
+    pacman-conf -c "$pacman_conf" \
+        | sed -e "s|^CacheDir = .*|CacheDir = $__alteriso_cachedir|" \
+            >"$__alteriso_pacman_conf"
+    pacman_conf="$__alteriso_pacman_conf"
+}

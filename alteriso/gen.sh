@@ -5,5 +5,4 @@ script_path=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 exec go run "$script_path/src" profile \
     --bootloaders "$script_path/bootloaders/" \
     --modules "$script_path/modules/" \
-    generate \
-    -o "$script_path/out" "$@"
+    generate "$@"
