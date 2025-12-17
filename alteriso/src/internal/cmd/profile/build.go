@@ -24,7 +24,10 @@ func buildCmd() *cobra.Command {
 			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
 			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
 
-			profile, err := archiso.NewProfile(configDir, bootloadersPath, modulesPath)
+			profile, err := archiso.NewProfile(configDir,
+				archiso.WithModulesPath(modulesPath),
+				archiso.WithbootloadersPath(bootloadersPath),
+			)
 			if err != nil {
 				return err
 			}

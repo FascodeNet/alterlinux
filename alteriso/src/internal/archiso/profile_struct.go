@@ -1,17 +1,11 @@
 package archiso
 
-import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path"
-)
-
 type Profile struct {
 	Config          ProfileDef
 	modules         []Module
 	Path            string
 	BootloadersPath string
+	ModulesPath     string
 }
 
 type ProfileDef struct {
@@ -22,31 +16,4 @@ type ProfileDef struct {
 	UserName     string              `json:"username"`
 	Injects      map[string][]string `json:"injects"`
 	COWSpaceSize string              `json:"cow_spacesize"`
-}
-
-func NewProfile(dir, bootloadersPath, modulesPath string) (*Profile, error) {
-	configFile, err := os.ReadFile(path.Join(dir, "profiledef.json"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to read profile config: %w", err)
-	}
-
-	profile := Profile{}
-
-	if err := json.Unmarshal(configFile, &profile.Config); err != nil {
-		return nil, fmt.Errorf("failed to parse profile config: %w", err)
-	}
-
-	profile.Path = dir
-	profile.BootloadersPath = bootloadersPath
-
-	for _, modName := range profile.Config.Modules {
-		modDir := path.Join(modulesPath, modName)
-		mod, err := NewModule(modDir)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load module %s: %w", modName, err)
-		}
-		profile.modules = append(profile.modules, *mod)
-	}
-
-	return &profile, nil
 }
