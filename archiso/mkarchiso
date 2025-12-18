@@ -273,23 +273,46 @@ _mk_pgp_signature() {
 # Helper function to run functions only one time.
 # $1: function name
 _run_once() {
-    if type -t "pre_$1" >/dev/null 2>&1 && [[ ! -e "${work_dir}/${run_once_mode}.pre_$1" ]]; then
-        "pre_$1"
-        touch "${work_dir}/${run_once_mode}.pre_$1"
-    fi
-    if [[ ! -e "${work_dir}/${run_once_mode}.${1}" ]]; then
-        if type -t "override_$1" >/dev/null 2>&1; then
-            "override_$1"
-        else
-            "$1"
+    local _is_func _is_array _execute
+    _is_func() {
+        type -t "$1" >/dev/null 2>&1
+    }
+    _is_array() {
+        declare -p "$1" 2>/dev/null | grep -q 'declare \-a'
+    }
+
+    # _execute(prefix: "pre" | "post" | "override", function: ()=>void)
+    _execute() {
+        local _prefix="$1" _org_function="$2"
+        local _lockfile="${work_dir}/${run_once_mode}.${_prefix}_${_org_function}"
+        local _injected="${_prefix}_${_org_function}"
+        local _func
+
+        if [[ "$_prefix" == "override" ]]; then
+            _lockfile="${work_dir}/${run_once_mode}.${_org_function}"
+        fi
+        if [[ -e "${_lockfile}" ]]; then
+            return 0
         fi
 
-        touch "${work_dir}/${run_once_mode}.${1}"
-    fi
-    if type -t "post_$1" >/dev/null 2>&1 && [[ ! -e "${work_dir}/${run_once_mode}.post_$1" ]]; then
-        "post_$1"
-        touch "${work_dir}/${run_once_mode}.post_$1"
-    fi
+        if _is_func "$_injected"; then
+            "$_injected"
+        elif _is_array "$_injected"; then
+            while read -r _func; do
+                "$_func"
+            done < <(eval "printf '%s\n' \"\${${_injected}[@]}\"")
+        elif [[ "$_prefix" == "override" ]]; then
+            "$_org_function"
+        else
+            return 0
+        fi
+        touch "${_lockfile}"
+
+    }
+
+    _execute "pre" "$1"
+    _execute "override" "$1"
+    _execute "post" "$1"
 }
 
 # Set up custom pacman.conf with custom cache and pacman hook directories.
