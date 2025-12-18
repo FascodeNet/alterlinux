@@ -34,7 +34,7 @@ func generateCmd() *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configDir := args[0]
-			configName := path.Base(configDir)
+			// configName := path.Base(configDir)
 
 			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
 			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()

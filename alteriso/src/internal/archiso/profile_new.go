@@ -9,12 +9,12 @@ import (
 
 type profileOption func(*Profile) error
 
-func WithPacmanCacheDir(dir string) profileOption {
-	return func(p *Profile) error {
-		p.PacmanCacheDir = dir
-		return nil
-	}
-}
+// func WithPacmanCacheDir(dir string) profileOption {
+// 	return func(p *Profile) error {
+// 		p.PacmanCacheDir = dir
+// 		return nil
+// 	}
+// }
 
 func WithModulesPath(dir string) profileOption {
 	return func(p *Profile) error {
