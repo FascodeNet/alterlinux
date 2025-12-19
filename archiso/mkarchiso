@@ -273,15 +273,20 @@ _mk_pgp_signature() {
 # Helper function to run functions only one time.
 # $1: function name
 _run_once() {
-    local _is_func _is_array _execute
+    local _is_func _is_array _execute _is_array_not_empty
     _is_func() {
         type -t "$1" >/dev/null 2>&1
     }
     _is_array() {
         declare -p "$1" 2>/dev/null | grep -q 'declare \-a'
     }
+    _is_array_not_empty() {
+        (($(eval "echo \${#${1}[@]}") > 0))
+    }
 
-    # _execute(prefix: "pre" | "post" | "override", function: ()=>void)
+    # _execute
+    # $1: prefix (pre, post, override)
+    # $2: function name
     _execute() {
         local _prefix="$1" _org_function="$2"
         local _lockfile="${work_dir}/${run_once_mode}.${_prefix}_${_org_function}"
@@ -297,7 +302,7 @@ _run_once() {
 
         if _is_func "$_injected"; then
             "$_injected"
-        elif _is_array "$_injected"; then
+        elif _is_array "$_injected" && _is_array_not_empty "$_injected"; then
             while read -r _func; do
                 "$_func"
             done < <(eval "printf '%s\n' \"\${${_injected}[@]}\"")
