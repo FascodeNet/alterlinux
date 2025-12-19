@@ -15,17 +15,30 @@ __alteriso_loadfile() {
 
 __alteriso_injected_list() {
     local _funcs=()
-
     readarray -t _funcs < <(compgen -A function)
 
     local _f _f_org
     while read -r _f; do
-        _f_org=$(echo "${_f}" | sed -E 's/^(pre|post|override)_(.+)$/\2/')
-        if printf '%s\n' "${_funcs[@]}" | grep -qx "$_f_org"; then
-            _msg_info "Injected function: $_f"
+        _f_org=$(echo "${_f}" | sed -E "s/^(pre|post|override)_(.+)$/\2/")
+        if printf '%s\n' "${_funcs[@]}" | grep -qx -- "$_f_org"; then
+            _msg_info "Injected as function: $_f"
         fi
+    done < <(printf '%s\n' "${_funcs[@]}" | grep -E -- '^(pre|post|override)_(.+)$' | sort -u)
 
-    done < <(printf '%s\n' "${_funcs[@]}" | grep -E '^(pre|post|override)_(.+)$' | sort -u)
+    local _v _arrays=()
+    while read -r _v; do
+        if declare -p "$_v" 2>/dev/null | grep -q -- "declare -a"; then
+            _arrays+=("$_v")
+        fi
+    done < <(compgen -v)
+
+	local _a _a_org
+	while read -r _a; do
+		_a_org=$(echo "${_a}" | sed -E 's/^(pre|post|override)_(.+)$/\2/')
+		if printf '%s\n' "${_funcs[@]}" | grep -qx -- "$_a_org"; then
+			_msg_info "Injected as array: $_a"
+		fi
+	done < <(printf '%s\n' "${_arrays[@]}" | grep -E -- '^(pre|post|override)_(.+)$' | sort -u)
 }
 
 __alteriso_cleanup() {
