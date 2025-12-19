@@ -278,7 +278,7 @@ _run_once() {
         type -t "$1" >/dev/null 2>&1
     }
     _is_array() {
-        declare -p "$1" 2>/dev/null | grep -q 'declare \-a'
+        declare -p "$1" 2>/dev/null | grep -q "declare -a"
     }
     _is_array_not_empty() {
         (($(eval "echo \${#${1}[@]}") > 0))
