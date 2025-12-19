@@ -9,13 +9,13 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 {{ inject_script $module }}
 {{ end }}
 
-{{ range $func, $codes := .Injects }}
-{{ $func }}{{ "()" }} {{ "{" }}
-    {{ range $index, $code := $codes }}
-    {{ $code }}
-    {{ end }}
-{{ "}" }}
-{{ end }}
+{{- range $func, $codes := .Injects -}}
+    {{- $func }}{{ "+=(" }}
+        {{- range $index, $code := $codes -}}
+            {{- $code }}
+        {{- end -}}
+    {{ ")" }}
+{{ end -}}
 
 {{ .ProfileDefContent }}
 

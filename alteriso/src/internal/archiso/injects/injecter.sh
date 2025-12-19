@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154
+# shellcheck disable=SC2154,SC2034
 
 override__make_customize_airootfs() {
     local passwd=()
@@ -41,6 +41,10 @@ override__make_customize_airootfs() {
     fi
 }
 
+# Make version file for alteriso
+post__make_version+=(
+    __alteriso_make_version
+)
 __alteriso_make_version() {
     local _version_file="$__alteriso_profile_dir/alteriso.json"
     if [[ -e $_version_file ]]; then
@@ -59,12 +63,11 @@ __alteriso_make_version() {
     fi
 }
 
-post__make_version() {
-    __alteriso_make_version
-}
-
 # Inject pacman cache directory into pacman.conf
-pre__make_pacman_conf() {
+pre__make_pacman_conf+=(
+    __alteriso_inject_cachedir
+)
+__alteriso_inject_cachedir() {
     [[ -n "${ALTERISO_PACMAN_CACHE-""}" ]] || return 0
 
     local __alteriso_cachedir="$ALTERISO_PACMAN_CACHE"
