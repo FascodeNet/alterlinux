@@ -84,6 +84,17 @@ _arch4edu_install() {
     _arch4edu_apppend_repo
 }
 
+_chaotic_install() {
+    if _has_repo "chaotic-aur"; then
+        _msg_warn "chaotic-aur repository already exists in pacman configuration."
+        return 0
+    fi
+
+    _chaotic_install_keyring
+    _chaotic_install_pkgs
+    _chaotic_apppend_repo
+}
+
 _blackarch_install_keyring() {
     local _url _version _tarfile="blackarch_keyring-latest.tar.gz"
 
@@ -152,6 +163,29 @@ _arch4edu_install_keyring() {
     _pacman_key --finger "$_key_id"
 }
 
+_chaotic_install_keyring() {
+    local _key_id="3056513887B78AEB"
+    _pacman_key --recv-keys "$_key_id" --keyserver keyserver.ubuntu.com
+    _pacman_key --lsign-key "$_key_id"
+    _pacman_key --finger "$_key_id"
+}
+
+_chaotic_install_pkgs() {
+    # Prepare chaotic-mirrorlist
+    _chaotic_mirrorlist >"$tmp_dir/chaotic-mirrorlist"
+
+    # Prepare chaotic.conf
+    local _conf_file="$tmp_dir/chaotic.conf"
+    _pacman_conf >"$_conf_file"
+    _repo_config chaotic-aur "$tmp_dir/chaotic-mirrorlist" >>"$_conf_file"
+
+    # Install chaotic-keyring using the temporary config
+    local _old_config_path="$config_path"
+    config_path="$_conf_file"
+    _pacman_S -y chaotic-keyring chaotic-mirrorlist
+    config_path="$_old_config_path"
+}
+
 _blackarch_install_pkgs() {
     # Prepare blackarch-mirrorlist
     _blackarch_mirrorlist >"$tmp_dir/blackarch-mirrorlist"
@@ -201,7 +235,7 @@ _arch4edu_install_pkgs() {
 }
 
 _blackarch_apppend_repo() {
-    _repo_config blackarch "/etc/pacman.d/blackarch-mirrorlist" >>"/etc/pacman.conf"
+    _repo_config blackarch "/etc/pacman.d/blackarch-mirrorlist" >>"$config_path"
 }
 
 _blackarch_keyring_files() {
@@ -241,11 +275,15 @@ _archlinuxcn_install() {
 }
 
 _archlinuxcn_apppend_repo() {
-    _repo_config archlinuxcn "/etc/pacman.d/archlinuxcn-mirrorlist" >>"/etc/pacman.conf"
+    _repo_config archlinuxcn "/etc/pacman.d/archlinuxcn-mirrorlist" >>"$config_path"
 }
 
 _arch4edu_apppend_repo() {
-    _repo_config arch4edu "/etc/pacman.d/mirrorlist.arch4edu" >>"/etc/pacman.conf"
+    _repo_config arch4edu "/etc/pacman.d/mirrorlist.arch4edu" >>"$config_path"
+}
+
+_chaotic_apppend_repo() {
+    _repo_config chaotic-aur "/etc/pacman.d/chaotic-mirrorlist" >>"$config_path"
 }
 
 _blackarch_keyring_latest_files() {
@@ -271,8 +309,12 @@ _arch4edu_mirrorlist() {
     curl -fsSL "https://raw.githubusercontent.com/arch4edu/mirrorlist/refs/heads/master/mirrorlist.arch4edu"
 }
 
+_chaotic_mirrorlist() {
+    curl -fsSL "https://gitlab.com/chaotic-aur/pkgbuilds/-/raw/main/chaotic-mirrorlist/mirrorlist"
+}
+
 _init() {
-    # Parse flags: -c pacman_config, -r archlinuxcn|blackarch|arch4edu|all, -v, -q
+    # Parse flags: -c pacman_config, -r archlinuxcn|blackarch|arch4edu|chaotic|all, -v, -q
     while getopts ":c:r:vq" opt; do
         case "$opt" in
             c)
@@ -280,7 +322,7 @@ _init() {
                 ;;
             r)
                 case "$OPTARG" in
-                    blackarch | archlinuxcn | arch4edu | all)
+                    blackarch | archlinuxcn | arch4edu | chaotic | all)
                         target_repo="$OPTARG"
                         ;;
                     *)
@@ -326,10 +368,14 @@ _main() {
         arch4edu)
             _arch4edu_install
             ;;
+        chaotic)
+            _chaotic_install
+            ;;
         all)
             _arch4edu_install
             _blackarch_install
             _archlinuxcn_install
+            _chaotic_install
             ;;
     esac
     cd "${OLDPWD-.}" || exit 1
