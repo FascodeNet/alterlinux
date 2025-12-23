@@ -1,10 +1,10 @@
 package profile
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/FascodeNet/alterlinux/src/internal/archiso"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
@@ -12,44 +12,89 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func getProfileFromArg(cmd *cobra.Command, configDir string) (*archiso.Profile, error) {
+	bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
+	modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
+
+	profile, err := archiso.NewProfile(configDir,
+		archiso.WithModulesPath(modulesPath),
+		archiso.WithbootloadersPath(bootloadersPath),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err)
+	}
+
+	return profile, nil
+}
+
 func buildCmd() *cobra.Command {
 	outDir := "./out"
+	workDir := "./work"
 	cmd := cobra.Command{
 		Use:   "build",
 		Short: "Build the ISO from generated profile",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			// TODO: 権限チェック
+
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			configDir := args[0]
+			// Load profile
+			var configDir string
+			if len(args) < 1 {
+				configDir = "./configs/xfce"
+			} else {
+				configDir = args[0]
+			}
+
 			configName := path.Base(configDir)
-
-			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
-			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
-
-			profile, err := archiso.NewProfile(configDir,
-				archiso.WithModulesPath(modulesPath),
-				archiso.WithbootloadersPath(bootloadersPath),
-			)
-			if err != nil {
-				return err
-			}
-
-			profileDir, err := os.MkdirTemp("", fmt.Sprintf("alteriso-%s-*", configName))
+			slog.Info("Loading profile...", "config", configDir)
+			profile, err := getProfileFromArg(cmd, configDir)
 			if err != nil {
 				return errors.Wrap(err)
 			}
-			defer os.RemoveAll(profileDir)
+			slog.Info("Using profile", "name", configName)
 
-			if err := profile.GenArchisoProfile(profileDir); err != nil {
+			// Setup directories
+			for _, dir := range []*string{&outDir, &workDir} {
+				absDir, err := filepath.Abs(*dir)
+				if err != nil {
+					return errors.Wrap(err)
+				}
+				*dir = absDir
+				if err := os.MkdirAll(*dir, 0o755); err != nil {
+					return errors.Wrap(err)
+				}
+			}
+			slog.Info("Output directory", "dir", outDir)
+			slog.Info("Working directory", "dir", workDir)
+
+			// Generate archiso profile
+			archisoprofileDir := path.Join(workDir, "profile")
+			if err := profile.GenArchisoProfile(archisoprofileDir); err != nil {
 				return errors.Wrap(err)
 			}
+			slog.Info("Generated archiso profile", "dir", archisoprofileDir)
 
-			slog.Info("Generated archiso profile", "dir", profileDir)
-
-			mkarchiso, err := archiso.MkarchisoPath()
+			// Build ISO with mkarchiso
+			// TODO: 権限昇格
+			archisoWorkDir := path.Join(workDir, "archiso")
+			if err := os.MkdirAll(archisoWorkDir, 0o755); err != nil {
+				return errors.Wrap(err)
+			}
+			archisoPacmanCacheDir := path.Join(workDir, "pacman_cache")
+			if err := os.MkdirAll(archisoPacmanCacheDir, 0o755); err != nil {
+				return errors.Wrap(err)
+			}
+			mkarchisoPath, err := archiso.MkarchisoPath()
 			if err != nil {
 				return errors.Wrap(err)
 			}
+			mkarchisoCmd := exutils.CommandWithStdio(mkarchisoPath, "-v", "-w", archisoWorkDir, "-o", outDir, archisoprofileDir)
+			mkarchisoCmd.Env = append(mkarchisoCmd.Env, "ALTERISO_PACMAN_CACHE="+archisoPacmanCacheDir)
+			slog.Info("Building ISO image...", "command", mkarchisoCmd.String())
 
-			if err := exutils.CommandWithStdio(mkarchiso, "-v", "-w", "work", "-o", outDir, profileDir).Run(); err != nil {
+			if err := mkarchisoCmd.Run(); err != nil {
 				return errors.Wrap(err)
 			}
 
@@ -59,6 +104,7 @@ func buildCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&outDir, "out", "o", outDir, "Output directory")
+	cmd.Flags().StringVar(&workDir, "work", workDir, "Working directory")
 
 	return &cmd
 

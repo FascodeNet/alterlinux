@@ -5,6 +5,8 @@ go 1.25.1
 require (
 	github.com/Hayao0819/nahi v0.0.4-0.20250226153401-b90a5060c85a
 	github.com/m-mizutani/clog v0.1.0
+	github.com/moby/sys/mount v0.3.4
+	github.com/moby/sys/mountinfo v0.7.2
 	github.com/otiai10/copy v1.14.1
 	github.com/samber/lo v1.51.0
 	github.com/spf13/cobra v1.8.1

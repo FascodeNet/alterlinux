@@ -1,7 +1,6 @@
 package profile
 
 import (
-	"github.com/FascodeNet/alterlinux/src/internal/archiso"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Hayao0819/nahi/futils"
 	"github.com/spf13/cobra"
@@ -18,13 +17,7 @@ func profileFormatCmd() *cobra.Command {
 				return errors.Newf("directory %s does not exist", configPath)
 			}
 
-			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
-			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
-
-			profile, err := archiso.NewProfile(configPath,
-				archiso.WithModulesPath(modulesPath),
-				archiso.WithbootloadersPath(bootloadersPath),
-			)
+			profile, err := getProfileFromArg(cmd, configPath)
 			if err != nil {
 				return err
 			}
