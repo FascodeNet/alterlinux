@@ -84,6 +84,17 @@ _arch4edu_install() {
     _arch4edu_apppend_repo
 }
 
+_archlinuxcn_install() {
+    if _has_repo "archlinuxcn"; then
+        _msg_warn "archlinuxcn repository already exists in pacman configuration."
+        return 0
+    fi
+
+    _archlinuxcn_install_keyring
+    _archlinuxcn_install_pkgs
+    _archlinuxcn_apppend_repo
+}
+
 _chaotic_install() {
     if _has_repo "chaotic-aur"; then
         _msg_warn "chaotic-aur repository already exists in pacman configuration."
@@ -170,20 +181,40 @@ _chaotic_install_keyring() {
     _pacman_key --finger "$_key_id"
 }
 
-_chaotic_install_pkgs() {
-    # Prepare chaotic-mirrorlist
-    _chaotic_mirrorlist >"$tmp_dir/chaotic-mirrorlist"
+_blackarch_keyring_files() {
+    local _url="https://www.blackarch.org/keyring/"
 
-    # Prepare chaotic.conf
-    local _conf_file="$tmp_dir/chaotic.conf"
-    _pacman_conf >"$_conf_file"
-    _repo_config chaotic-aur "$tmp_dir/chaotic-mirrorlist" >>"$_conf_file"
+    if ! curl -fsSL "$_url" \
+        | awk -F '"' '/<a href="[^"]+"/ {print $2}' \
+        | grep -v '/$' \
+        | sed "s|^|$_url|"; then
+        _msg_error "failed to fetch keyring file list from $_url"
+        return 1
+    fi
+}
 
-    # Install chaotic-keyring using the temporary config
-    local _old_config_path="$config_path"
-    config_path="$_conf_file"
-    _pacman_S -y chaotic-keyring chaotic-mirrorlist
-    config_path="$_old_config_path"
+_blackarch_keyring_version() {
+    local _v
+    _v=$(_blackarch_keyring_files \
+        | awk -F/ '{print $NF}' \
+        | sed -En 's/^blackarch-keyring-([0-9]{8})\.tar\.gz(\.sig)?$/\1/p' \
+        | sort | tail -n1) || true
+    [[ -n "$_v" ]] || {
+        _msg_error "failed to determine blackarch keyring version"
+        return 1
+    }
+    printf '%s\n' "$_v"
+}
+
+_blackarch_keyring_latest_files() {
+    local _ver _urls
+    _ver=$(_blackarch_keyring_version) || return 1
+    _urls=$(_blackarch_keyring_files | grep "blackarch-keyring-${_ver}\.tar\.gz") || true
+    [[ -n "$_urls" ]] || {
+        _msg_error "failed to find keyring files for version $_ver"
+        return 1
+    }
+    printf '%s\n' "$_urls"
 }
 
 _blackarch_install_pkgs() {
@@ -234,44 +265,24 @@ _arch4edu_install_pkgs() {
     config_path="$_old_config_path"
 }
 
+_chaotic_install_pkgs() {
+    # Prepare chaotic-mirrorlist
+    _chaotic_mirrorlist >"$tmp_dir/chaotic-mirrorlist"
+
+    # Prepare chaotic.conf
+    local _conf_file="$tmp_dir/chaotic.conf"
+    _pacman_conf >"$_conf_file"
+    _repo_config chaotic-aur "$tmp_dir/chaotic-mirrorlist" >>"$_conf_file"
+
+    # Install chaotic-keyring using the temporary config
+    local _old_config_path="$config_path"
+    config_path="$_conf_file"
+    _pacman_S -y chaotic-keyring chaotic-mirrorlist
+    config_path="$_old_config_path"
+}
+
 _blackarch_apppend_repo() {
     _repo_config blackarch "/etc/pacman.d/blackarch-mirrorlist" >>"$config_path"
-}
-
-_blackarch_keyring_files() {
-    local _url="https://www.blackarch.org/keyring/"
-
-    if ! curl -fsSL "$_url" \
-        | awk -F '"' '/<a href="[^"]+"/ {print $2}' \
-        | grep -v '/$' \
-        | sed "s|^|$_url|"; then
-        _msg_error "failed to fetch keyring file list from $_url"
-        return 1
-    fi
-}
-
-_blackarch_keyring_version() {
-    local _v
-    _v=$(_blackarch_keyring_files \
-        | awk -F/ '{print $NF}' \
-        | sed -En 's/^blackarch-keyring-([0-9]{8})\.tar\.gz(\.sig)?$/\1/p' \
-        | sort | tail -n1) || true
-    [[ -n "$_v" ]] || {
-        _msg_error "failed to determine blackarch keyring version"
-        return 1
-    }
-    printf '%s\n' "$_v"
-}
-
-_archlinuxcn_install() {
-    if _has_repo "archlinuxcn"; then
-        _msg_warn "archlinuxcn repository already exists in pacman configuration."
-        return 0
-    fi
-
-    _archlinuxcn_install_keyring
-    _archlinuxcn_install_pkgs
-    _archlinuxcn_apppend_repo
 }
 
 _archlinuxcn_apppend_repo() {
@@ -284,17 +295,6 @@ _arch4edu_apppend_repo() {
 
 _chaotic_apppend_repo() {
     _repo_config chaotic-aur "/etc/pacman.d/chaotic-mirrorlist" >>"$config_path"
-}
-
-_blackarch_keyring_latest_files() {
-    local _ver _urls
-    _ver=$(_blackarch_keyring_version) || return 1
-    _urls=$(_blackarch_keyring_files | grep "blackarch-keyring-${_ver}\.tar\.gz") || true
-    [[ -n "$_urls" ]] || {
-        _msg_error "failed to find keyring files for version $_ver"
-        return 1
-    }
-    printf '%s\n' "$_urls"
 }
 
 _blackarch_mirrorlist() {
