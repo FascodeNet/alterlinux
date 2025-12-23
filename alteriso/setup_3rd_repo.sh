@@ -73,6 +73,17 @@ _blackarch_install() {
 
 }
 
+_arch4edu_install() {
+    if _has_repo "arch4edu"; then
+        _msg_warn "arch4edu repository already exists in pacman configuration."
+        return 0
+    fi
+
+    _arch4edu_install_keyring
+    _arch4edu_install_pkgs
+    _arch4edu_apppend_repo
+}
+
 _blackarch_install_keyring() {
     local _url _version _tarfile="blackarch_keyring-latest.tar.gz"
 
@@ -133,6 +144,14 @@ _archlinuxcn_install_keyring() {
     return 0
 }
 
+_arch4edu_install_keyring() {
+    local _key_id="7931B6D628C8D3BA"
+
+    _pacman_key --recv-keys "$_key_id"
+    _pacman_key --lsign-key "$_key_id"
+    _pacman_key --finger "$_key_id"
+}
+
 _blackarch_install_pkgs() {
     # Prepare blackarch-mirrorlist
     _blackarch_mirrorlist >"$tmp_dir/blackarch-mirrorlist"
@@ -162,6 +181,22 @@ _archlinuxcn_install_pkgs() {
     local _old_config_path="$config_path"
     config_path="$_conf_file"
     _pacman_S -y archlinuxcn-keyring archlinuxcn-mirrorlist-git
+    config_path="$_old_config_path"
+}
+
+_arch4edu_install_pkgs() {
+    # Prepare arch4edu-mirrorlist
+    _arch4edu_mirrorlist >"$tmp_dir/arch4edu-mirrorlist"
+
+    # Prepare arch4edu.conf
+    local _conf_file="$tmp_dir/arch4edu.conf"
+    _pacman_conf >"$_conf_file"
+    _repo_config arch4edu "$tmp_dir/arch4edu-mirrorlist" >>"$_conf_file"
+
+    # Install arch4edu-keyring using the temporary config
+    local _old_config_path="$config_path"
+    config_path="$_conf_file"
+    _pacman_S -y arch4edu-keyring arch4edu-mirrorlist
     config_path="$_old_config_path"
 }
 
@@ -209,6 +244,10 @@ _archlinuxcn_apppend_repo() {
     _repo_config archlinuxcn "/etc/pacman.d/archlinuxcn-mirrorlist" >>"/etc/pacman.conf"
 }
 
+_arch4edu_apppend_repo() {
+    _repo_config arch4edu "/etc/pacman.d/mirrorlist.arch4edu" >>"/etc/pacman.conf"
+}
+
 _blackarch_keyring_latest_files() {
     local _ver _urls
     _ver=$(_blackarch_keyring_version) || return 1
@@ -228,8 +267,12 @@ _archlinuxcn_mirrorlist() {
     curl -fsSL "https://raw.githubusercontent.com/archlinuxcn/mirrorlist-repo/refs/heads/master/archlinuxcn-mirrorlist" | sed 's/^# Server/Server/'
 }
 
+_arch4edu_mirrorlist() {
+    curl -fsSL "https://raw.githubusercontent.com/arch4edu/mirrorlist/refs/heads/master/mirrorlist.arch4edu"
+}
+
 _init() {
-    # Parse flags: -c pacman_config, -r archlinuxcn|blackarch|all, -v, -q
+    # Parse flags: -c pacman_config, -r archlinuxcn|blackarch|arch4edu|all, -v, -q
     while getopts ":c:r:vq" opt; do
         case "$opt" in
             c)
@@ -237,7 +280,7 @@ _init() {
                 ;;
             r)
                 case "$OPTARG" in
-                    blackarch | archlinuxcn | all)
+                    blackarch | archlinuxcn | arch4edu | all)
                         target_repo="$OPTARG"
                         ;;
                     *)
@@ -280,7 +323,11 @@ _main() {
         archlinuxcn)
             _archlinuxcn_install
             ;;
+        arch4edu)
+            _arch4edu_install
+            ;;
         all)
+            _arch4edu_install
             _blackarch_install
             _archlinuxcn_install
             ;;
