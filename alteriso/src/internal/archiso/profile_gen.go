@@ -58,6 +58,26 @@ func (p *Profile) generateProfileDefSh(outDir string) error {
 	return nil
 }
 
+func (p *Profile) copySplashImage(outDir string) error {
+	if futils.Exists(path.Join(p.Path, "splash.png")) {
+		src := path.Join(p.Path, "splash.png")
+		dsts := []string{
+			path.Join(outDir, "syslinux", "splash.png"),
+		}
+		for _, dst := range dsts {
+			if futils.Exists(dst) {
+				if err := os.Remove(dst); err != nil {
+					return errors.Wrap(err)
+				}
+			}
+			if err := cp.Copy(src, dst); err != nil {
+				return errors.Wrap(err)
+			}
+		}
+	}
+	return nil
+}
+
 func (p *Profile) GenArchisoProfile(outDir string) error {
 	tempDir, err := os.MkdirTemp(os.TempDir(), "alteriso-*")
 	defer func() {
@@ -69,6 +89,7 @@ func (p *Profile) GenArchisoProfile(outDir string) error {
 
 	tasks := []func(outDir string) error{
 		p.generateBootloaderConfigs,
+		p.copySplashImage,
 		p.generateProfileDefSh,
 		p.copyInjecter,
 		p.copyAirootfs,
