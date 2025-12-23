@@ -33,11 +33,15 @@ COPY --from=builder /build/alteriso /usr/local/bin/alteriso
 COPY ./configs /usr/share/alteriso/configs
 COPY ./modules /usr/share/alteriso/modules
 COPY ./bootloaders /usr/share/alteriso/bootloaders
-RUN chmod +x /usr/local/bin/alteriso
-
+COPY ./setup_3rd_repo.sh /tmp/setup_3rd_repo.sh
+RUN <<EOF
+chmod +x /usr/local/bin/alteriso
+chmod +x /tmp/setup_3rd_repo.sh
+bash /tmp/setup_3rd_repo.sh
+rm -rf /tmp/setup_3rd_repo.sh
+EOF
 
 # FROM alteriso
-
 # WORKDIR /app
 # RUN --security=insecure <<EOF
 # alteriso profile \
