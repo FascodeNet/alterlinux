@@ -14,17 +14,14 @@ work_dir="$script_path/work"
 binfile="$(mktemp -u)"
 go build -o "$binfile" "$script_path/src"
 
-# Set mkarchiso path
-PATH="$(realpath "$script_path/../archiso/"):$PATH"
-export PATH
-
 # Execute the build command
-"$binfile" profile \
+sudo PATH="$(realpath "$script_path/../archiso/"):$(sudo -Hiu root bash -c 'echo "$PATH"')" \
+    "$binfile" profile \
     --bootloaders "$script_path/bootloaders/" \
     --modules "$script_path/modules/" \
     build \
-    --workdir "$work_dir" \
-    --outdir "$script_path/out" \
+    --work "$work_dir" \
+    --out "$script_path/out" \
     "$profile_dir" "$@"
 
 # Clean up
