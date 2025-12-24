@@ -8,7 +8,7 @@ RUN pacman -Syu --noconfirm && \
 FROM arch AS archiso
 
 # Install archiso
-RUN pacman -S --noconfirm archiso jq && \
+RUN pacman -S --noconfirm archiso jq unzip && \
     pacman -Scc --noconfirm
 
 FROM arch AS golang-dev
@@ -35,9 +35,9 @@ COPY ./modules /usr/share/alteriso/modules
 COPY ./bootloaders /usr/share/alteriso/bootloaders
 COPY ./setup_3rd_repo.sh /tmp/setup_3rd_repo.sh
 RUN <<EOF
-chmod +x /usr/local/bin/alteriso
-chmod +x /tmp/setup_3rd_repo.sh
-bash /tmp/setup_3rd_repo.sh
+set -e
+chmod +x /usr/local/bin/alteriso /tmp/setup_3rd_repo.sh
+bash /tmp/setup_3rd_repo.sh || exit 1
 rm -rf /tmp/setup_3rd_repo.sh
 EOF
 
