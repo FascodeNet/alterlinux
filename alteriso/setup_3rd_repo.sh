@@ -58,7 +58,26 @@ _msg_warn() {
 # $1: repository name
 # $2: include file path
 _repo_config() {
+    if [[ -z "$1" || -z "$2" ]]; then
+        _msg_error "_repo_config requires 2 arguments: <repo_name> <include_file_path>"
+        return 1
+    fi
+    if [[ ! -e "$2" ]]; then
+        _msg_error "include file '$2' does not exist"
+        return 1
+    fi
+    if ! grep -v "^#" "$2" | grep -qE '^\s*Server\s*='; then
+        _msg_error "include file '$2' does not contain any valid Server entries"
+        return 1
+    fi
     printf '[%s]\nInclude = %s\n' "$1" "$2"
+}
+
+_pacman_R_safe() {
+    local _pkg="$1"
+    if _pacman -Q "$_pkg" &>/dev/null; then
+        _pacman -R --noconfirm "$_pkg"
+    fi
 }
 
 _blackarch_install() {
@@ -175,10 +194,13 @@ _arch4edu_install_keyring() {
 }
 
 _chaotic_install_keyring() {
-    local _key_id="3056513887B78AEB"
-    _pacman_key --recv-keys "$_key_id" --keyserver keyserver.ubuntu.com
-    _pacman_key --lsign-key "$_key_id"
-    _pacman_key --finger "$_key_id"
+    local _key_ids=("3056513887B78AEB" "349BC7808577C592")
+    local _key_id
+    for _key_id in "${_key_ids[@]}"; do
+        _pacman_key --recv-keys "$_key_id" --keyserver keyserver.ubuntu.com
+        _pacman_key --lsign-key "$_key_id"
+        _pacman_key --finger "$_key_id"
+    done
 }
 
 _blackarch_keyring_files() {
@@ -261,7 +283,7 @@ _arch4edu_install_pkgs() {
     # Install arch4edu-keyring using the temporary config
     local _old_config_path="$config_path"
     config_path="$_conf_file"
-    _pacman_S -y arch4edu-keyring arch4edu-mirrorlist
+    _pacman_S -y arch4edu-keyring mirrorlist.arch4edu
     config_path="$_old_config_path"
 }
 
@@ -286,7 +308,9 @@ _blackarch_apppend_repo() {
 }
 
 _archlinuxcn_apppend_repo() {
-    _repo_config archlinuxcn "/etc/pacman.d/archlinuxcn-mirrorlist" >>"$config_path"
+    local _mirrorlist="/etc/pacman.d/archlinuxcn-mirrorlist"
+    sed -i 's|^# Server|Server|' "$_mirrorlist"
+    _repo_config archlinuxcn "$_mirrorlist" >>"$config_path"
 }
 
 _arch4edu_apppend_repo() {
@@ -311,6 +335,60 @@ _arch4edu_mirrorlist() {
 
 _chaotic_mirrorlist() {
     curl -fsSL "https://gitlab.com/chaotic-aur/pkgbuilds/-/raw/main/chaotic-mirrorlist/mirrorlist"
+}
+
+_blackarch_onfail() {
+    local _exit_code="$?"
+    _msg_error "Failed to install blackarch repository."
+
+    _pacman_R_safe "blackarch-keyring"
+    _pacman_R_safe "blackarch-mirrorlist"
+
+    return "$_exit_code"
+}
+_archlinuxcn_onfail() {
+    local _exit_code="$?"
+    _msg_error "Failed to install archlinuxcn repository."
+
+    _pacman_R_safe "archlinuxcn-keyring"
+    _pacman_R_safe "archlinuxcn-mirrorlist-git"
+
+    return "$_exit_code"
+}
+
+_arch4edu_onfail() {
+    local _exit_code="$?"
+    _msg_error "Failed to install arch4edu repository."
+
+    _pacman_R_safe "arch4edu-keyring"
+    _pacman_R_safe "mirrorlist.arch4edu"
+
+    return "$_exit_code"
+}
+
+_chaotic_onfail() {
+    local _exit_code="$?"
+    _msg_error "Failed to install chaotic repository."
+
+    _pacman_R_safe "chaotic-keyring"
+    _pacman_R_safe "chaotic-mirrorlist"
+
+    return "$_exit_code"
+}
+
+_install_all() {
+    local _failed=() repo
+    for repo in blackarch archlinuxcn arch4edu chaotic; do
+        if ! _"${repo}_install"; then
+            _"$repo"_onfail
+            _failed+=("$repo")
+        fi
+    done
+    if [[ "${#_failed[@]}" -ne 0 ]]; then
+        _msg_error "The following repositories failed to install: ${_failed[*]}"
+        return 1
+    fi
+    _pacman_S -y
 }
 
 _init() {
@@ -360,22 +438,19 @@ _main() {
 
     case "$target_repo" in
         blackarch)
-            _blackarch_install
+            _blackarch_install || _blackarch_onfail
             ;;
         archlinuxcn)
-            _archlinuxcn_install
+            _archlinuxcn_install || _archlinuxcn_onfail
             ;;
         arch4edu)
-            _arch4edu_install
+            _arch4edu_install || _arch4edu_onfail
             ;;
         chaotic)
-            _chaotic_install
+            _chaotic_install || _chaotic_onfail
             ;;
         all)
-            _arch4edu_install
-            _blackarch_install
-            _archlinuxcn_install
-            _chaotic_install
+            _install_all
             ;;
     esac
     cd "${OLDPWD-.}" || exit 1
