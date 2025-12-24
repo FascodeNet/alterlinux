@@ -49,6 +49,11 @@ func cleanCmd() *cobra.Command {
 		Short: "Clean up working directories",
 		RunE: func(cmd *cobra.Command, args []string) error {
 
+			if !futils.Exists(workDir) {
+				slog.Info("Workdir does not exist, nothing to clean", "dir", workDir)
+				return nil
+			}
+
 			correctedWorkDir, ok := correctWorkDir(workDir)
 			if !ok {
 				return errors.Newf("workdir %s is not a valid directory", workDir)
