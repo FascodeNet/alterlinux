@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - GIT_REVISION
     privileged: true
     working_dir: /app
     volumes:

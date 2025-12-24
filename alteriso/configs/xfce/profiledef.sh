@@ -24,7 +24,7 @@ file_permissions=(
     ["/usr/local/bin/livecd-sound"]="0:0:755"
 )
 
-git_revision="$(git rev-parse --short HEAD 2>/dev/null || true)"
+git_revision=${GIT_REVISION-"$(git rev-parse --short HEAD 2>/dev/null || true)"}
 if [[ -n "$git_revision" ]]; then
     iso_version+="-$git_revision"
 fi

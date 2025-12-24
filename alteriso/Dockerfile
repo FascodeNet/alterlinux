@@ -29,6 +29,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 # Final stage
 FROM archiso AS alteriso
 
+ARG GIT_REVISION
+ENV GIT_REVISION=${GIT_REVISION}
+
 COPY --from=builder /build/alteriso /usr/local/bin/alteriso
 COPY ./configs /usr/share/alteriso/configs
 COPY ./modules /usr/share/alteriso/modules

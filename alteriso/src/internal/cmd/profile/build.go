@@ -28,6 +28,7 @@ func getProfileFromArg(cmd *cobra.Command, configDir string) (*archiso.Profile, 
 }
 
 func buildCmd() *cobra.Command {
+	// TODO: キャッシュディレクトリを引数で指定可能にする
 	outDir := "./out"
 	workDir := "./work"
 	cmd := cobra.Command{
