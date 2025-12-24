@@ -64,8 +64,8 @@ __alteriso_run_once() {
     run_once_mode='alteriso_inject_test'
     _run_once "$1" || true
     run_once_mode="${_old_run_once_mode-""}"
-    work_dir="${_old_work_dir-""}"
     rm -rf -- "${work_dir}"
+    work_dir="${_old_work_dir-""}"
 }
 
 __alteriso_validate() {
@@ -194,5 +194,12 @@ __alteriso_show_config() {
     if [[ "$answer" != "y" && "$answer" != "Y" ]]; then
         echo "[alteriso] Aborted."
         exit 0
+    fi
+}
+
+__alteriso_require_injectable() {
+    if [[ "$__alteriso_compatible_mode" = "y" ]]; then
+        echo "[alteriso] ERROR: This mkarchiso is not injectable. Cannot proceed." >&2
+        exit 1
     fi
 }
