@@ -10,5 +10,10 @@ services:
     volumes:
       - ./out:/app/out
       # - ./work:/app/work
-    command: alteriso profile build /usr/share/alteriso/configs/xfce
+    command:
+      - /bin/bash
+      - -lc
+      - |
+        alteriso clean
+        alteriso profile build /usr/share/alteriso/configs/xfce
 
