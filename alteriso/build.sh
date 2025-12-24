@@ -4,8 +4,8 @@ set -Eeuo pipefail
 
 # Determine script path
 script_path=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+profile_dir="${1-"${script_path}/configs/xfce"}"
 if [[ -n "${1-""}" ]]; then
-    profile_dir="${1-"${script_path}/configs/xfce"}"
     shift 1
 fi
 work_dir="$script_path/work"
@@ -29,4 +29,4 @@ export PATH
 
 # Clean up
 "$binfile" clean --workdir "$work_dir"
-rm  "$binfile"
+rm "$binfile"
