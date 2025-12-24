@@ -61,23 +61,25 @@ func (p *Profile) ProfileDefSh() ([]byte, error) {
 		}
 	}
 
-    for fname, code := range p.Config.Injects {
-        if _, ok := injects[fname]; !ok {
-            injects[fname] = []string{}
-        }
-        injects[fname] = append(injects[fname], code...)
-    }
+	for fname, code := range p.Config.Injects {
+		if _, ok := injects[fname]; !ok {
+			injects[fname] = []string{}
+		}
+		injects[fname] = append(injects[fname], code...)
+	}
 
 	s := struct {
 		LoaderContent     string
 		ProfileDefContent string
 		EmbedScripts      []string
 		Injects           map[string][]string
+		RequireInjectable bool
 	}{
 		LoaderContent:     string(loaderContent),
 		ProfileDefContent: string(profileDef),
 		EmbedScripts:      embedScripts,
 		Injects:           injects,
+		RequireInjectable: p.Config.RequireInjectable,
 	}
 
 	profileDefContent, err := profileDefTemplate()

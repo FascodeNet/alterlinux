@@ -9,11 +9,12 @@ type Profile struct {
 }
 
 type ProfileDef struct {
-	Arch         string              `json:"arch"`
-	Modules      []string            `json:"modules"`
-	OSName       string              `json:"os_name"`
-	KernelName   string              `json:"kernel_name"`
-	UserName     string              `json:"username"`
-	Injects      map[string][]string `json:"injects"`
-	COWSpaceSize string              `json:"cow_spacesize"`
+	Arch              string              `json:"arch"`
+	Modules           []string            `json:"modules"`
+	OSName            string              `json:"os_name"`
+	KernelName        string              `json:"kernel_name"`
+	UserName          string              `json:"username"`
+	Injects           map[string][]string `json:"injects"`
+	COWSpaceSize      string              `json:"cow_spacesize"`
+	RequireInjectable bool                `json:"require_injectable"`
 }

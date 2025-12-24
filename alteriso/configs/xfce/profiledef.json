@@ -13,5 +13,6 @@
     ],
     "kernel_name": "linux",
     "username": "live",
-    "cow_spacesize": "1G"
+    "cow_spacesize": "1G",
+    "require_injectable": true
 }
