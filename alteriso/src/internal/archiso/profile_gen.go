@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 
@@ -15,9 +16,20 @@ import (
 	cp "github.com/otiai10/copy"
 )
 
-func (p *Profile) pacmanConf(outDir string) error {
+func (p *Profile) PacmanConf() string {
+	if p.Config.PacmanConf == "" {
+		return path.Join(p.Path, "pacman.conf")
+	}
+	if filepath.IsAbs(p.Config.PacmanConf) {
+		return p.Config.PacmanConf
+	} else {
+		return path.Join(p.Path, p.Config.PacmanConf)
+	}
+}
+
+func (p *Profile) copyPacmanConf(outDir string) error {
 	dst := path.Join(outDir, "pacman.conf")
-	src := path.Join(p.Path, "pacman.conf")
+	src := p.PacmanConf()
 	if !futils.Exists(src) {
 		return errors.Newf("pacman.conf file does not exist in %s", p.Path)
 	}
@@ -102,7 +114,7 @@ func (p *Profile) GenArchisoProfile(outDir string) error {
 		p.copyInjecter,
 		p.copyAirootfs,
 		p.generatePackagesFile,
-		p.pacmanConf,
+		p.copyPacmanConf,
 		p.generateInfoFile,
 	}
 
