@@ -7,17 +7,34 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 
 	"github.com/Hayao0819/go-distro"
 	"github.com/Hayao0819/go-distro/linux"
 
-	"github.com/FascodeNet/alterlinux/src/internal/archiso"
+	"github.com/FascodeNet/alterlinux/src/internal/cmd/injectable"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Jguer/go-alpm/v2"
 	"github.com/go-git/go-git/v6"
 	"github.com/go-git/go-git/v6/plumbing"
 	"github.com/spf13/cobra"
 )
+
+/*
+このコードは概ねこれです。
+
+#!/usr/bin/env bash
+set -eEuo pipefail
+if which pacman 2> /dev/null 1>&2 && pacman -Qq archiso; then
+    curl -sL "https://raw.githubusercontent.com/FascodeNet/alterlinux/refs/heads/dev/archiso/mkarchiso" > "/usr/local/bin/mkarchiso"
+else
+    tmpdir=$(mktemp -d)
+    trap 'rm -rf "$tmpdir"' 1 2 3 15
+    git clone https://github.com/FascodeNet/alterlinux "$tmpdir"
+    cd "$tmpdir" || exit 1
+    make install
+fi
+*/
 
 func isPkgInstalled(name ...string) (bool, error) {
 
@@ -72,7 +89,7 @@ func checkoutBranch(repo *git.Repository, branch string) error {
 	}
 
 	err = w.Checkout(&git.CheckoutOptions{
-		Branch: plumbing.ReferenceName(branch),
+		Branch: plumbing.NewBranchReferenceName(branch),
 	})
 	if err != nil {
 		return err
@@ -108,9 +125,9 @@ func installArchisoCmd() *cobra.Command {
 		Use:   "install-archiso",
 		Short: "Install injectable Archiso",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			installed, err := archiso.IsInjectable()
+			installed, err := injectable.TestInjectable()
 			if err != nil {
-				return err
+				installed = false
 			}
 			if installed {
 				return errors.New("archiso-injectable is already installed")
@@ -157,19 +174,26 @@ func installArchisoCmd() *cobra.Command {
 				}
 				return nil
 			} else {
+				if u, err := user.Current(); err == nil && u.Uid != "0" {
+					return errors.New("archiso package is not installed, please run this command as root to install from source")
+				}
+
 				slog.Info("archiso package is not installed, cloning full repository and installing from source")
 				repoURL := fmt.Sprintf("https://github.com/%s/%s.git", githubOwner, githubRepo)
+				slog.Info("Cloning repository", "url", repoURL, "ref", githubRef)
 				repo, tempDir, err := gitCloneIntoTempDir(repoURL)
 				if err != nil {
 					return err
 				}
 				defer os.RemoveAll(tempDir)
 
+				slog.Info("Checking out branch", "branch", githubRef)
 				if err := checkoutBranch(repo, githubRef); err != nil {
 					return err
 				}
 
-				makeCmd := exec.Command("make", "install")
+				slog.Info("Running make install", "dir", tempDir)
+				makeCmd := exec.Command("make", "install-scripts")
 				makeCmd.Dir = tempDir
 				makeCmd.Stdout = os.Stdout
 				makeCmd.Stderr = os.Stderr
@@ -184,8 +208,8 @@ func installArchisoCmd() *cobra.Command {
 
 	cmd.Flags().StringP("script-dest", "", "/usr/local/bin/mkarchiso", "Local destination path for the mkarchiso script")
 	cmd.Flags().StringP("github-owner", "", "FascodeNet", "GitHub owner of the archiso-injectable repository")
-	cmd.Flags().StringP("github-repo", "", "archiso-injectable", "GitHub repository name of the archiso-injectable repository")
-	cmd.Flags().StringP("github-ref", "", "main", "GitHub reference (branch, tag, commit) of the archiso-injectable repository")
+	cmd.Flags().StringP("github-repo", "", "alterlinux", "GitHub repository name of the archiso-injectable repository")
+	cmd.Flags().StringP("github-ref", "", "dev", "GitHub reference (branch, tag, commit) of the archiso-injectable repository")
 
 	return &cmd
 
