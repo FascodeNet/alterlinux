@@ -42,3 +42,10 @@ func UseColorLog(level slog.Level) {
 func init() {
 	UseColorLog(slog.LevelDebug)
 }
+
+func WithoutLog(f func() error) error {
+	prev := slog.Default()
+	slog.SetDefault(slog.New(slog.DiscardHandler))
+	defer slog.SetDefault(prev)
+	return f()
+}

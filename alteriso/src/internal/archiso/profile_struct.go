@@ -17,4 +17,5 @@ type ProfileDef struct {
 	Injects           map[string][]string `json:"injects"`
 	COWSpaceSize      string              `json:"cow_spacesize"`
 	RequireInjectable bool                `json:"require_injectable"`
+	PacmanConf        string              `json:"pacman_conf"`
 }
