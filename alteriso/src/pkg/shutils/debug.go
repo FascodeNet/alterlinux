@@ -17,6 +17,10 @@ func PrintJSON(node syntax.Node) {
 }
 
 func PrintCode(node syntax.Node) {
+
+	if node == nil {
+		return
+	}
 	printer := syntax.NewPrinter(syntax.Minify(true))
 	err := printer.Print(os.Stdout, node)
 	if err != nil {

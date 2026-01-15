@@ -1,6 +1,8 @@
 package shutils
 
 import (
+	"fmt"
+
 	"github.com/samber/lo"
 	"mvdan.cc/sh/v3/syntax"
 )
@@ -17,7 +19,13 @@ func ExtractFunctions(node syntax.Node) []*syntax.FuncDecl {
 }
 
 func Func(node syntax.Node, name string) *syntax.FuncDecl {
-	return lo.Filter(ExtractFunctions(node), func(d *syntax.FuncDecl, n int) bool {
+	// return lo.Filter(ExtractFunctions(node), func(d *syntax.FuncDecl, n int) bool {
+	// 	return d.Name.Value == name
+	// })[0]
+
+	f, _ := lo.Find(ExtractFunctions(node), func(d *syntax.FuncDecl) bool {
 		return d.Name.Value == name
-	})[0]
+	})
+	fmt.Println(f)
+	return f
 }
