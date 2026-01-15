@@ -5,11 +5,14 @@ RUN pacman -Syu --noconfirm && \
     pacman -Scc --noconfirm
 
 
-FROM arch AS archiso
+FROM arch AS archiso-deps
 
 # Install archiso
-RUN pacman -S --noconfirm archiso jq unzip && \
-    pacman -Scc --noconfirm
+RUN <<EOS
+set -eu
+pacman -Sy --noconfirm jq unzip
+pacman -Scc --noconfirm
+EOS
 
 FROM arch AS golang-dev
 
@@ -21,13 +24,13 @@ WORKDIR /build
 COPY . .
 
 # Build the binary with optimization flags
-RUN CGO_ENABLED=0 GOOS=linux go build \
+RUN CGO_ENABLED=1 GOOS=linux go build \
     -ldflags="-s -w" \
     -trimpath \
     -o alteriso ./src
 
 # Final stage
-FROM archiso AS alteriso
+FROM archiso-deps AS alteriso
 
 ARG GIT_REVISION
 ENV GIT_REVISION=${GIT_REVISION}
@@ -38,7 +41,10 @@ COPY ./modules /usr/share/alteriso/modules
 COPY ./bootloaders /usr/share/alteriso/bootloaders
 COPY ./setup_3rd_repo.sh /tmp/setup_3rd_repo.sh
 RUN <<EOF
-set -e
+set -eu
+
+alteriso install-archiso
+
 chmod +x /usr/local/bin/alteriso /tmp/setup_3rd_repo.sh
 bash /tmp/setup_3rd_repo.sh || exit 1
 rm -rf /tmp/setup_3rd_repo.sh
