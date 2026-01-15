@@ -7,6 +7,7 @@ import (
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/FascodeNet/alterlinux/src/internal/utils"
+	"github.com/Hayao0819/nahi/futils"
 	"github.com/samber/lo"
 )
 
@@ -25,6 +26,10 @@ func (p *Profile) generateBootloaderConfigs(outDir string) error {
 	}
 
 	copyTargets := lo.FilterMap(dirs, func(item os.DirEntry, index int) (string, bool) {
+		override_dir := path.Join(p.Path, item.Name())
+		if futils.IsDir(override_dir) {
+			return override_dir, true
+		}
 		return path.Join(p.BootloadersPath, item.Name()), item.IsDir()
 	})
 
