@@ -2,8 +2,11 @@ package archiso
 
 import (
 	"encoding/json"
+	"log/slog"
 	"os"
 	"path"
+	"reflect"
+	"runtime"
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/Hayao0819/nahi/cputils"
@@ -78,11 +81,16 @@ func (p *Profile) copySplashImage(outDir string) error {
 	return nil
 }
 
+func funcName(i interface{}) string {
+	v := reflect.ValueOf(i)
+	p := v.Pointer()
+
+	return runtime.FuncForPC(p).Name()
+}
+
 func (p *Profile) GenArchisoProfile(outDir string) error {
 	tempDir, err := os.MkdirTemp(os.TempDir(), "alteriso-*")
-	defer func() {
-		_ = os.RemoveAll(tempDir)
-	}()
+	defer os.RemoveAll(tempDir)
 	if err != nil {
 		return errors.Wrap(err)
 	}
@@ -100,7 +108,8 @@ func (p *Profile) GenArchisoProfile(outDir string) error {
 
 	for _, task := range tasks {
 		if err := task(tempDir); err != nil {
-			return err
+			slog.Error("Failed to execute task", "task", funcName(task), "error", err)
+			return errors.Wrap(err)
 		}
 	}
 
