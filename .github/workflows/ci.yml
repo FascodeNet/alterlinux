@@ -1,0 +1,28 @@
+# AlterISO5のビルドを行うGithub Actions
+
+name: build AlterISO5
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build Dockerfile
+        run: docker build -t alteriso5 .
+
+      - name: Run Dockerfile
+        run: docker run --privileged --rm -v $(pwd):/mnt alteriso5
+
+      # TODO: アーティファクトをアップロードする機能の実装
