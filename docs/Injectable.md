@@ -1,3 +1,5 @@
+<!-- LLM Generated: This document was created by Claude -->
+
 # Injectable archiso
 
 本ドキュメントでは、mkarchiso に実装されている関数インジェクション機構の仕様について説明します。
@@ -14,8 +16,8 @@ mkarchiso は `_run_once()` ヘルパー関数を介して、プロファイル�
 
 `_run_once` 経由で呼び出される任意の関数 `<function_name>` に対して、以下の3種類のフック関数を定義できます:
 
-| フック名 | 実行タイミング | 動作 |
-|---|---|---|
+| フック名 | 実行タイミング | 説明 |
+| --- | --- | --- |
 | `pre_<function_name>` | 元の関数の**実行前** | 前処理を追加 |
 | `override_<function_name>` | 元の関数の**代わり** | 元の関数を完全に置き換える |
 | `post_<function_name>` | 元の関数の**実行後** | 後処理を追加 |

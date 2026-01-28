@@ -1,24 +1,23 @@
+<!-- LLM Generated: This document was created by Claude -->
+
 # alteriso の基本的な使い方
 
 本ドキュメントでは、alteriso の基本的な使い方について説明します。
 
 ## 概要
 
-alteriso は、archiso のプロファイルを生成し、mkarchiso でビルド可能な形式に変換するツールです。
+alteriso は、archiso のプロファイルを生成し、そのプロファイルを用いて ISO イメージをビルドするツールです。
 
 ## 基本的なワークフロー
 
-```
 1. プロファイル作成 (profiledef.json)
-2. gen.sh でプロファイル生成
-3. mkarchiso でビルド
-```
+2. profile build サブコマンドで ISO をビルド
 
 ## プロファイルの作成
 
 ### ディレクトリ構造
 
-```
+```txt
 configs/<profile_name>/
 ├── profiledef.json         # alteriso 設定 (必須)
 ├── profiledef.sh           # archiso 設定 (必須)
@@ -81,7 +80,7 @@ ISO ビルド時に使用する pacman 設定ファイルです。
 
 ### 生成されるファイル
 
-```
+```text
 out/<profile_name>/
 ├── profiledef.sh           # 生成された archiso プロファイル
 ├── packages.x86_64         # マージされたパッケージリスト
@@ -94,18 +93,20 @@ out/<profile_name>/
 
 ## ISO のビルド
 
-### mkarchiso の実行
+### profile build サブコマンドの実行
 
-生成されたプロファイルを mkarchiso でビルドします。
+生成されたプロファイルを、alteriso の `profile build` サブコマンドでビルドします。mkarchiso を直接実行する必要はありません。
 
 ```bash
-sudo mkarchiso -v -w work -o out out/<profile_name>
+go run ./src profile build configs/<profile_name>
 ```
 
-オプション:
-- `-v` - 詳細モード
-- `-w work` - 作業ディレクトリ
-- `-o out` - 出力ディレクトリ
+デフォルトでは以下のディレクトリが使用されます:
+
+- 出力ディレクトリ: `./out`
+- 作業ディレクトリ: `./work`
+
+必要に応じて、`--out` や `--work` オプションで変更できます。
 
 ### build.sh の使用
 
@@ -115,11 +116,7 @@ alteriso には簡易ビルドスクリプトが用意されています。
 ./build.sh
 ```
 
-このスクリプトは:
-1. `gen.sh configs/xfce` を実行
-2. `mkarchiso` でビルド
-
-を自動的に行います。
+このスクリプトは、`profile build` サブコマンドを用いて、標準のプロファイル (例: `configs/xfce`) をビルドします。
 
 ## コマンドリファレンス
 
@@ -176,12 +173,13 @@ go run ./src profile \
 
 プロファイルの `packages.x86_64.d/` にパッケージリストを追加します。
 
-```
+```text
 configs/myprofile/packages.x86_64.d/custom.x86_64
 ```
 
 内容:
-```
+
+```text
 firefox
 chromium
 libreoffice-fresh
@@ -191,12 +189,13 @@ libreoffice-fresh
 
 `airootfs.any/` または `airootfs.x86_64/` にファイルを配置します。
 
-```
+```text
 configs/myprofile/airootfs.any/etc/hostname
 ```
 
 内容:
-```
+
+```text
 mycustomos
 ```
 
@@ -211,21 +210,23 @@ mycustomos
 
 #### モジュールが見つからない
 
-```
+```text
 Error: failed to load module <name>: module directory does not exist
 ```
 
 解決方法:
+
 - `modules/` ディレクトリに該当モジュールが存在するか確認
 - `profiledef.json` のモジュール名が正しいか確認
 
 #### マニフェストバージョンエラー
 
-```
+```text
 Error: unsupported manifest version: <version>
 ```
 
 解決方法:
+
 - モジュールの `alteriso.json` の `manifest_version` を `1` に設定
 
 #### パッケージが見つからない
@@ -233,6 +234,7 @@ Error: unsupported manifest version: <version>
 mkarchiso 実行時にパッケージが見つからない場合:
 
 解決方法:
+
 - `pacman.conf` のリポジトリ設定を確認
 - パッケージ名が正しいか確認
 - `pacman -Sy` でデータベースを更新
@@ -251,14 +253,14 @@ rm -rf work/
 
 ### ディレクトリ構成
 
-```
+```text
 configs/minimal/
 ├── profiledef.json
 ├── profiledef.sh
 └── pacman.conf
 ```
 
-### profiledef.json
+### profiledef.json の例 (最小構成)
 
 ```json
 {
@@ -285,16 +287,16 @@ bootmodes=('bios.syslinux')
 airootfs_image_type="squashfs"
 ```
 
-### ビルド
+### ビルド手順 (最小構成)
 
 ```bash
 ./gen.sh configs/minimal
-sudo mkarchiso -v -w work -o out out/minimal
+go run ./src profile build configs/minimal
 ```
 
 ## 例: デスクトップ環境付きプロファイル
 
-### profiledef.json
+### profiledef.json の例 (デスクトップ環境)
 
 ```json
 {
@@ -315,7 +317,7 @@ sudo mkarchiso -v -w work -o out out/minimal
 
 ### packages.x86_64.d/desktop.x86_64
 
-```
+```text
 # デスクトップ環境
 xfce4
 xfce4-goodies
@@ -330,11 +332,11 @@ noto-fonts
 noto-fonts-cjk
 ```
 
-### ビルド
+### ビルド手順 (デスクトップ環境)
 
 ```bash
 ./gen.sh configs/desktop
-sudo mkarchiso -v -w work -o out out/desktop
+go run ./src profile build configs/desktop
 ```
 
 ## 次のステップ

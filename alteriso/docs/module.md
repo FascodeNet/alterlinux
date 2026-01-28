@@ -1,3 +1,5 @@
+<!-- LLM Generated: This document was created by Claude -->
+
 # モジュールの仕組みと仕様
 
 本ドキュメントでは、alteriso のモジュールシステムの仕組みと仕様について説明します。
@@ -11,7 +13,7 @@
 
 ### ディレクトリ構成
 
-```
+```text
 modules/<module_name>/
 ├── alteriso.json           # モジュール設定ファイル (必須)
 ├── module.sh               # シェルスクリプト (オプション)
@@ -98,6 +100,7 @@ modules/<module_name>/
 複数のモジュールが同じフックに関数を登録した場合、モジュールのロード順序で実行されます。
 
 例:
+
 - モジュール A: `post__make_packages` → `[function_a]`
 - モジュール B: `post__make_packages` → `[function_b]`
 
@@ -119,9 +122,9 @@ modules/<module_name>/
 - `#` で始まる行はコメント
 - 空行は無視される
 
-#### 例
+#### packages.x86_64.d の例
 
-```
+```text
 # ネットワーク管理
 networkmanager
 nm-connection-editor
@@ -167,7 +170,7 @@ bootstrap ビルドモード用のパッケージリストです。
 
 ### ファイル構造の例
 
-```
+```text
 airootfs.any/
 ├── etc/
 │   ├── systemd/
@@ -218,7 +221,7 @@ airootfs.any/
 
 ### パッケージのみを提供するモジュール例
 
-```
+```text
 modules/example/
 ├── alteriso.json
 └── packages.x86_64.d/
@@ -226,6 +229,7 @@ modules/example/
 ```
 
 `alteriso.json`:
+
 ```json
 {
     "manifest_version": 1,
@@ -234,7 +238,8 @@ modules/example/
 ```
 
 `packages.x86_64.d/example.x86_64`:
-```
+
+```text
 vim
 tmux
 git
@@ -242,13 +247,14 @@ git
 
 ### インジェクション付きモジュール例
 
-```
+```text
 modules/custom/
 ├── alteriso.json
 └── module.sh
 ```
 
 `alteriso.json`:
+
 ```json
 {
     "manifest_version": 1,
@@ -261,6 +267,7 @@ modules/custom/
 ```
 
 `module.sh`:
+
 ```bash
 custom_post_install() {
     _msg_info "Running custom post-install tasks..."

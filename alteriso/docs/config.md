@@ -1,3 +1,5 @@
+<!-- LLM Generated: This document was created by Claude -->
+
 # コンフィグの仕様
 
 本ドキュメントでは、alteriso の設定ファイル `profiledef.json` の仕様について説明します。
@@ -18,6 +20,7 @@
 - **例**: `"x86_64"`
 
 現在サポートされているアーキテクチャ:
+
 - `x86_64`
 
 #### modules
@@ -73,10 +76,11 @@
 
 #### injects
 
-- **型**: object (map[string][]string)
+- **型**: object (`map[string][]string`)
 - **説明**: プロファイルレベルのインジェクション定義
 - **デフォルト値**: `{}`
 - **例**:
+
 ```json
 {
     "injects": {
@@ -148,18 +152,18 @@
 
 ### 利用可能なプレースホルダー
 
-| プレースホルダー | 対応する設定 | デフォルト値 |
-|---|---|---|
-| `%ALTERISO_OS_NAME%` | `os_name` | `""` |
-| `%ALTERISO_KERNEL_NAME%` | `kernel_name` | `"linux"` |
-| `%ALTERISO_COW_SPACESIZE%` | `cow_spacesize` | `"256M"` |
-| `%ALTERISO_KERNEL_PARAM%` | モジュールの `append_kernel_param` | `""` |
+| プレースホルダー         | 対応する設定                         | デフォルト値 |
+| ---                      | ---                                    | ---          |
+| `%ALTERISO_OS_NAME%`     | `os_name`                              | `""`       |
+| `%ALTERISO_KERNEL_NAME%` | `kernel_name`                          | `"linux"`  |
+| `%ALTERISO_COW_SPACESIZE%` | `cow_spacesize`                      | `"256M"`   |
+| `%ALTERISO_KERNEL_PARAM%` | モジュールの `append_kernel_param`   | `""`       |
 
 ### 展開の例
 
 #### ブートローダー設定テンプレート
 
-```
+```text
 LABEL %ALTERISO_OS_NAME%
 LINUX /boot/vmlinuz-%ALTERISO_KERNEL_NAME%
 APPEND cow_spacesize=%ALTERISO_COW_SPACESIZE% %ALTERISO_KERNEL_PARAM%
@@ -177,7 +181,7 @@ APPEND cow_spacesize=%ALTERISO_COW_SPACESIZE% %ALTERISO_KERNEL_PARAM%
 
 #### 展開結果
 
-```
+```text
 LABEL Custom Linux
 LINUX /boot/vmlinuz-linux-lts
 APPEND cow_spacesize=2G quiet splash
@@ -206,6 +210,7 @@ APPEND cow_spacesize=2G quiet splash
 ```
 
 この場合:
+
 1. `base` モジュールがロード
 2. `user` モジュールがロード
 3. `network-manager` モジュールがロード
@@ -237,6 +242,7 @@ __alteriso_profiledef
 ```
 
 出力例:
+
 ```json
 {"os_name":"Alter Linux","arch":"x86_64","modules":["base","user"],...}
 ```
@@ -284,6 +290,7 @@ echo "COW space size: ${cow_size}"
 ### 2. 適切な COW サイズ
 
 用途に応じて `cow_spacesize` を設定します:
+
 - ミニマル環境: `"512M"`
 - 標準環境: `"1G"`
 - デスクトップ環境: `"2G"` 以上
@@ -291,6 +298,7 @@ echo "COW space size: ${cow_size}"
 ### 3. カーネルの選択
 
 用途に応じたカーネルを選択します:
+
 - 標準: `"linux"`
 - 長期サポート: `"linux-lts"`
 - 低レイテンシ: `"linux-zen"`
@@ -310,31 +318,34 @@ echo "COW space size: ${cow_size}"
 
 ### JSON パースエラー
 
-```
+```text
 Error: failed to parse profile config: invalid character...
 ```
 
 解決方法:
+
 - JSON の形式を確認 (カンマ、括弧、引用符など)
 - JSON バリデータでチェック
 
 ### モジュールロードエラー
 
-```
+```text
 Error: failed to load module <name>: module directory does not exist
 ```
 
 解決方法:
+
 - `modules/` ディレクトリに該当モジュールが存在するか確認
 - モジュール名のスペルを確認
 
 ### フィールド型エラー
 
-```
+```text
 Error: json: cannot unmarshal...
 ```
 
 解決方法:
+
 - フィールドの型を確認 (string, array, object)
 - 配列は `[]`、文字列は `""` で囲む
 
