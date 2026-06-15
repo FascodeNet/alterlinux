@@ -13,7 +13,7 @@ bootmodes=('bios.syslinux'
 pacman_conf="pacman.conf"
 airootfs_image_type="erofs"
 airootfs_image_tool_options=('-zlzma,109' -E 'ztailpacking')
-bootstrap_tarball_compression=(zstd -c -T0 --long -19)
+bootstrap_tarball_compression=(xz -9e)
 file_permissions=(
   ["/etc/shadow"]="0:0:400"
 )

@@ -20,6 +20,25 @@ Fixed
 Removed
 -------
 
+[88] - 2026-03-26
+=================
+
+Changed
+-------
+
+- Use xz compression for the baseline profile's bootstrap tarball so that it has more differences when compared to the
+  releng profile.
+- Match network interfaces by their type, instead of name, in systemd-networkd configuration.
+- Update ``getty@tty1.service`` drop-in file to match upstream changes.
+
+Fixed
+-----
+
+- Use ``systemd-run`` to invoke ``curl`` with a transient service that depends on ``network-online.target`` since no
+  services are currently pulling in ``network_online.target``.
+- Fix the ``usable_cards`` variable definition in the ``livecd-sound`` accessibility script which was wrongly assigned
+  to a string rather than an array, causing the ``-p / --pick`` option to fail silently.
+
 [87] - 2025-10-29
 =================
 

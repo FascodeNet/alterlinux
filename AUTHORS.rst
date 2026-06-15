@@ -20,6 +20,7 @@ Archiso Authors
 * David Thurstenson <thurstylark@gmail.com>
 * Dieter Plaetinck <dieter@plaetinck.be>
 * Eli Schwartz <eschwartz@archlinux.org>
+* Elijah R <elijah@elijahr.dev>
 * Eric Toombs <567-ewtoombs@users.noreply.gitlab.archlinux.org>
 * Florian Pritz <bluewind@xinu.at>
 * Francois Dupoux <fdupoux@users.sourceforge.net>
@@ -42,6 +43,7 @@ Archiso Authors
 * Michael Vorburger <mike@vorburger.ch>
 * Pellegrino Prevete <pellegrinoprevete@gmail.com>
 * Pierre Schmitz <pierre@archlinux.de>
+* Robin Candau <antiz@archlinux.org>
 * Sean Enck <enckse@voidedtech.com>
 * Simo Leone <simo@archlinux.org>
 * Simon Wilper <sxw@chronowerks.de>
