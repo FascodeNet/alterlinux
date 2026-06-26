@@ -12,7 +12,7 @@ f2fs-tools
 exfatprogs
 
 # ntfs
-ntfs-3g
+ntfsprogs
 
 # xfs
 xfsprogs

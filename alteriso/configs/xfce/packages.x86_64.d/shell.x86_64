@@ -9,7 +9,9 @@ less
 grml-zsh-config
 man-pages
 foot-terminfo
+ghostty-terminfo
 kitty-terminfo
+kmscon-terminfo
 rxvt-unicode-terminfo
 terminus-font
 
