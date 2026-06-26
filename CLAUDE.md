@@ -51,6 +51,7 @@ Build requires root privileges. Output goes to `alteriso/out/`, work directory i
 ### Injectable Mechanism
 
 AlterISO leverages archiso's `_run_once()` function which sources `profiledef.sh`. Generated `profiledef.sh` includes:
+
 - Pre/post hooks: `pre_<function>()`, `post_<function>()`
 - Override hooks: `override_<function>()`
 - Example: `post__make_packages()`, `pre__make_customize_airootfs()`
@@ -69,6 +70,7 @@ modules/<name>/
 ### Profile Configuration
 
 `profiledef.json` fields:
+
 - `arch` (required): Target architecture (currently "x86_64")
 - `modules` (required): List of modules to load in order
 - `os_name`, `kernel_name`, `username`, `cow_spacesize`: Optional config

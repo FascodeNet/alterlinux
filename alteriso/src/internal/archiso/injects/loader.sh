@@ -32,13 +32,13 @@ __alteriso_injected_list() {
         fi
     done < <(compgen -v)
 
-	local _a _a_org
-	while read -r _a; do
-		_a_org=$(echo "${_a}" | sed -E 's/^(pre|post|override)_(.+)$/\2/')
-		if printf '%s\n' "${_funcs[@]}" | grep -qx -- "$_a_org"; then
-			_msg_info "Injected as array: $_a"
-		fi
-	done < <(printf '%s\n' "${_arrays[@]}" | grep -E -- '^(pre|post|override)_(.+)$' | sort -u)
+    local _a _a_org
+    while read -r _a; do
+        _a_org=$(echo "${_a}" | sed -E 's/^(pre|post|override)_(.+)$/\2/')
+        if printf '%s\n' "${_funcs[@]}" | grep -qx -- "$_a_org"; then
+            _msg_info "Injected as array: $_a"
+        fi
+    done < <(printf '%s\n' "${_arrays[@]}" | grep -E -- '^(pre|post|override)_(.+)$' | sort -u)
 }
 
 __alteriso_cleanup() {
@@ -197,16 +197,17 @@ __alteriso_show_config() {
     _kernel_name=$(__alteriso_profiledef_kernelname)
     _arch=$(__alteriso_profiledef_arch)
 
-    echo "[alteriso] INFO:              Architecture:   $_arch"
-    echo "[alteriso] INFO:                  Username:   $_username"
-    echo "[alteriso] INFO:               Kernel Name:   $_kernel_name"
-    echo "[alteriso] INFO:         Profile Directory:   $__alteriso_profile_dir"
+    echo "[alteriso] INFO:              Architecture:   $_arch" >&2
+    echo "[alteriso] INFO:                  Username:   $_username" >&2
+    echo "[alteriso] INFO:               Kernel Name:   $_kernel_name" >&2
+    echo "[alteriso] INFO:         Profile Directory:   $__alteriso_profile_dir" >&2
 
-    echo -n "[alteriso] Are you sure to continue? (y/N): "
+    echo -n "[alteriso] Are you sure to continue? (y/N): " >&2
     read -r answer
-    if [[ "$answer" != "y" && "$answer" != "Y" ]]; then
+
+    if [[ "${answer,,}" = "y" ]]; then
         echo "[alteriso] Aborted."
-        exit 0
+        exit 1
     fi
 }
 

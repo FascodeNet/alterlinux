@@ -16,6 +16,13 @@ type profileOption func(*Profile) error
 // 	}
 // }
 
+func WithNoConfirm(f bool) profileOption {
+	return func(p *Profile) error {
+		p.NoConfirm = f
+		return nil
+	}
+}
+
 func WithModulesPath(dir string) profileOption {
 	return func(p *Profile) error {
 		p.ModulesPath = dir

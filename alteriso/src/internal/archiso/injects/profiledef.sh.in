@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
 # shellcheck disable=all
 
+# Initial loader
 {{ .LoaderContent }}
 
 __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 
-{{ range $index, $module := .EmbedScripts }}
+# Function defines
+{{- range $index, $module := .EmbedScripts }}
 {{ inject_script $module }}
 {{ end }}
-
-{{- range $func, $codes := .Injects -}}
+# Inject Array
+{{ range $func, $codes := .Injects -}}
     {{- $func }}{{ "+=(" }}
         {{- range $index, $code := $codes -}}
             {{- $code }}
         {{- end -}}
     {{ ")" }}
 {{ end -}}
-
+# Variable defines
 {{ .ProfileDefContent }}
-
+# Validate alteriso profiles
 __alteriso_validate
 __alteriso_validate_profile
-
 {{ if .RequireInjectable -}}
 __alteriso_require_injectable
 {{- end }}
@@ -32,4 +33,6 @@ if [[ "$__alteriso_compatible_mode" = "y" ]]; then
     return 0
 fi
 __alteriso_injected_list
+{{- if not .NoConfirm }}
 __alteriso_show_config
+{{- end }}

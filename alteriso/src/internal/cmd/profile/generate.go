@@ -3,7 +3,6 @@ package profile
 import (
 	"log/slog"
 	"os"
-	"path"
 
 	"github.com/FascodeNet/alterlinux/src/internal/archiso"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
@@ -38,27 +37,27 @@ func generateCmd() *cobra.Command {
 
 			bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
 			modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
+			noConfirm := cmd.Parent().PersistentFlags().Lookup("noconfirm").Changed
 
 			profile, err := archiso.NewProfile(configDir,
 				archiso.WithModulesPath(modulesPath),
 				archiso.WithbootloadersPath(bootloadersPath),
+				archiso.WithNoConfirm(noConfirm),
 				// archiso.WithPacmanCacheDir(pacmanCacheDir),
 			)
 			if err != nil {
 				return err
 			}
 
-			// dstDir := path.Join(outDir, configName)
-			dstDir := path.Join(outDir)
-			if futils.Exists(dstDir) {
+			if futils.Exists(outDir) {
 				return errors.New("output directory already exists")
 			}
 
-			if err := profile.GenArchisoProfile(dstDir); err != nil {
+			if err := profile.GenArchisoProfile(outDir); err != nil {
 				return errors.Wrap(err)
 			}
 
-			slog.Info("Generated archiso profile", "dir", dstDir)
+			slog.Info("Generated archiso profile", "dir", outDir)
 
 			return nil
 		},

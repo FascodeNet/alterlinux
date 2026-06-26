@@ -6,6 +6,7 @@ type Profile struct {
 	Path            string
 	BootloadersPath string
 	ModulesPath     string
+	NoConfirm       bool
 }
 
 type ProfileDef struct {

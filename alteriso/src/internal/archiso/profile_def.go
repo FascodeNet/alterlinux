@@ -74,12 +74,14 @@ func (p *Profile) ProfileDefSh() ([]byte, error) {
 		EmbedScripts      []string
 		Injects           map[string][]string
 		RequireInjectable bool
+		NoConfirm         bool
 	}{
 		LoaderContent:     string(loaderContent),
 		ProfileDefContent: string(profileDef),
 		EmbedScripts:      embedScripts,
 		Injects:           injects,
 		RequireInjectable: p.Config.RequireInjectable,
+		NoConfirm:         p.NoConfirm,
 	}
 
 	profileDefContent, err := profileDefTemplate()
