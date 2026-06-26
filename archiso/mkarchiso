@@ -834,7 +834,7 @@ _make_common_bootmode_uefi.systemd-boot_copy_files() {
     # shell*.efi is picked up automatically when on /
     if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/${target_arch,,}/Shell_Full.efi" ]]; then
         mcopy -i "${efibootimg}" \
-            "${pacstrap_dir}/usr/share/edk2-shell/x64/Shell_Full.efi" "::/shell${target_arch,,}.efi"
+            "${pacstrap_dir}/usr/share/edk2-shell/${target_arch,,}/Shell_Full.efi" "::/shell${target_arch,,}.efi"
         install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/${target_arch,,}/Shell_Full.efi" \
             "${isofs_dir}/shell${target_arch,,}.efi"
     fi

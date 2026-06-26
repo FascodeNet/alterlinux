@@ -8,14 +8,22 @@ Changelog
 Added
 -----
 
+- Add ghostty-terminfo and kmscon-terminfo packages to releng to support terminal emulators using them. E.g. when
+  installing via SSH.
+
 Changed
 -------
+
+- Replaced the ``ntfs-3g`` package with the ``ntfsprogs`` package in the releng profile since we do not require the FUSE
+  driver, but only the userspace utilities. For now, ``ntfs-3g`` still gets pulled in as a dependency of other packages.
 
 Deprecated
 ----------
 
 Fixed
 -----
+
+- Fixed a typo that prevented including the UEFI shell for UEFI architectures other than x64.
 
 Removed
 -------
