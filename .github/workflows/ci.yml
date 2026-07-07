@@ -23,6 +23,6 @@ jobs:
         run: docker build -t alteriso5 alteriso
 
       - name: Run Dockerfile
-        run: docker run --privileged --rm -w /mnt -v $(pwd):/mnt alteriso5 alteriso profile build /usr/share/alteriso/configs/xfce
+        run: docker run --privileged --rm -w /mnt -v $(pwd):/mnt alteriso5 alteriso profile --noconfirm build /usr/share/alteriso/configs/xfce
 
       # TODO: アーティファクトをアップロードする機能の実装
