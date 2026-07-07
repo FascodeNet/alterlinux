@@ -205,7 +205,7 @@ __alteriso_show_config() {
     echo -n "[alteriso] Are you sure to continue? (y/N): " >&2
     read -r answer
 
-    if [[ "${answer,,}" = "y" ]]; then
+    if [[ "${answer,,}" != "y" ]]; then
         echo "[alteriso] Aborted."
         exit 1
     fi
