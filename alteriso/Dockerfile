@@ -7,10 +7,11 @@ RUN pacman -Syu --noconfirm && \
 
 FROM arch AS archiso-deps
 
-# Install archiso
+# Install archiso runtime dependencies
 RUN <<EOS
 set -eu
-pacman -Sy --noconfirm jq unzip
+pacman -Sy --noconfirm jq unzip \
+    arch-install-scripts dosfstools e2fsprogs libisoburn mtools squashfs-tools erofs-utils
 pacman -Scc --noconfirm
 EOS
 
