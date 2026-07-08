@@ -16,11 +16,13 @@ func getProfileFromArg(cmd *cobra.Command, configDir string) (*archiso.Profile, 
 	bootloadersPath := cmd.Parent().PersistentFlags().Lookup("bootloaders").Value.String()
 	modulesPath := cmd.Parent().PersistentFlags().Lookup("modules").Value.String()
 	noConfirm := cmd.Parent().PersistentFlags().Lookup("noconfirm").Changed
+	arch := cmd.Parent().PersistentFlags().Lookup("arch").Value.String()
 
 	profile, err := archiso.NewProfile(configDir,
 		archiso.WithModulesPath(modulesPath),
 		archiso.WithbootloadersPath(bootloadersPath),
 		archiso.WithNoConfirm(noConfirm),
+		archiso.WithArch(arch),
 	)
 	if err != nil {
 		return nil, errors.Wrap(err)

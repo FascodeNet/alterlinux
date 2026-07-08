@@ -37,6 +37,15 @@ func WithbootloadersPath(dir string) profileOption {
 	}
 }
 
+func WithArch(arch string) profileOption {
+	return func(p *Profile) error {
+		if arch != "" {
+			p.Config.Arch = arch
+		}
+		return nil
+	}
+}
+
 func NewProfile(dir string, opts ...profileOption) (*Profile, error) {
 	configFile, err := os.ReadFile(path.Join(dir, "profiledef.json"))
 	if err != nil {

@@ -11,6 +11,7 @@ func Cmd() *cobra.Command {
 	bootloadersPath := "/usr/share/alteriso/bootloaders"
 	modulesPath := "/usr/share/alteriso/modules/"
 	noconfirm := false
+	arch := ""
 
 	cmd := &cobra.Command{
 		Use:   "profile",
@@ -20,6 +21,7 @@ func Cmd() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&modulesPath, "modules", "", modulesPath, "Path to modules config dir")
 	cmd.PersistentFlags().StringVarP(&bootloadersPath, "bootloaders", "", bootloadersPath, "Path to bootloaders config dir")
 	cmd.PersistentFlags().BoolVarP(&noconfirm, "noconfirm", "", noconfirm, "No check the settings before building")
+	cmd.PersistentFlags().StringVarP(&arch, "arch", "", arch, "Override the target architecture from profiledef.json (e.g. i686)")
 
 	profileReg.Bind(cmd)
 	return cmd

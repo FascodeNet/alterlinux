@@ -66,12 +66,20 @@ func (p *Profile) Packages(filename string) ([]string, error) {
 }
 
 func (p *Profile) generatePackagesFile(outDir string) error {
-	for _, filename := range []string{"packages.x86_64", "bootstrap_packages.x86_64"} {
-		pkgs, err := p.Packages(filename)
+	arch := p.Config.Arch
+	for _, base := range []string{"packages", "bootstrap_packages"} {
+		shared, err := p.Packages(base)
 		if err != nil {
 			return errors.Wrap(err)
 		}
-		dst := path.Join(outDir, filename)
+		archSpecific, err := p.Packages(base + "." + arch)
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		pkgs := lo.Uniq(append(shared, archSpecific...))
+		sort.Strings(pkgs)
+
+		dst := path.Join(outDir, base+"."+arch)
 		content := strings.Join(pkgs, "\n") + "\n"
 		if err := os.WriteFile(dst, []byte(content), 0o644); err != nil {
 			return errors.Wrap(err)

@@ -17,14 +17,20 @@ import (
 )
 
 func (p *Profile) PacmanConf() string {
-	if p.Config.PacmanConf == "" {
-		return path.Join(p.Path, "pacman.conf")
+	if p.Config.PacmanConf != "" {
+		base := p.Config.PacmanConf
+		if !filepath.IsAbs(base) {
+			base = path.Join(p.Path, base)
+		}
+		if archV := base + "." + p.Config.Arch; futils.Exists(archV) {
+			return archV
+		}
+		return base
 	}
-	if filepath.IsAbs(p.Config.PacmanConf) {
-		return p.Config.PacmanConf
-	} else {
-		return path.Join(p.Path, p.Config.PacmanConf)
+	if archV := path.Join(p.Path, "pacman.conf."+p.Config.Arch); futils.Exists(archV) {
+		return archV
 	}
+	return path.Join(p.Path, "pacman.conf")
 }
 
 func (p *Profile) copyPacmanConf(outDir string) error {
