@@ -47,15 +47,13 @@ post__make_version+=(
 )
 __alteriso_make_version() {
     local _version_file="$__alteriso_profile_dir/alteriso.json"
-    if [[ -e $_version_file ]]; then
-        install -Dm644 "$_version_file" "${isofs_dir}/${install_dir}/alteriso.json"
-    fi
+    [[ -f "$_version_file" ]] || return 0
 
     if [[ "${buildmode}" == @("iso"|"netboot") ]]; then
         rm -f -- "${pacstrap_dir}/alteriso.json"
-        install -Dm644 "$_version_file" "${isofs_dir}/${install_dir}/alteriso.json"
+        install -Dm644 "$_version_file" "${pacstrap_dir}/alteriso.json"
 
-        install -d -m 0755 -- "${isofs_dir}/${install_dir}"
+        rm -f -- "${isofs_dir}/${install_dir}/alteriso.json"
         install -Dm644 "$_version_file" "${isofs_dir}/${install_dir}/alteriso.json"
     elif [[ "${buildmode}" == 'bootstrap' ]]; then
         rm -f -- "${bootstrap_parent}/alteriso.json"
