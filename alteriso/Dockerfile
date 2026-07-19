@@ -21,12 +21,16 @@ RUN pacman -S --noconfirm git go jq base-devel && \
     pacman -Scc --noconfirm
 
 FROM golang-dev AS builder
+ARG ALTERISO_VERSION=devel
+ARG GIT_REVISION
 WORKDIR /build
 COPY . .
 
 # Build the binary with optimization flags
 RUN CGO_ENABLED=1 GOOS=linux go build \
-    -ldflags="-s -w" \
+    -ldflags="-s -w \
+        -X github.com/FascodeNet/alterlinux/src/internal/buildinfo.version=${ALTERISO_VERSION} \
+        -X github.com/FascodeNet/alterlinux/src/internal/buildinfo.revision=${GIT_REVISION}" \
     -trimpath \
     -o alteriso ./src
 
@@ -61,7 +65,5 @@ EOF
 #     -o ./out /usr/share/alteriso/configs/xfce
 # mkarchiso -v -o ./out -w ./work ./out/xfce
 # EOF
-
-
 
 

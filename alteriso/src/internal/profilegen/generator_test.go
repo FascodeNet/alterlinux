@@ -1,11 +1,13 @@
 package profilegen
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/FascodeNet/alterlinux/src/internal/buildinfo"
 	"github.com/FascodeNet/alterlinux/src/internal/profile"
 )
 
@@ -144,6 +146,13 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 		if _, err := os.Stat(filepath.Join(outputDir, filename)); err != nil {
 			t.Errorf("generated file %s is missing: %v", filename, err)
 		}
+	}
+	var metadata profileInfo
+	if err := json.Unmarshal([]byte(readTestFile(t, filepath.Join(outputDir, "alteriso.json"))), &metadata); err != nil {
+		t.Fatalf("failed to decode alteriso.json: %v", err)
+	}
+	if got, want := metadata.AlterISO, buildinfo.Current(); got != want {
+		t.Errorf("alteriso binary metadata = %#v, want %#v", got, want)
 	}
 
 	i686OutputDir := filepath.Join(root, "output-i686")

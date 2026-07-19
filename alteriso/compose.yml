@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+        - ALTERISO_VERSION
         - GIT_REVISION
     privileged: true
     working_dir: /app
@@ -16,4 +17,3 @@ services:
       - |
         alteriso clean
         alteriso profile build /usr/share/alteriso/configs/xfce
-

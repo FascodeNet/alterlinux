@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/FascodeNet/alterlinux/src/internal/buildinfo"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/FascodeNet/alterlinux/src/internal/profile"
 	cp "github.com/otiai10/copy"
@@ -50,6 +51,7 @@ func Generate(loaded *profile.Profile, outDir string, options Options) error {
 	if err != nil {
 		return errors.Wrap(err)
 	}
+	generatorInfo := buildinfo.Current()
 
 	tempDir, err := os.MkdirTemp("", "alteriso-*")
 	if err != nil {
@@ -83,7 +85,7 @@ func Generate(loaded *profile.Profile, outDir string, options Options) error {
 			return errors.Wrap(copyPacmanConf(resolved, dir))
 		}},
 		{"profile metadata", func(dir string) error {
-			return errors.Wrap(generateInfoFile(resolved, dir))
+			return errors.Wrap(generateInfoFile(resolved, dir, generatorInfo))
 		}},
 	}
 

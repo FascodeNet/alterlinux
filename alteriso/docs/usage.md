@@ -46,6 +46,14 @@ go run ./src profile \
     ./configs/minimum
 ```
 
+バイナリに埋め込まれた alteriso のバージョンは次のように確認できます。
+
+```bash
+alteriso --version
+```
+
+リリース情報を指定せずにローカルでビルドした場合、バージョンは `devel` と表示されます。
+
 ### `profile generate`
 
 ```text
@@ -72,6 +80,19 @@ alteriso プロファイルを mkarchiso 用ディレクトリへ変換します
 ```
 
 入力に該当する内容がなければ、`airootfs/` や一部のブートローダー成果物は作られません。
+`alteriso.json` には対象プロファイルとモジュールに加え、生成に使用したバイナリの情報が入ります。
+
+```json
+{
+    "alteriso": {
+        "version": "6.0",
+        "revision": "0123456789abcdef",
+        "go_version": "go1.25.1"
+    }
+}
+```
+
+Git リビジョンを取得できないビルドでは `revision` を省略します。
 
 ### `profile build`
 

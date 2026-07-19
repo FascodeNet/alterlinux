@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FascodeNet/alterlinux/src/internal/buildinfo"
 	"github.com/FascodeNet/alterlinux/src/internal/cmd/injectable"
 	profilecmd "github.com/FascodeNet/alterlinux/src/internal/cmd/profile"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
@@ -13,8 +14,10 @@ import (
 var debug bool
 
 func rootCmd() *cobra.Command {
+	info := buildinfo.Current()
 	root := cobra.Command{
 		Use:           "alteriso",
+		Version:       info.Version,
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}

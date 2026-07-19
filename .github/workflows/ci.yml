@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Dockerfile
-        run: docker build -t alteriso5 alteriso
+        run: docker build --build-arg GIT_REVISION="${{ github.sha }}" -t alteriso5 alteriso
 
       - name: Run Dockerfile
         run: docker run --privileged --rm -w /mnt -v $(pwd):/mnt alteriso5 alteriso profile --noconfirm build /usr/share/alteriso/configs/xfce
