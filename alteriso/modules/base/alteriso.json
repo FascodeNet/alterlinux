@@ -1,6 +1,11 @@
 {
     "module_version": 1,
     "manifest_version": 1,
+    "arch": [
+        "x86_64",
+        "i686",
+        "i486"
+    ],
     "load_scripts": [
         "module.sh"
     ],

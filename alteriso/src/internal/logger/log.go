@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"text/template"
 
+	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/m-mizutani/clog"
 )
 
@@ -26,7 +27,7 @@ var clogLevelFormatter = func(level slog.Level) string {
 func UseColorLog(level slog.Level) {
 	tmpl, err := template.New("default").Parse(clogTemplate)
 	if err != nil {
-		panic(err)
+		panic(errors.Wrap(err))
 	}
 
 	h := clog.New(
@@ -39,13 +40,7 @@ func UseColorLog(level slog.Level) {
 	l := slog.New(h)
 	slog.SetDefault(l)
 }
+
 func init() {
 	UseColorLog(slog.LevelDebug)
-}
-
-func WithoutLog(f func() error) error {
-	prev := slog.Default()
-	slog.SetDefault(slog.New(slog.DiscardHandler))
-	defer slog.SetDefault(prev)
-	return f()
 }

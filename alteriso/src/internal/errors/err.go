@@ -1,3 +1,6 @@
+// Package errors is the sole adapter between alteriso and its error
+// implementation. Application packages must create and wrap errors through
+// this package so the underlying library can be replaced in one place.
 package errors
 
 import "github.com/ztrue/tracerr"

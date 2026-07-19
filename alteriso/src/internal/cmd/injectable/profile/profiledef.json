@@ -1,5 +1,0 @@
-{
-    "arch": "x86_64",
-    "pacman_conf": "/dev/null",
-    "require_injectable": true
-}

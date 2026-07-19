@@ -1,10 +1,14 @@
 {
     "module_version": 1,
     "manifest_version": 1,
-    "load_scripts":[
+    "arch": [
+        "x86_64",
+        "i686"
+    ],
+    "load_scripts": [
         "module.sh"
     ],
-    "injects":{
+    "injects": {
         "post__make_customize_airootfs": [
             "__alteriso_lightdm_customize_airootfs"
         ]

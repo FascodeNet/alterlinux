@@ -2,36 +2,17 @@ package profile
 
 import (
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
-	"github.com/Hayao0819/nahi/futils"
+	"github.com/FascodeNet/alterlinux/src/internal/profile"
 	"github.com/spf13/cobra"
 )
 
-func profileFormatCmd() *cobra.Command {
-	cmd := cobra.Command{
+func formatCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:   "format config",
-		Short: "Format profile config file",
+		Short: "Format profile config files",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			configPath := args[0]
-			if !futils.Exists(configPath) {
-				return errors.Newf("directory %s does not exist", configPath)
-			}
-
-			profile, err := getProfileFromArg(cmd, configPath)
-			if err != nil {
-				return err
-			}
-
-			if err := profile.Format(); err != nil {
-				return errors.Wrap(err)
-			}
-
-			return nil
+			return errors.Wrap(profile.ErrFormatNotImplemented)
 		},
 	}
-	return &cmd
-}
-
-func init() {
-	profileReg.Add(profileFormatCmd())
 }

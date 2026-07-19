@@ -1,6 +1,9 @@
 {
     "module_version": 1,
     "manifest_version": 1,
+    "arch": [
+        "x86_64"
+    ],
     "append_kernel_param": [
         "quiet",
         "splash"

@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FascodeNet/alterlinux/src/internal/cmd/injectable"
+	profilecmd "github.com/FascodeNet/alterlinux/src/internal/cmd/profile"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
-	"github.com/Hayao0819/nahi/cobrautils"
 	"github.com/spf13/cobra"
 )
-
-var rootReg = cobrautils.Registory{}
 
 var debug bool
 
@@ -21,20 +20,25 @@ func rootCmd() *cobra.Command {
 	}
 
 	root.PersistentFlags().BoolVarP(&debug, "debug", "", debug, "Enable debug output")
-
-	rootReg.Bind(&root)
+	root.AddCommand(
+		profilecmd.Cmd(),
+		injectable.Cmd(),
+		cleanCmd(),
+		installArchisoCmd(),
+		repoCmd(),
+	)
 
 	return &root
 }
 
 func Execute() error {
-	if err := rootCmd().Execute(); err != nil {
+	if err := errors.Wrap(rootCmd().Execute()); err != nil {
 		if debug {
 			errors.Print(err)
 		} else {
 			fmt.Fprintln(os.Stderr, err.Error())
 		}
-		return err
+		return errors.Wrap(err)
 	}
 	return nil
 }

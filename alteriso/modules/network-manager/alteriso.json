@@ -1,4 +1,5 @@
 {
     "module_version": 1,
-    "manifest_version": 1
+    "manifest_version": 1,
+    "arch": "any"
 }
