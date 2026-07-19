@@ -1,355 +1,170 @@
-<!-- LLM Generated: This document was created by Claude -->
+<!-- LLM Generated: This document was created by Codex -->
 
-# コンフィグの仕様
+# プロファイル設定
 
-本ドキュメントでは、alteriso の設定ファイル `profiledef.json` の仕様について説明します。
+この文書は、alteriso の入力プロファイルと `profiledef.json` の仕様を説明します。
+実行方法は [usage.md](usage.md)、モジュール固有の仕様は [module.md](module.md) を参照してください。
 
-## ファイル形式
+## ディレクトリ構成
 
-`profiledef.json` は JSON 形式のファイルで、alteriso プロファイルの設定を定義します。
+```text
+configs/<name>/
+├── profiledef.json             # alteriso 設定（必須）
+├── profiledef.sh               # archiso 設定（必須）
+├── pacman.conf                 # Pacman 設定
+├── pacman.conf.any
+├── pacman.conf.<arch>          # アーキテクチャ固有 Pacman 設定
+├── packages                    # 共通パッケージ一覧
+├── packages.d/
+├── packages.any
+├── packages.any.d/
+├── packages.<arch>
+├── packages.<arch>.d/
+├── bootstrap_packages
+├── bootstrap_packages.d/
+├── bootstrap_packages.any
+├── bootstrap_packages.any.d/
+├── bootstrap_packages.<arch>
+├── bootstrap_packages.<arch>.d/
+├── airootfs/
+├── airootfs.any/
+├── airootfs.<arch>/
+├── splash.png
+└── <bootloader>/               # 共有ブートローダーディレクトリの置き換え
+```
 
-## フィールド仕様
+`profiledef.sh` は通常の archiso プロファイル設定です。alteriso は生成時にローダーと
+モジュールスクリプトを加えた `profiledef.sh` を作り、元ファイル自体は変更しません。
+
+## profiledef.json
 
 ### 必須フィールド
 
-#### arch
+| フィールド | 型 | 説明 |
+| --- | --- | --- |
+| `arch` | string | デフォルトのターゲットアーキテクチャ |
+| `modules` | string[] | 読み込むモジュール名。空配列は有効 |
 
-- **型**: string
-- **説明**: ターゲットアーキテクチャ
-- **デフォルト値**: なし (必須)
-- **例**: `"x86_64"`
+`arch` は空でない具体的な名前である必要があります。固定の許可リストはありませんが、
+モジュール、パッケージリポジトリ、archiso のすべてが対象アーキテクチャに対応している必要が
+あります。モジュール用のワイルドカード `"any"` は指定できません。
 
-現在サポートされているアーキテクチャ:
-
-- `x86_64`
-
-#### modules
-
-- **型**: string[]
-- **説明**: 使用するモジュールのリスト
-- **デフォルト値**: なし (必須)
-- **例**: `["base", "user", "network-manager"]`
-
-指定された順序でモジュールがロードされます。
-モジュール名は `modules/` ディレクトリのディレクトリ名と一致する必要があります。
+`modules` の要素は `--modules` で指定したディレクトリ直下の名前です。空文字列、
+前後の空白、パス、重複した名前は拒否されます。
 
 ### オプションフィールド
 
-#### os_name
+| フィールド | 型 | 未指定時 | 用途 |
+| --- | --- | --- | --- |
+| `os_name` | string | `""` | ブートローダーの `%ALTERISO_OS_NAME%` |
+| `kernel_name` | string | `""` | `%ALTERISO_KERNEL_NAME%` と `base` モジュール |
+| `username` | string | `""` | `user` モジュールとディスプレイマネージャーモジュール |
+| `cow_spacesize` | string | `""` | `%ALTERISO_COW_SPACESIZE%` |
+| `injects` | object (`map[string][]string`) | 空 | プロファイル固有のインジェクション |
+| `require_injectable` | boolean | `false` | インジェクション非対応の mkarchiso での実行を拒否 |
+| `pacman_conf` | string | 自動選択 | 使用する Pacman 設定の基準パス |
 
-- **型**: string
-- **説明**: OS の表示名
-- **デフォルト値**: `""`
-- **例**: `"Alter Linux"`
+これらの値に暗黙の `"linux"` や `"256M"` は補われません。必要な値はプロファイル側で
+明記してください。現在の Go データモデルにない JSON フィールドは生成後の `profiledef.json`
+には保持されないため、上表以外のフィールドには依存しないでください。
 
-ブートローダー設定などで使用されます。
-`%ALTERISO_OS_NAME%` プレースホルダーに展開されます。
-
-#### kernel_name
-
-- **型**: string
-- **説明**: カーネルパッケージ名
-- **デフォルト値**: `"linux"`
-- **例**: `"linux"`, `"linux-lts"`, `"linux-zen"`
-
-使用するカーネルパッケージを指定します。
-`%ALTERISO_KERNEL_NAME%` プレースホルダーに展開されます。
-
-#### username
-
-- **型**: string
-- **説明**: ライブ環境のユーザー名
-- **デフォルト値**: `""`
-- **例**: `"live"`
-
-`user` モジュールなどで使用されます。
-
-#### cow_spacesize
-
-- **型**: string
-- **説明**: Copy-on-Write 領域のサイズ
-- **デフォルト値**: `"256M"`
-- **例**: `"1G"`, `"512M"`, `"2G"`
-
-ライブ環境で書き込み可能な領域のサイズを指定します。
-`%ALTERISO_COW_SPACESIZE%` プレースホルダーに展開されます。
-
-#### injects
-
-- **型**: object (`map[string][]string`)
-- **説明**: プロファイルレベルのインジェクション定義
-- **デフォルト値**: `{}`
-- **例**:
+### 例
 
 ```json
 {
-    "injects": {
-        "post__make_packages": [
-            "custom_post_install"
-        ]
-    }
-}
-```
-
-プロファイル固有のインジェクション関数を定義します。
-モジュールのインジェクションの後に実行されます。
-
-## 設定例
-
-### 最小限の設定
-
-```json
-{
-    "arch": "x86_64",
-    "modules": ["base"]
-}
-```
-
-### 標準的な設定
-
-```json
-{
-    "os_name": "My Custom Linux",
     "arch": "x86_64",
     "modules": [
         "base",
-        "user",
-        "network-manager"
-    ],
-    "kernel_name": "linux",
-    "username": "live",
-    "cow_spacesize": "1G"
-}
-```
-
-### 完全な設定例
-
-```json
-{
-    "os_name": "Alter Linux",
-    "arch": "x86_64",
-    "modules": [
-        "base",
-        "user",
         "network-manager",
-        "lightdm",
-        "plymouth"
+        "user"
     ],
+    "os_name": "Example Linux",
     "kernel_name": "linux",
     "username": "live",
     "cow_spacesize": "1G",
-    "injects": {
-        "post__make_customize_airootfs": [
-            "custom_setup_function"
-        ]
-    }
+    "require_injectable": true
 }
 ```
 
-## プレースホルダー展開
+## 生成対象の選択
 
-設定値は、ブートローダー設定ファイルなどのプレースホルダーに展開されます。
+一つの archiso プロファイルが持つターゲットは一つです。生成時の対象は次の順で決まります。
 
-### 利用可能なプレースホルダー
+1. `--arch` の値
+2. `profiledef.json` の `arch`
 
-| プレースホルダー         | 対応する設定                         | デフォルト値 |
-| ---                      | ---                                    | ---          |
-| `%ALTERISO_OS_NAME%`     | `os_name`                              | `""`       |
-| `%ALTERISO_KERNEL_NAME%` | `kernel_name`                          | `"linux"`  |
-| `%ALTERISO_COW_SPACESIZE%` | `cow_spacesize`                      | `"256M"`   |
-| `%ALTERISO_KERNEL_PARAM%` | モジュールの `append_kernel_param`   | `""`       |
+選択後に、すべてのモジュールがそのアーキテクチャを受け入れるか検証されます。`--arch` は
+入力を変更しないため、同じ入力プロファイルから別々の出力先へ複数回生成できます。
 
-### 展開の例
+出力先は重複させないでください。`profile generate` は既存の出力ディレクトリを拒否します。
+実行例は [usage.md](usage.md#profile-共通オプション) を参照してください。
 
-#### ブートローダー設定テンプレート
+## Pacman 設定の選択
 
-```text
-LABEL %ALTERISO_OS_NAME%
-LINUX /boot/vmlinuz-%ALTERISO_KERNEL_NAME%
-APPEND cow_spacesize=%ALTERISO_COW_SPACESIZE% %ALTERISO_KERNEL_PARAM%
-```
+`pacman_conf` が指定されている場合、相対パスはプロファイルディレクトリを基準に解決されます。
+指定値を基準パスとして、次の優先順位で一つを選びます。
 
-#### 設定
+1. `<基準パス>.<arch>`
+2. `<基準パス>.any`
+3. `<基準パス>`
 
-```json
-{
-    "os_name": "Custom Linux",
-    "kernel_name": "linux-lts",
-    "cow_spacesize": "2G"
-}
-```
+未指定の場合の基準パスは `pacman.conf` なので、選択順は次のとおりです。
 
-#### 展開結果
+1. `pacman.conf.<arch>`
+2. `pacman.conf.any`
+3. `pacman.conf`
 
-```text
-LABEL Custom Linux
-LINUX /boot/vmlinuz-linux-lts
-APPEND cow_spacesize=2G quiet splash
-```
+選択されたファイルが存在しなければ生成は失敗します。
 
-## モジュールとの関係
+## パッケージとオーバーレイ
 
-### modules フィールド
+プロファイルでもモジュールと同じ命名規則を使用できます。
 
-`modules` で指定されたモジュールは、以下の要素を提供します:
+- `packages`、`packages.d/*`: 拡張子なしの共通レイヤー
+- `packages.any`、`packages.any.d/*`: 明示的な全ターゲット共通レイヤー
+- `packages.<arch>`、`packages.<arch>.d/*`: 選択したターゲット専用レイヤー
+- `bootstrap_packages*`: 同じ規則のブートストラップ用一覧
+- `airootfs/`: 拡張子なしの共通レイヤー
+- `airootfs.any/`: 明示的な全ターゲット共通レイヤー
+- `airootfs.<arch>/`: 選択したターゲット専用レイヤー
 
-1. **パッケージリスト** - `packages.x86_64.d/` からマージ
-2. **ファイル** - `airootfs.any/` と `airootfs.x86_64/` からマージ
-3. **スクリプト** - `load_scripts` で指定されたスクリプトを読み込み
-4. **インジェクション** - `injects` で定義された関数を登録
-5. **カーネルパラメータ** - `append_kernel_param` を連結
+3 種類はすべて読み込まれます。マージ順やファイル形式は [module.md](module.md) にまとめています。
 
-### モジュールのロード順序
+## ブートローダー設定
 
-モジュールは `modules` 配列の順序でロードされます。
+`--bootloaders` の直下にある各ディレクトリが出力へコピーされます。同名のディレクトリが
+入力プロファイルにある場合は、共有版全体の代わりにプロファイル側のものを使います。
+`splash.png` がある場合は、生成後の `syslinux/splash.png` を置き換えます。
 
-```json
-{
-    "modules": ["base", "user", "network-manager"]
-}
-```
+コピー時に次のプレースホルダーを展開します。
 
-この場合:
+| プレースホルダー | 値 |
+| --- | --- |
+| `%ALTERISO_OS_NAME%` | `os_name` |
+| `%ALTERISO_KERNEL_NAME%` | `kernel_name` |
+| `%ALTERISO_COW_SPACESIZE%` | `cow_spacesize` |
+| `%ALTERISO_KERNEL_PARAM%` | モジュールの `append_kernel_param` |
 
-1. `base` モジュールがロード
-2. `user` モジュールがロード
-3. `network-manager` モジュールがロード
+archiso 自身が処理する `%ARCH%`、`%INSTALL_DIR%` などはそのまま残ります。
 
-インジェクション関数やファイルの上書きは、この順序で処理されます。
+## 検証
 
-## バリデーション
+生成前に少なくとも次を検証します。
 
-### 必須フィールドのチェック
+- `profiledef.json` が正しい JSON である
+- `arch` と `modules` が前述の制約を満たす
+- 指定されたモジュールが読み込める
+- 選択したアーキテクチャを全モジュールが受け入れる
+- プロファイル、ブートローダー、`profiledef.sh`、選択した Pacman 設定が存在する
 
-`arch` と `modules` は必須です。これらが欠けている場合、エラーになります。
+## 生成された profiledef.json の参照
 
-### モジュールの存在チェック
+モジュールスクリプトでは次のシェルヘルパーを利用できます。
 
-`modules` に指定されたモジュールが `modules/` ディレクトリに存在しない場合、エラーになります。
+- `__alteriso_profiledef`
+- `__alteriso_profiledef_arch`
+- `__alteriso_profiledef_modules`
+- `__alteriso_profiledef_kernelname`
+- `__alteriso_profiledef_username`
 
-### JSON 形式のチェック
-
-JSON の形式が不正な場合、パースエラーが発生します。
-
-## スクリプトからの参照
-
-### __alteriso_profiledef 関数
-
-`profiledef.json` の内容を JSON として取得できます。
-
-```bash
-__alteriso_profiledef
-```
-
-出力例:
-
-```json
-{"os_name":"Alter Linux","arch":"x86_64","modules":["base","user"],...}
-```
-
-### 個別フィールドの取得関数
-
-特定のフィールド値を取得する便利関数も提供されています。
-
-```bash
-__alteriso_profiledef_kernelname    # kernel_name を取得
-__alteriso_profiledef_username      # username を取得
-__alteriso_profiledef_osname        # os_name を取得
-```
-
-### 使用例
-
-```bash
-#!/usr/bin/env bash
-
-# カーネル名を取得
-kernel_name=$(__alteriso_profiledef_kernelname)
-echo "Using kernel: ${kernel_name}"
-
-# ユーザー名を取得
-username=$(__alteriso_profiledef_username)
-echo "Creating user: ${username}"
-
-# jq を使って任意のフィールドを取得
-cow_size=$(__alteriso_profiledef | jq -r '.cow_spacesize')
-echo "COW space size: ${cow_size}"
-```
-
-## 設定のベストプラクティス
-
-### 1. モジュールの最小化
-
-必要なモジュールのみを `modules` に含めます。
-
-```json
-{
-    "modules": ["base", "user"]
-}
-```
-
-### 2. 適切な COW サイズ
-
-用途に応じて `cow_spacesize` を設定します:
-
-- ミニマル環境: `"512M"`
-- 標準環境: `"1G"`
-- デスクトップ環境: `"2G"` 以上
-
-### 3. カーネルの選択
-
-用途に応じたカーネルを選択します:
-
-- 標準: `"linux"`
-- 長期サポート: `"linux-lts"`
-- 低レイテンシ: `"linux-zen"`
-- ハードウェア互換性: `"linux-hardened"`
-
-### 4. OS 名の設定
-
-わかりやすい OS 名を設定します:
-
-```json
-{
-    "os_name": "My Linux Distribution"
-}
-```
-
-## トラブルシューティング
-
-### JSON パースエラー
-
-```text
-Error: failed to parse profile config: invalid character...
-```
-
-解決方法:
-
-- JSON の形式を確認 (カンマ、括弧、引用符など)
-- JSON バリデータでチェック
-
-### モジュールロードエラー
-
-```text
-Error: failed to load module <name>: module directory does not exist
-```
-
-解決方法:
-
-- `modules/` ディレクトリに該当モジュールが存在するか確認
-- モジュール名のスペルを確認
-
-### フィールド型エラー
-
-```text
-Error: json: cannot unmarshal...
-```
-
-解決方法:
-
-- フィールドの型を確認 (string, array, object)
-- 配列は `[]`、文字列は `""` で囲む
-
-## 参考
-
-- モジュールの詳細: [module.md](module.md)
-- 使い方の詳細: [usage.md](usage.md)
+任意のフィールドは `__alteriso_profiledef | jq ...` で参照できます。

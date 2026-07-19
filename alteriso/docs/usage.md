@@ -1,345 +1,142 @@
-<!-- LLM Generated: This document was created by Claude -->
+<!-- LLM Generated: This document was created by Codex -->
 
-# alteriso の基本的な使い方
+# 使い方
 
-本ドキュメントでは、alteriso の基本的な使い方について説明します。
+alteriso は入力プロファイルから単一アーキテクチャの archiso プロファイルを生成し、必要なら
+そのまま mkarchiso を実行します。入力形式は [config.md](config.md)、モジュールの作成方法は
+[module.md](module.md) を参照してください。
 
-## 概要
+## ソースツリーから実行する
 
-alteriso は、archiso のプロファイルを生成し、そのプロファイルを用いて ISO イメージをビルドするツールです。
+`alteriso/` をカレントディレクトリにした例です。
 
-## 基本的なワークフロー
-
-1. プロファイル作成 (profiledef.json)
-2. profile build サブコマンドで ISO をビルド
-
-## プロファイルの作成
-
-### ディレクトリ構造
-
-```txt
-configs/<profile_name>/
-├── profiledef.json         # alteriso 設定 (必須)
-├── profiledef.sh           # archiso 設定 (必須)
-├── pacman.conf             # pacman 設定 (必須)
-├── packages.x86_64.d/      # パッケージリスト (オプション)
-│   └── *.x86_64
-└── airootfs.any/           # ファイルオーバーレイ (オプション)
-    └── (ルートファイルシステム構造)
-```
-
-### profiledef.json の作成
-
-alteriso 用の設定ファイルです。
-
-```json
-{
-    "os_name": "My Custom OS",
-    "arch": "x86_64",
-    "modules": [
-        "base",
-        "user",
-        "network-manager"
-    ],
-    "kernel_name": "linux",
-    "username": "live",
-    "cow_spacesize": "1G"
-}
-```
-
-### profiledef.sh の作成
-
-archiso 用の設定ファイルです。通常の archiso プロファイルと同じ形式です。
+生成結果を確認するだけなら、補助スクリプトを使えます。
 
 ```bash
-#!/usr/bin/env bash
-
-iso_name="mycustomos"
-iso_label="MYCUSTOMOS_$(date +%Y%m)"
-iso_version="$(date +%Y.%m.%d)"
-install_dir="arch"
-buildmodes=('iso')
-bootmodes=('bios.syslinux' 'uefi.systemd-boot')
-airootfs_image_type="squashfs"
+./gen.sh configs/minimum
 ```
 
-### pacman.conf の作成
-
-ISO ビルド時に使用する pacman 設定ファイルです。
-通常の pacman.conf と同じ形式です。
-
-## プロファイルの生成
-
-### gen.sh の使用
+ISO まで構築する場合は次を実行します。
 
 ```bash
-./gen.sh configs/<profile_name>
+./build.sh configs/xfce
 ```
 
-これにより、`out/<profile_name>/` に mkarchiso 用のプロファイルが生成されます。
+どちらも Go バイナリを一時的にビルドし、リポジトリ内の `bootloaders/` と `modules/` を
+指定します。`build.sh` は `sudo` と mkarchiso を使用し、正常終了時に作業ディレクトリを
+削除します。
 
-### 生成されるファイル
+## alteriso コマンド
 
-```text
-out/<profile_name>/
-├── profiledef.sh           # 生成された archiso プロファイル
-├── packages.x86_64         # マージされたパッケージリスト
-├── pacman.conf             # コピーされた pacman.conf
-├── airootfs/               # マージされたファイル
-├── syslinux/               # ブートローダー設定
-├── grub/                   # GRUB 設定
-└── efiboot/                # UEFI ブート設定
-```
+インストール済みバイナリの既定値は次のとおりです。
 
-## ISO のビルド
-
-### profile build サブコマンドの実行
-
-生成されたプロファイルを、alteriso の `profile build` サブコマンドでビルドします。mkarchiso を直接実行する必要はありません。
-
-```bash
-go run ./src profile build configs/<profile_name>
-```
-
-デフォルトでは以下のディレクトリが使用されます:
-
-- 出力ディレクトリ: `./out`
+- モジュール: `/usr/share/alteriso/modules/`
+- ブートローダー: `/usr/share/alteriso/bootloaders`
+- ISO 出力: `./out`
 - 作業ディレクトリ: `./work`
 
-必要に応じて、`--out` や `--work` オプションで変更できます。
-
-### build.sh の使用
-
-alteriso には簡易ビルドスクリプトが用意されています。
-
-```bash
-./build.sh
-```
-
-このスクリプトは、`profile build` サブコマンドを用いて、標準のプロファイル (例: `configs/xfce`) をビルドします。
-
-## コマンドリファレンス
-
-### gen.sh
-
-プロファイルを生成します。
-
-```bash
-./gen.sh [options] <profile_directory>
-```
-
-内部的には以下を実行します:
+ソースツリーを直接使う場合は補助スクリプトを使うか、明示的にパスを指定します。
 
 ```bash
 go run ./src profile \
-    --bootloaders ./bootloaders/ \
-    --modules ./modules/ \
+    --modules ./modules \
+    --bootloaders ./bootloaders \
     generate \
-    -o ./out \
-    <profile_directory>
+    --out ./out/minimum \
+    ./configs/minimum
 ```
 
-### clean.sh
-
-生成されたファイルをクリーンアップします。
-
-```bash
-./clean.sh
-```
-
-`out/` ディレクトリ内の生成されたプロファイルを削除します。
-
-## カスタマイズ
-
-### モジュールの選択
-
-`profiledef.json` の `modules` フィールドでモジュールを選択します。
-
-```json
-{
-    "modules": [
-        "base",
-        "user",
-        "network-manager",
-        "lightdm",
-        "plymouth"
-    ]
-}
-```
-
-使用可能なモジュールは `modules/` ディレクトリを参照してください。
-
-### パッケージの追加
-
-プロファイルの `packages.x86_64.d/` にパッケージリストを追加します。
+### `profile generate`
 
 ```text
-configs/myprofile/packages.x86_64.d/custom.x86_64
+alteriso profile generate [--out DIR] CONFIG
 ```
 
-内容:
+alteriso プロファイルを mkarchiso 用ディレクトリへ変換します。`CONFIG` は必須です。出力先は
+`--out` で指定でき、既定値は `./out` です。既存の出力ディレクトリは拒否されます。
+`generate` は `gen` でも呼び出せます。
+
+主な生成物は次のとおりです。
 
 ```text
-firefox
-chromium
-libreoffice-fresh
-```
-
-### ファイルの追加
-
-`airootfs.any/` または `airootfs.x86_64/` にファイルを配置します。
-
-```text
-configs/myprofile/airootfs.any/etc/hostname
-```
-
-内容:
-
-```text
-mycustomos
-```
-
-### ブートローダーのカスタマイズ
-
-ブートローダー設定は `bootloaders/` ディレクトリからコピーされます。
-プロファイル固有の設定が必要な場合は、生成後に `out/<profile>/` を編集します。
-
-## トラブルシューティング
-
-### ビルドエラー
-
-#### モジュールが見つからない
-
-```text
-Error: failed to load module <name>: module directory does not exist
-```
-
-解決方法:
-
-- `modules/` ディレクトリに該当モジュールが存在するか確認
-- `profiledef.json` のモジュール名が正しいか確認
-
-#### マニフェストバージョンエラー
-
-```text
-Error: unsupported manifest version: <version>
-```
-
-解決方法:
-
-- モジュールの `alteriso.json` の `manifest_version` を `1` に設定
-
-#### パッケージが見つからない
-
-mkarchiso 実行時にパッケージが見つからない場合:
-
-解決方法:
-
-- `pacman.conf` のリポジトリ設定を確認
-- パッケージ名が正しいか確認
-- `pacman -Sy` でデータベースを更新
-
-### クリーンビルド
-
-問題が解決しない場合、クリーンビルドを試してください:
-
-```bash
-./clean.sh
-rm -rf work/
-./build.sh
-```
-
-## 例: 最小限のプロファイル
-
-### ディレクトリ構成
-
-```text
-configs/minimal/
-├── profiledef.json
+<out>/
 ├── profiledef.sh
-└── pacman.conf
+├── profiledef.json
+├── injecter.sh
+├── alteriso.json
+├── packages.<arch>
+├── bootstrap_packages.<arch>
+├── pacman.conf
+├── airootfs/
+└── <bootloader>/
 ```
 
-### profiledef.json の例 (最小構成)
+入力に該当する内容がなければ、`airootfs/` や一部のブートローダー成果物は作られません。
 
-```json
-{
-    "os_name": "Minimal OS",
-    "arch": "x86_64",
-    "modules": ["base"],
-    "kernel_name": "linux",
-    "username": "live",
-    "cow_spacesize": "512M"
-}
-```
-
-### profiledef.sh
-
-```bash
-#!/usr/bin/env bash
-
-iso_name="minimal"
-iso_label="MINIMAL_$(date +%Y%m)"
-iso_version="$(date +%Y.%m.%d)"
-install_dir="arch"
-buildmodes=('iso')
-bootmodes=('bios.syslinux')
-airootfs_image_type="squashfs"
-```
-
-### ビルド手順 (最小構成)
-
-```bash
-./gen.sh configs/minimal
-go run ./src profile build configs/minimal
-```
-
-## 例: デスクトップ環境付きプロファイル
-
-### profiledef.json の例 (デスクトップ環境)
-
-```json
-{
-    "os_name": "Desktop OS",
-    "arch": "x86_64",
-    "modules": [
-        "base",
-        "user",
-        "network-manager",
-        "lightdm",
-        "plymouth"
-    ],
-    "kernel_name": "linux",
-    "username": "live",
-    "cow_spacesize": "2G"
-}
-```
-
-### packages.x86_64.d/desktop.x86_64
+### `profile build`
 
 ```text
-# デスクトップ環境
-xfce4
-xfce4-goodies
-
-# アプリケーション
-firefox
-thunar
-xfce4-terminal
-
-# フォント
-noto-fonts
-noto-fonts-cjk
+alteriso profile build [--out DIR] [--work DIR] [CONFIG]
 ```
 
-### ビルド手順 (デスクトップ環境)
+作業ディレクトリ内へプロファイルを生成してから mkarchiso を実行します。`CONFIG` を省略した
+場合は `./configs/xfce` です。Pacman のキャッシュには `<work>/pacman_cache` を使用します。
+
+### `profile` 共通オプション
+
+| オプション | 説明 |
+| --- | --- |
+| `--modules DIR` | モジュールディレクトリ |
+| `--bootloaders DIR` | ブートローダーのテンプレートディレクトリ |
+| `--arch ARCH` | `profiledef.json` の既定ターゲットを今回だけ上書き |
+| `--noconfirm` | 生成した `profiledef.sh` によるビルド前の確認を省略 |
+
+`--arch` を変えて同じ入力から複数回生成できますが、出力先はアーキテクチャごとに分けてください。
 
 ```bash
-./gen.sh configs/desktop
-go run ./src profile build configs/desktop
+./gen.sh configs/minimum --arch i686
 ```
 
-## 次のステップ
+### `clean`
 
-- モジュールの仕組みを理解する: [module.md](module.md)
-- 設定の詳細を確認する: [config.md](config.md)
+```text
+alteriso clean [--workdir DIR]
+```
+
+対象以下のマウントを解除して作業ディレクトリを削除します。ファイルシステムのルート、
+カレントディレクトリ、ホームディレクトリは対象にできません。
+
+リポジトリの `clean.sh` も `alteriso/work` をアンマウントして削除するためのスクリプトです。
+`out/` は削除しません。
+
+### `test-injectable`
+
+```text
+alteriso test-injectable
+```
+
+最小プロファイルで mkarchiso のインジェクション対応を検査します。非対応の場合は
+`archiso is not injectable` を返し、終了コードは非ゼロです。
+
+### `install-archiso`
+
+インジェクション対応の mkarchiso を配置します。archiso パッケージが導入済みなら mkarchiso
+スクリプトをダウンロードし、未導入ならソースリポジトリからインストールします。ネットワーク通信を
+行い、既定では `/usr/local/bin/mkarchiso` またはシステム上のスクリプトを変更します。
+ソースからのインストールには root 権限が必要です。
+
+### `repo`
+
+第三者リポジトリの設定スクリプトをダウンロードして実行します。root 権限とネットワーク接続が
+必要で、システムのリポジトリ設定を変更します。現在は取得内容のダイジェストや署名を検証しません。
+
+### `profile format`
+
+コマンドは予約されていますが、フォーマッターは未実装です。現在は常に非ゼロで終了します。
+
+## よくある失敗
+
+- プロファイルの JSON とアーキテクチャの検証: [config.md](config.md#検証)
+- モジュールのマニフェスト、パッケージ、オーバーレイ、インジェクション: [module.md](module.md)
+- mkarchiso がインジェクション非対応: `alteriso test-injectable`
+- パッケージが見つからない: 選択された Pacman 設定と対象リポジトリを確認

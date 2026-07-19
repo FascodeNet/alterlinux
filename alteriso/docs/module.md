@@ -1,311 +1,159 @@
-<!-- LLM Generated: This document was created by Claude -->
+<!-- LLM Generated: This document was created by Codex -->
 
-# モジュールの仕組みと仕様
+# モジュール仕様
 
-本ドキュメントでは、alteriso のモジュールシステムの仕組みと仕様について説明します。
+この文書は `modules/<name>/` の形式とマージ規則を説明します。プロファイル側の設定は
+[config.md](config.md)、コマンドの使い方は [usage.md](usage.md) を参照してください。
 
-## 概要
-
-モジュールは、alteriso の中核となる機能単位です。
-各モジュールは独立したディレクトリとして存在し、パッケージリスト、ファイル、スクリプト、インジェクション関数などを提供します。
-
-## モジュールの構造
-
-### ディレクトリ構成
+## 構成
 
 ```text
-modules/<module_name>/
-├── alteriso.json           # モジュール設定ファイル (必須)
-├── module.sh               # シェルスクリプト (オプション)
-├── packages.x86_64.d/      # パッケージリスト (オプション)
-│   └── *.x86_64
-├── bootstrap_packages.x86_64  # bootstrap用パッケージ (オプション)
-├── airootfs.any/           # 全アーキテクチャ共通ファイル (オプション)
-│   └── (ルートファイルシステム構造)
-└── airootfs.x86_64/        # アーキテクチャ固有ファイル (オプション)
-    └── (ルートファイルシステム構造)
+modules/<name>/
+├── alteriso.json
+├── module.sh
+├── packages
+├── packages.d/
+├── packages.any
+├── packages.any.d/
+├── packages.<arch>
+├── packages.<arch>.d/
+├── bootstrap_packages
+├── bootstrap_packages.d/
+├── bootstrap_packages.any
+├── bootstrap_packages.any.d/
+├── bootstrap_packages.<arch>
+├── bootstrap_packages.<arch>.d/
+├── airootfs/
+├── airootfs.any/
+└── airootfs.<arch>/
 ```
 
-### alteriso.json の仕様
+`alteriso.json` は必須です。それ以外はモジュールが提供する機能に応じて追加します。
 
-モジュールの設定を定義する JSON ファイルです。
+## alteriso.json
 
-#### 必須フィールド
+| フィールド | 型 | 必須 | 説明 |
+| --- | --- | --- | --- |
+| `manifest_version` | number | はい | 現在は `1` のみ |
+| `arch` | `"any" \| string[]` | はい | 対応アーキテクチャ |
+| `module_version` | number | いいえ | メタデータ。未指定時は `0` |
+| `load_scripts` | string[] | いいえ | モジュール内から埋め込むシェルスクリプト |
+| `injects` | object (`map[string][]string`) | いいえ | mkarchiso のインジェクションフック |
+| `append_kernel_param` | string[] | いいえ | ブートローダーへ追加するカーネルパラメーター |
 
-- `manifest_version` (number) - マニフェストバージョン (現在は `1` のみサポート)
-- `module_version` (number) - モジュールのバージョン番号
-
-#### オプションフィールド
-
-- `load_scripts` (string[]) - 読み込むシェルスクリプトファイルのリスト
-- `injects` (object) - mkarchiso 関数へのインジェクション定義
-- `append_kernel_param` (string[]) - カーネルパラメータに追加する文字列のリスト
-
-#### 例
+最小構成は次のとおりです。
 
 ```json
 {
     "manifest_version": 1,
-    "module_version": 1,
-    "load_scripts": ["module.sh"],
+    "arch": "any"
+}
+```
+
+### arch
+
+アーキテクチャに依存しない場合だけ文字列 `"any"` を使います。
+
+```json
+{
+    "arch": "any"
+}
+```
+
+対応範囲を限定する場合は、具体的な名前を一つ以上含む配列にします。
+
+```json
+{
+    "arch": ["x86_64", "i686"]
+}
+```
+
+次は不正です。
+
+- `"arch": "x86_64"`
+- `"arch": []`
+- `"arch": ["any"]`
+- 空文字列、前後に空白がある値、重複した値
+
+マニフェストの読み込み時に形式を検証し、生成対象を選んだ後に対応可否を検証します。
+
+## パッケージリスト
+
+次の3種類をすべて読み込みます。
+
+- `packages` と `packages.d/*`: 拡張子なし
+- `packages.any` と `packages.any.d/*`: 全アーキテクチャ
+- `packages.<arch>` と `packages.<arch>.d/*`: 選択したアーキテクチャ
+- 同じ命名規則の `bootstrap_packages*`
+
+書式は一行一パッケージです。空行と、空白を除いた後に `#` で始まる行は無視します。
+プロファイルと選択された全モジュールの内容を統合し、重複を除いて名前順に出力します。
+`.d/` 内のファイル名と拡張子には意味を持たせていません。
+
+## airootfs
+
+- `airootfs/`: 拡張子なしの共通レイヤー
+- `airootfs.any/`: 明示的な全ターゲット共通レイヤー
+- `airootfs.<arch>/`: 選択したターゲット専用レイヤー
+
+コピー順は次のとおりで、後の内容が同じパスを上書きします。
+
+1. `modules` 配列順に、各モジュールの `airootfs/`、`airootfs.any/`、`airootfs.<arch>/`
+2. プロファイルの `airootfs/`、`airootfs.any/`、`airootfs.<arch>/`
+
+存在しないディレクトリは省略できます。現在の実装では、存在するオーバーレイのコピーに
+失敗しても警告だけを出して処理を継続します。この挙動は既知の未解消事項です。
+
+## load_scripts
+
+`load_scripts` はモジュールディレクトリからの相対パスです。各スクリプトはモジュール順に
+読み込まれ、シバンを除いて生成後の `profiledef.sh` へ埋め込まれます。ファイルが存在しない場合や
+シェル構文を解析できない場合は生成が失敗します。
+
+```json
+{
+    "load_scripts": ["module.sh"]
+}
+```
+
+スクリプトからは、mkarchiso のシンボルと alteriso ローダーのヘルパーを参照できます。
+プロファイル情報のヘルパーは
+[config.md](config.md#生成された-profiledefjson-の参照) にまとめています。
+
+## インジェクション
+
+`injects` のキーはインジェクション対応の mkarchiso が解釈するフックのシンボル、値は実行する
+関数名の配列です。
+
+```json
+{
     "injects": {
-        "post__make_custom_airootfs": [
-            "__alteriso_base_setup_mkinitcpio_presets"
+        "post__make_packages": [
+            "example_after_packages"
         ]
-    },
+    }
+}
+```
+
+同じフックに複数のモジュールが登録した場合、`profiledef.json` の `modules` 順に連結し、最後に
+プロファイル側の `injects` を加えます。フック名や関数の存在は Go 側では検証しないため、対象の
+mkarchiso にある関数名と一致させてください。
+
+`require_injectable` が `false` なら、インジェクション非対応の mkarchiso では互換モードとして
+インジェクションを無効化できます。`true` ならインジェクション非対応の mkarchiso で停止します。
+
+## カーネルパラメーター
+
+全モジュールの `append_kernel_param` をモジュール順に連結し、重複を除いて
+`%ALTERISO_KERNEL_PARAM%` へ展開します。
+
+```json
+{
     "append_kernel_param": ["quiet", "splash"]
 }
 ```
 
-## モジュールのロード
+## 組み込みモジュール
 
-### ロードプロセス
-
-1. `profiledef.json` の `modules` フィールドに指定されたモジュールが順番にロードされる
-2. 各モジュールの `alteriso.json` が読み込まれる
-3. `manifest_version` が検証される (現在は `1` のみサポート)
-4. モジュールの設定が Profile 構造体に統合される
-
-### エラーハンドリング
-
-以下の場合、モジュールのロードは失敗します:
-
-- モジュールディレクトリが存在しない
-- `alteriso.json` が存在しない
-- `alteriso.json` の JSON が不正
-- `manifest_version` がサポートされていない値
-
-## インジェクション機構
-
-### 仕様
-
-`injects` フィールドで、mkarchiso の関数に対するフック関数を定義できます。
-
-```json
-{
-    "injects": {
-        "<フック名>": [
-            "<関数名1>",
-            "<関数名2>"
-        ]
-    }
-}
-```
-
-- キー: フック名 (`pre_<function>`, `post_<function>`, `override_<function>`)
-- 値: 実行する関数名の配列 (配列の順序で実行される)
-
-### 複数モジュールからのインジェクション
-
-複数のモジュールが同じフックに関数を登録した場合、モジュールのロード順序で実行されます。
-
-例:
-
-- モジュール A: `post__make_packages` → `[function_a]`
-- モジュール B: `post__make_packages` → `[function_b]`
-
-実行順序: `function_a` → `function_b`
-
-### スクリプトのロード
-
-`load_scripts` で指定されたスクリプトファイルは、生成される `profiledef.sh` に埋め込まれます。
-
-## パッケージリスト
-
-### packages.x86_64.d/
-
-このディレクトリ内の `*.x86_64` ファイルに記載されたパッケージがインストールされます。
-
-#### ファイル形式
-
-- 1行に1パッケージ名を記載
-- `#` で始まる行はコメント
-- 空行は無視される
-
-#### packages.x86_64.d の例
-
-```text
-# ネットワーク管理
-networkmanager
-nm-connection-editor
-
-# GUI ツール
-network-manager-applet
-```
-
-### パッケージのマージ
-
-プロファイル生成時、以下の順序でパッケージリストがマージされます:
-
-1. すべてのモジュールの `packages.x86_64.d/*.x86_64`
-2. プロファイルの `packages.x86_64.d/*.x86_64`
-
-重複するパッケージは自動的に削除され、最終的なリストはソートされます。
-
-### bootstrap_packages.x86_64
-
-bootstrap ビルドモード用のパッケージリストです。
-書式は `packages.x86_64.d/` と同じです。
-
-## ファイルシステムオーバーレイ
-
-### airootfs.any と airootfs.x86_64
-
-これらのディレクトリは、ISO の rootfs に直接コピーされるファイルを格納します。
-
-- `airootfs.any/` - すべてのアーキテクチャで使用
-- `airootfs.x86_64/` - x86_64 アーキテクチャ専用
-
-### マージ順序
-
-以下の順序でファイルがコピーされ、後のものが前のものを上書きします:
-
-1. モジュール1の `airootfs.any/`
-2. モジュール1の `airootfs.x86_64/`
-3. モジュール2の `airootfs.any/`
-4. モジュール2の `airootfs.x86_64/`
-5. ...
-6. プロファイルの `airootfs.any/`
-7. プロファイルの `airootfs.x86_64/`
-
-### ファイル構造の例
-
-```text
-airootfs.any/
-├── etc/
-│   ├── systemd/
-│   │   └── system/
-│   │       └── custom.service
-│   └── skel/
-│       └── .bashrc
-└── usr/
-    └── share/
-        └── custom/
-            └── config.conf
-```
-
-## カーネルパラメータ
-
-### append_kernel_param
-
-ブートローダー設定に追加するカーネルパラメータを指定します。
-
-```json
-{
-    "append_kernel_param": ["quiet", "splash", "loglevel=3"]
-}
-```
-
-すべてのモジュールの `append_kernel_param` が連結され、ブートローダー設定ファイルの
-`%ALTERISO_KERNEL_PARAM%` プレースホルダーに展開されます。
-
-## モジュールの作成
-
-### 基本手順
-
-1. `modules/` ディレクトリに新しいディレクトリを作成
-2. `alteriso.json` を作成し、必須フィールドを定義
-3. 必要に応じてパッケージリスト、ファイル、スクリプトを追加
-4. `profiledef.json` の `modules` に追加
-
-### 最小限のモジュール例
-
-```json
-{
-    "manifest_version": 1,
-    "module_version": 1
-}
-```
-
-このモジュールは何も提供しませんが、有効なモジュールです。
-
-### パッケージのみを提供するモジュール例
-
-```text
-modules/example/
-├── alteriso.json
-└── packages.x86_64.d/
-    └── example.x86_64
-```
-
-`alteriso.json`:
-
-```json
-{
-    "manifest_version": 1,
-    "module_version": 1
-}
-```
-
-`packages.x86_64.d/example.x86_64`:
-
-```text
-vim
-tmux
-git
-```
-
-### インジェクション付きモジュール例
-
-```text
-modules/custom/
-├── alteriso.json
-└── module.sh
-```
-
-`alteriso.json`:
-
-```json
-{
-    "manifest_version": 1,
-    "module_version": 1,
-    "load_scripts": ["module.sh"],
-    "injects": {
-        "post__make_packages": ["custom_post_install"]
-    }
-}
-```
-
-`module.sh`:
-
-```bash
-custom_post_install() {
-    _msg_info "Running custom post-install tasks..."
-    # カスタム処理
-}
-```
-
-## 利用可能な変数
-
-モジュールのスクリプト内では、以下の alteriso 専用変数にアクセスできます:
-
-### プロファイル情報取得関数
-
-- `__alteriso_profiledef` - profiledef.json の内容を JSON として出力
-- `__alteriso_profiledef_kernelname` - カーネル名を取得
-- `__alteriso_profiledef_username` - ユーザー名を取得
-- `__alteriso_profiledef_osname` - OS名を取得
-
-### 使用例
-
-```bash
-local kernel_name=$(__alteriso_profiledef_kernelname)
-local username=$(__alteriso_profiledef_username)
-
-echo "Kernel: ${kernel_name}"
-echo "Username: ${username}"
-```
-
-## 標準モジュール
-
-alteriso には以下の標準モジュールが含まれています:
-
-- `base` - 基本機能 (mkinitcpio 設定など)
-- `user` - ユーザーアカウント作成
-- `network-manager` - NetworkManager のインストール
-- `lightdm` - LightDM ディスプレイマネージャー
-- `gdm` - GDM ディスプレイマネージャー
-- `plymouth` - ブートスプラッシュ
-- `livecd-sound` - ライブCD用サウンド設定
-
-詳細は各モジュールのソースコードを参照してください。
+対応範囲や実装は各ディレクトリの `alteriso.json` を正とします。固定の一覧を文書へ複製すると
+更新漏れが生じるため、[modules/](../modules/) を直接参照してください。
