@@ -8,8 +8,11 @@ iso_application="Arch Linux Live/Rescue DVD"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')
-bootmodes=('bios.syslinux'
-    'uefi.systemd-boot')
+# LLM Modified: arch-conditional bootmodes - Claude
+bootmodes=('bios.syslinux')
+if [[ "$(__alteriso_profiledef_arch 2>/dev/null)" == "x86_64" ]]; then
+    bootmodes+=('uefi.systemd-boot')
+fi
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')

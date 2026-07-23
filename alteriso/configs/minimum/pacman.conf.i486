@@ -1,0 +1,36 @@
+# LLM Generated: Created by Claude
+#
+# /etc/pacman.conf (i486 / archlinux32)
+#
+# See the pacman.conf(5) manpage for option and repository directives
+
+#
+# GENERAL OPTIONS
+#
+[options]
+HoldPkg     = pacman glibc
+Architecture = i486
+
+ParallelDownloads = 5
+
+SigLevel    = Required DatabaseOptional
+LocalFileSigLevel = Optional
+
+# NOTE: archlinux32 packages are signed by the archlinux32 keyring. Populate it
+# on the build host with `pacman-key --populate archlinux32` before building.
+
+#
+# REPOSITORIES
+#
+
+[core]
+Server = https://mirror.archlinux32.org/$arch/$repo
+Server = https://de.mirror.archlinux32.org/$arch/$repo
+
+[extra]
+Server = https://mirror.archlinux32.org/$arch/$repo
+Server = https://de.mirror.archlinux32.org/$arch/$repo
+
+[community]
+Server = https://mirror.archlinux32.org/$arch/$repo
+Server = https://de.mirror.archlinux32.org/$arch/$repo
