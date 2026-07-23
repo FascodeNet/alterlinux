@@ -56,9 +56,6 @@ Create images
 Usually the archiso tools are installed as a package. However, it is also possible to clone this repository and create
 images without installing archiso system-wide.
 
-As filesystems are created and various mount actions have to be done when creating an image, **root** is required to run
-the scripts.
-
 When archiso is installed system-wide and the modification of a profile is desired, it is necessary to copy it to a
 writeable location, as ``/usr/share/archiso`` is tracked by the package manager and only writeable by root (changes will
 be lost on update).

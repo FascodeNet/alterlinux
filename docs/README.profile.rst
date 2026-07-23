@@ -33,8 +33,9 @@ The image file is constructed from some of the variables in ``profiledef.sh``: `
 * ``iso_application``: A free-form string that states the application (i.e. its use-case) of the resulting image (defaults
   to ``mkarchiso iso``)
 * ``iso_version``: A string that states the version of the resulting image (defaults to ``""``)
-* ``install_dir``: A string (maximum eight characters long, which **must** consist of ``[a-z0-9]``) that states the
-  directory on the resulting image into which all files will be installed (defaults to ``mkarchiso``)
+* ``install_dir``: A string that states the directory into which all files are installed in the ``iso`` and ``netboot``
+  build modes (defaults to ``mkarchiso``). It must consist of **only** ``[a-z0-9]``. For the ``iso`` build mode, it must not
+  exceed 30 characters.
 * ``buildmodes``: An optional list of strings, that state the build modes that the profile uses. Only the following are
   understood:
 

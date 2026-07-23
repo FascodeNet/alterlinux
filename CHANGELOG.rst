@@ -10,6 +10,8 @@ Added
 
 - Add ghostty-terminfo and kmscon-terminfo packages to releng to support terminal emulators using them. E.g. when
   installing via SSH.
+- Support running ``mkarchiso`` as a regular (non-root) user by using ``unshare``. This requires user namespace support
+  in the kernel.
 
 Changed
 -------
@@ -23,7 +25,11 @@ Deprecated
 Fixed
 -----
 
+- Stop requiring ``tune2fs`` for ``ext4+squashfs`` images.
+- Validate ``install_dir`` characters for ISO and netboot builds and its length for ISO builds.
+- Reject profiles that use the ``uefi.systemd-boot`` and ``uefi.grub`` boot modes together.
 - Fixed a typo that prevented including the UEFI shell for UEFI architectures other than x64.
+- Correctly support compressing the bootstrap tarball with bzip2.
 
 Removed
 -------

@@ -28,7 +28,7 @@ Options
                         | Default: |pacman_conf|.
 -D install_dir          | Set an install_dir. All files will be located here.
                         | Default: |install_dir|.
-                        | NOTE: Max 8 characters, use only *a-z0-9*.
+                        | NOTE: For *iso* and *netboot*, use only *a-z0-9*. For *iso*, max 30 characters.
 -L label                | Set the ISO volume label.
                         | Default: |iso_label|.
 -P publisher            | Set the ISO publisher.
