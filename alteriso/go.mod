@@ -11,6 +11,7 @@ require (
 	github.com/moby/sys/mount v0.3.5
 	github.com/moby/sys/mountinfo v0.7.2
 	github.com/otiai10/copy v1.14.1
+	github.com/samber/lo v1.53.0
 	github.com/spf13/cobra v1.10.2
 	github.com/ztrue/tracerr v0.4.0
 	mvdan.cc/sh/v3 v3.13.1
@@ -34,7 +35,6 @@ require (
 	github.com/mattn/go-isatty v0.0.23 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
-	github.com/samber/lo v1.53.0 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
