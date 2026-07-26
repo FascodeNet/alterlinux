@@ -8,14 +8,14 @@ import (
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 	"github.com/FascodeNet/alterlinux/src/internal/profile"
+	"github.com/samber/lo"
 )
 
 func kernelParameters(modules []profile.Module) string {
-	var parameters []string
-	for _, module := range modules {
-		parameters = append(parameters, module.Definition.AppendKernelParam...)
-	}
-	return strings.Join(uniqueStrings(parameters), " ")
+	parameters := lo.FlatMap(modules, func(module profile.Module, _ int) []string {
+		return module.Definition.AppendKernelParam
+	})
+	return strings.Join(lo.Uniq(parameters), " ")
 }
 
 func generateBootloaderConfigs(loaded *profile.Profile, outDir string, options Options) error {
