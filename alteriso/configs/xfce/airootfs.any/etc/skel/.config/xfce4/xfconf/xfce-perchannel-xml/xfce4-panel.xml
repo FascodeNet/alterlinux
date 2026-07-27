@@ -12,7 +12,7 @@
     <property name="panel-1" type="empty">
       <property name="position" type="string" value="p=10;x=970;y=953"/>
       <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="5"/>
+      <property name="length" type="double" value="5"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="2"/>
@@ -31,7 +31,7 @@
     <property name="panel-2" type="empty">
       <property name="position" type="string" value="p=6;x=64;y=25"/>
       <property name="size" type="uint" value="35"/>
-      <property name="length" type="uint" value="45"/>
+      <property name="length" type="double" value="45"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="3"/>
@@ -51,7 +51,7 @@
     <property name="panel-3" type="empty">
       <property name="position" type="string" value="p=9;x=639;y=20"/>
       <property name="size" type="uint" value="35"/>
-      <property name="length" type="uint" value="10"/>
+      <property name="length" type="double" value="10"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="enter-opacity" type="uint" value="100"/>
       <property name="leave-opacity" type="uint" value="100"/>
@@ -71,7 +71,7 @@
     <property name="panel-4" type="empty">
       <property name="position" type="string" value="p=2;x=1158;y=18"/>
       <property name="size" type="uint" value="35"/>
-      <property name="length" type="uint" value="45"/>
+      <property name="length" type="double" value="45"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="plugin-ids" type="array">
         <value type="int" value="19"/>
@@ -94,7 +94,7 @@
     <property name="panel-5" type="empty">
       <property name="position" type="string" value="p=8;x=98;y=949"/>
       <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="20"/>
+      <property name="length" type="double" value="20"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="enter-opacity" type="uint" value="0"/>
       <property name="leave-opacity" type="uint" value="0"/>
@@ -110,7 +110,7 @@
     <property name="panel-6" type="empty">
       <property name="position" type="string" value="p=4;x=1824;y=949"/>
       <property name="size" type="uint" value="40"/>
-      <property name="length" type="uint" value="20"/>
+      <property name="length" type="double" value="20"/>
       <property name="position-locked" type="bool" value="true"/>
       <property name="background-style" type="uint" value="1"/>
       <property name="background-rgba" type="array">
@@ -137,13 +137,13 @@
       <property name="menu-width" type="int" value="509"/>
       <property name="menu-height" type="int" value="521"/>
       <property name="show-command-lockscreen" type="bool" value="false"/>
-      <property name="command-switchuser" type="string" value="gdmflexiserver"/>
-      <property name="show-command-switchuser" type="bool" value="true"/>
       <property name="show-command-menueditor" type="bool" value="false"/>
       <property name="show-command-profile" type="bool" value="false"/>
       <property name="favorites" type="array">
-      </property>
-      <property name="recent" type="array">
+        <value type="string" value="calamares.desktop"/>
+        <value type="string" value="chromium.desktop"/>
+        <value type="string" value="vlc.desktop"/>
+        <value type="string" value="xfce4-screenshooter.desktop"/>
       </property>
     </property>
     <property name="plugin-11" type="string" value="separator">
@@ -172,13 +172,7 @@
     <property name="plugin-22" type="string" value="pulseaudio">
       <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
     </property>
-    <property name="plugin-23" type="string" value="systray">
-      <property name="names-ordered" type="array">
-        <value type="string" value="networkmanager applet"/>
-        <value type="string" value="thunar"/>
-        <value type="string" value="blueman-tray"/>
-      </property>
-    </property>
+    <property name="plugin-23" type="string" value="systray"/>
     <property name="plugin-24" type="string" value="showdesktop"/>
     <property name="plugin-1" type="string" value="actions">
       <property name="appearance" type="uint" value="0"/>

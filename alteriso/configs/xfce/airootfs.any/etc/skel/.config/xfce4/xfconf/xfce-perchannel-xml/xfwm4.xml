@@ -58,7 +58,7 @@
     <property name="snap_to_windows" type="bool" value="false"/>
     <property name="snap_width" type="int" value="10"/>
     <property name="vblank_mode" type="string" value="auto"/>
-    <property name="theme" type="string" value="Arc-Dark"/>
+    <property name="theme" type="string" value="Materia-dark-compact"/>
     <property name="tile_on_move" type="bool" value="true"/>
     <property name="title_alignment" type="string" value="left"/>
     <property name="title_font" type="string" value="Sans Bold 9"/>
