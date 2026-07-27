@@ -57,14 +57,6 @@ __alteriso_lightdm_replace_session() {
     fi
 }
 
-__alteriso_lightdm_setup_calamares() {
-    local _calamares_service_conf="$pacstrap_dir/usr/share/calamares/modules/services.conf"
-    if [[ -e "${_calamares_service_conf}" ]]; then
-        sed -i "s|%DM%|lightdm|g" "$_calamares_service_conf"
-
-    fi
-}
-
 __alteriso_lightdm_setup_autologin() {
     __alteriso_new_group "autologin"
     __alteriso_add_user_to_group "$(__alteriso_profiledef_username)" "autologin"
@@ -79,7 +71,6 @@ __alteriso_lightdm_disable_getty_autologin() {
 __alteriso_lightdm_customize_airootfs() {
     __alteriso_lightdm_replace_username
     __alteriso_lightdm_replace_session
-    __alteriso_lightdm_setup_calamares
     __alteriso_lightdm_disable_getty_autologin
     __alteriso_lightdm_setup_autologin
 }

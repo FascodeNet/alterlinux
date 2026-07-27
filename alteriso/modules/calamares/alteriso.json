@@ -1,0 +1,15 @@
+{
+    "manifest_version": 1,
+    "module_version": 1,
+    "arch": [
+        "x86_64"
+    ],
+    "load_scripts": [
+        "module.sh"
+    ],
+    "injects": {
+        "post__make_customize_airootfs": [
+            "__alteriso_calamares_customize_airootfs"
+        ]
+    }
+}
