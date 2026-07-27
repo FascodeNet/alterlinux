@@ -45,6 +45,10 @@ install() {
     command install "$@"
 }
 
+_unshare() {
+    "$@"
+}
+
 __alteriso_make_version
 `
 	command := exec.Command("bash", "-c", script, "bash", injecter, profileDir, buildmode, root)

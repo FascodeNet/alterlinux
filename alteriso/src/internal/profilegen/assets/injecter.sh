@@ -55,14 +55,14 @@ __alteriso_make_version() {
     [[ -f "$_version_file" ]] || return 0
 
     if [[ "${buildmode}" == @("iso"|"netboot") ]]; then
-        rm -f -- "${pacstrap_dir}/alteriso.json"
-        install -Dm644 "$_version_file" "${pacstrap_dir}/alteriso.json"
+        _unshare rm -f -- "${pacstrap_dir}/alteriso.json"
+        _unshare install -Dm644 "$_version_file" "${pacstrap_dir}/alteriso.json"
 
         rm -f -- "${isofs_dir}/${install_dir}/alteriso.json"
         install -Dm644 "$_version_file" "${isofs_dir}/${install_dir}/alteriso.json"
     elif [[ "${buildmode}" == 'bootstrap' ]]; then
-        rm -f -- "${bootstrap_parent}/alteriso.json"
-        install -Dm644 "$_version_file" "${bootstrap_parent}/alteriso.json"
+        _unshare rm -f -- "${bootstrap_parent}/alteriso.json"
+        _unshare install -Dm644 "$_version_file" "${bootstrap_parent}/alteriso.json"
     fi
 }
 
