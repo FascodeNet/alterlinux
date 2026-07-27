@@ -1,0 +1,10 @@
+# LLM Generated: Created by Claude
+icewm
+xorg-server
+xorg-xinit
+xterm
+xf86-video-vesa
+xf86-video-fbdev
+xorg-fonts-misc
+ttf-dejavu
+xorg-xrdb

@@ -1,0 +1,15 @@
+[Unit]
+Description=Initializes Pacman keyring
+Requires=etc-pacman.d-gnupg.mount
+After=etc-pacman.d-gnupg.mount
+BindsTo=etc-pacman.d-gnupg.mount
+Before=archlinux-keyring-wkd-sync.service
+
+[Service]
+# Type=exec so the ~24s key generation on a 1GHz-class CPU does not gate
+# multi-user.target; time-sync.target wait dropped for the same reason
+Type=exec
+ExecStart=/bin/sh -c '/usr/bin/pacman-key --init && /usr/bin/pacman-key --populate'
+
+[Install]
+WantedBy=multi-user.target

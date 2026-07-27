@@ -1,0 +1,6 @@
+# LLM Generated: Created by Claude
+# zram-generator is not packaged for i486 yet
+!zram-generator
+# 486-class CPUs have no microcode update facility
+!amd-ucode
+!intel-ucode

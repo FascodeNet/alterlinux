@@ -1,0 +1,14 @@
+{
+    "os_name": "Alter Linux Nostalgia",
+    "arch": "i486",
+    "modules": [
+        "base",
+        "ssh",
+        "user",
+        "alter"
+    ],
+    "kernel_name": "linux-nost",
+    "username": "live",
+    "usershell": "/bin/bash",
+    "cow_spacesize": "128M"
+}

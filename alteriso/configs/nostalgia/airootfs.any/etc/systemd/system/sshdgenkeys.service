@@ -1,0 +1,11 @@
+[Unit]
+Description=SSH Key Generation (ed25519 only)
+ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key
+ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key.pub
+
+[Service]
+# RSA/ECDSA generation takes ~40s on a 1GHz-class CPU; ed25519 alone is enough
+# for the live system and finishes in about a second
+ExecStart=/usr/bin/ssh-keygen -q -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key
+Type=oneshot
+RemainAfterExit=yes
