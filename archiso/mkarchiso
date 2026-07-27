@@ -607,9 +607,6 @@ _make_efibootimg() {
     else
         mkfs.fat "${mkfs_fat_opts[@]}" "${efibootimg}" "${imgsize_kib}"
     fi
-
-    # Create the default/fallback boot path in which a boot loaders will be placed later.
-    mmd -i "${efibootimg}" ::/EFI ::/EFI/BOOT
 }
 
 # Check if initramfs files contain microcode update files
@@ -745,16 +742,20 @@ _make_bootmode_uefi.grub() {
                  minicmd normal ntfs ntfscomp part_apple part_gpt part_msdos png read reboot regexp search \
                  search_fs_file search_fs_uuid search_label serial sleep tpm udf usb usbserial_common usbserial_ftdi \
                  usbserial_pl2303 usbserial_usbdebug video xfs zstd)
+
+    # Set up GRUB in ISO 9660. This allows creating a medium for the live environment by using
+    # manual partitioning and simply copying the ISO 9660 file system contents.
+    # This is not related to El Torito booting and no firmware uses these files.
+
+    # Create a GRUB EFI binary and place it in the default/fallback boot path
+    install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
     grub-mkstandalone -O "$grub_target" \
         --modules="${grubmodules[*]}" \
         --locales="en@quot" \
         --themes="" \
         --sbat=/usr/share/grub/sbat.csv \
         --disable-shim-lock \
-        -o "${work_dir}/BOOT${uefi_arch[$arch]}.EFI" "boot/grub/grub.cfg=${work_dir}/grub-embed.cfg"
-    # Add GRUB to the list of files used to calculate the required FAT image size.
-    efiboot_files+=("${work_dir}/BOOT${uefi_arch[$arch]}.EFI"
-                    "${pacstrap_dir}/usr/share/edk2-shell/${uefi_arch[$arch],,}/Shell_Full.efi")
+        -o "${isofs_dir}/EFI/BOOT/BOOT${uefi_arch[$arch]}.EFI" "boot/grub/grub.cfg=${work_dir}/grub-embed.cfg"
 
     # Create IA32 EFI binary for mixed-mode booting on x86_64 systems with IA32 UEFI
     if [[ "$arch" == 'x86_64' ]]; then
@@ -764,26 +765,7 @@ _make_bootmode_uefi.grub() {
             --themes="" \
             --sbat=/usr/share/grub/sbat.csv \
             --disable-shim-lock \
-            -o "${work_dir}/BOOTIA32.EFI" "boot/grub/grub.cfg=${work_dir}/grub-embed.cfg"
-        efiboot_files+=("${work_dir}/BOOTIA32.EFI"
-                        "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi")
-    fi
-
-    # Create a FAT image for the EFI system partition
-    _make_efibootimg
-
-    # Additionally set up GRUB in ISO 9660. This allows creating a medium for the live environment by using
-    # manual partitioning and simply copying the ISO 9660 file system contents.
-    # This is not related to El Torito booting and no firmware uses these files.
-    install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
-
-    # Copy GRUB EFI binary to the default/fallback boot path
-    mcopy -i "${efibootimg}" "${work_dir}/BOOT${uefi_arch[$arch]}.EFI" "::/EFI/BOOT/BOOT${uefi_arch[$arch]}.EFI"
-    install -m 0644 -- "${work_dir}/BOOT${uefi_arch[$arch]}.EFI" "${isofs_dir}/EFI/BOOT/BOOT${uefi_arch[$arch]}.EFI"
-    # Set up mixed mode booting for x86_64 systems with IA32 UEFI
-    if [[ "$arch" == 'x86_64' ]]; then
-        mcopy -i "${efibootimg}" "${work_dir}/BOOTIA32.EFI" ::/EFI/BOOT/BOOTIA32.EFI
-        install -m 0644 -- "${work_dir}/BOOTIA32.EFI" "${isofs_dir}/EFI/BOOT/BOOTIA32.EFI"
+            -o "${isofs_dir}/EFI/BOOT/BOOTIA32.EFI" "boot/grub/grub.cfg=${work_dir}/grub-embed.cfg"
     fi
 
     # Copy GRUB files
@@ -796,15 +778,12 @@ _make_bootmode_uefi.grub() {
 
     # edk2-shell based UEFI shell
     if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/${uefi_arch[$arch],,}/Shell_Full.efi" ]]; then
-        mcopy -i "${efibootimg}" \
-            "${pacstrap_dir}/usr/share/edk2-shell/${uefi_arch[$arch],,}/Shell_Full.efi" "::/shell${uefi_arch[$arch],,}.efi"
         install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/${uefi_arch[$arch],,}/Shell_Full.efi" \
             "${isofs_dir}/shell${uefi_arch[$arch],,}.efi"
     fi
     if [[ "$arch" == 'x86_64' ]]; then
         # UEFI shell for x86_64 systems with IA32 UEFI
         if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi" ]]; then
-            mcopy -i "${efibootimg}" "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi" ::/shellia32.efi
             install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi" "${isofs_dir}/shellia32.efi"
         fi
 
@@ -816,6 +795,18 @@ _make_bootmode_uefi.grub() {
             install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/spdx/GPL-2.0-only.txt" "${isofs_dir}/boot/memtest86+/LICENSE"
         fi
     fi
+
+    # Collect a list of files to calculate the required FAT image size
+    efiboot_files=("${isofs_dir}/EFI")
+    if compgen -G "${isofs_dir}/shell"*'.efi' >/dev/null; then
+        efiboot_files+=("${isofs_dir}/shell"*'.efi')
+    fi
+    # Create a FAT image for the EFI system partition
+    _make_efibootimg
+
+    # Copy GRUB and the UEFI shell to the EFI system partition (the El Torito UEFI boot image).
+    # These files will actually be used by the firmware to launch the boot loader.
+    mcopy -s -i "${efibootimg}" "${efiboot_files[@]}" '::/'
 
     _msg_info "Done! GRUB set up for UEFI booting successfully."
 }
@@ -838,16 +829,12 @@ _make_common_bootmode_uefi.systemd-boot_copy_files() {
     local target_arch="$1"
 
     # Copy systemd-boot EFI binary to the default/fallback boot path
-    mcopy -i "${efibootimg}" \
-        "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot${target_arch,,}.efi" "::/EFI/BOOT/BOOT${target_arch}.EFI"
     install -m 0644 -- "${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot${target_arch,,}.efi" \
         "${isofs_dir}/EFI/BOOT/BOOT${target_arch}.EFI"
 
     # edk2-shell based UEFI shell
     # shell*.efi is picked up automatically when on /
     if [[ -e "${pacstrap_dir}/usr/share/edk2-shell/${target_arch,,}/Shell_Full.efi" ]]; then
-        mcopy -i "${efibootimg}" \
-            "${pacstrap_dir}/usr/share/edk2-shell/${target_arch,,}/Shell_Full.efi" "::/shell${target_arch,,}.efi"
         install -m 0644 -- "${pacstrap_dir}/usr/share/edk2-shell/${target_arch,,}/Shell_Full.efi" \
             "${isofs_dir}/shell${target_arch,,}.efi"
     fi
@@ -856,11 +843,6 @@ _make_common_bootmode_uefi.systemd-boot_copy_files() {
     # Only the x64 binary is built. See https://gitlab.archlinux.org/archlinux/packaging/packages/memtest86plus/-/merge_requests/2
     if [[ "$target_arch" == 'x64' ]]; then
         if [[ -e "${pacstrap_dir}/boot/memtest86+/memtest.efi" ]]; then
-            mmd -i "${efibootimg}" ::/boot ::/boot/memtest86+
-            mcopy -i "${efibootimg}" \
-                "${pacstrap_dir}/boot/memtest86+/memtest.efi" ::/boot/memtest86+/
-            mcopy -i "${efibootimg}" \
-                "${pacstrap_dir}/usr/share/licenses/spdx/GPL-2.0-only.txt" ::/boot/memtest86+/LICENSE
             install -d -m 0755 -- "${isofs_dir}/boot/memtest86+/"
             install -m 0644 -- "${pacstrap_dir}/boot/memtest86+/memtest.efi" "${isofs_dir}/boot/memtest86+/memtest.efi"
             install -m 0644 -- "${pacstrap_dir}/usr/share/licenses/spdx/GPL-2.0-only.txt" "${isofs_dir}/boot/memtest86+/LICENSE"
@@ -870,7 +852,7 @@ _make_common_bootmode_uefi.systemd-boot_copy_files() {
 
 # Prepare systemd-boot
 _make_bootmode_uefi.systemd-boot() {
-    local _conf _file _available_ucodes=() boot_entry_arch
+    local _conf _file _available_ucodes=() boot_entry_arch efiboot_rootdir_files=()
 
     _msg_info "Setting up systemd-boot for UEFI booting..."
 
@@ -900,31 +882,13 @@ _make_bootmode_uefi.systemd-boot() {
             fi
         done
     fi
-    # Calculate the required FAT image size in bytes
-    efiboot_files+=("${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-boot${uefi_arch[$arch],,}.efi"
-                    "${pacstrap_dir}/usr/share/edk2-shell/${uefi_arch[$arch],,}/Shell_Full.efi"
-                    "${work_dir}/loader/"
-                    "${pacstrap_dir}/boot/vmlinuz-"*
-                    "${pacstrap_dir}/boot/initramfs-"*".img"
-                    "${_available_ucodes[@]}")
 
-    # Files specific to x86_64: IA32 UEFI binaries for mixed mode booting, memtest86+
-    if [[ "$arch" == 'x86_64' ]]; then
-        efiboot_files+=("${pacstrap_dir}/usr/lib/systemd/boot/efi/systemd-bootia32.efi"
-                        "${pacstrap_dir}/usr/share/edk2-shell/ia32/Shell_Full.efi"
-                        "${pacstrap_dir}/boot/memtest86+/memtest.efi"
-                        "${pacstrap_dir}/usr/share/licenses/spdx/GPL-2.0-only.txt")
-    fi
-    # Create a FAT image for the EFI system partition
-    _make_efibootimg
-
-    # Additionally set up systemd-boot in ISO 9660. This allows creating a medium for the live environment by using
+    # Set up systemd-boot in ISO 9660. This allows creating a medium for the live environment by using
     # manual partitioning and simply copying the ISO 9660 file system contents.
     # This is not related to El Torito booting and no firmware uses these files.
     install -d -m 0755 -- "${isofs_dir}/EFI/BOOT"
 
     # Copy systemd-boot configuration files
-    mcopy -i "${efibootimg}" -s "${work_dir}/loader" ::/
     cp -r --remove-destination -- "${work_dir}/loader" "${isofs_dir}/"
 
     # Copy EFI binaries and related files
@@ -932,6 +896,32 @@ _make_bootmode_uefi.systemd-boot() {
     # Set up mixed mode booting for x86_64 systems with IA32 UEFI
     if [[ "$arch" == 'x86_64' ]]; then
         _make_common_bootmode_uefi.systemd-boot_copy_files 'IA32'
+    fi
+
+    # Collect a list of files to calculate the required FAT image size
+    efiboot_files=("${isofs_dir}/EFI/"
+                   "${isofs_dir}/loader/"
+                   "${isofs_dir}/shell"*'.efi'
+                   "${isofs_dir}/boot/memtest86+/memtest.efi"
+                   "${isofs_dir}/boot/memtest86+/LICENSE"
+                   "${pacstrap_dir}/boot/vmlinuz-"*
+                   "${pacstrap_dir}/boot/initramfs-"*".img"
+                   "${_available_ucodes[@]}")
+
+    # Create a FAT image for the EFI system partition
+    _make_efibootimg
+
+    # Copy files to the EFI system partition (the El Torito UEFI boot image).
+    # These files will actually be used by the firmware to launch the boot loader.
+    efiboot_rootdir_files=("${isofs_dir}/EFI" "${isofs_dir}/loader")
+    if compgen -G "${isofs_dir}/shell"*'.efi' >/dev/null; then
+        efiboot_rootdir_files+=("${isofs_dir}/shell"*'.efi')
+    fi
+    mcopy -s -i "${efibootimg}" "${efiboot_rootdir_files[@]}" '::/'
+    if [[ -e "${isofs_dir}/boot/memtest86+/memtest.efi" ]]; then
+        mmd -i "${efibootimg}" '::/boot' '::/boot/memtest86+'
+        mcopy -i "${efibootimg}" \
+            "${isofs_dir}/boot/memtest86+/memtest.efi" "${isofs_dir}/boot/memtest86+/LICENSE" '::/boot/memtest86+/'
     fi
 
     # Copy kernel and initramfs to FAT image.
@@ -956,7 +946,7 @@ _make_bootmode_uefi-ia32.systemd-boot.esp() {
 
 _validate_requirements_bootmode_bios.syslinux() {
     # Check if the architecture supports BIOS booting
-    if [[ "$arch" != @('x86_64'|'i686') ]]; then
+    if [[ "$arch" != @('x86_64'|'i686'|'i486'|'pentium4') ]]; then
         (( validation_error=validation_error+1 ))
         _msg_error "Validating '${bootmode}': BIOS boot modes are not supported on the '${arch}' architecture!" 0
     fi
@@ -1507,7 +1497,7 @@ _build_bootstrap_image() {
     _msg_info "Creating bootstrap image..."
     rm -f -- "${out_dir:?}/${image_name:?}"
     _unshare bsdtar -cf - "root.${arch}" "pkglist.${arch}.txt" 'version' \
-        | "${bootstrap_tarball_compression[@]}" >"${out_dir}/${image_name}"
+        | _unshare "${bootstrap_tarball_compression[@]}" >"${out_dir}/${image_name}"
     _msg_info "Done!"
     du -h -- "${out_dir}/${image_name}"
     cd -- "${OLDPWD}"
@@ -1816,7 +1806,7 @@ _build_iso_base() {
     _run_once _make_version
     _run_once _make_customize_airootfs
     _run_once _make_pkglist
-    if [[ "$arch" == @('x86_64'|'i686') ]]; then
+    if [[ "$arch" == @('x86_64'|'i686'|'i486'|'pentium4') ]]; then
         _run_once _check_if_initramfs_has_ucode
     fi
     # Copy the kernel and initramfs to ISO 9660 for boot loaders that can read the ISO 9660 file system and also for

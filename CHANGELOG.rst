@@ -8,19 +8,36 @@ Changelog
 Added
 -----
 
+Changed
+-------
+
+
+Deprecated
+----------
+
+Fixed
+-----
+
+Removed
+-------
+
+[89] - 2026-07-25
+=================
+
+Added
+-----
+
 - Add ghostty-terminfo and kmscon-terminfo packages to releng to support terminal emulators using them. E.g. when
   installing via SSH.
 - Support running ``mkarchiso`` as a regular (non-root) user by using ``unshare``. This requires user namespace support
   in the kernel.
+- Allow BIOS boot modes and check the initramfs for microcode on the ``i486`` and ``pentium4`` architectures.
 
 Changed
 -------
 
 - Replaced the ``ntfs-3g`` package with the ``ntfsprogs`` package in the releng profile since we do not require the FUSE
   driver, but only the userspace utilities. For now, ``ntfs-3g`` still gets pulled in as a dependency of other packages.
-
-Deprecated
-----------
 
 Fixed
 -----
@@ -30,9 +47,6 @@ Fixed
 - Reject profiles that use the ``uefi.systemd-boot`` and ``uefi.grub`` boot modes together.
 - Fixed a typo that prevented including the UEFI shell for UEFI architectures other than x64.
 - Correctly support compressing the bootstrap tarball with bzip2.
-
-Removed
--------
 
 [88] - 2026-03-26
 =================
