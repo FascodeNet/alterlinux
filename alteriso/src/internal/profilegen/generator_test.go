@@ -131,7 +131,7 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 	}
 
 	renderedDefinition := readTestFile(t, filepath.Join(outputDir, "profiledef.sh"))
-	for _, expected := range []string{"module_marker=loaded", "module_hook", "profile_hook"} {
+	for _, expected := range []string{"module_marker=loaded", "post_hook+=( module_hook profile_hook )"} {
 		if !strings.Contains(renderedDefinition, expected) {
 			t.Errorf("profiledef.sh does not contain %q", expected)
 		}

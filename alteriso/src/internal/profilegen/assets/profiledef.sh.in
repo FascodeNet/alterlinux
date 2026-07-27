@@ -14,9 +14,9 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 {{ range $func, $codes := .Injects -}}
     {{- $func }}{{ "+=(" }}
         {{- range $index, $code := $codes -}}
-            {{- $code }}
+            {{ " " }}{{- $code }}
         {{- end -}}
-    {{ ")" }}
+    {{ " )" }}
 {{ end -}}
 # Variable defines
 {{ .ProfileDefContent }}
