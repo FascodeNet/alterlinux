@@ -2,7 +2,9 @@
     "os_name": "Alter Linux",
     "arch": "x86_64",
     "modules": [
+        "alter",
         "base",
+        "calamares",
         "lightdm",
         "network-manager",
         "plymouth",

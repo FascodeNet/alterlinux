@@ -28,3 +28,12 @@ git_revision=${GIT_REVISION-"$(git rev-parse --short HEAD 2>/dev/null || true)"}
 if [[ -n "$git_revision" ]]; then
     iso_version+="-$git_revision"
 fi
+
+# LLM Modified: Replace the xfdesktop default wallpaper so it applies to any monitor name - Claude
+post__make_customize_airootfs+=(__alteriso_xfce_default_wallpaper)
+__alteriso_xfce_default_wallpaper() {
+    local _default="${pacstrap_dir}/usr/share/backgrounds/xfce/xfce-x.svg"
+    [[ -e "$_default" ]] || return 0
+    _unshare rm -f -- "$_default"
+    _unshare ln -s /usr/share/backgrounds/alter/alter.png "$_default"
+}
