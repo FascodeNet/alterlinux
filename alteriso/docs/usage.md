@@ -110,6 +110,7 @@ alteriso profile build [--out DIR] [--work DIR] [CONFIG]
 | `--modules DIR` | モジュールディレクトリ |
 | `--bootloaders DIR` | ブートローダーのテンプレートディレクトリ |
 | `--arch ARCH` | `profiledef.json` の既定ターゲットを今回だけ上書き |
+| `--variant NAMES` | 適用するバリアント。カンマ区切りで、後ろに書いたものが優先 |
 | `--noconfirm` | 生成した `profiledef.sh` によるビルド前の確認を省略 |
 
 `--arch` を変えて同じ入力から複数回生成できますが、出力先はアーキテクチャごとに分けてください。
@@ -117,6 +118,41 @@ alteriso profile build [--out DIR] [--work DIR] [CONFIG]
 ```bash
 ./gen.sh configs/minimum --arch i686
 ```
+
+`--variant` に指定した名前をどのモジュールもプロファイルも提供していない場合は失敗します。
+選べる名前は `profile variants` で確認できます。
+
+```bash
+alteriso profile generate configs/xfce --variant japanese
+```
+
+### `profile variants`
+
+```text
+alteriso profile variants CONFIG
+```
+
+そのプロファイルで選べるバリアントと、それを提供するソースを一覧します。仕様は
+[variant.md](variant.md) を参照してください。
+
+```text
+japanese  fonts, xfce
+```
+
+### `profile options`
+
+```text
+alteriso profile options CONFIG
+```
+
+読み込まれるモジュールが宣言しているオプションと、実際に適用される値を一覧します。
+`--variant` を付けると、そのバリアントが差し込む値を含めた結果になります。
+
+```text
+user.usershell  string  /bin/bash  Login shell of the live user
+```
+
+値の列が `-` の場合は、既定値がなくプロファイルからも指定されていないことを表します。
 
 ### `clean`
 

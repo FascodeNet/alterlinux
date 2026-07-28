@@ -25,7 +25,8 @@ modules/<name>/
 ├── bootstrap_packages.<arch>.d/
 ├── airootfs/
 ├── airootfs.any/
-└── airootfs.<arch>/
+├── airootfs.<arch>/
+└── variants/<variant>/
 ```
 
 `alteriso.json` は必須です。それ以外はモジュールが提供する機能に応じて追加します。
@@ -40,6 +41,8 @@ modules/<name>/
 | `load_scripts` | string[] | いいえ | モジュール内から埋め込むシェルスクリプト |
 | `injects` | object (`map[string][]string`) | いいえ | mkarchiso のインジェクションフック |
 | `append_kernel_param` | string[] | いいえ | ブートローダーへ追加するカーネルパラメーター |
+| `options` | object | いいえ | プロファイルから受け取るオプションの宣言 |
+| `module_options` | object | いいえ | 他モジュールへ渡すオプション値。バリアント用 |
 
 最小構成は次のとおりです。
 
@@ -150,6 +153,43 @@ mkarchiso にある関数名と一致させてください。
 
 `require_injectable` が `false` なら、インジェクション非対応の mkarchiso では互換モードとして
 インジェクションを無効化できます。`true` ならインジェクション非対応の mkarchiso で停止します。
+
+## options
+
+モジュールがプロファイルから受け取る設定値を宣言します。宣言していないキーをプロファイルが
+渡すとエラーになるため、書き間違いは生成前に止まります。
+
+| フィールド | 型 | 説明 |
+| --- | --- | --- |
+| `type` | string | `string`、`bool`、`string[]` のいずれか。必須 |
+| `default` | 型に一致する値 | 未指定時の値 |
+| `required` | boolean | プロファイルでの指定を必須にする。`default` とは併用不可 |
+| `description` | string | `profile options` の一覧に出る説明 |
+
+```json
+{
+    "options": {
+        "usershell": {
+            "type": "string",
+            "default": "/bin/bash",
+            "description": "Login shell of the live user"
+        }
+    }
+}
+```
+
+値は生成時に既定値まで解決して `profiledef.json` へ書き出すので、スクリプト側は
+`__alteriso_module_option` の戻り値をそのまま使えます。既定値をシェル側に重複して持たせないで
+ください。
+
+複数のモジュールが読む設定は、モジュールのオプションではなくプロファイルのトップレベルに
+置きます。たとえば `username` は `user`、`gdm`、`lightdm`、`calamares` が読むため、
+`profiledef.json` の直下にあります。
+
+## variants
+
+`variants/<name>/` に置いた差分は、生成時に `--variant` で選んだときだけ適用されます。
+形式と適用順は [variant.md](variant.md) にまとめています。
 
 ## カーネルパラメーター
 

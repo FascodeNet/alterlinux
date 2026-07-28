@@ -25,9 +25,8 @@ func projectDir(t *testing.T) string {
 	return filepath.Clean(filepath.Join(filepath.Dir(filename), "..", "..", ".."))
 }
 
-// TestPackageListsMatchGolden keeps the resolved package list of every profile
-// and variant under review: a variant that stops applying shows up as a diff
-// instead of surfacing only after an ISO is built.
+// TestPackageListsMatchGolden makes a variant that stopped applying show up as
+// a diff in review, rather than only after an ISO is built.
 func TestPackageListsMatchGolden(t *testing.T) {
 	project := projectDir(t)
 	configsDir := filepath.Join(project, "configs")

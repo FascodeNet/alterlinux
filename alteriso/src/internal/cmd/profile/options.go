@@ -44,8 +44,8 @@ func optionsCmd(profileService service, options *commandOptions) *cobra.Command 
 	}
 }
 
-// formatOptionValue renders an option that has no default and was not set as
-// "-" instead of a bare nil.
+// formatOptionValue shows "-" instead of a bare nil for an option that has no
+// default and was not set.
 func formatOptionValue(value any, set bool) string {
 	if !set {
 		return "-"

@@ -63,10 +63,30 @@ configs/<name>/
 | `injects` | object (`map[string][]string`) | 空 | プロファイル固有のインジェクション |
 | `require_injectable` | boolean | `false` | インジェクション非対応の mkarchiso での実行を拒否 |
 | `pacman_conf` | string | 自動選択 | 使用する Pacman 設定の基準パス |
+| `module_options` | object | 空 | モジュールへ渡すオプション値 |
 
 これらの値に暗黙の `"linux"` や `"256M"` は補われません。必要な値はプロファイル側で
-明記してください。現在の Go データモデルにない JSON フィールドは生成後の `profiledef.json`
-には保持されないため、上表以外のフィールドには依存しないでください。
+明記してください。上表にないフィールドを書くと読み込みが失敗します。書いた値が黙って
+無視されることはありません。
+
+### module_options
+
+モジュールが `alteriso.json` で宣言したオプションに値を渡します。宣言のないキー、
+`modules` にないモジュール名、宣言と合わない型はいずれもエラーです。
+
+```json
+{
+    "module_options": {
+        "user": {
+            "usershell": "/bin/bash"
+        }
+    }
+}
+```
+
+既定値はモジュール側の宣言が持つので、既定のままでよいオプションは書く必要がありません。
+宣言の仕方は [module.md](module.md#options)、実際に適用される値の確認方法は
+[usage.md](usage.md#profile-options) を参照してください。
 
 ### 例
 
@@ -130,6 +150,8 @@ configs/<name>/
 
 3 種類はすべて読み込まれます。マージ順やファイル形式、`!` による除外構文は [module.md](module.md) にまとめています。
 
+`variants/<name>/` を置くと、生成時に選んだときだけ適用される差分を持てます。[variant.md](variant.md) を参照してください。
+
 ## ブートローダー設定
 
 `--bootloaders` の直下にある各ディレクトリが出力へコピーされます。同名のディレクトリが
@@ -166,5 +188,13 @@ archiso 自身が処理する `%ARCH%`、`%INSTALL_DIR%` などはそのまま�
 - `__alteriso_profiledef_modules`
 - `__alteriso_profiledef_kernelname`
 - `__alteriso_profiledef_username`
+- `__alteriso_module_option <module> <option>`
 
 任意のフィールドは `__alteriso_profiledef | jq ...` で参照できます。
+
+`__alteriso_module_option` が返す値は生成時に既定値まで解決済みです。スクリプト側で空文字列を
+補う必要はありません。
+
+```bash
+_usershell=$(__alteriso_module_option user usershell)
+```
