@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/FascodeNet/alterlinux/src/internal/profile"
@@ -52,14 +53,19 @@ func TestPackageListsMatchGolden(t *testing.T) {
 			t.Fatalf("AvailableVariants(%s) error = %v", entry.Name(), err)
 		}
 
+		names := slices.Sorted(slices.Values(lo.Keys(available)))
 		selections := append([][]string{nil}, lo.Map(
-			slices.Sorted(slices.Values(lo.Keys(available))),
+			names,
 			func(variant string, _ int) []string { return []string{variant} },
 		)...)
+		// 単体だけでは、複数選択したときの上書きと除外の相互作用が検証されない
+		if len(names) > 1 {
+			selections = append(selections, names)
+		}
 		for _, variants := range selections {
 			name := entry.Name()
 			if len(variants) > 0 {
-				name += "+" + variants[0]
+				name += "+" + strings.Join(variants, "+")
 			}
 			t.Run(name, func(t *testing.T) {
 				comparePackageListWithGolden(t, configDir, modulesDir, project, goldenDir, name, variants)
