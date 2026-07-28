@@ -1,0 +1,38 @@
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/alter/alter.png'
+picture-uri-dark='file:///usr/share/backgrounds/alter/alter.png'
+
+[org/gnome/desktop/interface]
+clock-show-date=true
+clock-show-weekday=false
+color-scheme='prefer-dark'
+enable-animations=false
+enable-hot-corners=false
+gtk-theme='Materia-dark-compact'
+icon-theme='Papirus-Dark'
+show-battery-percentage=true
+
+[org/gnome/shell]
+disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'launch-new-instance@gnome-shell-extensions.gcampax.github.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
+enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'copyous@boerdereinar.dev', 'dash-to-panel@jderose9.github.com', 'ding@rastersoft.com', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'workspace-indicator@gnome-shell-extensions.gcampax.github.com']
+
+[org/gnome/shell/extensions/arcmenu]
+arc-menu-placement='DTP'
+available-placement=[false, true, false]
+custom-menu-button-icon='/usr/share/icons/hicolor/64x64/apps/alter.png'
+custom-menu-button-icon-size=24.0
+default-menu-view='Pinned_Apps'
+enable-large-icons=false
+menu-button-icon='Custom_Icon'
+show-bookmarks=true
+show-lock-button=false
+show-logout-button=false
+
+[org/gnome/shell/extensions/ding]
+icon-size='small'
+show-home=false
+show-network-volumes=false
+show-volumes=false
+
+[org/gnome/shell/extensions/user-theme]
+name='Materia-dark-compact'
