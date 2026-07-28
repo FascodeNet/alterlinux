@@ -130,7 +130,7 @@ func generateProfileDefinition(loaded *profile.Profile, outDir string, options O
 		return errors.Newf("failed to write profiledef.sh: %w", err)
 	}
 
-	config, err := json.Marshal(loaded.Definition)
+	config, err := json.Marshal(buildGeneratedConfig(loaded))
 	if err != nil {
 		return errors.Newf("failed to encode profiledef.json: %w", err)
 	}
