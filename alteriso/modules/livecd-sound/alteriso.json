@@ -3,5 +3,8 @@
     "manifest_version": 1,
     "arch": [
         "x86_64"
-    ]
+    ],
+    "file_permissions": {
+        "/usr/local/bin/livecd-sound": "0:0:755"
+    }
 }

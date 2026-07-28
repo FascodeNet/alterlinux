@@ -13,5 +13,10 @@
         "post__make_custom_airootfs": [
             "__alteriso_base_setup_mkinitcpio_presets"
         ]
+    },
+    "file_permissions": {
+        "/etc/shadow": "0:0:400",
+        "/usr/local/bin/Installation_guide": "0:0:755",
+        "/usr/local/bin/choose-mirror": "0:0:755"
     }
 }
