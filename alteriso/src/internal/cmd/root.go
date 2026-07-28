@@ -35,13 +35,20 @@ func rootCmd() *cobra.Command {
 }
 
 func Execute() error {
-	if err := errors.Wrap(rootCmd().Execute()); err != nil {
-		if debug {
-			errors.Print(err)
-		} else {
-			fmt.Fprintln(os.Stderr, err.Error())
-		}
-		return errors.Wrap(err)
+	err := rootCmd().Execute()
+	if err == nil {
+		return nil
 	}
-	return nil
+	// tracerr で包む前に判定する。包んだあとに Is が通るかは実装依存になる
+	if errors.IsReported(err) {
+		return err
+	}
+
+	err = errors.Wrap(err)
+	if debug {
+		errors.Print(err)
+	} else {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+	return err
 }

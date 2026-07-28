@@ -7,6 +7,7 @@ import (
 
 	"github.com/FascodeNet/alterlinux/src/internal/archiso"
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
+	"github.com/FascodeNet/alterlinux/src/internal/pacman"
 	"github.com/FascodeNet/alterlinux/src/internal/profile"
 	"github.com/FascodeNet/alterlinux/src/internal/profilegen"
 )
@@ -30,6 +31,7 @@ type ProfileService struct {
 	loadProfile     func(string, string, []string) (*profile.Profile, error)
 	generateProfile func(*profile.Profile, string, profilegen.Options) error
 	builder         isoBuilder
+	resolver        pacman.Resolver
 }
 
 func NewProfileService() *ProfileService {
@@ -37,6 +39,7 @@ func NewProfileService() *ProfileService {
 		loadProfile:     profile.Load,
 		generateProfile: profilegen.Generate,
 		builder:         archiso.NewBuilder(),
+		resolver:        pacman.NewExecResolver(),
 	}
 }
 

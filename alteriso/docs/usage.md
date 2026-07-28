@@ -156,6 +156,27 @@ user.usershell  string  /bin/bash  Login shell of the live user
 
 値の列が `-` の場合は、既定値がなくプロファイルからも指定されていないことを表します。
 
+### `profile check`
+
+```text
+alteriso profile check [--configs DIR] [config...]
+```
+
+各プロファイルを、バリアント無し・各バリアント単体・全バリアント同時の組み合わせで生成し、
+できたパッケージリストが実際に解決できるかを確認します。ISO は作りません。`config` を
+省略すると `--configs` の直下を走査します。
+
+```text
+ok      xfce
+ok      xfce +japanese
+FAILED  cosmic  repository sync (mirror or network, not the package list): ...
+```
+
+1件でも失敗すると終了コードが非ゼロになります。リポジトリの同期失敗は解決失敗と別の文言に
+なるので、ミラー障害とパッケージリストの不備を取り違えずに済みます。
+
+pacman が root 以外の `-S` を拒否するため、このコマンドには root 権限が必要です。
+
 ### `clean`
 
 ```text

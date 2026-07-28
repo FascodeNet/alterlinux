@@ -12,6 +12,7 @@ type service interface {
 	Generate(application.ProfileInput, string) error
 	Build(application.ProfileInput, string, string) error
 	Load(application.ProfileInput) (*profile.Profile, error)
+	Check(application.CheckInput) ([]application.CheckReport, error)
 }
 
 type commandOptions struct {
@@ -46,6 +47,7 @@ func newCommand(profileService service) *cobra.Command {
 		buildCmd(profileService, options),
 		variantsCmd(profileService, options),
 		optionsCmd(profileService, options),
+		checkCmd(profileService, options),
 		formatCmd(),
 	)
 	return cmd

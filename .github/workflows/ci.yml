@@ -30,7 +30,7 @@ jobs:
         run: docker build --build-arg GIT_REVISION="${{ github.sha }}" -t alteriso5 alteriso
 
       - name: Check that every package list resolves
-        run: docker run --rm -w /mnt -v $(pwd)/alteriso:/mnt alteriso5 ./check_packages.sh
+        run: docker run --rm -w /mnt -v $(pwd)/alteriso:/mnt alteriso5 alteriso profile check --modules ./modules --bootloaders ./bootloaders --configs ./configs
 
   build:
     needs: check
