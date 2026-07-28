@@ -1,4 +1,1 @@
 gdm
-
-# custom.conf sets WaylandEnable=false
-xorg-server
