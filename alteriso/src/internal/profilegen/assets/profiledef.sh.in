@@ -20,6 +20,12 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 {{ end -}}
 # Variable defines
 {{ .ProfileDefContent }}
+{{- if .FilePermissions }}
+# File permissions from modules
+{{ range $path, $permission := .FilePermissions -}}
+file_permissions+=( ["{{ $path }}"]="{{ $permission }}" )
+{{ end }}
+{{- end }}
 # Validate alteriso profiles
 __alteriso_validate
 __alteriso_validate_profile

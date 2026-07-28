@@ -52,6 +52,7 @@ type profileDefinitionTemplateData struct {
 	ProfileDefContent string
 	EmbedScripts      []string
 	Injects           map[string][]string
+	FilePermissions   map[string]string
 	RequireInjectable bool
 	Generation        Options
 }
@@ -73,12 +74,17 @@ func renderProfileDefinition(loaded *profile.Profile, options Options) ([]byte, 
 
 	var embedScripts []string
 	injects := make(map[string][]string)
+	filePermissions := make(map[string]string)
 	for _, module := range loaded.Modules() {
 		for _, script := range module.Definition.LoadScripts {
 			embedScripts = append(embedScripts, filepath.Join(module.Dir, script))
 		}
 		for name, code := range module.Definition.Injects {
 			injects[name] = append(injects[name], code...)
+		}
+		// A later module overrides an earlier one for the same path.
+		for path, permission := range module.Definition.FilePermissions {
+			filePermissions[path] = permission
 		}
 	}
 	for name, code := range loaded.Definition.Injects {
@@ -111,6 +117,7 @@ func renderProfileDefinition(loaded *profile.Profile, options Options) ([]byte, 
 		ProfileDefContent: string(profileDef),
 		EmbedScripts:      embedScripts,
 		Injects:           injects,
+		FilePermissions:   filePermissions,
 		RequireInjectable: loaded.Definition.RequireInjectable,
 		Generation:        options,
 	}

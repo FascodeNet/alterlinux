@@ -3,11 +3,17 @@ package profile
 import (
 	"os"
 	"path/filepath"
+	"regexp"
+	"slices"
+	"strings"
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
 )
 
 const moduleManifestName = "alteriso.json"
+
+// filePermissionPattern matches the uid:gid:mode form mkarchiso expects.
+var filePermissionPattern = regexp.MustCompile(`^[0-9]+:[0-9]+:[0-7]{3,4}$`)
 
 type Module struct {
 	Name       string
@@ -22,13 +28,42 @@ type ModuleDefinition struct {
 	LoadScripts       []string            `json:"load_scripts"`
 	Injects           map[string][]string `json:"injects"`
 	AppendKernelParam []string            `json:"append_kernel_param"`
+	FilePermissions   map[string]string   `json:"file_permissions"`
 }
 
 func (d ModuleDefinition) Validate() error {
 	if d.ManifestVersion != 1 {
 		return errors.Newf("unsupported manifest version: %d", d.ManifestVersion)
 	}
-	return errors.Wrap(d.Arch.validate())
+	if err := d.Arch.validate(); err != nil {
+		return errors.Wrap(err)
+	}
+	return errors.Wrap(d.validateFilePermissions())
+}
+
+func (d ModuleDefinition) validateFilePermissions() error {
+	paths := make([]string, 0, len(d.FilePermissions))
+	for path := range d.FilePermissions {
+		paths = append(paths, path)
+	}
+	slices.Sort(paths)
+
+	for _, path := range paths {
+		if path == "" {
+			return errors.New(`module declares an empty path in "file_permissions"`)
+		}
+		if !strings.HasPrefix(path, "/") {
+			return errors.Newf("module file permission path %q must be absolute", path)
+		}
+		// The path is emitted into profiledef.sh as a quoted array key.
+		if strings.ContainsAny(path, "\"$\\`") {
+			return errors.Newf("module file permission path %q contains an unsupported character", path)
+		}
+		if permission := d.FilePermissions[path]; !filePermissionPattern.MatchString(permission) {
+			return errors.Newf("module file permission %q for %q must be in uid:gid:mode form", permission, path)
+		}
+	}
+	return nil
 }
 
 func LoadModule(dir string) (*Module, error) {
