@@ -12,7 +12,28 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ISOを焼かずに済む検証。プロファイルとvariantの全組み合わせはここで見る
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build the Go toolchain image
+        run: docker build --target golang-dev -t alteriso-dev alteriso
+
+      - name: Run tests
+        run: docker run --rm -w /mnt -v $(pwd)/alteriso:/mnt alteriso-dev go test ./src/...
+
+      - name: Build Dockerfile
+        run: docker build --build-arg GIT_REVISION="${{ github.sha }}" -t alteriso5 alteriso
+
+      - name: Check that every package list resolves
+        run: docker run --rm -w /mnt -v $(pwd)/alteriso:/mnt alteriso5 ./check_packages.sh
+
   build:
+    needs: check
     runs-on: ubuntu-latest
 
     steps:
