@@ -9,5 +9,12 @@
         "pre__make_customize_airootfs": [
             "_make_customize_airootfs_user"
         ]
+    },
+    "options": {
+        "usershell": {
+            "type": "string",
+            "default": "/bin/bash",
+            "description": "Login shell of the live user"
+        }
     }
 }

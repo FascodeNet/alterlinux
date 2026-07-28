@@ -2,13 +2,9 @@
 # shellcheck disable=SC2154
 
 _make_customize_airootfs_user() {
-    local _username
+    local _username _usershell
     _username=$(__alteriso_profiledef_username)
-	local _usershell
-	_usershell=$(__alteriso_profiledef_usershell)
-	if [[ -z "${_usershell}" || "${_usershell}" == "null" ]]; then
-		_usershell="/bin/bash"
-	fi
+    _usershell=$(__alteriso_module_option user usershell)
 
     if [[ -z "${_username}" || "${_username}" == "null" ]]; then
         _username="live"

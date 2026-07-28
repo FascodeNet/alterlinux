@@ -130,10 +130,6 @@ __alteriso_profiledef_username() {
     __alteriso_profiledef | jq -r ".username // empty"
 }
 
-__alteriso_profiledef_usershell() {
-    __alteriso_profiledef | jq -r ".usershell // empty"
-}
-
 __alteriso_profiledef_kernelname() {
     __alteriso_profiledef | jq -r ".kernel_name // empty"
 }
@@ -144,6 +140,13 @@ __alteriso_profiledef_arch() {
 
 __alteriso_profiledef_modules() {
     __alteriso_profiledef | jq -r '.modules[] // empty'
+}
+
+# __alteriso_module_option MODULE_NAME OPTION_NAME
+# 値はプロファイル生成時に既定値まで解決済みなので、呼び出し側で空を補わない
+__alteriso_module_option() {
+    __alteriso_profiledef | jq -r --arg module "$1" --arg option "$2" \
+        '.module_options[$module][$option] // empty'
 }
 
 # __alteriso_add_user_to_group USER_NAME GROUP_NAME

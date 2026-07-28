@@ -9,6 +9,10 @@
     ],
     "kernel_name": "linux-nost",
     "username": "live",
-    "usershell": "/bin/bash",
-    "cow_spacesize": "128M"
+    "cow_spacesize": "128M",
+    "module_options": {
+        "user": {
+            "usershell": "/bin/bash"
+        }
+    }
 }

@@ -16,19 +16,28 @@ type Module struct {
 }
 
 type ModuleDefinition struct {
-	ManifestVersion   int                 `json:"manifest_version"`
-	ModuleVersion     int                 `json:"module_version"`
-	Arch              ModuleArchitectures `json:"arch"`
-	LoadScripts       []string            `json:"load_scripts"`
-	Injects           map[string][]string `json:"injects"`
-	AppendKernelParam []string            `json:"append_kernel_param"`
+	ManifestVersion   int                   `json:"manifest_version"`
+	ModuleVersion     int                   `json:"module_version"`
+	Arch              ModuleArchitectures   `json:"arch"`
+	LoadScripts       []string              `json:"load_scripts"`
+	Injects           map[string][]string   `json:"injects"`
+	AppendKernelParam []string              `json:"append_kernel_param"`
+	Options           map[string]OptionSpec `json:"options"`
 }
 
-func (d ModuleDefinition) Validate() error {
+func (d ModuleDefinition) Validate(name string) error {
 	if d.ManifestVersion != 1 {
 		return errors.Newf("unsupported manifest version: %d", d.ManifestVersion)
 	}
-	return errors.Wrap(d.Arch.validate())
+	if err := d.Arch.validate(); err != nil {
+		return errors.Wrap(err)
+	}
+	for _, option := range sortedKeys(d.Options) {
+		if err := d.Options[option].validate(name, option); err != nil {
+			return errors.Wrap(err)
+		}
+	}
+	return nil
 }
 
 func LoadModule(dir string) (*Module, error) {
@@ -51,7 +60,7 @@ func LoadModule(dir string) (*Module, error) {
 	if err := decodeJSONFile(configPath, "module config", &definition); err != nil {
 		return nil, errors.Wrap(err)
 	}
-	if err := definition.Validate(); err != nil {
+	if err := definition.Validate(filepath.Base(dir)); err != nil {
 		return nil, errors.Wrap(err)
 	}
 

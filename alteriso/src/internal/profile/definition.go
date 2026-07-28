@@ -9,15 +9,16 @@ import (
 
 // Definition is the JSON representation stored in profiledef.json.
 type Definition struct {
-	Arch              string              `json:"arch"`
-	Modules           []string            `json:"modules"`
-	OSName            string              `json:"os_name"`
-	KernelName        string              `json:"kernel_name"`
-	UserName          string              `json:"username"`
-	Injects           map[string][]string `json:"injects"`
-	COWSpaceSize      string              `json:"cow_spacesize"`
-	RequireInjectable bool                `json:"require_injectable"`
-	PacmanConf        string              `json:"pacman_conf"`
+	Arch              string                    `json:"arch"`
+	Modules           []string                  `json:"modules"`
+	OSName            string                    `json:"os_name"`
+	KernelName        string                    `json:"kernel_name"`
+	UserName          string                    `json:"username"`
+	Injects           map[string][]string       `json:"injects"`
+	COWSpaceSize      string                    `json:"cow_spacesize"`
+	RequireInjectable bool                      `json:"require_injectable"`
+	PacmanConf        string                    `json:"pacman_conf"`
+	ModuleOptions     map[string]map[string]any `json:"module_options"`
 }
 
 // Validate checks invariants required before modules can be resolved.

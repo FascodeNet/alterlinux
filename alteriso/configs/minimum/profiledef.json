@@ -8,6 +8,10 @@
     ],
     "kernel_name": "linux",
     "username": "live",
-    "usershell": "/bin/bash",
-    "cow_spacesize": "1G"
+    "cow_spacesize": "1G",
+    "module_options": {
+        "user": {
+            "usershell": "/bin/bash"
+        }
+    }
 }

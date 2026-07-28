@@ -31,5 +31,11 @@ func Load(dir, modulesDir string) (*Profile, error) {
 		loaded.modules = append(loaded.modules, *module)
 	}
 
+	options, err := resolveModuleOptions(definition, loaded.modules)
+	if err != nil {
+		return nil, errors.Wrap(err)
+	}
+	loaded.moduleOptions = options
+
 	return loaded, nil
 }
