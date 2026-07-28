@@ -36,6 +36,9 @@ func TestParseVariants(t *testing.T) {
 		{name: "spaces and blanks are dropped", selection: " japanese , ,nvidia ", want: []string{"japanese", "nvidia"}},
 		{name: "duplicate selection", selection: "japanese,japanese", wantError: "selected more than once"},
 		{name: "path instead of a name", selection: "../japanese", wantError: "must be a directory name"},
+		// filepath.Base はこの 2 つを素通しするので、単独で確かめる
+		{name: "parent directory", selection: "..", wantError: "must be a directory name"},
+		{name: "current directory", selection: ".", wantError: "must be a directory name"},
 	}
 
 	for _, tt := range tests {
@@ -86,6 +89,33 @@ func TestLoadOrdersVariantsAfterEveryBaseSource(t *testing.T) {
 	}
 	if got, want := loaded.Variants(), []string{"japanese", "nvidia"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("Variants() = %v, want %v", got, want)
+	}
+}
+
+// TestLoadRejectsEmptyVariantArch separates an omitted "arch" from an explicit
+// empty array: only the former inherits the owner's architectures.
+func TestLoadRejectsEmptyVariantArch(t *testing.T) {
+	root := t.TempDir()
+	profileDir := filepath.Join(root, "xfce")
+	modulesDir := filepath.Join(root, "modules")
+
+	writeModuleConfig(t, modulesDir, "input", validModuleConfig([]string{"x86_64"}))
+	writeProfileConfig(t, profileDir, map[string]any{
+		"arch":    "x86_64",
+		"modules": []string{"input"},
+	})
+	writeVariantFile(t, profileDir, "japanese", "alteriso.json", `{
+		"manifest_version": 1,
+		"module_version": 1,
+		"arch": []
+	}`)
+
+	_, err := Load(profileDir, modulesDir, []string{"japanese"})
+	if err == nil {
+		t.Fatal("Load() succeeded, want an error for the empty architecture array")
+	}
+	if !strings.Contains(err.Error(), `must declare "arch" as "any" or a non-empty array`) {
+		t.Fatalf("Load() error = %q, want the architecture validation error", err)
 	}
 }
 

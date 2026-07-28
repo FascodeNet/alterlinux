@@ -33,7 +33,10 @@ func ParseVariants(selection string) ([]string, error) {
 	if duplicates := lo.FindDuplicates(names); len(duplicates) > 0 {
 		return nil, errors.Newf("variant %q is selected more than once", duplicates[0])
 	}
-	if name, found := lo.Find(names, func(name string) bool { return filepath.Base(name) != name }); found {
+	// "." と ".." は filepath.Base が値をそのまま返すので、個別に弾く
+	if name, found := lo.Find(names, func(name string) bool {
+		return name == "." || name == ".." || filepath.Base(name) != name
+	}); found {
 		return nil, errors.Newf("variant name %q must be a directory name, not a path", name)
 	}
 	return names, nil
@@ -54,7 +57,7 @@ func loadVariant(owner variantOwner, variant string) (*Module, error) {
 		if err := decodeJSONFile(configPath, "variant config", &definition); err != nil {
 			return nil, errors.Wrap(err)
 		}
-		if !definition.Arch.IsAny() && len(definition.Arch.Values()) == 0 {
+		if !definition.Arch.set {
 			definition.Arch = owner.arch
 		}
 	} else {

@@ -18,6 +18,9 @@ const AnyArchitecture = "any"
 type ModuleArchitectures struct {
 	all    bool
 	values []string
+	// set records that "arch" was present in the JSON, so a variant can tell an
+	// omitted key (inherit from the owner) from an explicit empty array (invalid).
+	set bool
 }
 
 func (a *ModuleArchitectures) UnmarshalJSON(data []byte) error {
@@ -26,7 +29,7 @@ func (a *ModuleArchitectures) UnmarshalJSON(data []byte) error {
 		return errors.Newf(`"arch" must be "any" or an array of strings: %w`, err)
 	}
 
-	*a = ModuleArchitectures{}
+	*a = ModuleArchitectures{set: true}
 	switch architectures := value.(type) {
 	case string:
 		if architectures != AnyArchitecture {
