@@ -21,7 +21,7 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 # Variable defines
 {{ .ProfileDefContent }}
 {{- if .VariantSuffix }}
-# ビルド中に何度もsourceされるが、上のiso_name代入も毎回走るので多重には付かない
+# iso_nameを設定しないプロファイル(bootstrapのみ等)で、接尾辞だけの名前を作らないための判定
 [[ -z "${iso_name-}" ]] || iso_name+="-{{ .VariantSuffix }}"
 {{- end }}
 # Validate alteriso profiles

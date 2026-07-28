@@ -29,6 +29,7 @@ configs/<name>/
 ├── airootfs/
 ├── airootfs.any/
 ├── airootfs.<arch>/
+├── variants/<variant>/         # 生成時に選んだときだけ適用される差分
 ├── splash.png
 └── <bootloader>/               # 共有ブートローダーディレクトリの置き換え
 ```

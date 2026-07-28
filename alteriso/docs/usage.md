@@ -88,11 +88,13 @@ alteriso プロファイルを mkarchiso 用ディレクトリへ変換します
         "version": "6.0",
         "revision": "0123456789abcdef",
         "go_version": "go1.25.1"
-    }
+    },
+    "variants": ["japanese"]
 }
 ```
 
-Git リビジョンを取得できないビルドでは `revision` を省略します。
+Git リビジョンを取得できないビルドでは `revision` を省略します。`variants` はバリアントを
+選んだときだけ、指定した順で入ります。
 
 ### `profile build`
 

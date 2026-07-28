@@ -76,6 +76,12 @@ modules/<name>/
 - `os_name`, `kernel_name`, `username`, `cow_spacesize`: Optional config
 - `injects`: Profile-level injection hooks
 - `require_injectable`: Whether profile needs Injectable archiso support
+- `module_options`: Values for the options a module declares in its `alteriso.json`
+
+Unknown fields are rejected, so a typo fails the load instead of being ignored.
+
+Variants (`<module|profile>/variants/<name>/`) are selected with `--variant a,b` and are
+applied after every base source. See `alteriso/docs/variant.md`.
 
 Placeholders in bootloader configs: `%ALTERISO_OS_NAME%`, `%ALTERISO_KERNEL_NAME%`, `%ALTERISO_COW_SPACESIZE%`, `%ALTERISO_KERNEL_PARAM%`
 
