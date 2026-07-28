@@ -1,0 +1,30 @@
+# btrfs
+btrfs-progs
+
+# fat32
+dosfstools
+
+# ext2/ext3/ext4
+e2fsprogs
+f2fs-tools
+
+# exfat
+exfatprogs
+
+# ntfs
+ntfsprogs
+
+# xfs
+xfsprogs
+
+# squashfs
+squashfs-tools
+
+# msdos
+mtools
+
+# nfs
+nfs-utils
+mkinitcpio-nfs-utils
+
+#udftools
