@@ -109,6 +109,14 @@ func (s *ProfileService) Build(input ProfileInput, outputDir, workDir string) er
 	}))
 }
 
+// Load exposes the loaded aggregate for commands that only inspect a profile.
+func (s *ProfileService) Load(input ProfileInput) (*profile.Profile, error) {
+	if input.Dir == "" {
+		return nil, errors.New("profile source directory must not be empty")
+	}
+	return s.load(input)
+}
+
 func (s *ProfileService) load(input ProfileInput) (*profile.Profile, error) {
 	slog.Info("Loading profile", "config", input.Dir)
 	loaded, err := s.loadProfile(input.Dir, input.ModulesDir, input.Variants)

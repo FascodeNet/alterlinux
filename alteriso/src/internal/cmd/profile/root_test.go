@@ -14,6 +14,7 @@ type recordingService struct {
 	buildInput     application.ProfileInput
 	buildOutput    string
 	buildWork      string
+	loadInput      application.ProfileInput
 }
 
 func (s *recordingService) Generate(input application.ProfileInput, outputDir string) error {
@@ -27,6 +28,11 @@ func (s *recordingService) Build(input application.ProfileInput, outputDir, work
 	s.buildOutput = outputDir
 	s.buildWork = workDir
 	return nil
+}
+
+func (s *recordingService) Load(input application.ProfileInput) (*profiledomain.Profile, error) {
+	s.loadInput = input
+	return &profiledomain.Profile{}, nil
 }
 
 func TestGenerateCommandTranslatesFlagsToRequest(t *testing.T) {

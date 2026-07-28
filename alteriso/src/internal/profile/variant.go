@@ -78,16 +78,43 @@ func warnUnreachableScripts(dir string) {
 	slog.Warn("Variant scripts are ignored without a manifest", "dir", dir, "manifest", moduleManifestName)
 }
 
+// variantOwners lists the directories that can provide variants, in merge
+// order. The profile comes last because it is the most specific owner.
+func (p *Profile) variantOwners() []variantOwner {
+	return append(
+		lo.Map(p.modules, func(module Module, _ int) variantOwner {
+			return variantOwner{name: module.Name, dir: module.Dir, arch: module.Definition.Arch}
+		}),
+		variantOwner{name: filepath.Base(p.Dir), dir: p.Dir, arch: ModuleArchitectures{all: true}},
+	)
+}
+
+// AvailableVariants returns every variant the profile and its modules provide,
+// mapped to the owners that provide it in merge order.
+func (p *Profile) AvailableVariants() (map[string][]string, error) {
+	available := make(map[string][]string)
+	for _, owner := range p.variantOwners() {
+		entries, err := os.ReadDir(filepath.Join(owner.dir, variantsDirName))
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return nil, errors.Newf("failed to read variants of %s: %w", owner.name, err)
+		}
+		for _, entry := range entries {
+			if entry.IsDir() {
+				available[entry.Name()] = append(available[entry.Name()], owner.name)
+			}
+		}
+	}
+	return available, nil
+}
+
 // loadVariantModules expands the selection into units, grouped by variant so a
 // later variant overrides an earlier one, and ordered by owner within a group
 // so the profile stays the most specific owner.
 func loadVariantModules(loaded *Profile, variants []string) ([]Module, error) {
-	owners := append(
-		lo.Map(loaded.modules, func(module Module, _ int) variantOwner {
-			return variantOwner{name: module.Name, dir: module.Dir, arch: module.Definition.Arch}
-		}),
-		variantOwner{name: filepath.Base(loaded.Dir), dir: loaded.Dir, arch: ModuleArchitectures{all: true}},
-	)
+	owners := loaded.variantOwners()
 
 	var units []Module
 	for _, variant := range variants {
