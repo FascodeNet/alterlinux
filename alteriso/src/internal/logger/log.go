@@ -2,6 +2,7 @@ package logger
 
 import (
 	"log/slog"
+	"os"
 	"text/template"
 
 	"github.com/FascodeNet/alterlinux/src/internal/errors"
@@ -30,7 +31,9 @@ func UseColorLog(level slog.Level) {
 		panic(errors.Wrap(err))
 	}
 
+	// 診断は標準エラーへ。listコマンドの出力をそのままパイプできるようにする
 	h := clog.New(
+		clog.WithWriter(os.Stderr),
 		clog.WithColor(true),
 		clog.WithLevel(level),
 		clog.WithSource(true),
