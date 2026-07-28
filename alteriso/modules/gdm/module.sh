@@ -6,10 +6,10 @@ __alteriso_gdm_replace_username() {
     _username=$(__alteriso_profiledef_username)
 
     # Replace auto login user
-    sed -i "s/%USERNAME%/${username}/g" "$pacstrap_dir/etc/gdm/custom.conf"
+    sed -i "s/%USERNAME%/${_username}/g" "$pacstrap_dir/etc/gdm/custom.conf"
 }
 
-# LLM Modified: The calamares services config moved to /etc and enables lightdm by default - Claude
+# The calamares services config enables lightdm by default.
 __alteriso_gdm_setup_calamares() {
     local _calamares_service_conf="$pacstrap_dir/etc/calamares/modules/services-systemd.conf"
     if [[ -e "${_calamares_service_conf}" ]]; then
@@ -17,7 +17,16 @@ __alteriso_gdm_setup_calamares() {
     fi
 }
 
+# gdm.service conflicts with getty@tty1.service.
+__alteriso_gdm_disable_getty_autologin() {
+    local _autologin_conf="$pacstrap_dir/etc/systemd/system/getty@tty1.service.d/autologin.conf"
+    if [[ -e "${_autologin_conf}" ]]; then
+        rm -f "${_autologin_conf}"
+    fi
+}
+
 __alteriso_gdm_customize_airootfs() {
     __alteriso_gdm_replace_username
     __alteriso_gdm_setup_calamares
+    __alteriso_gdm_disable_getty_autologin
 }
