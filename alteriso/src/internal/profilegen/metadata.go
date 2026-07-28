@@ -14,6 +14,7 @@ type profileInfo struct {
 	OSName   string         `json:"os_name,omitempty"`
 	Arch     string         `json:"arch,omitempty"`
 	AlterISO buildinfo.Info `json:"alteriso"`
+	Variants []string       `json:"variants,omitempty"`
 	Modules  []moduleInfo   `json:"modules,omitempty"`
 }
 
@@ -28,6 +29,7 @@ func buildProfileInfo(loaded *profile.Profile, generatorInfo buildinfo.Info) pro
 		OSName:   loaded.Definition.OSName,
 		Arch:     loaded.Definition.Arch,
 		AlterISO: generatorInfo,
+		Variants: loaded.Variants(),
 	}
 	for _, module := range loaded.Modules() {
 		info.Modules = append(info.Modules, moduleInfo{

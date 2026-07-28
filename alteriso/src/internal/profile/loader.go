@@ -8,9 +8,10 @@ import (
 
 const profileManifestName = "profiledef.json"
 
-// Load assembles a validated Profile from its definition and selected modules.
-// Generation-specific settings intentionally do not belong here.
-func Load(dir, modulesDir string) (*Profile, error) {
+// Load assembles a validated Profile from its definition, the selected modules
+// and the selected variants. Generation-specific settings intentionally do not
+// belong here.
+func Load(dir, modulesDir string, variants []string) (*Profile, error) {
 	var definition Definition
 	if err := decodeJSONFile(filepath.Join(dir, profileManifestName), "profile config", &definition); err != nil {
 		return nil, errors.Wrap(err)
@@ -31,7 +32,14 @@ func Load(dir, modulesDir string) (*Profile, error) {
 		loaded.modules = append(loaded.modules, *module)
 	}
 
-	options, err := resolveModuleOptions(definition, loaded.modules)
+	variantUnits, err := loadVariantModules(loaded, variants)
+	if err != nil {
+		return nil, errors.Wrap(err)
+	}
+	loaded.variants = variants
+	loaded.variantUnits = variantUnits
+
+	options, err := resolveModuleOptions(definition, loaded.Modules(), variantUnits)
 	if err != nil {
 		return nil, errors.Wrap(err)
 	}

@@ -23,6 +23,9 @@ type ModuleDefinition struct {
 	Injects           map[string][]string   `json:"injects"`
 	AppendKernelParam []string              `json:"append_kernel_param"`
 	Options           map[string]OptionSpec `json:"options"`
+	// ModuleOptions lets a variant configure the modules it is layered on top
+	// of. A base module has no reason to set it.
+	ModuleOptions map[string]map[string]any `json:"module_options"`
 }
 
 func (d ModuleDefinition) Validate(name string) error {

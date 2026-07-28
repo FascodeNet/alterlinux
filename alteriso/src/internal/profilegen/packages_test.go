@@ -18,7 +18,7 @@ func loadPackagesTestProfile(t *testing.T, root string) *profile.Profile {
 		"module_version": 1,
 		"arch": "any"
 	}`)
-	loaded, err := profile.Load(sourceDir, modulesDir)
+	loaded, err := profile.Load(sourceDir, modulesDir, nil)
 	if err != nil {
 		t.Fatalf("Loader.Load() error = %v", err)
 	}

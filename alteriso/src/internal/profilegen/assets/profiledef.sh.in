@@ -20,6 +20,10 @@ __alteriso_loadfile "$__alteriso_profile_dir/injecter.sh"
 {{ end -}}
 # Variable defines
 {{ .ProfileDefContent }}
+{{- if .VariantSuffix }}
+# ビルド中に何度もsourceされるが、上のiso_name代入も毎回走るので多重には付かない
+[[ -z "${iso_name-}" ]] || iso_name+="-{{ .VariantSuffix }}"
+{{- end }}
 # Validate alteriso profiles
 __alteriso_validate
 __alteriso_validate_profile

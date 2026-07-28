@@ -292,7 +292,7 @@ func TestProfileForArchitectureValidatesModules(t *testing.T) {
 				t.Fatalf("failed to write profile config: %v", err)
 			}
 
-			loaded, err := Load(profileDir, modulesDir)
+			loaded, err := Load(profileDir, modulesDir, nil)
 			if err == nil {
 				loaded, err = loaded.ForArchitecture(tt.overrideArchitecture)
 			}
@@ -331,7 +331,7 @@ func TestProfileCanResolveMultipleArchitectures(t *testing.T) {
 		t.Fatalf("failed to write profile config: %v", err)
 	}
 
-	loaded, err := Load(profileDir, modulesDir)
+	loaded, err := Load(profileDir, modulesDir, nil)
 	if err != nil {
 		t.Fatalf("Loader.Load() error = %v", err)
 	}

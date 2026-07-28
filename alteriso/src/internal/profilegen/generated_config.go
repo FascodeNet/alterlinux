@@ -16,6 +16,7 @@ type generatedConfig struct {
 	UserName      string                    `json:"username,omitempty"`
 	COWSpaceSize  string                    `json:"cow_spacesize,omitempty"`
 	Modules       []string                  `json:"modules"`
+	Variants      []string                  `json:"variants,omitempty"`
 	ModuleOptions map[string]map[string]any `json:"module_options,omitempty"`
 }
 
@@ -29,6 +30,7 @@ func buildGeneratedConfig(loaded *profile.Profile) generatedConfig {
 		Modules: lo.Map(loaded.Modules(), func(module profile.Module, _ int) string {
 			return module.Name
 		}),
+		Variants:      loaded.Variants(),
 		ModuleOptions: loaded.ModuleOptions(),
 	}
 }

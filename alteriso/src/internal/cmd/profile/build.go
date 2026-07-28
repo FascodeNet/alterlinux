@@ -17,7 +17,11 @@ func buildCmd(profileService service, options *commandOptions) *cobra.Command {
 			if len(args) == 1 {
 				configDir = args[0]
 			}
-			return errors.Wrap(profileService.Build(options.input(configDir), outputDir, workDir))
+			input, err := options.input(configDir)
+			if err != nil {
+				return errors.Wrap(err)
+			}
+			return errors.Wrap(profileService.Build(input, outputDir, workDir))
 		},
 	}
 	cmd.Flags().StringVarP(&outputDir, "out", "o", outputDir, "Output directory")

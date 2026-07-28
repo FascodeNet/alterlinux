@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"text/template"
 
@@ -53,7 +54,15 @@ type profileDefinitionTemplateData struct {
 	EmbedScripts      []string
 	Injects           map[string][]string
 	RequireInjectable bool
+	VariantSuffix     string
 	Generation        Options
+}
+
+// variantSuffix names the ISO after the selected variants. The names are sorted
+// so the file name stays the same however the selection was ordered; the order
+// itself is recorded in alteriso.json.
+func variantSuffix(loaded *profile.Profile) string {
+	return strings.Join(slices.Sorted(slices.Values(loaded.Variants())), "-")
 }
 
 func renderProfileDefinition(loaded *profile.Profile, options Options) ([]byte, error) {
@@ -112,6 +121,7 @@ func renderProfileDefinition(loaded *profile.Profile, options Options) ([]byte, 
 		EmbedScripts:      embedScripts,
 		Injects:           injects,
 		RequireInjectable: loaded.Definition.RequireInjectable,
+		VariantSuffix:     variantSuffix(loaded),
 		Generation:        options,
 	}
 	var output bytes.Buffer

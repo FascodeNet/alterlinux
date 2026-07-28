@@ -93,22 +93,46 @@ func undeclared[V any](names []string, declarations map[string]V) (string, bool)
 	})
 }
 
-// resolveModuleOptions merges the profile values over the module defaults and
-// rejects anything the module did not declare.
-func resolveModuleOptions(definition Definition, modules []Module) (map[string]map[string]any, error) {
+// mergeModuleOptions layers option values per module, letting later layers win
+// key by key.
+func mergeModuleOptions(layers ...map[string]map[string]any) map[string]map[string]any {
+	merged := make(map[string]map[string]any)
+	for _, layer := range layers {
+		for module, values := range layer {
+			if merged[module] == nil {
+				merged[module] = make(map[string]any, len(values))
+			}
+			for name, value := range values {
+				merged[module][name] = value
+			}
+		}
+	}
+	return merged
+}
+
+// resolveModuleOptions merges the profile values, then the values each selected
+// variant contributes, over the module defaults, and rejects anything the
+// module did not declare.
+func resolveModuleOptions(definition Definition, modules, variantUnits []Module) (map[string]map[string]any, error) {
 	byName := lo.SliceToMap(modules, func(module Module) (string, Module) { return module.Name, module })
-	if name, found := undeclared(sortedKeys(definition.ModuleOptions), byName); found {
-		return nil, errors.Newf(`"module_options" configures module %q which is not in "modules"`, name)
+	values := mergeModuleOptions(append(
+		[]map[string]map[string]any{definition.ModuleOptions},
+		lo.Map(variantUnits, func(unit Module, _ int) map[string]map[string]any {
+			return unit.Definition.ModuleOptions
+		})...,
+	)...)
+	if name, found := undeclared(sortedKeys(values), byName); found {
+		return nil, errors.Newf(`"module_options" configures module %q which is not loaded`, name)
 	}
 
 	resolved := make(map[string]map[string]any)
 	for _, module := range modules {
-		values, err := module.resolveOptions(definition.ModuleOptions[module.Name])
+		options, err := module.resolveOptions(values[module.Name])
 		if err != nil {
 			return nil, errors.Wrap(err)
 		}
-		if len(values) > 0 {
-			resolved[module.Name] = values
+		if len(options) > 0 {
+			resolved[module.Name] = options
 		}
 	}
 	return resolved, nil

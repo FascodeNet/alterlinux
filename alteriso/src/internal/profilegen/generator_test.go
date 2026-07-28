@@ -87,7 +87,7 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 		"%ALTERISO_OS_NAME%|%ALTERISO_KERNEL_NAME%|%ALTERISO_COW_SPACESIZE%|%ALTERISO_KERNEL_PARAM%\n",
 	)
 
-	loaded, err := profile.Load(sourceDir, modulesDir)
+	loaded, err := profile.Load(sourceDir, modulesDir, nil)
 	if err != nil {
 		t.Fatalf("Loader.Load() error = %v", err)
 	}

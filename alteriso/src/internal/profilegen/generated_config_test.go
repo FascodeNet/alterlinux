@@ -42,7 +42,7 @@ func TestGeneratedConfigCarriesResolvedOptions(t *testing.T) {
 	}`)
 	writeTestFile(t, filepath.Join(bootloadersDir, "syslinux", "syslinux.cfg"), "\n")
 
-	loaded, err := profile.Load(sourceDir, modulesDir)
+	loaded, err := profile.Load(sourceDir, modulesDir, nil)
 	if err != nil {
 		t.Fatalf("profile.Load() error = %v", err)
 	}

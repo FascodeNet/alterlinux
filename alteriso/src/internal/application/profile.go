@@ -16,6 +16,7 @@ import (
 type ProfileInput struct {
 	Dir        string
 	ModulesDir string
+	Variants   []string
 	Generation profilegen.Options
 }
 
@@ -26,7 +27,7 @@ type isoBuilder interface {
 // ProfileService owns the use-case boundary. Cobra commands only translate
 // flags and arguments into method parameters.
 type ProfileService struct {
-	loadProfile     func(string, string) (*profile.Profile, error)
+	loadProfile     func(string, string, []string) (*profile.Profile, error)
 	generateProfile func(*profile.Profile, string, profilegen.Options) error
 	builder         isoBuilder
 }
@@ -110,7 +111,7 @@ func (s *ProfileService) Build(input ProfileInput, outputDir, workDir string) er
 
 func (s *ProfileService) load(input ProfileInput) (*profile.Profile, error) {
 	slog.Info("Loading profile", "config", input.Dir)
-	loaded, err := s.loadProfile(input.Dir, input.ModulesDir)
+	loaded, err := s.loadProfile(input.Dir, input.ModulesDir, input.Variants)
 	if err != nil {
 		return nil, errors.Newf("failed to load profile: %w", err)
 	}

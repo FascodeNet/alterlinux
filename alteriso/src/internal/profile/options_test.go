@@ -48,7 +48,7 @@ func loadWithOptions(t *testing.T, moduleConfig map[string]any, moduleOptions ma
 	}
 	writeProfileConfig(t, profileDir, config)
 
-	return Load(profileDir, modulesDir)
+	return Load(profileDir, modulesDir, nil)
 }
 
 func TestLoadResolvesModuleOptions(t *testing.T) {
@@ -99,7 +99,7 @@ func TestLoadRejectsInvalidModuleOptions(t *testing.T) {
 		{
 			name:      "unknown module",
 			declared:  map[string]any{},
-			wantError: `configures module "missing" which is not in "modules"`,
+			wantError: `configures module "missing" which is not loaded`,
 			moduleOptions: map[string]any{
 				"missing": map[string]any{"shell": "/bin/bash"},
 			},
@@ -158,7 +158,7 @@ func TestLoadRejectsUnknownProfileKeys(t *testing.T) {
 		"usershell": "/bin/bash",
 	})
 
-	_, err := Load(profileDir, modulesDir)
+	_, err := Load(profileDir, modulesDir, nil)
 	if err == nil {
 		t.Fatal("Load() succeeded, want an error for the unknown key")
 	}

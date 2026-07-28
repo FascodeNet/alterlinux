@@ -23,10 +23,7 @@ func isExclusion(item string, _ int) bool {
 }
 
 func packageListFiles(loaded *profile.Profile, filename string) ([]string, error) {
-	sourceDirs := append(
-		[]string{loaded.Dir},
-		lo.Map(loaded.Modules(), func(module profile.Module, _ int) string { return module.Dir })...,
-	)
+	sourceDirs := lo.Map(loaded.Sources(), func(source profile.Source, _ int) string { return source.Dir })
 
 	var files []string
 	for _, dir := range sourceDirs {

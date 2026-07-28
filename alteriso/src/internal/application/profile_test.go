@@ -26,7 +26,7 @@ func TestProfileServiceGenerateCoordinatesBoundaries(t *testing.T) {
 	var generatedDir string
 	var generationOptions profilegen.Options
 	service := &ProfileService{
-		loadProfile: func(dir, modules string) (*profile.Profile, error) {
+		loadProfile: func(dir, modules string, variants []string) (*profile.Profile, error) {
 			loadDir = dir
 			modulesDir = modules
 			return loaded, nil
@@ -75,7 +75,7 @@ func TestProfileServiceBuildCoordinatesGenerationAndMkarchiso(t *testing.T) {
 	var generatedDir string
 	builder := &recordingBuilder{}
 	service := &ProfileService{
-		loadProfile: func(dir, modules string) (*profile.Profile, error) {
+		loadProfile: func(dir, modules string, variants []string) (*profile.Profile, error) {
 			return loaded, nil
 		},
 		generateProfile: func(input *profile.Profile, outDir string, options profilegen.Options) error {

@@ -12,16 +12,12 @@ import (
 func copyAirootfs(loaded *profile.Profile, outDir string) error {
 	destination := filepath.Join(outDir, "airootfs")
 	var sources []string
-	for _, module := range loaded.Modules() {
+	for _, source := range loaded.Sources() {
 		sources = append(
 			sources,
-			architectureLayers(filepath.Join(module.Dir, "airootfs"), loaded.Definition.Arch)...,
+			architectureLayers(filepath.Join(source.Dir, "airootfs"), loaded.Definition.Arch)...,
 		)
 	}
-	sources = append(
-		sources,
-		architectureLayers(filepath.Join(loaded.Dir, "airootfs"), loaded.Definition.Arch)...,
-	)
 
 	slog.Info("Copying airootfs", "dest", destination)
 	for _, source := range sources {

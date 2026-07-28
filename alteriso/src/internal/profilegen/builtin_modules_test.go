@@ -69,7 +69,7 @@ func TestBuiltInModulesGenerateForDeclaredArchitectures(t *testing.T) {
 					writeTestFile(t, filepath.Join(profileDir, "profiledef.sh"), "#!/usr/bin/env bash\n")
 					writeTestFile(t, filepath.Join(profileDir, "pacman.conf"), "[options]\n")
 
-					loaded, err := profile.Load(profileDir, modulesDir)
+					loaded, err := profile.Load(profileDir, modulesDir, nil)
 					if err != nil {
 						t.Fatalf("profile.Load() error = %v", err)
 					}

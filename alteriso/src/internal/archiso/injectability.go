@@ -61,7 +61,7 @@ func checkInjectability(execute commandExecutor) (bool, error) {
 		return false, errors.Newf("failed to extract injectability test profile: %w", err)
 	}
 
-	loaded, err := profile.Load(sourceDir, "")
+	loaded, err := profile.Load(sourceDir, "", nil)
 	if err != nil {
 		return false, errors.Newf("failed to load injectability test profile: %w", err)
 	}

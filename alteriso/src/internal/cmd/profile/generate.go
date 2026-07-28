@@ -13,7 +13,11 @@ func generateCmd(profileService service, options *commandOptions) *cobra.Command
 		Short:   "Generate an archiso profile",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return errors.Wrap(profileService.Generate(options.input(args[0]), outputDir))
+			input, err := options.input(args[0])
+			if err != nil {
+				return errors.Wrap(err)
+			}
+			return errors.Wrap(profileService.Generate(input, outputDir))
 		},
 	}
 	cmd.Flags().StringVarP(&outputDir, "out", "o", outputDir, "Output directory")
