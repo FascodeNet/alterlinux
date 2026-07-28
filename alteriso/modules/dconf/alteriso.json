@@ -1,0 +1,13 @@
+{
+    "manifest_version": 1,
+    "module_version": 1,
+    "arch": "any",
+    "load_scripts": [
+        "module.sh"
+    ],
+    "injects": {
+        "post__make_customize_airootfs": [
+            "__alteriso_dconf_update"
+        ]
+    }
+}
