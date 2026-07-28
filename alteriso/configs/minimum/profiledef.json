@@ -4,7 +4,7 @@
     "modules": [
         "base",
         "network-manager",
-        "user"
+        "live-user"
     ],
     "kernel_name": "linux",
     "username": "live",

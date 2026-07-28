@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154
 
-_make_customize_airootfs_user() {
+_make_customize_airootfs_live_user() {
     local _username
     _username=$(__alteriso_profiledef_username)
 	local _usershell

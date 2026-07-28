@@ -3,9 +3,9 @@
     "arch": "i486",
     "modules": [
         "base",
-        "ssh",
-        "user",
-        "alter"
+        "ssh-server",
+        "live-user",
+        "alter-branding"
     ],
     "kernel_name": "linux-nost",
     "username": "live",

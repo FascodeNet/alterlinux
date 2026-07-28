@@ -76,7 +76,7 @@ configs/<name>/
     "modules": [
         "base",
         "network-manager",
-        "user"
+        "live-user"
     ],
     "os_name": "Example Linux",
     "kernel_name": "linux",

@@ -7,7 +7,7 @@
     ],
     "injects": {
         "pre__make_customize_airootfs": [
-            "_make_customize_airootfs_user"
+            "_make_customize_airootfs_live_user"
         ]
     }
 }

@@ -41,7 +41,7 @@ func TestDefinitionValidateModules(t *testing.T) {
 		},
 		{
 			name:    "valid modules",
-			modules: []string{"base", "user"},
+			modules: []string{"base", "live-user"},
 		},
 	}
 

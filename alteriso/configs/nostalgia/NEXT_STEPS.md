@@ -4,7 +4,7 @@ linux-nost で動く i486 / 128MB / non-PAE 最小ディストリの AlterISO �
 GUI（icewm）は後回し。ビルドには読まれない走り書き。
 
 ## 構成
-- `profiledef.json` — arch=i486、kernel_name=linux-nost、modules=[base, ssh]、cow_spacesize 256M。
+- `profiledef.json` — arch=i486、kernel_name=linux-nost、modules=[base, ssh-server]、cow_spacesize 256M。
 - `pacman.conf.i486` / `pacman.conf.i686` — 純正 archlinux32 の `/etc/pacman.conf`（pacman パッケージ同梱）をベースに、
   core/extra/community の `Include` を archlinux32 ミラー（`mirror.archlinux32.org` 主・`de.mirror` 副）の
   `Server` へ書き換え、`Architecture` をアーキ固定、末尾に `[alterlinux-nostalgia]` を追加しただけのもの。
