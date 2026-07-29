@@ -4,6 +4,7 @@ package application
 import (
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -142,10 +143,34 @@ func (s *ProfileService) checkOne(dir string, input CheckInput, variants []strin
 	if err := os.MkdirAll(dbPath, 0o755); err != nil {
 		return errors.Newf("failed to create database directory: %w", err)
 	}
-	if err := s.resolver.Sync(pacmanConf, dbPath); err != nil {
+	// 同期と解決を分けて呼ぶ。まとめると、ミラー障害がパッケージリストの不備と同じ報告になる
+	if err := runPacman("-Sy", "--config", pacmanConf, "--dbpath", dbPath, "--noconfirm"); err != nil {
 		return errors.Newf("repository sync (mirror or network, not the package list): %w", err)
 	}
-	return errors.Wrap(s.resolver.Resolve(pacmanConf, dbPath, packages))
+	args := append([]string{"-Sp", "--config", pacmanConf, "--dbpath", dbPath, "--noconfirm"}, packages...)
+	return errors.Wrap(runPacman(args...))
+}
+
+// runPacman needs root because pacman refuses -S operations for other users,
+// even with a private dbpath.
+func runPacman(args ...string) error {
+	output, err := exec.Command("pacman", args...).CombinedOutput()
+	if err == nil {
+		return nil
+	}
+	message := strings.TrimSpace(string(output))
+	if message == "" {
+		return errors.Newf("pacman %s: %w", args[0], err)
+	}
+	return errors.Newf("pacman %s: %w: %s", args[0], err, lastLines(message, 5))
+}
+
+func lastLines(text string, count int) string {
+	lines := strings.Split(text, "\n")
+	if len(lines) <= count {
+		return text
+	}
+	return strings.Join(lines[len(lines)-count:], "\n")
 }
 
 func readPackageList(filename string) ([]string, error) {
