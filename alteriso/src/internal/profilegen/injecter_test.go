@@ -23,35 +23,7 @@ func writeInjecterAsset(t *testing.T, root string) string {
 func runAlterisoMakeVersion(t *testing.T, injecter, profileDir, root, buildmode string) ([]byte, error) {
 	t.Helper()
 
-	const script = `
-set -euo pipefail
-source "$1"
-
-__alteriso_profile_dir=$2
-buildmode=$3
-install_dir=alter
-pacstrap_dir=$4/pacstrap
-bootstrap_parent=$4/bootstrap
-install_log=$4/install.log
-
-mkdir -p "$pacstrap_dir" "$bootstrap_parent"
-if [[ "$buildmode" == @("iso"|"netboot") ]]; then
-    isofs_dir=$4/isofs
-fi
-
-install() {
-    local destination="${!#}"
-    printf '%s\n' "$destination" >>"$install_log"
-    command install "$@"
-}
-
-_unshare() {
-    "$@"
-}
-
-__alteriso_make_version
-`
-	command := exec.Command("bash", "-c", script, "bash", injecter, profileDir, buildmode, root)
+	command := exec.Command("bash", filepath.Join("testdata", "injecter", "make-version.sh"), injecter, profileDir, buildmode, root)
 	return command.CombinedOutput()
 }
 
