@@ -4,7 +4,8 @@
     "arch": [
         "x86_64",
         "i686",
-        "i486"
+        "i486",
+        "pentium4"
     ],
     "load_scripts": [
         "module.sh"
