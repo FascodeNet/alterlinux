@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154
 
+__alteriso_lightdm_validate() {
+    local _username
+    _username=$(__alteriso_profiledef_username)
+    if [[ -z "$_username" || "$_username" == "null" ]]; then
+        echo "[alteriso] ERROR: The lightdm module requires a non-empty username." >&2
+        exit 1
+    fi
+}
+
+__alteriso_add_validator __alteriso_lightdm_validate
+
 __alteriso_lightdm_replace_username() {
     local _username
     _username=$(__alteriso_profiledef_username)

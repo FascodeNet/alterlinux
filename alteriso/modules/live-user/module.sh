@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154
 
+__alteriso_live_user_validate() {
+    local _username
+    _username=$(__alteriso_profiledef_username)
+    if [[ -z "$_username" || "$_username" == "null" ]]; then
+        echo "[alteriso] ERROR: The live-user module requires a non-empty username." >&2
+        exit 1
+    fi
+}
+
+__alteriso_add_validator __alteriso_live_user_validate
+
 _make_customize_airootfs_live_user() {
     local _username
     _username=$(__alteriso_profiledef_username)
@@ -10,17 +21,12 @@ _make_customize_airootfs_live_user() {
 		_usershell="/bin/bash"
 	fi
 
-    if [[ -z "${_username}" || "${_username}" == "null" ]]; then
-        _username="live"
-    fi
-
     if [[ ${_username} == "root" ]]; then
         return 0
     fi
 
     _msg_info "Setting up auto-login for user: $_username"
 
-    # LLM Modified: Write via _unshare for rootless builds - Claude
     local passwd=()
     passwd+=("${_username}:x:1000:1000:Live User:/home/${_username}:${_usershell}")
     printf '%s\n' "${passwd[@]}" | _unshare tee -a "${pacstrap_dir}/etc/passwd" >/dev/null

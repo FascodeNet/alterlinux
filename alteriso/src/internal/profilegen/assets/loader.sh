@@ -4,6 +4,13 @@
 __alteriso_profile_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 __alteriso_injectable="n"
 __alteriso_compatible_mode="n"
+__alteriso_validators=()
+
+__alteriso_add_validator() {
+    local _validator="$1"
+    printf '%s\n' "${__alteriso_validators[@]}" | grep -Fxq -- "$_validator" && return 0
+    __alteriso_validators+=("$_validator")
+}
 
 __alteriso_loadfile() {
     local file="$1"
@@ -99,6 +106,13 @@ __alteriso_validate() {
     if [[ "$__alteriso_compatible_mode" = "n" ]] && ! command -v jq >/dev/null 2>&1; then
         echo "[alteriso] ERROR: 'jq' is required but not found. Please install 'jq'." >&2
         exit 1
+    fi
+
+    if [[ "$__alteriso_compatible_mode" = "n" ]]; then
+        local _validator
+        for _validator in "${__alteriso_validators[@]}"; do
+            "$_validator"
+        done
     fi
 }
 
