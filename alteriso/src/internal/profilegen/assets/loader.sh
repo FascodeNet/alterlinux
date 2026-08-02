@@ -117,15 +117,16 @@ __alteriso_validate() {
 }
 
 __alteriso_validate_profile() {
-    local _arch
-    _arch=$(__alteriso_profiledef_arch)
+    local _arch _profile_arch
+    _arch=$(__alteriso_arch)
+    _profile_arch=$(__alteriso_profiledef_arch)
 
     if [[ -z "${arch-""}" && -n "$_arch" ]]; then
         arch="$_arch"
     fi
 
-    if [[ -n "${arch-""}" && -n "${_arch-""}" ]] && [[ "$_arch" != "$arch" ]]; then
-        echo "[alteriso] ERROR: Profile architecture ($_arch) does not match the current architecture ($arch)." >&2
+    if [[ -n "$_arch" && -n "$_profile_arch" && "$_profile_arch" != "$_arch" ]]; then
+        echo "[alteriso] ERROR: Profile architecture ($_profile_arch) does not match the current architecture ($_arch)." >&2
         exit 1
     fi
 }
@@ -154,6 +155,14 @@ __alteriso_profiledef_kernelname() {
 
 __alteriso_profiledef_arch() {
     __alteriso_profiledef | jq -r ".arch // empty"
+}
+
+__alteriso_arch() {
+    if [[ -n "${arch-}" ]]; then
+        printf '%s\n' "$arch"
+    else
+        __alteriso_profiledef_arch
+    fi
 }
 
 __alteriso_profiledef_modules() {
@@ -209,7 +218,7 @@ __alteriso_show_config() {
     local _username _kernel_name _arch
     _username=$(__alteriso_profiledef_username)
     _kernel_name=$(__alteriso_profiledef_kernelname)
-    _arch=$(__alteriso_profiledef_arch)
+    _arch=$(__alteriso_arch)
 
     echo "[alteriso] INFO:              Architecture:   $_arch" >&2
     echo "[alteriso] INFO:                  Username:   $_username" >&2
