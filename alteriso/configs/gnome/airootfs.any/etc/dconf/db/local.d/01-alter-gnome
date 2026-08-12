@@ -1,6 +1,12 @@
+[org/gnome/desktop/a11y]
+always-show-universal-access-status=true
+
 [org/gnome/desktop/background]
 picture-uri='file:///usr/share/backgrounds/alter/alter.png'
 picture-uri-dark='file:///usr/share/backgrounds/alter/alter.png'
+
+[org/gnome/desktop/lockdown]
+disable-lock-screen=true
 
 [org/gnome/desktop/interface]
 clock-show-date=true
@@ -11,6 +17,13 @@ enable-hot-corners=false
 gtk-theme='Materia-dark-compact'
 icon-theme='Papirus-Dark'
 show-battery-percentage=true
+
+[org/gnome/desktop/screensaver]
+idle-activation-enabled=false
+lock-enabled=false
+
+[org/gnome/desktop/session]
+idle-delay=uint32 0
 
 [org/gnome/shell]
 disabled-extensions=['window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'launch-new-instance@gnome-shell-extensions.gcampax.github.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com']
