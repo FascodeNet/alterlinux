@@ -78,7 +78,17 @@ func packageList(loaded *profile.Profile, filename string) (packageLayer, error)
 
 func generatePackageFiles(loaded *profile.Profile, outDir string) error {
 	architecture := loaded.Definition.Arch
-	for _, base := range []string{"packages", "bootstrap_packages"} {
+	for _, base := range []string{"packages_aur", "bootstrap_packages_aur"} {
+		configured, err := packageListConfigured(loaded, base, architecture)
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		if configured && !lo.ContainsBy(loaded.Modules(), func(module profile.Module) bool { return module.Name == "aur" }) {
+			return errors.Newf("%s requires the aur module", base)
+		}
+	}
+
+	for _, base := range []string{"packages", "bootstrap_packages", "packages_aur", "bootstrap_packages_aur"} {
 		var selected []string
 		for _, filename := range architectureLayers(base, architecture) {
 			layer, err := packageList(loaded, filename)
@@ -101,4 +111,16 @@ func generatePackageFiles(loaded *profile.Profile, outDir string) error {
 		}
 	}
 	return nil
+}
+
+func packageListConfigured(loaded *profile.Profile, base, architecture string) (bool, error) {
+	var selected []string
+	for _, layer := range architectureLayers(base, architecture) {
+		packages, err := packageList(loaded, layer)
+		if err != nil {
+			return false, err
+		}
+		selected = lo.Without(lo.Union(selected, packages.additions), packages.exclusions...)
+	}
+	return len(selected) > 0, nil
 }

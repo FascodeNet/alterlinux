@@ -1,5 +1,3 @@
-<!-- LLM Generated: This document was created by Codex -->
-
 # プロファイル設定
 
 この文書は、alteriso の入力プロファイルと `profiledef.json` の仕様を説明します。
@@ -26,6 +24,9 @@ configs/<name>/
 ├── bootstrap_packages.any.d/
 ├── bootstrap_packages.<arch>
 ├── bootstrap_packages.<arch>.d/
+├── packages_aur[.any|.<arch>][.d/]
+├── bootstrap_packages_aur[.any|.<arch>][.d/]
+├── pkgbuild[.any|.<arch>]/
 ├── airootfs/
 ├── airootfs.any/
 ├── airootfs.<arch>/
@@ -124,6 +125,9 @@ configs/<name>/
 - `packages.any`、`packages.any.d/*`: 明示的な全ターゲット共通レイヤー
 - `packages.<arch>`、`packages.<arch>.d/*`: 選択したターゲット専用レイヤー
 - `bootstrap_packages*`: 同じ規則のブートストラップ用一覧
+- `packages_aur*`: `aur` モジュールでISOまたはnetbootへ追加するAURパッケージ
+- `bootstrap_packages_aur*`: `aur` モジュールでbootstrapへ追加するAURパッケージ
+- `pkgbuild*/`: `aur` モジュールでビルドするローカルPKGBUILD。全buildmodeで共通
 - `airootfs/`: 拡張子なしの共通レイヤー
 - `airootfs.any/`: 明示的な全ターゲット共通レイヤー
 - `airootfs.<arch>/`: 選択したターゲット専用レイヤー

@@ -74,6 +74,8 @@ alteriso プロファイルを mkarchiso 用ディレクトリへ変換します
 ├── alteriso.json
 ├── packages.<arch>
 ├── bootstrap_packages.<arch>
+├── packages_aur.<arch>
+├── bootstrap_packages_aur.<arch>
 ├── pacman.conf
 ├── airootfs/
 └── <bootloader>/

@@ -40,7 +40,7 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 
 	writeTestFile(t, filepath.Join(sourceDir, "profiledef.json"), `{
 		"arch": "x86_64",
-		"modules": ["example"],
+		"modules": ["example", "aur"],
 		"os_name": "Test Linux",
 		"kernel_name": "linux-test",
 		"cow_spacesize": "2G",
@@ -53,6 +53,9 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 	writeTestFile(t, filepath.Join(sourceDir, "packages"), "d-profile-base\nshared\n")
 	writeTestFile(t, filepath.Join(sourceDir, "packages.any.d", "common"), "e-profile-any\n")
 	writeTestFile(t, filepath.Join(sourceDir, "packages.x86_64"), "f-profile-arch\n")
+	writeTestFile(t, filepath.Join(sourceDir, "packages_aur.x86_64"), "profile-aur\n")
+	writeTestFile(t, filepath.Join(sourceDir, "bootstrap_packages_aur.x86_64"), "profile-bootstrap-aur\n")
+	writeTestFile(t, filepath.Join(sourceDir, "pkgbuild.x86_64", "profile-local", "PKGBUILD"), "pkgname=profile-local\n")
 	writeTestFile(t, filepath.Join(sourceDir, "bootstrap_packages.any"), "profile-bootstrap-any\n")
 	writeTestFile(t, filepath.Join(sourceDir, "airootfs", "etc", "profile-base"), "base\n")
 	writeTestFile(t, filepath.Join(sourceDir, "airootfs.any", "etc", "profile-any"), "any\n")
@@ -69,10 +72,17 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 		"injects": {"post_hook": ["module_hook"]},
 		"append_kernel_param": ["quiet", "quiet", "splash"]
 	}`)
+	writeTestFile(t, filepath.Join(modulesDir, "aur", "alteriso.json"), `{
+		"manifest_version": 1,
+		"module_version": 1,
+		"arch": ["x86_64", "i686"]
+	}`)
 	writeTestFile(t, filepath.Join(moduleDir, "load.sh"), "#!/usr/bin/env bash\nmodule_marker=loaded\n")
 	writeTestFile(t, filepath.Join(moduleDir, "packages.d", "base"), "a-module-base\nshared\n")
 	writeTestFile(t, filepath.Join(moduleDir, "packages.any"), "b-module-any\n")
 	writeTestFile(t, filepath.Join(moduleDir, "packages.x86_64.d", "arch"), "c-module-arch\n")
+	writeTestFile(t, filepath.Join(moduleDir, "packages_aur.any"), "module-aur\n")
+	writeTestFile(t, filepath.Join(moduleDir, "pkgbuild.any", "module-local", "PKGBUILD"), "pkgname=module-local\n")
 	writeTestFile(t, filepath.Join(moduleDir, "bootstrap_packages"), "module-bootstrap-base\n")
 	writeTestFile(t, filepath.Join(moduleDir, "airootfs", "etc", "module-base"), "base\n")
 	writeTestFile(t, filepath.Join(moduleDir, "airootfs.any", "etc", "module-any"), "any\n")
@@ -111,6 +121,19 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 		"module-bootstrap-base\nprofile-bootstrap-any\n"; got != want {
 		t.Errorf("bootstrap_packages.x86_64 = %q, want %q", got, want)
 	}
+	if got, want := readTestFile(t, filepath.Join(outputDir, "packages_aur.x86_64")),
+		"module-aur\nprofile-aur\n"; got != want {
+		t.Errorf("packages_aur.x86_64 = %q, want %q", got, want)
+	}
+	if got, want := readTestFile(t, filepath.Join(outputDir, "bootstrap_packages_aur.x86_64")),
+		"profile-bootstrap-aur\n"; got != want {
+		t.Errorf("bootstrap_packages_aur.x86_64 = %q, want %q", got, want)
+	}
+	for _, name := range []string{"module-local", "profile-local"} {
+		if _, err := os.Stat(filepath.Join(outputDir, "pkgbuild", name, "PKGBUILD")); err != nil {
+			t.Errorf("local package source %s is missing: %v", name, err)
+		}
+	}
 	if got, want := readTestFile(t, filepath.Join(outputDir, "pacman.conf")), "profile-arch\n"; got != want {
 		t.Errorf("pacman.conf = %q, want %q", got, want)
 	}
@@ -139,7 +162,9 @@ func TestGeneratorComposesArchisoProfile(t *testing.T) {
 	for _, filename := range []string{
 		"alteriso.json",
 		"bootstrap_packages.x86_64",
+		"bootstrap_packages_aur.x86_64",
 		"injecter.sh",
+		"packages_aur.x86_64",
 		"pacman.conf",
 		"profiledef.json",
 	} {

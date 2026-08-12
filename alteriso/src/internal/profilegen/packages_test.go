@@ -1,8 +1,8 @@
-// LLM Generated: Created by Claude
 package profilegen
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/FascodeNet/alterlinux/src/internal/profile"
@@ -113,5 +113,77 @@ func TestBootstrapPackageExclusion(t *testing.T) {
 	}
 	if got, want := readTestFile(t, filepath.Join(outDir, "bootstrap_packages.i486")), "foo\n"; got != want {
 		t.Errorf("bootstrap_packages.i486 = %q, want %q", got, want)
+	}
+}
+
+func TestAURPackageLayersUsePackageExclusions(t *testing.T) {
+	root := t.TempDir()
+	writeTestFile(t, filepath.Join(root, "profile", "profiledef.json"), `{"arch":"i486","modules":["example","aur"]}`)
+	writeTestFile(t, filepath.Join(root, "modules", "aur", "alteriso.json"), `{
+		"manifest_version": 1,
+		"module_version": 1,
+		"arch": "any"
+	}`)
+	writeTestFile(t, filepath.Join(root, "modules", "example", "alteriso.json"), `{
+		"manifest_version": 1,
+		"module_version": 1,
+		"arch": "any"
+	}`)
+	writeTestFile(t, filepath.Join(root, "modules", "example", "packages_aur"), "module-aur\nremoved\n")
+	writeTestFile(t, filepath.Join(root, "profile", "packages_aur.i486"), "!removed\nprofile-aur\n")
+
+	loaded, err := profile.Load(filepath.Join(root, "profile"), filepath.Join(root, "modules"))
+	if err != nil {
+		t.Fatalf("profile.Load() error = %v", err)
+	}
+	outDir := filepath.Join(root, "out")
+	writeTestFile(t, filepath.Join(outDir, ".keep"), "")
+	if err := generatePackageFiles(loaded, outDir); err != nil {
+		t.Fatalf("generatePackageFiles() error = %v", err)
+	}
+	if got, want := readTestFile(t, filepath.Join(outDir, "packages_aur.i486")), "module-aur\nprofile-aur\n"; got != want {
+		t.Errorf("packages_aur.i486 = %q, want %q", got, want)
+	}
+}
+
+func TestAURPackageListRequiresAURModule(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		path string
+	}{
+		{name: "profile file", path: filepath.Join("profile", "packages_aur.i486")},
+		{name: "module directory", path: filepath.Join("modules", "example", "packages_aur.any.d", "packages")},
+		{name: "bootstrap profile file", path: filepath.Join("profile", "bootstrap_packages_aur.i486")},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			root := t.TempDir()
+			writeTestFile(t, filepath.Join(root, test.path), "aur-package\n")
+			loaded := loadPackagesTestProfile(t, root)
+			outDir := filepath.Join(root, "out")
+			writeTestFile(t, filepath.Join(outDir, ".keep"), "")
+
+			err := generatePackageFiles(loaded, outDir)
+			base := "packages_aur"
+			if strings.Contains(test.name, "bootstrap") {
+				base = "bootstrap_packages_aur"
+			}
+			if err == nil || !strings.Contains(err.Error(), base+" requires the aur module") {
+				t.Fatalf("generatePackageFiles() error = %v, want missing aur module error", err)
+			}
+		})
+	}
+}
+
+func TestEmptyAURPackageListDoesNotRequireAURModule(t *testing.T) {
+	for _, content := range []string{"", "\n# no packages\n", "!excluded\n"} {
+		root := t.TempDir()
+		writeTestFile(t, filepath.Join(root, "profile", "packages_aur.i486"), content)
+		loaded := loadPackagesTestProfile(t, root)
+		outDir := filepath.Join(root, "out")
+		writeTestFile(t, filepath.Join(outDir, ".keep"), "")
+
+		if err := generatePackageFiles(loaded, outDir); err != nil {
+			t.Errorf("generatePackageFiles() with %q error = %v", content, err)
+		}
 	}
 }

@@ -80,7 +80,9 @@ func TestBuiltInModulesGenerateForDeclaredArchitectures(t *testing.T) {
 					for _, generated := range []string{
 						"alteriso.json",
 						"bootstrap_packages." + architecture,
+						"bootstrap_packages_aur." + architecture,
 						"injecter.sh",
+						"packages_aur." + architecture,
 						"packages." + architecture,
 						"pacman.conf",
 						"profiledef.json",

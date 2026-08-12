@@ -1,5 +1,3 @@
-<!-- LLM Generated: This document was created by Codex -->
-
 # モジュール仕様
 
 この文書は `modules/<name>/` の形式とマージ規則を説明します。プロファイル側の設定は
@@ -23,6 +21,9 @@ modules/<name>/
 ├── bootstrap_packages.any.d/
 ├── bootstrap_packages.<arch>
 ├── bootstrap_packages.<arch>.d/
+├── packages_aur[.any|.<arch>][.d/]
+├── bootstrap_packages_aur[.any|.<arch>][.d/]
+├── pkgbuild[.any|.<arch>]/
 ├── airootfs/
 ├── airootfs.any/
 └── airootfs.<arch>/
@@ -85,6 +86,7 @@ modules/<name>/
 - `packages.any` と `packages.any.d/*`: 全アーキテクチャ
 - `packages.<arch>` と `packages.<arch>.d/*`: 選択したアーキテクチャ
 - 同じ命名規則の `bootstrap_packages*`
+- 同じ命名規則の `packages_aur*` と `bootstrap_packages_aur*`
 
 書式は一行一パッケージです。空行と、空白を除いた後に `#` で始まる行は無視します。
 プロファイルと選択された全モジュールの内容を統合し、重複を除いて名前順に出力します。

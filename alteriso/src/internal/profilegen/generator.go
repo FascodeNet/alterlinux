@@ -81,6 +81,9 @@ func Generate(loaded *profile.Profile, outDir string, options Options) error {
 		{"package lists", func(dir string) error {
 			return errors.Wrap(generatePackageFiles(resolved, dir))
 		}},
+		{"local PKGBUILDs", func(dir string) error {
+			return errors.Wrap(copyLocalPackageSources(resolved, dir))
+		}},
 		{"pacman config", func(dir string) error {
 			return errors.Wrap(copyPacmanConf(resolved, dir))
 		}},
