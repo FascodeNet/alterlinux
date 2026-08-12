@@ -1,0 +1,21 @@
+{
+    "module_version": 1,
+    "manifest_version": 1,
+    "arch": [
+        "x86_64",
+        "i686",
+        "i486",
+        "pentium4"
+    ],
+    "load_scripts": [
+        "base.sh"
+    ],
+    "injects": {
+        "pre__make_packages": [
+            "__alteriso_aur_build_packages"
+        ],
+        "post__make_packages": [
+            "__alteriso_aur_cleanup"
+        ]
+    }
+}
